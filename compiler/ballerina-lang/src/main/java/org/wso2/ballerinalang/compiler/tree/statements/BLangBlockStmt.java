@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
 
     public List<BLangStatement> stmts;
 
+    public BVarSymbol mapSymbol;
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope
@@ -63,12 +65,11 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     public NodeKind getKind() {
         return NodeKind.BLOCK;
     }
-    
+
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner("; ");
         this.stmts.forEach(stmt -> sj.add(stmt.toString()));
-        return "{" + sj.toString() + "}";
+        return sj.toString();
     }
-    
 }

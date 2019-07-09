@@ -32,6 +32,7 @@ public class SocketConstants {
     public static final String RESOURCE_ON_READ_READY = "onReadReady";
     public static final String RESOURCE_ON_ERROR = "onError";
     public static final String CLIENT = "Client";
+    public static final String UDP_CLIENT = "UdpClient";
     public static final String CONFIG_FIELD_INTERFACE = "interface";
     public static final String CONFIG_FIELD_HOST = "host";
     public static final String CONFIG_FIELD_PORT = "port";
@@ -50,4 +51,10 @@ public class SocketConstants {
 
     // If default length pass as the read length then the entire buffer read.
     public static final int DEFAULT_EXPECTED_READ_LENGTH = -100;
+
+    // Default read timeout set as 5 min.
+    public static final long DEFAULT_READ_TIMEOUT_VALUE = 1000 * 60 * 5;
+    public static final String READ_TIMEOUT = "readTimeout";
+    public static final String CONFIG_READ_TIMEOUT = "b7a.socket.read.timeout";
+
 }

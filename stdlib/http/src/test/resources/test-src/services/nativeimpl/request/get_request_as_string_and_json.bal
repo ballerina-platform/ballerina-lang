@@ -13,7 +13,7 @@ service MyService on testEP {
         path: "/bar"
     }
     resource function myResource(http:Caller caller, http:Request req) {
-        var stringValue = req.getPayloadAsString();
+        var stringValue = req.getTextPayload();
         if (stringValue is string) {
             string s = stringValue;
         } else {
@@ -27,7 +27,7 @@ service MyService on testEP {
             panic jsonValue;
         }
         http:Response res = new;
-        res.setPayload(untaint payload.foo);
+        res.setPayload(<@untainted json> payload.foo);
         var err = caller->respond(res);
         if (err is error) {
             io:println("Error sending response");

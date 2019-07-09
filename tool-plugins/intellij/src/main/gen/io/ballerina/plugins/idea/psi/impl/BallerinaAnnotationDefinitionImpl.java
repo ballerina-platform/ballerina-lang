@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,15 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.stubs.IStubElementType;
 
-public class BallerinaAnnotationDefinitionImpl extends BallerinaNamedElementImpl<BallerinaAnnotationDefinitionStub> implements BallerinaAnnotationDefinition {
-
-  public BallerinaAnnotationDefinitionImpl(@NotNull BallerinaAnnotationDefinitionStub stub, @NotNull IStubElementType type) {
-    super(stub, type);
-  }
+public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement implements BallerinaAnnotationDefinition {
 
   public BallerinaAnnotationDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -56,7 +51,7 @@ public class BallerinaAnnotationDefinitionImpl extends BallerinaNamedElementImpl
   @Override
   @Nullable
   public BallerinaTypeName getTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -80,7 +75,7 @@ public class BallerinaAnnotationDefinitionImpl extends BallerinaNamedElementImpl
   @Override
   @NotNull
   public PsiElement getAnnotation() {
-    return notNullChild(findChildByType(ANNOTATION));
+    return findNotNullChildByType(ANNOTATION);
   }
 
   @Override

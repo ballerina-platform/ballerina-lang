@@ -18,22 +18,22 @@
 #
 # + key - The key to be removed
 # + return - A boolean to indicate whether the key is removed or not from map
-public extern function map<any>.remove(string key) returns (boolean);
+public function map<any>.remove(string key) returns boolean = external;
 
 # Returns an array of keys contained in the specified map.
 #
 # + return - A string array of keys contained in the specified map
-public extern function map<any>.keys() returns (string[]);
+public function map<any>.keys() returns string[] = external;
 
 # Check whether specific key exists from the given map.
 #
 # + key - The key to be find existence
-public extern function map<any>.hasKey(string key) returns (boolean);
+public function map<any>.hasKey(string key) returns boolean = external;
 
 # Clear the items from given map.
-public extern function map<any>.clear();
+public function map<any>.clear() = external;
 
 # Returns an array of values contained in the specified map.
 #
 # + return - An any array of values contained in the specified map
-public extern function map<any>.values() returns (any[]);
+public function map<any>.values() returns any[] = external;

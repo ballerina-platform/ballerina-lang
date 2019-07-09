@@ -26,19 +26,17 @@ type Employee record {
 };
 
 // Assignable to Employee type and Person Type
-type Intern record {
+type Intern record {|
     string name = "";
     boolean intern = false;
     int salary = 0;
-    !...;
-};
+|};
 
 // Assignable to Person type
-type Student record {
+type Student record {|
     string name = "";
     int studentId = 0;
-    !...;
-};
+|};
 
 Person[] personArray = [];
 Employee[] employeeArray = [];

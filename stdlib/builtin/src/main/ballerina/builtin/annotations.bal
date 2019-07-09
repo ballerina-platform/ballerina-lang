@@ -14,11 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Denote that the parameter is security sensitive hence tainted data should not be accepted.
-public annotation<type, parameter> sensitive;
-
 # Denote that the return value is tainted.
-public annotation<type, parameter> tainted;
+public const annotation tainted on parameter, return, source listener, source var;
 
-# Denote that the return value is untainted.
-public annotation<type, parameter> untainted;
+# Denote that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
+# denote a listener as producing untainted arguments to service resource params.
+public const annotation untainted on return, parameter, source type, source listener;

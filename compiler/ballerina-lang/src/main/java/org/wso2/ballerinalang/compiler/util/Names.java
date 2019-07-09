@@ -45,6 +45,7 @@ public class Names {
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name CAST_OP = new Name("<type>");
+    public static final Name TYPEOF_OP = new Name("typeof");
     public static final Name CONVERSION_OP = new Name("convert");
     public static final Name SERVICE = new Name("service");
     public static final Name ABSTRACT_LISTENER = new Name("AbstractListener");
@@ -63,6 +64,7 @@ public class Names {
 
     public static final Name BIR_BASIC_BLOCK_PREFIX = new Name("bb");
     public static final Name BIR_LOCAL_VAR_PREFIX = new Name("%");
+    public static final Name BIR_GLOBAL_VAR_PREFIX = new Name("#");
 
     // Names related to Endpoint SPI.
     public static final Name EP_SERVICE_GET_ENDPOINT = new Name("getEndpoint");

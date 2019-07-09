@@ -20,6 +20,8 @@ package org.ballerinalang.net.http.nativeimpl.response;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,6 +43,9 @@ import org.ballerinalang.net.http.HttpUtil;
 public class GetEntity extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        context.setReturnValues(HttpUtil.getEntity(context, false, true));
+    }
+
+    public static Object getEntity(Strand strand, ObjectValue responseObj) {
+        return HttpUtil.getEntity(responseObj, false, true);
     }
 }

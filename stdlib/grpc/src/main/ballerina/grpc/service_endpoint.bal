@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
@@ -40,10 +42,10 @@ public type Listener object {
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
     #
     # + s - The type of the service to be registered.
-    # + annotationData - Annotations attached to the service.
+    # + name - Name of the service.
     # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     # Gets called when the endpoint is being initialize during module init time.
@@ -53,17 +55,20 @@ public type Listener object {
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        self.init(self.port, self.config);
+        error? err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
     }
 
-    extern function init(int port, ServiceEndpointConfiguration config);
+    function initEndpoint() returns error? = external;
 
 
-    extern function register(service serviceType, map<any> annotationData) returns error?;
+    function register(service serviceType, string? name) returns error? = external;
 
-    extern function start() returns error?;
+    function start() = external;
 
-    extern function stop() returns error?;
+    function stop() = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.
@@ -83,9 +88,9 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 #                   disable timeout.
 # + requestLimits - Configures the parameters for request validation.
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
-#                          change this limit appropriately. This will be applicable only for HTTP 1.1
-public type ServiceEndpointConfiguration record {
+#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1.
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
@@ -93,8 +98,7 @@ public type ServiceEndpointConfiguration record {
     RequestLimits? requestLimits = ();
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    !...;
-};
+|};
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
@@ -113,27 +117,22 @@ public type ServiceEndpointConfiguration record {
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
-public type ServiceSecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+public type ServiceSecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
     string trustedCertFile = "";
     Protocols? protocol = ();
     ValidateCert? certValidation = ();
-    string[] ciphers = ["TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-    "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
+    string[] ciphers = [];
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
     int handshakeTimeout?;
     int sessionTimeout?;
-    !...;
-};
+|};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
 #
@@ -143,9 +142,8 @@ public type ServiceSecureSocket record {
 #                   `413 - Payload Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
-public type RequestLimits record {
+public type RequestLimits record {|
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...;
-};
+|};

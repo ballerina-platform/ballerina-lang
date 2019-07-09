@@ -620,7 +620,7 @@ function testConversionFromUnionWithNumericBasicTypes() returns boolean {
     float f1 = <float> u1;
     boolean conversionSuccessful = f1 == f;
 
-    float|int|string u2 = <float> 110.5;
+    float|int|string u2 = 110.5f;
     decimal|boolean d1 = <decimal|boolean> u2;
     return conversionSuccessful && d1 == d;
 }
@@ -651,6 +651,25 @@ function testNumericConversionFromBasicTypeToUnionType() returns boolean {
     decimal|string|Employee u12 = <decimal|string|Employee> b1;
     conversionSuccessful = conversionSuccessful && u10 == f1 && u11 == i1 && u12 == d1;
     return conversionSuccessful;
+}
+
+type IntOrFoo int|"foo";
+type OneOrString 1|string;
+type OneOrTwo 1.0|2.0;
+
+function testNumericConversionFromFiniteType() returns boolean {
+    IntOrFoo a = 10;
+    float b = <float> a;
+    boolean conversionSuccessful = b == 10.0;
+
+    OneOrString c = 1;
+    decimal d = <decimal> c;
+    decimal e = 1.0;
+    conversionSuccessful = conversionSuccessful && d == e;
+
+    OneOrTwo f = 2.0;
+    int g = <int> f;
+    return conversionSuccessful && g === 2;
 }
 
 function getFloat(float f) returns float {

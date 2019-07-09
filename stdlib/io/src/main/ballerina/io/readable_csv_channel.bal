@@ -20,14 +20,14 @@ public type ReadableCSVChannel object {
 
     # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
     #
-    # + byteChannel - ChracterChannel which will represent the content in the CSV
-    # + fs - Field separator which will separate between the records in the CSV
-    # + nHeaders - Number of headers which should be skipped prior to reading records
+    # + byteChannel - The CharacterChannel, which will represent the content in the CSV file
+    # + fs - Field separator, which will separate between the records in the CSV file
+    # + nHeaders - Number of headers, which should be skipped prior to reading records
     public function __init(ReadableCharacterChannel byteChannel, Separator fs = ",", int nHeaders = 0) {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPERATOR);
+            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }
@@ -72,9 +72,9 @@ public type ReadableCSVChannel object {
         return self.dc.close();
     }
 
-    # Returns a table which coresponds to the CSV records.
+    # Returns a table which corresponds to the CSV records.
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or error
-    public extern function getTable(typedesc structType) returns @tainted table<record {}>|error;
+    public function getTable(typedesc structType) returns @tainted table<record {}>|error = external;
 };

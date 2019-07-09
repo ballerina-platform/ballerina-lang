@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-listener http:MockListener passthruEP  = new(9090);
+listener http:MockListener passthruEP  = new(9092);
 
 @http:ServiceConfig {
     basePath:"/echo/{version}/bar",
@@ -17,7 +17,7 @@ service echo1 on passthruEP {
     resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major but no major"});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -36,6 +36,6 @@ service echo2 on passthruEP {
     resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"only match major but no major"});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

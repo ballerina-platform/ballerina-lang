@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.stdlib.services.configuration.compression;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,7 +39,7 @@ public class CompressionConfigNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "incompatible types: expected 'AUTO|ALWAYS|NEVER', found 'string'");
+                            "incompatible types: expected '(AUTO|ALWAYS|NEVER)', found 'string'");
     }
 
     @Test(description = "Test the compilation error for multiple compression configs")

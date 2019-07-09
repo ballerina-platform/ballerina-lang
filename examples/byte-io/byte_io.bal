@@ -1,12 +1,12 @@
 import ballerina/io;
 import ballerina/log;
 
-// Copies content from the source channel to a destination channel.
+// Copies the content from the source channel to a destination channel.
 function copy(io:ReadableByteChannel src,
               io:WritableByteChannel dst) returns error? {
     int readCount = 1;
     byte[] readContent;
-    // Here is how to read all the content from
+    // The below example shows how to read all the content from
     // the source and copy it to the destination.
     while (readCount > 0) {
         // The operation attempts to read a maximum of 1000 bytes and returns
@@ -26,7 +26,7 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occured while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", err = cr);
     }
 }
 
@@ -38,15 +38,15 @@ public function main() {
     // Initializes the writable byte channel.
     io:WritableByteChannel dstCh = io:openWritableFile(dstPath);
     io:println("Start to copy files from " + srcPath + " to " + dstPath);
-    // Copy the source byte channel to the target byte channel.
+    // Copies the source byte channel to the target byte channel.
     var result = copy(srcCh, dstCh);
     if (result is error) {
         log:printError("error occurred while performing copy ", err = result);
     } else {
-        io:println("File copy completed. The copied file could be located in " +
+        io:println("File copy completed. The copied file is located at " +
                     dstPath);
     }
-    // Close the connections.
+    // Closes the connections.
     close(srcCh);
     close(dstCh);
 }

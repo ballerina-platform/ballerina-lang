@@ -18,8 +18,8 @@
  *
  */
 
-import { LanguageClient } from "vscode-languageclient";
-import { Uri } from "vscode";
+import { LanguageClient, TextDocumentPositionParams } from "vscode-languageclient";
+import { Uri, Location } from "vscode";
 
 export const BALLERINA_LANG_ID = "ballerina";
 
@@ -123,6 +123,11 @@ export interface BallerinaServiceListResponse {
 
 export class ExtendedLangClient extends LanguageClient {
 
+    getProjectAST(sourceRoot: string): Thenable<BallerinaASTResponse> {
+        const req = { sourceRoot };
+        return this.sendRequest("ballerinaProject/modules", req);
+    }
+
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
         const req: GetASTRequest = {
             documentIdentifier: {
@@ -162,10 +167,10 @@ export class ExtendedLangClient extends LanguageClient {
             },
             ballerinaService: oasService
         }
-        return this.sendRequest("ballerinaDocument/swaggerDef", req);
+        return this.sendRequest("ballerinaDocument/openApiDefinition", req);
     }
 
-    triggerSwaggerDefChange(oasJson: string, uri: Uri): void {
+    triggerOpenApiDefChange(oasJson: string, uri: Uri): void {
         const req: BallerinaAstOasChangeRequest = {
             oasDefinition: oasJson,
             documentIdentifier: {
@@ -186,5 +191,16 @@ export class ExtendedLangClient extends LanguageClient {
 
     getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.sendRequest("ballerinaDocument/project", params);
+    }
+
+    getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        return this.sendRequest("textDocument/definition", params)
+        .then((res) => {
+            const definitions = res as any;
+            if(!(definitions.length > 0)) {
+                return Promise.reject();
+            }
+            return definitions[0];
+        });
     }
 }

@@ -37,9 +37,7 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
-import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordLiteral;
-import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceConstructorExpression;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
@@ -63,7 +61,6 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         }
         buildImportFoldingRegion(descriptors, root);
         buildObjectFoldingRegions(descriptors, root);
-        buildRecordFoldingRegions(descriptors, root);
         buildFunctionFoldRegions(descriptors, root);
         buildServiceFoldRegions(descriptors, root);
         buildWorkerFoldingRegions(descriptors, root);
@@ -102,21 +99,6 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             // Add folding descriptor.
             addFoldingDescriptor(descriptors, objectDefinition, objectBody, true);
-        }
-    }
-
-    private void buildRecordFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
-        Collection<BallerinaRecordTypeName> recordDefinitions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaRecordTypeName.class);
-        for (BallerinaRecordTypeName recordDefinition : recordDefinitions) {
-            // Get the record body. This is used to calculate the start offset.
-            BallerinaRecordFieldDefinitionList recordBody = PsiTreeUtil.getChildOfType(recordDefinition,
-                    BallerinaRecordFieldDefinitionList.class);
-            if (recordBody == null) {
-                continue;
-            }
-            // Add folding descriptor.
-            addFoldingDescriptor(descriptors, recordDefinition, recordBody, true);
         }
     }
 

@@ -33,7 +33,7 @@ public type RedirectClient client object {
     public string url;
     public ClientEndpointConfig config;
     public FollowRedirects redirectConfig;
-    public Client httpClient;
+    public HttpClient httpClient;
     public int currentRedirectCount = 0;
 
     # Create a redirect client with the given configurations.
@@ -42,7 +42,7 @@ public type RedirectClient client object {
     # + config - HTTP ClientEndpointConfig to be used for HTTP client invocation
     # + redirectConfig - Configurations associated with redirect
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, Client httpClient) {
+    public function __init(string url, ClientEndpointConfig config, FollowRedirects redirectConfig, HttpClient httpClient) {
         self.url = url;
         self.config = config;
         self.redirectConfig = redirectConfig;
@@ -57,7 +57,12 @@ public type RedirectClient client object {
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, RequestMessage message = ()) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # If the received response for the `post()` remote function is redirect eligible, redirect will be performed automatically
@@ -68,7 +73,12 @@ public type RedirectClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function post(string path, RequestMessage message) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
+        var result =  performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # If the received response for the `head()` remote function is redirect eligible, redirect will be performed automatically
@@ -79,7 +89,12 @@ public type RedirectClient client object {
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function head(string path, RequestMessage message = ()) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # If the received response for the `put()` remote function is redirect eligible, redirect will be performed automatically
@@ -90,7 +105,12 @@ public type RedirectClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function put(string path, RequestMessage message) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
@@ -115,7 +135,12 @@ public type RedirectClient client object {
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
             return self.httpClient->execute(httpVerb, path, request);
         } else {
-            return performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
+            var result = performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
+            if (result is Response) {
+                return result;
+            } else {
+                return getInvalidTypeError();
+            }
         }
     }
 
@@ -127,7 +152,12 @@ public type RedirectClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function patch(string path, RequestMessage message) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # If the received response for the `delete()` remote function is redirect eligible, redirect will be performed automatically
@@ -138,7 +168,12 @@ public type RedirectClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function delete(string path, RequestMessage message) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # If the received response for the `options()` remote function is redirect eligible, redirect will be performed automatically
@@ -149,7 +184,12 @@ public type RedirectClient client object {
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function options(string path, RequestMessage message = ()) returns Response|error {
-        return performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
+        var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
+        if (result is Response) {
+            return result;
+        } else {
+            return getInvalidTypeError();
+        }
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -208,19 +248,19 @@ public type RedirectClient client object {
 
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
-                                   HttpOperation httpOperation) returns Response|error {
+                                   HttpOperation httpOperation) returns HttpResponse|error {
     string originalUrl = redirectClient.url + path;
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
-    Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
+    HttpResponse|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
     return checkRedirectEligibility(result, originalUrl, httpOperation, request, redirectClient);
 }
 
 //Inspect the response for redirect eligibility.
-function checkRedirectEligibility(Response|error response, string resolvedRequestedURI,
+function checkRedirectEligibility(HttpResponse|error response, string resolvedRequestedURI,
                                   HttpOperation httpVerb, Request request, RedirectClient redirectClient)
-                                    returns @untainted Response|error {
+                                    returns @untainted HttpResponse|error {
     if (response is Response) {
         if (isRedirectResponse(response.statusCode)) {
             return redirect(response, httpVerb, request, redirectClient, resolvedRequestedURI);
@@ -245,7 +285,7 @@ function isRedirectResponse(int statusCode) returns boolean {
 
 //If max redirect count is not reached, perform redirection.
 function redirect(Response response, HttpOperation httpVerb, Request request,
-                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted Response|error {
+                  RedirectClient redirectClient, string resolvedRequestedURI) returns @untainted HttpResponse|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
@@ -289,14 +329,14 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 }
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-                            Request request, Response response) returns @untainted Response|error {
+                            Request request, Response response) returns @untainted HttpResponse|error {
     var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
-    if (retryClient is Client) {
+    if (retryClient is HttpClient) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
-        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-            redirectMethod, retryClient.httpClient);
+        HttpResponse|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+            redirectMethod, retryClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
         return retryClient;
@@ -306,10 +346,10 @@ function performRedirection(string location, RedirectClient redirectClient, Http
 //Create a new HTTP client endpoint configuration with a given location as the url.
 function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndpointConfig {
     ClientEndpointConfig newEpConfig = {
+        http1Settings: config.http1Settings,
+        http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,
         timeoutMillis: config.timeoutMillis,
-        keepAlive: config.keepAlive,
-        chunking: config.chunking,
         httpVersion: config.httpVersion,
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,
@@ -342,7 +382,7 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
-    string[] headerNames = untaint request.getHeaderNames();
+    string[] headerNames = <@untainted string[]> request.getHeaderNames();
     foreach var headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
         foreach var headerValue in headerValues {

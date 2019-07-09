@@ -22,6 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -87,6 +92,30 @@ public class List extends BlockingNativeCallableUnit {
             }
             log.error(msg, e);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
+        }
+    }
+
+    public static Object list(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+        final ArrayValue filesList = new ArrayValue(new org.ballerinalang.jvm.types.BArrayType(self.getType()));
+        try {
+            Files.list(path).forEach(p -> {
+                ObjectValue pathObj = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH,
+                        Constants.PATH_STRUCT, "");
+                pathObj.call(strand, Constants.INIT_FUNCTION_NAME, p.toString(), true);
+                long index = filesList.size();
+                filesList.add((index), pathObj);
+            });
+            return filesList;
+        } catch (IOException | SecurityException e) {
+            String msg;
+            if (e instanceof IOException) {
+                msg = "Error occurred while opening directory: " + path;
+            } else {
+                msg = "Permission denied. Could not open directory: " + path;
+            }
+            log.error(msg, e);
+            return BallerinaErrors.createError(msg);
         }
     }
 }

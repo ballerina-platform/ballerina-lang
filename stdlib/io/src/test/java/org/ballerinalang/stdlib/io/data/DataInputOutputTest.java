@@ -52,7 +52,7 @@ public class DataInputOutputTest {
 
     @BeforeClass
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
     @Test(description = "Test fixed long value ranges", dataProvider = "SignedLongValues")

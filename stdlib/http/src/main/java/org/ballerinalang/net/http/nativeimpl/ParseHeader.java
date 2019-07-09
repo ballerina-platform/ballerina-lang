@@ -19,24 +19,23 @@ package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangNullReferenceException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
 
 import static org.ballerinalang.mime.util.MimeConstants.COMMA;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
+import static org.ballerinalang.mime.util.MimeConstants.READING_HEADER_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
 /**
@@ -47,7 +46,6 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "parseHeader",
-        args = {@Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
                 @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING),
                 @ReturnType(type = TypeKind.RECORD, structType = "Error")},
@@ -55,14 +53,23 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 )
 public class ParseHeader extends BlockingNativeCallableUnit {
 
-    private static final BTupleType parseHeaderTupleType = new BTupleType(
+    private static final BTupleType parseHeaderTupleBType = new BTupleType(
             Arrays.asList(BTypes.typeString, BTypes.typeMap));
+
+    private static final org.ballerinalang.jvm.types.BTupleType parseHeaderTupleType = new org.ballerinalang.jvm
+            .types.BTupleType(
+            Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap));
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;
         try {
-            String headerValue = context.getStringArgument(0);
+            if (headerValue == null) {
+                throw new BLangNullReferenceException(PARSER_ERROR + "header value cannot be null");
+            }
             if (headerValue.contains(COMMA)) {
                 headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
             }
@@ -72,19 +79,17 @@ public class ParseHeader extends BlockingNativeCallableUnit {
             if (headerValue.contains(SEMICOLON)) {
                 value = HeaderUtil.getHeaderValue(value);
             }
-            BValueArray contentTuple = new BValueArray(parseHeaderTupleType);
-            contentTuple.add(0, new BString(value));
+            ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
+            contentTuple.add(0, (Object) value);
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
-
-            context.setReturnValues(contentTuple);
-            return;
+            return contentTuple;
         } catch (BLangNullReferenceException ex) {
-            errMsg = PARSER_ERROR + "header value cannot be null";
+            errMsg = ex.getMessage();
         } catch (BallerinaException ex) {
             errMsg = PARSER_ERROR + ex.getMessage();
         }
 
         // set parse error
-        context.setReturnValues(MimeUtil.createError(context, MIME_ERROR_CODE, errMsg));
+        return MimeUtil.createError(READING_HEADER_FAILED, errMsg);
     }
 }

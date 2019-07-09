@@ -19,6 +19,7 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,5 +43,9 @@ public class Round extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         double value = ctx.getFloatArgument(0);
         ctx.setReturnValues(new BInteger(Math.round(value)));
+    }
+
+    public static long round(Strand strand, double value) {
+        return Math.round(value);
     }
 }

@@ -39,14 +39,14 @@ type Participant abstract object {
 
     string participantId = "";
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant];
 
     function notify(string action, string? protocolName) returns (NotifyResult|error)?;
 };
 
 type RemoteParticipant object {
 
-    private string participantId;
+    string participantId;
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
@@ -56,17 +56,17 @@ type RemoteParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return (self.prepareMe(remoteProto.url), self);
+                return [self.prepareMe(remoteProto.url), self];
             }
         }
-        return ((), self); // No matching protocol
+        return [(), self]; // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns (NotifyResult|error)? {
+    function notify(string action, string? protocolName) returns @tainted (NotifyResult|error)? {
         if (protocolName is string) {
             foreach var remoteProtocol in self.participantProtocols {
                 if (protocolName == remoteProtocol.name) {
@@ -123,7 +123,7 @@ type RemoteParticipant object {
         panic err;
     }
 
-    function notifyMe(string protocolUrl, string action) returns NotifyResult|error {
+    function notifyMe(string protocolUrl, string action) returns @tainted NotifyResult|error {
         Participant2pcClientEP participantEP;
 
         log:printInfo("Notify(" + action + ") remote participant: " + protocolUrl);
@@ -148,7 +148,7 @@ type RemoteParticipant object {
 
 type LocalParticipant object {
 
-    private string participantId;
+    string participantId;
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
@@ -159,14 +159,15 @@ type LocalParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns ((PrepareResult|error)?, Participant) {
+    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
         foreach var localProto in self.participantProtocols {
             if (localProto.name == protocol) {
                 log:printInfo("Preparing local participant: " + self.participantId);
-                return (self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId), self);
+                return [self.prepareMe(self.participatedTxn.transactionId, self.participatedTxn.transactionBlockId),
+                self];
             }
         }
-        return ((), self);
+        return [(), self];
     }
 
     function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {

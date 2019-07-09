@@ -14,11 +14,13 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -27,6 +29,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
@@ -34,6 +38,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to pause the task.
@@ -52,6 +57,8 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TA
 )
 public class Pause extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Pause.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -61,7 +68,19 @@ public class Pause extends BlockingNativeCallableUnit {
         try {
             task.pause();
         } catch (SchedulingException e) {
-            Utils.createError(context, e.getMessage());
+            LOG.error(e.getMessage(), e);
+            setError(context, e.getMessage());
         }
+    }
+
+    public static Object pause(Strand strand, ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        try {
+            task.pause();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createError(e.getMessage());
+        }
+        return null;
     }
 }

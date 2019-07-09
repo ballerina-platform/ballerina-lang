@@ -315,3 +315,148 @@ function testDifferentPrecisionDecimalConstantAssignment() returns (DecimalType)
     DecimalType d = DECIMAL;
     return d;
 }
+
+function testStringOnlyFiniteTypeAssignmentToTypeWithString() returns boolean {
+    State a = "on";
+    string b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|boolean c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testIntOnlyFiniteTypeAssignmentToTypeWithInt() returns boolean {
+    NumberSet a = 2;
+    int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    string|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+type FloatValue 1.0|2.0;
+
+function testFloatOnlyFiniteTypeAssignmentToTypeWithFloat() returns boolean {
+    FloatValue a = 2.0;
+    float b = a;
+    boolean assignmentSuccessful = a == b;
+
+    float|int c = a;
+    return assignmentSuccessful && a == c;
+}
+
+type BooleanValue true;
+
+function testBooleanOnlyFiniteTypeAssignmentToTypeWithBoolean() returns boolean {
+    BooleanValue a = true;
+    boolean b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    return assignmentSuccessful && a == c;
+}
+
+const byte byte1 = 34;
+const byte byte2 = 12;
+const byte byte3 = 111;
+
+type ByteValue byte1|byte2|byte3;
+
+function testByteOnlyFiniteTypeAssignmentToTypeWithByte() returns boolean {
+    ByteValue a = 12;
+    byte b = a;
+    boolean assignmentSuccessful = a == b;
+
+    byte|Person c = a;
+    return assignmentSuccessful && a == c;
+}
+
+function testFiniteTypeAssignmentToBroaderType() returns boolean {
+    CombinedState a = "off";
+    string|int b = a;
+    boolean assignmentSuccessful = a == b;
+
+    anydata c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c;
+
+    StringOrInt d = a;
+    assignmentSuccessful = assignmentSuccessful && a == d;
+
+    b = d;
+    return assignmentSuccessful && a == d;
+}
+
+const A = "a";
+
+type AB A|"b";
+type ABInt A|"b"|int;
+
+function testFiniteTypeWithConstAssignmentToBroaderType() returns boolean {
+    AB ab = A;
+    string s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    s = ab;
+    return assignmentSuccessful && ab == s;
+}
+
+function testFiniteTypeWithConstAndTypeAssignmentToBroaderType() returns boolean {
+    ABInt ab = A;
+    AB|int s = ab;
+    boolean assignmentSuccessful = ab == s;
+
+    ab = "b";
+    string|int s2 = ab;
+    assignmentSuccessful = assignmentSuccessful && ab == s2;
+
+    ab = 12;
+    s2 = ab;
+    return assignmentSuccessful && ab == s2;
+}
+
+const FOO = "foo";
+
+type W "foo"|"bar"|1|2.0|true|3;
+type X boolean|FOO|"bar"|1|2.0|3;
+type Y string|int|boolean|2.0;
+type Z string|int|float|boolean;
+
+function testFiniteTypesAsUnionsAsBroaderTypes_1() returns boolean {
+    W a = "foo";
+    X b = a;
+    boolean assignmentSuccessful = a == b && b == FOO;
+
+    a = true;
+    b = a;
+    assignmentSuccessful = assignmentSuccessful && a == b && b == true;
+
+    a = 2.0;
+    Y c = a;
+    assignmentSuccessful = assignmentSuccessful && a == c && c == 2.0;
+
+    a = 1;
+    Z d = a;
+    return assignmentSuccessful && a == d && a == 1;
+}
+
+function testFiniteTypesAsUnionsAsBroaderTypes_2() returns boolean {
+    X a = true;
+    Y b = a;
+    boolean assignmentSuccessful = a == b && a == true;
+
+    b = 2.0;
+    Z c = b;
+    return assignmentSuccessful && b == c && c == 2.0;
+}
+
+type t 1.0f|1.0d;
+type t2 2.22f|3.33d;
+function testFiniteTypesWithDiscriminatedMembers() returns (any, any, any, any, any) {
+    t a = 1.0f;
+    t b = 1.0d;
+    t|t2 c = 2.22;
+    t|t2 d = 2.22f;
+    t|t2 e = 3.33d;
+    return (a, b, c, d, e);
+}

@@ -27,6 +27,7 @@ import { activate as activateTraceLogs } from './trace-logs';
 import { activateDebugConfigProvider } from './debugger';
 import { activateTestRunner } from './test-runner';
 import { activate as activateProjectFeatures } from './project';
+import { activate as activateOverview } from './overview';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 
@@ -54,9 +55,9 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export function activate(context: ExtensionContext): void {
+export function activate(context: ExtensionContext): Promise<any> {
     ballerinaExtInstance.setContext(context);
-    ballerinaExtInstance.init(onBeforeInit).then(() => {
+    return ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
         // Enable Ballerina diagram
         activateDiagram(ballerinaExtInstance);
@@ -75,5 +76,6 @@ export function activate(context: ExtensionContext): void {
         activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures(ballerinaExtInstance);
+        activateOverview(ballerinaExtInstance);
     });
 }

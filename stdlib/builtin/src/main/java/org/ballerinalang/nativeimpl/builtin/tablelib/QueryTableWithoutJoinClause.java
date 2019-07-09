@@ -20,6 +20,10 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -60,5 +64,12 @@ public class QueryTableWithoutJoinClause extends BlockingNativeCallableUnit {
         BValueArray array = (BValueArray) context.getRefArgument(1);
         BMap<String, BValue> tableTypeStruct = (BMap<String, BValue>) context.getRefArgument(2);
         context.setReturnValues(new BTable(query, fromTable, null, (BStructureType) tableTypeStruct.getType(), array));
+    }
+
+    public static TableValue queryTableWithoutJoinClause(Strand strand, String query, TableValue fromTable,
+                                                         Object array, Object tableLiteral) {
+        return new TableValue(query, fromTable, null,
+                              (org.ballerinalang.jvm.types.BStructureType) TypeChecker.getType(tableLiteral),
+                              (ArrayValue) array);
     }
 }

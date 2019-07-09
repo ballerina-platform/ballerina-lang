@@ -123,9 +123,6 @@ public class BalxEmitter {
             case CP_ENTRY_BLOB:
                 println("CP_ENTRY_BLOB - ");
                 break;
-            case CP_ENTRY_BYTE:
-                println("CP_ENTRY_BYTE - ");
-                break;
         }
     }
 

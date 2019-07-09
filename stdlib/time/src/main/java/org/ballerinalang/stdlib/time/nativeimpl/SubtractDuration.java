@@ -18,12 +18,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Subtract given durations from the time.
@@ -32,32 +29,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "subtractDuration",
-        args = {@Argument(name = "years", type = TypeKind.INT),
-                @Argument(name = "months", type = TypeKind.INT),
-                @Argument(name = "days", type = TypeKind.INT),
-                @Argument(name = "hours", type = TypeKind.INT),
-                @Argument(name = "minutes", type = TypeKind.INT),
-                @Argument(name = "seconds", type = TypeKind.INT),
-                @Argument(name = "milliseconds", type = TypeKind.INT),
-                @Argument(name = "time", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
-                                  structPackage = "ballerina/time")},
-        isPublic = true
+        functionName = "subtractDuration"
 )
 public class SubtractDuration extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        long years = context.getIntArgument(0);
-        long months = context.getIntArgument(1);
-        long dates = context.getIntArgument(2);
-        long hours = context.getIntArgument(3);
-        long minutes = context.getIntArgument(4);
-        long seconds = context.getIntArgument(5);
-        long milliSeconds = context.getIntArgument(6);
-        context.setReturnValues(
-                subtractDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds));
+    }
+
+    public static MapValue<String, Object> subtractDuration(Strand strand, MapValue<String, Object> timeRecord,
+                                                            long years, long months, long dates, long hours,
+                                                            long minutes, long seconds, long milliSeconds) {
+        return subtractDuration(timeRecord, years, months, dates, hours, minutes, seconds, milliSeconds);
     }
 }

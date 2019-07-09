@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.expressions.conversion;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
@@ -29,6 +26,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -742,7 +742,7 @@ public class NativeConversionTest {
         Assert.assertEquals(map.get("fromFloat").stringValue(), "234.45");
         Assert.assertEquals(map.get("fromString").stringValue(), "hello");
         Assert.assertEquals(map.get("fromInt").stringValue(), "200");
-        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.45599999999999951683093968313187");
+        Assert.assertEquals(map.get("fromDecimal").stringValue(), "23.456");
         Assert.assertEquals(map.get("fromByte").stringValue(), "5");
         Assert.assertEquals(map.get("fromBoolean").stringValue(), "true");
     }
@@ -756,7 +756,7 @@ public class NativeConversionTest {
                                                                                              MathContext.DECIMAL128));
         Assert.assertEquals((map.get("fromString")).stringValue(), "10.33");
         Assert.assertEquals(map.get("fromInt").stringValue(), "200.0");
-        Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal(23.456,
+        Assert.assertEquals(((BDecimal) map.get("fromDecimal")).decimalValue(), new BigDecimal("23.456",
                                                                                                MathContext.DECIMAL128));
         Assert.assertEquals(map.get("fromByte").stringValue(), "5.0");
         Assert.assertEquals(map.get("fromBoolean").stringValue(), "1.0");
@@ -771,7 +771,7 @@ public class NativeConversionTest {
         Assert.assertTrue(((BBoolean) map.get("fromString")).booleanValue());
         Assert.assertFalse(((BBoolean) map.get("fromInt")).booleanValue());
         Assert.assertTrue(((BBoolean) map.get("fromDecimal")).booleanValue());
-        Assert.assertFalse(((BBoolean) map.get("fromByte")).booleanValue());
+        Assert.assertTrue(((BBoolean) map.get("fromByte")).booleanValue());
         Assert.assertFalse(((BBoolean) map.get("fromBoolean")).booleanValue());
     }
 

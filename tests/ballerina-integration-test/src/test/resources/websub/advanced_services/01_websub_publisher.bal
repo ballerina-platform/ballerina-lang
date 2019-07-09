@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/h2;
 import ballerina/http;
 import ballerina/io;
@@ -25,36 +26,19 @@ const string WEBSUB_PERSISTENCE_TOPIC_ONE = "http://one.persistence.topic.com";
 const string WEBSUB_PERSISTENCE_TOPIC_TWO = "http://two.persistence.topic.com";
 const string WEBSUB_TOPIC_ONE = "http://one.websub.topic.com";
 
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
-
-http:ServiceEndpointConfiguration hubListenerConfig = {
-    authProviders: [basicAuthProvider],
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        },
-        trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-            password: "ballerina"
-        }
-    }
-};
+auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
+http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 listener http:Listener publisherServiceEP = new http:Listener(8080);
 
+auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({ username: "peter", password: "pqr" });
+http:BasicAuthHandler outboundBasicAuthHandler = new(outboundBasicAuthProvider);
+
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
     auth: {
-        scheme: http:BASIC_AUTH,
-        config: {
-            username: "peter",
-            password: "pqr"
-        }
+        authHandler: outboundBasicAuthHandler
     }
 });
 
@@ -178,7 +162,7 @@ service helperService on publisherServiceEP {
             log:printError("hub shutdown failed!");
         }
         webSubHub = startHubAndRegisterTopic();
-        _ = caller->accepted();
+        checkpanic caller->accepted();
     }
 }
 
@@ -208,8 +192,22 @@ function startWebSubHub() returns websub:WebSubHub {
         poolOptions: { maximumPoolSize: 5 }
     });
     websub:HubPersistenceStore hpo = new websub:H2HubPersistenceStore(h2Client);
-    var result = websub:startHub(new http:Listener(9191, config =  hubListenerConfig),
-                                    hubConfiguration = { remotePublish : { enabled : true }, hubPersistenceStore: hpo });
+    var result = websub:startHub(new http:Listener(9191, config =  {
+        auth: {
+            authHandlers: [inboundBasicAuthHandler]
+        },
+        secureSocket: {
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            },
+            trustStore: {
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            }
+        }
+    }),
+    hubConfiguration = { remotePublish : { enabled : true }, hubPersistenceStore: hpo });
     if (result is websub:WebSubHub) {
         return result;
     } else {

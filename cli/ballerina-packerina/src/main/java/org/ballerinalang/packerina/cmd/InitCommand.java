@@ -37,6 +37,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -56,8 +57,8 @@ public class InitCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static final PrintStream errStream = System.err;
     private final Path homePath = RepoUtils.createAndGetHomeReposPath();
-    private boolean alreadyInitializedProject  = false;
-    private boolean manifestExistInProject  = false;
+    private boolean alreadyInitializedProject = false;
+    private boolean manifestExistInProject = false;
     private PrintStream out = System.out;
 
     @CommandLine.Option(names = {"--interactive", "-i"})
@@ -67,8 +68,17 @@ public class InitCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     private static boolean isDirEmpty(final Path directory) throws IOException {
+
         try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
+            //Check whether the OS is MacOS and the folder contains .DS_Store file
+            Iterator pathIterator = dirStream.iterator();
+            if (!pathIterator.hasNext()) {
+                return true;
+            }
+            Path path = (Path) pathIterator.next();
+            Path fileName = path.getFileName();
+            return fileName != null && fileName.toString().equals(ProjectDirConstants.DS_STORE_FILE) &&
+                    !pathIterator.hasNext();
         }
     }
 
@@ -226,6 +236,7 @@ public class InitCommand implements BLauncherCmd {
      * @return manifest object
      */
     private Manifest createManifest(Scanner scanner, String createToml) {
+
         Manifest manifest = new Manifest();
         if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")
                 || createToml.isEmpty()) {
@@ -285,14 +296,6 @@ public class InitCommand implements BLauncherCmd {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
-
-    }
-
-    /**
      * Validates the version is a semver version.
      *
      * @param versionAsString The version.
@@ -332,7 +335,7 @@ public class InitCommand implements BLauncherCmd {
         boolean matches = RepoUtils.validateOrg(orgName);
         if (!matches) {
             out.println("--Invalid organization name: \'" + orgName + "\'. Organization name can only contain " +
-                                "lowercase alphanumerics and underscores and the maximum length is 256 characters");
+                    "lowercase alphanumerics and underscores and the maximum length is 256 characters");
         }
         return matches;
     }
@@ -341,7 +344,7 @@ public class InitCommand implements BLauncherCmd {
      * Validates the module name.
      *
      * @param projectPath
-     * @param pkgName The module name.
+     * @param pkgName     The module name.
      * @return True if valid module name, else false.
      */
     private boolean validatePkgName(Path projectPath, String pkgName) {

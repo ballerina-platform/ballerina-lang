@@ -19,8 +19,10 @@ package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Terminators connects basic blocks together.
@@ -33,7 +35,10 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
     public InstructionKind kind;
 
-    public BIRTerminator(InstructionKind kind) {
+    public BIRBasicBlock thenBB;
+
+    public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
+        super(pos);
         this.kind = kind;
     }
 
@@ -48,8 +53,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
         public BIRBasicBlock targetBB;
 
-        public GOTO(BIRBasicBlock targetBB) {
-            super(InstructionKind.GOTO);
+        public GOTO(DiagnosticPos pos, BIRBasicBlock targetBB) {
+            super(pos, InstructionKind.GOTO);
             this.targetBB = targetBB;
         }
 
@@ -67,19 +72,23 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
-        public BIROperand.BIRVarRef lhsOp;
+        public BIROperand lhsOp;
+        public boolean isVirtual;
         public List<BIROperand> args;
-        public BIRBasicBlock thenBB;
         public Name name;
         public PackageID calleePkg;
 
-        public Call(PackageID calleePkg,
+        public Call(DiagnosticPos pos,
+                    InstructionKind kind,
+                    boolean isVirtual,
+                    PackageID calleePkg,
                     Name name,
                     List<BIROperand> args,
-                    BIROperand.BIRVarRef lhsOp,
+                    BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
-            super(InstructionKind.CALL);
+            super(pos, kind);
             this.lhsOp = lhsOp;
+            this.isVirtual = isVirtual;
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -87,8 +96,73 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         }
 
         @Override
-        public BIROperand.BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A async function call instruction.
+     * <p>
+     * e.g., _4 = callAsync doSomething _1 _2 _3
+     *
+     * @since 0.995.0
+     */
+    public static class AsyncCall extends Call {
+
+        public AsyncCall(DiagnosticPos pos,
+                         InstructionKind kind,
+                         boolean isVirtual,
+                         PackageID calleePkg,
+                         Name name,
+                         List<BIROperand> args,
+                         BIROperand lhsOp,
+                         BIRBasicBlock thenBB) {
+            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB);
+        }
+
+        @Override
+        public BIROperand getLhsOperand() {
+            return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A function pointer invocation instruction.
+     * <p>
+     * e.g., _4 = fp.call();
+     *
+     * @since 0.995.0
+     */
+    public static class FPCall extends BIRTerminator {
+        public BIROperand fp;
+        public BIROperand lhsOp;
+        public List<BIROperand> args;
+        public boolean isAsync;
+
+        public FPCall(DiagnosticPos pos,
+                      InstructionKind kind,
+                      BIROperand fp,
+                      List<BIROperand> args,
+                      BIROperand lhsOp,
+                      boolean isAsync,
+                      BIRBasicBlock thenBB) {
+            super(pos, kind);
+            this.fp = fp;
+            this.lhsOp = lhsOp;
+            this.args = args;
+            this.isAsync = isAsync;
+            this.thenBB = thenBB;
         }
 
         @Override
@@ -106,8 +180,8 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Return extends BIRTerminator {
 
-        public Return() {
-            super(InstructionKind.RETURN);
+        public Return(DiagnosticPos pos) {
+            super(pos, InstructionKind.RETURN);
         }
 
         @Override
@@ -128,11 +202,212 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIRBasicBlock trueBB;
         public BIRBasicBlock falseBB;
 
-        public Branch(BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
-            super(InstructionKind.BRANCH);
+        public Branch(DiagnosticPos pos, BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
+            super(pos, InstructionKind.BRANCH);
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A lock instruction.
+     * <p>
+     * e.g., lock [#3, #0] bb6
+     *
+     * @since 0.990.4
+     */
+    public static class Lock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock lockedBB;
+
+        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+            super(pos, InstructionKind.LOCK);
+            this.globalVars = globalVars;
+            this.lockedBB = lockedBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An unlock instruction.
+     * <p>
+     * e.g., unlock [#3, #0] bb8
+     *
+     * @since 0.990.4
+     */
+    public static class Unlock extends BIRTerminator {
+        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRBasicBlock unlockBB;
+
+        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock unlockBB) {
+            super(pos, InstructionKind.UNLOCK);
+            this.globalVars = globalVars;
+            this.unlockBB = unlockBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A panic statement.
+     * <p>
+     * panic error
+     *
+     * @since 0.995.0
+     */
+    public static class Panic extends BIRTerminator {
+
+        public BIROperand errorOp;
+
+        public Panic(DiagnosticPos pos, BIROperand errorOp) {
+            super(pos, InstructionKind.PANIC);
+            this.errorOp = errorOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait instruction.
+     * <p>
+     * e.g., wait w1|w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Wait extends BIRTerminator {
+        public List<BIROperand> exprList;
+        public BIROperand lhsOp;
+
+        public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WAIT);
+            this.exprList = exprList;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A flush instruction.
+     * <p>
+     * e.g., %5 = flush w1,w2;
+     *
+     * @since 0.995.0
+     */
+    public static class Flush extends BIRTerminator {
+        public ChannelDetails[] channels;
+        public BIROperand lhsOp;
+
+        public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.FLUSH);
+            this.channels = channels;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker receive instruction.
+     * <p>
+     * e.g., WRK_RECEIVE w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerReceive extends BIRTerminator {
+        public Name workerName;
+        public BIROperand lhsOp;
+        public boolean isSameStrand;
+
+        public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
+                             boolean isSameStrand, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_RECEIVE);
+            this.workerName = workerName;
+            this.lhsOp = lhsOp;
+            this.thenBB = thenBB;
+            this.isSameStrand = isSameStrand;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A worker send instruction.
+     * <p>
+     * e.g., %5 WRK_SEND w1;
+     *
+     * @since 0.995.0
+     */
+    public static class WorkerSend extends BIRTerminator {
+        public Name channel;
+        public BIROperand data;
+        public boolean isSameStrand;
+        public boolean isSync;
+        public BIROperand lhsOp;
+
+        public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
+                          BIROperand lhsOp, BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WK_SEND);
+            this.channel = workerName;
+            this.data = data;
+            this.thenBB = thenBB;
+            this.lhsOp = lhsOp;
+            this.isSameStrand = isSameStrand;
+            this.isSync = isSync;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A wait all instruction.
+     * <p>
+     * e.g., record {id:w1,id2:w2} res = wait {w1, w2};
+     *
+     * @since 0.995.0
+     */
+    public static class WaitAll extends BIRTerminator {
+        public BIROperand lhsOp;
+        public List<String> keys;
+        public List<BIROperand> valueExprs;
+
+        public WaitAll(DiagnosticPos pos, BIROperand lhsOp, List<String> keys, List<BIROperand> valueExprs,
+                       BIRBasicBlock thenBB) {
+            super(pos, InstructionKind.WAIT_ALL);
+            this.lhsOp = lhsOp;
+            this.keys = keys;
+            this.valueExprs = valueExprs;
+            this.thenBB = thenBB;
         }
 
         @Override

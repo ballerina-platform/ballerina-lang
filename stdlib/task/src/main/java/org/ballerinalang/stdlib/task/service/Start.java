@@ -14,11 +14,13 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -28,6 +30,9 @@ import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.ballerinalang.stdlib.task.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
@@ -35,7 +40,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAM
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
-import static org.ballerinalang.stdlib.task.utils.Utils.createError;
+import static org.ballerinalang.stdlib.task.utils.Utils.setError;
 
 /**
  * Native function to start the service attached to the listener.
@@ -54,6 +59,8 @@ import static org.ballerinalang.stdlib.task.utils.Utils.createError;
 )
 public class Start extends BlockingNativeCallableUnit {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Start.class);
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context) {
@@ -63,7 +70,20 @@ public class Start extends BlockingNativeCallableUnit {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
-            context.setReturnValues(createError(context, e.getMessage()));
+            LOG.error(e.getMessage(), e);
+            setError(context, e.getMessage());
         }
+    }
+
+    public static Object start(Strand strand, ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
+        try {
+            serverConnector.start();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createError(e.getMessage());
+        }
+        return null;
     }
 }

@@ -37,7 +37,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
     /**
      * Context of the calling service.
      */
-    private Context context;
+    private Context context = null;
 
     /**
      * Constructor of the server connector.
@@ -45,9 +45,19 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      * @param context Context of which the server connector is called.
      * @param task    Native Task object which is mapped to the Listener.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public TaskServerConnectorImpl(Context context, Task task) {
         this.task = task;
         this.context = context;
+    }
+
+    /**
+     * Constructor of the server connector.
+     *
+     * @param task Native Task object which is mapped to the Listener.
+     */
+    public TaskServerConnectorImpl(Task task) {
+        this.task = task;
     }
 
     /**
@@ -55,7 +65,12 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        this.task.run(context);
+        //TODO Remove this condition after migration : Added just to distinguish both bvm and jvm exec
+        if (context == null) {
+            this.task.start();
+        } else {
+            this.task.start(context);
+        }
     }
 
     /**

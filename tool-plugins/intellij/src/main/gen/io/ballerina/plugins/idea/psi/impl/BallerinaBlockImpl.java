@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,11 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
-import com.intellij.psi.ResolveState;
-import com.intellij.psi.scope.PsiScopeProcessor;
 
-public class BallerinaBlockImpl extends BallerinaCompositeElementImpl implements BallerinaBlock {
+public class BallerinaBlockImpl extends ASTWrapperPsiElement implements BallerinaBlock {
 
   public BallerinaBlockImpl(@NotNull ASTNode node) {
     super(node);
@@ -47,10 +46,6 @@ public class BallerinaBlockImpl extends BallerinaCompositeElementImpl implements
   @NotNull
   public List<BallerinaStatement> getStatementList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
-  }
-
-  public boolean processDeclarations(@NotNull PsiScopeProcessor processor, @NotNull ResolveState state, PsiElement lastParent, @NotNull PsiElement place) {
-    return BallerinaPsiImplUtil.processDeclarations(this, processor, state, lastParent, place);
   }
 
 }

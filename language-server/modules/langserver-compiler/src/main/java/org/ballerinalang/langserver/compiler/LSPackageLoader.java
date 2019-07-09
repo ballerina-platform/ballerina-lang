@@ -25,6 +25,9 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +100,9 @@ public class LSPackageLoader {
                     String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
                     if (packageNames != null) {
                         for (String name : packageNames) {
+                            if ("builtin".equals(name)) {
+                                continue;
+                            }
                             BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);
                             ballerinaPackages.add(ballerinaPackage);
                         }
@@ -153,5 +159,89 @@ public class LSPackageLoader {
 
     public static List<BallerinaPackage> getHomeRepoPackages() {
         return new ArrayList<>(homeRepoPackages);
+    }
+
+    /**
+     * Clear the home repo packages.
+     */
+    public static void clearHomeRepoPackages() {
+        homeRepoPackages.clear();
+    }
+
+    /**
+     * Returns a list of packages available for the current project.
+     *
+     * @param pkg        Built {@link BLangPackage}
+     * @param sourceRoot Source Root
+     * @param fileUri file uri
+     * @return List of Ballerina Packages
+     */
+    public static List<BallerinaPackage> getCurrentProjectImportPackages(BLangPackage pkg, String sourceRoot,
+                                                                         String fileUri) {
+        Path sourceRootPath = Paths.get(sourceRoot);
+        List<BallerinaPackage> packageList = new ArrayList<>();
+        if (!RepoUtils.hasProjectRepo(sourceRootPath)) {
+            // Skip for non-projects
+            return packageList;
+        }
+        // Get current module name
+        Path currentModulePath = getCurrentModulePath(Paths.get(fileUri), sourceRootPath);
+
+        File sourceRootFile = sourceRootPath.toFile();
+        if (!sourceRootFile.exists() || !sourceRootFile.isDirectory()) {
+            // Skip for non directories
+            return packageList;
+        }
+        File[] moduleNames = sourceRootFile.listFiles(((dir, name) -> !name.startsWith(DOT)));
+        if (moduleNames == null) {
+            // Skip when no modules found
+            return packageList;
+        }
+        for (File moduleDir : moduleNames) {
+            if (!moduleDir.isDirectory()) {
+                // Skip when not a module
+                continue;
+            }
+            String moduleName = moduleDir.getName();
+            if (currentModulePath.toFile().getName().equals(moduleName)) {
+                // Skip current module
+                continue;
+            }
+            File[] packageNames = moduleDir.listFiles(((dir, name) -> !name.startsWith(DOT)));
+            if (packageNames == null) {
+                continue;
+            }
+            packageList.add(new BallerinaPackage(pkg.packageID.orgName.value, moduleName, pkg.packageID.version.value));
+        }
+        return packageList;
+    }
+
+    /**
+     * Returns current module path.
+     *
+     * @param sourceFilePath source file path
+     * @param projectRoot    project root
+     * @return currentModule path
+     */
+    private static Path getCurrentModulePath(Path sourceFilePath, Path projectRoot) {
+        if (sourceFilePath == null || projectRoot == null) {
+            return null;
+        }
+        Path currentModulePath = projectRoot;
+        Path prevSourceRoot = sourceFilePath.getParent();
+        try {
+            while (prevSourceRoot != null) {
+                Path newSourceRoot = prevSourceRoot.getParent();
+                currentModulePath = prevSourceRoot;
+                if (newSourceRoot == null || Files.isSameFile(newSourceRoot, projectRoot)) {
+                    // We have reached the project root
+                    break;
+                }
+                prevSourceRoot = newSourceRoot;
+            }
+        } catch (IOException e) {
+            // do nothing
+        }
+        return currentModulePath;
     }
 }

@@ -27,16 +27,14 @@ function testValueTypeInUnion() returns string {
     }
 }
 
-type A record {
+type A record {|
     string a;
-    !...;
-};
+|};
 
-type B record {
+type B record {|
     string b;
     string c;
-    !...;
-};
+|};
 
 function testSimpleRecordTypes_1() returns string {
     A x = {a:"foo"};
@@ -311,4 +309,14 @@ public function testUpdatingTypeNarrowedVar_3() {
     }
 
     int|string|boolean i = x;
+}
+
+string|int si = "hello world";
+
+function testGlobalVarInTypeGuard() {
+    if (si is string) {
+        string s2 = si;
+    } else {
+        int i = si;
+    }
 }

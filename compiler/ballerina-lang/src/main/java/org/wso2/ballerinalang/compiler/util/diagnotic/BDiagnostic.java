@@ -21,6 +21,10 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 
 /**
+ * {code BDiagnostic} represents a diagnostic at a specific position in a source file.
+ *
+ * A diagnostic can represents an error, warning or an info message.
+ *
  * @since 0.94
  */
 public class BDiagnostic implements Diagnostic {

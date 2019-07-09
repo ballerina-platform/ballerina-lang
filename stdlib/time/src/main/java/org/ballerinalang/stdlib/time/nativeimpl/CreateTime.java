@@ -18,10 +18,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Create a time from the given time components.
@@ -30,32 +29,21 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
-        functionName = "createTime",
-        args = {@Argument(name = "years", type = TypeKind.INT),
-                @Argument(name = "months", type = TypeKind.INT),
-                @Argument(name = "days", type = TypeKind.INT),
-                @Argument(name = "hours", type = TypeKind.INT),
-                @Argument(name = "minutes", type = TypeKind.INT),
-                @Argument(name = "seconds", type = TypeKind.INT),
-                @Argument(name = "milliseconds", type = TypeKind.INT),
-                @Argument(name = "zoneID", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time",
-                                  structPackage = "ballerina/time")},
-        isPublic = true
+        functionName = "createTime"
 )
 public class CreateTime extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        int years = (int) context.getIntArgument(0);
-        int months = (int) context.getIntArgument(1);
-        int dates = (int) context.getIntArgument(2);
-        int hours = (int) context.getIntArgument(3);
-        int minutes = (int) context.getIntArgument(4);
-        int seconds = (int) context.getIntArgument(5);
-        int milliSeconds = (int) context.getIntArgument(6);
-        String zoneId = context.getStringArgument(0);
-        context.setReturnValues(
-                createDateTime(context, years, months, dates, hours, minutes, seconds, milliSeconds, zoneId));
+    }
+
+    public static Object createTime(Strand strand, long years, long months, long dates, long hours, long minutes,
+                                    long seconds, long milliSeconds, String zoneId) {
+        try {
+            return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
+                                  (int) milliSeconds, zoneId);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 }

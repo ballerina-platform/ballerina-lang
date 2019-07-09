@@ -74,6 +74,12 @@
             </directory>
             <outputDirectory>lib/tools/lang-server/resources</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/composer-library-zip/composer-library-${project.version}
+            </directory>
+            <outputDirectory>lib/tools/composer-library/</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -121,24 +127,25 @@
         <dependencySet>
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
-                <!-- LLVM related jars-->
-                <include>org.ballerinalang:ballerina-llvm:jar</include>
-                <include>org.ballerinalang:ballerina-backend-llvm:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
-                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
-                <include>org.bytedeco:javacpp:jar</include>
+                <include>org.ballerinalang:ballerina-bir:jar</include>
+
+                <!-- JVM Target related jars-->
+                <include>org.ballerinalang:ballerina-jvm:jar</include>
+                <include>org.ballerinalang:ballerina-backend-jvm:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
 
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
-                <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
+                <include>org.ballerinalang:openapi-to-ballerina-generator:jar</include>
                 <!--
                     Keeping lang-server compiler under bre as this is being used
-                    in ballerina swagger CLI tools
+                    in ballerina OpenAPI CLI tools
                  -->
                 <include>org.ballerinalang:language-server-compiler:jar</include>
+                <include>org.ballerinalang:ballerina-formatter:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
-                <include>org.ballerinalang:ballerina-codegen:jar</include>
+                <include>org.ballerinalang:ballerina-client-generator:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-core</include>

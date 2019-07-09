@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/io;
 
 ////////////////////////////////
@@ -24,13 +25,15 @@ import ballerina/io;
 # provides includes functions for the standard HTTP methods, forwarding a received request and sending requests
 # using custom HTTP verbs.
 
+# + url - Target service url
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
 public type Client client object {
 
+    public string url;
     public ClientEndpointConfig config = {};
-    public Client httpClient;
+    public HttpClient httpClient;
 
     # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
@@ -40,6 +43,7 @@ public type Client client object {
     # + config - The configurations to be used when initializing the client
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
+        self.url = url;
         var result = initialize(url, self.config);
         if (result is error) {
             panic result;
@@ -54,7 +58,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function post(@untainted string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->post(path, req);
     }
@@ -65,7 +69,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->head(path, message = req);
     }
@@ -76,7 +80,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function put(@untainted string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->put(path, req);
     }
@@ -88,7 +92,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
+    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->execute(httpVerb, path, req);
     }
@@ -99,7 +103,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function patch(@untainted string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->patch(path, req);
     }
@@ -110,7 +114,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function delete(@untainted string path, RequestMessage message) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->delete(path, req);
     }
@@ -121,7 +125,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->get(path, message = req);
     }
@@ -132,7 +136,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|error {
         Request req = buildRequest(message);
         return self.httpClient->options(path, message = req);
     }
@@ -142,7 +146,7 @@ public type Client client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(@sensitive string path, Request request) returns Response|error {
+    public remote function forward(@untainted string path, Request request) returns Response|error {
         return self.httpClient->forward(path, request);
     }
 
@@ -155,7 +159,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+    public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         Request req = buildRequest(message);
         return self.httpClient->submit(httpVerb, path, req);
 
@@ -205,64 +209,76 @@ public type Client client object {
 #
 # + url - URL of the target service
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
-public type TargetService record {
+public type TargetService record {|
     string url = "";
     SecureSocket? secureSocket = ();
-    !...;
-};
+|};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 #
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + keepAlive - Specifies whether to reuse a connection for multiple requests
-# + chunking - The chunking behaviour of the request
 # + httpVersion - The HTTP version understood by the client
+# + http1Settings - Configurations related to HTTP/1.x protocol
+# + http2Settings - Configurations related to HTTP/2 protocol
+# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Configurations associated with Redirection
-# + retryConfig - Configurations associated with Retry
+# + poolConfig - Configurations associated with request pooling
 # + proxy - Proxy server related options
-# + connectionThrottling - Configurations for connection throttling
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 # + auth - HTTP authentication related configurations
-public type ClientEndpointConfig record {
-    CircuitBreakerConfig? circuitBreaker = ();
+# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
+# + retryConfig - Configurations associated with Retry
+public type ClientEndpointConfig record {|
+    string httpVersion = HTTP_1_1;
+    Http1Settings http1Settings = {};
+    Http2Settings http2Settings = {};
     int timeoutMillis = 60000;
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
-    Chunking chunking = "AUTO";
-    string httpVersion = "1.1";
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
-    RetryConfig? retryConfig = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
     SecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
-    AuthConfig? auth = ();
-    !...;
-};
+    OutboundAuthConfig? auth = ();
+    CircuitBreakerConfig? circuitBreaker = ();
+    RetryConfig? retryConfig = ();
+|};
 
-extern function createSimpleHttpClient(string uri, ClientEndpointConfig config, PoolConfiguration globalPoolConfig)
-                                        returns Client;
+# Provides settings related to HTTP/1.x protocol.
+#
+# + keepAlive - Specifies whether to reuse a connection for multiple requests
+# + chunking - The chunking behaviour of the request
+public type Http1Settings record {|
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    Chunking chunking = CHUNKING_AUTO;
+|};
 
-# Provides configurations for controlling the retry behaviour in failure scenarios.
+function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = external;
+
+# Provides settings related to HTTP/2 protocol.
+#
+# + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
+public type Http2Settings record {|
+    boolean http2PriorKnowledge = false;
+|};
+
+# Provides configurations for controlling the retrying behavior in failure scenarios.
 #
 # + count - Number of retry attempts before giving up
 # + interval - Retry interval in milliseconds
-# + backOffFactor - Multiplier of the retry interval to exponentailly increase retry interval
+# + backOffFactor - Multiplier, which increases the retry interval exponentially.
 # + maxWaitInterval - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
-public type RetryConfig record {
+public type RetryConfig record {|
     int count = 0;
     int interval = 0;
     float backOffFactor = 0.0;
     int maxWaitInterval = 0;
     int[] statusCodes = [];
-    !...;
-};
+|};
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
@@ -281,9 +297,9 @@ public type RetryConfig record {
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
-public type SecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+public type SecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
@@ -296,18 +312,16 @@ public type SecureSocket record {
     boolean ocspStapling = false;
     int handshakeTimeout?;
     int sessionTimeout?;
-    !...;
-};
+|};
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
 #
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
-public type FollowRedirects record {
+public type FollowRedirects record {|
     boolean enabled = false;
     int maxCount = 5;
-    !...;
-};
+|};
 
 # Proxy server configurations to be used with the HTTP client endpoint.
 #
@@ -315,69 +329,21 @@ public type FollowRedirects record {
 # + port - Proxy server port
 # + userName - Proxy server username
 # + password - proxy server password
-public type ProxyConfig record {
+public type ProxyConfig record {|
     string host = "";
     int port = 0;
     string userName = "";
     string password = "";
-    !...;
-};
+|};
 
-# AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
+# The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.
 #
-# + scheme - Authentication scheme
-# + config - Configuration related to the selected authenticator.
-public type AuthConfig record {
-    OutboundAuthScheme scheme;
-    BasicAuthConfig|OAuth2AuthConfig|JwtAuthConfig config?;
-    !...;
-};
+# + authHandler - The outbound authentication handler.
+public type OutboundAuthConfig record {|
+    OutboundAuthHandler authHandler;
+|};
 
-# BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.
-#
-# + username - Username for Basic authentication
-# + password - Password for Basic authentication
-public type BasicAuthConfig record {
-    string username;
-    string password;
-    !...;
-};
-
-# OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.
-#
-# + accessToken - Access token for OAuth2 authentication
-# + refreshToken - Refresh token for OAuth2 authentication
-# + refreshUrl - Refresh token URL for OAuth2 authentication
-# + consumerKey - Consumer key for OAuth2 authentication
-# + consumerSecret - Consumer secret for OAuth2 authentication
-# + tokenUrl - Token URL for OAuth2 authentication
-# + clientId - Clietnt ID for OAuth2 authentication
-# + clientSecret - Client secret for OAuth2 authentication
-# + credentialBearer - How client authentication is sent to refresh access token (AuthHeaderBearer, PostBodyBearer)
-# + scopes - Scope of the access request
-public type OAuth2AuthConfig record {
-    string accessToken = "";
-    string refreshToken = "";
-    string refreshUrl = "";
-    string consumerKey = "";
-    string consumerSecret = "";
-    string tokenUrl = "";
-    string clientId = "";
-    string clientSecret = "";
-    string[] scopes = [];
-    CredentialBearer credentialBearer = AUTH_HEADER_BEARER;
-    !...;
-};
-
-# JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.
-#
-# + inferredJwtIssuerConfig - JWT issuer configuration used to issue JWT with specific configuration
-public type JwtAuthConfig record {
-    auth:InferredJwtIssuerConfig inferredJwtIssuerConfig;
-    !...;
-};
-
-function initialize(string serviceUrl, ClientEndpointConfig config) returns Client|error {
+function initialize(string serviceUrl, ClientEndpointConfig config) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
     if (url.hasSuffix("/")) {
@@ -387,7 +353,7 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Clie
     var cbConfig = config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         if (url.hasSuffix("/")) {
-            int lastIndex = url.length() -1;
+            int lastIndex = url.length() - 1;
             url = url.substring(0, lastIndex);
         }
     } else {
@@ -405,12 +371,12 @@ function initialize(string serviceUrl, ClientEndpointConfig config) returns Clie
     }
 }
 
-function createRedirectClient(string url, ClientEndpointConfig configuration) returns Client|error {
+function createRedirectClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
             var retryClient = createRetryClient(url, configuration);
-            if (retryClient is Client) {
+            if (retryClient is HttpClient) {
                 return new RedirectClient(url, configuration, redirectConfig, retryClient);
             } else {
                 return retryClient;
@@ -423,7 +389,7 @@ function createRedirectClient(string url, ClientEndpointConfig configuration) re
     }
 }
 
-function checkForRetry(string url, ClientEndpointConfig config) returns Client|error {
+function checkForRetry(string url, ClientEndpointConfig config) returns HttpClient|error {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config);
@@ -436,23 +402,23 @@ function checkForRetry(string url, ClientEndpointConfig config) returns Client|e
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns Client|error {
-    Client cbHttpClient;
+function createCircuitBreakerClient(string uri, ClientEndpointConfig configuration) returns HttpClient|error {
+    HttpClient cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
         validateCircuitBreakerConfiguration(cbConfig);
-        boolean [] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
+        boolean[] statusCodes = populateErrorCodeIndex(cbConfig.statusCodes);
         var redirectConfig = configuration.followRedirects;
         if (redirectConfig is FollowRedirects) {
             var redirectClient = createRedirectClient(uri, configuration);
-            if (redirectClient is Client) {
+            if (redirectClient is HttpClient) {
                 cbHttpClient = redirectClient;
             } else {
                 return redirectClient;
             }
         } else {
             var retryClient = checkForRetry(uri, configuration);
-            if (retryClient is Client) {
+            if (retryClient is HttpClient) {
                 cbHttpClient = retryClient;
             } else {
                 return retryClient;
@@ -460,7 +426,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         time:Time circuitStartTime = time:currentTime();
-        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis/ cbConfig.rollingWindow.bucketSizeMillis);
+        int numberOfBuckets = (cbConfig.rollingWindow.timeWindowMillis / cbConfig.rollingWindow.bucketSizeMillis);
         Bucket?[] bucketArray = [];
         int bucketIndex = 0;
         while (bucketIndex < numberOfBuckets) {
@@ -469,19 +435,19 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
         }
 
         CircuitBreakerInferredConfig circuitBreakerInferredConfig = {
-                                                            failureThreshold:cbConfig.failureThreshold,
-                                                            resetTimeMillis:cbConfig.resetTimeMillis,
-                                                            statusCodes:statusCodes,
-                                                            noOfBuckets:numberOfBuckets,
-                                                            rollingWindow:cbConfig.rollingWindow
-                                                        };
+            failureThreshold: cbConfig.failureThreshold,
+            resetTimeMillis: cbConfig.resetTimeMillis,
+            statusCodes: statusCodes,
+            noOfBuckets: numberOfBuckets,
+            rollingWindow: cbConfig.rollingWindow
+        };
         CircuitHealth circuitHealth = {
-                                        startTime:circuitStartTime,
-                                        lastRequestTime:circuitStartTime,
-                                        lastErrorTime:circuitStartTime,
-                                        lastForcedOpenTime:circuitStartTime,
-                                        totalBuckets: bucketArray
-                                      };
+            startTime: circuitStartTime,
+            lastRequestTime: circuitStartTime,
+            lastErrorTime: circuitStartTime,
+            lastForcedOpenTime: circuitStartTime,
+            totalBuckets: bucketArray
+        };
         return new CircuitBreakerClient(uri, configuration, circuitBreakerInferredConfig, cbHttpClient, circuitHealth);
     } else {
         //remove following once we can ignore
@@ -493,7 +459,7 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
     }
 }
 
-function createRetryClient(string url, ClientEndpointConfig configuration) returns Client|error {
+function createRetryClient(string url, ClientEndpointConfig configuration) returns HttpClient|error {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -506,14 +472,14 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
         };
         if (configuration.cache.enabled) {
             var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-            if (httpCachingClient is Client) {
+            if (httpCachingClient is HttpClient) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpCachingClient);
             } else {
                 return httpCachingClient;
             }
-        } else{
+        } else {
             var httpSecureClient = createHttpSecureClient(url, configuration);
-            if (httpSecureClient is Client) {
+            if (httpSecureClient is HttpClient) {
                 return new RetryClient(url, configuration, retryInferredConfig, httpSecureClient);
             } else {
                 return httpSecureClient;
@@ -527,9 +493,4 @@ function createRetryClient(string url, ClientEndpointConfig configuration) retur
             return createHttpSecureClient(url, configuration);
         }
     }
-}
-
-function createClient(string url, ClientEndpointConfig config) returns Client|error {
-    HttpClient simpleClient =  new(url, config);
-    return simpleClient;
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTransactionClauseImpl extends BallerinaCompositeElementImpl implements BallerinaTransactionClause {
+public class BallerinaTransactionClauseImpl extends ASTWrapperPsiElement implements BallerinaTransactionClause {
 
   public BallerinaTransactionClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaTransactionClauseImpl extends BallerinaCompositeElementImp
   @Override
   @Nullable
   public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+    return findChildByClass(BallerinaBlock.class);
   }
 
   @Override
   @Nullable
   public BallerinaTransactionPropertyInitStatementList getTransactionPropertyInitStatementList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTransactionPropertyInitStatementList.class);
+    return findChildByClass(BallerinaTransactionPropertyInitStatementList.class);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class BallerinaTransactionClauseImpl extends BallerinaCompositeElementImp
   @Override
   @NotNull
   public PsiElement getTransaction() {
-    return notNullChild(findChildByType(TRANSACTION));
+    return findNotNullChildByType(TRANSACTION);
   }
 
   @Override

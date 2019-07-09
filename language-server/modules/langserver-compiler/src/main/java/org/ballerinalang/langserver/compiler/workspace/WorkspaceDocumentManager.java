@@ -17,7 +17,11 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Range;
+
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -40,7 +44,7 @@ public interface WorkspaceDocumentManager {
      *
      * Usage example:
      *
-     * Optional&lt;Lock&gt; lock = Optional.empty();
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
      * try {
      *     lock = documentManager.openFile(filePath, "");
      * } finally {
@@ -49,19 +53,18 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath Path of the file
      * @param content  Content of the file
-     * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
      * @throws WorkspaceDocumentException when file cannot be opened.
      */
-    Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException;
+    void openFile(Path filePath, String content) throws WorkspaceDocumentException;
 
     /**
      * Updates given file in document manager with new content.
      *
      * Usage example:
      * <pre>
-     * Optional&lt;Lock&gt; lock = Optional.empty();
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
      * try {
-     *     lock = documentManager.updateFile(filePath, "");
+     *     documentManager.updateFile(filePath, range, "");
      * } finally {
      *     lock.ifPresent(Lock:unlock);
      * }
@@ -69,10 +72,75 @@ public interface WorkspaceDocumentManager {
      *
      * @param filePath       Path of the file
      * @param updatedContent New content of the file
-     * @return {@link Lock} retrieving a lock for the file. You must call Lock.unlock() once you are done with the work.
      * @throws WorkspaceDocumentException when file cannot be updated.
      */
-    Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
+    void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
+
+    /**
+     * Updates given file in document manager with new content.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
+     * try {
+     *     documentManager.updateFile(filePath, range, "");
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
+     * @param filePath       Path of the file
+     * @param range         Range of change
+     * @param updatedContent New content of the file
+     * @throws WorkspaceDocumentException when file cannot be updated.
+     */
+    void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException;
+
+    /**
+     * Updates code lenses of a given file in document manager with new code lenses sent to client.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
+     * try {
+     *     documentManager.setCodeLenses(filePath, lenses);
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
+     * @param filePath Path of the file
+     * @param codeLens New code lenses of the file
+     * @throws WorkspaceDocumentException when file cannot be updated.
+     */
+    void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
+
+    /**
+     * Set the pruned source content of a given file.
+     *
+     * Usage example:
+     * <pre>
+     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
+     * try {
+     *     documentManager.setPrunedContent(filePath, prunedSource);
+     * } finally {
+     *     lock.ifPresent(Lock:unlock);
+     * }
+     * </pre>
+     *
+     * @param filePath Path of the file
+     * @param prunedSource Pruned source of the file
+     * @throws WorkspaceDocumentException when file cannot be updated.
+     */
+    void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException;
+
+    /**
+     * Returns the code lenses of the file.
+     *
+     * @param filePath Path of the file
+     * @return Code lenses of the file
+     */
+    List<CodeLens> getCodeLenses(Path filePath);
 
     /**
      * Close the given file in document manager.

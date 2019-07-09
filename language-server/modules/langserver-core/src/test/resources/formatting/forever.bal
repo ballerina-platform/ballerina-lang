@@ -1,23 +1,20 @@
 import ballerina/io;
 import ballerina/runtime;
-type Item record {
+type Item record {|
     string name;
     float price;
     int stockAmount;
-    !...;
-};
+|};
 
-type Order record {
+type Order record {|
     string itemName;
     int orderingAmount;
-    !...;
-};
+|};
 
-type OutOfStockAlert record {
+type OutOfStockAlert record {|
     string itemName;
     int stockAmount;
-    !...;
-};
+|};
 
 stream<Order> orderStream = new;
 

@@ -89,7 +89,7 @@ public class Compiler {
     }
 
     public List<BLangPackage> build() {
-        return compilePackages();
+        return compilePackages(true);
     }
 
     public BLangPackage build(String sourcePackage) {
@@ -120,7 +120,7 @@ public class Compiler {
     }
 
     public void list() {
-        compilePackages().forEach(this.dependencyTree::listDependencyPackages);
+        compilePackages(true).forEach(this.dependencyTree::listDependencyPackages);
     }
 
     public void list(String sourcePackage) {
@@ -139,7 +139,21 @@ public class Compiler {
         return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
 
-
+    public List<BLangPackage> compilePackages(boolean isBuild) {
+        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
+        if (pkgList.size() == 0) {
+            return new ArrayList<>();
+        }
+        if (isBuild) {
+            outStream.println("Compiling source");
+        }
+        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), isBuild);
+        // If it is a build and dlog is not empty, compilation should fail
+        if (isBuild && this.dlog.errorCount > 0) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
+        return compiledPackages;
+    }
     // private methods
 
     private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
@@ -150,7 +164,7 @@ public class Compiler {
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
-                .filter(p -> !SymbolTable.BUILTIN.equals(p))
+                .filter(p -> (!SymbolTable.BUILTIN.equals(p) || !SymbolTable.UTILS.equals(p)))
                 .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
                 .filter(pkgNode -> pkgNode != null) // skip the packages that were not loaded properly
                 .collect(Collectors.toList());
@@ -161,19 +175,6 @@ public class Compiler {
                 .filter(pkgNode -> pkgNode.symbol != null)
                 .forEach(this.compilerDriver::compilePackage);
         return packages;
-    }
-
-    private List<BLangPackage> compilePackages() {
-        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
-        if (pkgList.size() == 0) {
-            return new ArrayList<>();
-        }
-        outStream.println("Compiling source");
-        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
-        if (this.dlog.errorCount > 0) {
-            throw new BLangCompilerException("compilation contains errors");
-        }
-        return compiledPackages;
     }
 
     private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {

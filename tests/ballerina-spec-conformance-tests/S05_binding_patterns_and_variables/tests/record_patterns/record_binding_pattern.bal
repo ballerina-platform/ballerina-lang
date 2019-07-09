@@ -70,7 +70,7 @@ function testRecordBindingPatternWithNoRestParam() {
         field1: 11,
         field2: "string value",
         field3: 16.5,
-        var4: <decimal>18.9,
+        var4: 18.9d,
         var5: false,
         field6: (),
         field7: [1, 2, 4]
@@ -90,7 +90,7 @@ function testRecordBindingPatternWithNoRestParam() {
     test:assertEquals(var1, 11, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var3, 16.5, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
-    test:assertEquals(var4, <decimal>18.9, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
+    test:assertEquals(var4, 18.9d, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var5, false, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var7, <int[]>[1, 2, 4], msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
 }
@@ -101,7 +101,7 @@ function testRecordBindingPatternWithRestParam() {
         field1: 11,
         field2: "string value",
         field3: 16.5,
-        var4: <decimal>18.9,
+        var4: 18.9d,
         var5: false,
         field6: (),
         field7: [8, 9, 10, 11]
@@ -109,7 +109,7 @@ function testRecordBindingPatternWithRestParam() {
 
     string var1;
     boolean var5;
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { field2: var1, var5, ...restParam } = bindingPattern;
 
@@ -118,7 +118,7 @@ function testRecordBindingPatternWithRestParam() {
 
     test:assertEquals(restParam.field1, 11, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field3, 16.5, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
-    test:assertEquals(restParam.var4, <decimal>18.9, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var4, 18.9d, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field6, (), msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11], msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
 }
@@ -129,7 +129,7 @@ function testRecordBindingPatternWithMissingRestParam() {
         field1: 11,
         field2: "string value",
         field3: 16.5,
-        var4: <decimal>18.9,
+        var4: 18.9d,
         var5: true,
         field6: (),
         field7: [1, 2, 4]
@@ -150,13 +150,13 @@ function testRecordBindingPatternWithOnlyRestParam() {
         field1: 11,
         field2: "string value",
         field3: 16.5,
-        var4: <decimal>18.9,
+        var4: 18.9d,
         var5: true,
         field6: (),
         field7: [8, 9, 10, 11]
     };
 
-    map<anydata> restParam = {};
+    map<anydata|error> restParam = {};
 
     { ...restParam } = bindingPattern;
 
@@ -164,18 +164,17 @@ function testRecordBindingPatternWithOnlyRestParam() {
     test:assertEquals(restParam.field2, "string value",
         msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field3, 16.5, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
-    test:assertEquals(restParam.var4, <decimal>18.9, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
+    test:assertEquals(restParam.var4, 18.9d, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.var5, true, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field6, (), msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(restParam.field7, <int[]>[8, 9, 10, 11], msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
 }
 
-type ClosedBindingPattern record {
+type ClosedBindingPattern record {|
     int field1;
     string field2;
     float field3;
-    !...;
-};
+|};
 
 @test:Config {}
 function testRecordBindingPatternWithClosedRestParam() {
@@ -189,7 +188,7 @@ function testRecordBindingPatternWithClosedRestParam() {
     string var2;
     float var3;
 
-    { field1: var1, field2: var2, field3: var3, !... } = cBindingPattern;
+    {| field1: var1, field2: var2, field3: var3 |} = cBindingPattern;
 
     test:assertEquals(var1, 15, msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);
     test:assertEquals(var2, "string value", msg = EXPECTED_RECORD_DESTRUCTURE_FAILURE_MESSAGE);

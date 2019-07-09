@@ -24,8 +24,8 @@ const string EMPTY_STRING = "";
 
 const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
 const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
-final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
+final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, defaultValue = 9797);
+final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, defaultValue = "0.0.0.0");
 
 const string EXPIRY_TAG = "timeWindow";
 const string PERCENTILE_TAG = "quantile";
@@ -52,7 +52,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string  qualifiedMetricName = metric.name.replaceAll("/", "_");
+            string  qualifiedMetricName = metric.name.replaceAll("/", "_").replaceAll("\\.", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -85,7 +85,7 @@ service PrometheusReporter on prometheusListener {
         }
         http:Response res = new;
         res.setPayload(payload);
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -128,7 +128,7 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
-    foreach var (key, value) in labels {
+    foreach var [key, value] in labels {
         string labelKey = key.replaceAll("\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");

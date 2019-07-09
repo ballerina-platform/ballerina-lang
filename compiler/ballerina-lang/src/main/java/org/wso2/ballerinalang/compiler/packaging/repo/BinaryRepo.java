@@ -1,5 +1,6 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.Patten.Part;
@@ -20,17 +21,19 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 public class BinaryRepo implements Repo<Path> {
 
     private final ZipConverter converter;
+    private final CompilerPhase compilerPhase;
 
-    public BinaryRepo(Path pathToHiddenDir) {
-        this(pathToHiddenDir, Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME));
+    public BinaryRepo(Path pathToHiddenDir, CompilerPhase compilerPhase) {
+        this(pathToHiddenDir, Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME), compilerPhase);
     }
 
-    public BinaryRepo(ZipConverter converter) {
+    public BinaryRepo(ZipConverter converter, CompilerPhase compilerPhase) {
         this.converter = converter;
+        this.compilerPhase = compilerPhase;
     }
 
-    public BinaryRepo(Path pathToHiddenDir, Path subDir) {
-        this(new ZipConverter(pathToHiddenDir.resolve(subDir)));
+    public BinaryRepo(Path pathToHiddenDir, Path subDir, CompilerPhase compilerPhase) {
+        this(new ZipConverter(pathToHiddenDir.resolve(subDir)), compilerPhase);
     }
 
     @Override
@@ -45,9 +48,12 @@ public class BinaryRepo implements Repo<Path> {
             version = path(versionStr);
         }
         String artifactName = pkgName + ".zip";
-        String binaryFileName = pkgName + ".balo";
 
-        return new Patten(path(orgName, pkgName), version, path(artifactName, "obj", binaryFileName));
+        String binaryFileName = pkgName + (this.compilerPhase == CompilerPhase.BIR_GEN ? ".bir" : ".balo");
+
+        String folderName = this.compilerPhase == CompilerPhase.BIR_GEN ? "bir" : "obj";
+
+        return new Patten(path(orgName, pkgName), version, path(artifactName, folderName, binaryFileName));
     }
 
     @Override

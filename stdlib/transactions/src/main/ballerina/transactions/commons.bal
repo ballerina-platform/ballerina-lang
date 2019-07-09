@@ -40,13 +40,13 @@ listener task:Listener timer = new({
 
 service scheduleTimer on timer {
     resource function onTrigger() {
-        _ = cleanupTransactions();
+        checkpanic cleanupTransactions();
     }
 }
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach var (key, twopcTxn) in participatedTransactions {
+        foreach var [key, twopcTxn] in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -82,7 +82,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach var (key, twopcTxn) in initiatedTransactions {
+        foreach var [key, twopcTxn] in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -123,7 +123,7 @@ function isValidCoordinationType(string coordinationType) returns boolean {
 }
 
 function protoName(UProtocol p) returns string {
-    if (p is LocalProtocol) {
+    if (p is RemoteProtocol) {
         return p.name;
     } else {
         return <string> p.name;
@@ -134,17 +134,19 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
     boolean participantProtocolIsValid = false;
     string[] validProtocols = coordinationTypeToProtocolsMap[coordinationType] ?: [];
     foreach var p in participantProtocols {
-        UProtocol participantProtocol = p;
-        foreach var validProtocol in validProtocols {
-            if (protoName(participantProtocol) == validProtocol) {
-                participantProtocolIsValid = true;
-                break;
-            } else {
-                participantProtocolIsValid = false;
+        if (p is UProtocol) {
+            UProtocol participantProtocol = p;
+            foreach var validProtocol in validProtocols {
+                if (protoName(participantProtocol) == validProtocol) {
+                    participantProtocolIsValid = true;
+                    break;
+                } else {
+                    participantProtocolIsValid = false;
+                }
             }
-        }
-        if (!participantProtocolIsValid) {
-            break;
+            if (!participantProtocolIsValid) {
+                break;
+            }
         }
     }
     return participantProtocolIsValid;
@@ -156,7 +158,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
     RequestError requestError = {errorMessage:msg};
     var resPayload = json.convert(requestError);
     if (resPayload is json) {
-        res.setJsonPayload(untaint resPayload);
+        res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);
         if (resResult is error) {
             log:printError("Could not send Bad Request error response to caller", err = resResult);
@@ -291,12 +293,12 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
 
 function getParticipant2pcClient(string participantURL) returns Participant2pcClientEP {
     Participant2pcClientEP participantEP;
-    if (httpClientCache.hasKey(participantURL)) {
-        return <Participant2pcClientEP>httpClientCache.get(participantURL);
+    if (httpClientCache.hasKey(<@untainted> participantURL)) {
+        return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
     } else {
         lock {
-            if (httpClientCache.hasKey(participantURL)) {
-                return <Participant2pcClientEP>httpClientCache.get(participantURL);
+            if (httpClientCache.hasKey(<@untainted> participantURL)) {
+                return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
             }
             participantEP = new({ participantURL: participantURL,
                 timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
@@ -362,6 +364,6 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-extern function getAvailablePort() returns int;
+function getAvailablePort() returns int = external;
 
-extern function getHostAddress() returns string;
+function getHostAddress() returns string = external;

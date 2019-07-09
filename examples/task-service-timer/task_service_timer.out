@@ -1,10 +1,7 @@
-// An error is returned when the count is equal to 5 to demonstrate how the
-// error is propagated to the 'onError' resource function when an error occurs
-// in the 'onTrigger' resource function.
+// The `onTrigger()` function is triggered every second but with an initial delay of 3 seconds.
 # To start the service, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run task_service_timer.bal
-Initiating service(s) in 'task_service_timer.bal'
 INFO  [] - Cleaning up...
 INFO  [] - 1
 INFO  [] - Cleaning up...

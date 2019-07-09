@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
+
 /**
  * This class contains a set of file manipulation utility methods.
  *
@@ -155,5 +157,17 @@ public class FileUtils {
             }
             Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    public static String cleanupFileExtension(String targetFileName) {
+        String updatedFileName = targetFileName;
+        if (updatedFileName == null || updatedFileName.isEmpty()) {
+            throw new IllegalArgumentException("invalid target file name");
+        }
+
+        if (updatedFileName.endsWith(BLANG_SOURCE_EXT)) {
+            updatedFileName = updatedFileName.substring(0, updatedFileName.length() - BLANG_SOURCE_EXT.length());
+        }
+        return updatedFileName;
     }
 }

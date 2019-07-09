@@ -28,7 +28,7 @@ import java.math.MathContext;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 27;
+    public static final short VERSION_NUMBER = 50;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -44,6 +44,8 @@ public class BLangConstants {
 
     public static final String BLANG_EXEC_FILE_EXT = "balx";
     public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;
+
+    public static final String JAR_FILE_SUFFIX = ".jar";
 
     public static final String BLANG_COMPILED_PACKAGE_FILE_EXT = "balo";
     public static final String BLANG_COMPILED_PACKAGE_FILE_SUFFIX = "." + BLANG_COMPILED_PACKAGE_FILE_EXT;
@@ -61,7 +63,10 @@ public class BLangConstants {
     public static final String USER_REPO_ARTIFACTS_DIRNAME = "artifacts";
     public static final String USER_REPO_SRC_DIRNAME = "src";
     public static final String USER_REPO_OBJ_DIRNAME = "obj";
+    public static final String USER_REPO_BIR_DIRNAME = "bir";
     public static final String USER_REPO_METADATA_DIRNAME = "metadata";
+
+    public static final String BLANG_BIR_PACKAGE_FILE_SUFFIX = "." + USER_REPO_BIR_DIRNAME;
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
@@ -88,4 +93,10 @@ public class BLangConstants {
                                                                                          MathContext.DECIMAL128);
 
     public static final String DEFAULT_WORKER_NAME = "default";
+
+    public static final String BALLERINA_TARGET = "ballerina.target";
+
+    public static final String JVM_TARGET = "jvm";
+
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
 }

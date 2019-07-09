@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/log;
 import ballerina/socket;
 
 int totalLength = 0;
@@ -25,33 +26,33 @@ listener socket:Listener server = new(59152);
 service echoServer on server {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
-                _ = caller->write(content);
-                io:println("Server write");
+                _ = checkpanic caller->write(content);
+                log:printInfo("Server write");
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error on echo server read", err = result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on echo service", err = er);
     }
 }
 
 service helloServer on new socket:Listener(59153) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -63,11 +64,11 @@ service helloServer on new socket:Listener(59153) {
         process(result, caller);
         string msg = "Hello Client";
         byte[] msgByteArray = msg.toByteArray("utf-8");
-        _ = caller->write(msgByteArray);
+        _ = checkpanic caller->write(msgByteArray);
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on hello server", err = er);
     }
 }
 
@@ -75,75 +76,75 @@ function getTotalLength() returns int {
     return totalLength;
 }
 
-function getString(byte[] content) returns string|error {
+function getString(byte[] content) returns @tainted string|error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(50);
 }
 
-function process(any result, socket:Caller caller) {
-    if (result is (byte[], int)) {
-        var (content, length) = result;
+function process(any|error result, socket:Caller caller) {
+    if (result is [byte[], int]) {
+        var [content, length] = result;
         if (length > 0) {
-            totalLength = totalLength + untaint length;
+            totalLength = totalLength + <@untainted> length;
         } else {
-            io:println("Client close: ", caller.remotePort);
+            log:printInfo("Client close: " + caller.remotePort);
             return;
         }
-    } else {
-        io:println(result);
+    } else if (result is error) {
+        log:printError("Error while process data", err = result);
     }
 }
 
 service BlockingReadServer on new socket:Listener(59154) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read(length = 18);
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
-                _ = caller->write(content);
-                io:println("Server write");
+                _ = checkpanic caller->write(content);
+                log:printInfo("Server write");
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error while read data", err = result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        log:printError("Error on blocking read server", err = er);
     }
 }
 
 service errorServer on new socket:Listener(59155) {
 
     resource function onConnect(socket:Caller caller) {
-        io:println("Join: ", caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort);
     }
 
     resource function onReadReady(socket:Caller caller) returns error? {
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
                 error e = error("Error while on read");
-                return e;
+                panic e;
             } else {
-                io:println("Client close: ", caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result);
+            log:printError("Error on error server read", err = result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        errorString = untaint string.convert(er.reason());
+        errorString = <@untainted> string.convert(er.reason());
     }
 }
 

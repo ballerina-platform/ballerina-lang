@@ -17,8 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
+import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.List;
 
 /**
  * A non-terminating instruction.
@@ -31,7 +35,8 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
 
     public InstructionKind kind;
 
-    BIRNonTerminator(InstructionKind kind) {
+    BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
+        super(pos);
         this.kind = kind;
     }
 
@@ -43,17 +48,17 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class Move extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public BIROperand rhsOp;
 
-        public Move(BIROperand fromOperand, BIRVarRef toOperand) {
-            super(InstructionKind.MOVE);
+        public Move(DiagnosticPos pos, BIROperand fromOperand, BIROperand toOperand) {
+            super(pos, InstructionKind.MOVE);
             this.rhsOp = fromOperand;
             this.lhsOp = toOperand;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -71,23 +76,24 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public BIROperand rhsOp1;
         public BIROperand rhsOp2;
 
-        public BinaryOp(InstructionKind kind,
+        public BinaryOp(DiagnosticPos pos,
+                        InstructionKind kind,
                         BType type,
-                        BIRVarRef lhsOp,
+                        BIROperand lhsOp,
                         BIROperand rhsOp1,
                         BIROperand rhsOp2) {
-            super(kind);
+            super(pos, kind);
             this.lhsOp = lhsOp;
             this.rhsOp1 = rhsOp1;
             this.rhsOp2 = rhsOp2;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -105,15 +111,17 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class UnaryOP extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
 
-        public UnaryOP(InstructionKind kind, BIRVarRef lhsOp) {
-            super(kind);
+        public UnaryOP(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, kind);
             this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
         }
 
@@ -131,20 +139,548 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
      * @since 0.980.0
      */
     public static class ConstantLoad extends BIRNonTerminator implements BIRAssignInstruction {
-        public BIRVarRef lhsOp;
+        public BIROperand lhsOp;
         public Object value;
         public BType type;
 
-        public ConstantLoad(Object value, BType type, BIRVarRef lhsOp) {
-            super(InstructionKind.CONST_LOAD);
+        public ConstantLoad(DiagnosticPos pos, Object value, BType type, BIROperand lhsOp) {
+            super(pos, InstructionKind.CONST_LOAD);
             this.value = value;
             this.type = type;
             this.lhsOp = lhsOp;
         }
 
         @Override
-        public BIRVarRef getLhsOperand() {
+        public BIROperand getLhsOperand() {
             return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A new map instruction.
+     * <p>
+     * e.g., map a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class NewStructure extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BType type;
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
+        public final String recordName;
+
+        public NewStructure(DiagnosticPos pos, BType type, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.recordName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewStructure(DiagnosticPos pos, PackageID externalPackageId, String recordName, BType type,
+                            BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_STRUCTURE);
+            this.recordName = recordName;
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A new instruction.
+     * <p>
+     * e.g., object{int i;}  a = new;
+     *
+     * @since 0.995.0
+     */
+    public static class NewInstance extends BIRNonTerminator {
+        public final boolean isExternalDef;
+        public final PackageID externalPackageId;
+        public BIRTypeDefinition def;
+        public final String objectName;
+        public BIROperand lhsOp;
+
+        public NewInstance(DiagnosticPos pos, BIRTypeDefinition def, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.lhsOp = lhsOp;
+            this.def = def;
+            this.objectName = null;
+            this.externalPackageId = null;
+            this.isExternalDef = false;
+        }
+
+        public NewInstance(DiagnosticPos pos, PackageID externalPackageId, String objectName, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_INSTANCE);
+            this.objectName = objectName;
+            this.lhsOp = lhsOp;
+            this.def = null;
+            this.externalPackageId = externalPackageId;
+            this.isExternalDef = true;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A new array instruction.
+     * <p>
+     * e.g., int[] a = {}
+     *
+     * @since 0.980.0
+     */
+    public static class NewArray extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand sizeOp;
+        public BType type;
+
+        public NewArray(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand sizeOp) {
+            super(pos, InstructionKind.NEW_ARRAY);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.sizeOp = sizeOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A field access expression.
+     * <p>
+     * e.g., a["b"] = 10 (int)
+     * or
+     * _1 = mapload _3 _2
+     *
+     * @since 0.980.0
+     */
+    public static class FieldAccess extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand keyOp;
+        public BIROperand rhsOp;
+        public boolean except = true;
+
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+                           BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+        }
+
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+                           BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean except) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+            this.except = except;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * An error constructor expression.
+     * <p>
+     * error(reason as string, detail as map)
+     *
+     * @since 0.995.0
+     */
+    public static class NewError extends BIRNonTerminator {
+
+        public BType type;
+        
+        public BIROperand lhsOp;
+
+        public BIROperand reasonOp;
+
+        public BIROperand detailOp;
+        
+        public NewError(DiagnosticPos pos,  BType type, BIROperand lhsOp, BIROperand reasonOp, BIROperand detailOp) {
+            super(pos, InstructionKind.NEW_ERROR);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.reasonOp = reasonOp;
+            this.detailOp = detailOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A type cast expression.
+     * <p>
+     * e.g., int a = cast(int) b;
+     *
+     * @since 0.980.0
+     */
+    public static class TypeCast extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_CAST);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A is like instruction.
+     * <p>
+     * e.g., a isLike b
+     *
+     * @since 0.980.0
+     */
+    public static class IsLike extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public IsLike(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.IS_LIKE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A type test instruction.
+     * <p>
+     * e.g., a is int
+     *
+     * @since 0.980.0
+     */
+    public static class TypeTest extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+        public BType type;
+
+        public TypeTest(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, InstructionKind.TYPE_TEST);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML element instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLElement extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand startTagOp;
+        public BIROperand endTagOp;
+        public BIROperand defaultNsURIOp;
+
+        public NewXMLElement(DiagnosticPos pos, BIROperand lhsOp, BIROperand startTagOp, BIROperand endTagOp,
+                BIROperand defaultNsURIOp) {
+            super(pos, InstructionKind.NEW_XML_ELEMENT);
+            this.lhsOp = lhsOp;
+            this.startTagOp = startTagOp;
+            this.endTagOp = endTagOp;
+            this.defaultNsURIOp = defaultNsURIOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName instruction.
+     * <p>
+     * e.g.: {@code ns0:foo}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand localnameOp;
+        public BIROperand nsURIOp;
+        public BIROperand prefixOp;
+
+        public NewXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand localnameOp, BIROperand nsURIOp,
+                BIROperand prefixOp) {
+            super(pos, InstructionKind.NEW_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.localnameOp = localnameOp;
+            this.nsURIOp = nsURIOp;
+            this.prefixOp = prefixOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML QName from a string.
+     * <p>
+     * e.g.: {@code "{http://nsuri/}foo"}
+     * 
+     * @since 0.995.0
+     */
+    public static class NewStringXMLQName extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand stringQNameOP;
+
+        public NewStringXMLQName(DiagnosticPos pos, BIROperand lhsOp, BIROperand stringQName) {
+            super(pos, InstructionKind.NEW_STRING_XML_QNAME);
+            this.lhsOp = lhsOp;
+            this.stringQNameOP = stringQName;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLText extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLText(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_TEXT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML text instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLProcIns extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand dataOp;
+        public BIROperand targetOp;
+
+        public NewXMLProcIns(DiagnosticPos pos, BIROperand lhsOp, BIROperand dataOp, BIROperand targetOp) {
+            super(pos, InstructionKind.NEW_XML_PI);
+            this.lhsOp = lhsOp;
+            this.dataOp = dataOp;
+            this.targetOp = targetOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * New XML comment instruction.
+     * 
+     * @since 0.995.0
+     */
+    public static class NewXMLComment extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand textOp;
+
+        public NewXMLComment(DiagnosticPos pos, BIROperand lhsOp, BIROperand textOp) {
+            super(pos, InstructionKind.NEW_XML_COMMENT);
+            this.lhsOp = lhsOp;
+            this.textOp = textOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * XML access expression with two operands.
+     * e.g: {@code InstructionKind.XML_SEQ_STORE}, {@code InstructionKind.XML_LOAD_ALL}
+     *
+     * @since 0.995.0
+     */
+    public static class XMLAccess extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand rhsOp;
+
+        public XMLAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand rhsOp) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.rhsOp = rhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A FP load instruction.
+     * <p>
+     * e.g., function (string, string) returns (string) anonFunction =
+     *             function (string x, string y) returns (string) {
+     *                 return x + y;
+     *             };
+     *
+     * @since 0.995.0
+     */
+    public static class FPLoad extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public Name funcName;
+        public PackageID pkgId;
+        public List<BIRVariableDcl> params;
+        public List<BIROperand> closureMaps;
+
+        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps) {
+            super(pos, InstructionKind.FP_LOAD);
+            this.lhsOp = lhsOp;
+            this.funcName = funcName;
+            this.pkgId = pkgId;
+            this.params = params;
+            this.closureMaps = closureMaps;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new table instruction.
+     * <p>
+     * e.g. {@code table<Employee> tbEmployee = table {
+     *         { key id, name, salary },
+     *         [ { 1, "Mary",  300.5 },
+     *           { 2, "John",  200.5 },
+     *           { 3, "Jim", 330.5 }
+     *         ]
+     *      };}
+     *
+     * @since 0.995.0
+     */
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand columnsOp;
+        public BIROperand dataOp;
+        public BIROperand indexColOp;
+        public BIROperand keyColOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand columnsOp,
+                        BIROperand dataOp, BIROperand indexColOp,
+                        BIROperand keyColOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.columnsOp = columnsOp;
+            this.dataOp = dataOp;
+            this.indexColOp = indexColOp;
+            this.keyColOp = keyColOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A type cast expression.
+     * <p>
+     * e.g., int a = cast(int) b;
+     *
+     * @since 0.995.0
+     */
+    public static class NewTypeDesc extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BType type;
+
+        public NewTypeDesc(DiagnosticPos pos, BIROperand lhsOp, BType type) {
+            super(pos, InstructionKind.NEW_TYPEDESC);
+            this.lhsOp = lhsOp;
+            this.type = type;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * The new stream instruction.
+     * <p>
+     * e.g. {@code stream<Employee> employeeStream = new;}
+     *
+     * @since 0.995.0
+     */
+    public static class NewStream extends BIRNonTerminator {
+        public BIROperand lhsOp;
+        public BIROperand nameOp;
+        public BType type;
+
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+            super(pos, InstructionKind.NEW_STREAM);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.nameOp = nameOp;
         }
 
         @Override

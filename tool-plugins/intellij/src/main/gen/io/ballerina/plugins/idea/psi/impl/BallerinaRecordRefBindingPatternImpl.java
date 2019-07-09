@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecordRefBindingPatternImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRefBindingPattern {
+public class BallerinaRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaRecordRefBindingPattern {
 
   public BallerinaRecordRefBindingPatternImpl(@NotNull ASTNode node) {
     super(node);
@@ -43,20 +44,14 @@ public class BallerinaRecordRefBindingPatternImpl extends BallerinaCompositeElem
 
   @Override
   @Nullable
-  public BallerinaEntryRefBindingPattern getEntryRefBindingPattern() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEntryRefBindingPattern.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+  public BallerinaClosedRecordRefBindingPattern getClosedRecordRefBindingPattern() {
+    return findChildByClass(BallerinaClosedRecordRefBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaOpenRecordRefBindingPattern getOpenRecordRefBindingPattern() {
+    return findChildByClass(BallerinaOpenRecordRefBindingPattern.class);
   }
 
 }

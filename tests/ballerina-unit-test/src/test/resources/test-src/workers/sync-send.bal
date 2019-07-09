@@ -69,12 +69,12 @@ function multipleSyncSend() returns string{
        return append2;
 }
 
-function process2() returns any {
+function process2() returns any|error {
     return returnNil();
 }
 
-function returnNil() returns any {
-   worker w1 returns any {
+function returnNil() returns any|error {
+   worker w1 returns any|error {
      int a = 10;
      a -> w2;
      var result = a ->> w2;
@@ -84,7 +84,7 @@ function returnNil() returns any {
       return result;
     }
 
-   worker w2 returns error?{
+   worker w2 returns error? {
      if(false){
           error err = error("err", { message: "err msg" });
           return err;

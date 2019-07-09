@@ -20,8 +20,8 @@ package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,15 +45,16 @@ public class Start extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) serviceEndpoint
+    }
+
+    public static Object start(Strand strand, ObjectValue listener) {
+        LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) listener
                 .getNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR);
         try {
             serverConnector.start();
         } catch (LocalFileSystemServerConnectorException e) {
-            context.setReturnValues(FileUtils.createError(context, e.getMessage()));
-            return;
+            return FileUtils.createError(e.getMessage());
         }
-        context.setReturnValues();
+        return null;
     }
 }

@@ -54,7 +54,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_params.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{intString, floatString});
+        runMain(programFile, new String[]{intString, floatString});
         Assert.assertEquals(tempOutStream.toString(), expectedString, "evaluated to invalid value");
     }
 
@@ -63,7 +63,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_no_params.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{});
+        runMain(programFile, new String[]{});
         Assert.assertEquals(tempOutStream.toString(), "1", "evaluated to invalid value");
     }
 
@@ -72,8 +72,17 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_int_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{specifiedInt});
+        runMain(programFile, new String[]{specifiedInt});
         Assert.assertEquals(tempOutStream.toString(), expectedInt, "string arg parsed as invalid int");
+    }
+
+    @Test(dataProvider = "decimalValues")
+    public void testDecimalArg(String specifiedDecimal, String expectedDecimal) throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_decimal_param.bal"), false, true);
+        resetTempOut();
+        runMain(programFile, new String[]{specifiedDecimal});
+        Assert.assertEquals(tempOutStream.toString(), expectedDecimal, "string arg parsed as invalid decimal");
     }
 
     @Test(dataProvider = "jsonValues")
@@ -81,7 +90,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_json_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{arg});
+        runMain(programFile, new String[]{arg});
         Assert.assertEquals(tempOutStream.toString(), arg, "string arg parsed as invalid JSON");
     }
 
@@ -90,7 +99,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_xml_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{"<book status=\"available\" count=\"5\"></book>"});
+        runMain(programFile, new String[]{"<book status=\"available\" count=\"5\"></book>"});
         Assert.assertTrue(tempOutStream.toString().contains("<book status=\"available\" count=\"5\"></book>"),
                 "string arg parsed as invalid XML");
     }
@@ -100,7 +109,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_array_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{arg});
+        runMain(programFile, new String[]{arg});
         Assert.assertEquals(tempOutStream.toString(), arg, "string arg parsed as invalid array");
     }
 
@@ -109,7 +118,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_tuple_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
+        runMain(programFile, new String[]{"(101, {\"name\":\"Maryam\"}, \"finance\")"});
         Assert.assertEquals(tempOutStream.toString(), "Id: 101, Name: Maryam, Dept: finance",
                             "string arg parsed as invalid tuple");
     }
@@ -119,7 +128,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{"-i=2", "-s=hi", "false", "is"});
+        runMain(programFile, new String[]{"-i=2", "-s=hi", "false", "is"});
         Assert.assertEquals(tempOutStream.toString(), "2 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
@@ -129,7 +138,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{"-s=hi", "false", "is"});
+        runMain(programFile, new String[]{"-s=hi", "false", "is"});
         Assert.assertEquals(tempOutStream.toString(), "1 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
@@ -139,7 +148,7 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_defaultable_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{"true", "is"});
+        runMain(programFile, new String[]{"true", "is"});
         Assert.assertEquals(tempOutStream.toString(), "1 default hello world: is true",
                             "string args with no named args parsed as invalid args");
     }
@@ -150,10 +159,9 @@ public class ArgumentParserPositiveTest {
                                             Paths.get("test_main_with_multiple_typed_params.bal"), false,
                                             true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile,
-                                       new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
-                                               "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
-                                               "{ \"name\": \"Em\" }", "just", "the", "rest"});
+        runMain(programFile, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
+                "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
+                "{ \"name\": \"Em\" }", "just", "the", "rest"});
         Assert.assertTrue(tempOutStream.toString().contains(
                             "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
                                     "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, "),
@@ -165,11 +173,9 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_oneD_array_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile,
-                                       new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]", "[1.0, 20.4, 30.3]",
-                                               "[true, true, false]", "[5, \"Maryam\", { \"name\": \"Maryam\" }]",
-                                               "[{ \"name\": \"Maryam\" }, { \"name\": \"Em\" }, " +
-                                                       "{ \"name\": \"Ziyad\" }]"});
+        runMain(programFile, new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]", "[1.0, 20.4, 30.3]",
+                "[true, true, false]", "[5, \"Maryam\", { \"name\": \"Maryam\" }]",
+                "[{ \"name\": \"Maryam\" }, { \"name\": \"Em\" }, { \"name\": \"Ziyad\" }]"});
         Assert.assertEquals(tempOutStream.toString(), "integer: 200, string: ballerina, float: 20.4, " +
                                     "boolean: true, json: Maryam, Employee Name Field: Em",
                             "string args parsed as invalid array args");
@@ -180,13 +186,12 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_map_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile,
-                                       new String[]{"{\"int\":10, \"test\":120}",
-                                               "{\"test\":\"Ballerina\", \"string\":\"str\"}",
-                                               "{\"test\":12.0, \"float\":11.1}",
-                                               "{\"boolean\":false, \"test\":true}",
-                                               "{\"test\":5, \"json\":{ \"name\": \"Maryam\" }}",
-                                               "{\"test\": { \"name\": \"Maryam\" }, \"record\": {\"name\":\"Em\"}}"});
+        runMain(programFile, new String[]{"{\"int\":10, \"test\":120}",
+                "{\"test\":\"Ballerina\", \"string\":\"str\"}",
+                "{\"test\":12.0, \"float\":11.1}",
+                "{\"boolean\":false, \"test\":true}",
+                "{\"test\":5, \"json\":{ \"name\": \"Maryam\" }}",
+                "{\"test\": { \"name\": \"Maryam\" }, \"record\": {\"name\":\"Em\"}}"});
         Assert.assertTrue(tempOutStream.toString().contains(
                             "integer: 120, string: Ballerina, float: 12.0, boolean: true, json: 5, " +
                                     "Test Employee Name Field: Maryam"), "string args parsed as invalid map args");
@@ -197,8 +202,37 @@ public class ArgumentParserPositiveTest {
         programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
                                             Paths.get("test_main_with_optional_param.bal"), false, true);
         resetTempOut();
-        BLangProgramRunner.runMainFunc(programFile, new String[]{inputValue});
+        runMain(programFile, new String[]{inputValue});
         Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testMainWithOptionalParamsNoneSpecified() throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        runMain(programFile, new String[]{});
+        Assert.assertEquals(tempOutStream.toString(), "string value: s is nil m is nil", "evaluated to invalid value");
+    }
+
+    @Test(dataProvider = "optionalDefaultableParamOneArgSpecifiedAndResult")
+    public void testMainWithOptionalDefaultableParamOneArgSpecified(String inputValue, String expectedValue)
+            throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        runMain(programFile, new String[]{inputValue});
+        Assert.assertEquals(tempOutStream.toString(), expectedValue, "evaluated to invalid value");
+    }
+
+    @Test
+    public void testMainWithOptionalParamsBothSpecified() throws IOException {
+        programFile = LauncherUtils.compile(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
+                                            Paths.get("test_main_with_optional_defaultable_param.bal"), false, true);
+        resetTempOut();
+        runMain(programFile, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
+        Assert.assertEquals(tempOutStream.toString(), "string value: ballerina {\"eleven\":11, \"twelve\":12}",
+                            "evaluated to invalid value");
     }
 
     @AfterClass
@@ -221,6 +255,18 @@ public class ArgumentParserPositiveTest {
                 {"10", "10"},
                 {"0x1efa2", "126882"},
                 {"0XFAF1", "64241"}
+        };
+    }
+
+    @DataProvider(name = "decimalValues")
+    public Object[][] decimalValues() {
+        return new Object[][]{
+                {"10", "10"},
+                {"-10.123", "-10.123"},
+                {"10.123e1423", "1.0123E+1424"},
+                {"0x1ef.a2", "495.63281250"},
+                {"-0x1ef.a2p2", "-1982.531250"},
+                {"0X1EF.A2P-2", "123.9082031250"}
         };
     }
 
@@ -252,9 +298,21 @@ public class ArgumentParserPositiveTest {
         };
     }
 
+    @DataProvider(name = "optionalDefaultableParamOneArgSpecifiedAndResult")
+    public Object[][] optionalDefaultableParamArgAndResult() {
+        return new Object[][]{
+                {"-s=hello world", "string value: hello world m is nil"},
+                {"-m={\"one\":1,\"two\":2}", "string value: s is nil {\"one\":1, \"two\":2}"}
+        };
+    }
+
     private void resetTempOut() throws IOException {
         tempOutStream.close();
         tempOutStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(tempOutStream));
+    }
+
+    private void runMain(ProgramFile programFile, String[] args) {
+        BLangProgramRunner.runProgram(programFile, args);
     }
 }

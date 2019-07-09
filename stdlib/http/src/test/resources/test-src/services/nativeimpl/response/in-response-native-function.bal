@@ -92,7 +92,7 @@ service hello on mockEP {
     }
     resource function echo1 (http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -101,7 +101,7 @@ service hello on mockEP {
     resource function echo2 (http:Caller caller, http:Request req, string phase) {
         http:Response res = new;
         res.reasonPhrase = phase;
-        _ = caller->respond(untaint res);
+        checkpanic caller->respond(<@untainted http:Response> res);
     }
 
     @http:ResourceConfig {
@@ -110,7 +110,7 @@ service hello on mockEP {
     resource function echo3 (http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 203;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -118,10 +118,10 @@ service hello on mockEP {
     }
     resource function addheader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
-        res.addHeader(untaint key, value);
-        string result = untaint res.getHeader(untaint key);
+        res.addHeader(<@untainted string> key, value);
+        string result = <@untainted string> res.getHeader(<@untainted string> key);
         res.setJsonPayload({lang:result});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -129,10 +129,10 @@ service hello on mockEP {
     }
     resource function getHeader (http:Caller caller, http:Request req, string header, string value) {
         http:Response res = new;
-        res.setHeader(untaint header, value);
-        string result = untaint res.getHeader(untaint header);
+        res.setHeader(<@untainted string> header, value);
+        string result = <@untainted string> res.getHeader(<@untainted string> header);
         res.setJsonPayload({value:result});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -141,15 +141,15 @@ service hello on mockEP {
     resource function getJsonPayload(http:Caller caller, http:Request req, string value) {
         http:Response res = new;
         json jsonStr = {lang:value};
-        res.setJsonPayload(untaint jsonStr);
+        res.setJsonPayload(<@untainted json> jsonStr);
         var returnResult = res.getJsonPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setJsonPayload(untaint returnResult.lang);
+            res.setJsonPayload(<@untainted json> returnResult.lang);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -157,15 +157,15 @@ service hello on mockEP {
     }
     resource function getTextPayload(http:Caller caller, http:Request req, string valueStr) {
         http:Response res = new;
-        res.setTextPayload(untaint valueStr);
+        res.setTextPayload(<@untainted string> valueStr);
         var returnResult = res.getTextPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode =500;
         } else {
-            res.setTextPayload(untaint returnResult);
+            res.setTextPayload(<@untainted string> returnResult);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -181,9 +181,9 @@ service hello on mockEP {
             res.statusCode =500;
         } else {
             var name = returnResult.getTextValue();
-            res.setTextPayload(untaint name);
+            res.setTextPayload(<@untainted string> name);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -191,14 +191,14 @@ service hello on mockEP {
     }
     resource function removeHeader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
-        res.setHeader(untaint key, value);
-        res.removeHeader(untaint key);
+        res.setHeader(<@untainted string> key, value);
+        res.removeHeader(<@untainted string> key);
         string header = "";
         if (!res.hasHeader(key)) {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -214,6 +214,6 @@ service hello on mockEP {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

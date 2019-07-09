@@ -139,6 +139,7 @@ public class BValueArray extends BNewArray implements Serializable {
             } else {
                 refValues = (BRefType[]) newArrayInstance(BRefType.class);
                 Arrays.fill(refValues, type.getZeroValue());
+                setArrayElementType(type);
             }
         }
     }
@@ -166,6 +167,9 @@ public class BValueArray extends BNewArray implements Serializable {
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
             Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
+        } else {
+            refValues = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(refValues, type.getZeroValue());
         }
 
         super.arrayType = new BArrayType(type, size);
@@ -181,6 +185,11 @@ public class BValueArray extends BNewArray implements Serializable {
 
     public long getInt(long index) {
         rangeCheckForGet(index, size);
+
+        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+            return byteValues[(int) index];
+        }
+
         return intValues[(int) index];
     }
 
@@ -393,7 +402,7 @@ public class BValueArray extends BNewArray implements Serializable {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
                 }
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
@@ -414,11 +423,7 @@ public class BValueArray extends BNewArray implements Serializable {
         }
 
         StringJoiner sj;
-        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
-        } else {
-            sj = new StringJoiner(", ", "[", "]");
-        }
+        sj = new StringJoiner(", ", "[", "]");
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
@@ -456,10 +461,11 @@ public class BValueArray extends BNewArray implements Serializable {
     }
 
     public byte[] getBytes() {
-        return byteValues.clone();
+        byte[] bytes = new byte[this.size];
+        System.arraycopy(byteValues, 0, bytes, 0, this.size);
+        return bytes;
     }
 
-    @SuppressWarnings("unchecked")
     public String[] getStringArray() {
         return stringValues;
     }
@@ -663,7 +669,7 @@ public class BValueArray extends BNewArray implements Serializable {
         if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
             byteValues = (byte[]) newArrayInstance(Byte.TYPE);
             for (int i = 0; i < this.size(); i++) {
-                byteValues[i] = ((BByte) arrayValues[i]).value();
+                byteValues[i] = ((BByte) arrayValues[i]).value().byteValue();
             }
         }
 

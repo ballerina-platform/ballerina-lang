@@ -1,12 +1,16 @@
-import ballerina/test;
 import ballerina/http;
+import ballerina/log;
+import ballerina/test;
 
 channel<string> serviceReply = new;
 string msg = "hey";
 @test:Config
 function testWebSocket() {
     http:WebSocketClient wsClient = new("ws://localhost:9090/hello/ws", config = {callbackService:callback});
-    _ = wsClient->pushText(msg);
+    error? result = wsClient->pushText(msg);
+    if (result is error) {
+        log:printError("Error in sending text", err = result);
+    }
     string wsReply = <- serviceReply;
     test:assertEquals(wsReply, msg, msg = "Received message should be equal to the expected message");
 }

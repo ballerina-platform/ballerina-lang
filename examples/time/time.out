@@ -1,0 +1,22 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run time.bal
+Current system time in milliseconds: 1543938113165
+Created Time: 2017-03-28T23:42:45.554-05:00
+Parsed Time: 2017-06-26T09:46:22.444-05:00
+Current system time in ISO format: 2018-12-04T21:11:53.165+05:30
+Current system time in custom format: 2018-12-04-Tue
+Year: 2018
+Month: 12
+Day: 4
+Hour: 21
+Minute: 11
+Second: 53
+Millisecond: 165
+Weekday: TUESDAY
+Date: 2018:12:4
+Time: 21:11:53:165
+After adding a duration: 2020-01-04T21:11:54.165+05:30
+After subtracting a duration: 2017-11-04T21:11:52.165+05:30
+Before converting the time zone: 2017-03-28T23:42:45.554-05:00
+After converting the time zone: 2017-03-29T10:12:45.554+05:30

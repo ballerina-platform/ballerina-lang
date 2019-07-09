@@ -1,6 +1,29 @@
-import { InitializeParams, InitializeResult, Position, Range } from "vscode-languageserver-protocol";
+import { InitializeParams, InitializeResult, Location, Position,
+    Range, TextDocumentPositionParams} from "vscode-languageserver-protocol";
 import { BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment } from "./ast-models";
+
+export interface GetProjectASTParams {
+    sourceRoot: string;
+}
+
+export interface GetProjectASTResponse {
+    modules: ProjectAST;
+    parseSuccess: boolean;
+}
+
+export interface ProjectAST {
+    [moduleName: string]: {
+        name: string,
+        compilationUnits: {
+            [compilationUnitName: string]: {
+                name: string,
+                ast: BallerinaAST,
+                uri: string,
+            }
+        }
+    };
+}
 
 export interface GetASTParams {
     documentIdentifier: {
@@ -75,6 +98,8 @@ export interface IBallerinaLangClient {
 
     init: (params?: InitializeParams) => Thenable<InitializeResult>;
 
+    getProjectAST: (params: GetProjectASTParams) => Thenable<GetProjectASTResponse>;
+
     getAST: (params: GetASTParams) => Thenable<GetASTResponse>;
 
     astDidChange: (params: ASTDidChangeParams) => Thenable<ASTDidChangeResponse>;
@@ -86,6 +111,8 @@ export interface IBallerinaLangClient {
     getEndpoints: () => Thenable<BallerinaEndpoint[]>;
 
     getBallerinaProject: (params: GetBallerinaProjectParams) => Thenable<BallerinaProject>;
+
+    getDefinitionPosition: (params: TextDocumentPositionParams) => Thenable<Location>;
 
     goToSource: (params: GoToSourceParams) => void;
 

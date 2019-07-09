@@ -1,8 +1,0 @@
-apply from: "$rootDir/gradle/javaProject.gradle"
-
-dependencies {
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
-}
-
-description = 'Ballerina - Strip - Bouncycastle'

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDeprecatedTemplateInlineCodeImpl extends BallerinaCompositeElementImpl implements BallerinaDeprecatedTemplateInlineCode {
+public class BallerinaDeprecatedTemplateInlineCodeImpl extends ASTWrapperPsiElement implements BallerinaDeprecatedTemplateInlineCode {
 
   public BallerinaDeprecatedTemplateInlineCodeImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,19 +45,19 @@ public class BallerinaDeprecatedTemplateInlineCodeImpl extends BallerinaComposit
   @Override
   @Nullable
   public BallerinaDoubleBackTickDeprecatedInlineCode getDoubleBackTickDeprecatedInlineCode() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDoubleBackTickDeprecatedInlineCode.class);
+    return findChildByClass(BallerinaDoubleBackTickDeprecatedInlineCode.class);
   }
 
   @Override
   @Nullable
   public BallerinaSingleBackTickDeprecatedInlineCode getSingleBackTickDeprecatedInlineCode() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSingleBackTickDeprecatedInlineCode.class);
+    return findChildByClass(BallerinaSingleBackTickDeprecatedInlineCode.class);
   }
 
   @Override
   @Nullable
   public BallerinaTripleBackTickDeprecatedInlineCode getTripleBackTickDeprecatedInlineCode() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTripleBackTickDeprecatedInlineCode.class);
+    return findChildByClass(BallerinaTripleBackTickDeprecatedInlineCode.class);
   }
 
 }

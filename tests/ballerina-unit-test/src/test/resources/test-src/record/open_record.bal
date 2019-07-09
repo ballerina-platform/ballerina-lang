@@ -166,23 +166,37 @@ function testAdditionOfARestField() returns Person {
     return p;
 }
 
-function testAnydataRestFieldRHSAccess() returns anydata {
+type MyError error<string, map<error>>;
+
+function testAdditionOfErrorsForDefaultRestField() returns boolean {
+    error e1 = error("err reason");
+    error e2 = error("err reason 2", { str: "string value", err: e1 });
+    MyError e3 = error("err reason 3", { e1: e1, e2: e2 });
+
+    Person p = { name: "Foo", mname: "Bar", age: 25, height: 5.9, e1: e1 };
+    p.e2 = e2;
+    p.e3 = e3;
+    return <string> p.name == "Foo" && <string> p.mname == "Bar" && <int> p.age == 25 && p.e1 === e1 && p.e2 === e2 &&
+                p.e3 === e3;
+}
+
+function testAnydataOrErrorRestFieldRHSAccess() returns anydata|error {
     Person p = {};
-    anydata name = p.firstName;
+    anydata|error name = p.firstName;
     return name;
 }
 
-function testAnydataRestFieldRHSIndexAccess() returns anydata {
+function testAnydataOrErrorRestFieldRHSIndexAccess() returns anydata|error {
     Person p = {};
-    anydata name = p["firstName"];
+    anydata|error name = p["firstName"];
     return name;
 }
 
-type Person2 record {
+type Person2 record {|
     string name = "";
     int age = 0;
     string...;
-};
+|};
 
 function testStringRestField() returns Person2 {
     Person2 p = {name:"Foo", age:25, lname: "Bar", address:"Colombo"};
@@ -202,11 +216,11 @@ function testStringRestFieldRHSIndexAccess() returns (string?, string?) {
     return (name, firstName);
 }
 
-type Person3 record {
+type Person3 record {|
     string name = "";
     int age = 0;
     int...;
-};
+|};
 
 function testIntRestField() returns Person3 {
     Person3 p = {name:"Foo", age:25, year: 3};
@@ -226,11 +240,11 @@ function testIntRestFieldRHSIndexAccess() returns (int?, int?) {
     return (age, birthYear);
 }
 
-type Person4 record {
+type Person4 record {|
     string name = "";
     int age = 0;
     float...;
-};
+|};
 
 function testFloatRestField() returns Person4 {
     Person4 p = {name:"Foo", age:25, height: 5.9};
@@ -249,11 +263,11 @@ function testFloatRestFieldRHSIndexAccess() returns (float?, float?) {
     return (p["weight"], height);
 }
 
-type Person5 record {
+type Person5 record {|
     string name = "";
     int age = 0;
     boolean...;
-};
+|};
 
 function testBooleanRestField() returns Person5 {
     Person5 p = {name:"Foo", age:25, isEmployed: true};
@@ -272,11 +286,11 @@ function testBooleanRestFieldRHSIndexAccess() returns (boolean?, boolean?) {
     return (p["isStudent"], isEmployed);
 }
 
-type Person6 record {
+type Person6 record {|
     string name = "";
     int age = 0;
     map<any>...;
-};
+|};
 
 function testMapRestField() returns Person6 {
     Person6 p = {name:"Foo", age:25, misc:{lname:"Bar", height:5.9, isEmployed:true}};
@@ -296,11 +310,11 @@ function testMapRestFieldRHSIndexAccess() returns (map<any>?, map<any>?) {
     return (p["misc"], invMap);
 }
 
-type Person7 record {
+type Person7 record {|
     string name = "";
     int age = 0;
     (float|string|boolean)...;
-};
+|};
 
 function testUnionRestField() returns Person7 {
     Person7 p = {name:"Foo", age:25, lname:"Bar", height:5.9, isEmployed:true};
@@ -319,22 +333,22 @@ function testUnionRestFieldRHSIndexAccess() returns ((float|string|boolean)?, (f
     return (p["miscField"], invField);
 }
 
-type Person8 record {
+type Person8 record {|
     string name = "";
     int age = 0;
     ()...;
-};
+|};
 
 function testNilRestField() returns Person8 {
     Person8 p = {name:"Foo", age:25, lname:()};
     return p;
 }
 
-type Person9 record {
+type Person9 record {|
     string name = "";
     int age = 0;
     Department...;
-};
+|};
 
 function testRecordRestField() returns Person9 {
     Person9 p = {name:"Foo", age:25, dpt:{dptName:"Engineering", employees:[]}};
@@ -363,11 +377,11 @@ type Animal object {
     }
 };
 
-type Person10 record {
+type Person10 record {|
     string name = "";
     int age = 0;
     Animal...;
-};
+|};
 
 function testObjectRestField() returns Person10 {
     Person10 p = {name:"Foo", age:25, pet:new Animal("Miaw", "Cat")};
@@ -387,11 +401,11 @@ function testObjectRestFieldRHSIndexAccess() returns (Animal?, Animal?) {
     return (p["pet"], pet);
 }
 
-type Person11 record {
+type Person11 record {|
     string name = "";
     int age = 0;
     (float, string, Animal)...;
-};
+|};
 
 function testTupleRestField() returns Person11 {
     Person11 p = {name:"Foo", age:25, misc:(5.9, "Bar", new Animal("Miaw", "Cat"))};
@@ -410,11 +424,11 @@ function testTupleRestFieldRHSIndexAccess() returns ((float, string, Animal)?, (
     return (p["tup"], tupType);
 }
 
-type Person12 record {
+type Person12 record {|
     string name = "";
     int age = 0;
     any...;
-};
+|};
 
 function testAnyRestField() returns Person12 {
     Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];

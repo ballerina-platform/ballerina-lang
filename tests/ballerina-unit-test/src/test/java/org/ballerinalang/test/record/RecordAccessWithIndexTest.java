@@ -17,14 +17,14 @@
 */
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -120,26 +120,101 @@ public class RecordAccessWithIndexTest {
         Assert.assertTrue(returns[2] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 999);
     }
-    
+
+    @Test(description = "Test using expression as the index")
+    public void testExpressionAsStructIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsStructIndex");
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testDynamicIndexAccessTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypes");
+        Assert.assertEquals(returns[0].stringValue(), "string:string:int:100:boolean:true:()::float:25.5:decimal:96.9");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testDynamicIndexAccessTypesWithRestParam() {
+        BValue[] args = {new BString("fieldOne")};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args);
+        Assert.assertEquals(returns[0].stringValue(), ":int:50");
+
+        BValue[] args1 = {new BString("fieldTwo")};
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args1);
+        Assert.assertEquals(returns[0].stringValue(), ":string:string");
+
+        BValue[] args2 = {new BString("fieldThree")};
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args2);
+        Assert.assertEquals(returns[0].stringValue(), ":boolean:true");
+
+        BValue[] args3 = {new BString("fieldFour")};
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args3);
+        Assert.assertEquals(returns[0].stringValue(), "()");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testDynamicIndexAccessTypesWithOpenRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithOpenRecord");
+        Assert.assertEquals(returns[0].stringValue(),
+                ":object:10:function:16:json:json-string:boolean:true:():");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testDynamicIndexAccessWithSingleType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithSingleType");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 582);
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testDynamicIndexAccessWithRecordInsideRecord() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessWithRecordInsideRecord");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testFiniteTypeAsIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFiniteTypeAsIndex");
+        Assert.assertEquals(returns[0].stringValue(), "stringbarField98.995");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testUnionInFiniteTypeAsIndex() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndex");
+        Assert.assertEquals(returns[0].stringValue(), "string100true()");
+    }
+
+    @Test(description = "Test using expression as the index")
+    public void testUnionInFiniteTypeAsIndexNoField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnionInFiniteTypeAsIndexNoField");
+        Assert.assertEquals(returns[0].stringValue(), "Passed");
+    }
+
     // Negative tests
 
     @Test(description = "Test accessing an undeclared record")
     public void testUndeclaredStructAccess() {
-        BAssertUtil.validateError(negativeResult, 0, "undefined symbol 'dpt1'", 3, 5);
-    }
-
-    @Test(description = "Test accessing an undeclared field of a record")
-    public void testUndeclaredFieldAccess() {
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in record 'Department'", 9, 5);
-    }
-
-    @Test(description = "Test accesing a record with a dynamic index")
-    public void testExpressionAsStructIndex() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_access_dynamic_index_negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                "invalid index expression: expected string literal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'dpt1'", 3, 5);
+        BAssertUtil.validateError(negativeResult, i++, "undefined field 'id' in record 'Department'", 9, 5);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 20, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found 'string|int?'", 26, 16);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 55, 40);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found '0|1'", 56, 40);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'", 59, 40);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'string', found '0|1'", 60, 40);
+        BAssertUtil.validateError(negativeResult, i++,
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range", 61, 40);
+        BAssertUtil.validateError(negativeResult, i,
+                "invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range",
+                62, 18);
     }
 
     @Test(description = "Test accessing an field of a noninitialized record",

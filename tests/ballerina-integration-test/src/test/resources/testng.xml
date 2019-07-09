@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-    <test name="ballerina-http-tests" parallel="false">
+     <test name="ballerina-http-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -58,6 +58,8 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
         </classes>
     </test>
 
@@ -87,9 +89,11 @@
     <test name="ballerina-http2-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.service.http2.Http2BaseTest"/>
+            <class name="org.ballerinalang.test.service.http2.Http2PriorKnowledgeTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ServerPushTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ToHttp1FallbackTestCase"/>
             <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2GenericScenarioTestCase"/>
         </classes>
     </test>
 
@@ -101,18 +105,20 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceAuthDisableTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.OAuthConfigTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
-            <class name="org.ballerinalang.test.auth.AuthnWithMultipleProvidersTest" />
-            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.SecureClientWrongAuthProviderTest"/>
             <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
         </classes>
     </test>
 
@@ -127,7 +133,7 @@
 
     <test name="ballerina-transaction-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
+             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
         </classes>
     </test>
@@ -223,6 +229,11 @@
     </test>
 
     <test name="ballerina-jms-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>
         </classes>
@@ -263,6 +274,16 @@
         <classes>
             <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
             <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
+        </classes>
+    </test>
+
+    <test name="artemis-test" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
         </classes>
     </test>
 </suite>

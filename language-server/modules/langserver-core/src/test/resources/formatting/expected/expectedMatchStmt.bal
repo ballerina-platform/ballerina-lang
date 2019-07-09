@@ -21,20 +21,20 @@ function testStructuredMatchPatternsBasic1() returns string {
 }
 
 function testStructuredMatchPatternsBasic2() returns string {
-    (string, (int, float)) a = ("S", (23, 5.6));
+    [string, [int, float]] a = ["S", [23, 5.6]];
 
     match a {
-        var (s, (i, f)) => return "Matched Values : " + s + ", " + i + ", " + f;
+        var [s, [i, f]] => return "Matched Values : " + s + ", " + i + ", " + f;
     }
 
     return "Default";
 }
 
 function testStructuredMatchPatternsBasic3() returns string {
-    (string, int, float) a = ("S", 23, 5.6);
+    [string, int, float] a = ["S", 23, 5.6];
 
     match a {
-        var (s, i, f) => return "Matched Values : " + s + ", " + i + ", " + f;
+        var [s, i, f] => return "Matched Values : " + s + ", " + i + ", " + f;
     }
 
     return "Default";
@@ -43,18 +43,19 @@ function testStructuredMatchPatternsBasic3() returns string {
 type Foo1 record {
     string s;
     int i;
-    (float, int, boolean) fib;
+    [float, int, boolean] fib;
 };
 
 function testStructuredMatchPatternsBasic4() returns string {
     Foo1 foo2 = {
         s: "S",
         i: 23,
-        fib: (5.6, 3, true)
+        fib: [5.6, 3,
+        true]
     };
 
     match foo2 {
-        var {s, i: integer, fib: (a, b, c)} => {
+        var {s, i: integer, fib: [a, b, c]} => {
             integer += 1;
             a += 1;
             b += 1;
@@ -78,12 +79,12 @@ function foo(string | int | boolean a) returns string {
     return "Value is 'Default'";
 }
 
-function typeGuard1((string, int) | ClosedBar1 | ClosedBar2 | (int, boolean) | int | float x) returns string {
+function typeGuard1([string, int] | ClosedBar1 | ClosedBar2 | [int, boolean] | int | float x) returns string {
     match x {
-        var (s, i) if s is string => {
+        var [s, i] if s is string => {
             return "Matched with string : " + s + " added text with " + io:sprintf("%s", i);
         }
-        var (s, i) if s is float => {
+        var [s, i] if s is float => {
             return "Matched with float : " + io:sprintf("%s", s + 4.5) + " with " + io:sprintf("%s", i);
         }
         var {var1, var2} if var2 is int => {
@@ -92,7 +93,7 @@ function typeGuard1((string, int) | ClosedBar1 | ClosedBar2 | (int, boolean) | i
         var {var1, var2} if var2 is ClosedBar1 => {
             return "Matched with record with ClosedBar1 : " + io:sprintf("%s", var1) + " with " + io:sprintf("%s", var2.var1);
         }
-        var (s, i) if i is boolean => {
+        var [s, i] if i is boolean => {
             return "Matched with boolean : " + io:sprintf("%s", s) + ", " + io:sprintf("%s", i);
         }
         var y => {

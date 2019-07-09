@@ -20,7 +20,7 @@ import ballerina/mime;
 
 int counter = 0;
 
-function testSuccessScenario () returns (http:Response | error) {
+function testSuccessScenario () returns @tainted (http:Response | error) {
 
     http:FailoverClient backendClientEP = new({
         failoverCodes : [400, 500, 502, 503],
@@ -48,7 +48,7 @@ function testSuccessScenario () returns (http:Response | error) {
     return clientResponse;
 }
 
-function testFailureScenario () returns (http:Response | error) {
+function testFailureScenario () returns @tainted (http:Response | error) {
     http:FailoverClient backendClientEP = new({
         failoverCodes : [400, 404, 500, 502, 503],
         targets: [
@@ -81,9 +81,9 @@ public type MockClient client object {
     public http:Client httpClient;
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
+        http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
-        http:Client simpleClient = new(url);
         self.httpClient = simpleClient;
     }
 
@@ -129,7 +129,9 @@ public type MockClient client object {
         return httpConnectorError;
     }
 
-    public remote function get(string path, http:Request req) returns http:Response|error {
+    public remote function get(string path,
+                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
+                                                                                        returns http:Response|error {
         http:Response response = new;
         var result = handleFailoverScenario(counter);
         if (result is http:Response) {

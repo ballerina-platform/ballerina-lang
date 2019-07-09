@@ -21,11 +21,36 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Enum to hold the state of a {@link BArrayType}.
  */
 public enum BArrayState {
-    CLOSED_SEALED,
-    OPEN_SEALED,
-    UNSEALED
+    CLOSED_SEALED((byte) 1),
+    OPEN_SEALED((byte) 2),
+    UNSEALED((byte) 3);
+
+    byte value;
+    private static final Map<Byte, BArrayState> map = new HashMap<>();
+
+    BArrayState(byte value) {
+        this.value = value;
+    }
+
+    static {
+        for (BArrayState pageType : BArrayState.values()) {
+            map.put(pageType.value, pageType);
+        }
+    }
+
+    public static BArrayState valueOf(byte state) {
+        return map.get(state);
+    }
+
+    public byte getValue() {
+        return this.value;
+    }
+
 }

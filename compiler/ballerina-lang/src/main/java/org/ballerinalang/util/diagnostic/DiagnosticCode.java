@@ -25,6 +25,7 @@ package org.ballerinalang.util.diagnostic;
 public enum DiagnosticCode {
 
     UNDEFINED_MODULE("undefined.module"),
+    CYCLIC_MODULE_IMPORTS_DETECTED("cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("unused.import.module"),
     MODULE_NOT_FOUND("module.not.found"),
     REDECLARED_IMPORT_MODULE("redeclared.import.module"),
@@ -37,6 +38,9 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION("undefined.function"),
     UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
     UNDEFINED_CONNECTOR("undefined.connector"),
+    INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
+    INVALID_ERROR_DETAIL_TYPE("invalid.error.detail.type"),
+    ERROR_DETAIL_ARG_IS_NOT_NAMED_ARG("error.detail.arg.not.named.arg"),
     UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
@@ -69,8 +73,11 @@ public enum DiagnosticCode {
     PRIVATE_FIELD_ABSTRACT_OBJECT("private.field.abstract.object"),
     PRIVATE_FUNC_ABSTRACT_OBJECT("private.function.abstract.object"),
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
+    RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
+    CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
     INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
@@ -94,6 +101,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
+    REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
@@ -142,7 +150,6 @@ public enum DiagnosticCode {
     REMOTE_IN_NON_OBJECT_FUNCTION("remote.in.non.object.function"),
     REMOTE_ON_NON_REMOTE_FUNCTION("remote.on.non.remote.function"),
     REMOTE_REQUIRED_ON_REMOTE_FUNCTION("remote.required.on.remote.function"),
-    INVALID_ENDPOINT_DECLARATION("invalid.endpoint.declaration"),
     INVALID_LISTENER_VARIABLE("invalid.listener.var"),
     INVALID_LISTENER_ATTACHMENT("invalid.listener.attachment"),
 
@@ -153,6 +160,7 @@ public enum DiagnosticCode {
     UNDEFINED_ACTION("undefined.action"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("type.cast.not.yet.supported.for.type"),
+    EQUALITY_NOT_YET_SUPPORTED("equality.not.yet.supported.for.type"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),
@@ -216,6 +224,7 @@ public enum DiagnosticCode {
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_TUPLE_INDEX_EXPR("invalid.tuple.index.expr"),
+    INVALID_RECORD_INDEX_EXPR("invalid.record.index.expr"),
     INVALID_ENUM_EXPR("invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("invalid.expr.in.match.stmt"),
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
@@ -228,12 +237,14 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL("duplicate.key.in.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
+    INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
     INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
+    INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
@@ -249,8 +260,11 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
     INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
+    INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
+    INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
+    INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -261,8 +275,11 @@ public enum DiagnosticCode {
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
-    ANNOTATION_ATTACHMENT_NO_VALUE("annotation.attachment.no.value"),
-    ANNOTATION_REQUIRE_RECORD("annotation.require.record"),
+    ANNOTATION_ATTACHMENT_CANNOT_HAVE_A_VALUE("annotation.attachment.cannot.have.a.value"),
+    ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE("annotation.attachment.requires.a.value"),
+    ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES("annotation.attachment.cannot.specify.multiple.values"),
+    ANNOTATION_INVALID_TYPE("annotation.invalid.type"),
+    ANNOTATION_REQUIRES_CONST("annotation.requires.const"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),
 
@@ -355,16 +372,27 @@ public enum DiagnosticCode {
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
-    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
-    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER("tainted.value.passed.to.untainted.parameter"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT(
+            "tainted.value.passed.to.untainted.param.in.obj.method"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    TAINTED_VALUE_PASSED_TO_MODULE_OBJECT("tainted.value.passed.to.module.object"),
+    INVOCATION_TAINT_GLOBAL_OBJECT("method.invocation.taint.global.object"),
+    TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE("tainted.value.passed.to.closure.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_FOR_BUILTIN_METHOD("unable.to.perform.taint.checking.for.builtin.method"),
+    TAINTED_RETURN_NOT_ANNOTATED_TAINTED("tainted.return.not.annotated.tainted"),
+    TAINTED_PARAM_NOT_ANNOTATED_TAINTED("tainted.param.not.annotated.tainted"),
 
     // Constants related codes.
     ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
+    TYPE_REQUIRED_FOR_CONST_WITH_RECORD_LITERALS("type.required.for.const.with.record.literals"),
+    CANNOT_UPDATE_CONSTANT_VALUE("cannot.update.constant.value"),
     CANNOT_ASSIGN_VALUE_TO_CONSTANT("cannot.assign.value.to.constant"),
     CANNOT_DEFINE_CONSTANT_WITH_TYPE("cannot.define.constant.with.type"),
+    EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("expression.is.not.a.constant.expression"),
+    KEY_NOT_FOUND("key.not.found"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("arrow.expression.mismatched.parameter.length"),
@@ -380,6 +408,7 @@ public enum DiagnosticCode {
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
+    INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

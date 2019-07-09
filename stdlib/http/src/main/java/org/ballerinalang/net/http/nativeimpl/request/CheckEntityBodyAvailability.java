@@ -20,15 +20,18 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
@@ -55,11 +58,25 @@ public class CheckEntityBodyAvailability extends BlockingNativeCallableUnit {
         BMap<String, BValue> requestStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         BMap<String, BValue> entity = (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD);
         context.setReturnValues(
-                new BBoolean(lengthHeaderCheck(requestStruct) || checkEntityBodyAvailability(entity)));
+                new BBoolean(
+                        lengthHeaderCheck(requestStruct) || EntityBodyHandler.checkEntityBodyAvailability(entity)));
+    }
+
+    public static boolean checkEntityBodyAvailability(Strand strand, ObjectValue requestObj) {
+        ObjectValue entityObj = (ObjectValue) requestObj.get(REQUEST_ENTITY_FIELD);
+        return lengthHeaderCheck(requestObj) || EntityBodyHandler.checkEntityBodyAvailability(entityObj);
     }
 
     private boolean lengthHeaderCheck(BMap<String, BValue> requestStruct) {
         Object outboundMsg = requestStruct.getNativeData(TRANSPORT_MESSAGE);
+        if (outboundMsg == null) {
+            return false;
+        }
+        return BHttpUtil.checkRequestBodySizeHeadersAvailability((HttpCarbonMessage) outboundMsg);
+    }
+
+    private static boolean lengthHeaderCheck(ObjectValue requestObj) {
+        Object outboundMsg = requestObj.getNativeData(TRANSPORT_MESSAGE);
         if (outboundMsg == null) {
             return false;
         }

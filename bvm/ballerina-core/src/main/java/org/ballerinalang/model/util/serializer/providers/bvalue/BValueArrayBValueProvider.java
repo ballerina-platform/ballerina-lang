@@ -142,12 +142,15 @@ public class BValueArrayBValueProvider implements SerializationBValueProvider<BV
             }
         }
         if (target == null) {
-            target = new BValueArray(type);
+            if (type.getTag() == TypeTags.TUPLE_TAG) {
+                target = new BValueArray(type);
+            } else {
+                target = new BValueArray(new BArrayType(type));
+            }
             for (int i = 0; i < array.size(); i++) {
                 target.add(i, (BRefType<?>) bValueDeserializer.deserialize(array.getRefValue(i), null));
             }
         }
-
         return target;
     }
 }

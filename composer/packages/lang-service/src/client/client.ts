@@ -1,10 +1,12 @@
 // tslint:disable-next-line:no-submodule-imports
 import { IConnection } from "monaco-languageclient/lib/connection";
-import { InitializeParams, InitializeResult } from "vscode-languageserver-protocol";
+import { InitializeParams, InitializeResult,
+    Location, TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { ASTDidChangeParams, ASTDidChangeResponse, BallerinaExampleListParams,
     BallerinaExampleListResponse, BallerinaProject, GetASTParams, GetASTResponse,
-    GetBallerinaProjectParams, GoToSourceParams, IBallerinaLangClient, RevealRangeParams } from "./model";
+    GetBallerinaProjectParams, GetProjectASTParams, GetProjectASTResponse, GoToSourceParams,
+    IBallerinaLangClient, RevealRangeParams } from "./model";
 
 export class BallerinaLangClient implements IBallerinaLangClient {
 
@@ -21,6 +23,10 @@ export class BallerinaLangClient implements IBallerinaLangClient {
                     this.isInitialized = true;
                     return resp;
                 });
+    }
+
+    public getProjectAST(params: GetProjectASTParams): Thenable<GetProjectASTResponse> {
+        return this.lsConnection.sendRequest<GetProjectASTResponse>("ballerinaProject/modules", params);
     }
 
     public getAST(params: GetASTParams): Thenable<GetASTResponse> {
@@ -46,6 +52,11 @@ export class BallerinaLangClient implements IBallerinaLangClient {
 
     public getBallerinaProject(params: GetBallerinaProjectParams): Thenable<BallerinaProject> {
         return this.lsConnection.sendRequest("ballerinaDocument/project", params);
+    }
+
+    public getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
+        // TODO
+        return Promise.reject("Not implemented");
     }
 
     public goToSource(params: GoToSourceParams): void {

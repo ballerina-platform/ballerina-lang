@@ -16,19 +16,20 @@
 
 package org.ballerinalang.stdlib.crypto;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test cases for ballerina.crypto native functions relevant to private/public key parsing.
@@ -38,17 +39,21 @@ import java.io.File;
 public class KeyParsingTest {
 
     private CompileResult compileResult;
+    private String resourceRoot;
+    private Path sourceRoot;
+    private Path confRoot;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src" +  File.separator + "crypto" +  File.separator +
-                "keyparsing-test.bal");
+        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        sourceRoot = Paths.get(resourceRoot, "test-src");
+        confRoot = Paths.get(resourceRoot, "datafiles");
+        compileResult = BCompileUtil.compile(sourceRoot.resolve("keyparsing-test.bal").toString());
     }
 
     @Test(description = "Check parsing encrypted private-key from a p12 file.")
     public void testParsingEncryptedPrivateKeyFromP12() {
-        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
-                + File.separator + "crypto" + File.separator + "testKeystore.p12"), new BString("ballerina"),
+        BValue[] args = {new BString(confRoot.resolve("testKeystore.p12").toString()), new BString("ballerina"),
                 new BString("ballerina"), new BString("ballerina")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
@@ -58,9 +63,8 @@ public class KeyParsingTest {
 
     @Test(description = "Check parsing public-key from a p12 file.")
     public void testParsingPublicKeyFromP12() {
-        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
-                + File.separator + "crypto" + File.separator + "testKeystore.p12"), new BString("ballerina"),
-                new BString("ballerina")};
+        BValue[] args = {new BString(confRoot.resolve("testKeystore.p12").toString()),
+                new BString("ballerina"), new BString("ballerina")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) returnValues[0]).get(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD).stringValue(),
@@ -79,23 +83,19 @@ public class KeyParsingTest {
                 "SHA256withRSA");
     }
 
-    @Test(description = "Check attemting to read a private key from a non-existing p12 file.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+    @Test(description = "Check attempting to read a private key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingEncryptedPrivateKeyFromInvalidLocation() {
-        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
-                + File.separator + "crypto" + File.separator + "testKeystore.p12.invalid"), new BString("ballerina"),
+        BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()), new BString("ballerina"),
                 new BString("ballerina"), new BString("ballerina")};
         BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
     }
 
     @Test(description = "Check attemting to read a public key from a non-existing p12 file.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: PKCS12 key store not found.*")
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingPublicKeyFromInvalidLocation() {
-        BValue[] args = {new BString("target" + File.separator + "test-classes" + File.separator + "datafiles"
-                + File.separator + "crypto" + File.separator + "testKeystore.p12.invalid"), new BString("ballerina"),
-                new BString("ballerina")};
+        BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()),
+                new BString("ballerina"), new BString("ballerina")};
         BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
     }
 }

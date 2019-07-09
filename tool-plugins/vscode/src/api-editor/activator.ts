@@ -22,7 +22,7 @@ import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
 import { API_DESIGNER_NO_SERVICE } from '../core/messages';
-import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { readFileSync } from "fs";
 
@@ -164,10 +164,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
             'ballerinaOASEditor',
             'Ballerina API Designer - ' + selectedService,
             { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-            }
+            getCommonWebViewOptions()
         );
     }
 
@@ -175,18 +172,18 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
 
     const remoteMethods: WebViewMethod[] = [
         {
-            methodName: "getSwaggerDef",
+            methodName: "getOpenApiDef",
             handler: (args: any[]): Thenable<any> => {
                 return langClient.getBallerinaOASDef(args[0], args[1]);
             }
         },{
-            methodName: 'triggerSwaggerDefChange',
+            methodName: 'triggerOpenApiDefChange',
             handler: (args: any[]) => {
-                return langClient.triggerSwaggerDefChange(args[0], args[1]);
+                return langClient.triggerOpenApiDefChange(args[0], args[1]);
             }
         }
     ];
-    WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(oasEditorPanel, langClient, remoteMethods);
 
     oasEditorPanel.iconPath = {
 		light: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design.svg')),

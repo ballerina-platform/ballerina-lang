@@ -60,7 +60,7 @@ function testRecordFieldValueTypeConformance() {
                             "invalid reason on inherent type violating record update");
 }
 
-function updateRecordFieldOne(record{ any...; } r, any val) {
+function updateRecordFieldOne(record {| any|error...; |} r, any val) {
     r.fieldOne = val;
 }
 
@@ -102,13 +102,13 @@ function testOptionalFields() {
 // The order of the individual-field-descriptors within a record-type-descriptor is not significant.
 // Note that the delimited identifier syntax allows the field name to be any non-empty string.
 type QuuxRecord record {
-    string ^"string";
-    int ^"int field";
+    string 'string;
+    int 'int\ field;
 };
 
 @test:Config {}
 function testDifferentFieldDescriptorsAndOrder() {
-    QuuxRecord b = { ^"int field": i1, ^"string": s1 };
-    test:assertEquals(b.^"string", s1);
-    test:assertEquals(b.^"int field", i1);
+    QuuxRecord b = { 'int\ field: i1, 'string: s1 };
+    test:assertEquals(b.'string, s1);
+    test:assertEquals(b.'int\ field, i1);
 }

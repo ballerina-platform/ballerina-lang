@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 3,
+    "character": 4
+  },
+  "source": "annotation/source/serviceAnnotation3.bal",
+  "items": [
+    {
+      "label": "autoAck",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "autoAck: ${1:false}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "queueConfig",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "queueConfig: {\n\tqueueName: \"${1}\"\n}\n",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "filter",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "filter: ${1:\"\"} // Values allowed: string|()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "autoAck: false,\nqueueConfig: {},\nfilter: \"\" // Values allowed: string|()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

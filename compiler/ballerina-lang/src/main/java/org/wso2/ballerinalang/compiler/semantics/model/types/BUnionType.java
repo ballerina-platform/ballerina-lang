@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
@@ -60,6 +61,11 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public boolean isNullable() {
         return nullable;
     }
@@ -75,7 +81,8 @@ public class BUnionType extends BType implements UnionType {
         this.memberTypes.stream()
                 .filter(memberType -> memberType.tag != TypeTags.NIL)
                 .forEach(memberType -> joiner.add(memberType.toString()));
-        String typeStr = joiner.toString();
+        String typeStr = this.memberTypes.stream().filter(memberType -> memberType.tag != TypeTags.NIL).count() > 1
+                ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }

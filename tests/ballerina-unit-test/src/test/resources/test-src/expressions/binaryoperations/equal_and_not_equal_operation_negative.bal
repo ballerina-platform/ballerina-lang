@@ -120,6 +120,18 @@ function testEqualityWithNonAnydataType() returns boolean {
     return equals;
 }
 
+function testEqualityWithTable() {
+    table<ClosedDept> t1 = table{};
+    table<ClosedDept> t2 = table{};
+    table<EmployeeWithOptionalId> t3 = table{};
+
+    table<ClosedDept>|map<string> t4 = t1;
+    table<ClosedDept>|map<string> t5 = t2;
+
+    boolean b = t1 == t2;
+    b = t4 != t5;
+}
+
 type Employee record {
     string name;
     int id = 0;
@@ -130,19 +142,16 @@ type Person record {
     string id = "";
 };
 
-type ClosedDept record {
+type ClosedDept record {|
     string code;
-    !...;
-};
+|};
 
-type EmployeeWithOptionalId record {
+type EmployeeWithOptionalId record {|
     string name;
     float id?;
-    !...;
-};
+|};
 
-type PersonWithOptionalId record {
+type PersonWithOptionalId record {|
     string name;
     string id?;
-    !...;
-};
+|};

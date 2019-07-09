@@ -14,6 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents HTTP/1.0 protocol
+const string HTTP_1_0 = "1.0";
+
+# Represents HTTP/1.1 protocol
+const string HTTP_1_1 = "1.1";
+
+# Represents HTTP/2.0 protocol
+const string HTTP_2_0 = "2.0";
+
+# Defines the supported HTTP protocols.
+#
+# `HTTP_1_0`: HTTP/1.0 protocol
+# `HTTP_1_1`: HTTP/1.1 protocol
+# `HTTP_2_0`: HTTP/2.0 protocol
+public type HttpVersion HTTP_1_0|HTTP_1_1|HTTP_2_0;
+
 # Represents http protocol scheme
 const string HTTP_SCHEME = "http://";
 
@@ -58,6 +74,9 @@ public const HTTP_PATCH = "PATCH";
 
 # Constant for the HTTP HEAD method
 public const HTTP_HEAD = "HEAD";
+
+# constant for the HTTP SUBMIT method
+public const HTTP_SUBMIT = "SUBMIT";
 
 # Constant for the identify not an HTTP Operation
 public const HTTP_NONE = "NONE";
@@ -114,72 +133,53 @@ public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChann
 # `PUT`: Replace the target resource
 # `PATCH`: Apply partial modification to the resource
 # `HEAD`: Identical to `GET` but no resource body should be returned
+# `SUBMIT`: Submits a http request and returns an HttpFuture object
 # `NONE`: No operation should be performed
-public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD|HTTP_NONE;
+public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD
+                                                                                                |HTTP_SUBMIT|HTTP_NONE;
 
-# A record for providing trust store related configurations.
-#
-# + path - Path to the trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
-
-# A record for providing key store related configurations.
-#
-# + path - Path to the key store file
-# + password - Key store password
-public type KeyStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
+// Common type used for HttpFuture and Response used for resiliency clients.
+type HttpResponse Response|HttpFuture;
 
 # A record for configuring SSL/TLS protocol and version to be used.
 #
 # + name - SSL Protocol to be used (e.g.: TLS1.2)
 # + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of `validateCertEnabled`
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for certificate revocation status checks.
 #
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # A record for providing configurations for content compression.
 #
 # + enable - The status of compression
 # + contentTypes - Content types which are allowed for compression
-public type CompressionConfig record {
+public type CompressionConfig record {|
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
-    !...;
-};
+|};
 
 type HTTPError record {
     string message = "";
@@ -194,7 +194,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public extern function parseHeader(string headerValue) returns (string, map<any>)|error;
+public function parseHeader(string headerValue) returns [string, map<any>]|error = external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -222,9 +222,7 @@ function buildRequest(RequestMessage message) returns Request {
 
 function buildResponse(ResponseMessage message) returns Response {
     Response response = new;
-    if (message is ()) {
-        return response;
-    } else if (message is Response) {
+    if (message is Response) {
         response = message;
     } else if (message is string) {
         response.setTextPayload(message);
@@ -248,10 +246,11 @@ function buildResponse(ResponseMessage message) returns Response {
 # + path - Resource path
 # + outRequest - A Request struct
 # + requestAction - `HttpOperation` related to the request
-# + httpClient - HTTP client which uses to call the relavant functions
+# + httpClient - HTTP client which uses to call the relevant functions
+# + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-public function invokeEndpoint (string path, Request outRequest,
-                                HttpOperation requestAction, Client httpClient) returns Response|error {
+public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
+                                                HttpClient httpClient, string verb = "") returns HttpResponse|error {
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
         return result;
@@ -276,6 +275,8 @@ public function invokeEndpoint (string path, Request outRequest,
     } else if (HTTP_HEAD == requestAction) {
         var result = httpClient->head(path, message = outRequest);
         return result;
+    } else if (HTTP_SUBMIT == requestAction) {
+        return httpClient->submit(verb, path, outRequest);
     } else {
         return getError();
     }
@@ -300,6 +301,8 @@ function extractHttpOperation (string httpVerb) returns HttpOperation {
         inferredConnectorAction = HTTP_FORWARD;
     } else if ("HEAD" == httpVerb) {
         inferredConnectorAction = HTTP_HEAD;
+    } else if ("SUBMIT" == httpVerb) {
+        inferredConnectorAction = HTTP_SUBMIT;
     }
     return inferredConnectorAction;
 }
@@ -339,22 +342,22 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = untaint bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, contentType = <@untainted> bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = untaint inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, contentType = <@untainted> inRequest.getContentType());
     }
     return inRequest;
 }
 
-function isMultipartRequest(Request request) returns boolean {
+function isMultipartRequest(Request request) returns @tainted boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
         request.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function isNestedEntity(mime:Entity entity) returns boolean {
+function isNestedEntity(mime:Entity entity) returns @tainted boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
         entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
@@ -370,5 +373,10 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
     }
 }
 
+function getInvalidTypeError() returns error {
+    error invalidTypeError = error("Invalid return type found for the HTTP operation");
+    return invalidTypeError;
+}
+
 //Resolve a given path against a given URI.
-extern function resolve(string baseUrl, string path) returns string|error;
+function resolve(string baseUrl, string path) returns string|error = external;

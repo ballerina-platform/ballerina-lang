@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
@@ -34,7 +33,6 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
-import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -42,6 +40,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -101,7 +100,6 @@ public class TextDocumentFormatUtil {
 
         final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -137,12 +135,12 @@ public class TextDocumentFormatUtil {
      *
      * @param node              Node to get the json representation
      * @param anonStructs       Map of anonymous structs
-     * @param symbolMetaInfoMap symbol meta information map
+     * @param visibleEPsByNode        Visible endpoints by node map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
      */
     public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs,
-                                           Map<BLangNode, List<SymbolMetaInfo>> symbolMetaInfoMap)
+                                           Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode)
             throws JSONGenerationException {
         if (node == null) {
             return JsonNull.INSTANCE;
@@ -181,8 +179,8 @@ public class TextDocumentFormatUtil {
         nodeJson.addProperty("id", UUID.randomUUID().toString());
 
         // Add the visible endpoints for a given node
-        if (symbolMetaInfoMap.containsKey(node)) {
-            List<SymbolMetaInfo> endpointMetaList = symbolMetaInfoMap.get(node);
+        if (visibleEPsByNode.containsKey(node)) {
+            List<SymbolMetaInfo> endpointMetaList = visibleEPsByNode.get(node);
             JsonArray endpoints = new JsonArray();
             endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
             nodeJson.add("VisibleEndpoints", endpoints);
@@ -193,10 +191,14 @@ public class TextDocumentFormatUtil {
             nodeJson.add(SYMBOL_TYPE, type);
         }
         if (node.getKind() == NodeKind.INVOCATION) {
+
             assert node instanceof BLangInvocation : node.getClass();
             BLangInvocation invocation = (BLangInvocation) node;
             if (invocation.symbol != null && invocation.symbol.kind != null) {
                 nodeJson.addProperty(INVOCATION_TYPE, invocation.symbol.kind.toString());
+                JsonArray defLink = new JsonArray();
+                getDefinitionLink(invocation.symbol, defLink);
+                nodeJson.add("definition", defLink);
             }
         }
 
@@ -241,7 +243,7 @@ public class TextDocumentFormatUtil {
                 ((BLangAnnotation) node)
                         .getAttachPoints()
                         .stream()
-                        .map(AttachPoint::getValue)
+                        .map(attachPoint -> attachPoint.point.getValue())
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);
@@ -254,7 +256,7 @@ public class TextDocumentFormatUtil {
 
             /* Node classes */
             if (prop instanceof Node) {
-                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, symbolMetaInfoMap));
+                nodeJson.add(jsonName, generateJSON((Node) prop, anonStructs, visibleEPsByNode));
             } else if (prop instanceof List) {
                 List listProp = (List) prop;
                 JsonArray listPropJson = new JsonArray();
@@ -268,17 +270,17 @@ public class TextDocumentFormatUtil {
                                 continue;
                             }
                         }
-                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, symbolMetaInfoMap));
+                        listPropJson.add(generateJSON((Node) listPropItem, anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVarRef.BLangRecordVarRefKeyValue) {
                         listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
-                                .getVariableName(), anonStructs, symbolMetaInfoMap));
+                                .getVariableName(), anonStructs, visibleEPsByNode));
                         listPropJson.add(generateJSON(((BLangRecordVarRef.BLangRecordVarRefKeyValue) listPropItem)
-                                .getBindingPattern(), anonStructs, symbolMetaInfoMap));
+                                .getBindingPattern(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof BLangRecordVariable.BLangRecordVariableKeyValue) {
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
-                                .getKey(), anonStructs, symbolMetaInfoMap));
+                                .getKey(), anonStructs, visibleEPsByNode));
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
-                                .getValue(), anonStructs, symbolMetaInfoMap));
+                                .getValue(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
                     } else {
@@ -325,6 +327,33 @@ public class TextDocumentFormatUtil {
             }
         }
         return nodeJson;
+    }
+
+    /**
+     * Get a list of names of the owners of the invocation node.
+     *
+     * @param symbol The symbol of which the owners are found
+     * @param owners Array of strings that will be filled with the names of owners in the chain
+     */
+    public static void getDefinitionLink(BSymbol symbol, JsonArray owners) {
+        if (symbol == null) {
+            return;
+        }
+
+        JsonArray part = new JsonArray();
+        if (symbol.name == null) {
+            part.add((JsonElement) null);
+        } else {
+            part.add(symbol.name.value);
+        }
+
+        if (symbol.kind == null) {
+            part.add((JsonElement) null);
+        } else {
+            part.add(symbol.kind.name());
+        }
+        owners.add(part);
+        getDefinitionLink(symbol.owner, owners);
     }
 
     /**

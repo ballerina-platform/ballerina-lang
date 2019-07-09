@@ -28,8 +28,6 @@ import org.quartz.SchedulerException;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.calendar.BaseCalendar;
 import org.quartz.spi.OperableTrigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -46,16 +44,14 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Appointment extends AbstractTask {
 
     private String cronExpression;
-    private static final Logger log = LoggerFactory.getLogger(Appointment.class);
 
     /**
      * Creates an Appointment object with provided cron expression.
      *
-     * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @throws SchedulingException When initializing this Appointment is failed.
      */
-    public Appointment(Context context, String cronExpression) throws SchedulingException {
+    public Appointment(String cronExpression) throws SchedulingException {
         super();
         this.cronExpression = cronExpression;
     }
@@ -64,37 +60,13 @@ public class Appointment extends AbstractTask {
      * Creates an Appointment object with provided cron expression,
      * which will stop after running provided number of times.
      *
-     * @param context        Ballerina context which creating the Appointment.
      * @param cronExpression Cron expression for which the Appointment triggers.
      * @param maxRuns        Number of times after which the Appointment will cancel.
      * @throws SchedulingException When initializing this Appointment is failed.
      */
-    public Appointment(Context context, String cronExpression, long maxRuns) throws SchedulingException {
+    public Appointment(String cronExpression, long maxRuns) throws SchedulingException {
         super(maxRuns);
         this.cronExpression = cronExpression;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stop() throws SchedulingException {
-        this.stop(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        this.pause(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void resume() throws SchedulingException {
-        this.resume(this.getId());
     }
 
     /**
@@ -119,15 +91,26 @@ public class Appointment extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void run(Context context) throws SchedulingException {
+    //TODO Remove after migration : implemented using bvm values/types
+    public void start(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleAppointment(jobDataMap);
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to schedule Task. " + e.getMessage());
-            }
-            throw new SchedulingException("Failed to schedule Task.");
+            throw new SchedulingException("Failed to schedule Task.", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
+        try {
+            scheduleAppointment(jobDataMap);
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to schedule Task.", e);
         }
     }
 

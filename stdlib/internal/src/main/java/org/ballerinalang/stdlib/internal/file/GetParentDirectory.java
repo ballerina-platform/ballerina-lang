@@ -22,6 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -83,5 +87,28 @@ public class GetParentDirectory extends BlockingNativeCallableUnit {
             log.error(msg, ex);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
+    }
+
+    public static Object getParentDirectory(Strand strand, ObjectValue self) {
+        Path path = (Path) self.getNativeData(Constants.PATH_DEFINITION_NAME);
+
+        try {
+            Path parent = path.getParent();
+            if (parent != null) {
+                ObjectValue pathObject = BallerinaValues.createObjectValue(Constants.PACKAGE_PATH,
+                        Constants.PATH_STRUCT, "");
+                pathObject.call(strand, Constants.INIT_FUNCTION_NAME, parent.toString(), true);
+                return pathObject;
+            } else {
+                String msg = "Parent folder cannot be found for: " + path;
+                log.error(msg);
+                return BallerinaErrors.createError(msg);
+            }
+        } catch (Exception ex) {
+            String msg = "Error occurred while getting parent directory of: " + path;
+            log.error(msg, ex);
+            return BallerinaErrors.createError(msg);
+        }
+
     }
 }

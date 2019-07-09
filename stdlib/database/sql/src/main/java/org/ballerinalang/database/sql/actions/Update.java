@@ -19,9 +19,12 @@ package org.ballerinalang.database.sql.actions;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.SQLDatasource;
-import org.ballerinalang.database.sql.SQLDatasourceUtils;
+import org.ballerinalang.database.sql.statement.SQLStatement;
+import org.ballerinalang.database.sql.statement.UpdateStatement;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,25 +47,29 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         },
         returnType = {
                 @ReturnType(type = TypeKind.RECORD, structType = "Result", structPackage = "ballerina/sql"),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
+                @ReturnType(type = TypeKind.RECORD, structType = "JdbcClientError",
+                        structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class Update extends AbstractSQLAction {
 
     @Override
     public void execute(Context context) {
-        try {
-            String query = context.getStringArgument(0);
-            BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
-            BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
-            SQLDatasource datasource = retrieveDatasource(context);
+        //TODO: #16033
+        /*String query = context.getStringArgument(0);
+        BValueArray keyColumns = (BValueArray) context.getNullableRefArgument(1);
+        BValueArray parameters = (BValueArray) context.getNullableRefArgument(2);
+        SQLDatasource datasource = retrieveDatasource(context);
 
-            checkAndObserveSQLAction(context, datasource, query);
-            executeUpdateWithKeys(context, datasource, query, keyColumns, parameters);
-        } catch (Throwable e) {
-            context.setReturnValues(SQLDatasourceUtils.getSQLConnectorError(context, e));
-            SQLDatasourceUtils.handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, e.getMessage());
-        }
+        SQLStatement updateStatement = new UpdateStatement(context, datasource, query, keyColumns, parameters);
+        updateStatement.execute();*/
+    }
+
+    public static Object nativeUpdate(Strand strand, ObjectValue client, String query, Object keyColumns,
+            ArrayValue parameters) {
+        SQLDatasource sqlDatasource = retrieveDatasource(client);
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, (ArrayValue) keyColumns,
+                parameters);
+        return updateStatement.execute();
     }
 }

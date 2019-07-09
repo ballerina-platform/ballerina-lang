@@ -18,15 +18,14 @@
 #
 # + oncommit - Function to execute when transaction committed.
 # + onabort - Function to execute when transaction aborted.
-public type TransactionParticipantConfig record {
+public type TransactionParticipantConfig record {|
     function (string) oncommit?;
     function (string) onabort?;
-    !...;
-};
+|};
 
 /////////////////////////////////////////
 /// Function and Resource Annotations ///
 /////////////////////////////////////////
 
 # The annotation which is used to configure local transaction participant function.
-public annotation <function, resource> Participant TransactionParticipantConfig;
+public annotation TransactionParticipantConfig Participant on function;

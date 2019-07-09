@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
 import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
@@ -40,8 +39,8 @@ public type Listener object {
         return self.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.register(s, name);
     }
 
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
@@ -54,40 +53,49 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c);
+    public function init(ServiceEndpointConfiguration c) {
+        self.config = c;
+        var auth = self.config["auth"];
+        if (auth is ListenerAuth) {
+            var authHandlers = auth.authHandlers;
+            if (authHandlers is InboundAuthHandler?[]) {
+                if (authHandlers.length() > 0) {
+                    initListener(self.config);
+                }
+            } else {
+                if (authHandlers[0].length() > 0) {
+                    initListener(self.config);
+                }
+            }
+        }
+        var err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
+    }
 
-    public extern function initEndpoint() returns error?;
+    public function initEndpoint() returns error? = external;
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
-    # + return - An `error` if there is any error occured during the service attachment process or else nil
-    extern function register(service s, map<any> annotationData) returns error?;
+    # + name - Name of the service
+    # + return - An `error` if there is any error occurred during the service attachment process or else nil
+    function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    extern function start();
+    function start() = external;
 
     # Stops the registered service.
-    extern function stop();
+    function stop() = external;
 };
 
-public function Listener.init(ServiceEndpointConfiguration c) {
-    self.config = c;
-    var authProviders = self.config.authProviders;
-    if (authProviders is AuthProvider[]) {
-        var providers = authProviders;
-        if (providers.length() > 0) {
-            var secureSocket = self.config.secureSocket;
-            if (secureSocket is ServiceSecureSocket) {
-                addAuthFiltersForSecureListener(self.config, self.instanceId);
-            } else {
-                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-                panic err;
-            }
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
+function initListener(ServiceEndpointConfiguration config) {
+    var secureSocket = config.secureSocket;
+    if (secureSocket is ServiceSecureSocket) {
+        addAuthFiltersForSecureListener(config);
+    } else {
+        error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
         panic err;
     }
 }
@@ -96,21 +104,19 @@ public function Listener.init(ServiceEndpointConfiguration c) {
 #
 # + host - The remote host name/IP
 # + port - The remote port
-public type Remote record {
+public type Remote record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};
 
 # Presents a read-only view of the local address.
 #
 # + host - The local host name/IP
 # + port - The local port
-public type Local record {
+public type Local record {|
     string host = "";
     int port = 0;
-    !...;
-};
+|};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.
 #
@@ -120,12 +126,11 @@ public type Local record {
 #                   `413 - Payload Too Large` response.
 # + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
-public type RequestLimits record {
+public type RequestLimits record {|
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
-    !...;
-};
+|};
 
 # Provides a set of configurations for HTTP service endpoints.
 #
@@ -141,25 +146,38 @@ public type RequestLimits record {
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
-# + authProviders - The array of authentication providers which are used to authenticate the users
-# + positiveAuthzCache - Caching configurations for positive authorizations
-# + negativeAuthzCache - Caching configurations for negative authorizations
-public type ServiceEndpointConfiguration record {
+# + auth - Listener authenticaton configurations
+public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
     RequestLimits? requestLimits = ();
+    //TODO: update as a optional field
     Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
-    AuthProvider[]? authProviders = ();
+    ListenerAuth auth?;
+|};
+
+# Authentication configurations for the listener.
+#
+# + authHandlers - An array of inbound authentication handlers or an array consisting of arrays of inbound authentication handlers.
+# An array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays
+# is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
+# + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
+# be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
+# should successfully be authorozed.
+# + positiveAuthzCache - The caching configurations for positive authorizations.
+# + negativeAuthzCache - The caching configurations for negative authorizations.
+public type ListenerAuth record {|
+    (InboundAuthHandler?)[]|(InboundAuthHandler?)[][] authHandlers;
+    string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-    !...;
-};
+|};
 
 # Configures the SSL/TLS options to be used for HTTP service.
 #
@@ -178,9 +196,9 @@ public type ServiceEndpointConfiguration record {
 # + handshakeTimeout - SSL handshake time out
 # + sessionTimeout - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
-public type ServiceSecureSocket record {
-    TrustStore? trustStore = ();
-    KeyStore? keyStore = ();
+public type ServiceSecureSocket record {|
+    crypto:TrustStore? trustStore = ();
+    crypto:KeyStore? keyStore = ();
     string certFile = "";
     string keyFile = "";
     string keyPassword = "";
@@ -197,8 +215,7 @@ public type ServiceSecureSocket record {
     int? handshakeTimeout = ();
     int? sessionTimeout = ();
     ServiceOcspStapling? ocspStapling = ();
-    !...;
-};
+|};
 
 # Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
 #
@@ -207,27 +224,12 @@ public type ServiceSecureSocket record {
 # + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-public type AuthCacheConfig record {
+public type AuthCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     int expiryTimeMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
-    !...;
-};
-
-# Configuration for authentication providers.
-#
-# + id - Authentication provider instance id
-# + scheme - Authentication scheme
-# + authStoreProvider - Authentication store provider (Config, LDAP, etc.) implementation
-# + config - Configuration related to the selected authentication provider.
-public type AuthProvider record {
-    string id = "";
-    InboundAuthScheme? scheme = ();
-    AuthStoreProvider? authStoreProvider = ();
-    auth:LdapAuthProviderConfig|auth:ConfigAuthProviderConfig|auth:JWTAuthProviderConfig? config = ();
-    !...;
-};
+|};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
@@ -239,133 +241,46 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
-# Add authn and authz filters
+# Adds authentication and authorization filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
-# + instanceId - Endpoint instance id
-function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) {
+function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
-    if (config.filters.length() == 0) {
-        // can add authn and authz filters directly
-        config.filters = createAuthFiltersForSecureListener(config, instanceId);
-    } else {
-        Filter[] newFilters = createAuthFiltersForSecureListener(config, instanceId);
-        // add existing filters next
-        int i = 0;
-        while (i < config.filters.length()) {
-        newFilters[i + (newFilters.length())] = config.filters[i];
-        i = i + 1;
-        }
-        config.filters = newFilters;
-    }
-}
-
-# Create an array of auth and authz filters.
-#
-# + config - `ServiceEndpointConfiguration` instance
-# + instanceId - Endpoint instance id
-# + return - Array of Filters comprising of authn and authz Filters
-function createAuthFiltersForSecureListener(ServiceEndpointConfiguration config, string instanceId) returns (Filter[]) {
-    // parse and create authentication handlers
-    AuthHandlerRegistry registry = new;
     Filter[] authFilters = [];
-    var authProviderList = config.authProviders;
-    if (authProviderList is AuthProvider[]) {
-        if (authProviderList.length() > 0) {
-            foreach var provider in authProviderList {
-                if (provider.id.length() > 0) {
-                    registry.add(provider.id, createAuthHandler(provider, instanceId));
-                } else {
-                    string providerId = system:uuid();
-                    registry.add(providerId, createAuthHandler(provider, instanceId));
-                }
+
+    var auth = config["auth"];
+    if (auth is ListenerAuth) {
+        InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers = auth.authHandlers;
+        AuthnFilter authnFilter = new(authHandlers);
+        authFilters[0] = authnFilter;
+
+        var scopes = auth["scopes"];
+        cache:Cache positiveAuthzCache = new(expiryTimeMillis = auth.positiveAuthzCache.expiryTimeMillis,
+                                            capacity = auth.positiveAuthzCache.capacity,
+                                            evictionFactor = auth.positiveAuthzCache.evictionFactor);
+        cache:Cache negativeAuthzCache = new(expiryTimeMillis = auth.negativeAuthzCache.expiryTimeMillis,
+                                            capacity = auth.negativeAuthzCache.capacity,
+                                            evictionFactor = auth.negativeAuthzCache.evictionFactor);
+        AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+        AuthzFilter authzFilter = new(authzHandler, scopes);
+        authFilters[1] = authzFilter;
+
+        if (config.filters.length() == 0) {
+            // can add authn and authz filters directly
+            config.filters = authFilters;
+        } else {
+            Filter[] newFilters = authFilters;
+            // add existing filters next
+            int i = 0;
+            while (i < config.filters.length()) {
+                newFilters[i + (newFilters.length())] = config.filters[i];
+                i = i + 1;
             }
-
-            AuthnHandlerChain authnHandlerChain = new(registry);
-            AuthnFilter authnFilter = new(authnHandlerChain);
-            cache:Cache positiveAuthzCache = new(expiryTimeMillis = config.positiveAuthzCache.expiryTimeMillis,
-            capacity = config.positiveAuthzCache.capacity,
-            evictionFactor = config.positiveAuthzCache.evictionFactor);
-            cache:Cache negativeAuthzCache = new(expiryTimeMillis = config.negativeAuthzCache.expiryTimeMillis,
-            capacity = config.negativeAuthzCache.capacity,
-            evictionFactor = config.negativeAuthzCache.evictionFactor);
-            auth:AuthStoreProvider authStoreProvider = new;
-
-            foreach var provider in authProviderList {
-                var authProviderConfig = provider.config;
-                if (provider.scheme == BASIC_AUTH) {
-                    if (provider.authStoreProvider == LDAP_AUTH_STORE) {
-                        if (authProviderConfig is auth:LdapAuthProviderConfig) {
-                            auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
-                            authStoreProvider = ldapAuthStoreProvider;
-                        } else {
-                            error e = error("LDAP auth provider config not provided");
-                            panic e;
-                        }
-                    } else if (provider.authStoreProvider == CONFIG_AUTH_STORE) {
-                        auth:ConfigAuthStoreProvider configAuthStoreProvider;
-                        if (authProviderConfig is auth:ConfigAuthProviderConfig) {
-                            configAuthStoreProvider = new(authProviderConfig);
-                        } else {
-                            configAuthStoreProvider = new({});
-                        }
-                        authStoreProvider = configAuthStoreProvider;
-                    } else {
-                        error configError = error("Unsupported auth store provider");
-                        panic configError;
-                    }
-                }
-            }
-
-            HttpAuthzHandler authzHandler = new(authStoreProvider, positiveAuthzCache, negativeAuthzCache);
-            AuthzFilter authzFilter = new(authzHandler);
-            authFilters[0] = authnFilter;
-            authFilters[1] = authzFilter;
+            config.filters = newFilters;
         }
     }
-    return authFilters;
-}
-
-function createAuthHandler(AuthProvider authProvider, string instanceId) returns HttpAuthnHandler {
-    var authProviderConfig = authProvider.config;
-    if (authProvider.scheme == BASIC_AUTH) {
-        auth:AuthStoreProvider authStoreProvider = new;
-        if (authProvider.authStoreProvider == CONFIG_AUTH_STORE) {
-            auth:ConfigAuthStoreProvider configAuthStoreProvider;
-            if (authProviderConfig is auth:ConfigAuthProviderConfig) {
-                configAuthStoreProvider = new(authProviderConfig);
-            } else {
-                configAuthStoreProvider = new({});
-            }
-            authStoreProvider = configAuthStoreProvider;
-        } else if (authProvider.authStoreProvider == LDAP_AUTH_STORE) {
-            if (authProviderConfig is auth:LdapAuthProviderConfig) {
-                auth:LdapAuthStoreProvider ldapAuthStoreProvider = new(authProviderConfig, instanceId);
-                authStoreProvider = ldapAuthStoreProvider;
-            } else {
-                error e = error("LDAP auth provider config not provided");
-                panic e;
-            }
-        } else {
-            error e = error("Unsupported auth store provider");
-            panic e;
-        }
-        HttpBasicAuthnHandler basicAuthHandler = new(authStoreProvider);
-        return basicAuthHandler;
-    } else if (authProvider.scheme == JWT_AUTH){
-        if (authProviderConfig is auth:JWTAuthProviderConfig) {
-            auth:JWTAuthProvider jwtAuthProvider = new(authProviderConfig);
-            HttpJwtAuthnHandler jwtAuthnHandler = new(jwtAuthProvider);
-            return jwtAuthnHandler;
-        } else {
-            error e = error("JWT auth provider config not provided");
-            panic e;
-        }
-    } else {
-        error e = error("Unsupported auth scheme");
-        panic e;
-    }
+    // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
 }
 
 //////////////////////////////////
@@ -387,8 +302,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.stop();
     }
 
-    public function __attach(service s, map<any> annotationData) returns error? {
-        return self.httpEndpoint.register(s, annotationData);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.httpEndpoint.register(s, name);
     }
 
 

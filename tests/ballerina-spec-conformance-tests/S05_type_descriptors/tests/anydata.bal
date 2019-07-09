@@ -52,6 +52,8 @@ function anydataValueDataProvider() returns anydata[][] {
         [e],
         [f],
         [k],
-        [l]
+        [l],
+        [anydataOrErrorArray],
+        [anydataOrErrorMap]
     ];
 }

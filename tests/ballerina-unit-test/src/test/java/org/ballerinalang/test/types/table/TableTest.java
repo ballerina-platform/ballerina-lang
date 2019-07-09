@@ -16,10 +16,6 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
@@ -33,6 +29,10 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ResponseReader;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
@@ -215,7 +215,7 @@ public class TableTest {
                 + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
                 + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
                 + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE>"
-                + "<DECIMAL_TYPE>234.56</DECIMAL_TYPE>"
+                + "<DECIMAL_TYPE>342452151425.4556</DECIMAL_TYPE>"
                 + "<DOUBLE_ARRAY><element>245.23</element><element>5559.49</element><element>8796.123</element>"
                 + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
                 + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
@@ -250,7 +250,7 @@ public class TableTest {
                 + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
                 + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", "
-                + "\"DECIMAL_TYPE\":234.56, \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
+                + "\"DECIMAL_TYPE\":342452151425.4556, \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
                 + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
@@ -1419,6 +1419,12 @@ public class TableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello");
+    }
+
+    @Test(description = "Test removing data from a table using a given lambda as a filter")
+    public void testRemoveOp() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
+        Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
     }
 
     @AfterClass(alwaysRun = true)

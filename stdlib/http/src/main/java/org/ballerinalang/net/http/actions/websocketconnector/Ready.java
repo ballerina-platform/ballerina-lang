@@ -20,12 +20,11 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
@@ -37,35 +36,43 @@ import org.ballerinalang.net.http.WebSocketUtil;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
         functionName = "ready",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina/http"),
-        args = {
-                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
-        }
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        )
 )
 public class Ready implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+    }
+
+    public static Object ready(Strand strand, ObjectValue wsConnection) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
-            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
+            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
-                    .booleanValue();
+            boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), webSocketConnector);
-                context.setReturnValues();
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
+                //TODO remove this call back
+                callback.setReturnValues(null);
             } else {
-                context.setReturnValues(HttpUtil.getError(context, "Already started reading frames"));
+                //TODO remove this call back
+                callback.setReturnValues(HttpUtil.getError("Already started reading frames"));
             }
             callback.notifySuccess();
         } catch (Exception e) {
-            context.setReturnValues(HttpUtil.getError(context, e));
+            //TODO remove this call back
+            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
         }
+        return null;
     }
 
     @Override

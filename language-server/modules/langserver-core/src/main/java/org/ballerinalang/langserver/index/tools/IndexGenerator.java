@@ -61,9 +61,10 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
-                "http", "io", "jms", "log", "math", "mime", "mysql", "reflect", "runtime", "sql", "swagger", "system",
-                "task", "time", "transactions", "websub"/*, "socket", "observability", "streams", "privacy"*/);
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "h2", "mysql",
+                "sql", "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
+                "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi", "privacy",
+                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"/*, "websub"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -71,11 +72,11 @@ public class IndexGenerator {
                         new org.wso2.ballerinalang.compiler.util.Name(pkg),
                         new org.wso2.ballerinalang.compiler.util.Name(""));
                 BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
+                Objects.requireNonNull(bPackageSymbol);
                 bPackageSymbols.add(bPackageSymbol);
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Exception e) {
                 logger.error("Cannot Load Package: ballerina/" + pkg);
+                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
             }
         });
 
@@ -97,10 +98,15 @@ public class IndexGenerator {
                     return null;
                 }).collect(Collectors.toList());
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs, lsIndex);
-        ClassLoader classLoader = indexGenerator.getClass().getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource("")).getFile());
-        String saveDumpPath = file.getAbsolutePath().replace("classes", "");
-        lsIndex.saveIndexDump(Paths.get(saveDumpPath + "lib/tools/lang-server/resources/lang-server-index.sql"));
+        File file = new File(IndexGenerator.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+        String saveDumpPath = file.getAbsolutePath().replaceAll("classes.*", "");
+        // Following is to support both the gradle and maven builds
+        if (saveDumpPath.endsWith("build" + CommonUtil.FILE_SEPARATOR)) {
+            saveDumpPath += "ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql";
+        } else {
+            saveDumpPath += "lib/tools/lang-server/resources/lang-server-index.sql";
+        }
+        lsIndex.saveIndexDump(Paths.get(saveDumpPath));
     }
 
     private void insertBLangPackages(List<BLangPackageContent> pkgContentList, LSIndexImpl lsIndex) {

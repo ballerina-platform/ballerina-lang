@@ -18,13 +18,13 @@
 package org.ballerinalang.stdlib.database.sql;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.utils.SQLDBUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -40,9 +40,12 @@ import java.util.HashMap;
 public class SQLConnectionPoolTest {
     private CompileResult result;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
+    private static final String connectionTimeoutError = ".*Connection is not available, request timed out after "
+            + "10\\d\\dms.*";
 
     @BeforeClass
     public void setup() throws Exception {
+        System.setProperty("enableJBallerinaTests", "true");
         Path ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
@@ -73,8 +76,8 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
-        Assert.assertTrue((((BValueArray) returns[0])).getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = (((BValueArray) returns[0])).getRefValue(10).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -87,14 +90,14 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", jsonArray1.getRefValue(i).stringValue());
         }
-        Assert.assertTrue(jsonArray1.getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error1 = jsonArray1.getRefValue(10).stringValue();
+        Assert.assertTrue(error1.matches(connectionTimeoutError), "Actual Error: " + error1);
 
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", jsonArray2.getRefValue(i).stringValue());
         }
-        Assert.assertTrue(jsonArray2.getRefValue(10).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error2 = jsonArray2.getRefValue(10).stringValue();
+        Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -107,8 +110,8 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(array.getRefValue(1).stringValue(), "1");
         }
         BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(4));
-        Assert.assertTrue(
-                array.getRefValue(2).stringValue().matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = array.getRefValue(2).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -118,8 +121,8 @@ public class SQLConnectionPoolTest {
         for (int i = 0; i < 5; i++) {
             Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
         }
-        Assert.assertTrue((((BValueArray) returns[0])).getRefValue(5).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for a connection.*"));
+        String error = (((BValueArray) returns[0])).getRefValue(5).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -132,17 +135,17 @@ public class SQLConnectionPoolTest {
             Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
             Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
         }
-        Assert.assertTrue(returnArray.getRefValue(3).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
-        Assert.assertTrue(returnArray.getRefValue(7).stringValue()
-                .matches(".*Timeout after 10\\d\\dms of waiting for" + " a connection.*"));
+        String error1 = returnArray.getRefValue(3).stringValue();
+        Assert.assertTrue(error1.matches(connectionTimeoutError), "Actual Error: " + error1);
+        String error2 = returnArray.getRefValue(7).stringValue();
+        Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownUnsharedLocalConnectionPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownUnsharedLocalConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -150,28 +153,28 @@ public class SQLConnectionPoolTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownSharedConnectionPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].stringValue(),
-                "(1, 1, 1, \"Client has been stopped\", \"Client has been stopped\")");
+                "[1, 1, 1, \"Client has been stopped\", \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testShutDownPoolCorrespondingToASharedPoolConfig() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testShutDownPoolCorrespondingToASharedPoolConfig");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, 1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, 1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolCreateClientAfterShutdown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolCreateClientAfterShutdown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1, \"Client has been stopped\", 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1, \"Client has been stopped\", 1]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
     public void testStopClientUsingGlobalPool() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClientUsingGlobalPool");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, \"Client has been stopped\")");
+        Assert.assertEquals(returns[0].stringValue(), "[1, \"Client has been stopped\"]");
     }
 
     @Test(groups = POOL_TEST_GROUP)
@@ -185,6 +188,6 @@ public class SQLConnectionPoolTest {
     public void testLocalConnectionPoolShutDown() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalConnectionPoolShutDown");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "(1, 1)");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 1]");
     }
 }

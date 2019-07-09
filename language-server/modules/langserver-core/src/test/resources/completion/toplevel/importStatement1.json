@@ -1,0 +1,321 @@
+{
+  "position": {
+    "line": 0,
+    "character": 7
+  },
+  "source": "toplevel/source/importStatement1.bal",
+  "items": [
+    {
+      "label": "ballerina/jwt",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/jwt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "110",
+      "insertText": "ballerina/",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/crypto",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/crypto",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/h2",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/h2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/privacy",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/privacy",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/cache",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/cache",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/test",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/test",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/file",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/file",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/grpc",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/grpc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/config",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/config",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/auth",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/auth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/filepath",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/filepath",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/ldap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/streams",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/streams",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/artemis",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/reflect",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/io",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/runtime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/oauth2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/internal",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/internal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/encoding",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/utils",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/utils",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/rabbitmq",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/rabbitmq",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/openapi",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/math",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/math",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/time",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/time",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/observe",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/observe",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/system",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/system",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/transactions",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/nats",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/nats",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/http",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/task",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/cache.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/log",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/log",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/mime",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/mime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/jms",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerina/sql",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

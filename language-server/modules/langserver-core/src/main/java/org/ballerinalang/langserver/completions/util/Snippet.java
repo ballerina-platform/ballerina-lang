@@ -40,13 +40,29 @@ public enum Snippet {
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
-    DEF_RESOURCE(SnippetGenerator.getResourceDefinitionSnippet()),
+    DEF_RESOURCE_HTTP(SnippetGenerator.getHttpResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_WS_OPEN(SnippetGenerator.getWebSocketResourceOnOpenSnippet()),
+
+    DEF_RESOURCE_WS_TEXT(SnippetGenerator.getWebSocketResourceOnTextSnippet()),
+
+    DEF_RESOURCE_WS_CLOSE(SnippetGenerator.getWebSocketResourceOnCloseSnippet()),
+
+    DEF_RESOURCE_WEBSUB_INTENT(SnippetGenerator.getWebSubResourceOnIntentVerificationSnippet()),
+
+    DEF_RESOURCE_WEBSUB_NOTIFY(SnippetGenerator.getWebSubResourceOnNotificationSnippet()),
 
     DEF_SERVICE(SnippetGenerator.getServiceDefSnippet()),
 
     DEF_SERVICE_WEBSOCKET(SnippetGenerator.getWebSocketServiceDefSnippet()),
 
     DEF_SERVICE_WEBSUB(SnippetGenerator.getWebSubServiceDefSnippet()),
+
+    DEF_SERVICE_GRPC(SnippetGenerator.getGRPCServiceDefSnippet()),
 
     DEF_WORKER(SnippetGenerator.getWorkerDeclarationSnippet()),
 
@@ -66,9 +82,9 @@ public enum Snippet {
 
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
-    KW_EXTERN(SnippetGenerator.getExternKeywordSnippet()),
-
     KW_IMPORT(SnippetGenerator.getImportKeywordSnippet()),
+
+    KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
 
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
@@ -78,9 +94,21 @@ public enum Snippet {
 
     KW_TYPE(SnippetGenerator.getTypeKeywordSnippet()),
 
+    KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
+
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
 
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
+
+    KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),
+
+    KW_UNTAINT(SnippetGenerator.getUntaintKeywordSnippet()),
+
+    KW_ABSTRACT(SnippetGenerator.getAbstractKeywordSnippet()),
+
+    KW_CLIENT(SnippetGenerator.getClientKeywordSnippet()),
+
+    KW_EXTERNAL(SnippetGenerator.getExternalKeywordSnippet()),
 
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
@@ -94,6 +122,10 @@ public enum Snippet {
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
+
+    STMT_ELSE_IF(SnippetGenerator.getElseIfStatementSnippet()),
+
+    STMT_ELSE(SnippetGenerator.getElseStatementSnippet()),
 
     STMT_LOCK(SnippetGenerator.getLockStatementSnippet()),
 
@@ -143,6 +175,16 @@ public enum Snippet {
 
     BUILTIN_STAMP(SnippetGenerator.getBuiltinStampSnippet()),
 
+    BUILTIN_HAS_KEY(SnippetGenerator.getBuiltinHasKeySnippet()),
+
+    BUILTIN_REMOVE(SnippetGenerator.getBuiltinRemoveSnippet()),
+
+    BUILTIN_VALUES(SnippetGenerator.getBuiltinValuesSnippet()),
+
+    BUILTIN_KEYS(SnippetGenerator.getBuiltinKeysSnippet()),
+
+    BUILTIN_CLEAR(SnippetGenerator.getBuiltinClearSnippet()),
+
     BUILTIN_CONVERT(SnippetGenerator.getBuiltinConvertSnippet()),
 
     BUILTIN_IS_NAN(SnippetGenerator.getBuiltinIsNaNSnippet()),
@@ -162,10 +204,26 @@ public enum Snippet {
 
     ITR_ON_XML_PARAMS(SnippetGenerator.getIterableOnXmlParamSnippet());
 
+    private String snippetName;
     private SnippetBlock snippetBlock;
 
     Snippet(SnippetBlock snippetBlock) {
+        this.snippetName = null;
         this.snippetBlock = snippetBlock;
+    }
+
+    Snippet(String snippetName, SnippetBlock snippetBlock) {
+        this.snippetName = snippetName;
+        this.snippetBlock = snippetBlock;
+    }
+
+    /**
+     * Get the Snippet Name.
+     *
+     * @return {@link String} snippet name
+     */
+    public String snippetName() {
+        return this.snippetName;
     }
 
     /**

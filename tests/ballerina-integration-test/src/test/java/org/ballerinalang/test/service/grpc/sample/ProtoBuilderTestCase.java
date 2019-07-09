@@ -19,10 +19,10 @@ package org.ballerinalang.test.service.grpc.sample;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -146,6 +146,21 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
                 "StringValue");
         Assert.assertEquals(serviceDescriptor.findMethodByName("testInputNestedStruct").getInputType().getName(),
                 "Person");
+    }
+
+    @Test(description = "Test compiler plugin for service with checked expression.")
+    public void testServiceWithCheckedExpr() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "errorservices",
+                "service_with_checkedexpr.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        assertUnaryCompileResult(result);
+        Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
+                .getAnnotationAttachments().get(0).getExpression());
+        Assert.assertNotNull(fileDescriptor);
+        Assert.assertEquals(fileDescriptor.getServices().size(), 1);
+        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
+        Assert.assertEquals(serviceDescriptor.findMethodByName("greet").getOutputType().getName(),
+                "StringValue");
     }
 
     @Test(description = "Test compiler plugin for streaming service with resource annotation.")

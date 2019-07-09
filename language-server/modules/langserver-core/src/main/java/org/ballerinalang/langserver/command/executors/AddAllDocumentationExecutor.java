@@ -57,7 +57,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "ADD_ALL_DOC";
+    public static final String COMMAND = "ADD_ALL_DOC";
 
     /**
      * {@inheritDoc}
@@ -84,7 +84,6 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
 
-        context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 

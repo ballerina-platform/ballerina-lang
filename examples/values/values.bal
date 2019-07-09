@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// The types `int`, `float`, `decimal`, `string`, `boolean`, `byte` and `nil` are called simple basic types
+// The types `int`, `float`, `decimal`, `string`, `boolean`, `byte`, and `nil` are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable.
 public function main() {
     // The `int` type represents the set of 64-bit signed integers.
@@ -11,16 +11,16 @@ public function main() {
     float f = 20.0;
     io:println(f);
 
-    // `isNaN()`, `isInfinite()` and `isFinite()` builtin functions are supported for the `float` type.
-    // `isNaN()` will return true if the `float` value is neither finite nor infinite.
+    // The `isNaN()`, `isInfinite()`, and `isFinite()` built-in functions are supported by the `float` type.
+    // The `isNaN()` function will return true if the `float` value is neither finite nor infinite.
     float nanVal = 0.0/0.0;
     io:println(nanVal.isNaN());
 
-    // `isInfinite()` will return true if the `float` value is neither NaN nor finite.
+    // The `isInfinite()` function will return true if the `float` value is neither NaN nor finite.
     float infiniteVal = 12.0/0.0;
     io:println(infiniteVal.isInfinite());
 
-    // `isFinite()` will return true if the `float` value is neither NaN nor infinite.
+    // The `isFinite()` function will return true if the `float` value is neither NaN nor infinite.
     float finiteVal = 6.0/3.0;
     io:println(finiteVal.isFinite());
 
@@ -36,12 +36,12 @@ public function main() {
     string s = "Ballerina";
     io:println(s);
 
-    // The `boolean` type has only two values, `true` and `false`.
+    // The `boolean` type has only two values: `true` and `false`.
     boolean b = true;
     io:println(b);
 
     // The nil type has a single value and is used to represent the absence of any other value.
-    // Both, the nil type and the nil value are written as `()`.
+    // Both the nil type and the nil value are written as `()`.
     () n = ();
     io:println(n);
     // Another representation for the nil value is the `null` literal.

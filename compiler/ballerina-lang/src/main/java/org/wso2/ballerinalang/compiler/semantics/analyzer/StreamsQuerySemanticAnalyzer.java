@@ -69,14 +69,16 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
@@ -387,6 +389,15 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        if (isSiddhiRuntimeEnabled) {
+            annotAccessExpr.expr.accept(this);
+        } else {
+            typeChecker.checkExpr(annotAccessExpr, env);
+        }
+    }
+
+    @Override
     public void visit(BLangElvisExpr elvisExpr) {
         if (isSiddhiRuntimeEnabled) {
             elvisExpr.lhsExpr.accept(this);
@@ -474,12 +485,19 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
         if (!isSiddhiRuntimeEnabled) {
-            bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
-            typeChecker.checkExpr(bracedOrTupleExpr, env);
+            listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
+            typeChecker.checkExpr(listConstructorExpr, env);
         }
+    }
 
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        if (!isSiddhiRuntimeEnabled) {
+            groupExpr.expression.accept(this);
+            typeChecker.checkExpr(groupExpr, env);
+        }
     }
 
     @Override

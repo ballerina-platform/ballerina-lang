@@ -28,7 +28,7 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns (int[]) {
+function testSelect() returns @tainted int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -51,11 +51,11 @@ function testSelect() returns (int[]) {
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
-function testUpdate() returns (int) {
+function testUpdate() returns int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -70,11 +70,11 @@ function testUpdate() returns (int) {
     if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return insertCount;
 }
 
-function testCall() returns (string) {
+function testCall() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -91,7 +91,8 @@ function testCall() returns (string) {
     } else if (ret is ()) {
         return "nil";
     } else {
-        return <string>ret.detail().message;
+        error e = ret;
+        return <string>e.detail().message;
     }
 
     string name = "";
@@ -101,7 +102,7 @@ function testCall() returns (string) {
             name = rs.name;
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return name;
 }
 
@@ -121,14 +122,15 @@ function testGeneratedKeyOnInsert() returns string|int {
     if (x is sql:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
-        returnVal = <string>x.detail().message;
+        error e = x;
+        returnVal = <string>e.detail().message;
     }
 
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return returnVal;
 }
 
-function testBatchUpdate() returns (int[]) {
+function testBatchUpdate() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -161,11 +163,11 @@ function testBatchUpdate() returns (int[]) {
     } else {
         ret = [];
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return ret;
 }
 
-function testUpdateInMemory() returns (int, string) {
+function testUpdateInMemory() returns @tainted [int, string] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -174,7 +176,7 @@ function testUpdateInMemory() returns (int, string) {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    _ = testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
+    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
     creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
     var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
@@ -193,11 +195,11 @@ function testUpdateInMemory() returns (int, string) {
         }
     }
 
-    _ = testDB.stop();
-    return (insertCount, s);
+    checkpanic testDB.stop();
+    return [insertCount, s];
 }
 
-function testInitWithNilDbOptions() returns (int[]) {
+function testInitWithNilDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -208,7 +210,7 @@ function testInitWithNilDbOptions() returns (int[]) {
     return selectFunction(testDB);
 }
 
-function testInitWithDbOptions() returns (int[]) {
+function testInitWithDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -221,7 +223,7 @@ function testInitWithDbOptions() returns (int[]) {
     return selectFunction(testDB);
 }
 
-function testInitWithInvalidDbOptions() returns (int[]) {
+function testInitWithInvalidDbOptions() returns int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -235,7 +237,7 @@ function testInitWithInvalidDbOptions() returns (int[]) {
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns (int) {
+             returns @tainted int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -253,11 +255,11 @@ function testCloseConnectionPool(string connectionCountQuery)
             }
         }
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
-function selectFunction(h2:Client testDB) returns (int[]) {
+function selectFunction(h2:Client testDB) returns int[] {
     var val = testDB->select("select * from Customers where customerId=1 OR customerId=2", Customer);
 
     int[] customerIds = [];
@@ -273,11 +275,11 @@ function selectFunction(h2:Client testDB) returns (int[]) {
     } else {
         customerIds = [];
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return customerIds;
 }
 
-function testH2MemDBUpdate() returns (int, string) {
+function testH2MemDBUpdate() returns [int, string] {
     h2:Client testDB = new(<h2:InMemoryConfig>{
             name: "TestMEMDB",
             username: "SA",
@@ -300,6 +302,6 @@ function testH2MemDBUpdate() returns (int, string) {
     if (insertCountRet is sql:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
     }
-    _ = testDB.stop();
-    return (insertCount, data);
+    checkpanic testDB.stop();
+    return [insertCount, data];
 }

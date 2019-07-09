@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
@@ -34,24 +35,22 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
-import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getCurrentModulePath;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompilerContext;
 
 /**
  * Language server compiler implementation for Ballerina.
  */
 public class LSCompiler {
-
-    private static final String BAL_EXTENSION = ".bal";
 
     private final WorkspaceDocumentManager documentManager;
 
@@ -81,9 +80,9 @@ public class LSCompiler {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         Optional<Lock> exModeLock = documentManager.enableExplicitMode(filePath);
-        Optional<Lock> fileLock = Optional.empty();
+        Optional<Lock> fileLock = documentManager.lockFile(filePath);
         try {
-            fileLock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             BallerinaFile bFile = INSTANCE.compileFile(filePath, phase);
             documentManager.closeFile(filePath);
             return bFile;
@@ -123,6 +122,7 @@ public class LSCompiler {
         CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         true, documentManager, phase);
 
+        BallerinaFile bfile;
         BLangPackage bLangPackage = null;
         boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, filePath.toUri().toString()));
         try {
@@ -133,19 +133,12 @@ public class LSCompiler {
         } catch (RuntimeException e) {
             // Ignore.
         }
-        BallerinaFile bfile = new BallerinaFile();
-        bfile.setBallerinaProject(isProjectDir);
-        bfile.setBLangPackage(bLangPackage);
-        // When needed for secondary tree traversal after compiling a text source,
-        // compiler context can be used when needed. As an example, ast generation to a secondary BLangPackage content
-        // visit to find the visible symbols where we need the compiler context to find the symbols
-        bfile.setCompilerContext(context);
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
                     .getDiagnostics();
-            bfile.setDiagnostics(diagnostics);
+            bfile = new BallerinaFile(bLangPackage, diagnostics, isProjectDir, context);
         } else {
-            bfile.setDiagnostics(new ArrayList<>());
+            bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), isProjectDir, context);
         }
         return bfile;
     }
@@ -163,9 +156,9 @@ public class LSCompiler {
     public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
                                               WorkspaceDocumentManager documentManager)
             throws LSCompilerException {
-        Optional<Lock> lock = Optional.empty();
+        Optional<Lock> lock = documentManager.lockFile(filePath);
         try {
-            lock = documentManager.updateFile(filePath, content);
+            documentManager.updateFile(filePath, content);
             return this.compileFile(filePath, phase);
         } catch (WorkspaceDocumentException e) {
             throw new LSCompilerException(
@@ -189,15 +182,37 @@ public class LSCompiler {
      */
     public BLangPackage getBLangPackage(LSContext context,
                                         WorkspaceDocumentManager docManager, boolean preserveWS,
-                                        Class errStrategy,
+                                        Class<? extends ANTLRErrorStrategy> errStrategy,
                                         boolean compileFullProject) throws LSCompilerException {
         List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, preserveWS, errStrategy,
-                                                            compileFullProject);
+                compileFullProject, false);
         if (bLangPackages.isEmpty()) {
             throw new LSCompilerException("Couldn't find any compiled artifact!");
         }
         return bLangPackages.get(0);
     }
+
+    /**
+     * Get the all ballerina modules for a given project.
+     *
+     * @param context            Language Server Context
+     * @param docManager         Document manager
+     * @param preserveWS         Enable preserve whitespace
+     * @param errStrategy        Custom error strategy class
+     * @return {@link List}      A list of packages when compile full project
+     * @throws URISyntaxException when the uri of the source root is invalid
+     */
+    public List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
+                                              boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy)
+                                              throws URISyntaxException {
+        String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
+        PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
+
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, preserveWS, docManager);
+        Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
+        return compiler.compilePackages(false);
+    }
+
 
     /**
      * Get the BLangPackage for a given program.
@@ -207,12 +222,14 @@ public class LSCompiler {
      * @param preserveWS         Enable preserve whitespace
      * @param errStrategy        custom error strategy class
      * @param compileFullProject updateAndCompileFile full project from the source root
+     * @param clearProjectModules whether clear current project modules from ls package cache
      * @return {@link List}      A list of packages when compile full project
+     * @throws LSCompilerException Whenever compilation fails
      */
-    public List<BLangPackage> getBLangPackages(LSContext context,
-                                               WorkspaceDocumentManager docManager, boolean preserveWS,
-                                               Class errStrategy,
-                                               boolean compileFullProject) {
+    public List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
+                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy, 
+                                               boolean compileFullProject, boolean clearProjectModules) 
+            throws LSCompilerException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {
@@ -222,60 +239,57 @@ public class LSCompiler {
         }
         LSDocument sourceDoc = new LSDocument(uri);
         String sourceRoot = sourceDoc.getSourceRoot();
-
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
-        if (sourceDoc.hasProjectRepo() && compileFullProject && !sourceRoot.isEmpty()) {
-            File projectDir = new File(sourceRoot);
-            Arrays.stream(projectDir.listFiles()).forEach(
-                    file -> {
-                        if (isBallerinaPackage(file) || isBallerinaFile(file)) {
-                            Path filePath = sourceDoc.getPath();
-                            String relativeFilePath = getCurrentModulePath(filePath).relativize(filePath).toString();
-                            PackageID packageID = new PackageID(relativeFilePath);
-                            CompilerContext compilerContext = prepareCompilerContext(packageID, pkgRepo, sourceDoc,
-                                                                                     preserveWS, docManager);
-                            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext,
-                                                                           errStrategy);
-                            BLangPackage bLangPackage = compiler.compile(file.getName());
-                            packages.add(bLangPackage);
-                            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-                        }
-                    }
-            );
+        String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
+        PackageID pkgID;
+        String relativeFilePath;
+
+        // If the source file does not exist inside a ballerina module.
+        if (pkgName.isEmpty()) {
+            Path fileNamePath = sourceDoc.getPath().getFileName();
+            relativeFilePath = fileNamePath == null ? "" : fileNamePath.toString();
+            pkgID = new PackageID(relativeFilePath);
+            pkgName = relativeFilePath;
+            // No need to compile the full project for a file which is not inside a module.
+            compileFullProject = false;
         } else {
-            PackageID pkgID;
-            String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
-            String relativeFilePath;
-            if (pkgName.isEmpty()) {
-                Path fileNamePath = sourceDoc.getPath().getFileName();
-                relativeFilePath = fileNamePath == null ? "" : fileNamePath.toString();
-                pkgID = new PackageID(relativeFilePath);
-                pkgName = relativeFilePath;
+            relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
+                    .toString();
+            pkgID = generatePackageFromManifest(pkgName, sourceRoot);
+        }
+        CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, preserveWS, docManager);
+
+        context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
+        context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
+                .map(Name::getValue)
+                .collect(Collectors.joining(".")));
+        try {
+            if (compileFullProject && !sourceRoot.isEmpty() && sourceDoc.hasProjectRepo()) {
+                if (clearProjectModules) {
+                    // If the flag is set, we remove all the modules in the current project from the LSPackageCache
+                    LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
+                }
+                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+                List<BLangPackage> projectPackages = compiler.compilePackages(false);
+                packages.addAll(projectPackages);
+                Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
+                    String name = bLangPackage.packageID.nameComps.stream()
+                            .map(Name::getValue).collect(Collectors.joining("."));
+                    return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
+                }).findAny();
+                // No need to check the option is existing since the current package always exist
+                LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
             } else {
-                relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
-                        .toString();
-                pkgID = generatePackageFromManifest(pkgName, sourceRoot);
+                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+                BLangPackage bLangPackage = compiler.compile(pkgName);
+                LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
+                packages.add(bLangPackage);
             }
-            CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, preserveWS, docManager);
-            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            BLangPackage bLangPackage = compiler.compile(pkgName);
-            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-            packages.add(bLangPackage);
+        } catch (Exception e) {
+            throw new LSCompilerException("Compilation failed", e);
         }
         return packages;
-    }
-
-    private boolean isBallerinaPackage(File dir) {
-        if (!dir.isDirectory() || dir.getName().startsWith(".")) {
-            return false;
-        }
-        File[] files = dir.listFiles((parent, name) -> isBallerinaFile(parent.toPath().resolve(name).toFile()));
-        return files != null && files.length > 0;
-    }
-
-    private boolean isBallerinaFile(File file) {
-        return !file.isDirectory() && file.getName().endsWith(BAL_EXTENSION);
     }
 
     private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {

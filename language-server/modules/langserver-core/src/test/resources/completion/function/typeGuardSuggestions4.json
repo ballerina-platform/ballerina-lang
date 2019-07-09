@@ -6,66 +6,60 @@
   "source": "function/source/typeGuardSuggestions4.bal",
   "items": [
     {
-      "label":"field1",
-      "kind":"Variable",
-      "detail":"int",
-      "sortText":"221",
-      "insertText":"field1"
+      "label": "field1",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "field1",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"field2",
-      "kind":"Variable",
-      "detail":"string",
-      "sortText":"221",
-      "insertText":"field2"
+      "label": "field2",
+      "kind": "Variable",
+      "detail": "string",
+      "insertText": "field2",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"length()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"length();",
-      "insertTextFormat":"Snippet"
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"freeze()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"freeze();",
-      "insertTextFormat":"Snippet"
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"isFrozen()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"isFrozen();",
-      "insertTextFormat":"Snippet"
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"stamp(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"stamp(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"clone()",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"clone();",
-      "insertTextFormat":"Snippet"
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label":"convert(anydata a)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"121",
-      "insertText":"convert(${1});",
-      "insertTextFormat":"Snippet"
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

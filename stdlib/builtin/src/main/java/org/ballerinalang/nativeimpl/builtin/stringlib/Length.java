@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.builtin.stringlib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -45,5 +46,10 @@ public class Length extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BInteger intValue = new BInteger(param1.length());
         context.setReturnValues(intValue);
+    }
+
+    public static long length(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.length();
     }
 }

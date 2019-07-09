@@ -1,0 +1,12 @@
+# Make sure to have the RabbitMQ broker running.
+#
+# Navigate to the directory that contains the
+# 'rabbitmq_transaction_consumer.bal' file, and issue the 'ballerina run' command as follows..
+
+$ ballerina run rabbitmq_transaction_consumer.bal
+
+# The RabbitMQ transaction consumer runs as a Ballerina service and listens to the subscribed queue.
+
+2019-06-07 12:53:55,028 INFO  [ballerina/transactions] - Created transaction: 190d5620-cf94-462b-b1dd-6fd1b372ca75
+2019-06-07 12:53:55,034 INFO  [] - The message received: Hello from Ballerina
+2019-06-07 12:53:55,034 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 190d5620-cf94-462b-b1dd-6fd1b372ca75:$anon$.$1

@@ -44,11 +44,11 @@ function testConnectionPoolProperties1() returns json {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
-function testConnectionPoolProperties2() returns (json) {
+function testConnectionPoolProperties2() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -60,11 +60,11 @@ function testConnectionPoolProperties2() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
-function testConnectionPoolProperties3() returns (json) {
+function testConnectionPoolProperties3() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -75,12 +75,12 @@ function testConnectionPoolProperties3() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
 
-function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
+function testConnectorWithDefaultPropertiesForListedDB() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -92,7 +92,7 @@ function testConnectorWithDefaultPropertiesForListedDB() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
@@ -112,7 +112,7 @@ function testConnectorWithWorkers() returns (json) {
         var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
         json j = getJsonConversionResult(dt);
-        _ = testDB.stop();
+        checkpanic testDB.stop();
         return j;
     }
     worker w2 {
@@ -121,7 +121,7 @@ function testConnectorWithWorkers() returns (json) {
     return wait w1;
 }
 
-function testConnectorWithDataSourceClass() returns (json) {
+function testConnectorWithDataSourceClass() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -134,11 +134,11 @@ function testConnectorWithDataSourceClass() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
-function testConnectorWithDataSourceClassAndProps() returns (json) {
+function testConnectorWithDataSourceClassAndProps() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -151,11 +151,11 @@ function testConnectorWithDataSourceClassAndProps() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
-function testConnectorWithDataSourceClassWithoutURL() returns (json) {
+function testConnectorWithDataSourceClassWithoutURL() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -167,11 +167,11 @@ function testConnectorWithDataSourceClassWithoutURL() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
-function testConnectorWithDataSourceClassURLPriority() returns (json) {
+function testConnectorWithDataSourceClassURLPriority() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -185,12 +185,12 @@ function testConnectorWithDataSourceClassURLPriority() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
 
-function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
+function testPropertiesGetUsedOnlyIfDataSourceGiven() returns json {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_INIT",
@@ -203,7 +203,7 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns (json) {
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
 
     json j = getJsonConversionResult(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return j;
 }
 
@@ -226,10 +226,10 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": string.convert(jsonConversionResult.detail().message) };
+            retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": string.convert(tableOrError.detail().message) };
+        retVal = { "Error": <string> tableOrError.detail().message };
     }
     return retVal;
 }

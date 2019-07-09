@@ -1,0 +1,275 @@
+{
+  "position": {
+    "line": 0,
+    "character": 17
+  },
+  "source": "toplevel/source/importStatement3.bal",
+  "items": [
+    {
+      "label": "jwt",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "crypto",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "crypto",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "h2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "h2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "privacy",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "privacy",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cache",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "file",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "file",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "grpc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "grpc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "config",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "config",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "auth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "filepath",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "filepath",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "ldap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "streams",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "artemis",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "reflect",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "io",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "io",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "internal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "internal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "encoding",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "utils",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "utils",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rabbitmq",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "openapi",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "math",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "math",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "time",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "time",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "observe",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "system",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "system",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "nats",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "nats",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mysql",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "task",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "log",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "log",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "mime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "jms",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sql",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "sql",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

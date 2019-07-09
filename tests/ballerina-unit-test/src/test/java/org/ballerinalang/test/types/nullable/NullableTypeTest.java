@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.test.types.nullable;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * This class contains nullable types related test cases.
@@ -63,13 +64,16 @@ public class NullableTypeTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0, "Invalid float value returned.");
     }
 
-//    @Test(description = "Test basics of nullable types")
-    public void testNullableTypesInStructs() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullableTypesInStructs", new BValue[]{});
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.0, "Invalid float value returned.");
-        Assert.assertEquals(returns[1].stringValue(), "sameera", "Invalid string value returned.");
+    @Test(description = "Test referring to a user defined type in a type test")
+    public void testNilableTypeInTypeTest() {
+        BValue[] returns = BRunUtil.invoke(result, "testNilableTypeInTypeTest");
+        Assert.assertEquals(returns[0].stringValue(), "mixed");
+    }
+
+    @Test(description = "Test iterating over an array of optional typed values")
+    public void testNilableTypeArrayIteration() {
+        CompileResult result = BCompileUtil.compile("test-src/types/nullable/nilable_types_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        validateError(result, 0, "incompatible types: expected '()|any', found '()|any?'", 33, 19);
     }
 }

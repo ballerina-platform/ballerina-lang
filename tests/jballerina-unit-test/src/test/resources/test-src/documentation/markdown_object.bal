@@ -1,0 +1,23 @@
+# Test Connector
+# + url - url for endpoint
+# + path - path for endpoint
+type TestConnector object {
+    string url = "";
+    string path = "";
+    private string abc = ""; // Test private field
+
+    # Test Connector action testAction
+    # + return - whether successful or not
+    public function testAction() returns boolean {
+        boolean value = false;
+        return value;
+    }
+
+    # Test Connector action testSend
+    # + ep - endpoint url
+    # + return - whether successful or not
+    public function testSend(string ep) returns boolean {
+        boolean value = false;
+        return value;
+    }
+};

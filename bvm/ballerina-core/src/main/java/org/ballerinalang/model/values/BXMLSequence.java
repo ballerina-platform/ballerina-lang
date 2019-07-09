@@ -20,7 +20,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -33,6 +32,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
@@ -119,7 +119,10 @@ public final class BXMLSequence extends BXML<BValueArray> {
         StringBuilder seqTextBuilder = new StringBuilder();
         for (int i = 0; i < sequence.size(); i++) {
             BXMLItem item = (BXMLItem) sequence.getRefValue(i);
-            seqTextBuilder.append(item.getTextValue().stringValue());
+            String strVal = item.getTextValue().stringValue();
+            if (strVal != null) {
+                seqTextBuilder.append(strVal);
+            }
         }
         return new BString(seqTextBuilder.toString());
     }
@@ -167,7 +170,7 @@ public final class BXMLSequence extends BXML<BValueArray> {
             return ((BXMLItem) sequence.getRefValue(0)).getAttributesMap();
         }
 
-        return new BMap<>(new BMapType(BTypes.typeString));
+        return null;
     }
 
     @Override
@@ -443,7 +446,17 @@ public final class BXMLSequence extends BXML<BValueArray> {
      * @return length of this XML sequence.
      */
     public long size() {
-        return this.sequence.size;
+        int size = 0;
+        for (int i = 0; i < this.sequence.size; i++) {
+            BRefType<?> refValue = sequence.getRefValue(i);
+            if (refValue.getType().getTag() == TypeTags.XML_TAG) {
+                BXML xmlItem = (BXML) refValue;
+                size += xmlItem.size();
+            } else {
+                size += 1;
+            }
+        }
+        return size;
     }
 
     /**

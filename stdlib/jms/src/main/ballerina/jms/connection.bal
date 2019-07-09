@@ -27,15 +27,15 @@ public type Connection object {
         self.createConnection();
     }
 
-    extern function createConnection();
+    function createConnection() = external;
 
     # Starts (or restarts) a connection's delivery of incoming messages.
     # A call to start on a connection that has already been started is ignored.
-    public extern function start();
+    public function start() = external;
 
     # Temporarily stops a connection's delivery of incoming messages.
     # Delivery can be restarted using the connection's start method.
-    public extern function stop();
+    public function stop() = external;
 };
 
 # Configurations related to a JMS connection
@@ -46,12 +46,11 @@ public type Connection object {
 # + username - Username for the JMS connection
 # + password - Password for the JMS connection
 # + properties - Additional properties use in initializing the initial context
-public type ConnectionConfiguration record {
+public type ConnectionConfiguration record {|
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
     string? username = ();
     string? password = ();
     map<any> properties = {};
-    !...;
-};
+|};

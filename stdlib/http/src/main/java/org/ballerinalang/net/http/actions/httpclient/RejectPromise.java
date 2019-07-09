@@ -18,11 +18,14 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -35,7 +38,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class RejectPromise extends AbstractHTTPAction {
@@ -44,14 +47,23 @@ public class RejectPromise extends AbstractHTTPAction {
     public void execute(Context context, CallableUnitCallback callback) {
 
         BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
+        Http2PushPromise http2PushPromise = BHttpUtil.getPushPromise(pushPromiseStruct, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+                .getNativeData(HttpConstants.CLIENT);
         clientConnector.rejectPushResponse(http2PushPromise);
         callback.notifySuccess();
+    }
+
+    public static void rejectPromise(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
+        if (http2PushPromise == null) {
+            throw new BallerinaException("invalid push promise");
+        }
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
+        clientConnector.rejectPushResponse(http2PushPromise);
     }
 }

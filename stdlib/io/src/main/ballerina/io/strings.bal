@@ -31,22 +31,22 @@ public type StringReader object {
     # Reads string as json from reader.
     #
     # + return - json or an error
-    public function readJson() returns json|error {
+    public function readJson() returns @tainted json|error {
         return self.charChannel.readJson();
     }
 
     # Reads string as XML from reader
     #
     # + return -
-    public function readXml() returns xml|error? {
+    public function readXml() returns @tainted xml|error? {
         return self.charChannel.readXml();
     }
 
     # Reads characters from the given string.
     #
-    # + nCharacters - read specifc number of characters
+    # + nCharacters - read specific number of characters
     # + return - string or an error
-    public function readChar(int nCharacters) returns string|error? {
+    public function readChar(int nCharacters) returns @tainted string|error? {
         return self.charChannel.read(nCharacters);
     }
 

@@ -19,16 +19,14 @@
 package org.ballerinalang.stdlib.socket;
 
 import org.awaitility.Awaitility;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -36,7 +34,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -51,11 +48,11 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @Test(timeOut = 120000)
 public class ServerSocketTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
     private static final int SERVER1_PORT = 59152;
     private static final int SERVER2_PORT = 59153;
     private static final int SERVER3_PORT = 59154;
     private static final int SERVER4_PORT = 59155;
+    private static final String SERVER_HOST = "localhost";
     private Path testResourceRoot;
     private CompileResult compileResult;
 
@@ -63,18 +60,18 @@ public class ServerSocketTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         testResourceRoot = Paths.get(resourceRoot, "test-src");
-        compileResult = BServiceUtil.setupProgramFile(this, testResourceRoot.resolve("server_socket.bal").toString());
+        compileResult = BCompileUtil.compile(true, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER1_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER1_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER1_PORT);
         }
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER2_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER2_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER2_PORT);
         }
-        connectionStatus = isConnected(numberOfRetryAttempts, SERVER3_PORT);
+        connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER3_PORT, numberOfRetryAttempts);
         if (!connectionStatus) {
             Assert.fail("Unable to open connection with the test TCP server: " + SERVER3_PORT);
         }
@@ -115,7 +112,7 @@ public class ServerSocketTest {
             socketChannel.read(buf);
             Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8),
                     "Hello Client");
-            final BValue[] result = BRunUtil.invokeStateful(compileResult, "getTotalLength");
+            final BValue[] result = BRunUtil.invoke(compileResult, "getTotalLength");
             BInteger totalValue = (BInteger) result[0];
             Assert.assertEquals(totalValue.intValue(), 15, "Server didn't receive the expected bytes");
         } catch (IOException | InterruptedException e) {
@@ -153,10 +150,10 @@ public class ServerSocketTest {
     @Test
     public void testOnDuplicatePortNegative() {
         try {
-            BServiceUtil.setupProgramFile(this,
-                    testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
+            BCompileUtil
+                    .compile(true, testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
         } catch (BLangRuntimeException e) {
-            String errorStr = e.getMessage().substring(47, 47 + 58);
+            String errorStr = e.getMessage().substring(49, 49 + 58);
             Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
         }
     }
@@ -173,7 +170,7 @@ public class ServerSocketTest {
             socketChannel.write(buf);
             buf.clear();
             Awaitility.await().atMost(1, MINUTES).until(() -> {
-                BValue[] result = BRunUtil.invokeStateful(compileResult, "getError");
+                BValue[] result = BRunUtil.invoke(compileResult, "getError");
                 return ("Error while on read".equals((result[0]).stringValue()));
             });
         } catch (IOException e) {
@@ -184,44 +181,5 @@ public class ServerSocketTest {
     @AfterClass
     public void cleanUp() {
         SelectorManager.getInstance().stop();
-    }
-
-    private boolean isConnected(int numberOfRetries, int port) {
-        Socket temporarySocketConnection = null;
-        boolean isConnected = false;
-        final int retryInterval = 1000;
-        final int initialRetryCount = 0;
-        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
-            try {
-                //Attempts to establish a connection with the server
-                temporarySocketConnection = new Socket("localhost", port);
-                isConnected = true;
-            } catch (IOException e) {
-                log.error("Error occurred while establishing a connection with test server", e);
-                sleep(retryInterval);
-            } finally {
-                if (null != temporarySocketConnection) {
-                    //We close the connection once completed.
-                    close(temporarySocketConnection);
-                }
-            }
-        }
-        return isConnected;
-    }
-
-    private void sleep(int retryInterval) {
-        try {
-            Thread.sleep(retryInterval);
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private void close(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.error("Error occurred while closing the Socket connection", e);
-        }
     }
 }

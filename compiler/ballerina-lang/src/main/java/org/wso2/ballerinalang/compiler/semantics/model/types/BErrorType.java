@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -31,11 +33,16 @@ public class BErrorType extends BType implements ErrorType {
 
     public BType reasonType;
     public BType detailType;
+    public BConstructorSymbol ctorSymbol;
 
     public BErrorType(BTypeSymbol tSymbol, BType reasonType, BType detailType) {
         super(TypeTags.ERROR, tSymbol);
         this.reasonType = reasonType;
         this.detailType = detailType;
+    }
+
+    public BErrorType(BTypeSymbol tSymbol) {
+        super(TypeTags.ERROR, tSymbol);
     }
 
     @Override
@@ -55,6 +62,11 @@ public class BErrorType extends BType implements ErrorType {
 
     @Override
     public String getDesc() {
-        return TypeDescriptor.SIG_ERROR + "(" + reasonType.getDesc() + detailType.getDesc() + ")";
+        return TypeDescriptor.SIG_ERROR + getQualifiedTypeName() + ";";
+    }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
     }
 }

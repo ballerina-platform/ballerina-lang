@@ -22,8 +22,10 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
@@ -68,7 +70,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariabl
 @JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
 public class CreateVariableExecutor implements LSCommandExecutor {
 
-    private static final String COMMAND = "CREATE_VAR";
+    public static final String COMMAND = "CREATE_VAR";
 
     private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();
@@ -145,7 +147,12 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
-        BLangInvocation functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+        BLangInvocation functionNode = null;
+        try {
+            functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+        } catch (LSCompilerException e) {
+            throw new LSCommandExecutorException("Error while compiling the source!");
+        }
         if (functionNode == null) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
@@ -168,7 +175,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             }
         };
 
-        String variableType = CommonUtil.FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+        String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
                                                                                   functionNode.type);
 
         String editText = createVariableDeclaration(variableName, variableType);

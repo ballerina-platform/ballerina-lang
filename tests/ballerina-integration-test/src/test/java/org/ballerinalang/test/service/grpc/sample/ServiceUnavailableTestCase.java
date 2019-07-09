@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.context.Utils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,13 +49,12 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Connection refused: " +
-                "localhost/127.0.0.1:9110";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Connection refused:";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
-        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
+        Assert.assertTrue(responses[0].stringValue().contains(expectedMsg));
     }
 
     @Test(description = "Test invoking service with slow response. Connector error is expected with Idle timeout " +

@@ -33,6 +33,7 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.Objects;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -40,12 +41,12 @@ import javax.jms.Message;
  * Get a string property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jms",
+        orgName = JmsConstants.BALLERINA,
+        packageName = JmsConstants.JMS,
         functionName = "getStringProperty",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "Message",
-                             structPackage = "ballerina/jms"),
+                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
         },

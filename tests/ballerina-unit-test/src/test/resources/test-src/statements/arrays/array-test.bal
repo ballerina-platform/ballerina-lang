@@ -46,3 +46,100 @@ function testArrayWithNilElement() returns string {
     string?[] ar = ["abc", "d", (), "s"];
     return io:sprintf("%s", ar);
 }
+
+type Foo 1|2|3;
+
+function testElementTypesWithoutImplicitInitVal() returns Foo[] {
+    Foo[] arr;
+    Foo[*] arr2 = [1, 2];
+    arr = arr2;
+    return arr;
+}
+
+type BarRec record {
+    Foo[] fArr;
+};
+
+function testArrayFieldInRecord() returns BarRec {
+    Foo[*] arr = [1, 2];
+    BarRec rec = {fArr: arr};
+    return rec;
+}
+
+type BarObj object {
+    Foo[] fArr;
+
+    function __init() {
+        Foo[*] arr = [1, 2];
+        self.fArr = arr;
+    }
+};
+
+function testArrayFieldInObject() returns BarObj {
+    BarObj obj = new;
+    return obj;
+}
+
+function fnWithArrayParam(Foo[] arr) returns Foo[] {
+    Foo[*] newArr = [arr[0],3];
+    return newArr;
+}
+
+function testArraysAsFuncParams() returns Foo[] {
+    Foo[*] arr = [1, 2];
+    return fnWithArrayParam(arr);
+}
+
+type A1 record {
+    B1 b;
+    string a1;
+};
+
+type B1 record {
+    A1 a?;
+    string b1;
+};
+
+function testArraysOfCyclicDependentTypes() returns A1[] {
+    A1[] arr = [];
+    arr[3] = {a1: "A1", b: {b1: "B1"}};
+    return arr;
+}
+
+function testArraysOfCyclicDependentTypes2() returns B1[] {
+    B1[] arr = [];
+    arr[3] = {b1: "B1"};
+    return arr;
+}
+
+type P1 object {
+    Q1 q;
+    string p1;
+
+    function __init() {
+        self.q = new;
+        self.p1 = "P1";
+    }
+};
+
+type Q1 object {
+    P1 p;
+    string q1;
+
+    function __init() {
+        self.p = new;
+        self.q1 = "Q1";
+    }
+};
+
+function testArraysOfCyclicDependentTypes3() returns P1[] {
+    P1[] arr = [];
+    arr[3] = new;
+    return arr;
+}
+
+function testArraysOfCyclicDependentTypes4() returns Q1[] {
+    Q1[] arr = [];
+    arr[3] = new;
+    return arr;
+}

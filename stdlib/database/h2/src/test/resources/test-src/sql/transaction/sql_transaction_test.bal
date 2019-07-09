@@ -23,7 +23,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransaction() returns (int, int, boolean, boolean) {
+function testLocalTransaction() returns @tainted (int, int, boolean, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -37,9 +37,9 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
     boolean committedBlockExecuted = false;
     boolean abortedBlockExecuted = false;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
@@ -51,11 +51,11 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count, committedBlockExecuted, abortedBlockExecuted);
 }
 
-function testTransactionRollback() returns (int, int, boolean) {
+function testTransactionRollback() returns @tainted (int, int, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -69,9 +69,9 @@ function testTransactionRollback() returns (int, int, boolean) {
     boolean stmtAfterFailureExecuted = false;
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         stmtAfterFailureExecuted = true;
 
@@ -81,11 +81,11 @@ function testTransactionRollback() returns (int, int, boolean) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count, stmtAfterFailureExecuted);
 }
 
-function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
+function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -97,9 +97,9 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers
+        var e1 = testDB->update("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers
+        var e2 = testDB->update("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
@@ -107,11 +107,11 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
+function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -124,9 +124,9 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     int count;
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
@@ -135,11 +135,11 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount);
 
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testLocalTransactionStoredProcedure() returns (int, int) {
+function testLocalTransactionStoredProcedure() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -152,19 +152,19 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
     int count;
 
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        var e1 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
+        var e2 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 628, 628);
     } onretry {
         returnVal = -1;
     }
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
+function testLocalTransactionRollbackStoredProcedure() returns @tainted (int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -179,8 +179,8 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     int count3;
 
     transaction {
-        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
-        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
+        var e1 = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), 629, 629);
+        var e2 = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), 631, 632);
     } onretry {
         returnVal = -1;
     }
@@ -195,11 +195,11 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     count1 = getTableCountValColumn(dt1);
     count2 = getTableCountValColumn(dt2);
     count3 = getTableCountValColumn(dt3);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count1, count2, count3);
 }
 
-function testLocalTransactionBatchUpdate() returns (int, int) {
+function testLocalTransactionBatchUpdate() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -228,9 +228,9 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        _= testDB->batchUpdate("Insert into Customers
+        var e1 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        _ = testDB->batchUpdate("Insert into Customers
+        var e2 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
@@ -238,11 +238,11 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
+function testLocalTransactionRollbackBatchUpdate() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -271,9 +271,9 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        _ = testDB->batchUpdate("Insert into Customers
+        var e1 = testDB->batchUpdate("Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-        _ = testDB->batchUpdate("Insert into Customers2
+        var e2 = testDB->batchUpdate("Insert into Customers2
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
     } onretry {
         returnVal = -1;
@@ -281,11 +281,11 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testTransactionAbort() returns (int, int) {
+function testTransactionAbort() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -297,10 +297,10 @@ function testTransactionAbort() returns (int, int) {
     int returnVal = -1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')");
 
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 220, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
@@ -313,12 +313,12 @@ function testTransactionAbort() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 int testTransactionErrorPanicRetVal = 0;
-function testTransactionErrorPanic() returns (int, int, int) {
+function testTransactionErrorPanic() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -337,14 +337,14 @@ function testTransactionErrorPanic() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (testTransactionErrorPanicRetVal, catchValue, count);
 }
 
 function testTransactionErrorPanicHelper(h2:Client testDB) {
     int returnVal = 0;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,
                               registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
@@ -356,7 +356,7 @@ function testTransactionErrorPanicHelper(h2:Client testDB) {
     }
 }
 
-function testTransactionErrorPanicAndTrap() returns (int, int, int) {
+function testTransactionErrorPanicAndTrap() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -369,7 +369,7 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
     int catchValue = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
                  creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
         var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
@@ -381,7 +381,7 @@ function testTransactionErrorPanicAndTrap() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, catchValue, count);
 }
 
@@ -392,7 +392,7 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
     }
 }
 
-function testTransactionCommitted() returns (int, int) {
+function testTransactionCommitted() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -404,9 +404,9 @@ function testTransactionCommitted() returns (int, int) {
     int returnVal = 1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
                country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
@@ -414,11 +414,11 @@ function testTransactionCommitted() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testTwoTransactions() returns (int, int, int) {
+function testTwoTransactions() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -431,18 +431,18 @@ function testTwoTransactions() returns (int, int, int) {
     int returnVal2 = 1;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal1 = 0;
     }
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal2 = 0;
@@ -450,11 +450,11 @@ function testTwoTransactions() returns (int, int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal1, returnVal2, count);
 }
 
-function testTransactionWithoutHandlers() returns (int) {
+function testTransactionWithoutHandlers() returns @tainted (int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -464,9 +464,9 @@ function testTransactionWithoutHandlers() returns (int) {
     });
 
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
                                            ('James', 'Clerk', 350, 5000.75, 'USA')");
     }
 
@@ -474,11 +474,11 @@ function testTransactionWithoutHandlers() returns (int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 350", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 
-function testLocalTransactionFailed() returns (string, int) {
+function testLocalTransactionFailed() returns @tainted (string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -499,7 +499,7 @@ function testLocalTransactionFailed() returns (string, int) {
     a = a + " afterTrx";
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
     count = getTableCountValColumn(dtRet);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (a, count);
 }
 
@@ -507,9 +507,9 @@ function testLocalTransactionFailedHelper(string status, h2:Client testDB) retur
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                         values ('James', 'Clerk', 111, 5000.75, 'USA')");
-        _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                         values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
     } onretry {
         a = a + " onRetry";
@@ -519,7 +519,7 @@ function testLocalTransactionFailedHelper(string status, h2:Client testDB) retur
     return a;
 }
 
-function testLocalTransactionSuccessWithFailed() returns (string, int) {
+function testLocalTransactionSuccessWithFailed() returns @tainted (string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -538,7 +538,7 @@ function testLocalTransactionSuccessWithFailed() returns (string, int) {
     a = a + " afterTrx";
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount);
     int count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (a, count);
 }
 
@@ -547,13 +547,13 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 222, 5000.75, 'USA')");
         if (i == 2) {
-            _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+            var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         } else {
-            _ = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
+            var e3 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
                                         values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
@@ -565,7 +565,7 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
     return a;
 }
 
-function testLocalTransactionFailedWithNextupdate() returns (int) {
+function testLocalTransactionFailedWithNextupdate() returns @tainted (int) {
     h2:Client testDB1;
     h2:Client testDB2;
     testDB1 = new({
@@ -589,25 +589,25 @@ function testLocalTransactionFailedWithNextupdate() returns (int) {
     if (ret is error) {
         i = -1;
     }
-    _ = testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = checkpanic testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                             values ('James', 'Clerk', 12343, 5000.75, 'USA')");
-    _ = testDB1.stop();
+    checkpanic testDB1.stop();
 
     var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
         ResultCount);
     i = getTableCountValColumn(dt);
-    _ = testDB2.stop();
+    checkpanic testDB2.stop();
     return i;
 }
 
 function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
     transaction {
-        _ = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 1234, 5000.75, 'USA')");
     }
 }
 
-function testNestedTwoLevelTransactionSuccess() returns (int, int) {
+function testNestedTwoLevelTransactionSuccess() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -619,7 +619,7 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
         testNestedTwoLevelTransactionSuccessParticipant(testDB);
     } onretry {
@@ -628,17 +628,17 @@ function testNestedTwoLevelTransactionSuccess() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 @transactions:Participant {}
 function testNestedTwoLevelTransactionSuccessParticipant(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionSuccess() returns (int, int) {
+function testNestedThreeLevelTransactionSuccess() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -650,7 +650,7 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
     int returnVal = 0;
     int count;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
         testNestedThreeLevelTransactionSuccessParticipant1(testDB);
     } onretry {
@@ -659,24 +659,24 @@ function testNestedThreeLevelTransactionSuccess() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant1(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
     testNestedThreeLevelTransactionSuccessParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant2(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionFailed() returns (int, int) {
+function testNestedThreeLevelTransactionFailed() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -694,14 +694,14 @@ function testNestedThreeLevelTransactionFailed() returns (int, int) {
     //check whether update action is performed
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
 function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns int {
     int returnVal = 0;
     transaction {
-        _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('James', 'Clerk', 555, 5000.75, 'USA')");
         testNestedThreeLevelTransactionFailedHelperParticipant1(testDB);
     } onretry {
@@ -712,25 +712,25 @@ function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns i
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant1(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant2(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant3(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant3(h2:Client testDB) {
-    _ = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
+    var e = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
-function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
+function testLocalTransactionWithSelectAndForeachIteration() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -739,9 +739,9 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 900, 5000.75, 'USA')");
 
     int returnVal = 0;
@@ -764,11 +764,11 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
+function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -777,9 +777,9 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
         poolOptions: { maximumPoolSize: 5 }
     });
 
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
-    _ = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 901, 5000.75, 'USA')");
 
     int returnVal = 0;
@@ -794,11 +794,11 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
     } onretry {
         returnVal = -1;
     }
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return (returnVal, count);
 }
 
-function testCloseConnectionPool() returns (int) {
+function testCloseConnectionPool() returns @tainted (int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -810,7 +810,7 @@ function testCloseConnectionPool() returns (int) {
     int count;
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
     count = getTableCountValColumn(dt);
-    _ = testDB.stop();
+    checkpanic testDB.stop();
     return count;
 }
 

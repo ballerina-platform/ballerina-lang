@@ -35,7 +35,7 @@ service test on mockEP {
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
         outResponse.setBodyParts(bodyParts, contentType = contentType);
 
-        _ = caller->respond(outResponse);
+        checkpanic caller->respond(outResponse);
     }
 
     @http:ResourceConfig {
@@ -43,15 +43,15 @@ service test on mockEP {
         path:"/nested_parts_in_outresponse"
     }
     resource function nestedPartsInOutResponse(http:Caller caller, http:Request request) {
-        string contentType = untaint request.getHeader("content-type");
+        string contentType = <@untainted string> request.getHeader("content-type");
         http:Response outResponse = new;
         var bodyParts = request.getBodyParts();
 
         if (bodyParts is mime:Entity[]) {
-            outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
+            outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType = contentType);
         } else {
-            outResponse.setPayload(untaint <string>bodyParts.detail().message);
+            outResponse.setPayload(<@untainted string> <string>bodyParts.detail().message);
         }
-        _ = caller->respond(outResponse);
+        checkpanic caller->respond(outResponse);
     }
 }

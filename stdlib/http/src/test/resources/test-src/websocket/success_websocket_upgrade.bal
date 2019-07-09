@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-listener http:Listener httpListener = new(9090);
+listener http:Listener httpListener = new(9091);
 
 service proxy on httpListener {
 
@@ -39,7 +39,7 @@ service proxy on httpListener {
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("Successful");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
 }

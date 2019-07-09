@@ -21,7 +21,7 @@ import * as _ from 'lodash';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
-import { WebViewRPCHandler } from '../utils';
+import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
 
@@ -69,10 +69,7 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		'ballerinaDiagram',
 		"Ballerina Diagram",
 		{ viewColumn: ViewColumn.Two, preserveFocus: true } ,
-		{
-			enableScripts: true,
-			retainContextWhenHidden: true,
-		}
+		getCommonWebViewOptions()
 	);
 
 	diagramViewPanel.iconPath = {
@@ -85,26 +82,11 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 		return;
 	}
 	activeEditor = editor;
-	rpcHandler = WebViewRPCHandler.create(diagramViewPanel.webview, langClient);
-	const html = render(context, langClient, editor.document.uri);
+	rpcHandler = WebViewRPCHandler.create(diagramViewPanel, langClient);
+	const html = render(editor.document.uri);
 	if (diagramViewPanel && html) {
 		diagramViewPanel.webview.html = html;
 	}
-	// Handle messages from the webview
-	diagramViewPanel.webview.onDidReceiveMessage(message => {
-		switch (message.command) {
-			case 'astModified':
-				if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-					preventDiagramUpdate = true;
-					const ast = JSON.parse(message.ast);
-					langClient.triggerASTDidChange(ast, activeEditor.document.uri)
-						.then(() => {
-							preventDiagramUpdate = false;
-						});	
-				}
-				return;
-		}
-	}, undefined, context.subscriptions);
 
 	diagramViewPanel.onDidDispose(() => {
 		diagramViewPanel = undefined;
@@ -115,7 +97,8 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
-    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
 		return ballerinaExtInstance.onReady()
 		.then(() => {

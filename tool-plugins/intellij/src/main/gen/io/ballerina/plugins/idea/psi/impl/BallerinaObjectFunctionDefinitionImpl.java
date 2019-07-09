@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctionDefinition {
+public class BallerinaObjectFunctionDefinitionImpl extends ASTWrapperPsiElement implements BallerinaObjectFunctionDefinition {
 
   public BallerinaObjectFunctionDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,25 +51,31 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
   @Override
   @Nullable
   public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+    return findChildByClass(BallerinaCallableUnitBody.class);
   }
 
   @Override
   @Nullable
   public BallerinaCallableUnitSignature getCallableUnitSignature() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitSignature.class);
+    return findChildByClass(BallerinaCallableUnitSignature.class);
   }
 
   @Override
   @Nullable
   public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDeprecatedAttachment.class);
+    return findChildByClass(BallerinaDeprecatedAttachment.class);
   }
 
   @Override
   @Nullable
   public BallerinaDocumentationString getDocumentationString() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+    return findChildByClass(BallerinaDocumentationString.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
   }
 
   @Override
@@ -79,14 +86,14 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
+  public PsiElement getExternal() {
+    return findChildByType(EXTERNAL);
   }
 
   @Override
   @NotNull
   public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+    return findNotNullChildByType(FUNCTION);
   }
 
   @Override

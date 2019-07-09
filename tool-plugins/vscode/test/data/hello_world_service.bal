@@ -9,6 +9,6 @@ service myService1 on new http:Listener(9090) {
        path:"/sayHello"
    }
    resource function foo(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello");
+        checkpanic caller->respond("Hello");
    }
 }

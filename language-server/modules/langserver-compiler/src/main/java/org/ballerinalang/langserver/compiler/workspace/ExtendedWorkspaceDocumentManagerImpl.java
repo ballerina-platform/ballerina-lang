@@ -15,12 +15,15 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
@@ -64,31 +67,56 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
      * {@inheritDoc}
      */
     @Override
-    public Optional<Lock> openFile(Path filePath, String content) throws WorkspaceDocumentException {
+    public void openFile(Path filePath, String content) throws WorkspaceDocumentException {
         // If file is already open; gracefully handle it
-        return openOrUpdateFile(filePath, content);
+        openOrUpdateFile(filePath, null, content);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<Lock> updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
+    public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         // if file is not already open; gracefully handle it
-        return openOrUpdateFile(filePath, updatedContent);
+        openOrUpdateFile(filePath, null, updatedContent);
     }
 
-    private Optional<Lock> openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
+        // if file is not already open; gracefully handle it
+        openOrUpdateFile(filePath, range, updatedContent);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
-            Optional<Lock> lock = super.lockFile(filePath);
+            tempDocument.setCodeLenses(codeLens);
+        } else if (super.isFileOpen(filePath)) {
+            // If file open, call parent class
+            super.setCodeLenses(filePath, codeLens);
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
+    private void openOrUpdateFile(Path filePath, Range range, String content) throws WorkspaceDocumentException {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, handle it locally
             tempDocument.setContent(content);
-            return lock;
         } else {
             // Or else, call parent class
-            return (super.isFileOpen(filePath)) ?
-                    super.updateFile(filePath, content)
-                    : super.openFile(filePath, content);
+            if (super.isFileOpen(filePath)) {
+                super.updateFileRange(filePath, range, content);
+            } else {
+                super.openFile(filePath, content);
+            }
         }
     }
 
@@ -100,6 +128,19 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         if (!isExplicitMode && !isTempFile(filePath)) {
             super.closeFile(filePath);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CodeLens> getCodeLenses(Path filePath) {
+        if (isExplicitMode && isTempFile(filePath)) {
+            // If explicit mode is on and temp file, return local code lenses
+            return tempDocument.getCodeLenses();
+        }
+        // Or else, call parent class
+        return super.getCodeLenses(filePath);
     }
 
     /**
@@ -156,6 +197,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
 
     /**
      * Disables explicit mode. When explicit mode is disabled; All changes for the files will be served as usual.
+     *
      * Usage example:
      * <pre>
      * Optional&lt;Lock&gt; lock = documentManager.enableExplicitMode(tempFile);

@@ -61,6 +61,13 @@ var vscode = acquireVsCodeApi();
 function getLangClient() {
     return {
         isInitialized: true,
+        getProjectAST: (params) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getProjectAST', [params.sourceRoot], (resp) => {
+                    resolve(resp);
+                });
+            });
+        },
         getAST: (params) => {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getAST', [params.documentIdentifier.uri], (resp) => {
@@ -117,6 +124,13 @@ function getLangClient() {
             return new Promise((resolve, reject) => {
                 webViewRPCHandler.invokeRemoteMethod('getExamples', [], (resp) => {
                     resolve(resp.samples);
+                });
+            })
+        },
+        getDefinitionPosition: (params) => {
+            return new Promise((resolve, reject) => {
+                webViewRPCHandler.invokeRemoteMethod('getDefinitionPosition', [params], (resp) => {
+                    resolve(resp);
                 });
             })
         }

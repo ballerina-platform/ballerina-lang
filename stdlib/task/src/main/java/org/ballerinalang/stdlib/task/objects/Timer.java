@@ -25,8 +25,6 @@ import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -42,17 +40,15 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Timer extends AbstractTask {
 
     private long interval, delay;
-    private static final Logger log = LoggerFactory.getLogger(Timer.class);
 
     /**
      * Creates a Timer object.
      *
-     * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
      * @throws SchedulingException When provided configuration values are invalid.
      */
-    public Timer(Context context, long delay, long interval) throws SchedulingException {
+    public Timer(long delay, long interval) throws SchedulingException {
         super();
         validateTimerConfigurations(delay, interval);
         this.interval = interval;
@@ -62,13 +58,12 @@ public class Timer extends AbstractTask {
     /**
      * Creates a Timer object with limited number of running times.
      *
-     * @param context  The ballerina context.
      * @param delay    The initial delay.
      * @param interval The interval between two task executions.
      * @param maxRuns  Number of times after which the timer will turn off.
      * @throws SchedulingException When provided configuration values are invalid.
      */
-    public Timer(Context context, long delay, long interval, long maxRuns) throws SchedulingException {
+    public Timer(long delay, long interval, long maxRuns) throws SchedulingException {
         super(maxRuns);
         validateTimerConfigurations(delay, interval);
         this.interval = interval;
@@ -79,38 +74,26 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void stop() throws SchedulingException {
-        this.stop(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void pause() throws SchedulingException {
-        this.pause(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void resume() throws SchedulingException {
-        this.resume(this.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run(Context context) throws SchedulingException {
+    //TODO Remove after migration : implemented using bvm values/types
+    public void start(Context context) throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Failed to schedule Task. " + e.getMessage());
-            }
-            throw new SchedulingException("Failed to schedule Task.");
+            throw new SchedulingException("Failed to schedule Task.", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws SchedulingException {
+        JobDataMap jobDataMap = getJobDataMapFromTask();
+        try {
+            scheduleTimer(jobDataMap);
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to schedule Task.", e);
         }
     }
 

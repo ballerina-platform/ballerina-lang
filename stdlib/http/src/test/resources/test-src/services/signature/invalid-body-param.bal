@@ -11,8 +11,8 @@ service echo on echoEP {
         methods:["POST"],
         body:"person"
     }
-    resource function echo1 (http:Caller caller, http:Request req, string key, int person) {
+    resource function echo1 (http:Caller caller, http:Request req, int person) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

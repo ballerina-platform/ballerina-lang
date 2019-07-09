@@ -26,12 +26,14 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -60,21 +62,22 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
@@ -151,7 +154,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -172,10 +174,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -581,7 +585,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean analyzeStaticPatterns(List<BLangMatchStaticBindingPatternClause> matchedPatterns) {
         BLangMatchStaticBindingPatternClause finalPattern = matchedPatterns.get(matchedPatterns.size() - 1);
-        if (finalPattern.literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (finalPattern.literal.type.tag == TypeTags.NONE) {
             finalPattern.isLastPattern = true;
         }
 
@@ -633,57 +637,117 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      *
      * @param precedingPattern pattern taken to compare similarity.
      * @param pattern          the pattern that the precedingPattern is checked for similarity.
-     * @return true if both patterns are similar..
+     * @return true if both patterns are similar.
      */
     private boolean checkLiteralSimilarity(BLangExpression precedingPattern, BLangExpression pattern) {
-        if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return true;
+        if (precedingPattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If preceding pattern is a binary expression, check both sides of binary expression with current pattern.
+            BLangBinaryExpr precedingBinaryExpr = (BLangBinaryExpr) precedingPattern;
+            BLangExpression precedingLhsExpr = precedingBinaryExpr.lhsExpr;
+            BLangExpression precedingRhsExpr = precedingBinaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingLhsExpr, pattern) ||
+                    checkLiteralSimilarity(precedingRhsExpr, pattern);
         }
 
-        if (precedingPattern.type.tag == TypeTags.MAP && pattern.type.tag == TypeTags.MAP) {
-            BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
-            Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
-                    .stream()
-                    .collect(Collectors.toMap(
-                            keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
-                            BLangRecordKeyValue::getValue
-                    ));
-
-            for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
-                BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
-                String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
-                if (!recordLiteral.containsKey(key)) {
-                    return false;
-                }
-                if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
-                    return false;
-                }
-            }
-            return true;
+        if (pattern.getKind() == NodeKind.BINARY_EXPR) {
+            // If current pattern is a binary expression, check both sides of binary expression with preceding pattern.
+            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) pattern;
+            BLangExpression lhsExpr = binaryExpr.lhsExpr;
+            BLangExpression rhsExpr = binaryExpr.rhsExpr;
+            return checkLiteralSimilarity(precedingPattern, lhsExpr) ||
+                    checkLiteralSimilarity(precedingPattern, rhsExpr);
         }
 
-        if (precedingPattern.type.tag == TypeTags.TUPLE && pattern.type.tag == TypeTags.TUPLE) {
-            BLangBracedOrTupleExpr precedingTupleLiteral = (BLangBracedOrTupleExpr) precedingPattern;
-            BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) pattern;
-            if (precedingTupleLiteral.expressions.size() != tupleLiteral.expressions.size()) {
+        switch (precedingPattern.type.tag) {
+            case TypeTags.MAP:
+                if (pattern.type.tag == TypeTags.MAP) {
+                    BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
+                    Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).keyValuePairs
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
+                                    BLangRecordKeyValue::getValue
+                            ));
+
+                    for (int i = 0; i < precedingRecordLiteral.keyValuePairs.size(); i++) {
+                        BLangRecordKeyValue bLangRecordKeyValue = precedingRecordLiteral.keyValuePairs.get(i);
+                        String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
+                        if (!recordLiteral.containsKey(key)) {
+                            return false;
+                        }
+                        if (!checkLiteralSimilarity(bLangRecordKeyValue.valueExpr, recordLiteral.get(key))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
                 return false;
-            }
-            return IntStream.range(0, precedingTupleLiteral.expressions.size())
-                    .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.expressions.get(i),
-                            tupleLiteral.expressions.get(i)));
+            case TypeTags.TUPLE:
+                if (pattern.type.tag == TypeTags.TUPLE) {
+                    BLangListConstructorExpr precedingTupleLiteral = (BLangListConstructorExpr) precedingPattern;
+                    BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) pattern;
+                    if (precedingTupleLiteral.exprs.size() != tupleLiteral.exprs.size()) {
+                        return false;
+                    }
+                    return IntStream.range(0, precedingTupleLiteral.exprs.size())
+                            .allMatch(i -> checkLiteralSimilarity(precedingTupleLiteral.exprs.get(i),
+                                    tupleLiteral.exprs.get(i)));
+                }
+                return false;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+                if (precedingPattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    // preceding pattern is a constant.
+                    BConstantSymbol precedingPatternSym =
+                            (BConstantSymbol) ((BLangSimpleVarRef) precedingPattern).symbol;
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return precedingPatternSym.value.equals(patternSym.value);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) pattern).expression :
+                            (BLangLiteral) pattern;
+                    return (precedingPatternSym.value.equals(literal.value));
+                }
+
+                if (types.isValueType(pattern.type)) {
+                    // preceding pattern is a literal.
+                    BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) precedingPattern).expression :
+                            (BLangLiteral) precedingPattern;
+
+                    if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (pattern.type.tag != TypeTags.NONE) {
+                            // pattern is a constant reference.
+                            BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
+                            return patternSym.value.equals(precedingLiteral.value);
+                        }
+                        // pattern is '_'.
+                        return false;
+                    }
+                    // pattern is a literal.
+                    BLangLiteral literal = pattern.getKind() == NodeKind.GROUP_EXPR ?
+                            (BLangLiteral) ((BLangGroupExpr) pattern).expression :
+                            (BLangLiteral) pattern;
+                    return (precedingLiteral.value.equals(literal.value));
+                }
+                return false;
+            case TypeTags.NONE:
+                // preceding pattern is '_'. Hence will match all patterns that follow.
+                return true;
+            default:
+                return false;
         }
-
-        if (types.isValueType(precedingPattern.type) && types.isValueType(pattern.type)) {
-            BLangLiteral literal = pattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) pattern).expressions.get(0) : (BLangLiteral) pattern;
-
-            BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.BRACED_TUPLE_EXPR ?
-                    (BLangLiteral) ((BLangBracedOrTupleExpr) precedingPattern).expressions.get(0) :
-                    (BLangLiteral) precedingPattern;
-
-            return (precedingLiteral.value.equals(literal.value));
-        }
-        return false;
     }
 
     /**
@@ -771,11 +835,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
+
         if (precedingVar.getKind() == NodeKind.ERROR_VARIABLE && var.getKind() == NodeKind.ERROR_VARIABLE) {
             BLangErrorVariable precedingErrVar = (BLangErrorVariable) precedingVar;
             BLangErrorVariable errVar = (BLangErrorVariable) var;
+
+            // Rest pattern in previous binding-pattern can bind to all the error details,
+            // hence current error pattern is not reachable.
+            if (precedingErrVar.restDetail != null) {
+                return true;
+            }
+
+            // Current pattern can bind anything that is bound in preceding, to current's rest binding var.
+            if (errVar.restDetail != null) {
+                return false;
+            }
+
             if (precedingErrVar.detail != null && errVar.detail != null) {
-                return checkStructuredPatternSimilarity(precedingErrVar.detail, errVar.detail);
+                // If preceding detail binding list contains all the details in current list,
+                // even though preceding contains more bindings, since a binding can bind to (),
+                // current is shadowed from preceding.
+                // Error details are a map<anydata|error>
+                Map<String, BLangVariable> preDetails = precedingErrVar.detail.stream()
+                        .collect(Collectors.toMap(entry -> entry.key.value, entry -> entry.valueBindingPattern));
+
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errVar.detail) {
+                    BLangVariable correspondingCurDetail = preDetails.get(detailEntry.key.value);
+                    if (correspondingCurDetail == null) {
+                        // Current binding pattern have more details to bind to
+                        return false;
+                    }
+                    boolean similar =
+                            checkStructuredPatternSimilarity(detailEntry.valueBindingPattern, correspondingCurDetail);
+                    if (!similar) {
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -815,7 +910,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         .anyMatch(memberMatchType -> isValidStaticMatchPattern(memberMatchType, literal));
             case TypeTags.TUPLE:
                 if (literal.type.tag == TypeTags.TUPLE) {
-                    BLangBracedOrTupleExpr tupleLiteral = (BLangBracedOrTupleExpr) literal;
+                    BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) literal;
                     BTupleType literalTupleType = (BTupleType) literal.type;
                     BTupleType matchTupleType = (BTupleType) matchType;
                     if (literalTupleType.tupleTypes.size() != matchTupleType.tupleTypes.size()) {
@@ -824,7 +919,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return IntStream.range(0, literalTupleType.tupleTypes.size())
                             .allMatch(i ->
                                     isValidStaticMatchPattern(matchTupleType.tupleTypes.get(i),
-                                            tupleLiteral.expressions.get(i)));
+                                            tupleLiteral.exprs.get(i)));
                 }
                 break;
             case TypeTags.MAP:
@@ -880,6 +975,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case TypeTags.FINITE:
                 if (literal.getKind() == NodeKind.LITERAL || literal.getKind() == NodeKind.NUMERIC_LITERAL) {
                     return types.isAssignableToFiniteType(matchType, (BLangLiteral) literal);
+                }
+                if (literal.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                        ((BLangSimpleVarRef) literal).symbol.getKind() == SymbolKind.CONSTANT) {
+                    BConstantSymbol constSymbol = (BConstantSymbol) ((BLangSimpleVarRef) literal).symbol;
+                    return types.isAssignableToFiniteType(matchType,
+                            (BLangLiteral) ((BFiniteType) constSymbol.type).valueSpace.iterator().next());
                 }
                 break;
         }
@@ -960,7 +1061,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (objectTypeNode.isFieldAnalyseRequired) {
             objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
         }
-        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, objectEnv));
+
+        // To ensure the order of the compile errors
+        Stream.concat(objectTypeNode.functions.stream(),
+                      Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
+                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
+                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -981,8 +1087,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        analyzeArrayVariableImplicitInitialValue(varNode);
-
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1007,49 +1111,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) || (varNode.type != null && varNode.parent != null &&
                 NodeKind.FUNCTION.equals(varNode.parent.getKind()))) {
             analyseType(varNode.type, varNode.pos);
-        }
-    }
-
-    private void analyzeArrayVariableImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangType varTypeNode = varNode.typeNode;
-        if (varTypeNode == null || varTypeNode.type == null) {
-            return;
-        }
-        // Variable is a array def, elements must have implicit initial value.
-        if (varTypeNode.type.tag == TypeTags.ARRAY) {
-            analyzeArrayElemImplicitInitialValue(varTypeNode, varNode.pos);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            // Specific handling for T[]|?, typeNode is a BLangArrayType
-            analyzeArrayElemImplicitInitialValue(varNode);
-        } else if (varTypeNode.type.tag == TypeTags.UNION && varTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
-            // Check each member of the union.
-            for (BLangType memberTypeNode : ((BLangUnionTypeNode) varTypeNode).memberTypeNodes) {
-                analyzeArrayElemImplicitInitialValue(memberTypeNode, memberTypeNode.pos);
-            }
-        }
-    }
-
-    private void analyzeArrayElemImplicitInitialValue(BLangSimpleVariable varNode) {
-        BLangArrayType arrayPart = (BLangArrayType) varNode.typeNode;
-        if (!types.hasImplicitInitialValue(arrayPart.elemtype.type)) {
-            BType eType = arrayPart.elemtype.type;
-            this.dlog.error(arrayPart.pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
-        }
-    }
-
-    private void analyzeArrayElemImplicitInitialValue(BLangType typeNode, DiagnosticPos pos) {
-        if (typeNode.type.tag != TypeTags.ARRAY) {
-            return;
-        }
-        BArrayType arrayType = (BArrayType) typeNode.type;
-
-        if (arrayType.state != BArrayState.UNSEALED) {
-            return;
-        }
-
-        if (!types.hasImplicitInitialValue(arrayType.getElementType())) {
-            BType eType = ((BLangArrayType) typeNode).elemtype.type;
-            this.dlog.error(pos, DiagnosticCode.INVALID_ARRAY_ELEMENT_TYPE, eType, getNilableType(eType));
         }
     }
 
@@ -1085,8 +1146,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         this.checkStatementExecutionValidity(varDefNode);
         analyzeNode(varDefNode.var, env);
-        // validate for endpoints here.
-        validateEndpointDeclaration(varDefNode);
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
@@ -1155,11 +1214,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
         BLangExpression expr = exprStmtNode.expr;
-        while (expr.getKind() == NodeKind.MATCH_EXPRESSION || expr.getKind() == NodeKind.CHECK_EXPR) {
+        while (expr.getKind() == NodeKind.MATCH_EXPRESSION ||
+                expr.getKind() == NodeKind.CHECK_EXPR ||
+                expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
             if (expr.getKind() == NodeKind.MATCH_EXPRESSION) {
                 expr = ((BLangMatchExpression) expr).expr;
             } else if (expr.getKind() == NodeKind.CHECK_EXPR) {
                 expr = ((BLangCheckedExpr) expr).expr;
+            } else if (expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
+                expr = ((BLangCheckPanickedExpr) expr).expr;
             }
         }
         // Allowed expression kinds
@@ -1346,8 +1409,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        analyzeExprs(arrayLiteral.exprs);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        analyzeExprs(listConstructorExpr.exprs);
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
@@ -1441,39 +1504,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateEndpointDeclaration(BLangSimpleVariableDef varDefNode) {
-        if (Objects.isNull(varDefNode.var.symbol) || varDefNode.var.symbol.tag != SymTag.ENDPOINT ||
-                Objects.isNull(varDefNode.parent) || Objects
-                .isNull(varDefNode.parent.parent)) {
-            return;
-        }
-        // Check for valid parents nodes. (immediate parent is block node)
-        switch (varDefNode.parent.parent.getKind()) {
-            case RESOURCE:
-            case FUNCTION:
-                break;
-            default:
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                return;
-        }
-        // Check with siblings now.
-        BLangBlockStmt blockStmt = (BLangBlockStmt) varDefNode.parent;
-        for (BLangStatement statement : blockStmt.stmts) {
-            if (statement == varDefNode) {
-                break;
-            }
-            if (statement.getKind() != NodeKind.VARIABLE_DEF) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
-            BLangSimpleVariableDef def = (BLangSimpleVariableDef) statement;
-            if (def.var.symbol.tag != SymTag.ENDPOINT) {
-                dlog.error(varDefNode.pos, DiagnosticCode.INVALID_ENDPOINT_DECLARATION);
-                break;
-            }
-        }
-    }
-
     private void validateActionInvocation(DiagnosticPos pos, BLangInvocation iExpr) {
         final NodeKind clientNodeKind = iExpr.expr.getKind();
         // Validation against node kind.
@@ -1499,7 +1529,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1521,8 +1552,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT || kind == NodeKind.EXPRESSION_STATEMENT
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
                 return;
-            } else if (kind == NodeKind.CHECK_EXPR || kind == NodeKind.BRACED_TUPLE_EXPR ||
-                       kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
+            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.GROUP_EXPR ||
+                    kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
@@ -1660,8 +1692,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        analyzeExprs(bracedOrTupleExpr.expressions);
+    public void visit(BLangGroupExpr groupExpr) {
+        analyzeExpr(groupExpr.expression);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
@@ -1719,11 +1751,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             String workerVarName = ((BLangSimpleVariable) bLangLambdaFunction.parent).name.value;
             if (workerVarName.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 String workerName = workerVarName.substring(1);
-                // Check if the worker name is default, if so log an error
-                // TODO Remove this after the default worker node is defined in SymbolEnter.
-                if (workerName.equalsIgnoreCase(DEFAULT_WORKER_NAME)) {
-                    dlog.error(bLangLambdaFunction.pos, DiagnosticCode.EXPLICIT_WORKER_CANNOT_BE_DEFAULT);
-                }
                 isWorker = true;
                 this.workerActionSystemStack.peek().startWorkerActionStateMachine(workerName,
                                                                                   bLangLambdaFunction.function.pos,
@@ -1887,15 +1914,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!enclInvokableHasErrorReturn) {
-            dlog.error(checkedExpr.expr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
         returnTypes.peek().add(exprType);
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        // TODO: Fix me.
+    public void visit(BLangCheckPanickedExpr checkPanicExpr) {
+        analyzeExpr(checkPanicExpr.expr);
     }
 
     @Override
@@ -1920,10 +1947,43 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable 
         // to the type of the source variable.
-        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type)) {
+        if (!types.isAssignable(typeTestExpr.typeNode.type, typeTestExpr.expr.type) &&
+                !indirectIntersectionExists(typeTestExpr.expr, typeTestExpr.typeNode.type)) {
             dlog.error(typeTestExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CHECK, typeTestExpr.expr.type,
-                    typeTestExpr.typeNode.type);
+                       typeTestExpr.typeNode.type);
         }
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        analyzeExpr(annotAccessExpr.expr);
+    }
+
+    private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
+        BType expressionType = expression.type;
+        switch (expressionType.tag) {
+            case TypeTags.UNION:
+                if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+                break;
+            case TypeTags.FINITE:
+                if (types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) expressionType, testType) !=
+                        symTable.semanticError) {
+                    return true;
+                }
+        }
+
+        switch (testType.tag) {
+            case TypeTags.UNION:
+                return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType) !=
+                        symTable.semanticError;
+            case TypeTags.FINITE:
+                return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
+                        symTable.semanticError;
+        }
+        return false;
     }
 
     // private methods
@@ -2059,12 +2119,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
+        receive.sendExpression = send.expr;
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
         this.typeChecker.checkExpr(send.expr, send.env, receive.type);
         types.checkType(send, send.type, receive.matchingSendsError);
         addImplicitCast(send.expr.type, receive);
+        receive.sendExpression = send;
     }
 
     private void addImplicitCast(BType actualType, BLangWorkerReceive receive) {

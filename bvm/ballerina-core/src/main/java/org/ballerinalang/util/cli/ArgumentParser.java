@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
+import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -48,8 +49,6 @@ import org.ballerinalang.util.codegen.attributes.ParameterAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -203,25 +202,27 @@ public class ArgumentParser {
     }
 
     private static BValue getDefaultValue(BType type, DefaultValue value) {
-        switch (type.getTag()) {
-            case TypeTags.INT_TAG:
+        switch (value.getTypeDesc()) {
+            case TypeSignature.SIG_INT:
                 return new BInteger(value.getIntValue());
-            case TypeTags.STRING_TAG:
+            case TypeSignature.SIG_STRING:
                 return new BString(value.getStringValue());
-            case TypeTags.FLOAT_TAG:
+            case TypeSignature.SIG_FLOAT:
                 return new BFloat(value.getFloatValue());
-            case TypeTags.DECIMAL_TAG:
+            case TypeSignature.SIG_DECIMAL:
                 return new BDecimal(value.getDecimalValue());
-            case TypeTags.BOOLEAN_TAG:
+            case TypeSignature.SIG_BOOLEAN:
                 return new BBoolean(value.getBooleanValue());
-            case TypeTags.BYTE_TAG:
+            case TypeSignature.SIG_BYTE:
                 return new BByte(value.getByteValue());
+            case TypeSignature.SIG_NULL:
+                return null; // for optional defaultable types
             default: //shouldn't reach here
                 throw new BLangUsageException("unsupported type specified as defaultable param: " + type);
         }
     }
 
-    private static BValue getBValue(BType type, String value) {
+    public static BValue getBValue(BType type, String value) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
@@ -231,7 +232,7 @@ public class ArgumentParser {
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
             case TypeTags.DECIMAL_TAG:
-                return new BDecimal(getDecimalValue(value));
+                return getDecimalValue(value);
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -256,8 +257,8 @@ public class ArgumentParser {
                                       + " type: " + type + ": " + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
-                if (!value.startsWith("(") || !value.endsWith(")")) {
-                    throw new BLangUsageException("invalid argument '" + value + "', expected tuple notation (\"()\") "
+                if (!value.startsWith("[") || !value.endsWith("]")) {
+                    throw new BLangUsageException("invalid argument '" + value + "', expected tuple notation [\"[]\"] "
                                                           + "with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
@@ -301,9 +302,9 @@ public class ArgumentParser {
         }
     }
 
-    private static BigDecimal getDecimalValue(String argument) {
+    private static BDecimal getDecimalValue(String argument) {
         try {
-            return new BigDecimal(argument, MathContext.DECIMAL128);
+            return new BDecimal(argument);
         } catch (NumberFormatException e) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected decimal value");
         }
@@ -317,7 +318,7 @@ public class ArgumentParser {
         return Boolean.parseBoolean(argument);
     }
 
-    private static byte getByteValue(String argument) {
+    private static long getByteValue(String argument) {
         long longValue; // TODO: 7/4/18 Allow byte literals?
         try {
             longValue = Long.parseLong(argument);
@@ -327,7 +328,7 @@ public class ArgumentParser {
         if (!BVM.isByteLiteral(longValue)) {
             throw new BLangUsageException("invalid argument '" + argument + "', expected byte value, found int");
         }
-        return (byte) longValue;
+        return longValue;
     }
 
     private static BNewArray getRestArgArray(BType type, int index, String[] args) {
@@ -362,7 +363,7 @@ public class ArgumentParser {
                 case TypeTags.BYTE_TAG:
                     BValueArray byteArrayArgs = new BValueArray(BTypes.typeByte);
                     for (int i = index; i < args.length; i++) {
-                        byteArrayArgs.add(i - index, getByteValue(args[i]));
+                        byteArrayArgs.add(i - index, (byte) getByteValue(args[i]));
                     }
                     return byteArrayArgs;
                 default:
@@ -386,7 +387,7 @@ public class ArgumentParser {
         String[] tupleElements = tupleArg.split(COMMA);
 
         if (tupleElements.length != type.getTupleTypes().size()) {
-            throw new BLangUsageException("invalid argument '(" + tupleArg + ")', element count mismatch for tuple "
+            throw new BLangUsageException("invalid argument '[" + tupleArg + "]', element count mismatch for tuple "
                                                   + "type: '" + type + "'");
         }
 

@@ -37,8 +37,12 @@ module.exports = {
         ]
     },
     devServer: {
+        disableHostCheck: true,
         contentBase: path.join(__dirname, 'build'),
-        port: 9000
+        port: 9000,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        }
     },
     plugins: [
         new CopyWebpackPlugin([

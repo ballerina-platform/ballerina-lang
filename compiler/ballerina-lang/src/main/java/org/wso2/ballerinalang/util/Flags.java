@@ -47,6 +47,7 @@ public class Flags {
     public static final int RESOURCE = CLIENT << 1;
     public static final int SERVICE = RESOURCE << 1;
     public static final int LISTENER = SERVICE << 1;
+    public static final int LAMBDA = LISTENER << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -69,9 +70,6 @@ public class Flags {
                     break;
                 case ATTACHED:
                     mask |= ATTACHED;
-                    break;
-                case DEPRECATED:
-                    mask |= DEPRECATED;
                     break;
                 case READONLY:
                     mask |= READONLY;
@@ -115,6 +113,9 @@ public class Flags {
                 case CONSTANT:
                     mask |= CONSTANT;
                     break;
+                case LAMBDA:
+                    mask |= LAMBDA;
+                    break;
             }
         }
         return mask;
@@ -142,9 +143,6 @@ public class Flags {
                     break;
                 case ATTACHED:
                     flagVal = ATTACHED;
-                    break;
-                case DEPRECATED:
-                    flagVal = DEPRECATED;
                     break;
                 case READONLY:
                     flagVal = READONLY;
@@ -184,6 +182,9 @@ public class Flags {
                     break;
                 case CONSTANT:
                     flagVal = CONSTANT;
+                    break;
+                case LAMBDA:
+                    flagVal = LAMBDA;
                     break;
                 default:
                     continue;

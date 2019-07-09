@@ -25,12 +25,19 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_INSTANCE_ID;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_INSTANCE_NAME;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_JOB_STORE_CLASS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_JOB_STORE_CLASS_VALUE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT_VALUE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_POOL_CLASS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_POOL_CLASS_VALUE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
@@ -41,11 +48,10 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
-    HashMap<String, ServiceWithParameters> serviceMap;
-    protected Map<String, JobKey> quartzJobs = new HashMap<>();
+    private HashMap<String, ServiceWithParameters> serviceMap;
+    Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
     Scheduler scheduler;
-    private static final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
@@ -54,13 +60,11 @@ public abstract class AbstractTask implements Task {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
         try {
-            this.scheduler = new StdSchedulerFactory().getScheduler();
+            StdSchedulerFactory schedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
+            this.scheduler = schedulerFactory.getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Initializing the task/scheduler failed." + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -74,13 +78,11 @@ public abstract class AbstractTask implements Task {
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
         try {
-            this.scheduler = new StdSchedulerFactory().getScheduler();
+            StdSchedulerFactory schedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
+            this.scheduler = schedulerFactory.getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot initialize the Task Listener/Scheduler. " + e.getMessage());
-            }
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.");
+            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
         }
     }
 
@@ -89,7 +91,12 @@ public abstract class AbstractTask implements Task {
      */
     @Override
     public void addService(ServiceWithParameters service) {
-        this.serviceMap.put(service.getName(), service);
+        //TODO Remove this condition after migration : Added just to distinguish both bvm and jvm exec
+        if (service.getService() != null) {
+            this.serviceMap.put(service.getService().getName(), service);
+        } else {
+            this.serviceMap.put(service.getServiceObj().getType().getName(), service);
+        }
     }
 
     /**
@@ -141,66 +148,45 @@ public abstract class AbstractTask implements Task {
     }
 
     /**
-     * Stops the scheduled Appointment.
-     *
-     * @param taskId ID of the task which should be stopped.
-     * @throws SchedulingException if failed to stop the task.
+     * {@inheritDoc}
      */
-    public void stop(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.deleteJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                throw new SchedulingException("Cannot cancel the task. ");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void stop() throws SchedulingException {
+        try {
+            this.scheduler.shutdown();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Failed to stop the task.", e);
         }
     }
 
     /**
-     * Pauses the scheduled Appointment.
-     *
-     * @param taskId ID of the task to be paused.
-     * @throws SchedulingException if failed to pause the task.
+     * {@inheritDoc}
      */
-    public void pause(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.pauseJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot pause the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot pause the task.");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void pause() throws SchedulingException {
+        try {
+            this.scheduler.pauseAll();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot pause the task.", e);
         }
     }
 
     /**
-     * Resumes a paused Task.
-     *
-     * @param taskId ID of the task to be resumed.
-     * @throws SchedulingException if failed to resume the task.
+     * {@inheritDoc}
      */
-    public void resume(String taskId) throws SchedulingException {
-        if (quartzJobs.containsKey(taskId)) {
-            try {
-                scheduler.resumeJob(quartzJobs.get(taskId));
-            } catch (SchedulerException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cannot resume the task. " + e.getMessage());
-                }
-                throw new SchedulingException("Cannot resume the task.");
-            }
-        } else {
-            throwTaskNotFoundException();
+    public void resume() throws SchedulingException {
+        try {
+            this.scheduler.resumeAll();
+        } catch (SchedulerException e) {
+            throw new SchedulingException("Cannot resume the task.", e);
         }
     }
 
-    private void throwTaskNotFoundException() throws SchedulingException {
-        throw new SchedulingException("Task not found");
+    private Properties createSchedulerProperties() {
+        Properties properties = new Properties();
+        properties.setProperty(QUARTZ_INSTANCE_NAME, this.id);
+        properties.setProperty(QUARTZ_INSTANCE_ID, this.id);
+        properties.setProperty(QUARTZ_THREAD_COUNT, QUARTZ_THREAD_COUNT_VALUE);
+        properties.setProperty(QUARTZ_THREAD_POOL_CLASS, QUARTZ_THREAD_POOL_CLASS_VALUE);
+        properties.setProperty(QUARTZ_JOB_STORE_CLASS, QUARTZ_JOB_STORE_CLASS_VALUE);
+        return properties;
     }
 }

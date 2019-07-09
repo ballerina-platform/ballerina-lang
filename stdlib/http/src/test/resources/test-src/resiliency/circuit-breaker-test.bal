@@ -29,7 +29,8 @@ const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
-function testTypicalScenario() returns (http:Response[], error?[]) {
+function testTypicalScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -51,7 +52,8 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-            backendClientEP.httpClient.httpClient = mockClient;
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
@@ -64,10 +66,11 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testTrialRunFailure() returns (http:Response[], error?[]) {
+function testTrialRunFailure() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -90,7 +93,8 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-            backendClientEP.httpClient.httpClient = mockClient;
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
@@ -103,10 +107,11 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
+function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -128,7 +133,8 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-            backendClientEP.httpClient.httpClient = mockClient;
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
             var serviceResponse = backendClientEP->get("/hello", message = request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
@@ -137,10 +143,11 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
             }
             counter = counter + 1;
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceOpenScenario() returns (http:Response[], error?[]) {
+function testForceOpenScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -165,7 +172,8 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
         if (counter > 3) {
             backendClientEP.httpClient = getForcedOpenCircuitBreakerClient(backendClientEP.httpClient);
         }
-        backendClientEP.httpClient.httpClient = mockClient;
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
@@ -174,10 +182,11 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceCloseScenario() returns (http:Response[], error?[]) {
+function testForceCloseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -203,7 +212,8 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
         if (counter > 2) {
             backendClientEP.httpClient = getForcedCloseCircuitBreakerClient(backendClientEP.httpClient);
         }
-        backendClientEP.httpClient.httpClient = mockClient;
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
@@ -212,10 +222,11 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -238,7 +249,8 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
-        backendClientEP.httpClient.httpClient = mockClient;
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
@@ -247,10 +259,11 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdFailureResponseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", config = {
         circuitBreaker: {
@@ -273,7 +286,8 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
-        backendClientEP.httpClient.httpClient = mockClient;
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
         var serviceResponse = backendClientEP->get("/hello", message = request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
@@ -282,7 +296,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
 int actualRequestNumber = 0;
@@ -290,12 +304,12 @@ int actualRequestNumber = 0;
 public type MockClient client object {
     public string url = "";
     public http:ClientEndpointConfig config = {};
-    public http:Client httpClient;
+    public http:HttpClient httpClient;
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
+        http:HttpClient simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
-        http:Client simpleClient = new(url);
         self.httpClient = simpleClient;
     }
 
@@ -559,19 +573,19 @@ service circuitBreakerService on mockEP {
         http:CircuitState currentState = cbClient.getCurrentState();
         http:Response res = new;
         if (currentState == http:CB_CLOSED_STATE) {
-            res.setPayload(untaint "Circuit Breaker is in CLOSED state");
-            _ = caller->respond(res);
+            res.setPayload(<@untainted string> "Circuit Breaker is in CLOSED state");
+            checkpanic caller->respond(res);
         }
     }
 }
 
-function getForcedOpenCircuitBreakerClient(http:Client httpClient) returns http:CircuitBreakerClient {
+function getForcedOpenCircuitBreakerClient(http:HttpClient httpClient) returns http:CircuitBreakerClient {
     http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>httpClient;
     cbClient.forceOpen();
     return cbClient;
 }
 
-function getForcedCloseCircuitBreakerClient(http:Client httpClient) returns http:CircuitBreakerClient {
+function getForcedCloseCircuitBreakerClient(http:HttpClient httpClient) returns http:CircuitBreakerClient {
     http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>httpClient;
     cbClient.forceClose();
     return cbClient;

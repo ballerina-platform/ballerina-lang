@@ -21,17 +21,19 @@ under the License.
 
 <suite name="ballerina-test-suite">
 
-    <listeners>
+    <!-- <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+        <listener class-name="org.ballerinalang.test.utils.TestNGListener"/>
     </listeners>
 
-    <!-- Ballerina language Test Cases. -->
+    Ballerina language Test Cases.
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="HSQLDBNotSupported"/>
                 <exclude name="broken"/>
+                <exclude name="no-bvm-support"/>
             </run>
         </groups>
         <packages>
@@ -65,18 +67,25 @@ under the License.
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />
+            <package name="org.ballerinalang.test.imports.*" />
         </packages>
 
-		<!-- TODO: remove once constraint tests are fixed -->
+		TODO: remove once constraint tests are fixed
 		<classes>
 			<class name="org.ballerinalang.test.types.map.BMapValueTest" />
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
+
+    </test>
+    <test name="TaintCheckingTests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest"></class>
+        </classes>
     </test>
     <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >
             <package name="org.ballerinalang.test.main.function.*"/>
         </packages>
-    </test>
+    </test> -->
 </suite>

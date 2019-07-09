@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,37 +44,37 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
   @Override
   @Nullable
   public BallerinaAnyDataTypeName getAnyDataTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyDataTypeName.class);
+    return findChildByClass(BallerinaAnyDataTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaAnyTypeName getAnyTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaAnyTypeName.class);
+    return findChildByClass(BallerinaAnyTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTupleLiteral.class);
+    return findChildByClass(BallerinaEmptyTupleLiteral.class);
   }
 
   @Override
   @Nullable
   public BallerinaReferenceTypeName getReferenceTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaReferenceTypeName.class);
+    return findChildByClass(BallerinaReferenceTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaTypeDescTypeName getTypeDescTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTypeDescTypeName.class);
+    return findChildByClass(BallerinaTypeDescTypeName.class);
   }
 
   @Override
   @Nullable
   public BallerinaValueTypeName getValueTypeName() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaValueTypeName.class);
+    return findChildByClass(BallerinaValueTypeName.class);
   }
 
   @Override

@@ -29,10 +29,8 @@ map<PendingSubscriptionChangeRequest> pendingRequests = {};
 service hubService =
 @http:ServiceConfig {
     basePath: BASE_PATH,
-    authConfig: {
-        authentication: {
-            enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", default = false)
-        },
+    auth: {
+        enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false),
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
 }
@@ -46,7 +44,7 @@ service {
         http:Response response = new;
         response.statusCode = http:ACCEPTED_202;
         response.setTextPayload("Ballerina Hub Service - Up and Running!");
-        _ = httpCaller->respond(response);
+        checkpanic httpCaller->respond(response);
     }
 
     @http:ResourceConfig {
@@ -168,14 +166,14 @@ service {
                             if (fetchResponse.hasHeader(CONTENT_TYPE)) {
                                 contentType = fetchResponse.getHeader(CONTENT_TYPE);
                             }
-                            var fetchedPayload = fetchResponse.getPayloadAsString();
+                            var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
                         } else {
                             string errorCause = <string> fetchResponse.detail().message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
                             log:printError(errorMessage);
-                            response.setTextPayload(untaint errorMessage);
+                            response.setTextPayload(<@untainted string> errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
@@ -188,7 +186,7 @@ service {
                         if (request.hasHeader(CONTENT_TYPE)) {
                             contentType = request.getHeader(CONTENT_TYPE);
                         }
-                        var result = request.getPayloadAsString();
+                        var result = request.getTextPayload();
                         stringPayload = result is string ? result : "";
                     }
 
@@ -198,7 +196,7 @@ service {
                         publishStatus = publishToInternalHub(topic, notification);
                     } else {
                         string errorCause = <string> binaryPayload.detail().message;
-                        string errorMessage = "Error extracting payload: " + untaint errorCause;
+                        string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);
@@ -213,7 +211,7 @@ service {
                     if (publishStatus is error) {
                         string errorCause = <string> publishStatus.detail().message;
                         string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                        response.setTextPayload(untaint errorMessage);
+                        response.setTextPayload(<@untainted string> errorMessage);
                         log:printError(errorMessage);
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
@@ -228,7 +226,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(untaint errorMessage);
+                    response.setTextPayload(<@untainted string> errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -266,7 +264,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         }
         return;
     }
-    map<any> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
+    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
     error err = error(WEBSUB_ERROR_CODE, errorDetail);
     return err;
 }
@@ -305,7 +303,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
+    var subscriberResponse = callbackEp->get(<@untainted string> queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
@@ -383,11 +381,9 @@ function persistSubscriptionChange(string mode, SubscriptionDetails subscription
 # Function to initiate set up activities on startup/restart.
 function setupOnStartup() {
     if (hubPersistenceEnabled) {
-        if (hubPersistenceStoreImpl is HubPersistenceStore) {
-            // always true since already checked
-            addTopicRegistrationsOnStartup(hubPersistenceStoreImpl);
-            addSubscriptionsOnStartup(hubPersistenceStoreImpl); //TODO:verify against topics
-        }
+        HubPersistenceStore hubServicePersistenceImpl = <HubPersistenceStore> hubPersistenceStoreImpl;
+        addTopicRegistrationsOnStartup(hubServicePersistenceImpl);
+        addSubscriptionsOnStartup(hubServicePersistenceImpl); //TODO:verify against topics
     }
     return;
 }
@@ -455,7 +451,7 @@ returns error? {
             persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        var result = request.getPayloadAsString();
+        var result = request.getTextPayload();
         string stringPayload = result is error ? "" : result;
 
         if (subscriptionDetails.secret != "") {
@@ -505,10 +501,9 @@ returns error? {
 # Struct to represent a topic registration.
 #
 # + topic - The topic for which notification would happen
-type TopicRegistration record {
+type TopicRegistration record {|
     string topic = "";
-    !...;
-};
+|};
 
 # Object to represent a pending subscription/unsubscription request.
 #
@@ -553,12 +548,12 @@ function buildWebSubLinkHeader(string hub, string topic) returns (string) {
 
 # Construct an array of groups from the comma separed group string passed
 #
-# + groupString - comma separated string of groups
-# + return - array of groups, nil if the groups string is empty/nil
-function getArray(string groupString) returns string[]? {
+# + groupString - Comma separated string of groups
+# + return - Array of groups
+function getArray(string groupString) returns string[] {
     string[] groupsArr = [];
     if (groupString.length() == 0) {
-        return ();
+        return groupsArr;
     }
     return groupString.split(",");
 }

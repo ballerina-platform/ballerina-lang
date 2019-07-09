@@ -28,26 +28,17 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConstantDoc;
-import org.ballerinalang.docgen.model.Documentable;
-import org.ballerinalang.docgen.model.EndpointDoc;
-import org.ballerinalang.docgen.model.EnumDoc;
-import org.ballerinalang.docgen.model.FunctionDoc;
-import org.ballerinalang.docgen.model.GlobalVariableDoc;
-import org.ballerinalang.docgen.model.ObjectDoc;
-import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
-import org.ballerinalang.docgen.model.RecordDoc;
+import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.PageContext;
+import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Generates the HTML pages from the Page objects.
@@ -66,78 +57,54 @@ public class Writer {
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) throws
             IOException {
         String templatesFolderPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File
-                .separator + "docerina-templates" + File.separator + "html");
+                .separator + "template" + File.separator + "html");
 
         String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
-                "/docerina-templates/html");
+                "/template/html");
         PrintWriter writer = null;
         try {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("exists", new Helper<List<Documentable>>() {
-                @Override
-                public Object apply(List<Documentable> context, Options options) throws IOException {
-                    String construct = options.param(0);
-                    switch (construct) {
-                        case "primitive":
-                            return context.stream().anyMatch(c -> c instanceof PrimitiveTypeDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "type":
-                            return context.stream().anyMatch(c -> c instanceof EnumDoc) ? options.fn(this)
-                                                                                        : options.inverse(this);
-                        case "annotation":
-                            return context.stream().anyMatch(c -> c instanceof AnnotationDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "record":
-                            return context.stream().anyMatch(c -> c instanceof RecordDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "object":
-                            return context.stream().anyMatch(c -> c instanceof ObjectDoc) ? options.fn(this)
-                                                                                          : options.inverse(this);
-                        case "endpoint":
-                            return context.stream().anyMatch(c -> c instanceof EndpointDoc) ? options.fn(this) :
-                                   options.inverse(this);
-                        case "function":
-                            return context.stream().anyMatch(c -> c instanceof FunctionDoc) ? options.fn(this) :
-                                    options.inverse(this);
-                        case "globalvar":
-                            return context.stream().anyMatch(c -> c instanceof GlobalVariableDoc) ? options.fn(this)
-                                    : options.inverse(this);
-                        case "constant":
-                            return context.stream().anyMatch(c -> c instanceof ConstantDoc) ? options.fn(this)
-                                    : options.inverse(this);
-                    }
-                    return false;
-                }
-            });
-            handlebars.registerHelper("dataTypeLink", new Helper<String>() {
-                @Override
-                public Object apply(String dataType, Options options) throws IOException {
-                    String href = options.param(0);
-                    Map<String, String> typeToLink = new HashMap<>();
-                    String[] types, hrefs;
-                    hrefs = href.split(",");
-                    types = dataType.split("\\(|\\)|,|\\|");
-                    int idx = 0;
-                    for (String type : types) {
-                        type = type.trim();
-                        if (!type.isEmpty()) {
-                            if (idx >= hrefs.length) {
-                                break;
-                            }
-                            typeToLink.putIfAbsent(type, getHtmlLink(type, hrefs[idx]));
-                            idx++;
-                        }
-                    }
-                    final String[] dataTypesWithLinks = {dataType};
-                    typeToLink.forEach((type, link) -> {
-                        dataTypesWithLinks[0] = dataTypesWithLinks[0].replaceAll(Pattern.quote(type), Matcher
-                                .quoteReplacement(link));
-                    });
+            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
+                    (varList, options) -> varList.stream()
+                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .collect(Collectors.joining(", "))
+            );
+            handlebars.registerHelper("returnParamSummary", (Helper<List<Variable>>)
+                    (varList, options) -> varList.stream()
+                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .collect(Collectors.joining(", "))
+            );
+            handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
+                    (typeList, options) -> typeList.stream()
+                            .map(type -> getTypeLabel(type, options))
+                            .collect(Collectors.joining(" | "))
+            );
+            handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
+                    (typeList, options) -> typeList.stream()
+                            .collect(Collectors.joining(" | "))
+            );
+            handlebars.registerHelper("typeName", Writer::getTypeLabel);
 
-                    return dataTypesWithLinks[0];
+            handlebars.registerHelper("equals", (arg1, options) -> {
+                CharSequence result;
+                Object param0 = options.param(0);
+                
+                if (param0 == null) {
+                    throw new IllegalArgumentException("found 'null', expected 'string'");
                 }
+                if (arg1 != null) {
+                    if (arg1.toString().equals(param0.toString())) {
+                        result = options.fn(options.context);
+                    } else {
+                        result = options.inverse();
+                    }
+                } else {
+                    result = null;
+                }
+                
+                return result;
             });
             Template template = handlebars.compile(packageTemplateName);
 
@@ -153,7 +120,60 @@ public class Writer {
         }
     }
 
-    private static String getHtmlLink(String value, String href) {
-        return "<a href=\"" + href + "\">" + value + "</a>";
+    private static String getTypeLabel(Type type, Options options) {
+        String root = getRootPath(options);
+        String label;
+        if (type.isAnonymousUnionType) {
+            label = type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(" | "));
+        } else if (type.isTuple) {
+            label = "<span>[</span>" + type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(", "))
+                    + "<span>]</span>";
+        } else if (type.isLambda) {
+            label = "<code> <span>function(</span>" + type.paramTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, options))
+                    .collect(Collectors.joining(", "))
+                    + "<span>) </span>";
+            if (type.returnType != null) {
+                label += "<span>returns (</span>" + getTypeLabel(type.returnType, options) + "<span>)</span>";
+            } else {
+                label += "<span>() </span>";
+            }
+            label += " </code>";
+        } else {
+            label = getHtmlLink(type, root);
+        }
+        return label;
+    }
+
+    private static String getRootPath(Options options) {
+        return getNearestPageContext(options.context).rootPath;
+    }
+
+    private static PageContext getNearestPageContext(Context context) {
+        return context.model() instanceof PageContext
+                ? (PageContext) context.model()
+                : getNearestPageContext(context.parent());
+    }
+
+    private static String getHtmlLink(Type type, String root) {
+        // TODO: Create links to other modules on central if they are not available locally
+        // String orgName = BallerinaDocDataHolder.getInstance().getOrgName();
+        // Map<String, ModuleDoc> packageMap = BallerinaDocDataHolder.getInstance().getPackageMap();
+        String link = root + type.moduleName + "/" + type.category + "/" + type.name + ".html";
+        if ("types".equals(type.category) || "constants".equals(type.category) || "annotations".equals(type.category)
+                || "errors".equals(type.category)) {
+            link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
+        }
+        if ("builtin".equals(type.moduleName)) {
+            link = "https://ballerina.io/learn/api-docs/ballerina/primitive-types.html#" + type.name;
+        }
+        String suffix = type.isArrayType ? "[]" : "";
+        suffix += type.isNullable ? "?" : "";
+
+        return "<a href=\"" + link + "\">" + type.name + "</a>" + suffix;
     }
 }

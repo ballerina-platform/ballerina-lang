@@ -82,20 +82,26 @@ function testRecordMutation() {
     test:assertTrue(q1 === q2, msg = EXPECTED_ORIGINAL_VALUE_TO_BE_UPDATED_FAILURE_MESSAGE);
 }
 
-public type TableConstraintTwo record {
+public type TableConstraintTwo record {|
     int constraintField;
-    !...;
-};
+|};
 
 @test:Config {}
 function testTableMutation() {
     TableConstraintTwo tableEntry1 = { constraintField: 1 };
     TableConstraintTwo tableEntry2 = { constraintField: 2 };
     table<TableConstraintTwo> t1 = table{};
-    _ = t1.add(tableEntry1);
+    error? err1 = t1.add(tableEntry1);
+    if err1 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
+
     table<TableConstraintTwo> t2 = t1;
 
-    _ = t1.add(tableEntry2);
+    error? err2 = t1.add(tableEntry2);
+    if err2 is error {
+        test:assertFail(msg = "failed in adding record to table");
+    }
 
     int count = 0;
     foreach TableConstraintTwo entry in t1 {

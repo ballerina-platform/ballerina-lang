@@ -29,8 +29,10 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -44,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,7 +62,7 @@ import java.util.stream.IntStream;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.createTemplateArray;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByNode;
 import static org.ballerinalang.langserver.command.testgen.ValueSpaceGenerator.getValueSpaceByType;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 
 /**
  * This class is responsible for generating tests for a given source file.
@@ -234,6 +237,7 @@ public class TestGenerator {
         private String[] namesSpace;
         private String functionName;
         private String returnType;
+        private int paramsCount;
 
         public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BLangFunction function) {
@@ -248,6 +252,7 @@ public class TestGenerator {
         public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BLangFunctionTypeNode type) {
             List<BLangVariable> params = type.params;
+            this.paramsCount = type.params.size();
             List<BLangType> paramTypes = params.stream().map(variable -> variable.typeNode).collect(
                     Collectors.toList());
             List<String> paramNames = new ArrayList<>();
@@ -263,8 +268,14 @@ public class TestGenerator {
 
         public TestFunctionGenerator(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                      BInvokableType invokableType) {
+            boolean hasReturnType = true;
+            if (invokableType.retType == null || invokableType.retType instanceof BNilType) {
+                // No return type
+                hasReturnType = false;
+            }
             this.functionName = "";
             List<BType> params = invokableType.paramTypes;
+            this.paramsCount = params.size();
             BType returnBType = invokableType.retType;
             this.valueSpace = new String[VALUE_SPACE_LENGTH][params.size() + 1];
             this.typeSpace = new String[params.size() + 1];
@@ -292,25 +303,34 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId, returnBType);
-            String[] rtValSpace = getValueSpaceByType(importsAcceptor, currentPkgId, returnBType,
-                                                      createTemplateArray(VALUE_SPACE_LENGTH));
+            if (hasReturnType) {
+                this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId, returnBType);
+                String[] rtValSpace = getValueSpaceByType(importsAcceptor, currentPkgId, returnBType,
+                                                          createTemplateArray(VALUE_SPACE_LENGTH));
 
-            this.typeSpace[params.size()] = returnType;
-            this.namesSpace[params.size()] = "expected";
+                this.typeSpace[params.size()] = returnType;
+                this.namesSpace[params.size()] = "expected";
 
-            IntStream.range(0, rtValSpace.length).forEach(index -> {
-                valueSpace[index][params.size()] = rtValSpace[index];
-            });
+                IntStream.range(0, rtValSpace.length).forEach(index -> {
+                    valueSpace[index][params.size()] = rtValSpace[index];
+                });
+            }
         }
 
         private void init(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                           String functionName,
                           List<String> paramNames, List<BLangType> paramTypes, BLangType returnTypeNode) {
+            boolean hasReturnType = true;
+            if (returnTypeNode instanceof BLangValueType &&
+                    (TypeKind.NIL.equals(((BLangValueType) returnTypeNode).getTypeKind()))) {
+                // No return type
+                hasReturnType = false;
+            }
             this.functionName = functionName;
-            this.valueSpace = new String[VALUE_SPACE_LENGTH][paramNames.size() + 1];
-            this.typeSpace = new String[paramNames.size() + 1];
-            this.namesSpace = new String[paramNames.size() + 1];
+            this.paramsCount = paramNames.size();
+            this.valueSpace = new String[VALUE_SPACE_LENGTH][paramNames.size() + ((hasReturnType ? 1 : 0))];
+            this.typeSpace = new String[paramNames.size() + ((hasReturnType ? 1 : 0))];
+            this.namesSpace = new String[paramNames.size() + ((hasReturnType ? 1 : 0))];
 
             // Populate target function's parameters
             Set<String> lookupSet = new HashSet<>();
@@ -336,17 +356,19 @@ public class TestGenerator {
             }
 
             // Populate target function's return type
-            this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                     returnTypeNode);
-            String[] rtValSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, returnTypeNode,
-                                                      createTemplateArray(VALUE_SPACE_LENGTH));
+            if (hasReturnType) {
+                this.returnType = generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                         returnTypeNode);
+                String[] rtValSpace = getValueSpaceByNode(importsAcceptor, currentPkgId, returnTypeNode,
+                                                          createTemplateArray(VALUE_SPACE_LENGTH));
 
-            this.typeSpace[paramNames.size()] = returnType;
-            this.namesSpace[paramNames.size()] = "expected";
+                this.typeSpace[paramNames.size()] = returnType;
+                this.namesSpace[paramNames.size()] = "expected";
 
-            IntStream.range(0, rtValSpace.length).forEach(index -> {
-                valueSpace[index][paramNames.size()] = rtValSpace[index];
-            });
+                IntStream.range(0, rtValSpace.length).forEach(index -> {
+                    valueSpace[index][paramNames.size()] = rtValSpace[index];
+                });
+            }
         }
 
         /**
@@ -399,7 +421,7 @@ public class TestGenerator {
          */
         public String getTargetFuncInvocation() {
             StringJoiner paramsInvokeStr = new StringJoiner(", ");
-            IntStream.range(0, this.namesSpace.length - 1).forEach(i -> paramsInvokeStr.add(this.namesSpace[i]));
+            IntStream.range(0, this.paramsCount).forEach(i -> paramsInvokeStr.add(this.namesSpace[i]));
             return this.functionName + "(" + paramsInvokeStr.toString() + ")";
         }
 
@@ -471,6 +493,16 @@ public class TestGenerator {
          */
         public String[] getNamesSpace() {
             return namesSpace.clone();
+        }
+
+
+        /**
+         * Returns params count of the function.
+         *
+         * @return params count
+         */
+        public int getParamsCount() {
+            return paramsCount;
         }
     }
 }

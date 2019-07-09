@@ -105,6 +105,7 @@
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-encoding:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
+                <include>org.ballerinalang:ballerina-filepath:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
@@ -112,13 +113,15 @@
                 <include>org.ballerinalang:ballerina-io:jar</include>
                 <include>org.ballerinalang:ballerina-socket:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
+                <include>org.ballerinalang:ballerina-activemq-artemis:jar</include>
+                <include>org.ballerinalang:ballerina-rabbitmq:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
                 <include>org.ballerinalang:ballerina-mysql:jar</include>
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
-                <include>org.ballerinalang:ballerina-runtime:jar</include>
+                <include>org.ballerinalang:ballerina-runtime-api:jar</include>
                 <include>org.ballerinalang:ballerina-sql:jar</include>
                 <include>org.ballerinalang:ballerina-streams:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
@@ -129,19 +132,22 @@
                 <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-privacy:jar</include>
                 <include>org.ballerinalang:ballerina-xslt:jar</include>
+                <include>org.ballerinalang:ballerina-nats:jar</include>
+                <include>org.ballerinalang:ballerina-jwt:jar</include>
+                <include>org.ballerinalang:ballerina-ldap:jar</include>
+                <include>org.ballerinalang:ballerina-oauth2:jar</include>
 
                 <include>org.ballerinalang:ballerina-core:jar</include>
+                <include>org.ballerinalang:ballerina-runtime:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
 
-                <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.transport.http:org.wso2.transport.http.netty</include>
-                <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>org.apache.ws.commons.axiom:axiom-api</include>
                 <include>org.apache.ws.commons.axiom:axiom-impl</include>
@@ -171,12 +177,13 @@
                 <include>commons-logging:commons-logging</include>
                 <include>org.wso2.staxon:staxon-core</include>
                 <include>org.apache.commons:commons-lang3</include>
-                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
                 <include>com.zaxxer:HikariCP</include>
                 <include>javax.transaction:javax.transaction-api</include>
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
+                <include>org.bouncycastle:bcprov-jdk15on</include>
+                <include>org.bouncycastle:bcpkix-jdk15on</include>
                 <include>com.h2database:h2</include>
                 <include>io.ballerina.messaging:broker-core</include>
                 <include>io.ballerina.messaging:broker-common</include>
@@ -186,6 +193,22 @@
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
                 <include>com.jcraft:jzlib</include>
+                <include>io.nats:java-nats-streaming</include>
+                <include>io.nats:jnats</include>
+
+                <!-- Artemis connector dependencies -->
+                <include>org.apache.activemq:artemis-core-client</include>
+                <include>org.apache.activemq:artemis-commons</include>
+                <include>commons-beanutils:commons-beanutils</include>
+                <include>org.apache.activemq:artemis-commons</include>
+                <include>org.jboss.logging:jboss-logging</include>
+                <include>commons-collections:commons-collections</include>
+                <include>org.apache.geronimo.specs:geronimo-json_1.0_spec</include>
+                <include>io.netty:netty-transport-native-epoll</include>
+                <include>io.netty:netty-transport-native-kqueue</include>
+
+                <!-- RabbitMQ connector dependencies -->
+                <include>com.rabbitmq:amqp-client:jar</include>
 
                 <!-- Observability Dependencies -->
                 <include>org.ballerinalang:ballerina-jaeger-extension:jar</include>
@@ -212,7 +235,6 @@
 
                 <!-- JMS connector dependencies -->
                 <include>javax.jms:javax.jms-api:jar</include>
-                <include>org.wso2.andes.wso2:andes-client:jar</include>
                 <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
                 <!-- Check-pointing dependencies -->

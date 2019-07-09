@@ -104,17 +104,15 @@ function testRecordLiteralAssignment() returns string {
     }
 }
 
-type Foo record {
+type Foo record {|
     string s;
     int i = 0;
-    !...;
-};
+|};
 
-type Bar record {
+type Bar record {|
     string x;
     int y = 0;
-    !...;
-};
+|};
 
 function testUnionTypeWithMultipleRecordTypes() returns string[] {
 
@@ -136,4 +134,11 @@ function testUnionTypeWithMultipleRecordTypes() returns string[] {
     }
 
     return returnValues;
+}
+
+function testUnionLhsWithDiscriminatedFloatDecimalLiterals() returns ((float|decimal), (float|decimal), (float|decimal)) {
+    float|decimal a = 1.0;
+    float|decimal b = 1.0f;
+    float|decimal c = 1.0d;
+    return (a, b, c);
 }

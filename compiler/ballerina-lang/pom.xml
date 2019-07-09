@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.990.4-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -83,8 +83,6 @@
         <maven.checkstyleplugin.excludes>
             **org/wso2/ballerinalang/compiler/parser/antlr4/*,
             **/util/parser/*,
-            **/${native.constructs.provider.class}.java,
-            **/${ballerina.package.repository.provider.class}.java,
             **/generated/**
         </maven.checkstyleplugin.excludes>
     </properties>

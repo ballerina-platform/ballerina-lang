@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -31,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,24 +42,22 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangDeprecatedNode> deprecatedAttachments;
     public BSymbol symbol;
-    public Set<AttachPoint> attachPoints;
     public BLangType typeNode;
+    private Set<AttachPoint> attachPoints;
 
     public BLangAnnotation() {
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
-        this.attachPoints = EnumSet.noneOf(AttachPoint.class);
-        this.deprecatedAttachments = new ArrayList<>();
+        this.attachPoints = new HashSet<>();
     }
 
     public void addAttachPoint(AttachPoint attachmentPoint) {
         attachPoints.add(attachmentPoint);
     }
 
-    public List<AttachPoint> getAttachPoints() {
-        return new ArrayList<>(attachPoints);
+    public Set<AttachPoint> getAttachPoints() {
+        return attachPoints;
     }
 
     @Override
@@ -110,16 +108,6 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     @Override
     public void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode) {
         this.markdownDocumentationAttachment = (BLangMarkdownDocumentation) documentationNode;
-    }
-
-    @Override
-    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
-        return deprecatedAttachments;
-    }
-
-    @Override
-    public void addDeprecatedAttachment(DeprecatedNode deprecatedNode) {
-        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedNode);
     }
 
     @Override

@@ -21,6 +21,9 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BError;
@@ -98,5 +101,27 @@ public class CloseWritableDataChannel implements NativeCallableUnit {
     @Override
     public boolean isBlocking() {
         return false;
+    }
+
+    public static Object close(Strand strand, ObjectValue dataChannel) {
+        DataChannel channel = (DataChannel) dataChannel.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        CloseDataChannelEvent dataChannelCloseEvt = new CloseDataChannelEvent(channel, eventContext);
+        Register register = EventRegister.getFactory().register(dataChannelCloseEvt,
+                                                                CloseWritableDataChannel::closeChannel);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+    private static EventResult closeChannel(EventResult<Boolean, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
+        Throwable error = eventContext.getError();
+        if (null != error) {
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        }
+        callback.notifySuccess();
+        return result;
     }
 }

@@ -33,17 +33,17 @@ public class CollectDiagnosticListener implements DiagnosticListener {
     }
 
     @Override
-    public void received(Diagnostic diagnostic) {
+    public synchronized void received(Diagnostic diagnostic) {
         diagnostics.add(diagnostic);
     }
 
-    public List<Diagnostic> getDiagnostics() {
+    public synchronized List<Diagnostic> getDiagnostics() {
         List<Diagnostic> diagnostics = new ArrayList<>();
         diagnostics.addAll(this.diagnostics);
         return diagnostics;
     }
 
-    public void clearAll() {
+    public synchronized void clearAll() {
         this.diagnostics.clear();
     }
 }

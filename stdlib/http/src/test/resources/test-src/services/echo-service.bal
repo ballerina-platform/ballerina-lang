@@ -1,6 +1,4 @@
-import ballerina/mime;
 import ballerina/http;
-import ballerina/io;
 
 final string constPath = getConstPath();
 
@@ -23,7 +21,7 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -31,14 +29,14 @@ service echo on echoEP {
         path:"/message_worker"
     }
     resource function message_worker(http:Caller caller, http:Request req) {
-        worker w1 {
+        //worker w1 {
             http:Response res = new;
-            _ = caller->respond(res);
-        }
-        worker w2 {
-            int x = 0;
-            int a = x + 1;
-        }
+            checkpanic caller->respond(res);
+        //}
+        //worker w2 {
+        //    int x = 0;
+        //    int a = x + 1;
+        //}
     }
 
     @http:ResourceConfig {
@@ -54,8 +52,8 @@ service echo on echoEP {
         } else {
             payloadData = payload;
         }
-        self.serviceLevelStr = untaint payloadData;
-        _ = caller->respond(res);
+        self.serviceLevelStr = <@untainted string> payloadData;
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -64,8 +62,8 @@ service echo on echoEP {
     }
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStr);
-        _ = caller -> respond(res);
+        res.setTextPayload(<@untainted> self.serviceLevelStr);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -77,7 +75,7 @@ service echo on echoEP {
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
         res.removeAllHeaders();
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -86,8 +84,8 @@ service echo on echoEP {
     }
     resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStringVar);
-        _ = caller->respond(res);
+        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -97,7 +95,7 @@ service echo on echoEP {
     resource function connstValueAsAttributeValue(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("constant path test");
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -124,12 +122,12 @@ service echo on echoEP {
                 team = params.team;
             }
             json responseJson = {"Name":name , "Team":team};
-            res.setJsonPayload(untaint responseJson);
+            res.setJsonPayload(<@untainted json> responseJson);
         } else {
             string errMsg = <string> params.detail().message;
-            res.setPayload(untaint errMsg);
+            res.setPayload(<@untainted string> errMsg);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -139,7 +137,7 @@ service echo on echoEP {
     resource function modify11(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.statusCode = 204;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -149,9 +147,9 @@ service echo on echoEP {
     resource function errorReturn(http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
-        res.setPayload(untaint payload);
+        res.setPayload(<@untainted json> payload);
         res.statusCode = 200;
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }
 
@@ -159,11 +157,11 @@ function getConstPath() returns(string) {
     return "/constantPath";
 }
 
-@http:ServiceConfig
+@http:ServiceConfig {}
 service hello on echoEP {
 
-    @http:ResourceConfig
+    @http:ResourceConfig {}
     resource function echo(http:Caller caller, http:Request req) {
-        _ = caller->respond("Uninitialized configs");
+        checkpanic caller->respond("Uninitialized configs");
     }
 }

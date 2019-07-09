@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaFieldDefinition {
+public class BallerinaFieldDefinitionImpl extends ASTWrapperPsiElement implements BallerinaFieldDefinition {
 
   public BallerinaFieldDefinitionImpl(@NotNull ASTNode node) {
     super(node);
@@ -50,13 +51,13 @@ public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl 
   @Override
   @Nullable
   public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override
   @NotNull
   public BallerinaTypeName getTypeName() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -80,7 +81,7 @@ public class BallerinaFieldDefinitionImpl extends BallerinaCompositeElementImpl 
   @Override
   @NotNull
   public PsiElement getIdentifier() {
-    return notNullChild(findChildByType(IDENTIFIER));
+    return findNotNullChildByType(IDENTIFIER);
   }
 
 }

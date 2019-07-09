@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ErrorTypeInfo;
 
 /**
  * Represents runtime type of an error.
@@ -27,19 +28,25 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BErrorType extends BType {
 
+    public ErrorTypeInfo errorTypeInfo;
     public BType reasonType;
-    public BType detailsType;
+    public BType detailType;
 
-    BErrorType(String typeName, BType reasonType, BType detailsType, String pkgPath) {
+    public BErrorType(String typeName, BType reasonType, BType detailType, String pkgPath) {
         super(typeName, pkgPath, BError.class);
         this.reasonType = reasonType;
-        this.detailsType = detailsType;
+        this.detailType = detailType;
     }
 
-    public BErrorType(BType reasonType, BType detailsType) {
+    public BErrorType(ErrorTypeInfo errorTypeInfo, String typeName, String pkgPath) {
+        super(typeName, pkgPath, BError.class);
+        this.errorTypeInfo = errorTypeInfo;
+    }
+
+    public BErrorType(BType reasonType, BType detailType) {
         super(TypeConstants.ERROR, null, BError.class);
         this.reasonType = reasonType;
-        this.detailsType = detailsType;
+        this.detailType = detailType;
     }
 
     @Override
@@ -55,5 +62,19 @@ public class BErrorType extends BType {
     @Override
     public int getTag() {
         return TypeTags.ERROR_TAG;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj) || !(obj instanceof BErrorType)) {
+            return false;
+        }
+
+        BErrorType other = (BErrorType) obj;
+        if (reasonType == other.reasonType && detailType == other.detailType) {
+            return true;
+        }
+
+        return reasonType.equals(other.reasonType) && detailType.equals(other.detailType);
     }
 }

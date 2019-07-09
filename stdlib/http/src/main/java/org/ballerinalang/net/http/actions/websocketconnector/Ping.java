@@ -19,12 +19,12 @@ package org.ballerinalang.net.http.actions.websocketconnector;
 import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
@@ -38,30 +38,35 @@ import java.nio.ByteBuffer;
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
         functionName = "ping",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina/http"),
-        args = {
-                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
-                @Argument(name = "data", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
-        }
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        )
 )
 public class Ping implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
+    }
+
+    public static Object ping(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
+        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
-            BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            byte[] binaryData = ((BValueArray) context.getRefArgument(1)).getBytes();
-            ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData));
-            WebSocketUtil.handleWebSocketCallback(context, callback, future);
+            ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
+            WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            context.setReturnValues(HttpUtil.getError(context, e.getMessage()));
+            //TODO remove this call back
+            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
             callback.notifySuccess();
         }
+        return null;
     }
 
     @Override

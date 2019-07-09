@@ -47,7 +47,6 @@ import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
-import io.ballerina.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -73,6 +72,8 @@ public class BallerinaAnnotator implements Annotator {
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 }
             }
+        } else if (element instanceof BallerinaPackageReference) {
+            annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
             if (elementType == BallerinaTypes.AT) {
@@ -103,16 +104,23 @@ public class BallerinaAnnotator implements Annotator {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.SYMBOLIC_STRING_LITERAL) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START
-                    || elementType == BallerinaTypes.XML_TEMPLATE_TEXT
-                    || elementType == BallerinaTypes.XML_TAG_EXPRESSION_START
+            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_DOUBLE_QUOTED_TEMPLATE_STRING
                     || elementType == BallerinaTypes.XML_PI_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_COMMENT_TEMPLATE_TEXT) {
                 annotateExpressionTemplateStart(element, holder);
-            } else if (elementType == BallerinaTypes.EXPRESSION_END) {
-                annotateStringLiteralTemplateEnd(element, holder);
+            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START) {
+                TextRange textRange = element.getTextRange();
+                int startOffset = textRange.getStartOffset() + element.getText().indexOf('$');
+                // Highlights xml plain text.
+                TextRange newTextRange2 = new TextRange(textRange.getStartOffset(), startOffset);
+                Annotation annotation2 = holder.createInfoAnnotation(newTextRange2, null);
+                annotation2.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+                // Highlights interpolation start($).
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
@@ -191,7 +199,7 @@ public class BallerinaAnnotator implements Annotator {
                             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
                         }
                     }
-                // Highlights "self" keyword only inside object type contexts.
+                    // Highlights "self" keyword only inside object type contexts.
                 } else if ("self".equals(element.getText())) {
                     BallerinaObjectFunctionDefinition objectContext = PsiTreeUtil
                             .getParentOfType(element, BallerinaObjectFunctionDefinition.class);
@@ -199,31 +207,24 @@ public class BallerinaAnnotator implements Annotator {
                         Annotation annotation = holder.createInfoAnnotation(element, null);
                         annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.KEYWORD);
                     }
-                // Highlights function names.
-                } else if (parent instanceof BallerinaAnyIdentifierName
-                        && !(parent.getParent() instanceof BallerinaInvocation)
-                        && !(parent.getParent() instanceof BallerinaFunctionNameReference)) {
+                    // Highlights function names.
+                } else if (parent instanceof BallerinaAnyIdentifierName && !(parent
+                        .getParent() instanceof BallerinaInvocation) && !(parent
+                        .getParent() instanceof BallerinaFunctionNameReference)) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
-                // Highlights type names.
+                    // Highlights type names.
                 } else if (parent instanceof BallerinaTypeDefinition) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
-                // Highlights Service names.
+                    // Highlights Service names.
                 } else if (parent instanceof BallerinaServiceDefinition) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
-                // Highlights Worker names.
+                    // Highlights Worker names.
                 } else if (parent instanceof BallerinaWorkerDefinition) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
                 }
             }
         } else if (element instanceof BallerinaFloatingPointLiteral || element instanceof BallerinaIntegerLiteral) {
             annotateNumber(element, holder);
-        } else if (element instanceof BallerinaPackageReference) {
-            PsiReference reference = element.getReference();
-            if (!(element.getParent().getParent() instanceof BallerinaAnnotationAttachment)
-                    && reference instanceof BallerinaPackageNameReference) {
-                Annotation annotation = holder.createInfoAnnotation(element, null);
-                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
-            }
         } else if (element instanceof BallerinaCompletePackageName) {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);

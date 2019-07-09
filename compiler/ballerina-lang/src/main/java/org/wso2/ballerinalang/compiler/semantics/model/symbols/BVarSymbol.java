@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
@@ -37,9 +38,19 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     public BVarSymbol originalSymbol;
 
     /**
+     * Holds the expression to be evaluated to obtain the default value.
+     */
+    public BLangExpression defaultExpression;
+
+    /**
      * Represent the index of the variable in a memory block of the VM.
      */
     public RegIndex varIndex;
+
+    /**
+     * This indicate the indicated (by programmer) taintedness of a variable.
+     */
+    public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
 
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
@@ -48,5 +59,12 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     @Override
     public Object getConstValue() {
         return null;
+    }
+
+    /**
+     * Indicate the allowed taintedness marked for a given variable.
+     */
+    public enum TaintabilityAllowance {
+        TAINTED, UNTAINTED, IGNORED
     }
 }

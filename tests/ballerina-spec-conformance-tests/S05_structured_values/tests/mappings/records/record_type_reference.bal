@@ -23,10 +23,9 @@ import utils;
 // copied into the type being defined; the meaning is the same as if they had been specified
 // explicitly. Note that it does not pull in the record-rest-descriptor from the referenced
 // type.
-public type ClosedRecord record {
+public type ClosedRecord record {|
     *OpenRecordTwo;
-    !...;
-};
+|};
 
 @test:Config {}
 function testRecordTypeReference() {

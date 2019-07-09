@@ -18,10 +18,10 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 
 import java.util.List;
 
@@ -35,73 +35,68 @@ import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COM
 public class SignatureParams {
 
     private HttpResource resource;
-    private final List<ParamDetail> paramDetails;
-    private ParamDetail entityBody;
-    private List<ParamDetail> pathParams;
+    private final List<BType> paramTypes;
+    private BType entityBody;
+    private List<BType> pathParamTypes;
     private int paramCount = COMPULSORY_PARAM_COUNT;
 
-    SignatureParams(HttpResource resource, List<ParamDetail> paramDetails) {
+    SignatureParams(HttpResource resource) {
         this.resource = resource;
-        this.paramDetails = paramDetails;
+        this.paramTypes = resource.getParamTypes();
     }
 
     void validate() {
         if (resource.getEntityBodyAttributeValue() == null ||
                 resource.getEntityBodyAttributeValue().isEmpty()) {
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, paramDetails.size()));
+            validatePathParam(paramTypes.subList(COMPULSORY_PARAM_COUNT, paramTypes.size()));
         } else {
-            int lastParamIndex = paramDetails.size() - 1;
-            validatePathParam(paramDetails.subList(COMPULSORY_PARAM_COUNT, lastParamIndex));
-            validateEntityBodyParam(paramDetails.get(lastParamIndex));
+            int lastParamIndex = paramTypes.size() - 1;
+            validatePathParam(paramTypes.subList(COMPULSORY_PARAM_COUNT, lastParamIndex));
+            validateEntityBodyParam(paramTypes.get(lastParamIndex));
         }
     }
 
-    private void validatePathParam(List<ParamDetail> paramDetails) {
-        for (ParamDetail param : paramDetails) {
-            int varTag = param.getVarType().getTag();
+    private void validatePathParam(List<BType> paramDetails) {
+        for (BType paramType : paramDetails) {
+            int varTag = paramType.getTag();
             if (varTag != TypeTags.STRING_TAG && varTag != TypeTags.INT_TAG && varTag != TypeTags.BOOLEAN_TAG &&
                     varTag != TypeTags.FLOAT_TAG) {
                 throw new BallerinaConnectorException("incompatible resource signature parameter type");
             }
             paramCount++;
         }
-        this.pathParams = paramDetails;
+        this.pathParamTypes = paramDetails;
     }
 
-    private void validateEntityBodyParam(ParamDetail entityBodyParam) {
-        String entityBodyAttributeValue = resource.getEntityBodyAttributeValue();
-        if (!entityBodyAttributeValue.equals(entityBodyParam.getVarName())) {
-            throw new BallerinaConnectorException("expected '" + entityBodyAttributeValue +
-                    "' as param name, but found '" + entityBodyParam.getVarName() + "'");
-        }
-        int type = entityBodyParam.getVarType().getTag();
+    private void validateEntityBodyParam(BType entityBodyParamType) {
+        int type = entityBodyParamType.getTag();
         if (type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
-                type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParam))) {
-            this.entityBody = entityBodyParam;
+                type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG && validArrayType(entityBodyParamType))) {
+            this.entityBody = entityBodyParamType;
             paramCount++;
         } else {
             throw new BallerinaConnectorException("incompatible entity-body type : " +
-                    entityBodyParam.getVarType().getName());
+                    entityBodyParamType.getName());
         }
     }
 
     /**
      * Check the validity of array type in data binding scenario.
      *
-     * @param entityBodyParam Represents resource parameter details
+     * @param entityBodyParamType Represents resource parameter details
      * @return a boolean indicating the validity of the array type
      */
-    private boolean validArrayType(ParamDetail entityBodyParam) {
-        return ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG ||
-                ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
+    private boolean validArrayType(BType entityBodyParamType) {
+        return ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.BYTE_TAG ||
+                ((BArrayType) entityBodyParamType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG;
     }
 
-    ParamDetail getEntityBody() {
+    BType getEntityBody() {
         return entityBody;
     }
 
-    List<ParamDetail> getPathParams() {
-        return pathParams;
+    List<BType> getPathParamTypes() {
+        return pathParamTypes;
     }
 
     int getParamCount() {

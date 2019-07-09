@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.balo;
 
-import org.ballerinalang.launcher.util.BFileUtil;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.test.util.BFileUtil;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,6 +28,7 @@ import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
@@ -36,6 +37,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  * @since 0.975.0
  */
 public class BaloCreator {
+
+    private static final Path TEST_RESOURCES_SOURCE_PATH = Paths.get("src", "test", "resources");
 
     /**
      * Generates BALO from the provided package and copy it to the ballerina.home directory.
@@ -49,7 +52,7 @@ public class BaloCreator {
         String buildFolder = Paths.get(System.getProperty(USER_DIR))
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
-        projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
+        projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
 
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
@@ -58,7 +61,7 @@ public class BaloCreator {
 
         // compile and create the balo
         BuilderUtils.compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/",
-                false, true, false, true, true);
+                false, true, false, true, true, false, false);
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
@@ -82,12 +85,22 @@ public class BaloCreator {
 
     /**
      * Method to clean up pkg from the ballerina repository after tests are run.
-     * @param orgName   organization name.
-     * @param pkgName   package name.
+     *
+     * @param orgName organization name.
+     * @param pkgName package name.
      */
-    public static void clearPackageFromRepository(String orgName, String pkgName) {
+    public static void clearPackageFromRepository(String projectRoot, String orgName, String pkgName) {
         String buildFolder = Paths.get(System.getProperty(USER_DIR))
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
+
+        // Remove contents of the .ballerina folder in resources, if folder exists.
+        BFileUtil.delete(Paths.get(buildFolder, "resources", "test", projectRoot,
+                HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
+
+        // Remove contents of the .ballerina folder from the src.
+        Path projectPath = Paths.get(projectRoot);
+        projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
+        BFileUtil.delete(Paths.get(projectPath.toString(), HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME));
     }
 }

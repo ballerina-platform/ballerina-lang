@@ -48,10 +48,9 @@ function testSimpleValuesStoredInMaps() {
     test:assertEquals(s3.one, F, msg = "expected map member to not have changed");
 }
 
-public type FooRecord record {
+public type FooRecord record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
 @test:Config {}
 function testSimpleValuesStoredInRecords() {

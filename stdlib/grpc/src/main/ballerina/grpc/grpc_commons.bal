@@ -14,59 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# TrustStore record represents trust store related options to be used for HTTP client/service invocation.
-#
-# + path - File path to trust store file
-# + password - Trust store password
-public type TrustStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
-
-# KeyStore record represents key store related options to be used for HTTP client/service invocation.
-#
-# + path - File path to key store file
-# + password - Key store password
-public type KeyStore record {
-    string path = "";
-    string password = "";
-    !...;
-};
-
 # Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
 #
 # + name - SSL Protocol to be used. eg TLS1.2
 # + versions - SSL/TLS protocols to be enabled. eg TLSv1,TLSv1.1,TLSv1.2
-public type Protocols record {
+public type Protocols record {|
     string name = "";
     string[] versions = [];
-    !...;
-};
+|};
 
 # ValidateCert record represents options related to check whether a certificate is revoked or not.
 #
 # + enable - The status of validateCertEnabled
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ValidateCert record {
+public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # OcspStapling record represents options related to check whether a certificate is revoked or not.
 #
 # + enable - The status of OcspStapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ServiceOcspStapling record {
+public type ServiceOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;
-    !...;
-};
+|};
 
 # Defines the possible values for the keep-alive configuration in service and client endpoints.
 public type KeepAlive KEEPALIVE_AUTO|KEEPALIVE_ALWAYS|KEEPALIVE_NEVER;
@@ -95,21 +72,3 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
-
-# Defines the possible values for the chunking configuration in HTTP services and clients.
-#
-# `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
-#         otherwise chunking header is set in the outbound request/response
-# `ALWAYS`: Always set chunking header in the response
-# `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
-public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
-
-# If the payload is less than 8KB, content-length header is set in the outbound request/response,
-# otherwise chunking header is set in the outbound request/response.
-public const CHUNKING_AUTO = "AUTO";
-
-# Always set chunking header in the response.
-public const CHUNKING_ALWAYS = "ALWAYS";
-
-# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
-public const CHUNKING_NEVER = "NEVER";

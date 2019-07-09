@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPatternClauseImpl extends BallerinaCompositeElementImpl implements BallerinaPatternClause {
+public class BallerinaPatternClauseImpl extends ASTWrapperPsiElement implements BallerinaPatternClause {
 
   public BallerinaPatternClauseImpl(@NotNull ASTNode node) {
     super(node);
@@ -44,13 +45,13 @@ public class BallerinaPatternClauseImpl extends BallerinaCompositeElementImpl im
   @Override
   @NotNull
   public BallerinaPatternStreamingInput getPatternStreamingInput() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaPatternStreamingInput.class));
+    return findNotNullChildByClass(BallerinaPatternStreamingInput.class);
   }
 
   @Override
   @Nullable
   public BallerinaWithinClause getWithinClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWithinClause.class);
+    return findChildByClass(BallerinaWithinClause.class);
   }
 
   @Override

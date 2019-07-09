@@ -43,7 +43,7 @@ function testFreezeOnArrayWithoutAnydata() {
     _ = a1.freeze();
 
     (PersonObjTwo|PersonObj)?[] a2 = [];
-    _ = a2.freeze();
+    _ = checkpanic a2.freeze();
 }
 
 function testFreezeOnTupleWithoutAnydata() {
@@ -101,12 +101,12 @@ type PersonObjTwo object {
     }
 };
 
-type Department record {
+type Department record {|
     PersonObj head;
     PersonObjTwo...;
-};
+|};
 
-type FreezeAllowedDepartment record {
+type FreezeAllowedDepartment record {|
     PersonObj|string head;
     (PersonObjTwo|string)...;
-};
+|};

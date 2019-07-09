@@ -29,7 +29,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
@@ -126,6 +129,7 @@ public class GlobalVariableRefAnalyzer {
             return;
         }
 
+        sortConstants(sorted);
         projectSortToGlobalVarsList(sorted);
         projectSortToTopLevelNodesList();
     }
@@ -218,6 +222,16 @@ public class GlobalVariableRefAnalyzer {
             Integer targetIndex = topLevelPositions.get(i);
             pkgNode.topLevelNodes.set(targetIndex, pkgNode.globalVars.get(i));
         }
+
+        topLevelPositions = new ArrayList<>();
+        for (BLangConstant constant : pkgNode.constants) {
+            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(constant));
+        }
+        topLevelPositions.sort(Comparator.comparingInt(i -> i));
+        for (int i = 0; i < topLevelPositions.size(); i++) {
+            Integer targetIndex = topLevelPositions.get(i);
+            pkgNode.topLevelNodes.set(targetIndex, pkgNode.constants.get(i));
+        }
     }
 
     private void projectSortToGlobalVarsList(Set<BSymbol> sorted) {
@@ -239,6 +253,25 @@ public class GlobalVariableRefAnalyzer {
         this.pkgNode.globalVars.addAll(sortedGlobalVars);
     }
 
+    private void sortConstants(Set<BSymbol> sorted) {
+        Map<BSymbol, BLangConstant> varMap = this.pkgNode.constants.stream()
+                .collect(Collectors.toMap(k -> k.symbol, k -> k));
+
+        List<BLangConstant> sortedConstants = sorted.stream()
+                .filter(varMap::containsKey)
+                .map(varMap::get)
+                .collect(Collectors.toList());
+
+        if (sortedConstants.size() != this.pkgNode.constants.size()) {
+            List<BLangConstant> symbolLessGlobalVars = this.pkgNode.constants.stream()
+                    .filter(c -> !sortedConstants.contains(c))
+                    .collect(Collectors.toList());
+            sortedConstants.addAll(symbolLessGlobalVars);
+        }
+        this.pkgNode.constants.clear();
+        this.pkgNode.constants.addAll(sortedConstants);
+    }
+    
     private List<BSymbol> getGlobalVariablesAndDependentFunctions() {
         List<BSymbol> dependents = new ArrayList<>();
 
@@ -251,6 +284,12 @@ public class GlobalVariableRefAnalyzer {
         for (BLangSimpleVariable var : this.pkgNode.globalVars) {
             if (var.symbol != null) {
                 dependents.add(var.symbol);
+            }
+        }
+
+        for (BLangConstant constant : this.pkgNode.constants) {
+            if (constant.symbol != null) {
+                dependents.add(constant.symbol);
             }
         }
 
@@ -324,7 +363,7 @@ public class GlobalVariableRefAnalyzer {
         BSymbol firstNodeSymbol = firstGlobalVar.get();
         Optional<BLangNode> firstNode = pkgNode.topLevelNodes.stream()
                 .filter(t -> (t.getKind() == NodeKind.VARIABLE || t.getKind() == NodeKind.FUNCTION)
-                        && getVarOrFuncSymbol(t) == firstNodeSymbol)
+                        && getSymbol(t) == firstNodeSymbol)
                 .map(t -> (BLangNode) t)
                 .findAny();
 
@@ -348,22 +387,30 @@ public class GlobalVariableRefAnalyzer {
 
     private BLangIdentifier getNodeName(BSymbol symbol) {
         for (TopLevelNode node : pkgNode.topLevelNodes) {
-            if (getVarOrFuncSymbol(node) == symbol) {
+            if (getSymbol(node) == symbol) {
                 if (node.getKind() == NodeKind.VARIABLE) {
                     return ((BLangSimpleVariable) node).name;
                 } else if (node.getKind() == NodeKind.FUNCTION) {
                     return ((BLangFunction) node).name;
+                } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+                    if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                        return ((BLangTypeDefinition) node).name;
+                    }
                 }
             }
         }
         throw new IllegalArgumentException("Cannot find topLevelNode: " + symbol);
     }
 
-    private BSymbol getVarOrFuncSymbol(Node node) {
+    private BSymbol getSymbol(Node node) {
         if (node.getKind() == NodeKind.VARIABLE) {
             return ((BLangVariable) node).symbol;
         } else if (node.getKind() == NodeKind.FUNCTION) {
             return ((BLangFunction) node).symbol;
+        } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+            if (((BLangTypeDefinition) node).typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                return ((BLangObjectTypeNode) ((BLangTypeDefinition) node).typeNode).symbol;
+            }
         }
         return null;
     }

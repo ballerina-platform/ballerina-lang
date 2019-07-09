@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/mime;
 
 function testContentType(http:Request req, string contentTypeValue) returns string {
-    _ = req.setContentType(contentTypeValue);
+    checkpanic req.setContentType(contentTypeValue);
     return req.getContentType();
 }
 
@@ -100,11 +100,11 @@ service hello on mockEP {
     }
     resource function addheader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.addHeader(untaint key, value);
-        string result = untaint req.getHeader(untaint key);
+        req.addHeader(<@untainted string> key, value);
+        string result = <@untainted string> req.getHeader(<@untainted string> key);
         http:Response res = new;
         res.setJsonPayload({ lang: result });
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -113,8 +113,8 @@ service hello on mockEP {
     resource function echo1(http:Caller caller, http:Request req) {
         http:Response res = new;
         string method = req.method;
-        res.setTextPayload(untaint method);
-        _ = caller->respond(res);
+        res.setTextPayload(<@untainted string> method);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -123,8 +123,8 @@ service hello on mockEP {
     resource function echo2(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(untaint url);
-        _ = caller->respond(res);
+        res.setTextPayload(<@untainted string> url);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -133,8 +133,8 @@ service hello on mockEP {
     resource function echo3(http:Caller caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(untaint url);
-        _ = caller->respond(res);
+        res.setTextPayload(<@untainted string> url);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -142,9 +142,9 @@ service hello on mockEP {
     }
     resource function getHeader(http:Caller caller, http:Request req) {
         http:Response res = new;
-        string header = untaint req.getHeader("content-type");
+        string header = <@untainted string> req.getHeader("content-type");
         res.setJsonPayload({ value: header });
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     //Enable this once the getContentLength is added back
@@ -155,7 +155,7 @@ service hello on mockEP {
     //    http:Response res = {};
     //    int length = req.getContentLength();
     //    res.setJsonPayload({value:length});
-    //    _ = conn -> respond(res);
+    //    checkpanic conn->respond(res);
     //}
 
     @http:ResourceConfig {
@@ -168,9 +168,9 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setJsonPayload(untaint returnResult.lang);
+            res.setJsonPayload(<@untainted json> returnResult.lang);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -183,9 +183,9 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setTextPayload(untaint returnResult);
+            res.setTextPayload(<@untainted string> returnResult);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -199,9 +199,9 @@ service hello on mockEP {
             res.statusCode = 500;
         } else {
             var name = returnResult.getTextValue();
-            res.setTextPayload(untaint name);
+            res.setTextPayload(<@untainted string> name);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -214,10 +214,10 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = mime:byteArrayToString(returnResult, "UTF-8");
-            res.setTextPayload(untaint name);
+            string name = encoding:byteArrayToString(returnResult, encoding = "UTF-8");
+            res.setTextPayload(<@untainted string> name);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -232,7 +232,7 @@ service hello on mockEP {
         } else {
             res.setByteChannel(returnResult);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -248,7 +248,7 @@ service hello on mockEP {
         }
         http:Response res = new;
         res.setJsonPayload({ value: header });
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -266,7 +266,7 @@ service hello on mockEP {
         }
         http:Response res = new;
         res.setJsonPayload({ value: header });
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -274,13 +274,13 @@ service hello on mockEP {
     }
     resource function setHeader(http:Caller caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.setHeader(untaint key, "abc");
-        req.setHeader(untaint key, value);
-        string result = untaint req.getHeader(untaint key);
+        req.setHeader(<@untainted string> key, "abc");
+        req.setHeader(<@untainted string> key, value);
+        string result = <@untainted string> req.getHeader(<@untainted string> key);
 
         http:Response res = new;
         res.setJsonPayload({ value: result });
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -289,16 +289,16 @@ service hello on mockEP {
     resource function setJsonPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
         json jsonStr = { lang: value };
-        req.setJsonPayload(untaint jsonStr);
+        req.setJsonPayload(<@untainted json> jsonStr);
         var returnResult = req.getJsonPayload();
         http:Response res = new;
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setJsonPayload(untaint returnResult);
+            res.setJsonPayload(<@untainted json> returnResult);
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -306,16 +306,16 @@ service hello on mockEP {
     }
     resource function setStringPayload(http:Caller caller, http:Request inReq, string value) {
         http:Request req = new;
-        req.setTextPayload(untaint value);
+        req.setTextPayload(<@untainted string> value);
         http:Response res = new;
         var returnResult = req.getTextPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setJsonPayload({ lang: untaint returnResult });
+            res.setJsonPayload({ lang: <@untainted string> returnResult });
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -331,10 +331,10 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            var name = untaint returnResult.getTextValue();
+            var name = <@untainted string> returnResult.getTextValue();
             res.setJsonPayload({ lang: name });
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 
     @http:ResourceConfig {
@@ -351,9 +351,9 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = untaint mime:byteArrayToString(returnResult, "UTF-8");
+            string name = <@untainted> encoding:byteArrayToString(returnResult, encoding = "UTF-8");
             res.setJsonPayload({ lang: name });
         }
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

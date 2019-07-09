@@ -67,15 +67,13 @@ function testObjectArrayMemberIteration() {
     }
 }
 
-public type FooRecordTwo record {
+public type FooRecordTwo record {|
     string fooFieldOne;
-    !...;
-};
+|};
 
-public type BarRecordTwo record {
+public type BarRecordTwo record {|
     int barFieldOne;
-    !...;
-};
+|};
 
 public type FooObjectTwo object {
     public string fooFieldOne;

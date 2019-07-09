@@ -39,7 +39,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             //TODO: set the proper protocol
             string protocolName = PROTOCOL_DURABLE;
             RemoteProtocol[] protocols = [{
-            name:protocolName, url:getParticipantProtocolAt(protocolName, transactionBlockId)
+            name:protocolName, url:getParticipantProtocolAt(protocolName, <@untainted> transactionBlockId)
             }];
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
@@ -53,7 +53,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - nil or error when transaction abortion is successful or not respectively.
-function abortTransaction(string transactionId, string transactionBlockId) returns error? {
+function abortTransaction(string transactionId, string transactionBlockId) returns @tainted error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     var txn = participatedTransactions[participatedTxnId];
     if (txn is TwoPhaseCommitTransaction) {
@@ -77,7 +77,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-function endTransaction(string transactionId, string transactionBlockId) returns string|error {
+function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");
@@ -124,25 +124,25 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-extern function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Commit local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-extern function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-extern function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean;
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
 
 # Get the current transaction id. This function is useful for user code to save state against a transaction ID,
 # so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
 # transaction  that is passed in to those functions.
 #
 # + return - A string representing the ID of the current transaction.
-public extern function getCurrentTransactionId() returns string;
+public function getCurrentTransactionId() returns string = external;

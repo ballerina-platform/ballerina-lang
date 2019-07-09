@@ -53,17 +53,16 @@ function updateClosedRecordWithOneField(record{} rec, anydata value) {
     rec.newField = value;
 }
 
-public type ClosedRecordWithOneField record {
+public type ClosedRecordWithOneField record {|
     string strField;
-    !...;
-};
+|};
 
 // if the record-rest-type is a type descriptor T, then the value shape of 
 // every extra field shape must be a member of T
-public type OpenRecordTwo record {
+public type OpenRecordTwo record {|
     string fieldOne;
     int...;
-};
+|};
 
 @test:Config {}
 function testOpenRecordWithSpecifiedRestType() {
@@ -75,6 +74,6 @@ function testOpenRecordWithSpecifiedRestType() {
                             "invalid reason on inherent type violating record update");
 }
 
-function updateOpenRecordTwo(record{ any...; } r, any val) {
+function updateOpenRecordTwo(record {| any...; |} r, any val) {
     r.fieldFour = val;
 }

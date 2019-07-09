@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -48,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -71,14 +73,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -94,6 +93,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBui
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
@@ -104,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFieldVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -164,6 +167,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
+import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -174,8 +178,10 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.programfile.ConstantInfo;
+import org.wso2.ballerinalang.programfile.ConstantValue;
 import org.wso2.ballerinalang.programfile.DefaultValue;
 import org.wso2.ballerinalang.programfile.ErrorTableEntry;
+import org.wso2.ballerinalang.programfile.ErrorTypeInfo;
 import org.wso2.ballerinalang.programfile.FiniteTypeInfo;
 import org.wso2.ballerinalang.programfile.FunctionInfo;
 import org.wso2.ballerinalang.programfile.ImportPackageInfo;
@@ -184,6 +190,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.KeyInfo;
 import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
@@ -213,11 +220,11 @@ import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.WorkerSendInsAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FunctionRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.MapCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
@@ -238,8 +245,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -580,9 +589,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private int typeTagToInstr(int typeTag) {
         switch (typeTag) {
             case TypeTags.INT:
-                return InstructionCodes.IRET;
             case TypeTags.BYTE:
-                return InstructionCodes.BRET;
+                return InstructionCodes.IRET;
             case TypeTags.FLOAT:
                 return InstructionCodes.FRET;
             case TypeTags.DECIMAL:
@@ -607,6 +615,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 long longVal = (Long) literalExpr.value;
                 if (longVal >= 0 && longVal <= 5) {
                     opcode = InstructionCodes.ICONST_0 + (int) longVal;
@@ -615,12 +624,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                     int intCPEntryIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(longVal));
                     emit(InstructionCodes.ICONST, getOperand(intCPEntryIndex), regIndex);
                 }
-                break;
-
-            case TypeTags.BYTE:
-                byte byteVal = (Byte) literalExpr.value;
-                int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
-                emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;
 
             case TypeTags.FLOAT:
@@ -739,6 +742,49 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTupleLiteral tupleLiteral) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(tupleLiteral);
+        Operand typeCPIndex = getTypeCPIndex(tupleLiteral.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(tupleLiteral, tupleLiteral.exprs.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array values;
+        for (int i = 0; i < tupleLiteral.exprs.size(); i++) {
+            BLangExpression argExpr = tupleLiteral.exprs.get(i);
+            genNode(argExpr, this.env);
+
+            BLangLiteral indexLiteral = new BLangLiteral();
+            indexLiteral.pos = argExpr.pos;
+            indexLiteral.value = (long) i;
+            indexLiteral.type = symTable.intType;
+            genNode(indexLiteral, this.env);
+            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        // Emit create array instruction
+        RegIndex exprRegIndex = calcAndGetExprRegIndex(groupExpr);
+        Operand typeCPIndex = getTypeCPIndex(groupExpr.type);
+        BLangLiteral sizeLiteral = generateIntegerLiteralNode(groupExpr, groupExpr.expression != null ? 1 : 0);
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
+
+        // Emit instructions populate initial array value;
+        BLangExpression argExpr = groupExpr.expression;
+        genNode(argExpr, this.env);
+        BLangLiteral indexLiteral = new BLangLiteral();
+        indexLiteral.pos = argExpr.pos;
+        indexLiteral.value = (long) 0;
+        indexLiteral.type = symTable.intType;
+        genNode(indexLiteral, this.env);
+        emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
+    }
+
+    @Override
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
         Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
@@ -793,23 +839,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct default values init function here.
-        if (structSymbol.defaultsValuesInitFunc != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[6];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            // Earlier, init function did not return any value. But now all functions should return a value. So we add
-            // new two operands to indicate the return value of the init function. The first one is the number of
-            // return values and the second one is the type of the return value.
-            operands[4] = getOperand(1);
-            operands[5] = getRegIndex(TypeTags.NIL);
-            emit(InstructionCodes.CALL, operands);
-        }
 
         // Invoke the struct initializer here.
         if (structLiteral.initializer != null) {
@@ -893,7 +922,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(dataRowExpr, this.env);
             dataRows.add(dataRowExpr);
         }
-        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteral.exprs = dataRows;
         arrayLiteral.type = new BArrayType(symTable.anyType);
         genNode(arrayLiteral, this.env);
@@ -923,11 +952,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangLocalVarRef localVarRef) {
         if (localVarRef.regIndex != null && (localVarRef.regIndex.isLHSIndex || localVarRef.regIndex.isVarIndex)) {
             emit(getOpcode(localVarRef.type.tag, InstructionCodes.IMOVE),
-                    localVarRef.varSymbol.varIndex, localVarRef.regIndex);
+                    ((BVarSymbol) localVarRef.varSymbol).varIndex, localVarRef.regIndex);
             return;
         }
 
-        localVarRef.regIndex = localVarRef.varSymbol.varIndex;
+        localVarRef.regIndex = ((BVarSymbol) localVarRef.varSymbol).varIndex;
     }
 
     @Override
@@ -953,7 +982,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BSymbol ownerSymbol = packageVarRef.symbol.owner;
         pkgSymbol = (BPackageSymbol) ownerSymbol;
 
-        Operand gvIndex = packageVarRef.varSymbol.varIndex;
+        Operand gvIndex = ((BVarSymbol) packageVarRef.varSymbol).varIndex;
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
         if (varAssignment) {
             int opcode = getOpcode(packageVarRef.type.tag, InstructionCodes.IGSTORE);
@@ -963,6 +992,22 @@ public class CodeGenerator extends BLangNodeVisitor {
             packageVarRef.regIndex = calcAndGetExprRegIndex(packageVarRef);
             emit(opcode, getOperand(pkgRefCPIndex), gvIndex, packageVarRef.regIndex);
         }
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        BPackageSymbol pkgSymbol;
+        BConstantSymbol constantSymbol = (BConstantSymbol) constRef.symbol;
+        pkgSymbol = (BPackageSymbol) constantSymbol.owner;
+
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, pkgSymbol.pkgID);
+
+        // Calculate registry index for the reference.
+        constRef.regIndex = calcAndGetExprRegIndex(constRef);
+
+        // Emit MCONST instruction.
+        emit(InstructionCodes.MCONST, getOperand(pkgRefCPIndex), getOperand(constantSymbol.cpEntryIndex),
+                constRef.regIndex);
     }
 
     @Override
@@ -1136,12 +1181,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(arrayIndexAccessExpr.indexExpr, this.env);
         Operand indexRegIndex = arrayIndexAccessExpr.indexExpr.regIndex;
 
-        BArrayType arrayType = (BArrayType) arrayIndexAccessExpr.expr.type;
+        BType arrayType = arrayIndexAccessExpr.expr.type;
         if (variableStore) {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IASTORE);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IASTORE);
             emit(opcode, varRefRegIndex, indexRegIndex, arrayIndexAccessExpr.regIndex);
         } else {
-            int opcode = getOpcodeForArrayOperations(arrayType.eType.tag, InstructionCodes.IALOAD);
+            int opcode = getOpcodeForArrayOperations(arrayType.tag, InstructionCodes.IALOAD);
             emit(opcode, varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(arrayIndexAccessExpr));
         }
 
@@ -1175,38 +1220,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex regIndex = calcAndGetExprRegIndex(assignableExpr);
         Operand typeCPIndex = getTypeCPIndex(assignableExpr.targetType);
         emit(assignableExpr.opSymbol.opcode, assignableExpr.lhsExpr.regIndex, typeCPIndex, regIndex);
-    }
-
-    @Override
-    public void visit(BLangErrorConstructorExpr errExpr) {
-        genNode(errExpr.reasonExpr, env);
-        genNode(errExpr.detailsExpr, env);
-        RegIndex regIndex = calcAndGetExprRegIndex(errExpr);
-        emit(InstructionCodes.ERROR, getTypeCPIndex(errExpr.type), errExpr.reasonExpr.regIndex,
-                errExpr.detailsExpr.regIndex, regIndex);
-    }
-
-    @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        // Emit create array instruction
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
-        Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        BLangLiteral sizeLiteral = generateIntegerLiteralNode(bracedOrTupleExpr, bracedOrTupleExpr.expressions.size());
-
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
-
-        // Emit instructions populate initial array values;
-        for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-            BLangExpression argExpr = bracedOrTupleExpr.expressions.get(i);
-            genNode(argExpr, this.env);
-
-            BLangLiteral indexLiteral = new BLangLiteral();
-            indexLiteral.pos = argExpr.pos;
-            indexLiteral.value = (long) i;
-            indexLiteral.type = symTable.intType;
-            genNode(indexLiteral, this.env);
-            emit(InstructionCodes.RASTORE, exprRegIndex, indexLiteral.regIndex, argExpr.regIndex);
-        }
     }
 
     private void visitAndExpression(BLangBinaryExpr binaryExpr) {
@@ -1270,8 +1283,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
 
+        if (iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            generateErrorConstructorInvocation(iExpr);
+            return;
+        }
+
         Operand[] operands = getFuncOperands(iExpr);
         emit(InstructionCodes.CALL, operands);
+    }
+
+    private void generateErrorConstructorInvocation(BLangInvocation iExpr) {
+        // error reason expr
+        BLangExpression reasonExpr = iExpr.requiredArgs.get(0);
+        genNode(reasonExpr, env);
+
+        // error detail record
+        BLangExpression detailsExpr = iExpr.requiredArgs.get(1);
+        genNode(detailsExpr, env);
+
+        RegIndex regIndex = calcAndGetExprRegIndex(iExpr);
+        emit(InstructionCodes.ERROR, getTypeCPIndex(iExpr.symbol.type), reasonExpr.regIndex,
+                detailsExpr.regIndex, regIndex);
     }
 
     public void visit(BLangActionInvocation aIExpr) {
@@ -1300,7 +1332,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        BSymbol structSymbol = cIExpr.type.tsymbol;
+        BSymbol structSymbol = extractObjectTypeSymbol(cIExpr.type);
         int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
         int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
@@ -1309,18 +1341,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         //Emit an instruction to create a new struct.
         RegIndex structRegIndex = calcAndGetExprRegIndex(cIExpr);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
-
-        // Invoke the struct initializer here.
-        Operand[] operands = getFuncOperands(cIExpr.initInvocation);
-
-        Operand[] callOperands = new Operand[operands.length + 1];
-        callOperands[0] = operands[0];
-        callOperands[1] = operands[1];
-        callOperands[2] = getOperand(operands[2].value + 1);
-        callOperands[3] = structRegIndex;
-
-        System.arraycopy(operands, 3, callOperands, 4, operands.length - 3);
-        emit(InstructionCodes.CALL, callOperands);
     }
 
     public void visit(BLangAttachedFunctionInvocation iExpr) {
@@ -1518,10 +1538,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         int index;
         switch (typeTag) {
             case TypeTags.INT:
-                index = ++indexes.tInt;
-                break;
             case TypeTags.BYTE:
-                index = ++indexes.tBoolean;
+                index = ++indexes.tInt;
                 break;
             case TypeTags.FLOAT:
                 index = ++indexes.tFloat;
@@ -1544,6 +1562,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode;
         switch (typeTag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
                 opcode = baseOpcode;
                 break;
             case TypeTags.FLOAT:
@@ -1552,7 +1571,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.STRING:
                 opcode = baseOpcode + STRING_OFFSET;
                 break;
-            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
                 break;
@@ -1875,10 +1893,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         for (RegIndex regIndex : regIndexList) {
             switch (regIndex.typeTag) {
                 case TypeTags.INT:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
-                    break;
                 case TypeTags.BYTE:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
+                    regIndex.value = regIndex.value + codeAttributeInfo.maxLongLocalVars;
                     break;
                 case TypeTags.FLOAT:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxDoubleLocalVars;
@@ -2054,8 +2070,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                 defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.intValue));
                 break;
             case TypeTags.BYTE:
-                defaultValue.byteValue = (Byte) value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(defaultValue.byteValue));
+                defaultValue.byteValue = (Long) value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new IntegerCPEntry(defaultValue.byteValue));
                 break;
             case TypeTags.FLOAT:
                 // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
@@ -2100,24 +2116,164 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void createConstantInfo(BLangConstant constant) {
         BConstantSymbol constantSymbol = constant.symbol;
-        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
-        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.type.getDesc());
-        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalValueType.getDesc());
 
-        ConstantInfo constantInfo = new ConstantInfo(constantNameCPIndex, finiteTypeSigCPIndex, valueTypeSigCPIndex,
-                constantSymbol.flags);
+        // Add the constant name to the CP and get index.
+        int constantNameCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.name.value);
+
+        // Create a new constant info object.
+        ConstantInfo constantInfo = new ConstantInfo(constantSymbol.name.value, constantNameCPIndex);
+        constantInfo.flags = constantSymbol.flags;
+
+        // Add the constant info to the package info.
         currentPkgInfo.constantInfoMap.put(constantSymbol.name.value, constantInfo);
 
-        BLangLiteral literal = new BLangLiteral();
-        literal.pos = constant.pos;
-        literal.value = ((BLangLiteral) constant.value).value;
-        literal.type = ((BLangLiteral) constant.value).type;
+        // Add the finite type to the CP and get index.
+        BType symbolType = constant.typeNode != null ? constant.typeNode.type : constantSymbol.type;
+        int finiteTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, symbolType.getDesc());
+        // Add the value type to the CP and get index.
+        int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, constantSymbol.literalType.getDesc());
 
-        DefaultValueAttributeInfo value = getDefaultValueAttributeInfo(literal);
-        constantInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, value);
+        // Get the value of the constant.
+        BLangExpression value = constant.expr;
+
+        if (value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) {
+            // Create a new constant value object.
+            ConstantValue constantValue = createSimpleLiteralInfo((BLangLiteral) value);
+            constantValue.finiteTypeSigCPIndex = finiteTypeSigCPIndex;
+            constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            constantValue.literalValueTypeTag = value.type.tag;
+
+            constantInfo.isSimpleLiteral = true;
+            constantInfo.constantValue = constantValue;
+        } else {
+            // Get key-value info.
+            ConstantValue constantValue = new ConstantValue();
+            // constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) constantSymbol.value);
+
+            // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as well.
+            for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                KeyInfo keyInfo = entry.getKey();
+                keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+            }
+
+            // Create a new MapCPEntry.
+            MapCPEntry mapCPEntry = new MapCPEntry(constantSymbol, constantValue.constantValueMap);
+
+            // Add the MapCPEntry to the constant pool and get the index.
+            constantSymbol.cpEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            constantValue.valueCPEntryIndex = constantSymbol.cpEntryIndex;
+
+            // Set the value type (record type). This is needed when recreating the record literal.
+            constantInfo.valueTypeSigCPIndex = valueTypeSigCPIndex;
+            // Set the constant value to the constant info.
+            constantInfo.constantValue = constantValue;
+        }
 
         // Add documentation attributes.
         addDocAttachmentAttrInfo(constant.symbol.markdownDocumentation, constantInfo);
+    }
+
+    private ConstantValue createSimpleLiteralInfo(BLangLiteral literalValue) {
+        ConstantValue constantValue = new ConstantValue();
+        switch (literalValue.type.tag) {
+            case TypeTags.BOOLEAN:
+                constantValue.booleanValue = (Boolean) literalValue.value;
+                break;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new IntegerCPEntry((Long) literalValue.value));
+                break;
+            case TypeTags.FLOAT:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new FloatCPEntry((Double) literalValue.value));
+                break;
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+                constantValue.valueCPEntryIndex =
+                        currentPkgInfo.addCPEntry(new UTF8CPEntry((String) literalValue.value));
+                break;
+            case TypeTags.NIL:
+                break;
+            default:
+                throw new RuntimeException("unexpected type tag: " + literalValue.type.tag);
+        }
+        return constantValue;
+    }
+
+    private Map<KeyInfo, ConstantValue> createMapLiteralInfo(BLangRecordLiteral expression) {
+
+        Map<KeyInfo, ConstantValue> constantValueMap = new HashMap<>();
+
+        // Iterate through key-value pairs.
+        for (BLangRecordKeyValue keyValue : expression.keyValuePairs) {
+
+            // Get the key. Key will always be a literal.
+            String key = ((BLangLiteral) keyValue.key.expr).value.toString();
+            BLangExpression valueExpr = keyValue.valueExpr;
+            if (valueExpr.getKind() == NodeKind.LITERAL || valueExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                BLangLiteral literal = (BLangLiteral) valueExpr;
+
+                // Add the literal type descriptor to the CP and get the index.
+                int valueTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo, literal.type.getDesc());
+
+                // Create a new constant value object.
+                ConstantValue constantValue = createSimpleLiteralInfo(literal);
+                constantValue.literalValueTypeTag = literal.type.tag;
+                constantValue.valueTypeSigCPIndex = valueTypeSigCPIndex;
+                constantValue.isSimpleLiteral = true;
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+            } else if (valueExpr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                // Create a new constant value.
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) valueExpr);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+
+                // We currently have `key -> constant` details in the map. But we need the CP index of the `key` as
+                // well.
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+                }
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(null, constantValue.constantValueMap);
+
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            } else if (valueExpr.getKind() == NodeKind.CONSTANT_REF) {
+                BConstantSymbol symbol = (BConstantSymbol) ((BLangConstRef) valueExpr).symbol;
+                // Get the literal value.
+                Object literalValue = symbol.value;
+
+                ConstantValue constantValue = new ConstantValue();
+                constantValue.constantValueMap = createMapLiteralInfo((BLangRecordLiteral) literalValue);
+                constantValue.recordLiteralSigCPIndex = addUTF8CPEntry(currentPkgInfo, valueExpr.type.getDesc());
+                constantValue.isConstRef = true;
+
+                // Add the `key` and `constantValue` pair to the map.
+                constantValueMap.put(new KeyInfo(key), constantValue);
+
+                // Iterate through the `constantValueMap` and set the `cpIndex` of the keys.
+                for (Entry<KeyInfo, ConstantValue> entry : constantValue.constantValueMap.entrySet()) {
+                    KeyInfo keyInfo = entry.getKey();
+                    keyInfo.cpIndex = addUTF8CPEntry(currentPkgInfo, keyInfo.name);
+                }
+
+                // Create a new MapCPEntry.
+                MapCPEntry mapCPEntry = new MapCPEntry(symbol, constantValue.constantValueMap);
+
+                // Add the MapCPEntry to the CP and get the index.
+                constantValue.valueCPEntryIndex = currentPkgInfo.addCPEntry(mapCPEntry);
+            } else {
+                throw new RuntimeException("unexpected node kind");
+            }
+        }
+        return constantValueMap;
     }
 
     private void createPackageVarInfo(BLangSimpleVariable varNode) {
@@ -2153,7 +2309,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).maskedPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 
@@ -2181,6 +2337,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case SymTag.RECORD:
                 createRecordTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.ERROR:
+                createErrorTypeTypeDef(typeDefInfo, typeDefSymbol);
                 break;
             case SymTag.FINITE_TYPE:
                 createFiniteTypeTypeDef(typeDefinition, typeDefInfo);
@@ -2324,6 +2483,18 @@ public class CodeGenerator extends BLangNodeVisitor {
         return variable.expr != null && (variable.expr.getKind() == NodeKind.LITERAL ||
                 variable.expr.getKind() == NodeKind.NUMERIC_LITERAL) &&
                 variable.expr.type.getKind() != TypeKind.ARRAY;
+    }
+
+    private void createErrorTypeTypeDef(TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        ErrorTypeInfo errorTypeInfo = new ErrorTypeInfo();
+        BErrorTypeSymbol errorTypeSymbol = (BErrorTypeSymbol) typeDefSymbol;
+        errorTypeInfo.errorType = (BErrorType) errorTypeSymbol.type;
+
+        errorTypeInfo.reasonTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.reasonType.getDesc());
+        errorTypeInfo.detailTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                            errorTypeInfo.errorType.detailType.getDesc());
+        typeDefInfo.typeInfo = errorTypeInfo;
     }
 
     private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
@@ -3380,7 +3551,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             return;
         }
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr), funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else {
             operands = new Operand[4];
@@ -3413,18 +3584,30 @@ public class CodeGenerator extends BLangNodeVisitor {
      * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
-    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+    private Operand[] calcClosureOperands(BLangLambdaFunction lambdaFunction, int funcRefCPIndex, RegIndex nextIndex,
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
 
-        for (BVarSymbol symbol : function.symbol.params) {
-            if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
-                continue;
-            }
-            Operand type = new Operand(symbol.type.tag);
+        // Order the closures variable maps.
+        Set<BVarSymbol> closureMapSymbols = new LinkedHashSet<>();
+
+        // First add the parameter closure maps.
+        if (!lambdaFunction.function.paramClosureMap.isEmpty()) {
+            // Check if the levels of the parameters are same. If same add them to the closure var map.
+            TreeMap<Integer, BVarSymbol> paramClosureMap = lambdaFunction.function.paramClosureMap;
+
+            lambdaFunction.paramMapSymbolsOfEnclInvokable.forEach((integer, bVarSymbol) -> {
+                if (paramClosureMap.containsKey(integer)) {
+                    closureMapSymbols.add(bVarSymbol);
+                }
+            });
+            // Afterwards add all the enclosing block symbol maps.
+           closureMapSymbols.addAll(lambdaFunction.enclMapSymbols.values());
+        }
+
+        for (BVarSymbol symbol : closureMapSymbols) {
             Operand index = new Operand(symbol.varIndex.value);
-            closureOperandList.add(type);
             closureOperandList.add(index);
         }
         Operand[] operands;
@@ -3706,8 +3889,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Only named parameters can have default values.
         for (BVarSymbol param : funcSymbol.defaultableParams) {
-            DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
-            paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            if (param.defaultValue != null) {
+                DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+            } else if (param.defaultExpression != null) {
+                if (param.defaultExpression.getKind() == NodeKind.LITERAL ||
+                        param.defaultExpression.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    BLangLiteral literal = (BLangLiteral) param.defaultExpression;
+                    param.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
+                    DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+                    paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+                } else {
+                    throw new BLangCompilerException("only literals supported for parameter default values.");
+                }
+            }
         }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);
@@ -3854,5 +4049,15 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             }
         }
+    }
+
+    private BTypeSymbol extractObjectTypeSymbol(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .findFirst()
+                    .orElse(symTable.noType).tsymbol;
+        }
+        return type.tsymbol;
     }
 }

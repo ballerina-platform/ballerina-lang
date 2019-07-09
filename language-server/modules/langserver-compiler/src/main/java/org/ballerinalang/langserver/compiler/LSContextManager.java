@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -109,7 +110,7 @@ public class LSContextManager {
             synchronized (LSContextManager.class) {
                 compilerContext = contextMap.get(projectDir);
                 if (compilerContext == null) {
-                    compilerContext = createNewCompilerContext(projectDir, documentManager);
+                    compilerContext = this.createNewCompilerContext(projectDir, documentManager);
                     contextMap.put(projectDir, compilerContext);
                 }
             }
@@ -146,16 +147,6 @@ public class LSContextManager {
     }
 
     /**
-     * Returns an unique temporary compiler context.
-     *
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
-     * @return compiler context
-     */
-    public static CompilerContext createTempCompilerContext(WorkspaceDocumentManager documentManager) {
-        return createNewCompilerContext(null, documentManager);
-    }
-
-    /**
      * Returns a global singleton compiler context for the static builtin packages.
      *
      * @return compiler context
@@ -165,7 +156,7 @@ public class LSContextManager {
         return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
     }
 
-    private static CompilerContext createNewCompilerContext(String projectDir,
+    public CompilerContext createNewCompilerContext(String projectDir,
                                                             WorkspaceDocumentManager documentManager) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);

@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/io;
 
-listener http:MockListener passthruEP  = new(9090);
+listener http:MockListener passthruEP  = new(9092);
 
 @http:ServiceConfig {
     basePath:"/sample/{version}",
@@ -19,6 +19,6 @@ service sample on passthruEP {
     resource function sample(http:Caller caller, http:Request req) {
         http:Response res = new;
         res.setJsonPayload({hello:"common service"});
-        _ = caller->respond(res);
+        checkpanic caller->respond(res);
     }
 }

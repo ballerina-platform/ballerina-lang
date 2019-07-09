@@ -19,7 +19,7 @@
 
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { Uri, ExtensionContext } from 'vscode';
-import { getLibraryWebViewContent } from '../utils/index';
+import { getLibraryWebViewContent, WebViewOptions, getComposerJSFiles, getComposerCSSFiles } from '../utils/index';
 
 export function apiEditorRender(context: ExtensionContext, langClient: ExtendedLangClient,
     docUri: Uri, selectedService: string, retries: number = 1) : string {
@@ -34,7 +34,7 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
     `;
     const bodyCss = "api-designer";
     const styles = ``;
-    const script = `
+    const scripts = `
         function loadedScript() {
             let docUri = ${JSON.stringify(docUri.toString())};
             let updatedJSON = '';
@@ -52,21 +52,21 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
                 }
             });
 
-            function getSwaggerJson(docUri, serviceName) {
+            function getOpenApiJson(docUri, serviceName) {
                 return new Promise((resolve, reject) => {
-                    webViewRPCHandler.invokeRemoteMethod('getSwaggerDef', [docUri, serviceName], (resp) => {
+                    webViewRPCHandler.invokeRemoteMethod('getOpenApiDef', [docUri, serviceName], (resp) => {
                         resolve(resp);
                     });
                 })
             }
 
             function onDidJsonChange(event, oasJson) {
-                webViewRPCHandler.invokeRemoteMethod('triggerSwaggerDefChange', [JSON.stringify(oasJson), docUri]);
+                webViewRPCHandler.invokeRemoteMethod('triggerOpenApiDefChange', [JSON.stringify(oasJson), docUri]);
             }
 
             function drawAPIEditor() {
                 if(updatedJSON === '') {
-                    getSwaggerJson(docUri, selectedService).then((response)=>{
+                    getOpenApiJson(docUri, selectedService).then((response)=>{
                         try {
                             let width = window.innerWidth - 6;
                             let height = window.innerHeight;
@@ -85,5 +85,11 @@ export function apiEditorRender(context: ExtensionContext, langClient: ExtendedL
         }
     `;
 
-    return getLibraryWebViewContent(context, body, script, styles, bodyCss, true);
+    const webViewOptions: WebViewOptions = {
+        jsFiles: getComposerJSFiles(true),
+        cssFiles: getComposerCSSFiles(),
+        body, scripts, styles, bodyCss
+    };
+    
+    return getLibraryWebViewContent(webViewOptions);
 }

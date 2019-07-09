@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
@@ -26,6 +23,10 @@ import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Class to test numeric conversion via the type cast expression.
@@ -97,8 +98,8 @@ public class NumericConversionTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
         Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), Math.round((new BFloat(d)).byteValue()), "incorrect" +
-                " float representation as byte");
+        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BFloat(d)).byteValue(), "incorrect float " +
+                "representation as byte");
     }
 
     @Test(dataProvider = "decimalAsFloatTests")
@@ -186,13 +187,12 @@ public class NumericConversionTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected bytes to be the same");
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals(((BByte) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
+        Assert.assertEquals(((BValueType) returns[1]).byteValue(), (new BInteger(i)).byteValue(), "incorrect int " +
                 "representation as byte");
     }
 
     @Test(dataProvider = "byteAsFloatTests")
-    public void testByteAsFloat(String functionName, byte i) {
+    public void testByteAsFloat(String functionName, long i) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -203,7 +203,7 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "byteAsDecimalTests")
-    public void testByteAsDecimal(String functionName, byte i) {
+    public void testByteAsDecimal(String functionName, long i) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -214,18 +214,17 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "byteAsIntTests")
-    public void testByteAsInt(String functionName, byte i) {
+    public void testByteAsInt(String functionName, long i) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected ints to be the same");
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
+        Assert.assertEquals(((BValueType) returns[1]).intValue(), (new BByte(i)).intValue(), "incorrect byte " +
                 "representation as int");
     }
 
     @Test(dataProvider = "byteAsByteTests")
-    public void testByteAsByte(String functionName, byte i) {
+    public void testByteAsByte(String functionName, long i) {
         BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BByte(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -378,6 +377,12 @@ public class NumericConversionTest {
     @Test
     public void testNumericConversionFromBasicTypeToUnionType() {
         BValue[] returns = BRunUtil.invoke(result, "testNumericConversionFromBasicTypeToUnionType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
+    }
+
+    @Test
+    public void testNumericConversionFromFiniteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testNumericConversionFromFiniteType");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected numeric conversion to be successful");
     }
 
@@ -599,7 +604,7 @@ public class NumericConversionTest {
         List<Object[]> result = new ArrayList<>();
         Arrays.stream(intAsTestFunctions)
                 .forEach(func -> Arrays.stream(intAsByteValues())
-                        .forEach(arg -> result.add(new Object[]{func, (byte) arg})));
+                        .forEach(arg -> result.add(new Object[]{func, (long) arg})));
         return result.toArray(new Object[result.size()][]);
     }
 

@@ -19,20 +19,19 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,16 +44,13 @@ public class EnvVarConfigTest {
 
     private static final ConfigRegistry registry = ConfigRegistry.getInstance();
     private CompileResult compileResult;
-    private String resourceRoot;
-    private Path sourceRoot;
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
-                .getAbsolutePath();
-        sourceRoot = Paths.get(resourceRoot, "test-src");
         registry.initRegistry(null, null, null); // empty registry
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("config.bal").toString());
+        Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
+                "config.bal");
+        compileResult = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
     }
 
     @Test
@@ -175,16 +171,14 @@ public class EnvVarConfigTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'int'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'int'.*")
     public void testInvalidIntEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsInt", new BValue[]{key});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible convert operation: 'string' value 'b7auser' cannot be "
-                    + "converted as 'float'.*")
+            expectedExceptionsMessageRegExp = ".*'string' value 'b7auser' cannot be converted to 'float'.*")
     public void testInvalidFloatEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsFloat", new BValue[]{key});
