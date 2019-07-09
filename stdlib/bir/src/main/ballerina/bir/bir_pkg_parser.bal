@@ -16,7 +16,7 @@ import ballerina/io;
 // under the License.
 public type PackageParser object {
     BirChannelReader reader;
-    map<VariableDcl> globalVarMap;
+    map<GlobalVariableDcl> globalVarMap;
     boolean addInterimBB = true;
     boolean symbolsOnly;
 
@@ -197,6 +197,7 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
+            dcl.metaVarName = self.reader.readStringCpRef();
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
             count += 1;

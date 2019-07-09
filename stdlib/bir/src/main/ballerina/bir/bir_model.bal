@@ -249,6 +249,7 @@ public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
+    string metaVarName?;
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -264,6 +265,7 @@ public type GlobalVariableDcl record {|
     VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
+    string metaVarName?;
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;

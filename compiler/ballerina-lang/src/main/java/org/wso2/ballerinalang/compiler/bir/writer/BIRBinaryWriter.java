@@ -241,6 +241,7 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
+            birbuf.writeInt(addStringCPEntry(localVar.metaVarName));
         }
 
         // Write basic blocks related to parameter default values
