@@ -24,31 +24,29 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.io.StringWriter;
 import java.util.Iterator;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
-
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Transforms XML to another XML/HTML/plain text using XSLT.
@@ -67,17 +65,21 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
 
     private static final String XSLT_ERROR_RECORD = "XSLTError";
     private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
-    private static final String PROTOCOL_PACKAGE_XSLT = BALLERINA_PACKAGE_PREFIX + "xslt";
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
     @Override
     public void execute(Context ctx) {
-        BValue result;
+
+    }
+
+    public static Object performXSLT(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
         try {
-            String input = ctx.getRefArgument(0).toString();
-            String xsl = ctx.getRefArgument(1).toString();
-            OMElement omXML = AXIOMUtil.stringToOM(input);
-            OMElement omXSL = AXIOMUtil.stringToOM(xsl);
+
+            if (!xmlInput.isSingleton()) {
+                return createError(XSLT_ERROR_CODE, OPERATION + "input is not a single rooted xml element");
+            }
+            OMElement omXML = (OMElement) ((XMLItem)((ArrayValue)xmlInput.value()).get(0)).value();
+            OMElement omXSL = (OMElement) ((XMLItem)((ArrayValue)xslInput.value()).get(0)).value();
 
             StAXSource xmlSource = new StAXSource(omXML.getXMLStreamReader());
             StAXSource xslSource = new StAXSource(omXSL.getXMLStreamReader());
@@ -92,16 +94,15 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
             String resultStr = stringWriter.getBuffer().toString().trim();
 
             if (resultStr.isEmpty()) {
-                ctx.setReturnValues();
+                return createError(XSLT_ERROR_CODE, OPERATION + "empty result");
             } else {
-                result = parseToBXML(resultStr);
-                ctx.setReturnValues(result);
+                return parseToXML(resultStr);
             }
 
         } catch (ClassCastException e) {
-            ctx.setReturnValues(createError(ctx, OPERATION + "invalid inputs(s)"));
+            return createError(XSLT_ERROR_CODE, OPERATION + "invalid inputs(s)");
         } catch (Exception e) {
-            ctx.setReturnValues(createError(ctx, OPERATION + e.getMessage()));
+            return createError(XSLT_ERROR_CODE, OPERATION + e.getMessage());
         }
     }
 
@@ -113,7 +114,7 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
      * @throws XMLStreamException When converting `xmlStr` to an Axiom OMElement
      */
     @SuppressWarnings("unchecked")
-    private BXMLSequence parseToBXML(String xmlStr) throws XMLStreamException {
+    private static XMLSequence parseToXML(String xmlStr) throws XMLStreamException {
         // Here we add a dummy enclosing tag, and send it to AXIOM to parse the XML.
         // This is to overcome the issue of AXIOM not allowing to parse XML-comments,
         // XML-text nodes, and PI nodes, without having a XML-element node.
@@ -122,7 +123,7 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
 
         // Here we go through the iterator and add all the children nodes to a BRefValueArray.
         // The BRefValueArray is used to create a BXMLSequence object.
-        BValueArray omNodeArray = new BValueArray();
+        ArrayValue omNodeArray = new ArrayValue(new BArrayType(BTypes.typeXML));
         OMDocument omDocument;
         OMNode omNode;
         int omNodeIndex = 0;
@@ -133,16 +134,13 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
             children.remove();
             omDocument = new OMDocumentImpl();
             omDocument.addChild(omNode);
-            omNodeArray.add(omNodeIndex, new BXMLItem(omNode));
+            omNodeArray.add(omNodeIndex, new XMLItem(omNode));
             omNodeIndex++;
         }
-        return new BXMLSequence(omNodeArray);
+        return new XMLSequence(omNodeArray);
     }
 
-    private BError createError(Context context, String errMsg) {
-        BMap<String, BValue> xsltErrorRecord = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_XSLT,
-                                                                                   XSLT_ERROR_RECORD);
-        xsltErrorRecord.put("message", new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, XSLT_ERROR_CODE, xsltErrorRecord);
+    private static ErrorValue createError(String reason, String errMsg) {
+        return BallerinaErrors.createError(reason, errMsg);
     }
 }

@@ -1,14 +1,17 @@
 import ballerina/io;
 import ballerina/xslt;
 
-function readFromFile(string xmlFilePath, string xslFilePath) returns  xml|error {
+function readFromFile(string xmlFilePath, string xslFilePath) returns @tainted xml|error {
     var xmlValue = readXml(xmlFilePath);
     if (xmlValue is xml) {
+        io:println(xmlValue);
         var xslValue = readXml(xslFilePath);
         if (xslValue is xml) {
+            io:println(xslValue);
             io:println("perform xslt");
             var result = xslt:performXSLT(xmlValue, xslValue);
             if (result is xml) {
+                io:println(result);
                 return result;
             } else {
                 return result;
@@ -24,43 +27,65 @@ function readFromFile(string xmlFilePath, string xslFilePath) returns  xml|error
 }
 
 
-function readXml(string filePath) returns xml|error {
+function readXml(string filePath) returns @tainted xml|error {
     io:println("readXml" + filePath);
-    io:ReadableByteChannel byteChannel = io:openReadableFile(filePath);
-    io:ReadableCharacterChannel rch = untaint new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-    var result = rch.readXml();
-    if (result is xml) {
-        io:println("return Xml");
-        return result;
-    } else {
-        io:println("return error");
-        return result;
-    }
-}
-
-function createXsltManually(string xmlFilePath, string xslFilePath) returns  xml|error {
-    var xmlValue = readXml(xmlFilePath);
-    if (xmlValue is xml) {
-        var xslValue = readXml(xslFilePath);
-        if (xslValue is xml) {
-            io:println("perform xslt");
-            var result = generateXSLT(xmlValue, xslValue);
-            if (result is xml) {
-                return result;
-            } else {
-                return result;
-            }
+    var byteChannel = io:openReadableFile(filePath);
+    if (byteChannel is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+        var result = rch.readXml();
+        if (result is xml) {
+            io:println("return Xml");
+            return result;
         } else {
-            io:println("read xsl error");
-            return xslValue;
+            io:println("return error");
+            return result;
         }
     } else {
-        io:println("read xml error");
-        return xmlValue;
+        return byteChannel;
     }
 }
 
-function generateXSLT(xml source, xml xsl) returns xml|error {
-    xml target = xml xsl.
-    return source;
+function simpleTransform() {
+    xml input = xml `<catalog>
+	                 <cd>
+	                     <title>Empire Burlesque</title>
+	                     <artist>Bob Dylan</artist>
+	                     <country>USA</country>
+	                     <company>Columbia</company>
+	                     <price>10.90</price>
+	                     <year>1985</year>
+	                  </cd>
+                      </catalog>`;
+    xml xsl = xml `<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                        <xsl:template match="/">
+                            <html>
+                                <body>
+                                    <h2>My CD Collection</h2>
+                                    <table border="1">
+                                        <tr bgcolor="#9acd32">
+                                            <th>Title</th>
+                                            <th>Artist</th>
+                                        </tr>
+                                        <xsl:for-each select="catalog/cd">
+                                            <tr>
+                                                <td>
+                                                    <xsl:value-of select="title"/>
+                                                </td>
+                                                <td>
+                                                    <xsl:value-of select="artist"/>
+                                                </td>
+                                            </tr>
+                                        </xsl:for-each>
+                                    </table>
+                                </body>
+                            </html>
+                        </xsl:template>
+                    </xsl:stylesheet>`;
+
+    var result = xslt:performXSLT(input, xsl);
+    if (result is xml) {
+        io:println(result);
+    } else {
+        io:println(result);
+    }
 }
