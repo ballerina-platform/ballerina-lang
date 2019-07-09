@@ -112,7 +112,7 @@ public type ConnectionConfiguration record {|
 # + trustStore - Configurations associated with the TrustStore.
 # + keyStore - Configurations associated with the KeyStore.
 # + tlsVersion - TLS version.
-# + verifyHostname - True if host name verification should be enabled.
+# + verifyHostname - True, if hostname verification should be enabled.
 public type SecureSocket record {|
     crypto:TrustStore trustStore = {};
     crypto:KeyStore keyStore = {};

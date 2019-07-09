@@ -798,7 +798,7 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted (i
     return (returnVal, count);
 }
 
-function testCloseConnectionPool() returns @tainted (int) {
+function testCloseConnectionPool() returns @tainted int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
