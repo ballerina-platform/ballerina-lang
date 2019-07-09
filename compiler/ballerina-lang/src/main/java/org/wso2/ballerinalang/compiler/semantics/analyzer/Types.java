@@ -644,6 +644,10 @@ public class Types {
             return checkStructEquivalency(source, target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.TUPLE && target.tag == TypeTags.ARRAY) {
+            return isTupleTypeAssignableToArrayType((BTupleType) source, (BArrayType) target, unresolvedTypes);
+        }
+
         if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
@@ -687,6 +691,12 @@ public class Types {
             }
         }
         return true;
+    }
+
+    private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
+                                                     List<TypePair> unresolvedTypes) {
+        return source.tupleTypes.stream()
+                .allMatch(tupleElemType -> isAssignable(tupleElemType, target.eType, unresolvedTypes));
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
