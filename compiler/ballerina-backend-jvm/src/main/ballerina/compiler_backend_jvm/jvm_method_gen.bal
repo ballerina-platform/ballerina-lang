@@ -421,13 +421,11 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
 
     // Create Local Variable Table
     k = localVarOffset;
-    int lVarIndex = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         if (localVar.kind is bir:LocalVarKind && localVar.metaVarName != "") {
             mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
-                methodStartLabel, methodEndLabel, lVarIndex);
-            lVarIndex = lVarIndex + 1;
+                methodStartLabel, methodEndLabel, k);
         }
         k = k + 1;
     }
