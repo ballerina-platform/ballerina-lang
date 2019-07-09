@@ -448,6 +448,7 @@ class SizingVisitor implements Visitor {
         const label = DiagramUtils.getTextWidth(source);
         viewState.bBox.h = config.statement.height;
         viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
+        viewState.bBox.leftMargin = 0;
         viewState.bBox.label = label.text;
         viewState.bBox.labelWidth = label.labelWidth;
         // Check if statement is action invocation.
@@ -545,6 +546,7 @@ class SizingVisitor implements Visitor {
             + sizes.rightMargin + (2 * sizes.labelGutter);
 
         viewState.bBox.w = expandedFnWidth > fullLabelWidth ? expandedFnWidth : fullLabelWidth;
+        viewState.bBox.leftMargin = 40;
     }
 
     private sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
