@@ -433,8 +433,8 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeE
 #
 # + contentType - A MediaType struct
 # + return - The encoding value as a `string`
-function getEncoding(MediaType contentType) returns (string) {
-    return contentType.parameters.CHARSET;
+function getEncoding(MediaType contentType) returns (string?) {
+    return contentType.parameters[CHARSET];
 }
 
 # Given the Content-Type in string, gets the MediaType object populated with it.
