@@ -62,7 +62,7 @@ public class BootstrapRunner {
             Scanner errorScanner = new Scanner(process.getErrorStream());
             Scanner outputScanner = new Scanner(process.getInputStream());
 
-            boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
+            boolean processEnded = process.waitFor(120 * 5, TimeUnit.SECONDS);
 
             while (outputScanner.hasNext()) {
                 outStream.println(outputScanner.nextLine());
