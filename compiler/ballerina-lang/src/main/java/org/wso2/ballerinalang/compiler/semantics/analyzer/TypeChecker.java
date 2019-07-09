@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1418,32 +1417,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkConstantAccess(fieldAccessExpr, varRefType);
 
-        // error lifting on lhs is not supported
-        if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
-            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ERROR_LIFTING_ON_LHS);
-            resultType = symTable.semanticError;
-            return;
+        BType actualType;
+
+        if (fieldAccessExpr.optionalFieldAccess) {
+            if (fieldAccessExpr.lhsVar) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
+                resultType = symTable.semanticError;
+                return;
+            }
+            actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
+                                                      names.fromIdNode(fieldAccessExpr.field));
+        } else {
+            actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
         }
 
-        if (isSafeNavigable(fieldAccessExpr, varRefType)) {
-            varRefType = getSafeType(varRefType, fieldAccessExpr);
-        }
-
-        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
-
-        // If this is on lhs, no need to do type checking further. And null/error
-        // will not propagate from parent expressions
-        if (fieldAccessExpr.lhsVar) {
-            fieldAccessExpr.originalType = actualType;
-            fieldAccessExpr.type = actualType;
-            resultType = actualType;
-            return;
-        }
-
-        // Get the effective types of the expression. If there are errors/nill propagating from parent
-        // expressions, then the effective type will include those as well.
-        actualType = getAccessExprFinalType(fieldAccessExpr, actualType);
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
@@ -1452,13 +1439,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
-        BType varRefType = indexBasedAccessExpr.expr.type;
-
-        if (isSafeNavigable(indexBasedAccessExpr, varRefType)) {
-            varRefType = getSafeType(varRefType, indexBasedAccessExpr);
-        }
-
-        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
+        BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
 
         // If this is on lhs, no need to do type checking further. And null/error
         // will not propagate from parent expressions
@@ -1469,9 +1450,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        // Get the effective types of the expression. If there are errors/nil propagating from parent
-        // expressions, then the effective type will include those as well.
-        actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
     }
 
@@ -3100,8 +3078,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             if (((BRecordType) recordType).sealed) {
-                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                        recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
                 return symTable.semanticError;
             }
 
@@ -3148,45 +3126,48 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(indexExpr, this.env, symTable.stringType);
     }
 
-    private BType checkTypeForIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
-        // index based map/record access always returns a nil-able type
-        if (actualType.tag == TypeTags.ANY || actualType.tag == TypeTags.JSON) {
-            return actualType;
-        }
-
-        if (indexBasedAccessExpr.leafNode && indexBasedAccessExpr.lhsVar) {
+    private BType addNilForNillableIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
+        // index based map/record access always returns a nil-able type for optional/rest fields.
+        if (actualType.isNullable()) {
             return actualType;
         }
 
         return BUnionType.create(null, actualType, symTable.nilType);
     }
 
-    private BType checkRecordFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BRecordType recordType) {
+    private BType checkRecordRequiredFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+                                                 BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
-        if (fieldSymbol != symTable.notFoundSymbol) {
-            // Setting the field symbol. This is used during the code generation phase
-            varReferExpr.symbol = fieldSymbol;
-            return fieldSymbol.type;
-        }
-
-        // Assuming this method is only used for records
-        if (recordType.sealed) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                    recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
+        if (fieldSymbol == symTable.notFoundSymbol || Symbols.isOptional(fieldSymbol)) {
             return symTable.semanticError;
         }
 
-        return recordType.restFieldType;
+        // Set the field symbol to use during the code generation phase.
+        varReferExpr.symbol = fieldSymbol;
+        return fieldSymbol.type;
     }
 
-    private BType getRecordFieldType(BLangVariableReference varReferExpr, Name fieldName, BRecordType recordType) {
+    private BType checkRecordOptionalFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+                                                 BRecordType recordType) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol || !Symbols.isOptional(fieldSymbol)) {
+            return symTable.semanticError;
+        }
+
+        // Set the field symbol to use during the code generation phase.
+        varReferExpr.symbol = fieldSymbol;
+        return fieldSymbol.type;
+    }
+
+    private BType checkRecordRestFieldAccess(BLangVariableReference varReferExpr, Name fieldName,
+                                             BRecordType recordType) {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, recordType.tsymbol);
 
         if (fieldSymbol != symTable.notFoundSymbol) {
-            // Setting the field symbol. This is used during the code generation phase
-            varReferExpr.symbol = fieldSymbol;
-            return fieldSymbol.type;
+            // The field should not exist as a required or optional field.
+            return symTable.semanticError;
         }
 
         if (recordType.sealed) {
@@ -3211,8 +3192,8 @@ public class TypeChecker extends BLangNodeVisitor {
         fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, objectType.tsymbol);
 
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                    objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                       objectType.tsymbol.type.getKind().typeName(), objectType.tsymbol);
             return symTable.semanticError;
         }
 
@@ -3358,7 +3339,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType parentType = accessExpr.expr.type;
-        if (accessExpr.safeNavigate && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
+        if (accessExpr.errorSafeNavigation
+                && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
                 && ((BUnionType) parentType).getMemberTypes().contains(symTable.errorType)))) {
             unionType.add(symTable.errorType);
         }
@@ -3397,122 +3379,409 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
+    private BType checkObjectFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        if (varRefType.tag == TypeTags.OBJECT) {
+            return checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) varRefType);
+        }
+
+        // If the type is not an object, it needs to be a union of objects.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) memType);
+
+            if (individualFieldType == symTable.semanticError) {
+                return individualFieldType;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
+    private BType checkRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
+        if (varRefType.tag == TypeTags.RECORD) {
+            return checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+        }
+
+        // If the type is not an record, it needs to be a union of records.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkRecordFieldAccessExpr(fieldAccessExpr, memType, fieldName);
+
+            if (individualFieldType == symTable.semanticError) {
+                return individualFieldType;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
+    private BType checkRecordFieldAccessLhsExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
+                                                Name fieldName) {
+        if (varRefType.tag == TypeTags.RECORD) {
+            BType fieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+            if (fieldType != symTable.semanticError) {
+                return fieldType;
+            }
+
+            // For the LHS, the field could be optional.
+            return checkRecordOptionalFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+        }
+
+        // If the type is not an record, it needs to be a union of records.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkRecordFieldAccessLhsExpr(fieldAccessExpr, memType, fieldName);
+
+            if (individualFieldType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
+    private BType checkOptionalRecordFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
+                                                     Name fieldName) {
+        if (varRefType.tag == TypeTags.RECORD) {
+            BType fieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+            if (fieldType != symTable.semanticError) {
+                return fieldType;
+            }
+
+            fieldType = checkRecordOptionalFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
+            if (fieldType == symTable.semanticError) {
+                return fieldType;
+            }
+            return BUnionType.create(null, fieldType, symTable.nilType);
+        }
+
+        // If the type is not an record, it needs to be a union of records.
+        // Resultant field type is calculated here.
+        Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : memberTypes) {
+            BType individualFieldType = checkOptionalRecordFieldAccessExpr(fieldAccessExpr, memType, fieldName);
+
+            if (individualFieldType == symTable.semanticError) {
+                continue;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.isEmpty()) {
+            return symTable.semanticError;
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+
+        return BUnionType.create(null, fieldTypeMembers);
+    }
+
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.semanticError;
-        switch (varRefType.tag) {
-            case TypeTags.OBJECT:
-                actualType = checkObjectFieldAccess(fieldAccessExpr, fieldName, (BObjectType) varRefType);
-                break;
-            case TypeTags.RECORD:
-                actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
-                break;
-            case TypeTags.MAP:
-                actualType = ((BMapType) varRefType).getConstraint();
-                break;
-            case TypeTags.STREAM:
-                BType streamConstraintType = ((BStreamType) varRefType).constraint;
-                if (streamConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) streamConstraintType);
-                }
-                break;
-            case TypeTags.TABLE:
-                BType tableConstraintType = ((BTableType) varRefType).constraint;
-                if (tableConstraintType.tag == TypeTags.RECORD) {
-                    actualType = checkRecordFieldAccess(fieldAccessExpr, fieldName, (BRecordType) tableConstraintType);
-                }
-                break;
-            case TypeTags.JSON:
-                actualType = symTable.jsonType;
-                break;
-            case TypeTags.XML:
-                if (fieldAccessExpr.lhsVar) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
-                    break;
-                }
-                actualType = symTable.xmlType;
-                break;
-            case TypeTags.SEMANTIC_ERROR:
-                // Do nothing
-                break;
-            default:
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                        varRefType);
+
+        if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT)) {
+            actualType = checkObjectFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+        } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
+            actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+
+            if (actualType != symTable.semanticError) {
+                return actualType;
+            }
+
+            if (!fieldAccessExpr.lhsVar) {
+                dlog.error(fieldAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD, varRefType,
+                           fieldName);
+                return actualType;
+            }
+
+            // If this is an LHS expression, check if there is a required and/ optional field by the specified field
+            // name in all records.
+            actualType = checkRecordFieldAccessLhsExpr(fieldAccessExpr, varRefType, fieldName);
+            if (actualType == symTable.semanticError) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           varRefType.tsymbol.type.getKind().typeName(), varRefType);
+            }
+        } else if (types.isLax(varRefType)) {
+            if (fieldAccessExpr.lhsVar) {
+                dlog.error(fieldAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT, varRefType);
+                return symTable.semanticError;
+            }
+            BType laxFieldAccessType = getLaxFieldAccessType(varRefType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            fieldAccessExpr.originalType = laxFieldAccessType;
+        } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
+            BType laxFieldAccessType =
+                    getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
+            actualType = BUnionType.create(null, laxFieldAccessType, symTable.errorType);
+            fieldAccessExpr.errorSafeNavigation = true;
+            fieldAccessExpr.originalType = laxFieldAccessType;
+        } else if (varRefType.tag == TypeTags.XML) {
+            if (fieldAccessExpr.lhsVar) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+            }
+            actualType = symTable.xmlType;
+        } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }
 
         return actualType;
     }
 
-    private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType) {
+    private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
+        return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
+    }
+
+    private BType getLaxFieldAccessType(BType exprType) {
+        switch (exprType.tag) {
+            case TypeTags.JSON:
+                return symTable.jsonType;
+            case TypeTags.MAP:
+                return ((BMapType) exprType).constraint;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) exprType;
+                LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+                unionType.getMemberTypes().forEach(bType -> memberTypes.add(getLaxFieldAccessType(bType)));
+                return memberTypes.size() == 1 ? memberTypes.iterator().next() : BUnionType.create(null, memberTypes);
+        }
+        return symTable.semanticError;
+    }
+
+    private BType checkOptionalFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType,
+                                               Name fieldName) {
+        BType actualType = symTable.semanticError;
+
+        boolean nillableExprType = false;
+        BType effectiveType = varRefType;
+
+        if (varRefType.tag == TypeTags.UNION) {
+            Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
+
+            if (memTypes.contains(symTable.nilType)) {
+                LinkedHashSet<BType> nilRemovedSet = new LinkedHashSet<>();
+                for (BType bType : memTypes) {
+                    if (bType != symTable.nilType) {
+                        nilRemovedSet.add(bType);
+                    } else {
+                        nillableExprType = true;
+                    }
+                }
+
+                effectiveType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
+                        BUnionType.create(null, nilRemovedSet);
+            }
+        }
+
+        if (types.isSubTypeOfBaseType(effectiveType, TypeTags.RECORD)) {
+            actualType = checkOptionalRecordFieldAccessExpr(fieldAccessExpr, effectiveType, fieldName);
+            if (actualType == symTable.semanticError) {
+                dlog.error(fieldAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD,
+                           varRefType, fieldName);
+            }
+            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
+            fieldAccessExpr.nilSafeNavigation = nillableExprType;
+        } else if (types.isLax(effectiveType)) {
+            BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
+            actualType = couldHoldNonMappingJson(effectiveType) ?
+                    BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
+            fieldAccessExpr.originalType = laxFieldAccessType;
+            fieldAccessExpr.nilSafeNavigation = true;
+            nillableExprType = true;
+        } else if (fieldAccessExpr.expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
+                hasLaxOriginalType(((BLangFieldBasedAccess) fieldAccessExpr.expr))) {
+            BType laxFieldAccessType =
+                    getLaxFieldAccessType(((BLangFieldBasedAccess) fieldAccessExpr.expr).originalType);
+            actualType = couldHoldNonMappingJson(effectiveType) ?
+                    BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
+            fieldAccessExpr.errorSafeNavigation = true;
+            fieldAccessExpr.originalType = laxFieldAccessType;
+            fieldAccessExpr.nilSafeNavigation = true;
+            nillableExprType = true;
+        } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS,
+                       varRefType);
+        }
+
+        if (nillableExprType && !actualType.isNullable()) {
+            actualType = BUnionType.create(null, actualType, symTable.nilType);
+        }
+
+        return actualType;
+    }
+
+    private boolean couldHoldNonMappingJson(BType type) {
+        if (type.tag == TypeTags.JSON) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.MAP) {
+            return false;
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::couldHoldNonMappingJson);
+    }
+
+    private BType checkIndexAccessExpr(BLangIndexBasedAccess indexBasedAccessExpr) {
+        BType varRefType = indexBasedAccessExpr.expr.type;
+
+        boolean nillableExprType = false;
+
+        if (varRefType.tag == TypeTags.UNION) {
+            Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
+
+            if (memTypes.contains(symTable.nilType)) {
+                LinkedHashSet<BType> nilRemovedSet = new LinkedHashSet<>();
+                for (BType bType : memTypes) {
+                    if (bType != symTable.nilType) {
+                        nilRemovedSet.add(bType);
+                    } else {
+                        nillableExprType = true;
+                    }
+                }
+
+                if (nillableExprType) {
+                    varRefType = nilRemovedSet.size() == 1 ? nilRemovedSet.iterator().next() :
+                            BUnionType.create(null, nilRemovedSet);
+
+                    if (!types.isSubTypeOfMapping(varRefType)) {
+                        // Member access is allowed on optional types only with mappings.
+                        dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                                   indexBasedAccessExpr.expr.type);
+                        return symTable.semanticError;
+                    }
+
+                    if (indexBasedAccessExpr.lhsVar) {
+                        dlog.error(indexBasedAccessExpr.pos,
+                                   DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                                   indexBasedAccessExpr.expr.type);
+                        return symTable.semanticError;
+                    }
+                }
+            }
+        }
+
+
         BLangExpression indexExpr = indexBasedAccessExpr.indexExpr;
         BType actualType = symTable.semanticError;
-        BType indexExprType;
-        switch (varRefType.tag) {
-            case TypeTags.OBJECT:
-                indexExprType = checkIndexExprForObjectFieldAccess(indexExpr);
-                if (indexExprType.tag == TypeTags.STRING) {
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkObjectFieldAccess(indexBasedAccessExpr, names.fromString(fieldName),
-                            (BObjectType) varRefType);
-                }
-                break;
-            case TypeTags.RECORD:
-                checkExpr(indexExpr, this.env, symTable.stringType);
-                actualType = checkRecordIndexBasedAccess(indexBasedAccessExpr, (BRecordType) varRefType);
-                break;
-            case TypeTags.MAP:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
-                if (indexExprType.tag == TypeTags.STRING) {
-                    actualType = ((BMapType) varRefType).getConstraint();
-                    actualType = checkTypeForIndexBasedAccess(indexBasedAccessExpr, actualType);
-                }
-                break;
-            case TypeTags.JSON:
-                indexExprType = checkExpr(indexExpr, this.env, symTable.noType);
-                if (indexExprType.tag != TypeTags.STRING && indexExprType.tag != TypeTags.INT) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, indexExprType);
-                    break;
-                }
-                actualType = symTable.jsonType;
-                break;
-            case TypeTags.ARRAY:
-                checkExpr(indexExpr, this.env, symTable.intType);
-                actualType = checkArrayIndexBasedAccess(indexBasedAccessExpr, (BArrayType) varRefType);
-                break;
-            case TypeTags.TUPLE:
-                checkExpr(indexExpr, this.env, symTable.intType);
-                actualType = checkTupleIndexBasedAccess(indexBasedAccessExpr, (BTupleType) varRefType);
-                break;
-            case TypeTags.XML:
-                if (indexBasedAccessExpr.lhsVar) {
-                    indexExpr.type = symTable.semanticError;
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
-                    break;
+
+        if (types.isSubTypeOfMapping(varRefType)) {
+            checkExpr(indexExpr, this.env, symTable.stringType);
+
+            if (indexExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
+
+            if (actualType == symTable.semanticError) {
+                if (indexExpr.type.tag == TypeTags.STRING && indexExpr.getKind() == NodeKind.LITERAL) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
+                               ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
+                    return actualType;
                 }
 
-                checkExpr(indexExpr, this.env);
-                actualType = symTable.xmlType;
-                break;
-            case TypeTags.SEMANTIC_ERROR:
-                indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-                break;
-            default:
-                indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                        indexBasedAccessExpr.expr.type);
+                dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                return actualType;
+            }
+
+            indexBasedAccessExpr.nilSafeNavigation = nillableExprType;
+            indexBasedAccessExpr.originalType = getSafeType(actualType, indexBasedAccessExpr);
+        } else if (types.isSubTypeOfList(varRefType)) {
+            checkExpr(indexExpr, this.env, symTable.intType);
+
+            if (indexExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            actualType = checkListIndexBasedAccess(indexBasedAccessExpr, varRefType);
+
+            if (actualType == symTable.semanticError) {
+                if (indexExpr.type.tag == TypeTags.INT && indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
+                               ((BLangLiteral) indexExpr).value);
+                    return actualType;
+                }
+                dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
+                return actualType;
+            }
+        } else if (varRefType.tag == TypeTags.XML) {
+            if (indexBasedAccessExpr.lhsVar) {
+                indexExpr.type = symTable.semanticError;
+                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
+                return actualType;
+            }
+
+            checkExpr(indexExpr, this.env);
+            actualType = symTable.xmlType;
+        } else if (varRefType == symTable.semanticError) {
+            indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
+            return symTable.semanticError;
+        } else {
+            indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                       indexBasedAccessExpr.expr.type);
+            return symTable.semanticError;
+        }
+
+        if (nillableExprType && !actualType.isNullable()) {
+            actualType = BUnionType.create(null, actualType, symTable.nilType);
         }
 
         return actualType;
     }
 
-    private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess accessExpr, BArrayType arrayType) {
-        return checkArrayIndexBasedAccess(accessExpr.indexExpr.type, arrayType, accessExpr.indexExpr.pos);
-    }
-
-    private BType checkArrayIndexBasedAccess(BType indexExprType, BArrayType arrayType, DiagnosticPos pos) {
+    private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
+                                             BArrayType arrayType) {
         BType actualType = symTable.semanticError;
         switch (indexExprType.tag) {
             case TypeTags.INT:
-                actualType = arrayType.eType;
+                if (indexBasedAccess.indexExpr.getKind() != NodeKind.NUMERIC_LITERAL ||
+                        arrayType.state == BArrayState.UNSEALED) {
+                    actualType = arrayType.eType;
+                    break;
+                }
+
+                actualType = ((Long) ((BLangLiteral) indexBasedAccess.indexExpr).value) >= arrayType.size ?
+                        symTable.semanticError : arrayType.eType;
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
@@ -3526,8 +3795,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (!validIndexExists) {
-                    dlog.error(pos, DiagnosticCode.INVALID_ARRAY_INDEX_EXPR, indexExprType);
-                    break;
+                    return symTable.semanticError;
                 }
                 actualType = arrayType.eType;
                 break;
@@ -3547,7 +3815,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     finiteType = new BFiniteType(null, valueSpace);
                 }
 
-                BType elementType = checkArrayIndexBasedAccess(finiteType, arrayType, pos);
+                BType elementType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
                 if (elementType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
@@ -3556,8 +3824,35 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple) {
-        return checkTupleIndexBasedAccess(accessExpr, tuple, accessExpr.indexExpr.type);
+    private BType checkListIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
+        if (type.tag == TypeTags.ARRAY) {
+            return checkArrayIndexBasedAccess(accessExpr, accessExpr.indexExpr.type, (BArrayType) type);
+        }
+
+        if (type.tag == TypeTags.TUPLE) {
+            return checkTupleIndexBasedAccess(accessExpr, (BTupleType) type, accessExpr.indexExpr.type);
+        }
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : ((BUnionType) type).getMemberTypes()) {
+            BType individualFieldType = checkListIndexBasedAccess(accessExpr, memType);
+
+            if (individualFieldType == symTable.semanticError) {
+                continue;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 0) {
+            return symTable.semanticError;
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            return fieldTypeMembers.iterator().next();
+        }
+        return BUnionType.create(null, fieldTypeMembers);
     }
 
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple, BType currentType) {
@@ -3568,10 +3863,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
                     actualType = checkTupleFieldType(tuple, indexValue);
-                    if (actualType.tag == TypeTags.SEMANTIC_ERROR) {
-                        dlog.error(accessExpr.pos,
-                                   DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tuple.tupleTypes.size());
-                    }
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
                     LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
@@ -3590,8 +3881,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 if (possibleTypes.size() == 0) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_TUPLE_INDEX_EXPR, currentType);
-                    break;
+                    return symTable.semanticError;
                 }
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         BUnionType.create(null, possibleTypes);
@@ -3650,8 +3940,49 @@ public class TypeChecker extends BLangNodeVisitor {
         return memberTypes;
     }
 
-    private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType recordType) {
-        return checkRecordIndexBasedAccess(accessExpr, recordType, accessExpr.indexExpr.type);
+    private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
+        if (type.tag == TypeTags.MAP) {
+            return ((BMapType) type).constraint;
+        }
+
+        if (type.tag == TypeTags.RECORD) {
+            return checkRecordIndexBasedAccess(accessExpr, (BRecordType) type, accessExpr.indexExpr.type);
+        }
+
+        BType fieldType;
+
+        boolean accessesMap = false;
+        boolean nonMatchedRecordExists = false;
+
+        LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
+
+        for (BType memType : ((BUnionType) type).getMemberTypes()) {
+            BType individualFieldType = checkMappingIndexBasedAccess(accessExpr, memType);
+
+            if (individualFieldType == symTable.semanticError) {
+                nonMatchedRecordExists = true;
+                continue;
+            }
+
+            if (memType.tag == TypeTags.MAP && !accessesMap) {
+                accessesMap = true;
+            }
+
+            fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (fieldTypeMembers.size() == 0) {
+            return symTable.semanticError;
+        }
+
+        if (fieldTypeMembers.size() == 1) {
+            fieldType = fieldTypeMembers.iterator().next();
+        } else {
+            fieldType = BUnionType.create(null, fieldTypeMembers);
+        }
+
+        return accessesMap || nonMatchedRecordExists ?
+                addNilForNillableIndexBasedAccess(accessExpr, fieldType) : fieldType;
     }
 
     private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType record, BType currentType) {
@@ -3661,43 +3992,71 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.STRING:
                 if (indexExpr.getKind() == NodeKind.LITERAL) {
                     String fieldName = (String) ((BLangLiteral) indexExpr).value;
-                    actualType = checkRecordFieldAccess(accessExpr, names.fromString(fieldName), record);
-                    actualType = checkTypeForIndexBasedAccess(accessExpr, actualType);
-                    return actualType;
+                    actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
+                    if (actualType != symTable.semanticError) {
+                        return actualType;
+                    }
+
+                    actualType = checkRecordOptionalFieldAccess(accessExpr, names.fromString(fieldName), record);
+                    if (actualType == symTable.semanticError) {
+                        actualType = checkRecordRestFieldAccess(accessExpr, names.fromString(fieldName), record);
+                        if (actualType == symTable.semanticError) {
+                            return actualType;
+                        }
+                        return addNilForNillableIndexBasedAccess(accessExpr, actualType);
+                    }
+
+                    if (accessExpr.lhsVar) {
+                        return actualType;
+                    }
+                    return addNilForNillableIndexBasedAccess(accessExpr, actualType);
                 }
+
                 LinkedHashSet<BType> fieldTypes = record.fields.stream()
                         .map(field -> field.type)
                         .collect(Collectors.toCollection(LinkedHashSet::new));
+
                 if (record.restFieldType.tag != TypeTags.NONE) {
                     fieldTypes.add(record.restFieldType);
                 }
-                fieldTypes.add(symTable.nilType);
+
+                if (fieldTypes.stream().noneMatch(BType::isNullable)) {
+                    fieldTypes.add(symTable.nilType);
+                }
+
                 actualType = BUnionType.create(null, fieldTypes);
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
                 for (BLangExpression finiteMember : finiteIndexExpr.valueSpace) {
-                    if (finiteMember.type.tag != TypeTags.STRING) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
-                        return actualType;
-                    }
-                    if (finiteMember.getKind() != NodeKind.LITERAL) {
-                        continue;
-                    }
                     String fieldName = (String) ((BLangLiteral) finiteMember).value;
-                    BType fieldType = getRecordFieldType(accessExpr, names.fromString(fieldName), record);
+                    BType fieldType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
+                    if (fieldType == symTable.semanticError) {
+                        fieldType = checkRecordOptionalFieldAccess(accessExpr, names.fromString(fieldName), record);
+                        if (fieldType == symTable.semanticError) {
+                            fieldType = checkRecordRestFieldAccess(accessExpr, names.fromString(fieldName), record);
+                        }
+
+                        if (fieldType != symTable.semanticError) {
+                            fieldType = addNilForNillableIndexBasedAccess(accessExpr, fieldType);
+                        }
+                    }
+
                     if (fieldType.tag == TypeTags.SEMANTIC_ERROR) {
-                        dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
-                        return actualType;
+                        continue;
                     }
                     possibleTypes.add(fieldType);
                 }
+
                 if (possibleTypes.isEmpty()) {
-                    dlog.error(indexExpr.pos, DiagnosticCode.INVALID_RECORD_INDEX_EXPR, currentType);
-                    break;
+                    return symTable.semanticError;
                 }
-                possibleTypes.add(symTable.nilType);
+
+                if (possibleTypes.stream().noneMatch(BType::isNullable)) {
+                    possibleTypes.add(symTable.nilType);
+                }
+
                 actualType = possibleTypes.size() == 1 ? possibleTypes.iterator().next() :
                         BUnionType.create(null, possibleTypes);
                 break;
@@ -3748,28 +4107,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Extract the types without the error and null, and revisit access expression
-        Set<BType> varRefMemberTypes = ((BUnionType) type).getMemberTypes();
-        List<BType> lhsTypes;
+        List<BType> lhsTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
 
-        boolean nullable = false;
-        if (accessExpr.safeNavigate) {
-            if (!varRefMemberTypes.contains(symTable.errorType)) {
+        if (accessExpr.errorSafeNavigation) {
+            if (!lhsTypes.contains(symTable.errorType)) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.semanticError;
             }
 
-            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
-                return memberType != symTable.errorType && memberType != symTable.nilType;
-            }).collect(Collectors.toList());
+            lhsTypes = lhsTypes.stream()
+                    .filter(memberType -> memberType != symTable.errorType)
+                    .collect(Collectors.toList());
 
             if (lhsTypes.isEmpty()) {
                 dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.semanticError;
             }
-        } else {
-            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
-                return memberType != symTable.nilType;
-            }).collect(Collectors.toList());
+        }
+
+        if (accessExpr.nilSafeNavigation) {
+            lhsTypes = lhsTypes.stream()
+                    .filter(memberType -> memberType != symTable.nilType)
+                    .collect(Collectors.toList());
         }
 
         if (lhsTypes.size() == 1) {
@@ -3907,7 +4266,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isSafeNavigable(BLangAccessExpression fieldAccessExpr, BType varRefType) {
         // If the expression is safe navigable, then the type should be an union. Otherwise safe navigation is not
         // required.
-        if (fieldAccessExpr.safeNavigate && varRefType.tag != TypeTags.UNION && varRefType != symTable.semanticError) {
+        if (fieldAccessExpr.errorSafeNavigation && varRefType.tag != TypeTags.UNION
+                && varRefType != symTable.semanticError) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, varRefType);
             return false;
         }

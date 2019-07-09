@@ -1035,7 +1035,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (variableStore) {
             storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, fieldAccessExpr.except ? 1 : 0);
+//            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, fieldAccessExpr.except ? 1 : 0);
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, 0);
         }
 
         this.varAssignment = variableStore;
@@ -1060,7 +1061,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+//            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+            if (opcode == InstructionCodes.NOP) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -1068,10 +1070,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {
-            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
+//            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
+            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+//            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+            if (opcode == InstructionCodes.NOP) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {

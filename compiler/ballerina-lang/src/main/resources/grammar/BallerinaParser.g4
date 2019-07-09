@@ -647,7 +647,7 @@ variableReference
     ;
 
 field
-    :   (DOT | NOT) (Identifier | MUL)
+    :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
     ;
 
 index
