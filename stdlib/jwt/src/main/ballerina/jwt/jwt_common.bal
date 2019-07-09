@@ -68,7 +68,7 @@ public type JwtHeader record {|
 public type JwtPayload record {|
     string iss?;
     string sub?;
-    string[] aud?;
+    string|string[] aud?;
     string jti?;
     int exp?;
     int nbf?;

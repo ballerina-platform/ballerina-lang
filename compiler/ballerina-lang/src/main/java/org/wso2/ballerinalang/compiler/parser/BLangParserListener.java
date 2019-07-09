@@ -904,7 +904,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             restParamPos = getCurrentPos(ctx.errorRestBindingPattern());
         }
 
-        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier, restParamPos);
+        this.pkgBuilder.addErrorVariable(currentPos, getWS(ctx), reasonIdentifier, restIdentifier, false, false,
+                restParamPos);
     }
 
     @Override
@@ -937,12 +938,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String reasonIdentifier = null;
+        boolean reasonVar = false;
+        boolean constReasonMatchPattern = false;
         if (ctx.simpleMatchPattern() != null) {
-            reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
+            reasonVar = ctx.simpleMatchPattern().VAR() != null;
+            if (ctx.simpleMatchPattern().Identifier() != null) {
+                reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
+            } else {
+                reasonIdentifier = ctx.simpleMatchPattern().QuotedStringLiteral().getText();
+                constReasonMatchPattern = true;
+            }
         }
 
-        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier, restIdentifier,
-                restParamPos);
+        this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier,
+                restIdentifier, reasonVar, constReasonMatchPattern, restParamPos);
     }
 
     @Override

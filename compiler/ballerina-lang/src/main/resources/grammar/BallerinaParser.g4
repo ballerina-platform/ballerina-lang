@@ -458,7 +458,7 @@ restMatchPattern
     ;
 
 simpleMatchPattern
-    :   VAR? Identifier
+    :   VAR? (Identifier | QuotedStringLiteral)
     ;
 
 errorDetailBindingPattern

@@ -158,7 +158,7 @@ public type Response object {
     # Extract `json` payload from the response. If the content type is not JSON, an `http:ClientError` is returned.
     #
     # + return - The `json` payload or `http:ClientError` in case of errors
-    public function getJsonPayload() returns @tainted (json|ClientError) {
+    public function getJsonPayload() returns @tainted json|ClientError {
         var result = self.getEntity();
         if (result is error) {
             return result;
@@ -177,7 +177,7 @@ public type Response object {
     # Extracts `xml` payload from the response.
     #
     # + return - The `xml` payload or `http:ClientError` in case of errors
-    public function getXmlPayload() returns @tainted (xml|ClientError) {
+    public function getXmlPayload() returns @tainted xml|ClientError {
         var result = self.getEntity();
         if (result is error) {
             return result;
@@ -195,7 +195,7 @@ public type Response object {
     # Extracts `text` payload from the response.
     #
     # + return - The string representation of the message payload or `http:ClientError` in case of errors
-    public function getTextPayload() returns @tainted (string|ClientError) {
+    public function getTextPayload() returns @tainted string|ClientError {
         var result = self.getEntity();
         if (result is error) {
             return result;
@@ -214,7 +214,7 @@ public type Response object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `http:ClientError` in case of errors
-    public function getByteChannel() returns @tainted (io:ReadableByteChannel|ClientError) {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|ClientError {
         var result = self.getEntity();
         if (result is error) {
             return result;
@@ -232,7 +232,7 @@ public type Response object {
     # Gets the response payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `http:ClientError` in case of errors
-    public function getBinaryPayload() returns @tainted (byte[]|ClientError) {
+    public function getBinaryPayload() returns @tainted byte[]|ClientError {
         var result = self.getEntity();
         if (result is error) {
             return result;
