@@ -117,20 +117,23 @@ public abstract class BIRNode {
     public static class BIRVariableDcl extends BIRNode {
         public BType type;
         public Name name;
+        public String metaVarName;
         public VarKind kind;
         public VarScope scope;
         public boolean ignoreVariable;
 
-        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope, VarKind kind) {
+        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
+                              VarKind kind, String metaVarName) {
             super(pos);
             this.type = type;
             this.name = name;
             this.scope = scope;
             this.kind = kind;
+            this.metaVarName = metaVarName != null ? metaVarName : "ttttt";
         }
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
-            this(null, type, name, scope, kind);
+            this(null, type, name, scope, kind, null);
         }
 
         @Override
@@ -171,14 +174,14 @@ public abstract class BIRNode {
         public PackageID pkgId;
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
-                                    Name name, VarScope scope, VarKind kind) {
-            super(pos, type, name, scope, kind);
+                                    Name name, VarScope scope, VarKind kind, String metaVarNme) {
+            super(pos, type, name, scope, kind, metaVarNme);
             this.flags = flags;
         }
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
-                                    VarScope scope, VarKind kind) {
-            super(pos, type, name, scope, kind);
+                                    VarScope scope, VarKind kind, String metaVarName) {
+            super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
         }
@@ -198,8 +201,8 @@ public abstract class BIRNode {
         public final boolean hasDefaultExpr;
 
         public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
-                                    VarScope scope, VarKind kind, boolean hasDefaultExpr) {
-            super(pos, type, name, scope, kind);
+                                    VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
+            super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
         }
 
