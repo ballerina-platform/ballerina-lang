@@ -36,9 +36,7 @@ public class Names {
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
-    public static final Name TRANSACTION_ORG = new Name("ballerina");
     public static final Name STREAMS_ORG = new Name("ballerina");
-    public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
@@ -73,7 +71,13 @@ public class Names {
     public static final Name EP_SPI_GET_CALLER_ACTIONS = new Name("getCallerActions");
     public static final Name EP_SPI_START = new Name("start");
     public static final Name EP_SPI_STOP = new Name("stop");
-
+    
+    // Names related to transactions.
+    public static final Name TRANSACTION_PACKAGE = new Name("transactions");
+    public static final Name TRANSACTION_ORG = new Name("ballerina");
+    public static final Name TRX_INITIATOR_BEGIN_FUNCTION = new Name("beginTransactionInitiator");
+    public static final Name TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = new Name("beginLocalParticipant");
+    public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
     public CompilerContext context;
 
     public static Names getInstance(CompilerContext context) {

@@ -2036,6 +2036,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
+        
+        // Transaction node will be desugar to lambda function, hence transaction environment scope variables needs to
+        // be added as closure variables.
         env.scope.entries
                 .values().stream().map(scopeEntry -> scopeEntry.symbol)
                 .filter(bSymbol -> bSymbol instanceof BVarSymbol)

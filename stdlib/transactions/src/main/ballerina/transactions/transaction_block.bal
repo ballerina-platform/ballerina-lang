@@ -48,8 +48,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
     error? abortResult = ();
     error? committedResult = ();
     error? retryResult = ();
-    error
-    ? rollbackResult = ();
+    error? rollbackResult = ();
     
     while (true) {
         txnContext =  beginTransaction((), transactionBlockId, "", TWO_PHASE_COMMIT);
@@ -106,6 +105,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         }
     }
     cleanupTransactionContext(transactionBlockId);
+    // Rethrowing the  panic error captured in transaction block.
     if (trxResult is error) {
         panic trxResult;
     }

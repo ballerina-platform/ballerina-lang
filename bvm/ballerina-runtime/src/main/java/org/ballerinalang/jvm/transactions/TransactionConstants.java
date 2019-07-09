@@ -30,7 +30,7 @@ public class TransactionConstants {
 
     public static final String TRANSACTION_PACKAGE_NAME = "ballerina.transactions";
     public static final String TRANSACTION_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "transactions";
-    public static final String TRANSACTION_BLOCK_CLASS_NAME = "transactions_block";
+    public static final String TRANSACTION_BLOCK_CLASS_NAME = "transaction_block";
     public static final String COORDINATOR_PACKAGE = TRANSACTION_PACKAGE_PATH;
 
     public static final int DEFAULT_RETRY_COUNT = 3;

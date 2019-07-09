@@ -44,7 +44,7 @@ public class BUnionType extends BType implements UnionType {
 
     private LinkedHashSet<BType> memberTypes;
 
-    public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;

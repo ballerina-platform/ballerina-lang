@@ -240,6 +240,9 @@ import java.util.stream.Collectors;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
+import static org.wso2.ballerinalang.compiler.util.Names.TRX_INITIATOR_BEGIN_FUNCTION;
+import static org.wso2.ballerinalang.compiler.util.Names.TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION;
+import static org.wso2.ballerinalang.compiler.util.Names.TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
 
 /**
  * @since 0.94
@@ -255,8 +258,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
-    private static final String TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = "beginLocalParticipant";
-    private static final String TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = "beginRemoteParticipant";
     
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -608,18 +609,22 @@ public class Desugar extends BLangNodeVisitor {
         //function beginLocalParticipant(string transactionBlockId, function () committedFunc,
         //                               function () abortedFunc, function () trxFunc) returns error|any {
         
+        result = desugarParticipantFunction(funcNode, participantAnnotation);
+    }
+
+    private BLangFunction desugarParticipantFunction(BLangFunction funcNode,
+                                                     List<BLangAnnotationAttachment> participantAnnotation) {
         BLangAnnotationAttachment annotation = participantAnnotation.get(0);
         BLangBlockStmt onCommitBody = null;
-        BLangBlockStmt onAbortBody =  null;
+        BLangBlockStmt onAbortBody = null;
         funcNode.requiredParams.forEach(bLangSimpleVariable -> bLangSimpleVariable.symbol.closure = true);
-        BType trxReturnType = new BUnionType(null, new LinkedHashSet<>(Lists.of(symTable.errorType, symTable.nilType,
-                                                                                symTable.anyType)), true);
+        BType trxReturnType = BUnionType.create(null, symTable.errorType, symTable.nilType, symTable.anyType);
         BLangType trxReturnNode = ASTBuilderUtil.createTypeNode(trxReturnType);
         BLangLambdaFunction commitFunc = createLambdaFunction(funcNode.pos, "$anonOnCommitFunc$",
                                                               ASTBuilderUtil.createTypeNode(symTable.nilType));
         BLangLambdaFunction abortFunc = createLambdaFunction(funcNode.pos, "$anonOnAbortFunc$",
                                                              ASTBuilderUtil.createTypeNode(symTable.nilType));
-        
+
         BLangSimpleVariable onCommitTrxVar = ASTBuilderUtil
                 .createVariable(funcNode.pos, "$trxId$0", symTable.stringType, null,
                                 new BVarSymbol(0, names.fromString("$trxId$0"), this.env.scope.owner.pkgID,
@@ -655,7 +660,7 @@ public class Desugar extends BLangNodeVisitor {
                     break;
             }
         }
-        
+
         if (onCommitBody == null) {
             onCommitBody = ASTBuilderUtil.createBlockStmt(funcNode.pos);
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(funcNode.pos, onCommitBody);
@@ -667,19 +672,18 @@ public class Desugar extends BLangNodeVisitor {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(funcNode.pos, onAbortBody);
             returnStmt.expr = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.nilType, Names.NIL_VALUE);
         }
-        
+
         commitFunc.function.body = onCommitBody;
         commitFunc.function.requiredParams.add(onCommitTrxVar);
         commitFunc.type = new BInvokableType(Lists.of(onCommitTrxVar.symbol.type),
-                                                      commitFunc.function.symbol.type.getReturnType(), null);
-        commitFunc.function.symbol.type =  commitFunc.type;
+                                             commitFunc.function.symbol.type.getReturnType(), null);
+        commitFunc.function.symbol.type = commitFunc.type;
         commitFunc.function.symbol.params = Lists.of(onCommitTrxVar.symbol);
-        
-        
+
         abortFunc.function.body = onAbortBody;
         abortFunc.function.requiredParams.add(onAbortTrxVar);
         abortFunc.type = new BInvokableType(Lists.of(onAbortTrxVar.symbol.type),
-                                                      abortFunc.function.symbol.type.getReturnType(), null);
+                                            abortFunc.function.symbol.type.getReturnType(), null);
         abortFunc.function.symbol.type = abortFunc.type;
         abortFunc.function.symbol.params = Lists.of(onAbortTrxVar.symbol);
 
@@ -687,12 +691,11 @@ public class Desugar extends BLangNodeVisitor {
                 .stream()
                 .filter(importPackage -> importPackage.symbol.
                         pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                                                        + Names.TRANSACTION_PACKAGE.value))
+                                                                                                                     + Names.TRANSACTION_PACKAGE.value))
                 .findAny().get().symbol;
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),
-                                                            names.fromString(getParticipantFunctionName(funcNode)),
-                                                            SymTag.FUNCTION);
+                                                            getParticipantFunctionName(funcNode), SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                                                                        getTransactionBlockId());
         BLangLambdaFunction trxMainFunc = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$",
@@ -707,10 +710,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangStatement stmt = ASTBuilderUtil.createReturnStmt(funcNode.pos, addConversionExprIfRequired
                 (participantInvocation, funcNode.symbol.retType));
         funcNode.body = ASTBuilderUtil.createBlockStmt(funcNode.pos, Lists.of(rewrite(stmt, env)));
-        result = funcNode;
+        return funcNode;
     }
 
-    private String getParticipantFunctionName(BLangFunction function) {
+    private Name getParticipantFunctionName(BLangFunction function) {
         if (Symbols.isFlagOn((function).symbol.flags, Flags.RESOURCE)) {
             return TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
         }
@@ -2270,15 +2273,26 @@ public class Desugar extends BLangNodeVisitor {
         BLangType trxReturnNode = ASTBuilderUtil.createTypeNode(trxReturnType);
         BLangType otherReturnNode = ASTBuilderUtil.createTypeNode(otherReturnType);
         DiagnosticPos invPos = transactionNode.pos;
+        /* transaction block code will be desugar to function which returns int. Return value determines the status of
+         the transaction code. 
+         ex. 
+            0 = successful
+            1 = retry
+            -1 = abort
+            
+            Since transaction block code doesn't return anything, we need to add return statement at end of the 
+            block unless we have abort or retry statement.
+        */
         DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.src,
                                                         invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
         BLangStatement statement = transactionNode.transactionBody.stmts
                 .get(transactionNode.transactionBody.stmts.size() - 1);
-        if (!(statement instanceof BLangAbort) && !(statement instanceof BLangRetry)) {
+        if (!(statement.getKind() == NodeKind.ABORT) && !(statement.getKind() == NodeKind.ABORT)) {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(returnStmtPos, trxReturnType, 0L);
             transactionNode.transactionBody.addStatement(returnStmt);
         }
 
+        // Need to add empty block statement if on abort or on retry blocks do not exsist.
         if (transactionNode.abortedBody == null) {
             transactionNode.abortedBody = ASTBuilderUtil.createBlockStmt(transactionNode.pos);
         }
@@ -2292,6 +2306,8 @@ public class Desugar extends BLangNodeVisitor {
         if (transactionNode.retryCount == null) {
             transactionNode.retryCount = ASTBuilderUtil.createLiteral(pos, symTable.intType, 3L);
         }
+        
+        // Desugar transaction code, on retry and on abort code to separate functions.
         BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$",
                                                                Collections.emptyList(),
                                                                trxReturnNode, transactionNode.transactionBody);
@@ -2304,6 +2320,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
                                                                   Collections.emptyList(),
                                                                   otherReturnNode, transactionNode.abortedBody);
+        
+        // Retrive the symbol for beginTransactionInitiator function.
         BSymbol trxModSym = env.enclPkg.imports
                 .stream()
                 .filter(importPackage ->
@@ -2312,7 +2330,7 @@ public class Desugar extends BLangNodeVisitor {
                 .findAny().get().symbol;
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),
-                                                            names.fromString("beginTransactionInitiator"),
+                                                            TRX_INITIATOR_BEGIN_FUNCTION,
                                                             SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                                                                        getTransactionBlockId());
