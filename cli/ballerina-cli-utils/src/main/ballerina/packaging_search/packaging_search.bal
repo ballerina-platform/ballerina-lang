@@ -29,7 +29,7 @@ import ballerina/math;
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, message=req);
+    var result = httpEndpoint -> get(querySearched, message=req);
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;

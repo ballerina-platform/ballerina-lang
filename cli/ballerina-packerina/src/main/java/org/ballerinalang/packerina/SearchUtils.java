@@ -23,10 +23,8 @@ import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
+import java.io.PrintStream;
+import java.util.Optional;
 
 /**
  * This class provides util methods when searching for Ballerina modules in the central.
@@ -34,6 +32,7 @@ import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
  * @since 0.95.2
  */
 public class SearchUtils {
+    private static final PrintStream ERROR_STREAM = System.err;
     
     /**
      * Search for modules in central.
@@ -42,17 +41,11 @@ public class SearchUtils {
      */
     public static void searchInCentral(String argument) {
         String query = "?q=" + argument;
-        try {
-            Proxy proxy = TomlParserUtils.readSettings().getProxy();
-            Class<?> modulePullClass = Class.forName("packaging_search.__init");
-            Method mainMethod = modulePullClass.getMethod("main", String[].class);
-            String[] params = {RepoUtils.getRemoteRepoURL(),
-                               query, proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                               RepoUtils.getTerminalWidth() };
-            mainMethod.invoke(null, new Object[] {params});
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                InvocationTargetException e) {
-            throw createLauncherException("error occurred executing search command");
-        }
+        EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
+        Proxy proxy = TomlParserUtils.readSettings().getProxy();
+        Optional<RuntimeException> executionResult = executor.executeMainFunction("packaging_search",
+                RepoUtils.getRemoteRepoURL(), query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                proxy.getPassword(), RepoUtils.getTerminalWidth());
+        executionResult.ifPresent(e -> ERROR_STREAM.println(e.getMessage()));
     }
 }

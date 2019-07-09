@@ -38,8 +38,6 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -165,17 +163,19 @@ public class PushUtils {
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
     
-            try {
-                Class<?> modulePullClass = Class.forName("packaging_push.__init");
-                Method mainMethod = modulePullClass.getMethod("main", String[].class);
-                String[] params = {accessToken, mdFileContent, description, repositoryURL, authors, keywords,
-                                   license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
-                                   proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                                   baloVersionOfPkg};
-                mainMethod.invoke(null, new Object[] {params});
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw createLauncherException("error occurred executing push command");
+            Optional<RuntimeException> execute = executor.executeMainFunction("packaging_push",
+                    accessToken, mdFileContent, description, repositoryURL, authors, keywords,
+                    license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
+                    proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                    baloVersionOfPkg);
+            if (execute.isPresent()) {
+                String errorMessage = execute.get().getMessage();
+                if (!errorMessage.trim().equals("")) {
+                    SYS_ERR.println(errorMessage);
+                    return false;
+                }
             }
+            
         } else {
             if (!installToRepo.equals("home")) {
                 throw createLauncherException("Unknown repository provided to push the module");
@@ -204,17 +204,8 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            try {
-                Class<?> modulePullClass = Class.forName("packaging_token_updater.__init");
-                Method mainMethod = modulePullClass.getMethod("main", String[].class);
-                String[] params = {};
-                mainMethod.invoke(null, new Object[] {params});
-                
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
-                    InvocationTargetException e) {
-                throw createLauncherException("Error occurred in adding user CLI token");
-            }
-
+            executor.executeService("packaging_token_updater");
+            
             boolean waitForToken = true;
             while (waitForToken) {
                 pause();

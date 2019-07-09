@@ -72,6 +72,7 @@ dependencies {
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-math')
     implementation project(':ballerina-reflect')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')

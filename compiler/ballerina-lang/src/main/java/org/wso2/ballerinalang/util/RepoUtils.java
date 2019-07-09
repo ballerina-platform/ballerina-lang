@@ -47,7 +47,7 @@ public class RepoUtils {
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
-            System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+            System.getenv("c"));
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
@@ -189,16 +189,4 @@ public class RepoUtils {
         return getBallerinaVersion().contains("SNAPSHOT");
     }
 
-    /**
-     * Get nested error message.
-     * @param embeddedExecutorError The execution error.
-     * @return Error message.
-     */
-    public static String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
-        if (embeddedExecutorError.getCause() == null) {
-            return embeddedExecutorError.getMessage();
-        } else {
-            return getInnerErrorMessage(embeddedExecutorError.getCause());
-        }
-    }
 }
