@@ -855,6 +855,7 @@ function genStoreInsn(jvm:MethodVisitor mv, bir:BType bType, int localVarIndex) 
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, localVarIndex);
     } else {
@@ -895,6 +896,7 @@ function genLoadInsn(jvm:MethodVisitor mv, bir:BType bType, int localVarIndex) {
                 bType is bir:BJSONType ||
                 bType is bir:BXMLType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BInvokableType) {
         mv.visitVarInsn(ALOAD, localVarIndex);
     } else {
