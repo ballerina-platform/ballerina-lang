@@ -35,12 +35,16 @@ public class ProjectDirConstants {
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
+    public static final String LOCK_FILE_NAME = "Ballerina.lock";
     public static final String MODULE_MD_FILE_NAME = "Module.md";
     public static final String DOT_BALLERINA_DIR_NAME = ".ballerina";
     public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
+
     public static final String SOURCE_DIR_NAME = "src";
     public static final String TARGET_DIR_NAME = "target";
-    public static final String RESOURCE_DIR_NAME = "resource";
+    public static final String TARGET_BALO_DIRECTORY = "balo";
+
+    public static final String RESOURCE_DIR_NAME = "resources";
     public static final String TEST_DIR_NAME = "tests";
     public static final String CACHES_DIR_NAME = "caches";
     public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
@@ -71,4 +75,12 @@ public class ProjectDirConstants {
 
     public static final String JAVA_MAIN = "main";
 
+    public static final String FILE_NAME_DELIMITER = "-";
+
+    // Balo specific constants
+    public static final String BALO_METADATA_DIR_NAME = "metadata";
+    public static final String BALO_METADATA_FILE = "BALO.toml";
+    public static final String BALO_MODULE_METADATA_FILE = "MODULE.toml";
+    public static final String BALO_DOC_DIR_NAME = "docs";
+    public static final String BALO_PLATFORM_LIB_DIR_NAME = "platform-libs";
 }

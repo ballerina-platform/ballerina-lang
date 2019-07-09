@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class Manifest {
     private Project project = new Project();
     private Map<String, Object> dependencies = new LinkedHashMap<>();
+    private Platform platform = new Platform();
     
     public Project getProject() {
         return project;
@@ -73,7 +74,15 @@ public class Manifest {
         }
         return metadata;
     }
-    
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
+    }
+
     /**
      * Project definition.
      */

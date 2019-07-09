@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
@@ -107,10 +109,10 @@ public class BuilderUtils {
             //TODO: replace with actual target dir
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
-                                                    "ballerina.home is not set");
+                    "ballerina.home is not set");
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                                               targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                    targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
@@ -143,9 +145,15 @@ public class BuilderUtils {
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
+        prepareTargetDirectory(sourceRootPath);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
+            // Write the balo and bir to the disk.
+            // We do this before generating jar since at least we can push to central.
+            compiler.write(packages);
+
+            //Generate the jars
             for (BLangPackage bLangPackage : packages) {
                 CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
                         getBackendCodeGenerator();
@@ -155,7 +163,6 @@ public class BuilderUtils {
                 }
                 bLangPackage.jarBinaryContent = (byte[]) result.get();
             }
-            compiler.write(packages);
             return;
         }
 
@@ -188,21 +195,21 @@ public class BuilderUtils {
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         packageList.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
-                   .forEach(bLangPackage -> {
-                       CompiledBinaryFile.ProgramFile programFile;
-                       if (bLangPackage.containsTestablePkg()) {
-                           programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
-                       } else {
-                           // In this package there are no tests to be executed. But we need to say to the users that
-                           // there are no tests found in the package to be executed as :
-                           // Running tests
-                           //     <org-name>/<package-name>:<version>
-                           //         No tests found
-                           programFile = compiler.getExecutableProgram(bLangPackage);
-                       }
+                .forEach(bLangPackage -> {
+                    CompiledBinaryFile.ProgramFile programFile;
+                    if (bLangPackage.containsTestablePkg()) {
+                        programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
+                    } else {
+                        // In this package there are no tests to be executed. But we need to say to the users that
+                        // there are no tests found in the package to be executed as :
+                        // Running tests
+                        //     <org-name>/<package-name>:<version>
+                        //         No tests found
+                        programFile = compiler.getExecutableProgram(bLangPackage);
+                    }
 
-                       programFileMap.put(bLangPackage, programFile);
-                   });
+                    programFileMap.put(bLangPackage, programFile);
+                });
 
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
@@ -231,4 +238,36 @@ public class BuilderUtils {
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
         return context;
     }
+
+    /**
+     * Prepare target directory before the compile.
+     *
+     * @param sourceRoot source root of the ballerina file or project
+     * @return target path
+     */
+    private static Path prepareTargetDirectory(Path sourceRoot) {
+        // Check if the source root is a project
+        Path target;
+        if (ProjectDirs.isProject(sourceRoot)) {
+            // If source root is a project create and return target inside it.
+            target = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            // Before creating lets see if the target exists.
+            if (!Files.exists(target)) {
+                try {
+                    Files.createDirectory(target);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("unable to create target directory");
+                }
+            }
+        } else {
+            // If it is not a project create a tmp directory as target
+            try {
+                target = Files.createTempDirectory("b7a-compiler");
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target directory");
+            }
+        }
+        return target;
+    }
+
 }

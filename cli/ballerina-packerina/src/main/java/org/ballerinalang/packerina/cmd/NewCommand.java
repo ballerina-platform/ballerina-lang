@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.cmd;
 
 
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class NewCommand implements BLauncherCmd {
         }
 
         // Check if the command is executed inside a ballerina project
-        Path projectRoot = CommandUtil.findProjectRoot(path);
+        Path projectRoot = ProjectDirs.findProjectRoot(path);
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
             "Directory is already within a ballerina project :" + projectRoot.toString(),

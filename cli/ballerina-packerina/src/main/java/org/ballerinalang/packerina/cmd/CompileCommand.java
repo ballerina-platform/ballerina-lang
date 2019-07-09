@@ -4,6 +4,7 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -24,7 +25,7 @@ import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
  * @since 0.992.0
  */
 @CommandLine.Command(name = COMPILE_COMMAND, description = "Compile Ballerina modules")
-public class CompileCommand implements BLauncherCmd  {
+public class CompileCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
@@ -92,11 +93,28 @@ public class CompileCommand implements BLauncherCmd  {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(errStream,
+                    "too many arguments.",
+                    "ballerina compile [<module-name>]",
+                    true);
         }
 
         // Get source root path.
         Path sourceRootPath = userDir;
+
+        // Compile command only works inside a project
+        if (!ProjectDirs.isProject(sourceRootPath)) {
+            Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
+            if (null == findRoot) {
+                CommandUtil.printError(errStream,
+                        "Compile command can be only run inside a Ballerina project",
+                        null,
+                        false);
+                return;
+            }
+            sourceRootPath = findRoot;
+        }
+
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
