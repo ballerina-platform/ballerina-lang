@@ -52,13 +52,8 @@ task createBirJar() {
     doFirst {
 
         project.ext.modules.each { File module ->
-            println "createBirJar: " + module.getName()
             def generatedBirDir = "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
-
             if (file(generatedBirDir + module.getName() + '.bir').exists()) {
-
-                println "MAP.JSON: " + generatedBirDir + module.getName() + '.map.json'
-                println generatedBirDir + module.getName() + '.map.json'
                 def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
                 if (!sourceSets.main.allJava.isEmpty()) {
                     mapPath = generatedBirDir + module.name + '.map.json'
@@ -66,7 +61,6 @@ task createBirJar() {
 
                 configurations.birJarCompile.each {
                     def pack3 = it;
-                    println "BIR COMPILE: " + module.getAbsolutePath()
                     if (OperatingSystem.current().isWindows()) {
                         exec {
                             workingDir "$buildDir/generated-bir-jar"

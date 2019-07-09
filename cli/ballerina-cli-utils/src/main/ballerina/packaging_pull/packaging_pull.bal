@@ -74,6 +74,10 @@ public function main(string... args) returns error? {
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
+    } else {
+        map<string> kk = { msg: "PPPP "};
+        error s = error("{KK}DD");
+        panic s;
     }
 
     if (host != "" && strPort != "") {
