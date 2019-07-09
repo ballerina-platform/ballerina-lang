@@ -414,6 +414,7 @@ project.afterEvaluate {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifactId 'jballerina-ext-build'
             artifact source: createZip, extension: 'zip'
         }
     }
