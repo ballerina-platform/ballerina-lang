@@ -21,6 +21,8 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * This is a temporary BType created to implement handle type related test cases.
+ *
+ * @since 1.0.0
  */
 public class BHandleType extends BType {
 

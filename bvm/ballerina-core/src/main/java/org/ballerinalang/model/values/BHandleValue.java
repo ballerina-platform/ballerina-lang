@@ -26,6 +26,8 @@ import java.util.Map;
 
 /**
  * This is a temporary BValue created to implement handle type related test cases.
+ *
+ * @since 1.0.0
  */
 public class BHandleValue implements BRefType<Object> {
 
