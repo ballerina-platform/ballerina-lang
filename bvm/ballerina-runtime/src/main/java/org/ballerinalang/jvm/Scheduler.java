@@ -272,6 +272,8 @@ public class Scheduler {
                     }
 
                     Strand justCompleted = item.future.strand;
+                    assert !justCompleted.completed : "Can't be completed twice";
+
                     Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
                         debugLog(item + " completed");
@@ -281,8 +283,6 @@ public class Scheduler {
                         justCompleted.completed = true;
                         blockedOnJustCompleted = blockedList.remove(justCompleted);
                     }
-
-                    assert justCompleted.completed : "Can't be completed twice";
 
                     if (blockedOnJustCompleted != null) {
                         for (SchedulerItem blockedItem : blockedOnJustCompleted) {
