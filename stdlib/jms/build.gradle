@@ -17,6 +17,12 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
@@ -37,12 +43,26 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
+    implementation project(':ballerina-runtime')
     implementation 'javax.jms:javax.jms-api'
     implementation 'org.testng:testng'
+
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile 'org.apache.activemq:artemis-server'
+    testCompile 'org.apache.activemq:artemis-jms-client'
+
 }
 
 createBalo {
     jvmTarget = 'true'
+}
+
+clean.doFirst {
+    delete 'data'
 }
 
 description = 'Ballerina - JMS'
