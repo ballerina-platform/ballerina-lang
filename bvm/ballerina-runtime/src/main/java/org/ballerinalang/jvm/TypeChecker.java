@@ -1413,11 +1413,7 @@ public class TypeChecker {
     }
 
     private static boolean checkFillerValue(BArrayType type) {
-        if (type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
     }
 
     private static boolean checkFillerValue(BObjectType type) {
