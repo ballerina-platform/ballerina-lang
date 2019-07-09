@@ -197,7 +197,9 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
-            dcl.metaVarName = self.reader.readStringCpRef();
+            if (!(dcl.kind is TempVarKind)) {
+                dcl.metaVarName = self.reader.readStringCpRef();
+            }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
             count += 1;

@@ -143,7 +143,10 @@ public type BirEmitter object {
             } else {
                 print(varDecl.name.value);
                 print(" ");
-                print(varDecl.metaVarName);
+                if (!(varDecl.kind is TempVarKind)) {
+                    print("%meta ");
+                    print(varDecl.metaVarName);
+                }
             }
             println("\t// ", varDecl.kind);
         }
