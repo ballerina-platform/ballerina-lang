@@ -332,8 +332,9 @@ public class TaintedStatusPropagationTest {
     public void testChainedInvocationsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/chained-invocations-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 2, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'rec'", 6, 22);
     }
 
     @Test
