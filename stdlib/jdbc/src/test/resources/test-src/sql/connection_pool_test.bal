@@ -14,7 +14,6 @@
 // under the License.
 
 import ballerinax/jdbc;
-import ballerina/io;
 import ballerina/runtime;
 
 type Info record {
@@ -559,7 +558,6 @@ function getOpenConnectionCount(string dbName) returns int|string {
         });
     var dt = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
     int|string count = getTableCountValColumn(dt);
-    io:println(count);
     checkpanic testDB.stop();
     return count;
 }

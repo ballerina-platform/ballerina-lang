@@ -17,7 +17,6 @@
  */
 package org.ballerinax.jdbc.statement;
 
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.SQLDatasource;

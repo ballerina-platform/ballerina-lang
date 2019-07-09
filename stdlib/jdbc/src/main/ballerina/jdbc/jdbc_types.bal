@@ -37,49 +37,49 @@ public type ClientEndpointConfig record {|
 #
 # + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
 #                       to the pool. Default value of this field can be set through the configuration API with the key
-#                       "b7a.sql.connection.init.sql"
+#                       "b7a.jdbc.connection.init.sql"
 # + dataSourceClassName - Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
 #                         1. In JDBC client when DB specific properties are required (which are given with dbOptions)
 #                         2. In any data client in which XA transactions enabled by isXA property and need to provide a
 #                         custom XA implementation.
 #                         Default value of this field can be set through the configuration API with the key
-#                         "b7a.sql.datasource.class.name"
+#                         "b7a.jdbc.datasource.class.name"
 # + autoCommit - Auto-commit behavior of connections returned from the pool.
 #                Default value of this field can be set through the configuration API with the key
-#                "b7a.sql.connection.auto.commit"
+#                "b7a.jdbc.connection.auto.commit"
 # + isXA - Whether Connections are used for a distributed transaction.
-#          Default value of this field can be set through the configuration API with the key "b7a.sql.xa.enabled"
+#          Default value of this field can be set through the configuration API with the key "b7a.jdbc.xa.enabled"
 # + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
 #                     Default value of this field can be set through the configuration API with the key
-#                     "b7a.sql.max.pool.size"
+#                     "b7a.jdbc.max.pool.size"
 # + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool.
 #                       Default is 30 seconds.
 #                       Default value of this field can be set through the configuration API with the key
-#                       "b7a.sql.connection.time.out"
+#                       "b7a.jdbc.connection.time.out"
 # + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes.
 #                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.sql.connection.idle.time.out"
+#                 "b7a.jdbc.connection.idle.time.out"
 # + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as
 #                 maximumPoolSize.
 #                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.sql.connection.min.idle.count"
+#                 "b7a.jdbc.connection.min.idle.count"
 # + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes.
 #                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.sql.connection.max.life.time"
+#                 "b7a.jdbc.connection.max.life.time"
 # + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 #                       Default value of this field can be set through the configuration API with the key
-#                       "b7a.sql.validation.time.out"
+#                       "b7a.jdbc.validation.time.out"
 public type PoolOptions record {|
-    string connectionInitSql = config:getAsString("b7a.sql.connection.init.sql", defaultValue = "");
-    string dataSourceClassName = config:getAsString("b7a.sql.datasource.class.name", defaultValue = "");
-    boolean autoCommit = config:getAsBoolean("b7a.sql.connection.auto.commit", defaultValue = true);
-    boolean isXA = config:getAsBoolean("b7a.sql.xa.enabled", defaultValue = false);
-    int maximumPoolSize = config:getAsInt("b7a.sql.max.pool.size", defaultValue = 15);
-    int connectionTimeout = config:getAsInt("b7a.sql.connection.time.out", defaultValue = 30000);
-    int idleTimeout =  config:getAsInt("b7a.sql.connection.idle.time.out", defaultValue = 600000);
-    int minimumIdle = config:getAsInt("b7a.sql.connection.min.idle.count", defaultValue = 15);
-    int maxLifetime = config:getAsInt("b7a.sql.connection.max.life.time", defaultValue = 1800000);
-    int validationTimeout = config:getAsInt("b7a.sql.validation.time.out", defaultValue = 5000);
+    string connectionInitSql = config:getAsString("b7a.jdbc.connection.init.sql", defaultValue = "");
+    string dataSourceClassName = config:getAsString("b7a.jdbc.datasource.class.name", defaultValue = "");
+    boolean autoCommit = config:getAsBoolean("b7a.jdbc.connection.auto.commit", defaultValue = true);
+    boolean isXA = config:getAsBoolean("b7a.jdbc.xa.enabled", defaultValue = false);
+    int maximumPoolSize = config:getAsInt("b7a.jdbc.max.pool.size", defaultValue = 15);
+    int connectionTimeout = config:getAsInt("b7a.jdbc.connection.time.out", defaultValue = 30000);
+    int idleTimeout =  config:getAsInt("b7a.jdbc.connection.idle.time.out", defaultValue = 600000);
+    int minimumIdle = config:getAsInt("b7a.jdbc.connection.min.idle.count", defaultValue = 15);
+    int maxLifetime = config:getAsInt("b7a.jdbc.connection.max.life.time", defaultValue = 1800000);
+    int validationTimeout = config:getAsInt("b7a.jdbc.validation.time.out", defaultValue = 5000);
 |};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools
@@ -222,13 +222,13 @@ public type UpdateResult record {|
 # The parameter passed into the operations.
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
 
-public const DATABASE_ERROR_REASON = "{ballerina/sql}DatabaseError";
+public const DATABASE_ERROR_REASON = "{ballerinax/jdbc}DatabaseError";
 
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
 # database resource clean-up and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
-public const APPLICATION_ERROR_REASON = "{ballerina/sql}ApplicationError";
+public const APPLICATION_ERROR_REASON = "{ballerinax/jdbc}ApplicationError";
 
 # Represents the error which is related to Non SQL errors
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;

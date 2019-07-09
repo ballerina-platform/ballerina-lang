@@ -182,8 +182,8 @@ public final class Constants {
     public static final String DATABASE_ERROR_DATA_RECORD_NAME = "DatabaseErrorData";
     public static final String APPLICATION_ERROR_MESSAGE = "Application Error Occurred";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
-    public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
-    public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
+    public static final String APPLICATION_ERROR_CODE = "{ballerinax/jdbc}ApplicationError";
+    public static final String DATABASE_ERROR_CODE = "{ballerinax/jdbc}DatabaseError";
 
     public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";
     public static final String PARAMETER_VALUE_FIELD = "value";

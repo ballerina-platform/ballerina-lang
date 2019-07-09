@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jdbc;
+import ballerinax/jdbc;
 import ballerina/io;
 
 type ResultCustomers record {
@@ -31,7 +31,7 @@ type ResultCustomers2 record {
 };
 
 function testSelectData() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -46,7 +46,7 @@ function testSelectData() returns string {
 }
 
 function testErrorWithSelectData() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -73,8 +73,8 @@ function testErrorWithSelectData() returns string {
 }
 
 function testGeneratedKeyOnInsert() returns int|string {
-    h2:Client testDB = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2"
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -85,7 +85,7 @@ function testGeneratedKeyOnInsert() returns int|string {
     var x = testDB->update("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
 
-    if (x is sql:UpdateResult) {
+    if (x is jdbc:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
         error e = x;
@@ -97,7 +97,7 @@ function testGeneratedKeyOnInsert() returns int|string {
 }
 
 function testGeneratedKeyOnInsertError() returns int|string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TestDBH2",
             username: "SA",
             password: "",
@@ -109,7 +109,7 @@ function testGeneratedKeyOnInsertError() returns int|string {
     var x = testDB->update("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
 
-    if (x is sql:UpdateResult) {
+    if (x is jdbc:UpdateResult) {
         ret = x.generatedKeys.length();
     } else {
         error e = x;
@@ -121,7 +121,7 @@ function testGeneratedKeyOnInsertError() returns int|string {
 }
 
 function testUpdateReslt() returns int|string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -133,7 +133,7 @@ function testUpdateReslt() returns int|string {
     var x = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 3, 5000.75, 'USA')");
     checkpanic testDB.stop();
-    if (x is sql:UpdateResult) {
+    if (x is jdbc:UpdateResult) {
         x.updatedRowCount = 0;
     } else {
         error e = x;
@@ -143,7 +143,7 @@ function testUpdateReslt() returns int|string {
 }
 
 function testBatchUpdate() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -153,20 +153,20 @@ function testBatchUpdate() returns string {
     int[] updateCount = [];
     string returnVal = "";
     //Batch 1
-    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
+    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
+    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
@@ -186,7 +186,7 @@ function testBatchUpdate() returns string {
 }
 
 function testErrorWithBatchUpdate() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -196,20 +196,20 @@ function testErrorWithBatchUpdate() returns string {
     int[] updateCount = [];
     string returnVal = "";
     //Batch 1
-    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: sql:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
+    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
+    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
@@ -229,7 +229,7 @@ function testErrorWithBatchUpdate() returns string {
 }
 
 function testInvalidArrayofQueryParameters() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -240,7 +240,7 @@ function testInvalidArrayofQueryParameters() returns string {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<book>The Lost World2</book>`;
     xml[] xmlDataArray = [x1, x2];
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: xmlDataArray };
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
@@ -260,7 +260,7 @@ function testInvalidArrayofQueryParameters() returns string {
 }
 
 function testErrorWithInvalidArrayofQueryParameters() returns string {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -271,7 +271,7 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<book>The Lost World2</book>`;
     xml[] xmlDataArray = [x1, x2];
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: xmlDataArray };
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
@@ -291,7 +291,7 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
 }
 
 function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -302,7 +302,7 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<book>The Lost World2</book>`;
     xml[] xmlDataArray = [x1, x2];
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: xmlDataArray };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: xmlDataArray };
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     boolean isError = false;
@@ -312,10 +312,10 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
     if (x is error) {
         isError = true;
     }
-    if (x is sql:JdbcClientError) {
+    if (x is jdbc:JdbcClientError) {
         isJdbcClientError = true;
     }
-    if (x is sql:ApplicationError) {
+    if (x is jdbc:ApplicationError) {
         isApplicationError = true;
     }
     checkpanic testDB.stop();
@@ -323,7 +323,7 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
 }
 
 function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
-    h2:Client testDB = new({
+    jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
@@ -339,10 +339,10 @@ function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
     if (x is error) {
         isError = true;
     }
-    if (x is sql:JdbcClientError) {
+    if (x is jdbc:JdbcClientError) {
         isJdbcClientError = true;
     }
-    if (x is sql:DatabaseError) {
+    if (x is jdbc:DatabaseError) {
         isDatabaseError = true;
     }
     checkpanic testDB.stop();

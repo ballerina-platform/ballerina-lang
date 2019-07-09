@@ -138,7 +138,7 @@
       ]
     },
     {
-      "label": "ballerina/jdbc",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
@@ -156,7 +156,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jdbc;\n"
+          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },

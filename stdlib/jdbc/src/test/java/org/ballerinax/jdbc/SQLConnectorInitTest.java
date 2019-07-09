@@ -17,11 +17,11 @@
 package org.ballerinax.jdbc;
 
 import org.ballerinalang.model.values.BValue;
-import org.ballerinax.jdbc.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinax.jdbc.utils.SQLDBUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -32,8 +32,6 @@ import java.io.File;
 /**
  * Test SQL Connector Initialization.
  */
-//TODO: #16033
-@Test(groups = "broken")
 public class SQLConnectorInitTest {
 
     private CompileResult result;
@@ -61,14 +59,16 @@ public class SQLConnectorInitTest {
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    //TODO: #16033
+    @Test(groups = "broken")
     public void testConnectorWithDataSourceClass() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClass");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    //TODO: #16033
+    @Test(groups = "broken")
     public void testConnectorWithDataSourceClassAndProps() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassAndProps");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
@@ -82,7 +82,8 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test
+    //TODO: #16033
+    @Test(groups = "broken")
     public void testConnectorWithDataSourceClassURLPriority() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassURLPriority");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
@@ -110,10 +111,11 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    //TODO: #16033
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
                   ".*error in sql connector configuration:Failed to initialize pool: Database "
-                  + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
+                  + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*", groups = "broken")
     public void testConnectionFailure() {
         BRunUtil.invokeFunction(result, "testConnectionFailure");
     }

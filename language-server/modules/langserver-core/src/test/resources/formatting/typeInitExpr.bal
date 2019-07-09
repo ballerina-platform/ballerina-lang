@@ -13,7 +13,7 @@ function name() {
     jdbc:Client studentDb1 = new( {
         url: "jdbc:mysql://localhost:3306/testdb",
  username: "root",
-            password: "root",
+            password: "",
       dbOptions:{useSSL: false}
            }   );
 
@@ -33,9 +33,7 @@ Person p5 = new ("" , {id: 0,
      jdbc:Client studentDb4 =
              new
                ({
-                 host: "localhost",
-                 port: 5690,
-                 name: "testdb",
+                    url: "jdbc:mysql://localhost:5690/testdb",
                  username: "root",
                  password: "",
                  dbOptions: {useSSL: false}

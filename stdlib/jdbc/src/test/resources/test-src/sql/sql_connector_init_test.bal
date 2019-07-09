@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jdbc;
+import ballerinax/jdbc;
 
 jdbc:PoolOptions properties = { maximumPoolSize: 1,
     idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,

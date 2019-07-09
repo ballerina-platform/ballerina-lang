@@ -41,7 +41,7 @@ function name() {
     jdbc:Client studentDb4 =
     new
     ({
-        url: "jdbc:mysql://localhost:3306/testdb",
+        url: "jdbc:mysql://localhost:5690/testdb",
         username: "root",
         password: "",
         dbOptions: {useSSL: false}

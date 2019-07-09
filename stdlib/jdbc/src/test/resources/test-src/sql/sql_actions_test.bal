@@ -1048,7 +1048,7 @@ function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns Cu
 function testCloseConnectionPool(string connectionCountQuery)
              returns (int) {
     jdbc:Client testDB = new({
-            url: "jdbc:jdbc:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
