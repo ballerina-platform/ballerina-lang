@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Detail record {
+type Detail record {
     string message;
     error cause?;
 };
 
-public const RABBITMQ_ERROR = "{ballerina/mime}GenericRabbitMQError";
+public const RABBITMQ_ERROR = "{ballerina/rabbitmq}RabbitMQError";
 public type RabbitMQError error<RABBITMQ_ERROR, Detail>;
