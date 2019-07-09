@@ -27,9 +27,9 @@ public interface BallerinaStructuredBindingPattern extends PsiElement {
   BallerinaErrorBindingPattern getErrorBindingPattern();
 
   @Nullable
-  BallerinaRecordBindingPattern getRecordBindingPattern();
+  BallerinaListBindingPattern getListBindingPattern();
 
   @Nullable
-  BallerinaTupleBindingPattern getTupleBindingPattern();
+  BallerinaRecordBindingPattern getRecordBindingPattern();
 
 }

@@ -42,6 +42,12 @@ public class BallerinaTypeConversionExpressionImpl extends BallerinaExpressionIm
   }
 
   @Override
+  @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
   @Nullable
   public BallerinaExpression getExpression() {
     return findChildByClass(BallerinaExpression.class);
