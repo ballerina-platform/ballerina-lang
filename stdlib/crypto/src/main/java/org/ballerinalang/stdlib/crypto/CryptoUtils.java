@@ -35,6 +35,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -57,17 +58,17 @@ public class CryptoUtils {
     /**
      * Cipher mode that is used to decide if encryption or decryption operation should be performed.
      */
-    public enum CipherMode {ENCRYPT, DECRYPT}
+    public enum CipherMode { ENCRYPT, DECRYPT }
 
     /**
      * Valid tag sizes usable with GCM mode encryption.
      */
-    private static final int[] VALID_GCM_TAG_SIZES = new int[]{32, 63, 96, 104, 112, 120, 128};
+    private static final int[] VALID_GCM_TAG_SIZES = new int[] { 32, 63, 96, 104, 112, 120, 128 };
 
     /**
      * Valid AES key sizes.
      */
-    private static final int[] VALID_AES_KEY_SIZES = new int[]{16, 24, 32};
+    private static final int[] VALID_AES_KEY_SIZES = new int[] { 16, 24, 32 };
 
     private CryptoUtils() {
 
@@ -88,7 +89,7 @@ public class CryptoUtils {
             mac.init(secretKey);
             return mac.doFinal(input);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new BallerinaException("error occurred while calculating HMAC: " + e.getMessage());
+            throw new BallerinaException("Error occurred while calculating HMAC: " + e.getMessage());
         }
     }
 
@@ -106,7 +107,7 @@ public class CryptoUtils {
             messageDigest.update(input);
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaException("error occurred while calculating hash: " + e.getMessage());
+            throw new BallerinaException("Error occurred while calculating hash: " + e.getMessage());
         }
     }
 
@@ -126,7 +127,7 @@ public class CryptoUtils {
             sig.update(input);
             return sig.sign();
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage());
+            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage());
         }
     }
 
@@ -148,7 +149,7 @@ public class CryptoUtils {
             sig.update(data);
             return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new BallerinaException("error occurred while calculating signature: " + e.getMessage());
+            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage());
         }
     }
 
@@ -180,7 +181,7 @@ public class CryptoUtils {
             String transformedAlgorithmMode = transformAlgorithmMode(algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(algorithmPadding);
             if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(i -> tagSize == i)) {
-                return CryptoUtils.createCryptoError("valid tag sizes are: " + Arrays.toString(VALID_GCM_TAG_SIZES));
+                return CryptoUtils.createCryptoError("Valid tag sizes are: " + Arrays.toString(VALID_GCM_TAG_SIZES));
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance(Constants.RSA + "/" + transformedAlgorithmMode + "/"
@@ -188,10 +189,10 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, key, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
-            return CryptoUtils.createCryptoError("unsupported algorithm: AES " + algorithmMode + " "
+            return CryptoUtils.createCryptoError("Unsupported algorithm: AES " + algorithmMode + " "
                     + algorithmPadding);
         } catch (NoSuchPaddingException e) {
-            return CryptoUtils.createCryptoError("unsupported padding scheme defined in the algorithm: AES "
+            return CryptoUtils.createCryptoError("Unsupported padding scheme defined in the algorithm: AES "
                     + algorithmMode + " " + algorithmPadding);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
                 IllegalBlockSizeException | BallerinaException e) {
@@ -215,14 +216,14 @@ public class CryptoUtils {
                                            String algorithmPadding, byte[] key, byte[] input, byte[] iv, long tagSize) {
         try {
             if (Arrays.stream(VALID_AES_KEY_SIZES).noneMatch(validSize -> validSize == key.length)) {
-                return CryptoUtils.createCryptoError("invalid key size. valid key sizes in bytes: " +
+                return CryptoUtils.createCryptoError("Invalid key size. valid key sizes in bytes: " +
                         Arrays.toString(VALID_AES_KEY_SIZES));
             }
             String transformedAlgorithmMode = transformAlgorithmMode(algorithmMode);
             String transformedAlgorithmPadding = transformAlgorithmPadding(algorithmPadding);
             SecretKeySpec keySpec = new SecretKeySpec(key, Constants.AES);
             if (tagSize != -1 && Arrays.stream(VALID_GCM_TAG_SIZES).noneMatch(validSize -> validSize == tagSize)) {
-                return CryptoUtils.createCryptoError("invalid tag size. valid tag sizes in bytes: " +
+                return CryptoUtils.createCryptoError("Invalid tag size. valid tag sizes in bytes: " +
                         Arrays.toString(VALID_GCM_TAG_SIZES));
             }
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
@@ -230,10 +231,10 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, keySpec, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
-            return CryptoUtils.createCryptoError("unsupported algorithm: AES " +
+            return CryptoUtils.createCryptoError("Unsupported algorithm: AES " +
                     algorithmMode + " " + algorithmPadding);
         } catch (NoSuchPaddingException e) {
-            return CryptoUtils.createCryptoError("unsupported padding scheme defined in  the algorithm: AES " +
+            return CryptoUtils.createCryptoError("Unsupported padding scheme defined in  the algorithm: AES " +
                     algorithmMode + " " + algorithmPadding);
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
                 InvalidKeyException | BallerinaException e) {
@@ -311,7 +312,7 @@ public class CryptoUtils {
     private static String transformAlgorithmMode(String algorithmMode) throws BallerinaException {
         if (!algorithmMode.equals(Constants.CBC) && !algorithmMode.equals(Constants.ECB)
                 && !algorithmMode.equals(Constants.GCM)) {
-            throw new BallerinaException("unsupported mode: " + algorithmMode);
+            throw new BallerinaException("Unsupported mode: " + algorithmMode);
         }
         return algorithmMode;
     }
@@ -350,7 +351,7 @@ public class CryptoUtils {
                 algorithmPadding = "NoPadding";
                 break;
             default:
-                throw new BallerinaException("unsupported padding: " + algorithmPadding);
+                throw new BallerinaException("Unsupported padding: " + algorithmPadding);
         }
         return algorithmPadding;
     }
