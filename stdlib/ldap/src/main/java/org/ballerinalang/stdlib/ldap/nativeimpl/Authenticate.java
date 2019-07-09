@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
@@ -58,12 +58,13 @@ public class Authenticate extends BlockingNativeCallableUnit {
 
     }
 
-    public static Object doAuthenticate(Strand strand, ObjectValue authStore, String userName, String password) {
+    public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
+                                        String password) {
         byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
-        connectionSource = (LdapConnectionContext) authStore.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
-        ldapConnectionContext = (DirContext) authStore.getNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT);
-        ldapConfiguration = (CommonLdapConfiguration) authStore.getNativeData(LdapConstants.LDAP_CONFIGURATION);
-        LdapUtils.setServiceName((String) authStore.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
+        connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
+        ldapConnectionContext = (DirContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT);
+        ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(LdapConstants.LDAP_CONFIGURATION);
+        LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
 
         if (LdapUtils.isNullOrEmptyAfterTrim(userName)) {
             throw new BallerinaException("username or credential value is empty or null.");
