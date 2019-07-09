@@ -27,7 +27,7 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns int[] {
+function testSelect() returns @tainted int[] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
@@ -71,7 +71,7 @@ function testUpdate() returns int {
     return insertCount;
 }
 
-function testCall() returns string {
+function testCall() returns @tainted string {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
@@ -161,7 +161,7 @@ function testBatchUpdate() returns int[] {
     return ret;
 }
 
-function testUpdateInMemory() returns [int, string] {
+function testUpdateInMemory() returns @tainted [int, string] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
@@ -227,7 +227,7 @@ function testInitWithInvalidDbOptions() returns int[] {
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns int {
+             returns @tainted int {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",

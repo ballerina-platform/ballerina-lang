@@ -38,7 +38,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function post(@untainted string path, RequestMessage message) returns Response|error {
         return nativePost(self, path, <Request>message);
     }
 
@@ -48,7 +48,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|error {
         return nativeHead(self, path, <Request>message);
     }
 
@@ -58,7 +58,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function put(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function put(@untainted string path, RequestMessage message) returns Response|error {
         return nativePut(self, path, <Request>message);
     }
 
@@ -69,7 +69,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(@sensitive string httpVerb, @sensitive string path, RequestMessage message) returns Response|error {
+    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|error {
         return nativeExecute(self, httpVerb, path, <Request>message);
     }
 
@@ -79,7 +79,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function patch(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function patch(@untainted string path, RequestMessage message) returns Response|error {
         return nativePatch(self, path, <Request>message);
     }
 
@@ -89,7 +89,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function delete(@sensitive string path, RequestMessage message) returns Response|error {
+    public remote function delete(@untainted string path, RequestMessage message) returns Response|error {
         return nativeDelete(self, path, <Request>message);
     }
 
@@ -99,7 +99,7 @@ public type HttpClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|error {
         return nativeGet(self, path, <Request>message);
     }
 
@@ -109,7 +109,7 @@ public type HttpClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function options(@sensitive string path, RequestMessage message = ()) returns Response|error {
+    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|error {
         return nativeOptions(self, path, <Request>message);
     }
 
@@ -118,7 +118,7 @@ public type HttpClient client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(@sensitive string path, Request request) returns Response|error {
+    public remote function forward(@untainted string path, Request request) returns Response|error {
         return nativeForward(self, path, request);
     }
 
@@ -131,7 +131,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
-    public remote function submit(@sensitive string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+    public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
         return nativeSubmit(self, httpVerb, path, <Request>message);
     }
 
@@ -167,27 +167,27 @@ public type HttpClient client object {
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-function nativePost(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativePost(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeHead(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativeHead(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativePut(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativePut(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeExecute(HttpClient caller , @sensitive string httpVerb, @sensitive string path,
+function nativeExecute(HttpClient caller , @untainted string httpVerb, @untainted string path,
                                                         Request req) returns Response|error = external;
 
-function nativePatch(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativePatch(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeDelete(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativeDelete(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeGet(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativeGet(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeOptions(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativeOptions(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
-function nativeSubmit(HttpClient caller , @sensitive string httpVerb, string path, Request req)
+function nativeSubmit(HttpClient caller , @untainted string httpVerb, string path, Request req)
                                                             returns HttpFuture|error = external;
 
-function nativeForward(HttpClient caller , @sensitive string path, Request req) returns Response|error = external;
+function nativeForward(HttpClient caller , @untainted string path, Request req) returns Response|error = external;
 
 # Defines a timeout error occurred during service invocation.
 #

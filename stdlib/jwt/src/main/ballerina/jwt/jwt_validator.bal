@@ -31,7 +31,7 @@ import ballerina/time;
 # + jwtCache - Cache used to store parsed JWT information as CachedJwt
 public type JwtValidatorConfig record {|
     string issuer?;
-    string[] audience?;
+    string|string[] audience?;
     int clockSkew = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
@@ -54,7 +54,7 @@ public type CachedJwt record {|
 # + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload.
 #            An error if token validation fails.
-public function validateJwt(string jwtToken, JwtValidatorConfig config) returns JwtPayload|error {
+public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|error) {
     string[] encodedJWTComponents = [];
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
@@ -93,7 +93,7 @@ function getJWTComponents(string jwtToken) returns string[]|error {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns [JwtHeader, JwtPayload]|error {
+function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, JwtPayload]|error) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
@@ -108,7 +108,7 @@ function parseJWT(string[] encodedJWTComponents) returns [JwtHeader, JwtPayload]
     return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns [json, json]|error {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([json, json]|error) {
     string jwtHeader = encoding:byteArrayToString(check
         encoding:decodeBase64Url(encodedJWTComponents[0]));
     string jwtPayload = encoding:byteArrayToString(check
@@ -229,7 +229,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
         }
     }
     var aud = config["audience"];
-    if (aud is string[]) {
+    if (aud is string || aud is string[]) {
         var audienceStatus = validateAudience(jwtPayload, config);
         if (audienceStatus is error) {
             return audienceStatus;
@@ -312,30 +312,41 @@ function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) return
 }
 
 function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) returns error? {
-    var aud = jwtPayload["aud"];
-    if (aud is string[]) {
-        boolean validationStatus = false;
-        foreach string audiencePayload in jwtPayload.aud {
-            validationStatus = matchAudience(audiencePayload, config);
-            if (validationStatus) {
-                break;
+    var audiencePayload = jwtPayload["aud"];
+    var audienceConfig = config.audience;
+    if (audiencePayload is string) {
+        if (audienceConfig is string) {
+            if (audiencePayload == audienceConfig) {
+                return ();
+            }
+        } else {
+            foreach string audience in audienceConfig {
+                if (audience == audiencePayload) {
+                    return ();
+                }
             }
         }
-        if (!validationStatus) {
-            return prepareError("Invalid audience.");
+        return prepareError("Invalid audience.");
+    } else if (audiencePayload is string[]) {
+        if (audienceConfig is string) {
+            foreach string audience in audiencePayload {
+                if (audience == audienceConfig) {
+                    return ();
+                }
+            }
+        } else {
+            foreach string audienceC in audienceConfig {
+                foreach string audienceP in audiencePayload {
+                    if (audienceC == audienceP) {
+                        return ();
+                    }
+                }
+            }
         }
+        return prepareError("Invalid audience.");
     } else {
         return prepareError("JWT must contain a valid audience.");
     }
-}
-
-function matchAudience(string audiencePayload, JwtValidatorConfig config) returns boolean {
-    foreach string audienceConfig in config.audience {
-        if (audiencePayload == audienceConfig) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function validateExpirationTime(JwtPayload jwtPayload, JwtValidatorConfig config) returns boolean {

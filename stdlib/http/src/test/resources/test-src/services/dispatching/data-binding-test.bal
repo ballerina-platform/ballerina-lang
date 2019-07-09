@@ -1,3 +1,4 @@
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/mime;
 
@@ -20,7 +21,7 @@ service echo on testEP {
     }
     resource function body1(http:Caller caller, http:Request req, string person) {
         json responseJson = { "Person": person };
-        checkpanic caller->respond(untaint responseJson);
+        checkpanic caller->respond(<@untainted json> responseJson);
     }
 
     @http:ResourceConfig {
@@ -30,7 +31,7 @@ service echo on testEP {
     }
     resource function body2(http:Caller caller, http:Request req, string key, string person) {
         json responseJson = { Key: key, Person: person };
-        checkpanic caller->respond(untaint responseJson);
+        checkpanic caller->respond(<@untainted json> responseJson);
     }
 
     @http:ResourceConfig {
@@ -38,8 +39,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body3(http:Caller caller, http:Request req, json person) {
-        json name = untaint person.name;
-        json team = untaint person.team;
+        json name = <@untainted json> person.name;
+        json team = <@untainted json> person.team;
         checkpanic caller->respond({ Key: name, Team: team });
     }
 
@@ -48,8 +49,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body4(http:Caller caller, http:Request req, xml person) {
-        string name = untaint person.getElementName();
-        string team = untaint person.getTextValue();
+        string name = <@untainted string> person.getElementName();
+        string team = <@untainted string> person.getTextValue();
         checkpanic caller->respond({ Key: name, Team: team });
     }
 
@@ -58,7 +59,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = untaint mime:byteArrayToString(person, "UTF-8");
+        string name = <@untainted> encoding:byteArrayToString(person, encoding = "UTF-8");
         checkpanic caller->respond({ Key: name });
     }
 
@@ -67,8 +68,8 @@ service echo on testEP {
         body: "person"
     }
     resource function body6(http:Caller caller, http:Request req, Person person) {
-        string name = untaint person.name;
-        int age = untaint person.age;
+        string name = <@untainted string> person.name;
+        int age = <@untainted int> person.age;
         checkpanic caller->respond({ Key: name, Age: age });
     }
 
@@ -87,9 +88,9 @@ service echo on testEP {
     resource function body8(http:Caller caller, http:Request req, Person[] persons) {
         var jsonPayload = json.convert(persons);
         if (jsonPayload is json) {
-            checkpanic caller->respond(untaint jsonPayload);
+            checkpanic caller->respond(<@untainted json> jsonPayload);
         } else {
-            checkpanic caller->respond(untaint <string> jsonPayload.detail().message);
+            checkpanic caller->respond(<@untainted string> jsonPayload.detail().message);
         }
     }
 }

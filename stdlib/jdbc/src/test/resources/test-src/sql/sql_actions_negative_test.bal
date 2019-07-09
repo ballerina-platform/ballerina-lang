@@ -228,7 +228,7 @@ function testErrorWithBatchUpdate() returns string {
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters() returns string {
+function testInvalidArrayofQueryParameters() returns @tainted string {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",

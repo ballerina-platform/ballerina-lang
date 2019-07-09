@@ -41,16 +41,18 @@ public type MockListener object {
         self.init(self.config);
     }
 
-    public function init(ServiceEndpointConfiguration c);
+    public function init(ServiceEndpointConfiguration c) {
+        var err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
+    }
+
     public function initEndpoint() returns error? = external;
+
     public function register(service s, string? name) returns error? = external;
+
     public function start() = external;
+
     public function stop() = external;
 };
-
-public function MockListener.init (ServiceEndpointConfiguration c) {
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}

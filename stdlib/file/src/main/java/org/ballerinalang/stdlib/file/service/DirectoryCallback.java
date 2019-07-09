@@ -19,13 +19,14 @@
 package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * {@code DirectoryCallback} is the responsible for acting on notifications received from Ballerina side.
  */
-public class DirectoryCallback implements org.ballerinalang.jvm.values.connector.CallableUnitCallback {
+public class DirectoryCallback implements CallableUnitCallback {
 
     private static final Logger log = LoggerFactory.getLogger(DirectoryCallback.class);
 

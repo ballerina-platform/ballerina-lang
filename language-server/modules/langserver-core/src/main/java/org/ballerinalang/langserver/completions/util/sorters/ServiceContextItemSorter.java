@@ -18,17 +18,10 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,35 +30,31 @@ import java.util.List;
 public class ServiceContextItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
-
-        this.removeCompletionsByType(new ArrayList<>(Collections.singletonList(ItemResolverConstants.STATEMENT_TYPE)),
-                completionItems);
-        if (previousNode == null) {
-            this.populateWhenCursorBeforeOrAfterEp(ctx, completionItems);
-        } else if (previousNode instanceof BLangSimpleVariableDef) {
-            this.setPriorities(completionItems);
-            CompletionItem resItem = this.getResourceSnippet(ctx);
-            resItem.setSortText(Priority.PRIORITY160.toString());
-            completionItems.add(resItem);
-        } else if (previousNode instanceof BLangResource) {
-            completionItems.clear();
-            completionItems.add(this.getResourceSnippet(ctx));
-        }
-    }
-
-    private void populateWhenCursorBeforeOrAfterEp(LSContext ctx, List<CompletionItem> completionItems) {
-        CompletionItem xmlnsSnippet = Snippet.STMT_NAMESPACE_DECLARATION.get().build(ctx);
-        CompletionItem resSnippet = this.getResourceSnippet(ctx);
         this.setPriorities(completionItems);
-
-        xmlnsSnippet.setSortText(Priority.PRIORITY150.toString());
-        resSnippet.setSortText(Priority.PRIORITY160.toString());
-        completionItems.add(xmlnsSnippet);
-        completionItems.add(resSnippet);
     }
-
-    private CompletionItem getResourceSnippet(LSContext ctx) {
-        return Snippet.DEF_RESOURCE.get().build(ctx);
+    
+    @Override
+    void setPriority(CompletionItem completionItem) {
+        String detail = completionItem.getDetail();
+        switch (detail) {
+            case ItemResolverConstants.B_TYPE:
+                completionItem.setSortText(Priority.PRIORITY150.toString());
+                break;
+            case ItemResolverConstants.PACKAGE_TYPE:
+                completionItem.setSortText(Priority.PRIORITY140.toString());
+                break;
+            case ItemResolverConstants.KEYWORD_TYPE:
+                completionItem.setSortText(Priority.PRIORITY120.toString());
+                break;
+            case ItemResolverConstants.FUNCTION_TYPE:
+                completionItem.setSortText(Priority.PRIORITY130.toString());
+                break;
+            case ItemResolverConstants.SNIPPET_TYPE:
+                completionItem.setSortText(Priority.PRIORITY110.toString());
+                break;
+            default:
+                completionItem.setSortText(Priority.PRIORITY160.toString());
+                break;
+        }
     }
 }

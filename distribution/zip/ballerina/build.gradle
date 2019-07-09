@@ -62,6 +62,8 @@ dependencies {
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
     dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.294'
+    dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
+    dist 'org.bouncycastle:bcprov-jdk15on:1.61'
 
     dist 'info.picocli:picocli:3.3.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
@@ -227,7 +229,6 @@ dependencies {
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
 //    dist project(':metrics-extensions:ballerina-prometheus-extension')
-    dist project(':strip-bouncycastle')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-activemq-artemis')

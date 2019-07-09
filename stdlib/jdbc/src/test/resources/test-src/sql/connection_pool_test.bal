@@ -24,11 +24,11 @@ public type Result record {
     int val;
 };
 
-function testGlobalConnectionPoolSingleDestination() returns (int|string?)[] {
+function testGlobalConnectionPoolSingleDestination() returns @tainted (int|string?)[] {
     return drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
 }
 
-function drainGlobalPool(string dbName) returns (int|string?)[] {
+function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
     string jdbcURL = "jdbc:h2:file:./target/tempdb/" + dbName;
     jdbc:Client testDB1 = new({
             url: jdbcURL,
@@ -87,7 +87,7 @@ function drainGlobalPool(string dbName) returns (int|string?)[] {
     return returnArray;
 }
 
-function testGlobalConnectionPoolsMultipleDestinations() returns [(int|string?)[], (int|string?)[]] {
+function testGlobalConnectionPoolsMultipleDestinations() returns @tainted [(int|string?)[], (int|string?)[]] {
     var errorFromFristDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
     var errorFromSecondDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
     return [errorFromFristDestination, errorFromSecondDestination];
@@ -99,7 +99,7 @@ function closeTable(table<record{}>|error? t) {
     }
 }
 
-function testGlobalConnectionPoolSingleDestinationConcurrent() returns (int|string?)[][] {
+function testGlobalConnectionPoolSingleDestinationConcurrent() returns @tainted (int|string?)[][] {
     worker w1 returns [table<record{}>|error,table<record{}>|error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
@@ -146,7 +146,7 @@ function closeTables([table<record{}>|error?, table<record{}>|error?] t) {
     closeTable(y);
 }
 
-function testGlobalConnectionPoolConcurrentHelper1() returns [table<record{}>|error,table<record{}>|error] {
+function testGlobalConnectionPoolConcurrentHelper1() returns @tainted [table<record{}>|error,table<record{}>|error] {
     jdbc:Client testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
@@ -157,7 +157,7 @@ function testGlobalConnectionPoolConcurrentHelper1() returns [table<record{}>|er
     return [dt1, dt2];
 }
 
-function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
+function testGlobalConnectionPoolConcurrentHelper2() returns @tainted (int|string?)[] {
     jdbc:Client testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
             username: "SA",
@@ -175,7 +175,7 @@ function testGlobalConnectionPoolConcurrentHelper2() returns (int|string?)[] {
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigSingleDestination() returns (int|string?)[] {
+function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted (int|string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
@@ -241,7 +241,7 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns (int|str
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|string?)[] {
+function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tainted (int|string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
@@ -319,7 +319,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns (int|
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns [int|string, int|string, int|string, int|string] {
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @tainted [int|string, int|string, int|string, int|string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
@@ -396,7 +396,7 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper1(jdbc:PoolOptions
     checkpanic testDB1.stop();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions poolOptions) returns int|string {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions poolOptions) returns @tainted (int|string) {
     jdbc:Client testDB2;
     runtime:sleep(10);
     testDB2 = new({
@@ -413,7 +413,7 @@ function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions
     return count;
 }
 
-function testShutDownUnsharedLocalConnectionPool() returns [int|string, int|string] {
+function testShutDownUnsharedLocalConnectionPool() returns @tainted [int|string, int|string] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
             username: "SA",
@@ -431,7 +431,7 @@ function testShutDownUnsharedLocalConnectionPool() returns [int|string, int|stri
     return [retVal1, retVal2];
 }
 
-function testShutDownSharedConnectionPool() returns [int|string, int|string, int|string, int|string, int|string] {
+function testShutDownSharedConnectionPool() returns @tainted [int|string, int|string, int|string, int|string, int|string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
@@ -478,7 +478,7 @@ function testShutDownSharedConnectionPool() returns [int|string, int|string, int
     return [retVal1, retVal2, retVal3, retVal4, retVal5];
 }
 
-function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string, int|string, int|string, int|string] {
+function testShutDownPoolCorrespondingToASharedPoolConfig() returns @tainted [int|string, int|string, int|string, int|string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
@@ -521,7 +521,7 @@ function testShutDownPoolCorrespondingToASharedPoolConfig() returns [int|string,
     return [retVal1, retVal2, retVal3, retVal4];
 }
 
-function testStopClientUsingGlobalPool() returns [int|string, int|string] {
+function testStopClientUsingGlobalPool() returns @tainted [int|string, int|string] {
     // This client doesn't have pool config specified therefore, global pool will be used.
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
@@ -542,13 +542,13 @@ function testStopClientUsingGlobalPool() returns [int|string, int|string] {
     return [retVal1, retVal2];
 }
 
-function testLocalConnectionPoolShutDown() returns [int|string, int|string] {
+function testLocalConnectionPoolShutDown() returns @tainted [int|string, int|string] {
     int|string count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
     int|string count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
     return [count1, count2];
 }
 
-function getOpenConnectionCount(string dbName) returns int|string {
+function getOpenConnectionCount(string dbName) returns @tainted (int|string) {
     string jdbcUrl = "jdbc:h2:file:./target/tempdb/" + dbName;
     jdbc:Client testDB = new({
             url: jdbcUrl,

@@ -114,6 +114,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",

@@ -26,4 +26,9 @@ under the License.
             <!--<package name="org.ballerinalang.packerina.init"/>-->
         </packages>
     </test>
+    <test name="ballerina-compiler-util-test-suite" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerinalang.compiler.util"/>
+        </packages>
+    </test>
 </suite>

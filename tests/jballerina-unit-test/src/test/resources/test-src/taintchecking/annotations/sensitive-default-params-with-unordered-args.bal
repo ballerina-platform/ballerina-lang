@@ -3,13 +3,13 @@ public function main(string... args) {
     testFunctionRequiredParamAndDefaultableParams("static", defaultableInput2 = args[0]);
 }
 
-function testFunctionWithDefaultableParamsOnly(@sensitive string defaultableInput1 = "x",
+function testFunctionWithDefaultableParamsOnly(@untainted string defaultableInput1 = "x",
                                                string defaultableInput2 = "y") {
 
 }
 
 
-function testFunctionRequiredParamAndDefaultableParams(string requiredParam, @sensitive string defaultableInput1 = "x",
+function testFunctionRequiredParamAndDefaultableParams(string requiredParam, @untainted string defaultableInput1 = "x",
                                                        string defaultableInput2 = "y") {
 
 }
