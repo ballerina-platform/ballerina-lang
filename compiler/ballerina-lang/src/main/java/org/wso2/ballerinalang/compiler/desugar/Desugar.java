@@ -5690,9 +5690,9 @@ public class Desugar extends BLangNodeVisitor {
         int varDefIndex = 0;
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
-                varDefIndex = i;
                 break;
             }
+            varDefIndex++;
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
@@ -5707,6 +5707,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = varDefIndex; i < stmts.size(); i++) {
             BLangStatement stmt = stmts.get(i);
             chunkStmts.add(stmt);
+            varDefIndex++;
             if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
                     (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
                     (newFunc.body.stmts.size() + chunkStmts.size() > methodSize)) {
@@ -5718,15 +5719,27 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 newFunc.body.stmts.addAll(chunkStmts);
                 chunkStmts.clear();
+            } else if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).varRef instanceof BLangPackageVarRef) &&
+                    Symbols.isFlagOn(((BLangPackageVarRef) ((BLangAssignment) stmt).varRef).varSymbol.flags,
+                            Flags.LISTENER)
+            ) {
+                // this is where listener registrations starts, they are independent stmts
+                break;
             }
         }
-
-        if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
-            generatedFunctions.add(newFunc);
-            newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
-            symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
-        }
         newFunc.body.stmts.addAll(chunkStmts);
+
+        // rest of the statements can be split without chunks
+        for (int i = varDefIndex; i < stmts.size(); i++) {
+            if (i > 0 && i % methodSize == 0) {
+                generatedFunctions.add(newFunc);
+                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+            }
+            newFunc.body.stmts.add(stmts.get(i));
+        }
+
         generatedFunctions.add(newFunc);
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
