@@ -1187,11 +1187,11 @@ public class Types {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+    public boolean checkListenerCompatibility(BType type) {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
-        final BSymbol bSymbol = symResolver.lookupSymbol(env, Names.ABSTRACT_LISTENER, SymTag.TYPE);
+        final BSymbol bSymbol = symTable.langObjectModuleSymbol.scope.lookup(Names.ABSTRACT_LISTENER).symbol;
         if (bSymbol == symTable.notFoundSymbol || bSymbol.type.tag != TypeTags.OBJECT) {
             throw new AssertionError("AbstractListener object not defined.");
         }
