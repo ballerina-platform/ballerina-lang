@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.BServiceUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -77,8 +76,7 @@ public class TimerServiceTest {
             expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
     )
     public void testListenerTimerNegativeInterval() {
-        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_negative_interval.bal");
-        BServiceUtil.runService(compileResult);
+        BCompileUtil.compile("listener/timer/service_negative_interval.bal");
     }
 
     @Test(
@@ -87,8 +85,7 @@ public class TimerServiceTest {
             expectedExceptionsMessageRegExp = ".*Timer scheduling delay should be a non-negative value.*"
     )
     public void testListenerTimerNegativeDelay() {
-        CompileResult compileResult = BCompileUtil.compile("listener/timer/service_negative_delay.bal");
-        BServiceUtil.runService(compileResult);
+        BCompileUtil.compile("listener/timer/service_negative_delay.bal");
     }
 
     @Test(description = "Tests a timer listener without delay field")
