@@ -20,14 +20,14 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -37,29 +37,27 @@ import javax.jms.Message;
  * Set a string property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "clearProperties",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = JmsConstants.ERROR_OBJ_NAME,
-                                  structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)},
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class ClearProperties extends AbstractBlockingAction {
+public class ClearProperties extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
+    public static Object clearProperties(Strand strand, ObjectValue msgObj) {
+
+        Message message = JmsUtils.getJMSMessage(msgObj);
         try {
             message.clearProperties();
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when clearing the message properties", context, e);
+            return BallerinaAdapter.getError("Error when clearing the message properties", e);
         }
+        return null;
     }
+
 }

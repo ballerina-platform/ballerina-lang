@@ -246,7 +246,7 @@ function buildResponse(ResponseMessage message) returns Response {
 # + path - Resource path
 # + outRequest - A Request struct
 # + requestAction - `HttpOperation` related to the request
-# + httpClient - HTTP client which uses to call the relavant functions
+# + httpClient - HTTP client which uses to call the relevant functions
 # + verb - HTTP verb used for submit method
 # + return - The response for the request or an `error` if failed to establish communication with the upstream server
 public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
@@ -342,22 +342,22 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = untaint bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, contentType = <@untainted> bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = untaint inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, contentType = <@untainted> inRequest.getContentType());
     }
     return inRequest;
 }
 
-function isMultipartRequest(Request request) returns boolean {
+function isMultipartRequest(Request request) returns @tainted boolean {
     return request.hasHeader(mime:CONTENT_TYPE) &&
         request.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function isNestedEntity(mime:Entity entity) returns boolean {
+function isNestedEntity(mime:Entity entity) returns @tainted boolean {
     return entity.hasHeader(mime:CONTENT_TYPE) &&
         entity.getHeader(mime:CONTENT_TYPE).hasPrefix(MULTIPART_AS_PRIMARY_TYPE);
 }

@@ -4,8 +4,7 @@ function name1() {
         var s2 =- a ;
         var s3 =   + a ;
         var s4 =~ a ;
-        var s5 =  untaint    a;
-        var s6 =!  a ;
+        var s5 =!  a ;
 }
 
 function name2() {
@@ -19,8 +18,6 @@ function name2() {
     var s4 =
   ~    a;
     var s5 =
-      untaint     a;
-    var s6 =
                 !   a;
 }
 
@@ -41,10 +38,6 @@ function name3() {
            a
  ;
     var s5 =
-untaint
-   a
-     ;
-    var s6 =
         !
 a
        ;

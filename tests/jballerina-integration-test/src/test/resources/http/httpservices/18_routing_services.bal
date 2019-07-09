@@ -45,7 +45,7 @@ service contentBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                checkpanic conn->respond(untaint result);
+                checkpanic conn->respond(<@untainted> result);
             } else  {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -54,7 +54,7 @@ service contentBasedRouting on serviceEP {
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                checkpanic conn->respond(untaint result);
+                checkpanic conn->respond(<@untainted> result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -80,7 +80,7 @@ service headerBasedRouting on serviceEP {
         if (nameString == nyseString) {
             var result = nyseEP2 -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                checkpanic caller->respond(untaint result);
+                checkpanic caller->respond(<@untainted> result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");
@@ -89,7 +89,7 @@ service headerBasedRouting on serviceEP {
         } else {
             var result = nasdaqEP -> post("/stocks", clientRequest);
             if (result is http:Response) {
-                checkpanic caller->respond(untaint result);
+                checkpanic caller->respond(<@untainted> result);
             } else {
                 clientResponse.statusCode = 500;
                 clientResponse.setPayload("Error sending request");

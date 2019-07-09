@@ -11,15 +11,11 @@ public type userPFoo object {
         self.address = address;
     }
 
-    public function getName () returns (string);
+    public function getName () returns string {
+        return self.name + ":userPFoo";
+    }
 
-    public function getAge () returns (int);
+    public function getAge () returns int {
+        return self.age;
+    }
 };
-
-public function userPFoo.getName () returns (string) {
-    return self.name + ":userPFoo";
-}
-
-public function userPFoo.getAge () returns (int) {
-    return self.age;
-}
