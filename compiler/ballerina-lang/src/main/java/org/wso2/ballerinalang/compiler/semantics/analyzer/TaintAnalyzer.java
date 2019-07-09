@@ -2090,7 +2090,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
                     // Pick the index of this defaultable parameter in the invokable definition.
                     int paramIndex = 0;
-                    for (int defaultableParamIndex = 0; defaultableParamIndex < requiredParamCount; defaultableParamIndex++) {
+                    for (int defaultableParamIndex = 0; defaultableParamIndex < requiredParamCount;
+                         defaultableParamIndex++) {
                         BVarSymbol defaultableParam = invokableSymbol.params.get(defaultableParamIndex);
                         if (defaultableParam.name.value.equals(currentNamedArgExprName)) {
                             paramIndex = defaultableParamIndex;
