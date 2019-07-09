@@ -33,11 +33,11 @@ public interface EmbeddedExecutor {
      * @param args The arguments for the function.
      * @return Program execution output.
      */
-    Optional<EmbeddedExecutorError> executeFunction(String programArg, String... args);
+    Optional<EmbeddedExecutorError> executeFunction(String methodName, String... args);
     
     /**
      * Executes a service of a balx file.
      * @param balxPath Path of the balx.
      */
-    void executeService(String balxPath);
+    void executeService(String methodName);
 }

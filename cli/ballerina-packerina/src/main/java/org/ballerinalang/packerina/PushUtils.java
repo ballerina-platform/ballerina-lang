@@ -23,7 +23,6 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.util.EmbeddedExecutorError;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -39,6 +38,8 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -163,16 +164,17 @@ public class PushUtils {
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
-            Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_push/packaging_push.balx",
-                    accessToken, mdFileContent, description, repositoryURL, authors, keywords,
-                    license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
-                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
-            if (execute.isPresent()) {
-                String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
-                if (!errorMessage.trim().equals("")) {
-                    SYS_ERR.println(errorMessage);
-                    return false;
-                }
+    
+            try {
+                Class<?> modulePullClass = Class.forName("packaging_push.__init");
+                Method mainMethod = modulePullClass.getMethod("main", String[].class);
+                String[] params = {accessToken, mdFileContent, description, repositoryURL, authors, keywords,
+                                   license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
+                                   proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                                   baloVersionOfPkg};
+                mainMethod.invoke(null, new Object[] {params});
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw createLauncherException("error occurred executing push command");
             }
         } else {
             if (!installToRepo.equals("home")) {
@@ -193,8 +195,7 @@ public class PushUtils {
 
         if (accessToken.isEmpty()) {
             try {
-                SYS_ERR.println("Opening the web browser to " +
-                                        BALLERINA_CENTRAL_CLI_TOKEN +
+                SYS_ERR.println("Opening the web browser to " + BALLERINA_CENTRAL_CLI_TOKEN +
                                         " for auto token update ...");
 
                 BrowserLauncher.startInDefaultBrowser(BALLERINA_CENTRAL_CLI_TOKEN);
@@ -203,7 +204,16 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.executeService("packaging_token_updater/packaging_token_updater.balx");
+            try {
+                Class<?> modulePullClass = Class.forName("packaging_token_updater.__init");
+                Method mainMethod = modulePullClass.getMethod("main", String[].class);
+                String[] params = {};
+                mainMethod.invoke(null, new Object[] {params});
+                
+            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+                    InvocationTargetException e) {
+                throw createLauncherException("Error occurred in adding user CLI token");
+            }
 
             boolean waitForToken = true;
             while (waitForToken) {
