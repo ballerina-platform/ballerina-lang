@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.spi;
 
-import org.ballerinalang.util.EmbeddedExecutorError;
-
 import java.util.Optional;
 
 /**
@@ -33,11 +31,11 @@ public interface EmbeddedExecutor {
      * @param args The arguments for the function.
      * @return Program execution output.
      */
-    Optional<EmbeddedExecutorError> executeFunction(String methodName, String... args);
+    Optional<RuntimeException> executeMainFunction(String moduleName, String... args);
     
     /**
      * Executes a service of a balx file.
      * @param balxPath Path of the balx.
      */
-    void executeService(String methodName);
+    Optional<RuntimeException> executeService(String moduleName);
 }
