@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.nio.channels.SelectableChannel;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -32,30 +32,37 @@ import java.util.concurrent.Semaphore;
  */
 public class SocketService {
 
-    private SelectableChannel socketChannel;
-    private Map<String, Resource> resources;
     private Semaphore resourceLock = new Semaphore(1);
+    private SelectableChannel socketChannel;
     private long readTimeout;
+    private ObjectValue service;
+    private Scheduler scheduler;
 
-    public SocketService(SelectableChannel socketChannel, Map<String, Resource> resources, long readTimeout) {
+    public SocketService(SelectableChannel socketChannel, Scheduler scheduler, ObjectValue service, long readTimeout) {
         this.socketChannel = socketChannel;
-        this.resources = resources;
+        this.scheduler = scheduler;
+        this.service = service;
         this.readTimeout = readTimeout;
     }
 
-    public SocketService(Map<String, Resource> resources) {
-        this.resources = resources;
+    public SocketService(Scheduler scheduler, ObjectValue service) {
+        this.scheduler = scheduler;
+        this.service = service;
     }
 
     SelectableChannel getSocketChannel() {
         return socketChannel;
     }
 
-    public Map<String, Resource> getResources() {
-        return resources;
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
-    public Semaphore getResourceLock() {
+    public ObjectValue getService() {
+        return service;
+    }
+
+    Semaphore getResourceLock() {
         return resourceLock;
     }
 

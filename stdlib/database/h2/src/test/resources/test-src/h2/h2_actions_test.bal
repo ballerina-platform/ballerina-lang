@@ -28,7 +28,7 @@ public type Result record {
     int val;
 };
 
-function testSelect() returns int[] {
+function testSelect() returns @tainted int[] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -74,7 +74,7 @@ function testUpdate() returns int {
     return insertCount;
 }
 
-function testCall() returns string {
+function testCall() returns @tainted string {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -91,7 +91,8 @@ function testCall() returns string {
     } else if (ret is ()) {
         return "nil";
     } else {
-        return <string>ret.detail().message;
+        error e = ret;
+        return <string>e.detail().message;
     }
 
     string name = "";
@@ -121,7 +122,8 @@ function testGeneratedKeyOnInsert() returns string|int {
     if (x is sql:UpdateResult) {
         returnVal = x.updatedRowCount;
     } else {
-        returnVal = <string>x.detail().message;
+        error e = x;
+        returnVal = <string>e.detail().message;
     }
 
     checkpanic testDB.stop();
@@ -165,7 +167,7 @@ function testBatchUpdate() returns int[] {
     return ret;
 }
 
-function testUpdateInMemory() returns [int, string] {
+function testUpdateInMemory() returns @tainted [int, string] {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",
@@ -235,7 +237,7 @@ function testInitWithInvalidDbOptions() returns int[] {
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns int {
+             returns @tainted int {
     h2:Client testDB = new({
             path: "./target/H2Client/",
             name: "TestDBH2",

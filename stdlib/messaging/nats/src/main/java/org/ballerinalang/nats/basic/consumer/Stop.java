@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
@@ -51,13 +52,13 @@ public class Stop {
     private static final Logger LOG = LoggerFactory.getLogger(Stop.class);
 
     public static void stop(Strand strand, ObjectValue listenerObject) {
-        ObjectValue connnectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
-        if (connnectionObject == null) {
+        ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
+        if (connectionObject == null) {
             LOG.debug("Connection object reference not exists. Possibly connection already closed.");
             return;
         }
         Connection natsConnection =
-                (Connection) connnectionObject.getNativeData(Constants.NATS_CONNECTION);
+                (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
             LOG.debug("NATS connection not exists. Possibly connection already closed.");
             listenerObject.set(Constants.CONNECTION_OBJ, null);
@@ -67,13 +68,11 @@ public class Stop {
         List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
         dispatcherList.forEach(natsConnection::closeDispatcher);
 
-        @SuppressWarnings("unchecked")
-        List<ObjectValue> clientlist =
-                (List<ObjectValue>) connnectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
-        clientlist.remove(listenerObject);
+        int clientsCount =
+                ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
         listenerObject.set(Constants.CONNECTION_OBJ, null);
 
-        if (clientlist.size() == 0) {
+        if (clientsCount == 0) {
             // Actual NATS connection is not used in any other clients. So we can close the actual connection.
             try {
                 natsConnection.close();

@@ -1,6 +1,7 @@
+import { WebviewPanel } from "vscode";
 
 export interface WebViewMethodHandler {
-    (args: any[]) : Thenable<any> | void | any;
+    (args: any[], webviewPanel: WebviewPanel) : Thenable<any> | void | any;
 }
 
 export interface WebViewMethod {

@@ -24,6 +24,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Close a given connection in the NATS server.
@@ -60,8 +61,8 @@ public class Close extends BlockingNativeCallableUnit {
     }
 
     public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
-        List connectedList = (List) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS);
-        if (connectedList == null || connectedList.isEmpty() || TypeChecker.anyToBoolean(forceful)) {
+        int clientCount = ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).get();
+        if (clientCount == 0 || isForceShutdown(forceful)) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             try {
                 if (natsConnection != null) {
@@ -74,14 +75,17 @@ public class Close extends BlockingNativeCallableUnit {
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while closing the connection " +
                         "with nats server. " + e.getMessage());
             }
-        }
-        if (!TypeChecker.anyToBoolean(forceful)) {
-            String message = "Connection is still used by " + connectedList.size() + "client(s). Close them before " +
+        } else {
+            String message = "Connection is still used by " + clientCount + " client(s). Close them before " +
                     "closing the connection.";
             LOG.warn(message);
             console.println(message);
             connectionObject.addNativeData(Constants.CLOSING, true);
         }
         return null;
+    }
+
+    private static boolean isForceShutdown(Object forceful) {
+        return (TypeChecker.getType(forceful).getTag() == TypeTags.BOOLEAN_TAG && (Boolean) forceful);
     }
 }

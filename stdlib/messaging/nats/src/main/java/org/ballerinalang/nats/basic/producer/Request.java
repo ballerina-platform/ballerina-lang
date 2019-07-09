@@ -81,8 +81,9 @@ public class Request extends BlockingNativeCallableUnit {
                 } else {
                     reply = incoming.get();
                 }
+                ArrayValue msgData = new ArrayValue(reply.getData());
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
-                        Constants.NATS_MESSAGE_OBJ_NAME, reply.getData(), reply.getSubject(), reply.getReplyTo());
+                        Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (IllegalArgumentException | IllegalStateException | InterruptedException

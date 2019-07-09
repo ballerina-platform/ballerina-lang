@@ -35,7 +35,7 @@ import ballerina/crypto;
 # has subscriptions on the subject being published to.
 # + secureSocket - SSL/TLS related options
 public type ConnectionConfig record {|
-  string connectionName = "nats";
+  string connectionName = "ballerina-nats";
   int maxReconnect = 60;
   int reconnectWait = 2;
   int connectionTimeout = 2;
@@ -53,48 +53,9 @@ public type ConnectionConfig record {|
 #
 # + trustStore - Configurations associated with TrustStore
 # + keyStore - Configurations associated with KeyStore
-# + certFile - A file containing the certificate of the client
-# + keyFile - A file containing the private key of the client
-# + keyPassword - Password of the private key if it is encrypted
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
-# + protocol - SSL/TLS protocol related options
-# + certValidation - Certificate validation against CRL or OCSP related options
-# + ciphers - List of ciphers to be used
-#             eg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
-# + verifyHostname - Enable/disable host name verification
-# + shareSession - Enable/disable new SSL session creation
-# + ocspStapling - Enable/disable OCSP stapling
+# + protocol - The standard name of the requested protocol.
 public type SecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
-    string certFile = "";
-    string keyFile = "";
-    string keyPassword = "";
-    string trustedCertFile = "";
-    Protocols? protocol = ();
-    ValidateCert? certValidation = ();
-    string[] ciphers = [];
-    boolean verifyHostname = true;
-    boolean shareSession = true;
-    boolean ocspStapling = false;
-|};
-
-# Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
-#
-# + name - SSL Protocol to be used. eg TLS1.2
-# + versions - SSL/TLS protocols to be enabled. eg TLSv1,TLSv1.1,TLSv1.2
-public type Protocols record {|
-    string name = "";
-    string[] versions = [];
-|};
-
-# ValidateCert record represents options related to check whether a certificate is revoked or not.
-#
-# + enable - The status of validateCertEnabled
-# + cacheSize - Maximum size of the cache
-# + cacheValidityPeriod - Time duration of cache validity period
-public type ValidateCert record {|
-    boolean enable = false;
-    int cacheSize = 0;
-    int cacheValidityPeriod = 0;
+    string protocol = "TLS";
 |};

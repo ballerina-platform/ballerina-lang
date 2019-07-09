@@ -32,6 +32,8 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 
 /**
  * Handles incoming message for a given subscription.
+ *
+ * @since 1.0.0
  */
 public class DefaultMessageHandler implements MessageHandler {
     /**
@@ -60,13 +62,12 @@ public class DefaultMessageHandler implements MessageHandler {
     /**
      * Represents the callback which will be triggered upon submitting to resource.
      */
-    private static class ResponseCallback implements CallableUnitCallback {
+    public static class ResponseCallback implements CallableUnitCallback {
         /**
          * {@inheritDoc}
          */
         @Override
         public void notifySuccess() {
-
             // Nothing to do on success
         }
 
@@ -75,7 +76,7 @@ public class DefaultMessageHandler implements MessageHandler {
          */
         @Override
         public void notifyFailure(ErrorValue error) {
-            ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
+            ErrorHandlerUtils.printError(error);
         }
     }
 }

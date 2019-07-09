@@ -33,44 +33,15 @@ public type StreamingProducer client object {
     #           elapses while waiting for the acknowledgement OR
     #           `nats/NatsError` only with the `message` field in case an error occurrs even before publishing
     #           is completed
-    public function publish(string subject, ContentType data) returns string | error {
-        string | byte[] | error converted;
-        if (data is boolean) {
-            converted = string.convert(data);
-        } else if (data is string) {
-            converted = string.convert(data);
-        } else if (data is int) {
-            converted = string.convert(data);
-        } else if (data is float) {
-            converted = string.convert(data);
-        } else if (data is decimal) {
-            converted = string.convert(data);
-        } else if (data is xml) {
-            converted = string.convert(data);
-        } else if (data is json) {
-            converted = string.convert(data);
-        } else if (data is record{}) {
-            json | error jsonConverted = json.convert(data);
-            if (jsonConverted is json) {
-                converted = string.convert(jsonConverted);
-            } else {
-                converted = jsonConverted;
-            }
-        } else {
-            converted = data;
-        }
+    public function publish(string subject, ContentType data) returns string | NatsError {
+        string | byte[] | error converted = convertData(data);
         if (converted is error) {
-            return converted;
+            return prepareNatsError("Error in data conversion", err = converted);
         } else {
             return self.externPublish(subject, converted);
         }
     }
 
-    function externPublish(string subject, string | byte[] data) returns string | error = external;
+    function externPublish(string subject, string | byte[] data) returns string | NatsError = external;
 
 };
-
-public type ContentType byte[] | boolean | string | int | float | decimal | xml | json | record {};
-
-
-

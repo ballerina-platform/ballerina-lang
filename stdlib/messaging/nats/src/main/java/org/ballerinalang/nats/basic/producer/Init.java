@@ -24,7 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
 
@@ -42,10 +42,8 @@ import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
 )
 public class Init {
 
-    @SuppressWarnings("unchecked")
     public static void init(Strand strand, ObjectValue producerObject, ObjectValue connectionObject) {
         // This is to add producer to the connected client list in connection object.
-        List<ObjectValue> connectedList = (List<ObjectValue>) connectionObject.getNativeData(CONNECTED_CLIENTS);
-        connectedList.add(producerObject);
+        ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
     }
 }

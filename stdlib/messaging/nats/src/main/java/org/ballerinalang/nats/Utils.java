@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nats;
 
+import io.nats.client.Message;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
@@ -30,6 +31,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.StandardCharsets;
@@ -95,5 +97,19 @@ public class Utils {
             throw new BallerinaException("Unable to find a supported data type to bind the message data");
         }
         return dispatchedData;
+    }
+
+    public static ObjectValue getMessageObject(Message message) {
+        ObjectValue msgObj;
+        if (message != null) {
+            ArrayValue msgData = new ArrayValue(message.getData());
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                    Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
+        } else {
+            ArrayValue msgData = new ArrayValue(new byte[0]);
+            msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
+                    Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
+        }
+        return msgObj;
     }
 }
