@@ -54,25 +54,25 @@ public class FieldAccessTest {
                               "for non-required field 'id'", 32, 9);
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
                               "for non-required field 'salary'", 33, 9);
-        validateError(negativeResult, i++, "invalid operation: type 'Employee|Person' does not support field access " +
-                "for non-required field 'salary'", 39, 9);
-        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int|string'", 56, 17);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|string'", 57, 15);
+        validateError(negativeResult, i++, "invalid operation: type '(Employee|Person)' does not support field access" +
+                " for non-required field 'salary'", 39, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 57, 15);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>' does not support field access",
                       62, 16);
-        validateError(negativeResult, i++, "invalid operation: type 'map<string>|EmployeeTwo' does not support " +
+        validateError(negativeResult, i++, "invalid operation: type '(map<string>|EmployeeTwo)' does not support " +
                               "field access", 68, 16);
         validateError(negativeResult, i++, "invalid operation: type 'EmployeeTwo?' does not support field access",
                       74, 17);
-        validateError(negativeResult, i++, "invalid operation: type 'map<string>|map<int>' does not support " +
+        validateError(negativeResult, i++, "invalid operation: type '(map<string>|map<int>)' does not support " +
                               "field access", 80, 20);
-        validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 85, 14);
-        validateError(negativeResult, i++, "incompatible types: expected 'json', found 'json|error'", 90, 14);
-        validateError(negativeResult, i++, "invalid operation: type 'json|error' does not support field access", 96,
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 85, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 90, 14);
+        validateError(negativeResult, i++, "invalid operation: type '(json|error)' does not support field access", 96,
                       22);
-        validateError(negativeResult, i++, "incompatible types: expected 'map<json>|error', " +
-                              "found 'map<json>|json|error'", 102, 26);
-        validateError(negativeResult, i, "incompatible types: expected 'map<json>', found 'json|map<json>|error'",
+        validateError(negativeResult, i++, "incompatible types: expected '(map<json>|error)', " +
+                              "found '(map<json>|json|error)'", 102, 26);
+        validateError(negativeResult, i, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
                       106, 20);
     }
 
