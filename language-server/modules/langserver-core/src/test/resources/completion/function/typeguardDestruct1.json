@@ -25,7 +25,7 @@
       "label": "error",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "190",
+      "sortText": "110",
       "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
       "insertTextFormat": "Snippet"
     },
@@ -298,7 +298,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -375,6 +375,29 @@
       "sortText": "140",
       "insertText": "http",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jms;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/jwt",
@@ -1178,29 +1201,6 @@
             }
           },
           "newText": "import ballerina/mime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jms;\n"
         }
       ]
     },

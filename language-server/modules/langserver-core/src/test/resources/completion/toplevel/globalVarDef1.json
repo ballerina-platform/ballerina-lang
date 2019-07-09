@@ -105,6 +105,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jms;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
@@ -849,28 +871,6 @@
             }
           },
           "newText": "import ballerina/mime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jms",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jms;\n"
         }
       ]
     },
