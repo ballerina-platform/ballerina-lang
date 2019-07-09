@@ -56,15 +56,15 @@ public class OptionalFieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 41, 14);
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support optional field access" +
                 " for field 'salary'", 42, 9);
-        validateError(negativeResult, i++, "incompatible types: expected 'json?', found 'json|error'", 47, 16);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int|float?'", 53, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'json?', found '(json|error)'", 47, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|float)?'", 53, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<int>' does not support optional field " +
                 "access", 58, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>?' does not support optional field " +
                 "access", 61, 19);
-        validateError(negativeResult, i++, "invalid operation: type 'map<xml>|map<json>' does not support optional " +
+        validateError(negativeResult, i++, "invalid operation: type '(map<xml>|map<json>)' does not support optional " +
                 "field access", 65, 20);
-        validateError(negativeResult, i, "incompatible types: expected 'json', found 'json|error'", 71, 15);
+        validateError(negativeResult, i, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")

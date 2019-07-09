@@ -3126,7 +3126,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(indexExpr, this.env, symTable.stringType);
     }
 
-    private BType addNilForNillableIndexBasedAccess(BLangIndexBasedAccess indexBasedAccessExpr, BType actualType) {
+    private BType addNilForNillableIndexBasedAccess(BType actualType) {
         // index based map/record access always returns a nil-able type for optional/rest fields.
         if (actualType.isNullable()) {
             return actualType;
@@ -3942,7 +3942,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            return ((BMapType) type).constraint;
+            return addNilForNillableIndexBasedAccess(((BMapType) type).constraint);
         }
 
         if (type.tag == TypeTags.RECORD) {
@@ -3951,7 +3951,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType fieldType;
 
-        boolean accessesMap = false;
         boolean nonMatchedRecordExists = false;
 
         LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
@@ -3962,10 +3961,6 @@ public class TypeChecker extends BLangNodeVisitor {
             if (individualFieldType == symTable.semanticError) {
                 nonMatchedRecordExists = true;
                 continue;
-            }
-
-            if (memType.tag == TypeTags.MAP && !accessesMap) {
-                accessesMap = true;
             }
 
             fieldTypeMembers.add(individualFieldType);
@@ -3981,8 +3976,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldType = BUnionType.create(null, fieldTypeMembers);
         }
 
-        return accessesMap || nonMatchedRecordExists ?
-                addNilForNillableIndexBasedAccess(accessExpr, fieldType) : fieldType;
+        return nonMatchedRecordExists ? addNilForNillableIndexBasedAccess(fieldType) : fieldType;
     }
 
     private BType checkRecordIndexBasedAccess(BLangIndexBasedAccess accessExpr, BRecordType record, BType currentType) {
@@ -4003,13 +3997,13 @@ public class TypeChecker extends BLangNodeVisitor {
                         if (actualType == symTable.semanticError) {
                             return actualType;
                         }
-                        return addNilForNillableIndexBasedAccess(accessExpr, actualType);
+                        return addNilForNillableIndexBasedAccess(actualType);
                     }
 
                     if (accessExpr.lhsVar) {
                         return actualType;
                     }
-                    return addNilForNillableIndexBasedAccess(accessExpr, actualType);
+                    return addNilForNillableIndexBasedAccess(actualType);
                 }
 
                 LinkedHashSet<BType> fieldTypes = record.fields.stream()
@@ -4039,7 +4033,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
 
                         if (fieldType != symTable.semanticError) {
-                            fieldType = addNilForNillableIndexBasedAccess(accessExpr, fieldType);
+                            fieldType = addNilForNillableIndexBasedAccess(fieldType);
                         }
                     }
 
