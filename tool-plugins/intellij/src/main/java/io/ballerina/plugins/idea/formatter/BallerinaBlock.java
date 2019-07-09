@@ -221,8 +221,6 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
                         || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
                         || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
-                        || parentElementType == BallerinaTypes.VAR_MATCH_PATTERN
-                        || parentElementType == BallerinaTypes.STATIC_MATCH_PATTERN
                         || parentElementType == BallerinaTypes.RECORD_LITERAL
                         || parentElementType == BallerinaTypes.FOREACH_STATEMENT
                         || parentElementType == BallerinaTypes.LOCK_STATEMENT
@@ -232,7 +230,6 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.CATCH_CLAUSE
                         || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                         || parentElementType == BallerinaTypes.SERVICE_BODY
-                        || parentElementType == BallerinaTypes.ARRAY_LITERAL
                         || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE
                         || parentElementType == BallerinaTypes.ABORTED_CLAUSE
                         || parentElementType == BallerinaTypes.COMMITTED_CLAUSE)) {
@@ -270,9 +267,6 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (childElementType == BallerinaTypes.INVOCATION_ARG_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (childElementType == BallerinaTypes.MATCH_STATEMENT_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.EXPRESSION_LIST
-                && parentElementType == BallerinaTypes.ARRAY_LITERAL) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.OBJECT_BODY) {
             return Indent.getNormalIndent();
@@ -345,10 +339,6 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (myNode.getElementType() == BallerinaTypes.FORK_JOIN_STATEMENT) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.MATCH_STATEMENT_BODY) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.VAR_MATCH_PATTERN) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.STATIC_MATCH_PATTERN) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FOREACH_STATEMENT) {
             childIndent = Indent.getNormalIndent();
