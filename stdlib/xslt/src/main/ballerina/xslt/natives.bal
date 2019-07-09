@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Transforms the XML to another XML/HTML/plain text using XSL transformations.
+# Transforms the single rooted XML to another XML/HTML/plain text using XSL transformations.
 #
 # + input - An XML object which needs to be transformed
 # + xsl - The XSL style sheet as an XML object

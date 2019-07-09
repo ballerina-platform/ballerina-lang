@@ -23,8 +23,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -38,6 +36,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -61,25 +61,19 @@ import javax.xml.transform.stream.StreamResult;
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class PerformXSLT extends BlockingNativeCallableUnit {
-
+public class XsltTransformer {
+    
+    private static final Logger log = LoggerFactory.getLogger(XsltTransformer.class);
     private static final String XSLT_ERROR_RECORD = "XSLTError";
     private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
-    @Override
-    public void execute(Context ctx) {
-
-    }
-
     public static Object performXSLT(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
         try {
-
-            if (!xmlInput.isSingleton()) {
-                return createError(XSLT_ERROR_CODE, OPERATION + "input is not a single rooted xml element");
-            }
-            OMElement omXML = (OMElement) ((XMLItem)((ArrayValue)xmlInput.value()).get(0)).value();
-            OMElement omXSL = (OMElement) ((XMLItem)((ArrayValue)xslInput.value()).get(0)).value();
+            String input = xmlInput.toString();
+            String xsl = xslInput.toString();
+            OMElement omXML = AXIOMUtil.stringToOM(input);
+            OMElement omXSL = AXIOMUtil.stringToOM(xsl);
 
             StAXSource xmlSource = new StAXSource(omXML.getXMLStreamReader());
             StAXSource xslSource = new StAXSource(omXSL.getXMLStreamReader());
@@ -92,6 +86,7 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
             transformer.transform(xmlSource, streamResult);
 
             String resultStr = stringWriter.getBuffer().toString().trim();
+            log.debug("Transformed result : " + resultStr);
 
             if (resultStr.isEmpty()) {
                 return createError(XSLT_ERROR_CODE, OPERATION + "empty result");
@@ -102,7 +97,8 @@ public class PerformXSLT extends BlockingNativeCallableUnit {
         } catch (ClassCastException e) {
             return createError(XSLT_ERROR_CODE, OPERATION + "invalid inputs(s)");
         } catch (Exception e) {
-            return createError(XSLT_ERROR_CODE, OPERATION + e.getMessage());
+            String errMsg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+            return createError(XSLT_ERROR_CODE, OPERATION + errMsg);
         }
     }
 
