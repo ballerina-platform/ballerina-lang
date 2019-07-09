@@ -72,25 +72,18 @@ public type Building object {
         return self.getNameOut();
     }
 
-    public function getNameOut() returns string;
+    public function getNameOut() returns string {
+        return self.name;
+    }
 
-    public function getNameWrapperOutside1() returns string;
+    public function getNameWrapperOutside1() returns string {
+        return self.getName();
+    }
 
-    public function getNameWrapperOutside2() returns string;
-
+    public function getNameWrapperOutside2() returns string {
+        return self.getNameOut();
+    }
 };
-
-public function Building.getNameOut() returns string {
-    return self.name;
-}
-
-public function Building.getNameWrapperOutside1() returns string {
-    return self.getName();
-}
-
-public function Building.getNameWrapperOutside2() returns string {
-    return self.getNameOut();
-}
 
 public type Boy object {
     public int age = 10;

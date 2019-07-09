@@ -38,4 +38,27 @@ public class BLangConstantValue {
     public String toString() {
         return String.valueOf(value);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null) {
+            return false;
+        }
+
+        if (o instanceof BLangConstantValue) {
+            BLangConstantValue that = (BLangConstantValue) o;
+
+            if (this.type.tag != that.type.tag) {
+                return false;
+            }
+
+            return this.value.equals(that.value);
+        }
+
+        return this.value.equals(o);
+    }
 }

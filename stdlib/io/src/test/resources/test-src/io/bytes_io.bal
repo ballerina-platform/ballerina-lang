@@ -19,21 +19,21 @@ import ballerina/io;
 io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
-function initReadableChannel(string filePath) returns error? {
+function initReadableChannel(string filePath) returns @tainted error? {
 
     var result = io:openReadableFile(filePath);
     if (result is io:ReadableByteChannel) {
-        rch = untaint result;
+        rch = <@untainted> result;
     } else {
         return result;
     }
 }
 
 function initWritableChannel(string filePath) {
-    wch = untaint io:openWritableFile(filePath);
+    wch = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
 }
 
-function readBytes(int numberOfBytes) returns byte[]|error {
+function readBytes(int numberOfBytes) returns @tainted byte[]|error {
     var result = rch.read(numberOfBytes);
     if (result is [byte[], int]) {
         var [bytes, val] = result;

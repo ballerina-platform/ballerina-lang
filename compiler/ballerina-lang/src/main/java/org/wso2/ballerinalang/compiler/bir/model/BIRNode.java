@@ -554,9 +554,9 @@ public abstract class BIRNode {
      * @since 1.0.0
      */
     public static class BIRAnnotationValue {
-        public Map<String, BIRAnnotationValueEntry> annotValEntryMap;
+        public Map<String, List<BIRAnnotationValueEntry>> annotValEntryMap;
 
-        public BIRAnnotationValue(Map<String, BIRAnnotationValueEntry> annotValEntryMap) {
+        public BIRAnnotationValue(Map<String, List<BIRAnnotationValueEntry>> annotValEntryMap) {
             this.annotValEntryMap = annotValEntryMap;
         }
     }

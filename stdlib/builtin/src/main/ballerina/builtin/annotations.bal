@@ -14,11 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Denote that the parameter is security sensitive hence tainted data should not be accepted.
-public annotation sensitive on parameter;
-
 # Denote that the return value is tainted.
-public annotation tainted on return;
+public const annotation tainted on parameter, return, source listener, source var;
 
-# Denote that the return value is untainted.
-public annotation untainted on return;
+# Denote that the return value is untainted, parameter expect untainted value, type cast mark value untainted,
+# denote a listener as producing untainted arguments to service resource params.
+public const annotation untainted on return, parameter, source type, source listener;
+
+# Defaultable argument names. This is for internal use.
+#
+# + args - Defaultable argument names are set at compile time.
+public type ArgsData record {|
+    string[] args = [];
+|};
+
+# Defaultable annotation data generated at compile time. This is for internal use.
+public annotation ArgsData DefaultableArgs on function;

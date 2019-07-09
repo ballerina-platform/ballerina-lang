@@ -43,11 +43,12 @@ public type Manager1 object {
         self.name = "John";
         self.salary = 1000.0;
     }
-};
 
-public function Manager1.getName(string greeting = "Hello") returns string {
-    return greeting + " " + self.name;
-}
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
+
+};
 
 public type Employee2 abstract object {
     public float salary;

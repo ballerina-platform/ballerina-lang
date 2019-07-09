@@ -427,10 +427,16 @@ public type PackageParser object {
         var noOfAnnotValueEntries = self.reader.readInt32();
         foreach var i in 0..<noOfAnnotValueEntries {
             var key = self.reader.readStringCpRef();
-            var bType = self.reader.readTypeCpRef();
-            var value = parseLiteralValue(self.reader, bType);
-            AnnotationValueEntry valueEntry = {literalType: bType, value: value};
-            annotValue.valueEntryMap[key] = valueEntry;
+            // read count
+            var noOfValueEntries = self.reader.readInt32();
+            AnnotationValueEntry?[] valueEntries = [];
+            foreach var j in 0..<noOfValueEntries {
+               var bType = self.reader.readTypeCpRef();
+               var value = parseLiteralValue(self.reader, bType);
+               valueEntries[j] = {literalType: bType, value: value};
+            }
+            
+            annotValue.valueEntryMap[key] = valueEntries;
         }
         return annotValue;
     }
