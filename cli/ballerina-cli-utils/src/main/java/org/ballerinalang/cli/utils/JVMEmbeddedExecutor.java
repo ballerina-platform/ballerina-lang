@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,16 +18,22 @@
 package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.util.EmbeddedExecutorError;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * This represents the Ballerina module provider.
@@ -35,14 +41,14 @@ import java.util.Optional;
  * @since 0.964
  */
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
-public class BVMEmbeddedExecutor implements EmbeddedExecutor {
+public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<EmbeddedExecutorError> executeFunction(String programArg, String... args) {
-        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + programArg);
+    public Optional<EmbeddedExecutorError> executeFunction(String clazzName, String... args) {
+        URL resource = JVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + programArg);
         if (resource == null) {
             throw new BLangCompilerException("missing internal modules when executing");
         }
@@ -66,8 +72,8 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public void executeService(String balxPath) {
-        URL resource = BVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + balxPath);
+    public void executeService(String clazzName) {
+        URL resource = JVMEmbeddedExecutor.class.getClassLoader().getResource("META-INF/ballerina/" + balxPath);
         if (resource == null) {
             throw new BLangCompilerException("missing internal modules when executing");
         }
@@ -79,6 +85,47 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
             throw new BLangCompilerException("error reading balx path in executor.");
         }
     }
+    
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, org.ballerinalang.jvm.Scheduler scheduler1) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            Scheduler scheduler = scheduler1;
+            //TODO fix following method invoke to scheduler.schedule()
+            Function<Object[], Object> func = objects -> {
+                try {
+                    return method.invoke(null, objects[0]);
+                } catch (InvocationTargetException e) {
+                    throw (RuntimeException) e.getTargetException();
+                } catch (IllegalAccessException e) {
+                    throw new BallerinaException("Method has private access", e);
+                }
+            };
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            scheduler.start();
+            final Throwable t = out.panic;
+            if (t != null) {
+                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                }
+                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                }
+                if (t instanceof ErrorValue) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                }
+                throw (RuntimeException) t;
+            }
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        }
+    }
+    
+    private static String cleanupFunctionName(BLangIdentifier name) {
+        return name.value.replaceAll("[.:/<>]", "_");
+    }
+    
     
     /**
      * Creates an error object for the embedded executor.
