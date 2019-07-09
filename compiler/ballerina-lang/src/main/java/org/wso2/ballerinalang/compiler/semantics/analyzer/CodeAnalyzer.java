@@ -1307,6 +1307,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         workerSendNode.type = createAccumulatedErrorTypeForMatchingRecive(workerSendNode);
         was.addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
+        validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
     }
 
     private BType createAccumulatedErrorTypeForMatchingRecive(BLangWorkerSend workerSendNode) {
@@ -1380,7 +1381,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         workerReceiveNode.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerReceiveNode);
 
         was.addWorkerAction(workerReceiveNode);
-
     }
 
     public BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerReceive workerReceiveNode) {
@@ -1528,6 +1528,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
+        if (parent.getKind() == NodeKind.BLOCK) {
+            return;
+        }
         while (parent != null) {
             final NodeKind kind = parent.getKind();
             // Allowed node types.
@@ -1538,8 +1541,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
                     || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR
+                    || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
+                    || kind == NodeKind.WORKER_SEND || kind == NodeKind.WAIT_EXPR
                     || kind == NodeKind.GROUP_EXPR) {
                 parent = parent.parent;
+                if (parent.getKind() == NodeKind.BLOCK) {
+                    return;
+                }
                 continue;
             } else if (kind == NodeKind.ELVIS_EXPR
                     && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
@@ -1578,6 +1586,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWaitExpr awaitExpr) {
         analyzeExpr(awaitExpr.getExpression());
+        validateActionParentNode(awaitExpr.pos, awaitExpr);
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
@@ -1616,6 +1625,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         workerFlushExpr.cachedWorkerSendStmts = sendStmts;
+        validateActionParentNode(workerFlushExpr.pos, workerFlushExpr);
     }
 
     private List<BLangWorkerSend> getAsyncSendStmtsOfWorker(WorkerActionSystem currentWorkerAction) {
