@@ -4,7 +4,7 @@
 
   Example,
   
-  Dos
+  **Do's**
     ```ballerina
 
     import ballerina/http;
@@ -17,7 +17,7 @@
     }
 
     ```
-  Don'ts
+  **Don'ts**
   
     ```ballerina
     // This import is indented correctly.
@@ -40,7 +40,7 @@
   ```ballerina
   import ballerina/http;
   ```
-* Imports should be sorted alphabetically, first by the organization name and then the module name.
+* Imports should be sorted alphabetically, first by the organization name and then by the module name.
 
 ## Function definition
 * Do not keep spaces between the function name and the open parentheses `(` of the function signature.
@@ -56,9 +56,9 @@
   ```ballerina
   function Person.getName() {}
   ```
-* If function needs to be split in to new lines, due to exceeding max line length
+* If the function needs to be split in to new lines due to it exceeding the max line length,
   - can break lines from the parameter list by moving a parameter value only to a 
-    new line and indent it with four spaces from the function start position.
+    new line and indenting it with four spaces from the starting position of the function.
     
     Examples,
     ```ballerina
@@ -67,19 +67,19 @@
         ...
     }
     ```
-  - can break before the `returns` keyword and indent it with four spaces from the function start position.
+  - can break before the `returns` keyword and indent it with four spaces from the starting position of the function.
     
-    Examples,
+    Example,
     ```ballerina
     function getAddress(int value, string name)
         returns (string | ()) {
         ...
     }    
     ```
-  - can break after the `returns` keyword and move return value to a new line
-    and indent it with four spaces from the function start.
+  - can break after the `returns` keyword by moving the return value to a new line
+    and indenting it with four spaces from the starting position of the function.
     
-    Examples,
+    Example,
     ```ballerina
     function getAddress(int value, string name) returns
         (string | ()) {
@@ -89,7 +89,7 @@
 
 ## Service definition
 
-* Keep the listener inline to the service signature.
+* Keep the listener inline with the service signature.
   
   Example,
   ```ballerina
@@ -97,8 +97,8 @@
       ...
   }
   ```
-* When formatting resource functions, function definitions block indent each element and
-  follow [function formatting guidelines.](#function-definition).
+* When formatting resource functions and function definitions, block indent each element and
+  follow the [function formatting guidelines.](#function-definition).
   
    Example,
     ```ballerina
@@ -121,7 +121,7 @@
 
 * Block indent each field definition and each function definition on their own line.
 * Init function should be placed before all the other functions. 
-* For function definitions in the object definition, follow [function formatting guidelines](#function-definition).
+* For function definitions in the object definition, follow the [function formatting guidelines](#function-definition).
 
   Example,
   ```ballerina
@@ -171,7 +171,7 @@ Block indent each of the field definitions (including the Rest field) in their o
   ```
 
 ## Referencing record or abstract object 
-* Do not keep spaces between the `*`, and abstract object name or record name.
+* Do not keep spaces between the `*`, the abstract object name, or the record name.
   
   Example,
   ```ballerina
