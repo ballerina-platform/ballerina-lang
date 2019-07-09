@@ -129,7 +129,7 @@ public abstract class BIRNode {
             this.name = name;
             this.scope = scope;
             this.kind = kind;
-            this.metaVarName = metaVarName != null ? metaVarName : "ttttt";
+            this.metaVarName = metaVarName;
         }
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
