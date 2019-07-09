@@ -288,3 +288,14 @@ function testArrayFillWithStreams() returns stream<Obj>[] {
     objStreamArr[1] = objStream;
     return objStreamArr;
 }
+
+type Rec record {
+    int i?;
+    int j = 10;
+};
+
+function testRecordTypeWithOptionalFieldsArrayFill() returns Rec[] {
+    Rec[] x = [];
+    x[1] = {i: 1, j: 2};
+    return x;
+}
