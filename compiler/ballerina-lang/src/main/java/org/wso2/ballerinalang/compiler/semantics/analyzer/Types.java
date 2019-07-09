@@ -588,6 +588,9 @@ public class Types {
             if (source.tag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable(source, target, unresolvedTypes);
             }
+            if(source.tag == TypeTags.MAP){
+                return isAssignable(((BMapType) source).getConstraint(), target, unresolvedTypes);
+            }
         }
 
         if (target.tag == TypeTags.FUTURE && source.tag == TypeTags.FUTURE) {
@@ -909,10 +912,6 @@ public class Types {
 
     public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
         BType collectionType = foreachNode.collection.type;
-        BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
-        BUnionType nextMethodReturnType =
-                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -944,9 +943,7 @@ public class Types {
                 BTableType tableType = (BTableType) collectionType;
                 if (tableType.constraint.tag == TypeTags.NONE) {
                     varType = symTable.anydataType;
-                    foreachNode.varType = varType;
-                    foreachNode.nillableResultType = nextMethodReturnType;
-                    return;
+                    break;
                 }
                 varType = tableType.constraint;
                 break;
@@ -964,6 +961,10 @@ public class Types {
                 return;
         }
 
+        BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
+        BUnionType nextMethodReturnType =
+                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;

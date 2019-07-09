@@ -18,8 +18,8 @@ function concatIntJson(int i, json j) {
     output = output + i + ":" + j.toString() + " ";
 }
 
-function concatIntStringAny(int i, string s, anydata a) {
-    output = output + i + ":" + s + ":" + string.convert(a) + " ";
+function concatIntStringAny(int i, anydata a) {
+    output = output + i + ":" + a.toString() + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -28,8 +28,8 @@ function testJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var [k, v] in check map<json>.convert(jdata) {
-        concatIntStringAny(i, k, v);
+    foreach var v in <map<json>>jdata {
+        concatIntStringAny(i, v);
         i += 1;
     }
     return output;
@@ -39,8 +39,8 @@ function testJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach [string, json] [k, v] in check map<json>.convert(jdata) {
-        concatIntStringAny(i, k, v);
+    foreach json v in <map<json>>jdata {
+        concatIntStringAny(i, v);
         i += 1;
     }
     return output;
@@ -116,8 +116,8 @@ function testDirectAccessInvalidElementWithoutType() returns string|error {
     json j = jdata["random"];
 
     int i = 0;
-    foreach var [k, v] in check map<json>.convert(j) {
-        concatIntStringAny(i, k, v);
+    foreach var v in <map<json>>j {
+        concatIntStringAny(i, v);
         i += 1;
     }
     return output;
@@ -129,8 +129,8 @@ function testDirectAccessInvalidElementWithType() returns string|error {
     json j = jdata["random"];
 
     int i = 0;
-    foreach [string, json] [k, v] in check map<json>.convert(j) {
-        concatIntStringAny(i, k, v);
+    foreach json v in <map<json>>j {
+        concatIntStringAny(i, v);
         i += 1;
     }
     return output;
@@ -142,13 +142,13 @@ function testIteratingCompleteJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var [k, v] in check map<json>.convert(jdata) {
+    foreach var v in <map<json>>jdata {
         if v is json[] {
             foreach var w in v {
-                concatIntStringAny(i, k, w);
+                concatIntStringAny(i, w);
             }
         } else {
-            concatIntStringAny(i, k, v);
+            concatIntStringAny(i, v);
         }
         i += 1;
     }
@@ -159,13 +159,13 @@ function testIteratingCompleteJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach [string, json] [k, v] in check map<json>.convert(jdata) {
+    foreach json v in <map<json>>jdata {
         if v is json[] {
             foreach json w in v {
-                concatIntStringAny(i, k, w);
+                concatIntStringAny(i, w);
             }
         } else {
-            concatIntStringAny(i, k, v);
+            concatIntStringAny(i, v);
         }
         i += 1;
     }
@@ -180,8 +180,8 @@ function testEmptyJsonIteration() returns string|error {
     json j = {};
 
     int i = 0;
-    foreach var [k, v] in check map<json>.convert(j) {
-        concatIntStringAny(i, k, v);
+    foreach var v in <map<json>>j {
+        concatIntStringAny(i, v);
         i += 1;
     }
     return output;

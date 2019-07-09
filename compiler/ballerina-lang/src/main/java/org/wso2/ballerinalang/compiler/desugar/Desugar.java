@@ -1135,25 +1135,15 @@ public class Desugar extends BLangNodeVisitor {
                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangInvocation detailInvocation = createInvocationNode(
                 ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), detailType);
-        detailInvocation.builtinMethodInvocation = true;
         detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
             detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, parentIndexBasedAccess.type);
-            detailInvocation.symbol = symResolver.createSymbolForDetailBuiltInMethod(
-                    ASTBuilderUtil.createIdentifier(parentIndexBasedAccess.pos, ERROR_DETAIL_FUNCTION_NAME),
-                    parentIndexBasedAccess.type);
         } else {
             detailInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
-            BSymbol bSymbol = symResolver.resolveBuiltinOperator(
-                    names.fromString(ERROR_DETAIL_FUNCTION_NAME), errorVarySymbol.type);
-            if (bSymbol == symTable.notFoundSymbol) {
-                bSymbol = symResolver.createSymbolForDetailBuiltInMethod(
-                        ASTBuilderUtil.createIdentifier(parentBlockStmt.pos, ERROR_DETAIL_FUNCTION_NAME),
-                        errorVarySymbol.type);
-            }
-            detailInvocation.symbol = bSymbol;
         }
-
+        detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
+                                                                  names.fromString(ERROR_DETAIL_FUNCTION_NAME));
+        detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
         detailInvocation.type = detailInvocation.symbol.type.getReturnType();
         return detailInvocation;
     }
@@ -1163,7 +1153,6 @@ public class Desugar extends BLangNodeVisitor {
                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangInvocation reasonInvocation = createInvocationNode(ERROR_REASON_FUNCTION_NAME,
                 new ArrayList<>(), reasonType);
-        reasonInvocation.builtinMethodInvocation = true;
         reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
             reasonInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
@@ -1171,10 +1160,11 @@ public class Desugar extends BLangNodeVisitor {
                     names.fromString(ERROR_REASON_FUNCTION_NAME), parentIndexBasedAccess.type);
         } else {
             reasonInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
-            reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
-                    names.fromString(ERROR_REASON_FUNCTION_NAME), errorVarSymbol.type);
         }
 
+        reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
+                                                                  names.fromString(ERROR_REASON_FUNCTION_NAME));
+        reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
         reasonInvocation.type = reasonInvocation.symbol.type.getReturnType();
         return reasonInvocation;
     }

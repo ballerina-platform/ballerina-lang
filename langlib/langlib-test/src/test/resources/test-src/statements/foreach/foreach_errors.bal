@@ -14,12 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
+import ballerina/'lang\.error as lang;
+
+type Detail record {
+    *lang:Detail;
+    boolean fatal;
+};
 
 function testArrayWithErrors() returns [string, string, string] {
-    error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
-    error<string, map<string|boolean>>[3] errorArray = [err1, err2, err3];
+    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
+    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
+    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
+    error<string, Detail>[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
@@ -29,7 +35,7 @@ function testArrayWithErrors() returns [string, string, string] {
     }
 
     string result2 = "";
-    foreach error<string, map<string|boolean>> error(reason2, message = message1, fatal = fatal1) in errorArray {
+    foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errorArray {
         result2 += reason2 + ":";
         any temp2 = message;
         result2 += io:sprintf("%s:", message1);
@@ -40,7 +46,7 @@ function testArrayWithErrors() returns [string, string, string] {
     foreach var error(reason3) in errorArray {
         result3 += reason3 + ":";
     }
-    foreach error<string, map<string|boolean>> error(reason4, ..._) in errorArray {
+    foreach error<string, Detail> error(reason4, ..._) in errorArray {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];
@@ -48,20 +54,20 @@ function testArrayWithErrors() returns [string, string, string] {
 
 
 function testMapWithErrors() returns [string, string, string] {
-    error<string, map<string|boolean>> err1 = error("Error One", message = "msgOne", fatal = true);
-    error<string, map<string|boolean>> err2 = error("Error Two", message = "msgTwo", fatal = false);
-    error<string, map<string|boolean>> err3 = error("Error Three", message = "msgThree", fatal = true);
-    map<error<string, map<string|boolean>>> errMap = { a: err1, b: err2, c: err3 };
+    error<string, Detail> err1 = error("Error One", message = "msgOne", fatal = true);
+    error<string, Detail> err2 = error("Error Two", message = "msgTwo", fatal = false);
+    error<string, Detail> err3 = error("Error Three", message = "msgThree", fatal = true);
+    map<error<string, Detail>> errMap = { a: err1, b: err2, c: err3 };
 
     string result1 = "";
-    foreach var [key, error(reason, message = message, fatal = fatal)] in errMap {
+    foreach var error(reason, message = message, fatal = fatal) in errMap {
         result1 += reason + ":";
         result1 += io:sprintf("%s:", message);
         result1 += io:sprintf("%s:", fatal);
     }
 
     string result2 = "";
-    foreach [string, error<string, map<string|boolean>>] [key, error(reason2, message = message, fatal = fatal)] in errMap {
+    foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errMap {
         result2 += reason2 + ":";
         any temp2 = message;
         if (temp2 is string|boolean|()) {
@@ -71,10 +77,10 @@ function testMapWithErrors() returns [string, string, string] {
     }
 
     string result3 = "";
-    foreach var [key, error(reason3)] in errMap {
+    foreach var error(reason3) in errMap {
         result3 += reason3 + ":";
     }
-    foreach [string, error<string, map<string|boolean>>] [key, error(reason4, ..._)] in errMap {
+    foreach error<string, Detail> error(reason4, ..._) in errMap {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];

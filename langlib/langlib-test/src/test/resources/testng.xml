@@ -29,11 +29,15 @@
     <test name="lang-lib-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
 
+        <packages>
+            <package name="org.ballerinalang.langlib.test.statements.foreach"/>
+        </packages>
+
         <classes>
-            <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
-            <class name="org.ballerinalang.langlib.test.LangLibIntTest" />
-            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
-            <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
+            <!--<class name="org.ballerinalang.langlib.test.LangLibStringTest" />-->
+            <!--<class name="org.ballerinalang.langlib.test.LangLibIntTest" />-->
+            <!--<class name="org.ballerinalang.langlib.test.TypeParamTest" />-->
+            <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachNegativeTests" />-->
         </classes>
     </test>
 </suite>
