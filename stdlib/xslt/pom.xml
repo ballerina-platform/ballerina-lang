@@ -87,69 +87,7 @@
         </dependency>
     </dependencies>
 
-    <!--<repositories>-->
-    <!--<repository>-->
-    <!--<id>wso2-nexus</id>-->
-    <!--<name>WSO2 internal Repository</name>-->
-    <!--<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>-->
-    <!--<releases>-->
-    <!--<enabled>true</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--<checksumPolicy>ignore</checksumPolicy>-->
-    <!--</releases>-->
-    <!--</repository>-->
-
-    <!--<repository>-->
-    <!--<id>wso2.releases</id>-->
-    <!--<name>WSO2 internal Repository</name>-->
-    <!--<url>http://maven.wso2.org/nexus/content/repositories/releases/</url>-->
-    <!--<releases>-->
-    <!--<enabled>true</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--<checksumPolicy>ignore</checksumPolicy>-->
-    <!--</releases>-->
-    <!--</repository>-->
-    <!--</repositories>-->
-
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>wso2.releases</id>-->
-    <!--<name>WSO2 internal Repository</name>-->
-    <!--<url>http://maven.wso2.org/nexus/content/repositories/releases/</url>-->
-    <!--<releases>-->
-    <!--<enabled>true</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--<checksumPolicy>ignore</checksumPolicy>-->
-    <!--</releases>-->
-    <!--</pluginRepository>-->
-
-    <!--<pluginRepository>-->
-    <!--<id>wso2-nexus</id>-->
-    <!--<name>WSO2 internal Repository</name>-->
-    <!--<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>-->
-    <!--<releases>-->
-    <!--<enabled>true</enabled>-->
-    <!--<updatePolicy>daily</updatePolicy>-->
-    <!--<checksumPolicy>ignore</checksumPolicy>-->
-    <!--</releases>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
-
-
     <build>
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>src/main/resources</directory>-->
-                <!--<excludes>-->
-                    <!--<exclude>ballerina/**</exclude>-->
-                <!--</excludes>-->
-            <!--</resource>-->
-            <!--<resource>-->
-                <!--<directory>${project.build.directory}/../src/main/ballerina/target</directory>-->
-                <!--<targetPath>META-INF/ballerina/target</targetPath>-->
-            <!--</resource>-->
-        <!--</resources>-->
-
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

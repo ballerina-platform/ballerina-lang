@@ -39,28 +39,8 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-//    implementation project(':ballerina-utils')
-//    implementation project(':ballerina-io')
-//    implementation project(':ballerina-log-api')
-//    implementation project(':ballerina-runtime-api')
-//    implementation project(':ballerina-builtin')
-//    implementation project(':ballerina-file')
-
     baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-//    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-//    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-//    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-
-//    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
-//    implementation 'org.apache.ws.commons.axiom:axiom-dom'
-//    implementation 'org.jvnet.mimepull:mimepull'
-
-//    testImplementation project(':ballerina-io')
-//    testImplementation project(':ballerina-time')
-//    testImplementation project(':ballerina-internal')
-//    testImplementation project(':ballerina-reflect')
-//    testImplementation project(':ballerina-jvm')
 }
 
 createBalo {

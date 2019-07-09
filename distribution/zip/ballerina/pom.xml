@@ -950,7 +950,6 @@
                                 ballerina-transactions,
                                 ballerina-utils,
                                 ballerina-websub,
-                                ballerina-privacy,
                                 ballerina-xslt,
                                 ballerina-jwt,
                                 ballerina-ldap,
@@ -1159,11 +1158,6 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
-                                    </directory>
-                                </resource>
-                                <resource>
-                                    <directory>
-                                        ${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>
