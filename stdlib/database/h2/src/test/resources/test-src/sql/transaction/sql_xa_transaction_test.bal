@@ -19,7 +19,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testXATransactonSuccess() returns (int, int) {
+function testXATransactonSuccess() returns @tainted (int, int) {
     h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
@@ -56,7 +56,7 @@ function testXATransactonSuccess() returns (int, int) {
     return (count1, count2);
 }
 
-function testXATransactonSuccessWithDataSource() returns (int, int) {
+function testXATransactonSuccessWithDataSource() returns @tainted (int, int) {
     h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
@@ -92,7 +92,7 @@ function testXATransactonSuccessWithDataSource() returns (int, int) {
     return (count1, count2);
 }
 
-function testXATransactonSuccessWithH2Client() returns (int, int) {
+function testXATransactonSuccessWithH2Client() returns @tainted (int, int) {
     h2:Client testDB1 = new({
         path: "./target/H2_1/",
         name: "TestDB1",
@@ -128,7 +128,7 @@ function testXATransactonSuccessWithH2Client() returns (int, int) {
     return (count1, count2);
 }
 
-function testXATransactonFailed1() returns (int, int) {
+function testXATransactonFailed1() returns @tainted (int, int) {
 
     h2:Client testDB1 = new({
         path: "./target/H2_1/",
@@ -170,7 +170,7 @@ function testXATransactonFailed1Helper(h2:Client testDB1, h2:Client testDB2) {
     }
 }
 
-function testXATransactonFailed2() returns (int, int) {
+function testXATransactonFailed2() returns @tainted (int, int) {
 
     h2:Client testDB1 = new({
         path: "./target/H2_1/",
@@ -208,7 +208,7 @@ function testXATransactonFailed2Helper(h2:Client testDB1, h2:Client testDB2) {
     }
 }
 
-function testXATransactonRetry() returns (int, int) {
+function testXATransactonRetry() returns @tainted (int, int) {
 
     h2:Client testDB1 = new({
         path: "./target/H2_1/",

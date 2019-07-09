@@ -21,7 +21,7 @@ function testLength() returns int {
 
 function testMap() returns int[] {
     int[] arr = [10, 20, 30, 40];
-    int[] newArr = arr.^"map"(function (int x) returns int {
+    int[] newArr = arr.'map(function (int x) returns int {
         return x/10;
     });
     return newArr;

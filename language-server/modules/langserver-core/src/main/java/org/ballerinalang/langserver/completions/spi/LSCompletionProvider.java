@@ -424,33 +424,41 @@ public abstract class LSCompletionProvider {
     protected List<CompletionItem> getResourceSnippets(LSContext ctx) {
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CompletionItem> items = new ArrayList<>();
-        if (symbolEnvNode instanceof BLangService) {
-            BLangService service = (BLangService) symbolEnvNode;
-            String owner = service.listenerType.tsymbol.owner.name.value;
-            String serviceTypeName = service.listenerType.tsymbol.name.value;
-            // Only http, grpc have generic resource templates, others will have generic resource snippet
-            switch (owner) {
-                case "http":
-                    if ("Listener".equals(serviceTypeName)) {
-                        items.add(Snippet.DEF_RESOURCE.get().build(ctx));
-                        break;
-                    } else if ("WebSocketListener".equals(serviceTypeName)) {
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
-                        addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
-                        break;
-                    }
-                    return items;
-                case "grpc":
-                    items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+        if (!(symbolEnvNode instanceof BLangService)) {
+            return items;
+        }
+        BLangService service = (BLangService) symbolEnvNode;
+        
+        if (service.listenerType == null) {
+            items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
+            return items;
+        }
+        
+        String owner = service.listenerType.tsymbol.owner.name.value;
+        String serviceTypeName = service.listenerType.tsymbol.name.value;
+        
+        // Only http, grpc have generic resource templates, others will have generic resource snippet
+        switch (owner) {
+            case "http":
+                if ("Listener".equals(serviceTypeName)) {
+                    items.add(Snippet.DEF_RESOURCE_HTTP.get().build(ctx));
                     break;
-                case "websub":
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-                    addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                } else if ("WebSocketListener".equals(serviceTypeName)) {
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_OPEN.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_TEXT.get(), service, items, ctx);
+                    addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
                     break;
-                default:
-                    return items;
-            }
+                }
+                return items;
+            case "grpc":
+                items.add(Snippet.DEF_RESOURCE_GRPC.get().build(ctx));
+                break;
+            case "websub":
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
+                addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
+                break;
+            default:
+                return items;
         }
         return items;
     }

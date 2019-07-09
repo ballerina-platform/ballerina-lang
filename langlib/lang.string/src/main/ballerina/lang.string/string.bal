@@ -54,7 +54,7 @@ public function substring(string str, int startIndex, int endIndex) returns stri
 # for sorted order.
 public function codePointCompare(string str1, string str2) returns int = external;
 
-public function ^"join"(string separator, string... strs) returns string = external;
+public function 'join(string separator, string... strs) returns string = external;
 
 # Returns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`
 # or nil if it does not occur

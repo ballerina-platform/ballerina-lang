@@ -653,6 +653,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
+        symbol.retType = typeDefSymbol.type;
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }

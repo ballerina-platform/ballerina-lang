@@ -2,7 +2,7 @@ import ballerina/mysql;
 
 // The `@sensitive` annotation can be used with the parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.
-function userDefinedSecureOperation(@sensitive string secureParameter) {
+function userDefinedSecureOperation(@untainted string secureParameter) {
 
 }
 

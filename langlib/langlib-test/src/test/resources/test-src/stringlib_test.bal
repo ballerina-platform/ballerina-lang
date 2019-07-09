@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/^"lang.string" as strings;
+import ballerina/'lang\.string as strings;
 
 function testToLower() returns string {
     string str = "Hello Ballerina!";

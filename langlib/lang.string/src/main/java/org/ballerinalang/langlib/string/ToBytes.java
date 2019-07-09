@@ -21,7 +21,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
@@ -31,6 +30,7 @@ import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Convert String to byte array.
@@ -58,14 +58,9 @@ public class ToBytes extends BlockingNativeCallableUnit {
         }
     }
 
-    public static ArrayValue toBytes(Strand strand, String value, String encoding) {
-        StringUtils.checkForNull(value, encoding);
-        try {
-            byte[] bytes = value.getBytes(encoding);
-            return new ArrayValue(bytes);
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    "Unsupported Encoding " + e.getMessage());
-        }
+    public static ArrayValue toBytes(Strand strand, String value) {
+
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        return new ArrayValue(bytes);
     }
 }

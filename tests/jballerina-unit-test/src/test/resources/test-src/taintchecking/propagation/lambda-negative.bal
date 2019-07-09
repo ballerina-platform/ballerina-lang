@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function secureFunction (@sensitive string secureIn, string insecureIn) {
+public function secureFunction (@untainted string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 

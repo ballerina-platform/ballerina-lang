@@ -33,6 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -3046,6 +3047,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        // Usually the parameter for a type-cast-expr includes a type-descriptor.
+        // However, it is also allowed for the parameter to consist only of annotations; in
+        // this case, the only effect of the type cast is for the contextually expected
+        // type for expression to be augmented with the specified annotations.
+
+        // No actual type-cast is implied here.
+        if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
+            result = rewriteExpr(conversionExpr.expr);
+            return;
+        }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }
@@ -4523,7 +4534,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangInvocation invocation = (BLangInvocation) expr;
             invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
 
-            if (Symbols.isFlagOn(invocation.type.tsymbol.flags, Flags.TYPE_PARAM)) {
+            if (TypeParamAnalyzer.isTypeParam(invocation.type)) {
                 BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
                                                                                     symTable.errorType, false, true,
                                                                                     InstructionCodes.NOP, null, null);
@@ -4682,11 +4693,12 @@ public class Desugar extends BLangNodeVisitor {
             recordVarType.fields = fields;
             if (recordVariable.isClosed) {
                 recordVarType.sealed = true;
+                recordVarType.restFieldType = symTable.noType;
             } else {
                 // if rest param is null we treat it as an open record with anydata rest param
                 recordVarType.restFieldType = recordVariable.restParam != null ?
                         ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
-                        symTable.anydataType;
+                        symTable.pureType;
             }
             BLangRecordTypeNode recordTypeNode = createRecordTypeNode(typeDefFields, recordVarType);
             recordTypeNode.pos = bindingPatternVariable.pos;
@@ -4978,8 +4990,7 @@ public class Desugar extends BLangNodeVisitor {
 
         NodeKind kind = accessExpr.expr.getKind();
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
-                kind == NodeKind.INVOCATION) {
+                kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             return safeNavigate((BLangAccessExpression) accessExpr.expr);
         }
 
@@ -5668,9 +5679,9 @@ public class Desugar extends BLangNodeVisitor {
         int varDefIndex = 0;
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
-                varDefIndex = i;
                 break;
             }
+            varDefIndex++;
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
@@ -5685,6 +5696,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = varDefIndex; i < stmts.size(); i++) {
             BLangStatement stmt = stmts.get(i);
             chunkStmts.add(stmt);
+            varDefIndex++;
             if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
                     (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
                     (newFunc.body.stmts.size() + chunkStmts.size() > methodSize)) {
@@ -5696,15 +5708,27 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 newFunc.body.stmts.addAll(chunkStmts);
                 chunkStmts.clear();
+            } else if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).varRef instanceof BLangPackageVarRef) &&
+                    Symbols.isFlagOn(((BLangPackageVarRef) ((BLangAssignment) stmt).varRef).varSymbol.flags,
+                            Flags.LISTENER)
+            ) {
+                // this is where listener registrations starts, they are independent stmts
+                break;
             }
         }
-
-        if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
-            generatedFunctions.add(newFunc);
-            newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
-            symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
-        }
         newFunc.body.stmts.addAll(chunkStmts);
+
+        // rest of the statements can be split without chunks
+        for (int i = varDefIndex; i < stmts.size(); i++) {
+            if (i > 0 && i % methodSize == 0) {
+                generatedFunctions.add(newFunc);
+                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+            }
+            newFunc.body.stmts.add(stmts.get(i));
+        }
+
         generatedFunctions.add(newFunc);
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {

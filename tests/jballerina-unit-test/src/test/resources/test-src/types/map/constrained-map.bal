@@ -37,7 +37,7 @@ function testConstrainedMapStructTypeNegative () returns (Person) {
     map<Person> testMap = {};
     Person jack = {name:"Jack", age:25};
     testMap.item = jack;
-    Person val = testMap.^"item-not";
+    Person val = testMap.'item\-not;
     return val;
 }
 
@@ -568,12 +568,12 @@ function testMapConstrainedToUnionCaseTwo () returns (string|int?) {
 
 function testMapConstrainedToUnionCaseThree () returns (string|int?) {
     map<string|int> testMap = {};
-    return testMap.^"non-existing-key";
+    return testMap.'non\-existing\-key;
 }
 
 function testMapConstrainedStringNonExistingKeyRetrieve () returns (string?) {
     map<string> testMap = {};
-    return testMap.^"nonexist-key";
+    return testMap.'nonexist\-key;
 }
 
 function testMapConstrainedToNullableUnion () returns (string?) {

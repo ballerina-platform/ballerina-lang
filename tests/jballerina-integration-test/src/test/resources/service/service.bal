@@ -23,7 +23,7 @@ service helloWorld on helloWorldEP {
 
    resource function sayHello(http:Caller caller, http:Request req, string name) {
 
-       var result = caller->respond("Hello, World!, " + untaint name);
+       var result = caller->respond("Hello, World!, " + <@untainted> name);
 
    }
 

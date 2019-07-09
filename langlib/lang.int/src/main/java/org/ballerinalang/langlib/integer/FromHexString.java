@@ -18,8 +18,9 @@
 
 package org.ballerinalang.langlib.integer;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,8 +43,7 @@ public class FromHexString {
         try {
             return Long.parseLong(s, 16);
         } catch (NumberFormatException e) {
-            // TODO: 6/20/19 Improve this error value
-            return new ErrorValue(e.getMessage(), null);
+            return BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_PARSING_ERROR, e.getMessage());
         }
     }
 }

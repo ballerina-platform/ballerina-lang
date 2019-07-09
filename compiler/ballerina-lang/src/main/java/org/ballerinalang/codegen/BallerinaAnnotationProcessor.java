@@ -131,7 +131,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             }
             writer.append("\n\"");
             NativeFunctionCodeDef funcDef = (NativeFunctionCodeDef) nativeDef;
-            writer.append(funcDef.org + "/" + funcDef.pkg + "/" + funcDef.name);
+            writer.append(funcDef.org + "/" + funcDef.pkg.replace('.', '_') + "/" + funcDef.name);
             writer.append("\" : \"");
             writer.append(funcDef.className.replace('.', '/'));
             writer.append("\"");
