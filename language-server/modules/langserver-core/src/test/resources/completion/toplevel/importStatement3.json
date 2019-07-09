@@ -258,13 +258,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jms",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "socket",
       "kind": "Module",
       "detail": "Package",
