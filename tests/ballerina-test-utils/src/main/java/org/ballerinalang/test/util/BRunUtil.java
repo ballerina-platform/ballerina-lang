@@ -91,7 +91,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -434,12 +433,12 @@ public class BRunUtil {
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
-        Method declaredMethod =  Arrays.stream(funcClass.getDeclaredMethods())
+        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
                 .filter(method -> functionName.equals(method.getName()))
                 .findAny()
                 .orElse(null);
 
-        if(declaredMethod != null) {
+        if (declaredMethod != null) {
             return declaredMethod;
         } else {
             throw new NoSuchMethodException(functionName + " is not found");
