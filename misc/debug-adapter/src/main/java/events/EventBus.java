@@ -54,7 +54,7 @@ public class EventBus {
     private Breakpoint[] breakpointsList = new Breakpoint[0];
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
 
-    private HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> stackframesMap = new HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]>();
+    private HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> stackframesMap = new HashMap<>();
     AtomicInteger nextStackFrameId = new AtomicInteger();
 
     private Map<Long, Variable[]> variablesMap = new HashMap<>();
@@ -91,7 +91,8 @@ public class EventBus {
             threadsMap.put(threadReference.uniqueID(), threadReference);
             try {
                 List<StackFrame> frames  = threadReference.frames();
-                org.eclipse.lsp4j.debug.StackFrame[] stackFrames = new org.eclipse.lsp4j.debug.StackFrame[frames.size()];
+                org.eclipse.lsp4j.debug.StackFrame[] stackFrames =
+                        new org.eclipse.lsp4j.debug.StackFrame[frames.size()];
                 frames.stream().map(stackFrame -> {
                     org.eclipse.lsp4j.debug.StackFrame dapStackFrame = new org.eclipse.lsp4j.debug.StackFrame();
                     int frameId = nextStackFrameId.getAndIncrement();
@@ -100,7 +101,6 @@ public class EventBus {
                         source.setPath(sourceRoot + stackFrame.location().sourcePath());
                         source.setName(stackFrame.location().sourceName());
                     } catch (AbsentInformationException e) {
-//                        e.printStackTrace();
                     }
                     dapStackFrame.setId((long) frameId);
 
@@ -117,13 +117,11 @@ public class EventBus {
                             }).collect(Collectors.toList()).toArray(dapVariables);
                             variablesMap.put((long) frameId, dapVariables);
                         } catch (AbsentInformationException e) {
-//                            e.printStackTrace();
                         }
                     return dapStackFrame;
                 }).collect(Collectors.toList()).toArray(stackFrames);
                 stackframesMap.put(threadReference.uniqueID(), stackFrames);
             } catch (IncompatibleThreadStateException e) {
-//                e.printStackTrace();
             }
         });
 
@@ -191,9 +189,7 @@ public class EventBus {
                     } catch (VMDisconnectedException e) {
                         TerminatedEventArguments terminatedEventArguments = new TerminatedEventArguments();
                         client.terminated(terminatedEventArguments);
-                        System.out.println("VM is now disconnected.");
                     } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
         );

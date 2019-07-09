@@ -23,6 +23,7 @@ import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -31,6 +32,8 @@ import java.util.Map;
 public class DebuggerAttachingVM {
     private int port;
     private VirtualMachine vm;
+    private PrintStream out = System.out;
+
     public DebuggerAttachingVM(int port) {
         this.port = port;
     }
@@ -48,7 +51,7 @@ public class DebuggerAttachingVM {
         arg.setValue(this.port);
         defaultArgs.put("port", arg);
 
-        System.out.println("Debugger is attaching to: " + this.port);
+        out.println("Debugger is attaching to: " + this.port);
         vm = ac.attach(defaultArgs);
         return vm;
     }

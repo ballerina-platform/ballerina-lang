@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -40,8 +41,10 @@ public class Launcher {
         Socket clientSocket = null;
 
         try {
-            server = new ServerSocket(4711);
-            System.out.println("Debug server started on 4711");
+            int port = 4711;
+            server = new ServerSocket(port);
+            PrintStream out = System.out;
+            out.println("Debug server started on " + port);
             clientSocket = server.accept();
             os = new DataOutputStream(clientSocket.getOutputStream());
             is = new DataInputStream(clientSocket.getInputStream());
@@ -54,9 +57,7 @@ public class Launcher {
             serverLauncher.startListening();
 
         } catch (UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

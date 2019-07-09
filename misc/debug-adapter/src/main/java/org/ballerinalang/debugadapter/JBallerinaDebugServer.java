@@ -96,10 +96,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             this.eventBus.startListening(debuggee, client, sourceRoot);
 
         } catch (IOException e) {
-            e.printStackTrace();
             return CompletableFuture.completedFuture(null);
         } catch (IllegalConnectorArgumentsException e) {
-            e.printStackTrace();
         }
         client.initialized();
         return CompletableFuture.completedFuture(null);
@@ -121,10 +119,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             this.eventBus.startListening(debuggee, client, sourceRoot);
 
         } catch (IOException e) {
-            e.printStackTrace();
             return CompletableFuture.completedFuture(null);
         } catch (IllegalConnectorArgumentsException e) {
-            e.printStackTrace();
         }
         client.initialized();
         return CompletableFuture.completedFuture(null);
@@ -170,7 +166,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             stackTraceResponse.setStackFrames(stackFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return CompletableFuture.completedFuture(null);
     }
