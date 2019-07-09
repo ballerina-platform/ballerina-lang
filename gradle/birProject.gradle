@@ -23,7 +23,7 @@ task createBir {
         project.ext.modules.each { File module ->
             def generatedBirDir = "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
             copy {
-                def zipFile = zipTree("$buildDir/generated-balo/repo/ballerina/" + module.getName() + "/0.0.0/" + module.getName() + ".zip").matching {
+                def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + module.getName() + "/0.0.0/" + module.getName() + ".zip").matching {
                     include "**/*.bir"
                 }.files
                 from zipFile
@@ -32,7 +32,7 @@ task createBir {
         }
     }
 
-    inputs.dir "$buildDir/generated-balo/repo/ballerina/"
+    inputs.dir "$buildDir/generated-balo/repo/" + project.ext.orgName
     outputs.dir "$buildDir/generated-bir"
 }
 
@@ -52,22 +52,21 @@ task createBirJar() {
     doFirst {
 
         project.ext.modules.each { File module ->
-            def generatedBirDir = "$buildDir/generated-bir/ballerina/" + module.getName() + "/0.0.0/"
+            def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + module.getName() + "/0.0.0/"
             if (file(generatedBirDir + module.getName() + '.bir').exists()) {
-                def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
-                if (!sourceSets.main.allJava.isEmpty()) {
-                    mapPath = generatedBirDir + module.name + '.map.json'
+                def mapPath = generatedBirDir + module.getName() + '.map.json'
+                // create empty map file even it does not exists
+                if (!file(mapPath).exists()) {
+                    mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
                 }
 
                 configurations.birJarCompile.each {
-                    def pack3 = it;
+                    def pack3 = it
                     if (OperatingSystem.current().isWindows()) {
                         exec {
                             workingDir "$buildDir/generated-bir-jar"
                             commandLine 'cmd.exe', '/c',
-
                                         new File(pack3, '/bin/ballerina.bat'), 'run', new File(pack3, '/bin/compiler_backend_jvm.balx'),
-
                                         generatedBirDir + module.getName() + '.bir',
                                         mapPath,
                                         "$buildDir/generated-bir-jar/" + module.getName() + ".jar",
@@ -78,12 +77,10 @@ task createBirJar() {
                         exec {
                             workingDir "$buildDir/generated-bir-jar"
                             commandLine 'sh',
-
                                         new File(pack3, '/bin/ballerina'), 'run', new File(pack3, '/bin/compiler_backend_jvm.balx'),
-
                                         generatedBirDir + module.getName() + '.bir',
                                         mapPath,
-                                        "$buildDir/generated-bir-jar/" + module.name + ".jar",
+                                        "$buildDir/generated-bir-jar/" + module.getName() + ".jar",
                                         'false',
                                         "$buildDir/bir-cache"
                         }

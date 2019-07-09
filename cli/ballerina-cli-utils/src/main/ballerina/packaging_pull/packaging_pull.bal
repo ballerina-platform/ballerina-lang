@@ -59,9 +59,9 @@ function createError (string errMessage) returns error {
 # + return - nil if no error occurred, else error.
 public function main(string... args) returns error? {
     http:Client httpEndpoint;
-    string url = args[0];
+    string url = <@untainted> args[0];
     string dirPath = args[1];
-    string pkgPath = args[2];
+    string pkgPath = <@untainted> args[2];
     string fileSeparator = args[3];
     string host = args[4];
     string strPort = args[5];
@@ -69,8 +69,8 @@ public function main(string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint boolean.convert(args[10]);
-    boolean nightlyBuild = untaint boolean.convert(args[11]);
+    isBuild = <@untainted> boolean.convert(args[10]);
+    boolean nightlyBuild = <@untainted> boolean.convert(args[11]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -123,7 +123,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = centralEndpoint -> get(untaint versionRange, message=req);
+    var result = centralEndpoint -> get(<@untainted> versionRange, message=req);
     if (result is http:Response) {
         httpResponse = result;
     } else {
@@ -148,11 +148,11 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
         }
     } else {
         string contentLengthHeader;
-        int pkgSize = MAX_INT_VALUE;
+        int pkgSize = <@untainted> MAX_INT_VALUE;
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check int.convert(contentLengthHeader);
+            pkgSize = <@untainted> check int.convert(contentLengthHeader);
         } else {
             return createError("module size information is missing from remote repository. please retry.");
         }
@@ -183,7 +183,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
 
-            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
+            io:WritableByteChannel wch = io:openWritableFile(<@untainted> destArchivePath);
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
@@ -224,7 +224,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
+public function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
     http:Client httpEndpointWithProxy = new (url, config = {
         secureSocket:{
             trustStore:{
@@ -237,7 +237,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
         followRedirects: { enabled: true, maxCount: 5 },
         proxy : getProxyConfigurations(hostname, port, username, password)
     });
-    return httpEndpointWithProxy;
+    return <@untainted> httpEndpointWithProxy;
 }
 
 # This function defines an endpoint without proxy configurations.
@@ -256,7 +256,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
         },
         followRedirects: { enabled: true, maxCount: 5 }
     });
-    return httpEndpointWithoutProxy;
+    return <@untainted> httpEndpointWithoutProxy;
 }
 
 # This function will read the bytes from the byte channel.
@@ -268,7 +268,7 @@ function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) return
     byte[] bytes;
     int numberOfBytesRead;
     [bytes, numberOfBytesRead] = check (byteChannel.read(numberOfBytes));
-    return [bytes, numberOfBytesRead];
+    return <@untainted>[bytes, numberOfBytesRead];
 }
 
 # This function will write the bytes from the byte channel.

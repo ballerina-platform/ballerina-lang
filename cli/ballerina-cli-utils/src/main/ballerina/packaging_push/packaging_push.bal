@@ -36,7 +36,7 @@ import ballerina/http;
 # + return - Error if occurred, else nil
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string repositoryURL,
                 string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
-                string baloVersion) returns error? {
+                string baloVersion) returns @tainted error? {
 
     http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
@@ -51,7 +51,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     // Artifact
     mime:Entity filePart = new;
     filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
-    filePart.setFileAsEntityBody(untaint dirPath);
+    filePart.setFileAsEntityBody(dirPath);
     var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;
@@ -100,7 +100,7 @@ public function main (string... args) returns error? {
             http:Client|error result = trap defineEndpointWithProxy(args[7], host, port, args[13], args[14]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
+                return <@untainted> pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
                     args[6], args[7], args[8], args[10], args[9], args[15]);
             } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
@@ -112,7 +112,7 @@ public function main (string... args) returns error? {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
-        return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+        return <@untainted> pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6],
             args[7], args[8], args[10], args[9], args[15]);
     }
 }
@@ -177,7 +177,7 @@ function getContentDispositionForFormData(string partName) returns (mime:Content
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
-    stringBodyPart.setText(untaint value);
+    stringBodyPart.setText(value);
     var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
     if (contentTypeSetResult is error)  {
         panic contentTypeSetResult;
