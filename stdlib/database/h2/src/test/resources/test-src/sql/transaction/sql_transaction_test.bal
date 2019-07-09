@@ -23,7 +23,7 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransaction() returns (int, int, boolean, boolean) {
+function testLocalTransaction() returns @tainted (int, int, boolean, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -55,7 +55,7 @@ function testLocalTransaction() returns (int, int, boolean, boolean) {
     return (returnVal, count, committedBlockExecuted, abortedBlockExecuted);
 }
 
-function testTransactionRollback() returns (int, int, boolean) {
+function testTransactionRollback() returns @tainted (int, int, boolean) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -85,7 +85,7 @@ function testTransactionRollback() returns (int, int, boolean) {
     return (returnVal, count, stmtAfterFailureExecuted);
 }
 
-function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
+function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -111,7 +111,7 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
+function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -139,7 +139,7 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     return (returnVal, count);
 }
 
-function testLocalTransactionStoredProcedure() returns (int, int) {
+function testLocalTransactionStoredProcedure() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -164,7 +164,7 @@ function testLocalTransactionStoredProcedure() returns (int, int) {
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
+function testLocalTransactionRollbackStoredProcedure() returns @tainted (int, int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -199,7 +199,7 @@ function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, i
     return (returnVal, count1, count2, count3);
 }
 
-function testLocalTransactionBatchUpdate() returns (int, int) {
+function testLocalTransactionBatchUpdate() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -242,7 +242,7 @@ function testLocalTransactionBatchUpdate() returns (int, int) {
     return (returnVal, count);
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
+function testLocalTransactionRollbackBatchUpdate() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -285,7 +285,7 @@ function testLocalTransactionRollbackBatchUpdate() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTransactionAbort() returns (int, int) {
+function testTransactionAbort() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -318,7 +318,7 @@ function testTransactionAbort() returns (int, int) {
 }
 
 int testTransactionErrorPanicRetVal = 0;
-function testTransactionErrorPanic() returns (int, int, int) {
+function testTransactionErrorPanic() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -356,7 +356,7 @@ function testTransactionErrorPanicHelper(h2:Client testDB) {
     }
 }
 
-function testTransactionErrorPanicAndTrap() returns (int, int, int) {
+function testTransactionErrorPanicAndTrap() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -392,7 +392,7 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
     }
 }
 
-function testTransactionCommitted() returns (int, int) {
+function testTransactionCommitted() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -418,7 +418,7 @@ function testTransactionCommitted() returns (int, int) {
     return (returnVal, count);
 }
 
-function testTwoTransactions() returns (int, int, int) {
+function testTwoTransactions() returns @tainted (int, int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -454,7 +454,7 @@ function testTwoTransactions() returns (int, int, int) {
     return (returnVal1, returnVal2, count);
 }
 
-function testTransactionWithoutHandlers() returns (int) {
+function testTransactionWithoutHandlers() returns @tainted (int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -478,7 +478,7 @@ function testTransactionWithoutHandlers() returns (int) {
     return count;
 }
 
-function testLocalTransactionFailed() returns (string, int) {
+function testLocalTransactionFailed() returns @tainted (string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -519,7 +519,7 @@ function testLocalTransactionFailedHelper(string status, h2:Client testDB) retur
     return a;
 }
 
-function testLocalTransactionSuccessWithFailed() returns (string, int) {
+function testLocalTransactionSuccessWithFailed() returns @tainted (string, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -565,7 +565,7 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
     return a;
 }
 
-function testLocalTransactionFailedWithNextupdate() returns (int) {
+function testLocalTransactionFailedWithNextupdate() returns @tainted (int) {
     h2:Client testDB1;
     h2:Client testDB2;
     testDB1 = new({
@@ -607,7 +607,7 @@ function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
     }
 }
 
-function testNestedTwoLevelTransactionSuccess() returns (int, int) {
+function testNestedTwoLevelTransactionSuccess() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -638,7 +638,7 @@ function testNestedTwoLevelTransactionSuccessParticipant(h2:Client testDB) {
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionSuccess() returns (int, int) {
+function testNestedThreeLevelTransactionSuccess() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -676,7 +676,7 @@ function testNestedThreeLevelTransactionSuccessParticipant2(h2:Client testDB) {
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionFailed() returns (int, int) {
+function testNestedThreeLevelTransactionFailed() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -730,7 +730,7 @@ function testNestedThreeLevelTransactionFailedHelperParticipant3(h2:Client testD
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
-function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) {
+function testLocalTransactionWithSelectAndForeachIteration() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -768,7 +768,7 @@ function testLocalTransactionWithSelectAndForeachIteration() returns (int, int) 
     return (returnVal, count);
 }
 
-function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) {
+function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted (int, int) {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",
@@ -798,7 +798,7 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns (int, int) 
     return (returnVal, count);
 }
 
-function testCloseConnectionPool() returns (int) {
+function testCloseConnectionPool() returns @tainted int {
     h2:Client testDB = new({
         path: "./target/tempdb/",
         name: "TEST_SQL_CONNECTOR_TR",

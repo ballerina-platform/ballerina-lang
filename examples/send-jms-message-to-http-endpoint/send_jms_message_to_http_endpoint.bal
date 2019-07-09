@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.  This example makes use of the

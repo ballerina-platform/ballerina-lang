@@ -448,7 +448,7 @@ public class FunctionSignatureTest {
         Assert.assertSame(returns[1].getClass(), BString.class);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
-        Assert.assertEquals(returns[1].stringValue(), "hello world");
+        Assert.assertEquals(returns[1].stringValue(), "inner default world");
     }
 
     @Test(description = "Test object outer function with defaultable param")

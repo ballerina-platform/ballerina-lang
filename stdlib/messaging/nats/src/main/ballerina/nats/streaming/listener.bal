@@ -40,8 +40,8 @@ public type StreamingListener object {
         self.streamingConfig = streamingConfig;
     }
 
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        self.subscribe(serviceType, self.connection, self.clusterId, self.clientId, self.streamingConfig);
+    public function __attach(service s, string? name = ()) returns error? {
+        self.subscribe(s, self.connection, self.clusterId, self.clientId, self.streamingConfig);
     }
 
     function subscribe(service serviceType, Connection conn, string clusterId, string clientId,

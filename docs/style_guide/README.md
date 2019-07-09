@@ -1,8 +1,8 @@
 # Ballerina style guide
 
-Ballerina Style Guide aims at maintaining a standard coding style among Ballerina community. Therefor Ballerina IDE plugins and tools follow this guide when providing code formatting and other features. 
+Ballerina Style Guide aims at maintaining a standard coding style among Ballerina community. Therefore, Ballerina IDE plugins and tools follow this guide when providing code formatting and other features. 
 
-If you want you can follow your own coding style when writing Ballerina source code. And plugins and tools can be configured to match your coding style.
+You can follow your own coding style when writing Ballerina source code and plugins and tools can be configured to match your coding style.
 
 ### Indentation and line length
 * Use four spaces (not tabs) for each level of indentation.

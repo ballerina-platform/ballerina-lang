@@ -33,7 +33,7 @@ public type StreamingProducer client object {
     #           elapses while waiting for the acknowledgement OR
     #           `nats/NatsError` only with the `message` field in case an error occurrs even before publishing
     #           is completed
-    public function publish(string subject, byte[] data) returns string | error = external;
+    public function publish(string subject, byte[] data) returns string | NatsError = external;
 
 };
 

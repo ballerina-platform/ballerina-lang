@@ -50,5 +50,5 @@ public type StreamingMessage object {
    # Acknowledge the message to the NATS Streaming server.
    #
    # + return - () if the acknowledgement completes successfully or an error.
-   public function ack() returns error? = external;
+   public function ack() returns NatsError? = external;
 };

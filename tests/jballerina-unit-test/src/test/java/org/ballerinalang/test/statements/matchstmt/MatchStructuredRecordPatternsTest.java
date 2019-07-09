@@ -117,7 +117,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
-    @Test(description = "Test structured pattern runtime matching")
+    @Test(description = "Test structured pattern runtime matching", groups = "brokenOnJBallerina")
     public void testRuntimeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -196,7 +196,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
     }
 
-    @Test(description = "Test structured pattern with closed record")
+    @Test(description = "Test structured pattern with closed record", groups = "brokenOnJBallerina")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

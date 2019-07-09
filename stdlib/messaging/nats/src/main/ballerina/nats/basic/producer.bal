@@ -38,7 +38,7 @@ public type Producer client object {
     # + replyTo - Subject for the receiver to reply. Optional parameter. Set only if reply is needed.
     # + message - Message could be byte[] representation.
     # + return -  A specific error, if there is a problem when publishing the message. () otherwise.
-    public remote function publish(string subject, byte[] message, string? replyTo = ()) returns error? = external;
+    public remote function publish(string subject, byte[] message, string? replyTo = ()) returns NatsError? = external;
 
     # Produces a message and would wait for a response.
     #
@@ -46,12 +46,12 @@ public type Producer client object {
     # + message - Message could be byte[] representation.
     # + duration - the time to wait for a response. measure in milliseconds
     # + return -  Response message or an error.
-    public remote function request(string subject, byte[] message, int? duration) returns Message|error = external;
+    public remote function request(string subject, byte[] message, int? duration) returns Message|NatsError = external;
 
     # Close a given connection.
     #
     # + return - () or error if unable to complete close operation.
-    public function close() returns error? {
+    public function close() returns NatsError? {
         self.closeConnection();
         if (self.connection is Connection) {
             self.connection = ();

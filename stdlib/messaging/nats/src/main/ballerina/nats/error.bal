@@ -14,20 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an I/O error.
+# Represents an error details.
 #
 # + message - error message.
-# + id - error id.
-public type IOError record {|
+# + cause - error cause.
+type Detail record {
     string message;
-    int id;
-|};
+    error cause?;
+};
 
-public const NATS_ERROR_REASON = "{ballerina/nats}NatsError";
+public const NATS_ERROR = "{ballerina/nats}NatsError";
 
-public type NatsError error<NATS_ERROR_REASON, NatsErrorData>;
+public type NatsError error<NATS_ERROR, Detail>;
 
-public type NatsErrorData record {|
-    string? nuid;
-    string message;
-|};
+# Prepare `error` as a `NatsError`.
+#
+# + message - Error message.
+# + err - `error` instance.
+# + return - Prepared `NatsError` instance.
+public function prepareNatsError(string message, error? err = ()) returns NatsError {
+    NatsError natsError;
+    if (err is error) {
+        natsError = error(NATS_ERROR, message = message, cause = err);
+    } else {
+        natsError = error(NATS_ERROR, message = message);
+    }
+    return natsError;
+}

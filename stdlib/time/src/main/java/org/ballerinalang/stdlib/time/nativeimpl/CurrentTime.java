@@ -35,7 +35,6 @@ public class CurrentTime extends  AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(createCurrentTime(context));
     }
 
     public static MapValue<?, ?> currentTime(Strand strand) {

@@ -22,18 +22,15 @@ import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -54,43 +51,43 @@ import java.util.Objects;
 )
 public class BasicNack extends BlockingNativeCallableUnit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicNack.class);
-
     @Override
     public void execute(Context context) {
-        boolean isInTransaction = context.isInTransaction();
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
-        Channel channel = RabbitMQUtils.getNativeObject(messageObject,
-                RabbitMQConstants.CHANNEL_NATIVE_OBJECT, Channel.class, context);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+    }
+
+    public static Object basicNack(Strand strand, ObjectValue messageObjectValue, Object multiple, Object requeue) {
+        boolean defaultMultiple = false;
+        boolean defaultRequeue = true;
+        boolean isInTransaction = false;
+        Channel channel = (Channel) messageObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        long deliveryTag = (long) messageObject.getNativeData(RabbitMQConstants.DELIVERY_TAG);
-        boolean multiple = context.getBooleanArgument(0);
-        boolean requeue = context.getBooleanArgument(1);
-        boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObject);
-        boolean ackMode = ChannelUtils.validateAckMode(messageObject);
+        long deliveryTag = (long) messageObjectValue.getNativeData(RabbitMQConstants.DELIVERY_TAG);
+        boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObjectValue);
+        boolean ackMode = ChannelUtils.validateAckMode(messageObjectValue);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock(context);
+            transactionContext.handleTransactionBlock();
+        }
+        if (multiple != null && RabbitMQUtils.checkIfBoolean(multiple)) {
+            defaultMultiple = Boolean.valueOf(multiple.toString());
+        }
+        if (requeue != null && RabbitMQUtils.checkIfBoolean(requeue)) {
+            defaultRequeue = Boolean.valueOf(requeue.toString());
         }
         if (!multipleAck && ackMode) {
             try {
-                channel.basicNack(deliveryTag, multiple, requeue);
+                channel.basicNack(deliveryTag, defaultMultiple, defaultRequeue);
             } catch (IOException exception) {
-                LOGGER.error(RabbitMQConstants.NACK_ERROR);
-                RabbitMQUtils.returnError(RabbitMQConstants.NACK_ERROR + exception.getMessage(),
-                        context, exception);
+                return RabbitMQUtils.returnErrorValue(RabbitMQConstants.NACK_ERROR
+                        + exception.getMessage());
             } catch (AlreadyClosedException exception) {
-                LOGGER.error(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
-                RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR,
-                        context, exception);
+                return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
         } else if (multipleAck && ackMode) {
-            RabbitMQUtils.returnError(RabbitMQConstants.MULTIPLE_ACK_ERROR, context,
-                    new RabbitMQConnectorException(RabbitMQConstants.MULTIPLE_ACK_ERROR));
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else {
-            RabbitMQUtils.returnError(RabbitMQConstants.ACK_MODE_ERROR, context,
-                    new RabbitMQConnectorException(RabbitMQConstants.ACK_MODE_ERROR));
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
         }
+        return null;
     }
 }
