@@ -21,6 +21,8 @@ import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -30,22 +32,22 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 /**
  * Remote function implementation for publishing a message to a NATS streaming server.
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "nats",
-        functionName = "publish",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "StreamingProducer",
-                             structPackage = "ballerina/nats"),
-        isPublic = true
-)
+@BallerinaFunction(orgName = "ballerina",
+                   packageName = "nats",
+                   functionName = "externPublish",
+                   receiver = @Receiver(type = TypeKind.OBJECT,
+                                        structType = "StreamingProducer",
+                                        structPackage = "ballerina/nats"),
+                   isPublic = true)
 public class Publish implements NativeCallableUnit {
 
     @Override
@@ -58,19 +60,29 @@ public class Publish implements NativeCallableUnit {
         return false;
     }
 
-    public static Object publish(Strand strand, ObjectValue publisher, String subject, ArrayValue bytes) {
+    public static Object externPublish(Strand strand, ObjectValue publisher, String subject, Object data) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
-        byte[] data = bytes.getBytes();
+        byte[] byteData = convertDataIntoByteArray(data);
         try {
-           NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(strand);
-           AckListener ackListener = new AckListener(nonBlockingCallback);
-           streamingConnection.publish(subject, data, ackListener);
-           return null;
+            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(strand);
+            AckListener ackListener = new AckListener(nonBlockingCallback);
+            streamingConnection.publish(subject, byteData, ackListener);
+            return null;
         } catch (InterruptedException e) {
             return Utils.createNatsError("Failed to publish due to an internal error");
         } catch (IOException | TimeoutException e) {
             return Utils.createNatsError(e.getMessage());
+        }
+    }
+
+    private static byte[] convertDataIntoByteArray(Object data) {
+        BType dataType = TypeChecker.getType(data);
+        int typeTag = dataType.getTag();
+        if (typeTag == TypeTags.STRING) {
+            return ((String) data).getBytes(StandardCharsets.UTF_8);
+        } else {
+            return ((ArrayValue) data).getBytes();
         }
     }
 }
