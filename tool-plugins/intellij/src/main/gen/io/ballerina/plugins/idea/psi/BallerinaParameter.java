@@ -27,12 +27,9 @@ public interface BallerinaParameter extends PsiElement {
   List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
 
   @NotNull
-  List<BallerinaParameterWithType> getParameterWithTypeList();
+  BallerinaTypeName getTypeName();
 
-  @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightParenthesis();
+  @NotNull
+  PsiElement getIdentifier();
 
 }
