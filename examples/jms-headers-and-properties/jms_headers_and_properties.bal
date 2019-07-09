@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // Initializes a JMS connection with the provider.
@@ -51,6 +51,8 @@ service jmsListener on consumerEndpoint {
         var msgType = message.getType();
         if (msgType is string) {
             log:printInfo("Message Type: " + msgType);
+        } else if (msgType is ()) {
+            log:printInfo("Message type not provided");
         } else {
             log:printError("Error getting message type", err = msgType);
         }

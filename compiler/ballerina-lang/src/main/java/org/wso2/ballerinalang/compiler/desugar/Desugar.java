@@ -691,7 +691,7 @@ public class Desugar extends BLangNodeVisitor {
                 .stream()
                 .filter(importPackage -> importPackage.symbol.
                         pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names.ORG_NAME_SEPARATOR.value
-                                                                                                                     + Names.TRANSACTION_PACKAGE.value))
+                                                        + Names.TRANSACTION_PACKAGE.value))
                 .findAny().get().symbol;
         BInvokableSymbol invokableSymbol =
                 (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),
@@ -2656,7 +2656,7 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-            
+
             if (!enclLocks.isEmpty()) {
                 enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
             }
@@ -4971,10 +4971,12 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC,
-                                                                    names.fromString("$anonErrorType$" + errorCount++),
-                                                                    env.enclPkg.symbol.pkgID,
-                                                                    null, null);
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(
+                    SymTag.ERROR,
+                    Flags.PUBLIC,
+                    names.fromString("$anonErrorType$" + errorCount++),
+                    env.enclPkg.symbol.pkgID,
+                    null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.pureTypeConstrainedMap;
@@ -4984,7 +4986,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType, detailType);
+            BErrorType errorType = new BErrorType(errorTypeSymbol,
+                    ((BErrorType) errorVariable.type).reasonType,
+                    detailType);
             errorTypeSymbol.type = errorType;
 
             createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType));
