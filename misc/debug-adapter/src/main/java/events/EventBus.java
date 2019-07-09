@@ -17,7 +17,11 @@
 package events;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.LocalVariable;
 import com.sun.jdi.Location;
+import com.sun.jdi.StackFrame;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
@@ -28,24 +32,106 @@ import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.StepEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
+import org.eclipse.lsp4j.debug.TerminatedEventArguments;
+import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Listens and publishes events from JVM.
  */
 public class EventBus {
     private Breakpoint[] breakpointsList = new Breakpoint[0];
+    private Map<Long, ThreadReference> threadsMap = new HashMap<>();
+
+    private HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> stackframesMap = new HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]>();
+    AtomicInteger nextStackFrameId = new AtomicInteger();
+
+    private Map<Long, Variable[]> variablesMap = new HashMap<>();
+    private String sourceRoot;
+    private VirtualMachine debuggee;
 
     public void setBreakpointsList(Breakpoint[] breakpointsList) {
         this.breakpointsList = breakpointsList;
     }
 
-    public void startListening(VirtualMachine debuggee, IDebugProtocolClient client) {
+    public Map<Long, ThreadReference> getThreadsMap() {
+        List<ThreadReference> threadReferences = debuggee.allThreads();
+        threadReferences.stream().forEach(threadReference -> {
+            threadsMap.put(threadReference.uniqueID(), threadReference);
+        });
+        return threadsMap;
+    }
+
+    public Map<Long, Variable[]> getVariablesMap() {
+        return variablesMap;
+    }
+
+    public HashMap<Long, org.eclipse.lsp4j.debug.StackFrame[]> getStackframesMap() {
+        return stackframesMap;
+    }
+
+    private void populateMaps(VirtualMachine debuggee) {
+        nextStackFrameId.set(1);
+        threadsMap = new HashMap<>();
+        stackframesMap = new HashMap<>();
+        variablesMap = new HashMap<>();
+        List<ThreadReference> threadReferences = debuggee.allThreads();
+        threadReferences.stream().forEach(threadReference -> {
+            threadsMap.put(threadReference.uniqueID(), threadReference);
+            try {
+                List<StackFrame> frames  = threadReference.frames();
+                org.eclipse.lsp4j.debug.StackFrame[] stackFrames = new org.eclipse.lsp4j.debug.StackFrame[frames.size()];
+                frames.stream().map(stackFrame -> {
+                    org.eclipse.lsp4j.debug.StackFrame dapStackFrame = new org.eclipse.lsp4j.debug.StackFrame();
+                    int frameId = nextStackFrameId.getAndIncrement();
+                    Source source = new Source();
+                    try {
+                        source.setPath(sourceRoot + stackFrame.location().sourcePath());
+                        source.setName(stackFrame.location().sourceName());
+                    } catch (AbsentInformationException e) {
+//                        e.printStackTrace();
+                    }
+                    dapStackFrame.setId((long) frameId);
+
+                        dapStackFrame.setSource(source);
+                        dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+                        try {
+                            List<LocalVariable> localVariables = stackFrame.visibleVariables();
+                            Variable[] dapVariables = new Variable[localVariables.size()];
+                            localVariables.stream().map(localVariable -> {
+                                Variable dapVariable = new Variable();
+                                dapVariable.setName(localVariable.name());
+                                dapVariable.setType(localVariable.typeName());
+                                return dapVariable;
+                            }).collect(Collectors.toList()).toArray(dapVariables);
+                            variablesMap.put((long) frameId, dapVariables);
+                        } catch (AbsentInformationException e) {
+//                            e.printStackTrace();
+                        }
+                    return dapStackFrame;
+                }).collect(Collectors.toList()).toArray(stackFrames);
+                stackframesMap.put(threadReference.uniqueID(), stackFrames);
+            } catch (IncompatibleThreadStateException e) {
+//                e.printStackTrace();
+            }
+        });
+
+    }
+
+    public void startListening(VirtualMachine debuggee, IDebugProtocolClient client, String sourceRoot) {
+        this.sourceRoot = sourceRoot;
+        this.debuggee = debuggee;
         CompletableFuture.runAsync(() -> {
                     try {
                         while (true) {
@@ -62,7 +148,7 @@ public class EventBus {
 
                                     Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
                                         String balName = evt.referenceType().name() + ".bal";
-                                        if (balName.equals(breakpoint.getSource().getName())) {
+                                        if (balName.contains(breakpoint.getSource().getName())) {
                                             Location location = null;
                                             try {
                                                 location = evt.referenceType().locationsOfLine(breakpoint.getLine()
@@ -84,26 +170,30 @@ public class EventBus {
                                     // disable the breakpoint event
                                     event.request().disable();
                                     StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                                    populateMaps(debuggee);
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
                                     stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+                                    stoppedEventArguments.setAllThreadsStopped(true);
                                     client.stopped(stoppedEventArguments);
                                 } else if (event instanceof StepEvent) {
+                                    event.request().disable();
+                                    populateMaps(debuggee);
                                     StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
                                     stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                                    stoppedEventArguments.setAllThreadsStopped(true);
                                     client.stopped(stoppedEventArguments);
                                 } else {
                                     eventSet.resume();
                                 }
                             }
-
                         }
                     } catch (VMDisconnectedException e) {
+                        TerminatedEventArguments terminatedEventArguments = new TerminatedEventArguments();
+                        client.terminated(terminatedEventArguments);
                         System.out.println("VM is now disconnected.");
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-                        System.out.println("While loop exit");
                     }
                 }
         );

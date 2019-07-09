@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
@@ -59,10 +58,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -71,15 +68,11 @@ import java.util.stream.Collectors;
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private IDebugProtocolClient client;
-    private Map<String, SourceBreakpoint[]> breakpointsMap;
     private VirtualMachine debuggee;
 
     private EventBus eventBus;
-    private Map<Long, Variable> variableMap;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private String sourceRoot;
-
-    AtomicInteger variableReference = new AtomicInteger();
 
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
@@ -99,9 +92,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.addClassFilter("hello*");
             classPrepareRequest.enable();
-            this.eventBus.startListening(debuggee, client);
+            this.eventBus.startListening(debuggee, client, sourceRoot);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -126,7 +118,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             EventRequestManager erm = debuggee.eventRequestManager();
             erm.createClassPrepareRequest().enable();
 
-            this.eventBus.startListening(debuggee, client);
+            this.eventBus.startListening(debuggee, client, sourceRoot);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -162,11 +154,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<ThreadsResponse> threads() {
         ThreadsResponse threadsResponse = new ThreadsResponse();
-        List<ThreadReference> threadReferences = debuggee.allThreads();
-        Thread[] threads = new Thread[threadReferences.size()];
-
-        threadReferences.stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
+        Map<Long, ThreadReference> threadsMap = this.eventBus.getThreadsMap();
+        Thread[] threads = new Thread[threadsMap.size()];
+        threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
         threadsResponse.setThreads(threads);
+
         return CompletableFuture.completedFuture(threadsResponse);
     }
 
@@ -174,11 +166,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         try {
             StackTraceResponse stackTraceResponse = new StackTraceResponse();
-            List<com.sun.jdi.StackFrame> frames = threadsMap.get(args.getThreadId()).frames();
-            StackFrame[] stackFrames = new StackFrame[frames.size()];
-            frames.stream()
-                    .map(this::toStackFrame)
-                    .collect(Collectors.toList()).toArray(stackFrames);
+            StackFrame[] stackFrames = eventBus.getStackframesMap().get(args.getThreadId());
             stackTraceResponse.setStackFrames(stackFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (Exception e) {
@@ -190,6 +178,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
+        Variable[] variables = eventBus.getVariablesMap().get(args.getVariablesReference());
+        variablesResponse.setVariables(variables);
         return CompletableFuture.completedFuture(variablesResponse);
     }
 
@@ -200,10 +190,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         scopes[0] = "Local";
         scopes[1] = "Global";
         Scope[] scopeArr = new Scope[2];
-        Arrays.stream(scopes).map(this::toScope)
-                .collect(Collectors.toList())
+        Arrays.stream(scopes).map(scopeName -> {
+            Scope scope = new Scope();
+            scope.setVariablesReference(args.getFrameId());
+            scope.setName(scopeName);
+            return scope;
+        }).collect(Collectors.toList())
                 .toArray(scopeArr);
         scopesResponse.setScopes(scopeArr);
+
         return CompletableFuture.completedFuture(scopesResponse);
     }
 
@@ -290,39 +285,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
-    private StackFrame toStackFrame(com.sun.jdi.StackFrame stackFrame) {
-        StackFrame newStackFrame = null;
-        Source source = new Source();
-        try {
-            newStackFrame = new StackFrame();
-            source.setPath(sourceRoot + stackFrame.location().sourcePath());
-            source.setName(stackFrame.location().sourceName());
-            newStackFrame.setSource(source);
-            newStackFrame.setLine((long) stackFrame.location().lineNumber());
-        } catch (AbsentInformationException e) {
-            e.printStackTrace();
-        }
-
-        return newStackFrame;
-    }
-
-    private Scope toScope(String scopeName) {
-        Scope scope = new Scope();
-        scope.setName(scopeName);
-        scope.setVariablesReference((long) variableReference.incrementAndGet());
-        scope.setExpensive(false);
-        return scope;
-    }
-
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
+        debuggee.dispose();
         System.exit(0);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
-        debuggee.exit(0);
+        debuggee.dispose();
         return CompletableFuture.completedFuture(null);
     }
 

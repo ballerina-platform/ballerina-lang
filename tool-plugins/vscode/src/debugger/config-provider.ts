@@ -5,9 +5,12 @@ import {
     DebugSession, 
     DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
 } from 'vscode';
+import { RunningInfo } from './model';
 
 import * as child_process from "child_process";
 import * as path from "path";
+import * as fs from 'fs';
+import * as os from 'os';
 import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
@@ -48,7 +51,11 @@ const debugConfigProvider: DebugConfigurationProvider = {
             config.script = window.activeTextEditor.document.uri.path;
         }
         config.debuggeePort = "5006";
-        config.sourceRoot = path.dirname(config.script);
+
+        let cwd: string | undefined = path.dirname(config.script);
+        const { sourceRoot } = getRunningInfo(cwd, path.parse(config.script).root);
+        
+        config.sourceRoot = sourceRoot || cwd;
 
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (langClient.initializeResult) {
@@ -66,6 +73,24 @@ const debugConfigProvider: DebugConfigurationProvider = {
     
 };
 
+function getRunningInfo(currentPath: string, root: string, ballerinaPackage: string | undefined = undefined): RunningInfo {
+    if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
+        if (currentPath !== os.homedir()) {
+            return {
+                sourceRoot: currentPath,
+                ballerinaPackage,
+            };
+        }
+    }
+
+    if (currentPath === root) {
+        return {};
+    }
+
+    return getRunningInfo(
+        path.dirname(currentPath), root, path.basename(currentPath));
+}
+
 export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext>ballerinaExtInstance.context;
 
@@ -81,9 +106,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             // launch debugger
 
             // TODO: update this code to ballerina launch
-            const balProcess = child_process.spawn('java', 
-                ['-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=y', '-jar', 'hello_world.jar'], {
-                cwd: "/Users/pahan/workspace/jballerina/samples"
+            const ballerinaPath = session.configuration['ballerina.home'];
+            const ballerinaExec = `${ballerinaPath}/bin/jballerina`;
+            const balProcess = child_process.spawn(ballerinaExec, 
+                ['run', session.configuration.script], {
+                cwd: session.configuration.sourceRoot,
+                env: {
+                    'BAL_JAVA_DEBUG': '5006'
+                }
             });
 
             balProcess.stdout.on('data', (data) => {
@@ -98,7 +128,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         });
     }
     static launchAdapter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
-        const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
+        const ballerinaPath = ballerinaExtInstance.autoDetectBallerinaHome();
 
         let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
         // Ensure that start script can be executed
