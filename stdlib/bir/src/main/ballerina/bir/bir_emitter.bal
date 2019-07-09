@@ -123,7 +123,11 @@ public type BirEmitter object {
                 self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
                 print(" ");
                 print(v.name.value);
-                print("\t ", v.kind);
+                if (!(v.kind is TempVarKind)) {
+                    print(" %meta ");
+                    print(v.metaVarName);
+                }
+                print("\t// ", v.kind);
                 if (v.hasDefaultExpr) {
                     print("\t// defaultable -> ");
                     var bb = bFunction.paramDefaultBBs[i][0];

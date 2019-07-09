@@ -234,6 +234,9 @@ public class BIRBinaryWriter {
             birbuf.writeByte(param.kind.getValue());
             writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
+            if (!param.kind.equals(VarKind.TEMP)) {
+                birbuf.writeInt(addStringCPEntry(param.metaVarName));
+            }
             birbuf.writeBoolean(param.hasDefaultExpr);
         }
 

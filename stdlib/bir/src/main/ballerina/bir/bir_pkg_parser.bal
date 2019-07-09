@@ -90,12 +90,14 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
+        var metaVarName = self.reader.readStringCpRef();
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind,
-            hasDefaultExpr: hasDefaultExpr
+            hasDefaultExpr: hasDefaultExpr,
+            metaVarName: metaVarName
         };
         return dcl;
     }
