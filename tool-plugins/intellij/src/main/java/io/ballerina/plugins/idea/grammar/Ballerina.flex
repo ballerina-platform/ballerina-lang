@@ -370,8 +370,6 @@ DOLLAR = \$
     "typeof"                                    { return TYPEOF; }
     "throw"                                     { return THROW; }
 
-    "untaint"                                   { return UNTAINT; }
-
     "wait"                                      { return WAIT; }
     "while"                                     { return WHILE; }
     "with"                                      { return WITH; }
