@@ -179,6 +179,18 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
+    public boolean isLax(BType type) {
+        switch (type.tag) {
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.MAP:
+                return isLax(((BMapType) type).constraint);
+            case TypeTags.UNION:
+                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
+        }
+        return false;
+    }
+
     public boolean isSameType(BType source, BType target) {
         return isSameType(source, target, new ArrayList<>());
     }
@@ -335,6 +347,30 @@ public class Types {
         }
 
         return type.tag == TypeTags.ARRAY && isLikeAnydata(((BArrayType) type).eType, unresolvedTypes);
+    }
+
+    public boolean isSubTypeOfList(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return isSubTypeOfBaseType(type, TypeTags.ARRAY) || isSubTypeOfBaseType(type, TypeTags.TUPLE);
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public boolean isSubTypeOfMapping(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfMapping);
+    }
+
+    public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == baseTypeTag;
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
     }
 
     public boolean isBrandedType(BType type) {
@@ -575,8 +611,13 @@ public class Types {
             if (source.tag == TypeTags.JSON) {
                 return true;
             }
+
             if (source.tag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable(source, target, unresolvedTypes);
+            }
+
+            if (source.tag == TypeTags.MAP) {
+                return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
             }
         }
 
@@ -2340,7 +2381,7 @@ public class Types {
         return intersectingFiniteType;
     }
 
-    public BType getSafeType(BType type, boolean liftError) {
+    public BType getSafeType(BType type, boolean liftNil, boolean liftError) {
         // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
         // is not-nullable.
         switch (type.tag) {
@@ -2361,8 +2402,10 @@ public class Types {
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>(unionType.getMemberTypes());
         BUnionType errorLiftedType = BUnionType.create(null, memTypes);
 
-        // Lift nil always. Lift error only if safe navigation is used.
-        errorLiftedType.remove(symTable.nilType);
+        if (liftNil) {
+            errorLiftedType.remove(symTable.nilType);
+        }
+
         if (liftError) {
             errorLiftedType.remove(symTable.errorType);
         }

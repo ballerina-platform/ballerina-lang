@@ -47,6 +47,8 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
 
     V getOrThrow(Object key);
 
+    V fillAndGet(Object key);
+
     K[] getKeys();
 
     default int size() {

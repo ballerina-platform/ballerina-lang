@@ -1889,7 +1889,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             fieldType = FieldKind.ALL;
         }
         this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
-                fieldType, ctx.field().NOT() != null);
+                fieldType, ctx.field().OPTIONAL_FIELD_ACCESS() != null);
     }
 
     @Override

@@ -15,7 +15,7 @@ type Person record {
 
 type Family record {
     string spouse = "";
-    int noOfChildren = 0;
+    int noOfChildren?;
     string[] children = [];
 };
 
