@@ -418,12 +418,18 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValueEntries(ByteBuf annotBuf,
-                                              Map<String, BIRAnnotationValueEntry> entryMap) {
+                                              Map<String, List<BIRAnnotationValueEntry>> entryMap) {
         annotBuf.writeInt(entryMap.size());
-        for (Map.Entry<String, BIRAnnotationValueEntry> annotValueEntry : entryMap.entrySet()) {
+        for (Map.Entry<String, List<BIRAnnotationValueEntry>> annotValueEntry : entryMap.entrySet()) {
             annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
-            BIRAnnotationValueEntry valueEntry = annotValueEntry.getValue();
-            writeConstValue(annotBuf, valueEntry);
+            annotBuf.writeInt(annotValueEntry.getValue().size());
+            writeConstValueForAnnotAttach(annotBuf, annotValueEntry.getValue());
+        }
+    }
+
+    private void writeConstValueForAnnotAttach(ByteBuf annotBuf, List<BIRAnnotationValueEntry> valueEntries) {
+        for (BIRAnnotationValueEntry entry : valueEntries) {
+            writeConstValue(annotBuf, entry);
         }
     }
 }
