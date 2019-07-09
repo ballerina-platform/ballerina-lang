@@ -20,8 +20,19 @@ package org.ballerinalang.nats;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utilities for producing and consuming via NATS sever.
@@ -46,5 +57,43 @@ public class Utils {
                 .createRecordValue(Constants.NATS_PACKAGE, Constants.NATS_ERROR_DETAIL_RECORD);
         errorDetailRecord.put("message", detailedErrorMessage);
         return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
+    }
+
+    public static Object bindDataToIntendedType(byte[] data, BType intendedType) {
+        int dataParamTypeTag = intendedType.getTag();
+        Object dispatchedData;
+        switch (dataParamTypeTag) {
+        case TypeTags.STRING_TAG:
+            dispatchedData = new String(data, StandardCharsets.UTF_8);
+            break;
+        case TypeTags.INT_TAG:
+            dispatchedData = Integer.valueOf(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.BOOLEAN_TAG:
+            dispatchedData = Boolean.valueOf(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.FLOAT_TAG:
+            dispatchedData = Double.valueOf(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.DECIMAL_TAG:
+            dispatchedData = new DecimalValue(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.ARRAY_TAG:
+            dispatchedData = new ArrayValue(data);
+            break;
+        case TypeTags.JSON_TAG:
+            dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.XML_TAG:
+            dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
+            break;
+        case TypeTags.RECORD_TYPE_TAG:
+            dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data, StandardCharsets.UTF_8)),
+                    (BRecordType) intendedType);
+            break;
+        default:
+            throw new BallerinaException("Unable to find a supported data type to bind the message data");
+        }
+        return dispatchedData;
     }
 }
