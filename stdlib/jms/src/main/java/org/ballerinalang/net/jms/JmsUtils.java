@@ -19,23 +19,31 @@
 
 package org.ballerinalang.net.jms;
 
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
+import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -207,5 +215,45 @@ public class JmsUtils {
             }
         }
         return destination;
+    }
+
+    public static byte[] getBytesData(ArrayValue bytesArray) {
+        return Arrays.copyOf(bytesArray.getBytes(), bytesArray.size());
+    }
+
+    public static ObjectValue populateAndGetDestinationObj(Destination destination) throws JMSException {
+        ObjectValue destObj;
+        if (destination instanceof Queue) {
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                        JmsConstants.JMS_DESTINATION_OBJ_NAME,
+                                                        ((Queue) destination).getQueueName(),
+                                                        JmsConstants.DESTINATION_TYPE_QUEUE);
+        } else {
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                        JmsConstants.JMS_DESTINATION_OBJ_NAME,
+                                                        ((Topic) destination).getTopicName(),
+                                                        JmsConstants.DESTINATION_TYPE_QUEUE);
+        }
+        destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, destination);
+        return destObj;
+    }
+
+    public static ObjectValue createAndPopulateMessageObject(Message jmsMessage, ObjectValue sessionObj) {
+        String msgType;
+        if (jmsMessage instanceof TextMessage) {
+            msgType = JmsConstants.TEXT_MESSAGE;
+        } else if (jmsMessage instanceof BytesMessage) {
+            msgType = JmsConstants.BYTES_MESSAGE;
+        } else if (jmsMessage instanceof StreamMessage) {
+            msgType = JmsConstants.STREAM_MESSAGE;
+        } else if (jmsMessage instanceof MapMessage) {
+            msgType = JmsConstants.MAP_MESSAGE;
+        } else {
+            msgType = JmsConstants.MESSAGE;
+        }
+        ObjectValue messageObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                                   JmsConstants.MESSAGE_OBJ_NAME, sessionObj, msgType);
+        messageObj.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
+        return messageObj;
     }
 }

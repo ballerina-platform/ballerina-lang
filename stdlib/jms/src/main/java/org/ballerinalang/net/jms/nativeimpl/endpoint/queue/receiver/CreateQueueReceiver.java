@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -49,10 +47,7 @@ import javax.jms.Session;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CreateQueueReceiver extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class CreateQueueReceiver {
 
     public static void createQueueReceiver(Strand strand, ObjectValue queueListener, ObjectValue sessionBObject,
                                            String messageSelector, Object arg) {
@@ -75,10 +70,14 @@ public class CreateQueueReceiver extends BlockingNativeCallableUnit {
             MessageConsumer consumer = session.createConsumer(queue, messageSelector);
             ObjectValue consumerConnectorBObject = queueListener.getObjectValue(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(JmsConstants.SESSION_OBJECT, sessionBObject);
             consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                    new SessionConnector(session));
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error while creating queue consumer.", e);
         }
+    }
+
+    private CreateQueueReceiver() {
     }
 }

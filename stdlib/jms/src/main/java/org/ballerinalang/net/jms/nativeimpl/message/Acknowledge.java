@@ -19,44 +19,45 @@
 
 package org.ballerinalang.net.jms.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
-import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Get a string property in the JMS Message.
+ * Acknowledge reception of the message.
+ *
+ * @since 1.0
+ *
  */
-@BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
-        functionName = "getStringProperty",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX,
+                   packageName = JmsConstants.JMS,
+                   functionName = "acknowledge",
+                   receiver = @Receiver(type = TypeKind.OBJECT,
+                                        structType = JmsConstants.MESSAGE_OBJ_NAME,
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class GetStringProperty extends BlockingNativeCallableUnit {
+public class Acknowledge {
 
-    @Override
-    public void execute(Context context) {
-    }
-
-    public static Object getStringProperty(Strand strand, ObjectValue msgObj, String key) {
-        Message message = JmsUtils.getJMSMessage(msgObj);
+    public static Object acknowledge(Strand strand, ObjectValue msgObj) {
+        //        SessionConnector sessionConnector = (SessionConnector) consumerConnectorObject.getNativeData(
+//                JmsConstants.SESSION_CONNECTOR_OBJECT);
+        Message message = (Message) msgObj.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         try {
-            return message.getStringProperty(key);
+//            sessionConnector.handleTransactionBlock(context);
+            message.acknowledge();
         } catch (JMSException e) {
-            return BallerinaAdapter.getError("Error when retrieving string property", e);
+            return BallerinaAdapter.getError("Message acknowledgement failed.", e);
         }
+        return null;
     }
 
+    private Acknowledge() {
+    }
 }

@@ -96,12 +96,6 @@ public type DurableTopicListener object {
 # Caller actions related to the DurableTopicSubscriber.
 public type DurableTopicSubscriberCaller client object {
 
-    # Acknowledges a received message.
-    #
-    # + message - The JMS message to be acknowledged.
-    # + return - The error returned upon failure to acknowledge the received message.
-    public remote function acknowledge(Message message) returns error? = external;
-
     # Synchronously receives a message from the JMS provider.
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received.

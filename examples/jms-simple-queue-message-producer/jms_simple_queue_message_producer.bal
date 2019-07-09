@@ -1,7 +1,7 @@
 import ballerinax/jms;
-import ballerina/log;
+import ballerina/io;
 
-// This creates a queue sender. This example makes use of the ActiveMQ Artemis
+// Creates a queue sender. This example makes use of the ActiveMQ Artemis
 // broker for demonstration while it can be tried with other brokers that
 // support JMS.
 jms:QueueSender queueSender = new({
@@ -12,17 +12,21 @@ jms:QueueSender queueSender = new({
     }, queueName = "MyQueue");
 
 public function main() {
-    // This creates a text message.
-    var msg = queueSender.session.createTextMessage("Hello from Ballerina");
+    // Create a text message.
+    var msg = new jms:Message(queueSender.session, jms:TEXT_MESSAGE);
     if (msg is jms:Message) {
-        // This sends the Ballerina message to the JMS provider.
+        var err = msg.setPayload("Hello from Ballerina");
+        if (err is error) {
+            io:println("Unable to set payload" , err.reason());
+        }
+        // Send the Ballerina message to the JMS provider.
         var returnVal = queueSender->send(msg);
         if (returnVal is error) {
-            log:printError("Error occurred while sending message",
-                err = returnVal);
+            io:println("Error occurred while sending message",
+                returnVal.reason());
         }
     } else {
-        log:printError("Error occurred while creating message",
-            err = msg);
+        io:println("Error occurred while creating message",
+            msg.reason());
     }
 }

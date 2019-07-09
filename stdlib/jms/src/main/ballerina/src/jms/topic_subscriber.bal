@@ -103,12 +103,6 @@ public type TopicSubscriberCaller client object {
 
     public TopicListener? topicListener = ();
 
-    # Acknowledges a received message.
-    #
-    # + message - The JMS message to be acknowledged.
-    # + return - Returna an error upon failure to acknowledge a received message.
-    public remote function acknowledge(Message message) returns error? = external;
-
     # Synchronously receives a message from the JMS provider.
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received.
@@ -127,7 +121,7 @@ public type TopicSubscriberCaller client object {
             var session = subscriber.session;
             validateTopic(destination);
             subscriber.createSubscriber(session, subscriber.messageSelector, destination);
-            log:printInfo("Subscriber created for topic " + destination.destinationName);
+            log:printInfo("Subscriber created for topic " + destination.getName());
         } else {
             log:printInfo("Topic subscriber is not properly initialized");
         }
@@ -140,11 +134,11 @@ public type TopicSubscriberCaller client object {
 };
 
 function validateTopic(Destination destination) {
-    if (destination.destinationName == "") {
+    if (destination.getName() == "") {
         string errorMessage = "Destination name cannot be empty";
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic topicSubscriberConfigError;
-    } else if (destination.destinationType != "topic") {
+    } else if (destination.getType() != "topic") {
         string errorMessage = "Destination should should be a topic";
         error topicSubscriberConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic topicSubscriberConfigError;

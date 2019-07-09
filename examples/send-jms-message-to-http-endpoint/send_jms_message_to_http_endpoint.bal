@@ -18,12 +18,12 @@ service jmsListener on consumerEndpoint {
 
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
-        var textContent = message.getTextMessageContent();
+        var textContent = message.getPayload();
         if (textContent is string) {
             log:printInfo("Message received from broker. Payload: " +
                     textContent);
-            forwardToBakend(untaint textContent);
-        } else {
+            forwardToBakend(textContent);
+        } else if (textContent is error) {
             log:printError("Error while reading message", err = textContent);
         }
     }

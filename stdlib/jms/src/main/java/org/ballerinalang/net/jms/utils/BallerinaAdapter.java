@@ -59,4 +59,25 @@ public class BallerinaAdapter {
         errorRecord.put(JmsConstants.ERROR_MESSAGE_FIELD, errorMessage);
         return BallerinaErrors.createError(JmsConstants.JMS_ERROR_CODE, errorRecord);
     }
+
+    /**
+     * Gets an integer from a long value. Handles errors appropriately.
+     *
+     * @param longVal the long value.
+     * @param name    the name of the long value: useful for logging the error.
+     * @param logger  the logger to log errors
+     * @return the int value from the given long value
+     */
+    public static int getIntFromLong(long longVal, String name, Logger logger) {
+        if (longVal <= 0) {
+            throw getError("The bytesLength cannot be negative");
+        }
+        try {
+            return Math.toIntExact(longVal);
+        } catch (ArithmeticException e) {
+            logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}", name,
+                        Integer.MAX_VALUE, name, Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
+    }
 }

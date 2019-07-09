@@ -31,18 +31,6 @@ public type Session object {
 
     function initEndpoint(Connection connection) = external;
 
-    # Creates a JMS message, which holds the text content.
-    #
-    # + content - The text content that is used to initialize the message.
-    # + return - Returns a text message or an error upon the occurrence of an error.
-    public function createTextMessage(string content) returns Message|error = external;
-
-    # Creates a JMS message, which holds the Map content.
-    #
-    # + content - The Map content that is used to initialize the message.
-    # + return - Returns a map message or an error upon the occurrence of an error.
-    public function createMapMessage(map<any> content) returns Message|error = external;
-
     # Unsubscribes a durable subscription that has been created by a client.
     # It is erroneous for a client to delete a durable subscription while there is an active (not closed) consumer
     # for the subscription, or while a consumed message being part of a pending transaction or has not been

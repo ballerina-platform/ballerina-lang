@@ -19,9 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,11 +26,11 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 /**
  * Create Text JMS Message.
@@ -43,27 +40,19 @@ import javax.jms.Topic;
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
                    args = {@Argument(name = "name", type = TypeKind.STRING)})
-public class CreateTopic extends BlockingNativeCallableUnit {
+public class CreateTopic {
 
-    @Override
-    public void execute(Context context) {
-    }
 
     public Object createTopic(Strand strand, ObjectValue sessionObj, String topicName) {
 
-        Topic jmsDestination;
         Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
-        ObjectValue destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                                                JmsConstants.JMS_DESTINATION_OBJ_NAME);
         try {
-            jmsDestination = session.createTopic(topicName);
-            destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
-            destObj.set(JmsConstants.DESTINATION_NAME, jmsDestination.getTopicName());
-            destObj.set(JmsConstants.DESTINATION_TYPE, "topic");
+            return JmsUtils.populateAndGetDestinationObj(session.createTopic(topicName));
         } catch (JMSException e) {
             return BallerinaAdapter.getError("Failed to create topic destination.", e);
         }
-        return destObj;
     }
 
+    private CreateTopic() {
+    }
 }

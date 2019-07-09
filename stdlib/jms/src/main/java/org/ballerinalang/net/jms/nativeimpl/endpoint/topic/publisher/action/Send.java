@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher.action;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,11 +37,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
                                         structType = JmsConstants.TOPIC_PUBLISHER_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class Send extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Send {
 
     public static Object send(Strand strand, ObjectValue publisherObj, ObjectValue msgObj) {
         return SendActionHandler.handle(publisherObj, msgObj);

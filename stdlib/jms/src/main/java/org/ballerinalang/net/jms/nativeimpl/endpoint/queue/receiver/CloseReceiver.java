@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,13 +37,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CloseReceiver extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class CloseReceiver {
 
     public static void closeQueueReceiver(Strand strand, ObjectValue queueListener, ObjectValue consumerActions) {
         CloseConsumerHandler.handle(consumerActions);
     }
 
+    private CloseReceiver() {
+    }
 }

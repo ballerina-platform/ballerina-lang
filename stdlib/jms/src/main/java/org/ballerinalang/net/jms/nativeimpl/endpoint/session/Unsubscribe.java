@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -41,11 +39,7 @@ import javax.jms.Session;
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.SESSION_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
-public class Unsubscribe extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Unsubscribe  {
 
     public static Object unsubscribe(Strand strand, ObjectValue sessionObj, String subscriptionId) {
         Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
@@ -57,4 +51,6 @@ public class Unsubscribe extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Unsubscribe() {
+    }
 }

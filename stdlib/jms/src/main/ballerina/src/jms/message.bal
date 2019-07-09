@@ -19,158 +19,170 @@
 # Most message-oriented middleware (MOM) products treat messages as lightweight entities that consist of a header
 # and a body. The header contains fields used for message routing and identification; the body contains the
 # application data being sent.
-public type Message object {
+public type Message client object {
+    private Session session;
+    private MessageType msgType;
 
-    # Gets text content of the JMS message
-    #
-    # + return - The string containing this message's data or a JMS error
-    public function getTextMessageContent() returns @tainted string|error = external;
+    # The `Message` object is initialized with a `Session` object and `MessageType` indicating the type of the message.
+    # 
+    # + session - The session from which the message would be created
+    # + msgType - The type of the message
+    # + return - `error` if `Message` creation fails
+    public function __init(Session session, MessageType msgType) returns error? {
+        self.session = session;
+        self.msgType = msgType;
+        return self.createMessage();
+    }
 
-    # Gets map content of the JMS message
-    #
-    # + return - The string containing this message's data or a JMS error
-    public function getMapMessageContent() returns @tainted map<any>|error = external;
+    function createMessage() returns error? = external;
 
-    # Sets a JMS transport string property from the message
-    #
-    # + key - The string property name
-    # + value - The string property value
-    # + return - Nil or a JMS error
-    public function setStringProperty(@untainted string key, string value) returns error? = external;
+    # Sets the payload/body of the message. 
+    # If the `MessageType` is `TEXT_MESSAGE`, an attempt would be made to convert the data to string type and the
+    # body/content of the `Message` would be replaced.
+    # If the `MessageType` is `MAP_MESSAGE`, then only `map` type content is allowed and the data would be replaced.
+    # Otherwise, an error is returned.
+    # If the `MessageType` is `BYTES_MESSAGE` or `STREAM_MESSAGE`, this method can be called multiple times to populate
+    # the message without replacing the content. If the content is of types `map`, `xml`, or `json`, they will be
+    # converted to string. 
+    # The data types `json`, `xml`, and `map` are converted to `string` before sending except for the `MAP_MESSAGE`
+    # type, which functions as described above.
+    # 
+    # + content - the content of the message
+    # + return - if an error occurred while setting the payload or on content mismatch
+    public function setPayload(@untainted MessageContent content) returns error? = external;
 
-    # Gets a JMS transport string property from the message
+    # Returns the payload of the message.
+    # If the `MessageType` is  `TEXT_MESSAGE`, returns string data or attempts to convert the message to the given
+    # optional `DataType`. If the  `bytesLength` parameter is set it is ignored.
+    # If the `MessageType` is `MAP_MESSAGE`, then a `map` is returned regardless of the `DataType` and `bytesLength`.
+    # If the `MessageType` is `BYTES_MESSAGE` or `STREAM_MESSAGE`, the `DataType` has to be mentioned as it cannot
+    # be deduced. This method can be called multiple times to receive the available data. If the `DataType` is `BYTES`,
+    # then the `bytesLength` has to be specified. Otherwise the number of bytes to be read cannot be deduced.
     #
-    # + key - The string property name
-    # + return - The string property value, JMS error or nil if there is no property by this name
-    public function getStringProperty(@untainted string key) returns @tainted string|error? = external;
+    # + dataType - this is optional for `TEXT_MESSAGE` and `MAP_MESSAGE` types and mandatory for `BYTES_MESSAGE` and
+    # `STREAM_MESSAGE` types to deduce the data to be returned.
+    # + bytesLength - this is optional and is ignored for other dataTypes except for `BYTES` dataType in 
+    # a `BYTES_MESSAGE` or `STREAM_MESSAGE`
+    # + return - If an error occurred when retrieving the payload from the `Message` or if the required parameters are
+    # not set
+    public function getPayload(DataType? dataType = (), int? bytesLength = ())
+        returns @tainted MessageContent | error = external;
 
-    # Sets a JMS transport integer property from the message
-    #
-    # + key - The integer property name
-    # + value - The integer property value
-    # + return - Nil or a JMS error
-    public function setIntProperty(@untainted string key, int value) returns error? = external;
+    # Sets a JMS transport property to the `Message`. The `json` and `xml` values are converted to `string` properties.
+    # 
+    # + key - The unique property name.
+    # + value - The property value.
+    # + return - If an error occurred while setting the property.
+    public function setProperty(string key, @untainted string | int | float | boolean | byte | json | xml value)
+        returns error? = external;
 
-    # Gets a JMS transport integer property from the message
+    # Retrieves the JMS transport property from the `Message` for the given name.
     #
-    # + key - The integer property name
-    # + return - The integer property value or JMS error
-    public function getIntProperty(@untainted string key) returns @tainted int|error = external;
+    # + key - The property name
+    # + return - The respective property, `nil` if not found, or the `error` if  an error occurred when retrieving
+    # the property.
+    public function getProperty(string key) returns @tainted string | int | float | boolean | byte | () |
+        error = external;
 
-    # Sets a JMS transport boolean property from the message
+    # Returns an `string[]` of all the property names.
     #
-    # + key - The boolean property name
-    # + value - The boolean property value
-    # + return - Nil or a JMS error
-    public function setBooleanProperty(@untainted string key, boolean value) returns error? = external;
+    # + return - an array of all the names of property values.
+    public function getPropertyNames() returns string[]? = external;
 
-    # Gets a JMS transport boolean property from the message
+    # Sets the `CustomHeaders` to the `Message`.
     #
-    # + key - The boolean property name
-    # + return - The boolean property value or JMS error
-    public function getBooleanProperty(@untainted string key) returns @tainted boolean|error = external;
+    # + headers - The `CustomHeaders` record to be set
+    # + return - If an error occurred while setting the `CustomHeaders`
+    public function setCustomHeaders(@untainted CustomHeaders headers) returns error? = external;
 
-    # Sets a JMS transport float property from the message
+    # Returns the `CustomHeaders` of the `Message`
     #
-    # + key - The float property name
-    # + value - The float property value
-    # + return - Nil or a JMS error
-    public function setFloatProperty(@untainted string key, float value) returns error? = external;
+    # + return - If an error occurred while retrieving the `CustomHeaders`
+    public function getCustomHeaders() returns CustomHeaders | error = external;
 
-    # Gets a JMS transport float property from the message
+    # Returns the `Headers` of the `Message`
     #
-    # + key - The float property name
-    # + return - The float property value or JMS error
-    public function getFloatProperty(@untainted string key) returns @tainted float|error = external;
+    # + return - The `Headers` or the `error` if an error occurred while setting the `Headers`
+    public function getHeaders() returns Headers | error = external;
 
-    # Gets JMS transport header MessageID from the message
+    # Acknowledges the reception of this message. This is used when the consumer has chosen CLIENT_ACKNOWLEDGE as its
+    # acknowledgment mode.
     #
-    # + return - The header value or JMS error
-    public function getMessageID() returns @tainted string|error = external;
+    # + return - If an error occurred while acknowledging the message
+    public remote function acknowledge() returns error? = external;
 
-    # Gets JMS transport header Timestamp from the message
+    # Returns the `MessageType` of the `Message`
     #
-    # + return - The timestamp header value or JMS error
-    public function getTimestamp() returns @tainted int|error = external;
+    # + return - the `MessageType` of the `Message`
+    public function getType() returns MessageType {
+        return self.msgType;
+    }
 
-    # Sets DeliveryMode JMS transport header to the message
-    #
-    # + mode - The header value
-    # + return - nil or a JMS error
-    public function setDeliveryMode(int mode) returns error? = external;
-
-    # Get JMS transport header DeliveryMode from the message
-    #
-    # + return - The delivery mode header value or JMS error
-    public function getDeliveryMode() returns @tainted int|error = external;
-
-    # Sets Expiration JMS transport header to the message
-    #
-    # + time - The expiration time header value
-    # + return - nil or a JMS error
-    public function setExpiration(int time) returns error? = external;
-
-    # Gets JMS transport header Expiration from the message
-    #
-    # + return - The expiration header value or JMS error
-    public function getExpiration() returns @tainted int|error = external;
-
-    # Sets Type JMS transport header to the message
-    #
-    # + messageType - The message type header value
-    # + return - nil or an JMS error if any JMS provider level internal error occur
-    public function setType(string messageType) returns error? = external;
-
-    # Gets JMS transport header Type from the message
-    #
-    # + return - The JMS message type header value or JMS error
-    public function getType() returns @tainted string|error? = external;
-
-    # Clears JMS properties of the message
-    #
-    # + return - nil or error if any JMS provider level internal error occur
-    public function clearProperties() returns error? = external;
-
-    # Clears body of the JMS message
-    #
-    # + return - nil or a JMS error
-    public function clearBody() returns error? = external;
-
-    # Sets priority JMS transport header to the message
-    #
-    # + priority - The priority header value
-    # + return - nil or a JMS error
-    public function setPriority(int priority) returns error? = external;
-
-    # Gets JMS transport header Priority from the message
-    #
-    # + return - The JMS priority header value or error
-    public function getPriority() returns @tainted int|error = external;
-
-    # Gets JMS transport header Redelivered from the message
-    #
-    # + return - The JMS redelivered header value or JMS error
-    public function getRedelivered() returns @tainted boolean|error = external;
-
-    # Sets CorrelationID JMS transport header to the message
-    #
-    # + correlationId - The correlationId header value
-    # + return - nil or a JMS error
-    public function setCorrelationID(string correlationId) returns error? = external;
-
-    # Gets JMS transport header CorrelationID from the message
-    #
-    # + return - The JMS correlation ID header value or JMS error or nil if header is not set
-    public function getCorrelationID() returns @tainted string|error? = external;
-
-    # Gets JMS replyTo header from the message
-    #
-    # + return - The JMS replyTo Destination or JMS error or nil if header is not set
-    public function getReplyTo() returns @tainted Destination|error? = external;
-
-    # Set the replyTo destination from the message
-    #
-    # + replyTo - replyTo destination.
-    # + return - nil or JMS error
-    public function setReplyTo(Destination replyTo) returns error? = external;
 };
+
+# The type that represents the union of the allowed types for the `Message`
+public type MessageContent int | float | byte | boolean | string | map<string | byte | int | float | boolean | byte[] |
+    ()> | xml | json | byte[];
+
+# The JMS message types.
+public type MessageType MESSAGE | TEXT_MESSAGE | BYTES_MESSAGE | STREAM_MESSAGE | MAP_MESSAGE;
+
+public const MESSAGE = "MESSAGE";
+public const TEXT_MESSAGE = "TEXT_MESSAGE";
+public const BYTES_MESSAGE = "BYTES_MESSAGE";
+public const STREAM_MESSAGE = "STREAM_MESSAGE";
+public const MAP_MESSAGE = "MAP_MESSAGE";
+
+# The data types allowed for the `BYTES_MESSAGE` and `STREAM_MESSAGE` types.
+public type DataType INT | FLOAT | BYTE | BOOLEAN | STRING | BYTES | XML | JSON;
+
+public const INT = "INT";
+public const FLOAT = "FLOAT";
+public const BYTE = "BYTE";
+public const BOOLEAN = "BOOLEAN";
+public const STRING = "STRING";
+public const XML = "XML";
+public const JSON = "JSON";
+public const BYTES = "BYTES";
+
+# While many of the JMS headers are set automatically when the message is delivered, several others must be set 
+# explicitly on the Message object before it is delivered by the producer.
+#
+# + replyTo - JMSReplyTo header destination
+# + correlationId - JMSCorrelationID header
+# + jmsType - JMSType header
+public type CustomHeaders record {|
+    Destination replyTo?;
+    string correlationId?;
+    string jmsType?;
+|};
+
+# Most JMS headers are automatically assigned; their value is set by the JMS provider when the message is delivered.
+#
+# + destination - The JMSDestination header identifies the destination with either a Topic or Queue
+# + deliveryMode - JMSDeliveryMode for the `DeliveryMode` in JMS
+# + messageId - The JMSMessageID which uniquely identifies a message
+# + timestamp - The JMSTimestamp is set automatically by the message producer when the send() operation is invoked.
+# + expiration - A Message object’s expiration date prevents the message from being delivered to consumers after it 
+# has expired.
+# + redelivered - The JMSRedelivered header indicates that the message was redelivered to the consumer.
+# + priority - The message producer may assign a priority to a message when it is delivered.
+public type Headers record {|
+   Destination destination;
+   DeliveryMode deliveryMode;
+   string messageId;
+   int timestamp;
+   int expiration;
+   boolean redelivered;
+   int priority;
+|};
+
+# The two types of delivery modes in JMS.
+public type DeliveryMode PERSISTENT | NON_PERSISTENT;
+
+# A persistent message is delivered once-and-only-once which means that if the JMS provider fails,
+# the message is not lost; it will be delivered after the server recovers.
+public const PERSISTENT = "PERSISTENT";
+# A non-persistent message is delivered at-most-once which means that it can be lost permanently if the JMS
+# provider fails.
+public const NON_PERSISTENT = "NON_PERSISTENT";

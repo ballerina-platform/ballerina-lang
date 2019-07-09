@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,10 +42,7 @@ import javax.jms.JMSException;
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class Start {
 
     public static void start(Strand strand, ObjectValue connectionBObject) {
         Connection connection = (Connection) connectionBObject.getNativeData(JmsConstants.JMS_CONNECTION);
@@ -56,5 +51,8 @@ public class Start extends BlockingNativeCallableUnit {
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", e);
         }
+    }
+
+    private Start() {
     }
 }

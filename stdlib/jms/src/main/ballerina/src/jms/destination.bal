@@ -29,14 +29,22 @@ public const TOPIC = "topic";
 # Destination object
 #
 # + destinationName - Name of the destination
-# + destinationType - Type of the destination, either queue or topic
+# + destinationType - Type of the destination (either queue or topic)
 public type Destination object {
-    public string destinationName;
-    public string destinationType;
+    private string destinationName;
+    private string destinationType;
 
-    // This object construction is package private as it needs to be created using the session
+    // This object is constructed as package private as it needs to be created using the session.
     function __init(string destName, string destType) {
         self.destinationName = destName;
         self.destinationType = destType;
+    }
+
+    public function getName() returns string {
+        return self.destinationName;
+    }
+
+    public function getType() returns string {
+        return self.destinationType;
     }
 };

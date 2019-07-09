@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,9 @@
 
 package org.ballerinalang.net.jms.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -30,35 +30,34 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
+import java.util.Collections;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Set a int property in the JMS Message.
+ * Returns an {@link String} array of all the property names.
+ *
+ * @since 1.0
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
-        functionName = "setIntProperty",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        functionName = "getPropertyNames",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class SetIntProperty extends BlockingNativeCallableUnit {
+public class GetPropertyNames {
 
-    @Override
-    public void execute(Context context) {
-    }
-
-    public static Object setIntProperty(Strand strand, ObjectValue msgObj, String key, long value) {
+    @SuppressWarnings(JmsConstants.UNCHECKED)
+    public static Object getPropertyNames(Strand strand, ObjectValue msgObj) {
         Message message = JmsUtils.getJMSMessage(msgObj);
-
         try {
-            message.setIntProperty(key, (int) value);
-        } catch (JMSException e) {
-            return BallerinaAdapter.getError("Error when setting int property", e);
+            return new ArrayValue(Collections.list(message.getPropertyNames()).toArray(), BTypes.typeString);
+        } catch (JMSException ex) {
+            return BallerinaAdapter.getError("Error getting the automatically assigned headers", ex);
         }
-        return null;
     }
 
+    private GetPropertyNames() {
+    }
 }

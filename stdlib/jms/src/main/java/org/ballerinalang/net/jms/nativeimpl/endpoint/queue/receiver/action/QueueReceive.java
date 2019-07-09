@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver.action;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,14 +37,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                                         structType = JmsConstants.QUEUE_RECEIVER_CALLER_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class QueueReceive extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class QueueReceive {
 
     public static Object receive(Strand strand, ObjectValue queueReceiverCaller, long timeoutInMilliSeconds) {
         return ReceiveActionHandler.handle(queueReceiverCaller, timeoutInMilliSeconds);
     }
 
+    private QueueReceive() {
+    }
 }

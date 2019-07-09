@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -50,11 +48,7 @@ import javax.jms.Topic;
                              structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CreateSubscriber extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class CreateSubscriber {
 
     public static Object createSubscriber(Strand strand, ObjectValue topicSubscriberObj, ObjectValue sessionObj,
                                         String topicPattern,
@@ -69,6 +63,7 @@ public class CreateSubscriber extends BlockingNativeCallableUnit {
             MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId, messageSelector, false);
             ObjectValue consumerConnectorBObject = topicSubscriberObj.getObjectValue(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(JmsConstants.SESSION_OBJECT, sessionObj);
             consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                    new SessionConnector(session));
         } catch (JMSException e) {
@@ -77,5 +72,6 @@ public class CreateSubscriber extends BlockingNativeCallableUnit {
         return null;
     }
 
-
+    private CreateSubscriber() {
+    }
 }

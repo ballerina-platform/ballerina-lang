@@ -107,12 +107,6 @@ public type QueueReceiverCaller client object {
 
     public QueueListener? queueListener = ();
 
-    # Acknowledges a received message.
-    #
-    # + message - The JMS message to be acknowledged.
-    # + return - Returns an error upon failure to acknowledge the received message.
-    public remote function acknowledge(Message message) returns error? = external;
-
     # Synchronously receives a message from the JMS provider.
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received.
@@ -134,7 +128,7 @@ public type QueueReceiverCaller client object {
             validateQueue(destination);
             queueListener.createQueueReceiver(session, queueListener.messageSelector, destination);
         } else {
-            log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
+            log:printInfo("Message receiver is not properly initialized for queue " + destination.getName());
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
         if (queueListener is QueueListener) {
@@ -147,11 +141,11 @@ public type QueueReceiverCaller client object {
 };
 
 function validateQueue(Destination destination) {
-    if (destination.destinationName == "") {
+    if (destination.getName() == "") {
         string errorMessage = "Destination name cannot be empty";
         error queueReceiverConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic queueReceiverConfigError;
-    } else if (destination.destinationType != "queue") {
+    } else if (destination.getType() != "queue") {
         string errorMessage = "Destination should should be a queue";
         error queueReceiverConfigError = error(JMS_ERROR_CODE, message = errorMessage);
         panic queueReceiverConfigError;

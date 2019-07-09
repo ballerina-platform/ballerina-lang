@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,8 @@
 
 package org.ballerinalang.net.jms.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,51 +28,47 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
 /**
- * Get text content of the JMS Message.
+ * Sets the CustomHeaders to the Message.
+ *
+ * @since 1.0
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
-        functionName = "getTextMessageContent",
+        functionName = "setCustomHeaders",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class GetTextMessageContent extends BlockingNativeCallableUnit {
+public class SetCustomHeaders {
 
-    private static final Logger log = LoggerFactory.getLogger(GetTextMessageContent.class);
-
-    @Override
-    public void execute(Context context) {
-    }
-
-    public static Object getTextMessageContent(Strand strand, ObjectValue msgObj) {
-
-        Message jmsMessage = JmsUtils.getJMSMessage(msgObj);
-
-        String messageContent = null;
-
+    public static Object setCustomHeaders(Strand strand, ObjectValue msgObj,
+                                                     MapValue<String, Object> headers) {
+        Message message = JmsUtils.getJMSMessage(msgObj);
         try {
-            if (jmsMessage instanceof TextMessage) {
-                messageContent = ((TextMessage) jmsMessage).getText();
-            } else {
-                log.error("JMSMessage is not a Text message. ");
+            ObjectValue destObj = headers.getObjectValue(JmsConstants.REPLY_TO_FIELD);
+            if (destObj != null) {
+                Destination destination = (Destination) destObj.getNativeData(JmsConstants.JMS_DESTINATION_OBJECT);
+                message.setJMSReplyTo(destination);
             }
-        } catch (JMSException e) {
-           return BallerinaAdapter.getError("Error when retrieving JMS message content.", e);
+            String correlationId = headers.getStringValue(JmsConstants.CORRELATION_ID_FIELD);
+            if (correlationId != null) {
+                message.setJMSCorrelationID(correlationId);
+            }
+            String type = headers.getStringValue(JmsConstants.TYPE_FIELD);
+            if (type != null) {
+                message.setJMSType(type);
+            }
+        } catch (JMSException ex) {
+            return BallerinaAdapter.getError("Error setting the developer assigned headers", ex);
         }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Get content from the JMS message");
-        }
-
-        return messageContent;
+        return null;
     }
 
+    private SetCustomHeaders() {
+    }
 }

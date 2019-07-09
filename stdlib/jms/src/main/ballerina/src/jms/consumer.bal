@@ -29,11 +29,9 @@ public type Consumer object {
 
 # Represent a JMS consumer endpoint
 #
-# + consumerActions - Handle all the actions related to the endpoint
 # + config - Used to store configurations related to a JMS connection
 public type ConsumerTemplate object {
 
-    public ConsumerActions consumerActions = new;
     public ConsumerEndpointConfiguration config = {};
 
     # Initialize the consumer endpoint
@@ -58,28 +56,6 @@ public type ConsumerTemplate object {
     # Stops the consumer endpoint
     public function stop() {
 
-    }
-
-    # Returns the action object of ConsumerTemplate
-    #
-    # + return - Returns consumer actions
-    public function getCallerActions() returns ConsumerActions {
-        return new;
-    }
-
-};
-
-# JMS consumer action handling object
-public type ConsumerActions object {
-
-    # Acknowledge the received message to JMS provider.
-    # This should be used only with acknowledgment modes which require explicit acknowledgements like
-    # CLIENT_ACKNOWLEDGMENT.
-    #
-    # + message - incoming message
-    # + return - error upon failure to acknowledge the received message to JMS provider.
-    public function acknowledge(Message message) returns error? {
-        return;
     }
 };
 

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.jms;
 
-import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.awaitility.Awaitility;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -34,22 +33,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * JMS connector related tests.
  */
-public class JmsConnectorTestCase extends BaseTest {
+@Test(groups = {"jms-test"})
+public class JmsConnectorTest extends BaseTest {
 
     private Path clientsPath;
     private Path servicesPath;
-    private EmbeddedActiveMQ embeddedBroker;
 
     @BeforeClass
-    public void setup() throws Exception {
-        Path path = Paths.get("src", "test", "resources");
-
-        // Start broker
-        embeddedBroker = new EmbeddedActiveMQ();
-        String brokerXML = path.resolve("configfiles").resolve("broker.xml").toUri().toString();
-        embeddedBroker.setConfigResourcePath(brokerXML);
-        embeddedBroker.start();
-
+    public void setup() {
         clientsPath = Paths.get("src", "test", "resources", "test-src", "clients");
         servicesPath = Paths.get("src", "test", "resources", "test-src", "services");
     }
@@ -57,43 +48,43 @@ public class JmsConnectorTestCase extends BaseTest {
     @Test(description = "Test JMS Connector Queue consumer producer")
     public void testQueueConsumerProducer() {
 
-        sendMessages("jms_queue_producer.bal", "05_jms_queue_consumer.bal", "Test Text");
+        sendMessages("jms_queue_producer.bal", "jms_queue_consumer.bal", "Test Text");
 
     }
 
     @Test(description = "Test JMS Connector topic subscriber producer")
     public void testTopicSubscriberPublisher() {
-        sendMessages("jms_topic_publisher.bal", "07_jms_topic_subscriber.bal", "Test Text");
+        sendMessages("jms_topic_publisher.bal", "jms_topic_subscriber.bal", "Test Text");
     }
 
     @Test(description = "Test JMS Connector durable topic subscriber producer")
     public void testDurableTopicSubscriberPublisher() {
-        sendMessages("jms_durable_topic_publisher.bal", "01_jms_durable_topic_subscriber.bal", "Test Text");
+        sendMessages("jms_durable_topic_publisher.bal", "jms_durable_topic_subscriber.bal", "Test Text");
 
     }
 
     @Test(description = "Test JMS Connector simple queue receiver and producer")
     public void testJmsSimpleQueueReceiverProducer() {
-        sendMessages("jms_simple_queue_producer.bal", "06_jms_simple_queue_consumer.bal", "Test Text");
+        sendMessages("jms_simple_queue_producer.bal", "jms_simple_queue_consumer.bal", "Test Text");
     }
 
     @Test(description = "Test JMS property setters and getters")
-    public void testJMSProperties() {
+    public void testJmsProperties() {
         String expectedLog = "booleanVal:false|intVal:10|floatVal:10.5|stringVal:TestString|message:Test Text";
-        sendMessages("jms_properties_queue_sender.bal", "04_jms_properties_queue_receiver.bal", expectedLog);
+        sendMessages("jms_properties_queue_sender.bal", "jms_properties_queue_receiver.bal", expectedLog);
 
     }
 
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
-    public void testJMSMapMessagePublisherAndSubscriber() {
-        sendMessages("jms_map_message_publisher.bal", "03_jms_map_message_subscriber.bal", "1abctrue1.2");
+    public void testJmsMapMessagePublisherAndSubscriber() {
+        sendMessages("jms_map_message_publisher.bal", "jms_map_message_subscriber.bal", "1abctrue1.297 98 99 100 101");
     }
 
     private void sendMessages(String clientFileName, String serviceFileName, String expected) {
         CompileResult clientResult = BCompileUtil.compile(clientsPath.resolve(clientFileName).toAbsolutePath()
                                                                   .toString());
         CompileResult serviceResult = BCompileUtil.compile(true, servicesPath.resolve(serviceFileName)
-                                                                           .toAbsolutePath().toString());
+                .toAbsolutePath().toString());
         BRunUtil.invoke(clientResult, "sendTextMessage");
         Awaitility.await().atMost(30, SECONDS).until(() -> {
             BValue[] result = BRunUtil.invoke(serviceResult, "getMsgVal");

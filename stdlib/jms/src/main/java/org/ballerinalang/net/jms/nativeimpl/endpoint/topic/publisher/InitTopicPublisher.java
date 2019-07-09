@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,11 +47,7 @@ import javax.jms.Session;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_PUBLISHER_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class InitTopicPublisher extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitTopicPublisher {
 
     public static void initTopicPublisher(Strand strand, ObjectValue publisherObj, ObjectValue sessionObj,
                                           Object dest) {

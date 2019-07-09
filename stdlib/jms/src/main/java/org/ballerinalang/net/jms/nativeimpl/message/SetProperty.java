@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -34,30 +32,40 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * Set delivery mode of the JMS Message.
+ * Retrieves the JMS transport property from the Message for the given name.
+ *
+ * @since 1.0
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
-        functionName = "setDeliveryMode",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = JmsConstants.MESSAGE_OBJ_NAME,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        functionName = "setProperty",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class SetDeliveryMode extends BlockingNativeCallableUnit {
+public class SetProperty {
 
-    @Override
-    public void execute(Context context) {
-    }
-
-    public static Object setDeliveryMode(Strand strand, ObjectValue msgObj, long mode) {
+    public static Object setProperty(Strand strand, ObjectValue msgObj, String key, Object value) {
         Message message = JmsUtils.getJMSMessage(msgObj);
         try {
-            message.setJMSDeliveryMode((int) mode);
-        } catch (JMSException e) {
-            return BallerinaAdapter.getError("Error when setting delivery mode", e);
+            if (value instanceof Long) {
+                message.setLongProperty(key, (Long) value);
+            } else if (value instanceof Double) {
+                message.setDoubleProperty(key, (Double) value);
+            } else if (value instanceof Byte) {
+                message.setByteProperty(key, (Byte) value);
+            } else if (value instanceof Integer) {
+                message.setIntProperty(key, (Integer) value);
+            } else if (value instanceof Boolean) {
+                message.setBooleanProperty(key, (Boolean) value);
+            } else {
+                message.setStringProperty(key, value.toString());
+            }
+        } catch (JMSException ex) {
+            return BallerinaAdapter.getError("Error setting the property", ex);
         }
         return null;
     }
 
+    private SetProperty() {
+    }
 }

@@ -19,20 +19,17 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
-import javax.jms.Topic;
 
 /**
  * Create Text JMS Message.
@@ -41,28 +38,18 @@ import javax.jms.Topic;
                    functionName = "createTemporaryTopic",
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
-public class CreateTemporaryTopic extends BlockingNativeCallableUnit {
-
-
-    @Override
-    public void execute(Context context) {
-    }
+public class CreateTemporaryTopic {
 
     public static Object createTemporaryTopic(Strand strand, ObjectValue sessionObj) {
 
-        Topic jmsDestination;
         Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
-        ObjectValue bStruct = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                                                JmsConstants.JMS_DESTINATION_OBJ_NAME);
         try {
-            jmsDestination = session.createTemporaryTopic();
-            bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
-            bStruct.set(JmsConstants.DESTINATION_NAME, jmsDestination.getTopicName());
-            bStruct.set(JmsConstants.DESTINATION_TYPE, "topic");
+           return JmsUtils.populateAndGetDestinationObj(session.createTemporaryTopic());
         } catch (JMSException e) {
             return BallerinaAdapter.getError("Failed to create temporary destination.", e);
         }
-        return bStruct;
     }
 
+    private CreateTemporaryTopic() {
+    }
 }
