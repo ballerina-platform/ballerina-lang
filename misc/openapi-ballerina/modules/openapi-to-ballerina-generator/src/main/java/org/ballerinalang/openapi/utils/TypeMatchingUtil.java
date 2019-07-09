@@ -3,30 +3,43 @@ package org.ballerinalang.openapi.utils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.callbacks.Callback;
-import io.swagger.v3.oas.models.examples.Example;
-import io.swagger.v3.oas.models.headers.Header;
-import io.swagger.v3.oas.models.links.Link;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.ballerinalang.openapi.typemodel.*;
+import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.openapi.typemodel.OpenApiComponentType;
+import org.ballerinalang.openapi.typemodel.OpenApiOperationType;
+import org.ballerinalang.openapi.typemodel.OpenApiParameterType;
+import org.ballerinalang.openapi.typemodel.OpenApiPathType;
+import org.ballerinalang.openapi.typemodel.OpenApiPropertyType;
+import org.ballerinalang.openapi.typemodel.OpenApiRequestBodyType;
+import org.ballerinalang.openapi.typemodel.OpenApiResponseType;
+import org.ballerinalang.openapi.typemodel.OpenApiSchemaType;
+import org.ballerinalang.openapi.typemodel.OpenApiType;
 
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 
 /**
- * This Class will handle the type matching of a given OpenApi Object
+ * This Class will handle the type matching of a given OpenApi Object.
  */
 public class TypeMatchingUtil {
 
-    public static OpenApiType TraveseOpenApiTypes(OpenAPI api) {
+    private static final PrintStream outStream = System.err;
+
+    public static OpenApiType traveseOpenApiTypes(OpenAPI api) {
         Iterator<Map.Entry<String, PathItem>> pathItemIterator = api.getPaths().entrySet().iterator();
         OpenApiType apiTypes = new OpenApiType();
         OpenApiComponentType componentType = new OpenApiComponentType();
@@ -42,25 +55,18 @@ public class TypeMatchingUtil {
                 OpenApiPathType path = new OpenApiPathType();
 
                 path.setPathName(next.getKey());
-                path.setOperations(TraveseOperations(pathObj.readOperationsMap()));
+                path.setOperations(traveseOperations(pathObj.readOperationsMap()));
 
                 pathList.add(path);
             }
         }
 
-        final Map<String, Schema> schemas = api.getComponents().getSchemas();
-        final Map<String, Parameter> parameters = api.getComponents().getParameters();
-        final Map<String, ApiResponse> responses = api.getComponents().getResponses();
-        final Map<String, Callback> callbacks = api.getComponents().getCallbacks();
-        final Map<String, Example> examples = api.getComponents().getExamples();
-        final Map<String, Object> extensions = api.getComponents().getExtensions();
-        final Map<String, Header> headers = api.getComponents().getHeaders();
-        final Map<String, Link> links = api.getComponents().getLinks();
-        final Map<String, RequestBody> requestBodies = api.getComponents().getRequestBodies();
-        final Map<String, SecurityScheme> securitySchemes = api.getComponents().getSecuritySchemes();
+        if (api.getComponents() != null) {
+            final Map<String, Schema> schemas = api.getComponents().getSchemas();
 
-        if (schemas != null) {
-            componentType.setSchemaTypes(TraverseComponentSchema(schemas));
+            if (schemas != null) {
+                componentType.setSchemaTypes(traverseComponentSchema(schemas));
+            }
         }
 
         apiTypes.setPaths(pathList);
@@ -70,40 +76,48 @@ public class TypeMatchingUtil {
 
     }
 
-    public static List<OpenApiSchemaType> TraverseComponentSchema(Map<String, Schema> schemas) {
-        final Iterator<Map.Entry<String, Schema>> schemaIterator = schemas.entrySet().iterator();
+    public static List<OpenApiSchemaType> traverseComponentSchema(Map<String, Schema> schemas) {
         List<OpenApiSchemaType> schemaTypes = new ArrayList<>();
 
-        while (schemaIterator.hasNext()) {
-            final Map.Entry<String, Schema> schemaEntry = schemaIterator.next();
+        for (Map.Entry<String, Schema> schema : schemas.entrySet()) {
             OpenApiSchemaType schemaType = new OpenApiSchemaType();
+            final Schema schemaValue = schema.getValue();
+            final String schemaName = schema.getKey();
 
-            schemaType.setSchemaName(schemaEntry.getKey());
+            schemaType.setSchemaName(StringUtils.capitalize(schemaName));
 
-            final Schema schemaEntryValue = schemaEntry.getValue();
-
-            if (schemaEntryValue.getType() != null){
-                schemaType.setSchemaType(schemaEntryValue.getType());
+            if (schemaValue instanceof ObjectSchema) {
+                if (schemaValue.getProperties() != null) {
+                    Map<String, Schema> properties = schemaValue.getProperties();
+                    schemaType.setSchemaProperties(getSchemaPropertyTypes(properties));
+                }
             }
 
-            if (schemaEntryValue instanceof ComposedSchema) {
-                GetTypesFromComposedSchema((ComposedSchema) schemaEntryValue, schemaType);
-            } else {
-                GetTypesFromSchema(schemaEntryValue, schemaType);
+            if (schemaValue instanceof ComposedSchema) {
+                getTypesFromComposedSchema((ComposedSchema) schemaValue, schemaType);
+            }
+
+            if (schemaValue != null) {
+                getTypesFromSchema(schemaValue, schemaType);
+            }
+
+            if (schemaValue != null && schemaValue.getType() != null) {
+                schemaType.setSchemaType(schemaValue.getType());
             }
 
             schemaTypes.add(schemaType);
+
         }
 
         return schemaTypes;
     }
 
-    public static void GetTypesFromComposedSchema(ComposedSchema schema, OpenApiSchemaType schemaType) {
+    public static void getTypesFromComposedSchema(ComposedSchema schema, OpenApiSchemaType schemaType) {
 
         if (schema.getAllOf() != null) {
             for (Schema allOfSchema: schema.getAllOf()) {
                 if (allOfSchema.getProperties() != null) {
-                    schemaType.setSchemaProperties(GetSchemaPropertyTypes(allOfSchema.getProperties()));
+                    schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
             }
         }
@@ -111,7 +125,7 @@ public class TypeMatchingUtil {
         if (schema.getAnyOf() != null) {
             for (Schema allOfSchema: schema.getAnyOf()) {
                 if (allOfSchema.getProperties() != null) {
-                    schemaType.setSchemaProperties(GetSchemaPropertyTypes(allOfSchema.getProperties()));
+                    schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
             }
         }
@@ -119,14 +133,14 @@ public class TypeMatchingUtil {
         if (schema.getOneOf() != null) {
             for (Schema allOfSchema: schema.getOneOf()) {
                 if (allOfSchema.getProperties() != null) {
-                    schemaType.setSchemaProperties(GetSchemaPropertyTypes(allOfSchema.getProperties()));
+                    schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
             }
         }
 
     }
 
-    public static List<OpenApiPropertyType> GetSchemaPropertyTypes(Map<String, Schema> property) {
+    public static List<OpenApiPropertyType> getSchemaPropertyTypes(Map<String, Schema> property) {
 
         SchemaParser schemaParser = new SchemaParser();
         Class schemaParserClass = schemaParser.getClass();
@@ -140,10 +154,12 @@ public class TypeMatchingUtil {
             String schemaTypeClassName = schemaTypeClass.getName();
             String[] schemaMethodName = schemaTypeClassName.split("\\.");
             try {
-                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length-1], OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(), propertyType);
+                schemaParserClass.getDeclaredMethod("parse" + schemaMethodName[schemaMethodName.length - 1],
+                        Object.class, OpenApiPropertyType.class).invoke(schemaParserClass.newInstance(),
+                        ((Map.Entry) propertyObject).getValue(), propertyType);
             } catch (IllegalAccessException | InvocationTargetException
                     | NoSuchMethodException | InstantiationException e) {
-                e.printStackTrace();
+                outStream.println(e.getLocalizedMessage());
             }
             propertyType.setPropertyName(propName);
             propertyTypes.add(propertyType);
@@ -152,9 +168,9 @@ public class TypeMatchingUtil {
         return propertyTypes;
     }
 
-    public static void GetTypesFromSchema(Schema schema, OpenApiSchemaType schemaType) {
+    public static void getTypesFromSchema(Schema schema, OpenApiSchemaType schemaType) {
         if (schema.getProperties() != null) {
-            schemaType.setSchemaProperties(GetSchemaPropertyTypes(schema.getProperties()));
+            schemaType.setSchemaProperties(getSchemaPropertyTypes(schema.getProperties()));
         }
 
         if (schema.getType() != null) {
@@ -167,8 +183,18 @@ public class TypeMatchingUtil {
                     schemaType.setSchemaType("string");
                     break;
                 case "array" :
-                    schemaType.setSchemaType("array");
-                    schemaType.setItemType(((ArraySchema) schema).getItems().getType());
+                    schemaType.setIsArray(true);
+                    if (schema instanceof ArraySchema) {
+                        final Schema<?> arrayItems = ((ArraySchema) schema).getItems();
+                        if (arrayItems.getType() != null) {
+                            schemaType.setItemType(arrayItems.getType());
+                            schemaType.setItemName(arrayItems.getType().toLowerCase(Locale.ENGLISH));
+                        } else if (arrayItems.get$ref() != null) {
+                            final String[] ref = arrayItems.get$ref().split("/");
+                            schemaType.setItemType(StringUtils.capitalize(ref[ref.length - 1]));
+                            schemaType.setItemName(ref[ref.length - 1].toLowerCase(Locale.ENGLISH));
+                        }
+                    }
                     break;
                 default :
                     schemaType.setSchemaType(schema.getType());
@@ -181,13 +207,14 @@ public class TypeMatchingUtil {
         }
 
         if (schema.get$ref() != null) {
-            schemaType.set$ref(schema.get$ref());
+            String[] refArray = schema.get$ref().split("/");
+            schemaType.setreference(refArray[refArray.length - 1]);
         }
     }
 
 
 
-    public static List<OpenApiOperationType> TraveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
+    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
         Iterator<Map.Entry<PathItem.HttpMethod, Operation>> operationIterator = operations.entrySet().iterator();
         List<OpenApiOperationType> operationTypes = new ArrayList<>();
 
@@ -196,16 +223,21 @@ public class TypeMatchingUtil {
             OpenApiOperationType operation = new OpenApiOperationType();
             operation.setOperationType(nextOp.getKey().toString());
 
+            if (nextOp.getValue().getOperationId() != null) {
+                operation.setOperationName(nextOp.getValue().getOperationId()
+                        .replace(" ", "_").toLowerCase(Locale.ENGLISH));
+            }
+
             if (nextOp.getValue().getParameters() != null && !nextOp.getValue().getParameters().isEmpty()) {
-                operation.setParameters(TraverseParameters(nextOp.getValue().getParameters()));
+                operation.setParameters(traverseParameters(nextOp.getValue().getParameters()));
             }
 
             if (nextOp.getValue().getResponses() != null && !nextOp.getValue().getResponses().isEmpty()) {
-                operation.setResponses(TraverseResponses(nextOp.getValue().getResponses()));
+                operation.setResponses(traverseResponses(nextOp.getValue().getResponses()));
             }
 
             if (nextOp.getValue().getRequestBody() != null) {
-                operation.setRequestBodies(TraverseRequestBodies(nextOp.getValue().getRequestBody()));
+                operation.setRequestBodies(traverseRequestBodies(nextOp.getValue().getRequestBody()));
 
             }
 
@@ -215,7 +247,7 @@ public class TypeMatchingUtil {
         return operationTypes;
     }
 
-    public static List<OpenApiResponseType> TraverseResponses(ApiResponses responses) {
+    public static List<OpenApiResponseType> traverseResponses(ApiResponses responses) {
         Iterator<Map.Entry<String, ApiResponse>> responseIterator = responses.entrySet().iterator();
         List<OpenApiResponseType> apiResponses = new ArrayList<>();
 
@@ -234,6 +266,10 @@ public class TypeMatchingUtil {
                     final Map.Entry<String, MediaType> content = contentIterator.next();
                     final Schema responseSchema = content.getValue().getSchema();
 
+                    if (responseSchema == null) {
+                        break;
+                    }
+
                     if (responseSchema.get$ref() == null) {
                         response.setResponseType(responseSchema.getType());
                     } else {
@@ -248,7 +284,7 @@ public class TypeMatchingUtil {
         return apiResponses;
     }
 
-    public static List<OpenApiParameterType> TraverseParameters(List<Parameter> parameters) {
+    public static List<OpenApiParameterType> traverseParameters(List<Parameter> parameters) {
         Iterator<Parameter> parameterIterator = parameters.iterator();
         List<OpenApiParameterType> parameterList = new ArrayList<>();
 
@@ -263,7 +299,11 @@ public class TypeMatchingUtil {
                 parameter.setQueryParam(true);
             }
 
-            GetTypesFromSchema(nextParam.getSchema(), parameterSchema);
+            if (!parameterIterator.hasNext()) {
+                parameter.setLastParameter(true);
+            }
+
+            getTypesFromSchema(nextParam.getSchema(), parameterSchema);
 
             parameter.setParamName(nextParam.getName());
             parameter.setParamType(parameterSchema);
@@ -273,10 +313,10 @@ public class TypeMatchingUtil {
         return parameterList;
     }
 
-    public static OpenApiRequestBodyType TraverseRequestBodies(RequestBody requestBody) {
+    public static OpenApiRequestBodyType traverseRequestBodies(RequestBody requestBody) {
 
         OpenApiRequestBodyType requestBodyType = new OpenApiRequestBodyType();
-        Map<String, OpenApiSchemaType> contentList = new HashMap<>();
+        List<OpenApiSchemaType> contentList = new ArrayList<>();
 
         if (requestBody.getRequired() != null) {
             requestBodyType.setRequired(requestBody.getRequired());
@@ -287,11 +327,13 @@ public class TypeMatchingUtil {
                 OpenApiSchemaType schemaType = new OpenApiSchemaType();
                 final MediaType entryValue = entry.getValue();
 
+                schemaType.setSchemaType(entry.getKey());
+
                 if (entryValue.getSchema() != null) {
-                     GetTypesFromSchema(entryValue.getSchema(), schemaType);
+                     getTypesFromSchema(entryValue.getSchema(), schemaType);
                 }
 
-                contentList.put(entry.getKey(), schemaType);
+                contentList.add(schemaType);
             }
 
             requestBodyType.setContentList(contentList);

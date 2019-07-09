@@ -1,5 +1,5 @@
-{{#component}}{{#schemaTypes}}public type {{schemaName}} record { {{#schemaProperties}}
-    {{propertyType}} {{propertyName}}{{/schemaProperties}}
+{{#component}}{{#schemaTypes}}public type {{schemaName}} record { {{#if isArray}}
+    {{itemType}}[] {{itemName}};{{/if}}{{#if schemaProperties}}{{#schemaProperties}}
+    {{propertyType}} {{propertyName}};{{/schemaProperties}}{{/if}}
 };
-{{/schemaTypes}}
-{{/component}}
+{{/schemaTypes}}{{/component}}

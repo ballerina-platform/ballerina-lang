@@ -28,7 +28,6 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.google.common.base.Strings;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.launcher.LauncherUtils;
@@ -41,6 +40,7 @@ import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.ballerinalang.openapi.utils.TypeMatchingUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -48,6 +48,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -155,7 +156,7 @@ public class CodeGenerator {
             api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
-        final OpenApiType openApi = TypeMatchingUtil.TraveseOpenApiTypes(api);
+        final OpenApiType openApi = TypeMatchingUtil.traveseOpenApiTypes(api);
         openApi.setServiceName(serviceName);
         openApi.setModuleName(srcPackage);
         openApi.setServers(api);
@@ -254,10 +255,9 @@ public class CodeGenerator {
         // Remove old generated files - if any - before regenerate
         // if srcPackage was not provided and source was written to main package nothing will be deleted.
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
-            FileUtils.deleteDirectory(srcPath.toFile());
+            Arrays.stream(new File(String.valueOf(srcPath)).listFiles()).forEach(File::delete);
         }
 
-        Files.createDirectories(srcPath);
         for (GenSrcFile file : sources) {
             Path filePath;
 
@@ -275,7 +275,7 @@ public class CodeGenerator {
         }
 
         //This will print the generated files to the console
-        outStream.println("The service generation process is complete. Following files were created. \n" +
+        outStream.println("Service generated successfully. Following files were created. \n" +
                 "src/ \n- " + srcPackage);
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
@@ -312,14 +312,14 @@ public class CodeGenerator {
         return sourceFiles;
     }
 
-    /**
+    /*/**
      * Generate code for mock ballerina service.
      *
      * @param context model context to be used by the templates
      * @return generated source files as a list of {@link GenSrcFile}
      * @throws IOException when code generation with specified templates fails
      */
-    private List<GenSrcFile> generateService(BallerinaOpenApi context) throws IOException {
+    /*private List<GenSrcFile> generateService(BallerinaOpenApi context) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {
             srcPackage = GeneratorConstants.DEFAULT_MOCK_PKG;
         }
@@ -340,7 +340,7 @@ public class CodeGenerator {
                 schemaContent));
 
         return sourceFiles;
-    }
+    }*/
 
     private List<GenSrcFile> generateBallerinaService(OpenApiType api) throws IOException {
         if (srcPackage == null || srcPackage.isEmpty()) {

@@ -38,9 +38,9 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
-    @CommandLine.Option(names = {"-c", "--copy-contract"},
-            description = "Do you want to copy the contract in to the project?", interactive = true, arity = "1")
-    boolean isCopy = true;
+    @CommandLine.Option(names = {"-c", "--skip-bind"},
+            description = "Do you want to copy the contract in to the project?")
+    boolean skipBind = false;
 
     @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
             "files (current dir by default)")
@@ -52,7 +52,6 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     @Override
     public void execute() {
         CodeGenerator generator = new CodeGenerator();
-        Path resourcePath = null;
 
         //Check if cli help argument is present
         if (helpFlag) {
@@ -75,18 +74,27 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
                     + moduleArgs.get(1) + " <OpenApiContract>");
         }
 
-        //TODO Accept user confirmation to copy the contract in to the ballerina porject.
-        if (isCopy) {
-            final String projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
-            final File openApiFile = new File(argList.get(0));
-            final String openApiFilePath = openApiFile.getPath();
-            final Path resourcesDirectory = Paths.get(projectRoot + "/resources");
-            resourcePath = Paths.get(projectRoot + "/resources/" + openApiFile.getName());
+        final String projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+        final Path moduleDirectory = Paths.get(projectRoot + "/" + moduleArgs.get(0));
+        final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
+        final File openApiFile = new File(argList.get(0));
+        final String openApiFilePath = openApiFile.getPath();
+        Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
 
+        //TODO Accept user confirmation to copy the contract in to the ballerina porject.
+        if (!skipBind) {
             //Check if OpenApi contract file exists
             if (Files.notExists(Paths.get(openApiFilePath))) {
                 throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
-                        " contract in " + openApiFilePath );
+                        " contract in " + openApiFilePath);
+            }
+
+            if (Files.notExists(moduleDirectory)) {
+                try {
+                    Files.createDirectory(moduleDirectory);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                }
             }
 
             //Check for resources folder in ballerina project root

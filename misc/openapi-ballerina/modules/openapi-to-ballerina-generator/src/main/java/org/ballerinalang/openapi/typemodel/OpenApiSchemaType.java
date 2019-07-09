@@ -2,14 +2,19 @@ package org.ballerinalang.openapi.typemodel;
 
 import java.util.List;
 
+/**
+ * Java representation for OpenApi schema.
+ */
 public class OpenApiSchemaType {
 
     private String schemaName;
     private String schemaType;
-    private String $ref;
+    private String reference;
     private String itemType;
+    private String itemName;
     private List<String> required;
     private List<OpenApiPropertyType> schemaProperties;
+    private boolean isArray;
 
     public String getSchemaName() {
         return schemaName;
@@ -35,12 +40,12 @@ public class OpenApiSchemaType {
         this.schemaProperties = schemaProperties;
     }
 
-    public String get$ref() {
-        return $ref;
+    public String getreference() {
+        return reference;
     }
 
-    public void set$ref(String $ref) {
-        this.$ref = $ref;
+    public void setreference(String ref) {
+        this.reference = ref;
     }
 
 
@@ -61,5 +66,20 @@ public class OpenApiSchemaType {
         this.itemType = itemType;
     }
 
+    public boolean getIsArray() {
+        return isArray;
+    }
+
+    public void setIsArray(boolean array) {
+        isArray = array;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
 
 }

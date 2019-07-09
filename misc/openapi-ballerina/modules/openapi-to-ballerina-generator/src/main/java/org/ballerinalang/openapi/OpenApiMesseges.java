@@ -1,5 +1,8 @@
 package org.ballerinalang.openapi;
 
+/**
+ * This class contains the messages constants required for OpenApi tool.
+ */
 public class OpenApiMesseges {
 
     public static final String CLIENT_MANDATORY = "Client name is mandatory to generate the ballerina client. " +
