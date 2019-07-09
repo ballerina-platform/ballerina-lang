@@ -89,4 +89,15 @@ public class Constants {
     public static final String COUNTDOWN_LATCH = "count_down_latch";
 
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
+
+    public static final String CONNECTION_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final String CONNECTION_KEYSTORE = "keyStore";
+    public static final String CONNECTION_TRUSTORE = "trustStore";
+    public static final String CONNECTION_PROTOCOL = "protocol";
+    public static final String KEY_STORE_TYPE = "PKCS12";
+    public static final String KEY_STORE_PASS = "password";
+    public static final String KEY_STORE_PATH = "path";
+
+    public static final String ERROR_SETTING_UP_SECURED_CONNECTION = "Error while setting up secured connection. ";
+
 }

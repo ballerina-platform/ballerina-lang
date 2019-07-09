@@ -32,14 +32,34 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+
 import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
+import static org.ballerinalang.nats.Constants.CONNECTION_CONFIG_SECURE_SOCKET;
+import static org.ballerinalang.nats.Constants.CONNECTION_KEYSTORE;
+import static org.ballerinalang.nats.Constants.CONNECTION_PROTOCOL;
+import static org.ballerinalang.nats.Constants.CONNECTION_TRUSTORE;
+import static org.ballerinalang.nats.Constants.ERROR_SETTING_UP_SECURED_CONNECTION;
+import static org.ballerinalang.nats.Constants.KEY_STORE_PASS;
+import static org.ballerinalang.nats.Constants.KEY_STORE_PATH;
+import static org.ballerinalang.nats.Constants.KEY_STORE_TYPE;
 import static org.ballerinalang.nats.Constants.NATS_CONNECTION;
 import static org.ballerinalang.nats.Constants.SERVICE_LIST;
 
@@ -121,7 +141,12 @@ public class Init extends BlockingNativeCallableUnit {
         if (connectionConfig.getBooleanValue(NO_ECHO)) {
             opts.noEcho();
         }
-        // TODO secure socket and authentication support.
+
+        MapValue secureSocket = connectionConfig.getMapValue(CONNECTION_CONFIG_SECURE_SOCKET);
+        if (secureSocket != null) {
+            SSLContext sslContext = getSSLContext(secureSocket);
+            opts.sslContext(sslContext);
+        }
 
         try {
             Connection natsConnection = Nats.connect(opts.build());
@@ -130,7 +155,84 @@ public class Init extends BlockingNativeCallableUnit {
             connectionObject.addNativeData(SERVICE_LIST, serviceList);
 
         } catch (IOException | InterruptedException e) {
-            throw new BallerinaConnectorException(e);
+            String errorMsg = "Error while setting up a connection. " +
+                    (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            throw new BallerinaConnectorException(errorMsg);
+        }
+    }
+
+    /**
+     * Creates and retrieves the SSLContext from socket configuration.
+     *
+     * @param secureSocket secureSocket record.
+     * @return Initialized SSLContext.
+     */
+    private static SSLContext getSSLContext(MapValue secureSocket) {
+        try {
+            MapValue cryptoKeyStore = secureSocket.getMapValue(CONNECTION_KEYSTORE);
+            KeyManagerFactory keyManagerFactory = null;
+            if (cryptoKeyStore != null) {
+                char[] keyPassphrase = cryptoKeyStore.getStringValue(KEY_STORE_PASS).toCharArray();
+                String keyFilePath = cryptoKeyStore.getStringValue(KEY_STORE_PATH);
+                KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
+                if (keyFilePath != null) {
+                    try (FileInputStream keyFileInputStream = new FileInputStream(keyFilePath)) {
+                        keyStore.load(keyFileInputStream, keyPassphrase);
+                    }
+                } else {
+                    throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                            "Keystore path doesn't exist.");
+                }
+                keyManagerFactory =
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyManagerFactory.init(keyStore, keyPassphrase);
+            }
+
+            MapValue cryptoTrustStore = secureSocket.getMapValue(CONNECTION_TRUSTORE);
+            TrustManagerFactory trustManagerFactory = null;
+            if (cryptoTrustStore != null) {
+                KeyStore trustStore = KeyStore.getInstance(KEY_STORE_TYPE);
+                char[] trustPassphrase = cryptoTrustStore.getStringValue(KEY_STORE_PASS).toCharArray();
+                String trustFilePath = cryptoTrustStore.getStringValue(KEY_STORE_PATH);
+                if (trustFilePath != null) {
+                    try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
+                        trustStore.load(trustFileInputStream, trustPassphrase);
+                    }
+                } else {
+                    throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                            "Truststore path doesn't exist.");
+                }
+                trustManagerFactory =
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(trustStore);
+            }
+
+            String tlsVersion = secureSocket.getStringValue(CONNECTION_PROTOCOL);
+            SSLContext sslContext = SSLContext.getInstance(tlsVersion);
+            sslContext.init(keyManagerFactory != null ? keyManagerFactory.getKeyManagers() : null,
+                    trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
+            return sslContext;
+        } catch (FileNotFoundException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "File not found error, " + e.getMessage());
+        } catch (CertificateException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "Certificate error, " + e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "Algorithm error, " + e.getMessage());
+        } catch (IOException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "IO error, " + e.getMessage());
+        } catch (KeyStoreException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "Keystore error, " + e.getMessage());
+        } catch (UnrecoverableKeyException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "The key in the keystore cannot be recovered.");
+        } catch (KeyManagementException e) {
+            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    "Key management error, " + e.getMessage());
         }
     }
 }
