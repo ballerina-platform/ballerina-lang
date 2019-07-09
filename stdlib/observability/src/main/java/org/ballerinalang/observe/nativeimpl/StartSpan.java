@@ -64,12 +64,12 @@ public class StartSpan extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public static Object startSpan(Strand strand, String spanName, MapValue tags, long parentSpanId) {
+    public static Object startSpan(Strand strand, String spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
             return BallerinaErrors.createError("The given parent span ID " + parentSpanId + " is invalid.");
         } else {
-            int spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(spanName, Utils.toStringMap(tags),
-                    (int) parentSpanId, strand);
+            long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(spanName,
+                    Utils.toStringMap((MapValue<?, ?>) tags), parentSpanId, strand);
             if (spanId == -1) {
                 return BallerinaErrors.createError(
                         "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id");
