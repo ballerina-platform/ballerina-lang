@@ -59,23 +59,3 @@ public type SecureSocket record {|
     crypto:KeyStore? keyStore = ();
     string protocol = "TLS";
 |};
-
-# Protocols record represents SSL/TLS protocol related options to be used for HTTP client/service invocation.
-#
-# + name - SSL Protocol to be used. eg TLS1.2
-# + versions - SSL/TLS protocols to be enabled. eg TLSv1,TLSv1.1,TLSv1.2
-public type Protocols record {|
-    string name = "";
-    string[] versions = [];
-|};
-
-# ValidateCert record represents options related to check whether a certificate is revoked or not.
-#
-# + enable - The status of validateCertEnabled
-# + cacheSize - Maximum size of the cache
-# + cacheValidityPeriod - Time duration of cache validity period
-public type ValidateCert record {|
-    boolean enable = false;
-    int cacheSize = 0;
-    int cacheValidityPeriod = 0;
-|};
