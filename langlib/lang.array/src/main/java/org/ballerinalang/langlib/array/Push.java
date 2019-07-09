@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
@@ -41,6 +42,8 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
 public class Push {
 
     public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
+        checkIsArrayOnlyOperation(arr.getType(), "push()");
+
         int nVals = vals.size();
         int elemTypeTag = arr.elementType.getTag();
 

@@ -20,11 +20,15 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:indexOf((anydata|error)[], anydata|error, int).
@@ -41,10 +45,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IndexOf {
 
     public static Object indexOf(Strand strand, ArrayValue arr, Object val, long startIndex) {
+        BType arrType = arr.getType();
         int size = arr.size();
+        GetFunction getFn = getElementAccessFunction(arrType, "indexOf()");
 
         for (long i = startIndex; i < size; i++) {
-            if (TypeChecker.isEqual(val, arr.get(i))) {
+            if (TypeChecker.isEqual(val, getFn.get(arr, i))) {
                 return i;
             }
         }

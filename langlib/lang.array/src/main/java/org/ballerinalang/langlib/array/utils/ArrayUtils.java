@@ -18,8 +18,15 @@
 
 package org.ballerinalang.langlib.array.utils;
 
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+
+import static java.lang.String.format;
 
 /**
  * Utility functions for dealing with ArrayValue.
@@ -48,5 +55,27 @@ public class ArrayUtils {
             default:
                 arr.add(index, value);
         }
+    }
+
+    public static GetFunction getElementAccessFunction(BType arrType, String funcName) {
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                return ArrayValue::get;
+            case TypeTags.TUPLE_TAG:
+                return ArrayValue::getRefValue;
+            default:
+                throw createOpNotSupportedError(arrType, funcName);
+        }
+    }
+
+    public static void checkIsArrayOnlyOperation(BType arrType, String op) {
+        if (arrType.getTag() != TypeTags.ARRAY_TAG) {
+            throw createOpNotSupportedError(arrType, op);
+        }
+    }
+
+    public static ErrorValue createOpNotSupportedError(BType type, String op) {
+        return BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+                                           format("%s not supported on type '%s'", op, type.getQualifiedName()));
     }
 }

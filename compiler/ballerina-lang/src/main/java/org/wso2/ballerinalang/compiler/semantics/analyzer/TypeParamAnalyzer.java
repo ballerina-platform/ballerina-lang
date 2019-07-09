@@ -178,6 +178,10 @@ public class TypeParamAnalyzer {
                     findTypeParam(((BArrayType) expType).eType, ((BArrayType) actualType).eType, env,
                             resolvedTypes, result);
                 }
+                if (actualType.tag == TypeTags.TUPLE) {
+                    findTypeParamInTupleForArray((BArrayType) expType, (BTupleType) actualType, env, resolvedTypes,
+                                                 result);
+                }
                 return;
             case TypeTags.MAP:
                 if (actualType.tag == TypeTags.MAP) {
@@ -236,6 +240,12 @@ public class TypeParamAnalyzer {
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
             findTypeParam(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
         }
+    }
+
+    private void findTypeParamInTupleForArray(BArrayType expType, BTupleType actualType, SymbolEnv env,
+                                              List<BType> resolvedTypes, FindTypeParamResult result) {
+        BUnionType tupleElementType = BUnionType.create(null, new LinkedHashSet<>(actualType.tupleTypes));
+        findTypeParam(expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInRecord(BRecordType expType, BRecordType actualType, SymbolEnv env,
