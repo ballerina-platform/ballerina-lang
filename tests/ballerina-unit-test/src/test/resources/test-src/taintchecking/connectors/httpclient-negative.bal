@@ -15,12 +15,14 @@ public function main (string... args) {
         if (msg is string) {
             secureFunction(msg, msg);
         } else {
-            panic msg;
+            error err = msg;
+            panic err;
         }
     } else {
-        panic response;
+        error err = response;
+        panic err;
     }
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@tainted string secureIn, string insecureIn) {
 }

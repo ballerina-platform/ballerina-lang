@@ -28,7 +28,8 @@ service hello2 on new http:Listener(9090) {
         string abc = check f2();
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            var err = result;
+            log:printError("Error sending response", err = err);
         }
         return ();
     }
