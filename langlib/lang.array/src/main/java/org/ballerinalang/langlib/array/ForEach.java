@@ -19,11 +19,15 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:forEach(Type[]).
@@ -39,9 +43,11 @@ public class ForEach {
 
     public static void forEach(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         int size = arr.size();
+        BType arrType = arr.getType();
+        GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
 
         for (int i = 0; i < size; i++) {
-            func.accept(new Object[]{strand, arr.get(i), true});
+            func.accept(new Object[]{strand, getFn.get(arr, i), true});
         }
     }
 }

@@ -19,12 +19,16 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.getElementAccessFunction;
 
 /**
  * Native implementation of lang.array:reduce(Type[], function).
@@ -41,11 +45,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Reduce {
 
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
+        BType arrType = arr.getType();
         int size = arr.size();
         Object accum = initial;
+        GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
 
         for (int i = 0; i < size; i++) {
-            accum = func.apply(new Object[]{strand, accum, true, arr.get(i), true});
+            accum = func.apply(new Object[]{strand, accum, true, getFn.get(arr, i), true});
         }
 
         return accum;

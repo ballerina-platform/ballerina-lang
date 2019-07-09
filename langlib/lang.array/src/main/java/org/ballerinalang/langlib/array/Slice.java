@@ -20,14 +20,21 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:slice((any|error)[]).
@@ -62,30 +69,30 @@ public class Slice {
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        BArrayType arrType = (BArrayType) arr.getType();
-        ArrayValue slicedArr = new ArrayValue(arrType);
-        int elemTypeTag = arrType.getElementType().getTag();
+        BType arrType = arr.getType();
+        ArrayValue slicedArr;
+        int elemTypeTag;
+        GetFunction getFn;
+
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                slicedArr = new ArrayValue(arrType);
+                elemTypeTag = ((BArrayType) arrType).getElementType().getTag();
+                getFn = ArrayValue::get;
+                break;
+            case TypeTags.TUPLE_TAG:
+                BUnionType unionType = new BUnionType(((BTupleType) arrType).getTupleTypes());
+                BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
+                slicedArr = new ArrayValue(slicedArrType);
+                elemTypeTag = -1; // To ensure additions go to ref value array in ArrayValue
+                getFn = ArrayValue::getRefValue;
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "slice()");
+        }
 
         for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
-            switch (elemTypeTag) {
-                case TypeTags.INT_TAG:
-                    slicedArr.add(j, arr.getInt(i));
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    slicedArr.add(j, arr.getBoolean(i));
-                    break;
-                case TypeTags.BYTE_TAG:
-                    slicedArr.add(j, arr.getByte(i));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    slicedArr.add(j, arr.getFloat(i));
-                    break;
-                case TypeTags.STRING_TAG:
-                    slicedArr.add(j, arr.getString(i));
-                    break;
-                default:
-                    slicedArr.add(j, arr.getRefValue(i));
-            }
+            add(slicedArr, elemTypeTag, j, getFn.get(arr, i));
         }
 
         return slicedArr;

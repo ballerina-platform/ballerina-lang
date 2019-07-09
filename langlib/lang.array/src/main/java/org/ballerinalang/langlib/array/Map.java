@@ -22,14 +22,17 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:map(Type[]).
@@ -46,16 +49,31 @@ public class Map {
 
     public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         BType elemType = ((BFunctionType) func.getType()).retType;
-        BType arrType = new BArrayType(elemType);
-        ArrayValue newArr = new ArrayValue(arrType);
+        BType retArrType = new BArrayType(elemType);
+        ArrayValue retArr = new ArrayValue(retArrType);
         int size = arr.size();
-        int elemTypeTag = arr.elementType.getTag();
+        GetFunction getFn;
+        int elemTypeTag;
 
-        for (int i = 0; i < size; i++) {
-            Object newVal = func.getFunction().apply(new Object[]{strand, arr.get(i), true});
-            add(newArr, elemTypeTag, i, newVal);
+        BType arrType = arr.getType();
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                getFn = ArrayValue::get;
+                elemTypeTag = arr.elementType.getTag();
+                break;
+            case TypeTags.TUPLE_TAG:
+                getFn = ArrayValue::getRefValue;
+                elemTypeTag = -1; // Setting to -1 to ensure that the default case of the switch gets triggered
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "map()");
         }
 
-        return newArr;
+        for (int i = 0; i < size; i++) {
+            Object newVal = func.getFunction().apply(new Object[]{strand, getFn.get(arr, i), true});
+            add(retArr, elemTypeTag, i, newVal);
+        }
+
+        return retArr;
     }
 }
