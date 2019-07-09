@@ -132,7 +132,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (jsonHeader is json) {
         jwtHeaderJson = jsonHeader;
     } else {
-        return prepareJwtError("String to Json conversion failed for JWT header.", err = jsonHeader);
+        return prepareJwtError("String to JSON conversion failed for JWT header.", err = jsonHeader);
     }
 
     reader = new(jwtPayload);
@@ -140,7 +140,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (jsonPayload is json) {
         jwtPayloadJson = jsonPayload;
     } else {
-        return prepareJwtError("String to Json conversion failed for JWT paylaod.", err = jsonPayload);
+        return prepareJwtError("String to JSON conversion failed for JWT paylaod.", err = jsonPayload);
     }
     return [jwtHeaderJson, jwtPayloadJson];
 }
@@ -404,7 +404,7 @@ function convertToStringArray(json jsonData) returns string[]|JwtError {
         if (result is string[]) {
             return result;
         } else {
-            return prepareJwtError("JsonData to String convertion failed.", err = result);
+            return prepareJwtError("JSON-Data to String convertion failed.", err = result);
         }
     } else {
         return [jsonData.toString()];
