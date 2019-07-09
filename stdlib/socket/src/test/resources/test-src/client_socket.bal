@@ -105,7 +105,7 @@ function getString(byte[] content) returns @tainted string|error {
     return characterChannel.read(50);
 }
 
-function invalidReadParam() returns @tainted ([byte[], int]|error) {
+function invalidReadParam() returns @tainted [byte[], int]|error {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
     return trap socketClient->read(length = 0);
 }

@@ -54,7 +54,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function post(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function post(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_POST);
     }
@@ -65,7 +65,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_HEAD);
     }
@@ -76,7 +76,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function patch(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function patch(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_PATCH);
     }
@@ -87,7 +87,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function put(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function put(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_PUT);
     }
@@ -98,7 +98,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function options(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
     }
@@ -108,7 +108,7 @@ public type LoadBalanceClient client object {
     # + path - Resource path
     # + request - An optional HTTP request
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function forward(string path, Request request) returns @tainted (Response|error) {
+    public remote function forward(string path, Request request) returns @tainted Response|error {
         return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
     }
 
@@ -120,7 +120,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceExecuteAction(self, path, req, httpVerb);
     }
@@ -131,7 +131,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function delete(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_DELETE);
     }
@@ -142,7 +142,7 @@ public type LoadBalanceClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_GET);
     }

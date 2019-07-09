@@ -235,3 +235,12 @@ function testErrorMatchPattern() returns string {
     }
     return "Default";
 }
+
+function testErrorConstReasonMatchPattern() returns string {
+    error <string, map<string>> err1 = error("Error Code", message = "Msg");
+    match err1 {
+        var error(reason) => return reason;
+        error("Error Code", message = m, ... var rest) => return "Const reason" + ":" + <string>m;
+    }
+    return "Default";
+}

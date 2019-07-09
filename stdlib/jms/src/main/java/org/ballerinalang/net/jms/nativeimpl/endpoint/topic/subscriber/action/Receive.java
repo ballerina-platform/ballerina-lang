@@ -20,40 +20,33 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler;
 
 /**
  * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX,
                    packageName = JmsConstants.JMS,
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   args = {
-                           @Argument(name = "timeInMilliSeconds",
-                                     type = TypeKind.INT)
-                   },
-                   returnType = {
-                           @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                       structType = JmsConstants.MESSAGE_OBJ_NAME)
-                   },
-                   isPublic = true
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class Receive extends AbstractBlockingAction {
+public class Receive extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        ReceiveActionHandler.handle(context);
+    public void execute(Context context) {
     }
+
+    public static Object receive(Strand strand, ObjectValue topicSubscriber, long timeoutInMilliSeconds) {
+        return ReceiveActionHandler.handle(topicSubscriber, timeoutInMilliSeconds);
+    }
+
 }
