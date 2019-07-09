@@ -423,7 +423,8 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
-        if (localVar.kind is bir:LocalVarKind && localVar.metaVarName != "") {
+        if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam) 
+            && !(localVar["metaVarName"] is ())) {
             mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
                 methodStartLabel, methodEndLabel, k);
         }
