@@ -77,6 +77,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class TypeChecker {
 
     public static Object checkCast(Object sourceVal, BType targetType) {
+
         if (checkIsType(sourceVal, targetType)) {
             return sourceVal;
         }
@@ -93,7 +94,7 @@ public class TypeChecker {
                 try {
                     return TypeConverter.castValues(memberType, sourceVal);
                 } catch (Exception e) {
-                    continue;
+                    //ignore and continue
                 }
             }
         }
@@ -358,16 +359,7 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    return ((BFiniteType) sourceType).valueSpace.stream()
-                            .allMatch(bValue -> checkIsType(bValue, targetType));
-                }
-                if (sourceType.getTag() == targetType.getTag()) {
-                    return true;
-                }
-                return sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.DECIMAL_TAG:
-                return sourceType.getTag() <= TypeTags.DECIMAL_TAG;
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
@@ -471,6 +463,9 @@ public class TypeChecker {
             case TypeTags.ARRAY_TAG:
                 // Element type of the array should be 'is type' JSON
                 return checkIsType(((BArrayType) sourceType).getElementType(), targetType, unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return ((BFiniteType) sourceType).valueSpace.stream()
+                                                            .allMatch(bValue -> checkIsType(bValue, targetType));
             case TypeTags.MAP_TAG:
                 return checkIsType(((BMapType) sourceType).getConstrainedType(), targetType, unresolvedTypes);
             default:
@@ -726,12 +721,12 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!isSameType(source.paramTypes[i], targetType.paramTypes[i])) {
+            if (!checkIsType(targetType.paramTypes[i], source.paramTypes[i], new ArrayList<>())) {
                 return false;
             }
         }
 
-        return isSameType(source.retType, targetType.retType);
+        return checkIsType(source.retType, targetType.retType, new ArrayList<>());
     }
 
     private static boolean checkIsServiceType(BType sourceType) {
@@ -1164,27 +1159,10 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-                return lhsValue.equals(rhsValue);
             case TypeTags.FLOAT_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return lhsValue.equals(((Number) rhsValue).doubleValue());
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((double) lhsValue).equals(rhsValue);
-                }
-
-                return false;
             case TypeTags.DECIMAL_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return DecimalValue.valueOf(((Number) rhsValue).doubleValue()).equals(lhsValue);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((DecimalValue) rhsValue).equals(lhsValue);
-                }
-
-                return false;
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
                 if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
                     return lhsValue.equals(((Number) rhsValue).longValue());
@@ -1202,16 +1180,6 @@ public class TypeChecker {
 
                 if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
                     return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
-                }
-
-                return false;
-            case TypeTags.BOOLEAN_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return ((boolean) lhsValue) == (((Number) rhsValue).longValue() == 1);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((boolean) lhsValue) == ((DecimalValue) rhsValue).booleanValue();
                 }
 
                 return false;

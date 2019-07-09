@@ -16,9 +16,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
@@ -31,20 +32,70 @@ public class BootstrapRunner {
                                          boolean dumpBir, String... birCachePaths) {
         String bootstrapHome = System.getProperty("ballerina.bootstrap.home");
         if (bootstrapHome == null) {
-            throw new BLangCompilerException("ballerina.bootstrap.home property is not set");
+            generateJarBinaryViaCompiledBackend(entryBir, jarOutputPath, dumpBir, birCachePaths);
+            return;
         }
 
+        List<String> commands = new ArrayList<>();
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows");
+        if (isWindows) {
+            commands.add("cmd.exe");
+            commands.add("/c");
+            commands.add(bootstrapHome + "\\bin\\ballerina.bat");
+        } else {
+            commands.add("sh");
+            commands.add(bootstrapHome + "/bin/ballerina");
+        }
+        commands.add("run");
+        commands.add(bootstrapHome + "/bin/compiler_backend_jvm.balx");
+        commands.add(entryBir);
+        if (isWindows) {
+            commands.add("\"\""); // no native map for test file
+        } else {
+            commands.add(""); // no native map for test file
+        }
+        commands.add(jarOutputPath);
+        commands.add(dumpBir ? "true" : "false"); // dump bir
+        commands.addAll(Arrays.asList(birCachePaths));
+
+        ProcessBuilder balProcess = new ProcessBuilder(commands);
+
+        try {
+            Process process = balProcess.start();
+            Scanner errorScanner = new Scanner(process.getErrorStream());
+            Scanner outputScanner = new Scanner(process.getInputStream());
+
+            boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
+
+            while (outputScanner.hasNext()) {
+                outStream.println(outputScanner.nextLine());
+            }
+
+            while (errorScanner.hasNext()) {
+                errorStream.println(errorScanner.nextLine());
+            }
+            if (!processEnded) {
+                throw new BLangCompilerException("failed to generate jar file within 120s.");
+            }
+            if (process.exitValue() != 0) {
+                throw new BLangCompilerException("jvm code gen phase failed.");
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("could not run compiler_backend_jvm.balx", e);
+        } catch (InterruptedException e) {
+            throw new BLangCompilerException("jvm code gen interrupted", e);
+        }
+    }
+
+
+    public static void generateJarBinaryViaCompiledBackend(String entryBir, String jarOutputPath,
+                                                           boolean dumpBir, String... birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(""); // no native map for test file
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
-
-        ProcessBuilder balProcess = new ProcessBuilder(commands);
-        Map<String, String> environment = balProcess.environment();
-        environment.remove("BAL_JAVA_DEBUG");
-        environment.remove("JAVA_OPTS");
 
         try {
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
@@ -57,16 +108,6 @@ public class BootstrapRunner {
         }
     }
 
-    private static void pipeIo(Scanner outputScanner, PrintStream outStream) {
-        Thread ioInherit = new Thread(() -> {
-            while (outputScanner.hasNext()) {
-                outStream.println(outputScanner.nextLine());
-            }
-        }, "io-pipe");
-        ioInherit.setDaemon(true);
-        ioInherit.start();
-    }
-
     public static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
                                          Path jarTargetDir, boolean dumpBir)
             throws IOException {
@@ -77,15 +118,15 @@ public class BootstrapRunner {
 
                 byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
                 Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
-                        .resolve(id.name.value)
-                        .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
+                                                .resolve(id.name.value)
+                                                .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
                 Files.createDirectories(pkgBirDir);
                 Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
                 Files.write(pkgBir, bytes);
 
                 String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
                 generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, birCache.toString(),
-                        importsBirCache.toString());
+                                  importsBirCache.toString());
             }
         }
     }
@@ -109,7 +150,7 @@ public class BootstrapRunner {
 
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
         generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
-                importsBirCache.toString());
+                          importsBirCache.toString());
 
         if (!Files.exists(jarTarget)) {
             throw new RuntimeException("Compiled binary jar is not found");
@@ -127,3 +168,4 @@ public class BootstrapRunner {
         return pkgID.name.value;
     }
 }
+

@@ -101,7 +101,7 @@ public type ConstPoolParser object {
 
     function parseType() {
         var typeLen = self.reader.readInt32();
-        var unparsedType = self.reader.readByteArray(untaint typeLen);
+        var unparsedType = self.reader.readByteArray(<@untainted> typeLen);
         self.unparsedTypes[self.i] = unparsedType;
     }
 

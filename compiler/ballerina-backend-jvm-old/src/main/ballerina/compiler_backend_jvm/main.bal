@@ -52,37 +52,6 @@ public function main(string... args) {
 }
 
 function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
-    externalMapCache = {
-        "ballerina/bir/getBIRModuleBinary" : "org/ballerinalang/nativeimpl/bir/GetBIRModuleBinary" ,
-        "ballerina/bir/decompressSingleFileToBlob" : "org/ballerinalang/nativeimpl/bir/DecompressBIR",
-        "ballerina/jvm/ClassWriter.visitEnd" : "org/ballerinalang/nativeimpl/jvm/classwriter/VisitEnd" ,
-        "ballerina/jvm/ClassWriter.visitSource" : "org/ballerinalang/nativeimpl/jvm/classwriter/VisitSource" ,
-        "ballerina/jvm/ClassWriter.init" : "org/ballerinalang/nativeimpl/jvm/classwriter/Init" ,
-        "ballerina/jvm/ClassWriter.visit" : "org/ballerinalang/nativeimpl/jvm/classwriter/Visit" ,
-        "ballerina/jvm/ClassWriter.toByteArray" : "org/ballerinalang/nativeimpl/jvm/classwriter/ToByteArray" ,
-        "ballerina/jvm/ClassWriter.visitMethod" : "org/ballerinalang/nativeimpl/jvm/classwriter/VisitMethod" ,
-        "ballerina/jvm/ClassWriter.visitField" : "org/ballerinalang/nativeimpl/jvm/classwriter/VisitField" ,
-        "ballerina/jvm/FieldVisitor.visitEnd" : "org/ballerinalang/nativeimpl/jvm/fieldvisitor/VisitEnd" ,
-        "ballerina/jvm/MethodVisitor.visitInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitInsn" ,
-        "ballerina/jvm/MethodVisitor.visitLookupSwitchInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitLookupSwitchInsn" ,
-        "ballerina/jvm/MethodVisitor.visitFieldInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitFieldInsn" ,
-        "ballerina/jvm/MethodVisitor.visitCode" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitCode" ,
-        "ballerina/jvm/MethodVisitor.visitInvokeDynamicInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitInvokeDynamicInsn" ,
-        "ballerina/jvm/MethodVisitor.visitEnd" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitEnd" ,
-        "ballerina/jvm/MethodVisitor.visitLineNumber" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitLineNumber" ,
-        "ballerina/jvm/MethodVisitor.visitLabel" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitLabel" ,
-        "ballerina/jvm/MethodVisitor.visitJumpInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitJumpInsn" ,
-        "ballerina/jvm/MethodVisitor.visitMethodInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitMethodInsn" ,
-        "ballerina/jvm/MethodVisitor.visitLdcInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitLdcInsn" ,
-        "ballerina/jvm/MethodVisitor.visitIntInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitIntInsn" ,
-        "ballerina/jvm/MethodVisitor.visitVarInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitVarInsn" ,
-        "ballerina/jvm/MethodVisitor.visitMaxs" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitMaxs" ,
-        "ballerina/jvm/MethodVisitor.visitTryCatchBlock" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitTryCatchBlock" ,
-        "ballerina/jvm/MethodVisitor.visitTypeInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitTypeInsn" ,
-        "ballerina/jvm/MethodVisitor.visitMultiANewArrayInsn" : "org/ballerinalang/nativeimpl/jvm/methodvisitor/VisitMultiANewArrayInsn" ,
-        "ballerina/jvm/Label.init" : "org/ballerinalang/nativeimpl/jvm/label/Init" ,
-        "ballerina/jvm/lookupExternClassName" : "org/ballerinalang/nativeimpl/jvm/LookupExternClassName"
-    };
     if (mapPath != "") {
         externalMapCache = readMap(mapPath);
     }

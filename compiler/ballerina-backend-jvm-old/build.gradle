@@ -26,7 +26,7 @@ configurations {
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-bir-old')
+    implementation project(':ballerina-bir')
 
     balo  project(path: ':ballerina-bootstrapper', configuration: 'pack2')
 }

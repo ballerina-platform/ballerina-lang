@@ -295,17 +295,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "sortText": "110",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "tGuard1",
       "kind": "Variable",
-      "detail": "Response|TestObject|boolean",
+      "detail": "Response|TestObject|boolean)",
       "sortText": "110",
       "insertText": "tGuard1",
       "insertTextFormat": "Snippet"

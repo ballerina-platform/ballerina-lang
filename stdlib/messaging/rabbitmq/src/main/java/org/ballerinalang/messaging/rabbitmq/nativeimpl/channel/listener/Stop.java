@@ -22,14 +22,13 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -44,29 +43,29 @@ import java.util.concurrent.TimeoutException;
         packageName = RabbitMQConstants.RABBITMQ,
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = RabbitMQConstants.CHANNEL_LISTENER_OBJECT,
+                structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
 public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelListObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelOb =
-                (BMap<String, BValue>) channelListObject.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        Channel channel = (Channel) channelOb.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+    }
+
+    public static Object stop(Strand strand, ObjectValue listenerObjectValue) {
+        ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         if (channel == null) {
-            throw new BallerinaException("ChannelListener not properly initialised");
+            return RabbitMQUtils.returnErrorValue("ChannelListener is not properly initialised.");
         } else {
             try {
                 Connection connection = channel.getConnection();
                 channel.close();
                 connection.close();
             } catch (IOException | TimeoutException exception) {
-                RabbitMQUtils.returnError(RabbitMQConstants.CLOSE_CHANNEL_ERROR
-                        + " " + exception.getMessage(), context, exception);
+                return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CLOSE_CHANNEL_ERROR
+                        + exception.getMessage());
             }
         }
+        return null;
     }
 }

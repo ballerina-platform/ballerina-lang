@@ -19,7 +19,7 @@
 #
 # + name - Name of the environment variable
 # + return - Environment variable value if it exists, otherwise an empty string
-public function getEnv(@sensitive string name) returns string = external;
+public function getEnv(@untainted string name) returns string = external;
 
 # Returns the current working directory.
 #
@@ -53,7 +53,7 @@ public function exists(string path) returns boolean = external;
 # + dir - directory name.
 # + parentDirs - Indicates whether the `createDir` should create non-existing parent directories.
 # + return - Returns absolute path value of the created directory or an `error` if failed
-public function createDir(string dir, boolean parentDirs = false) returns error? = external;
+public function createDir(string dir, boolean parentDirs = false) returns string|error = external;
 
 # Removes the specified file or directory.
 # If recursive flag is true, Removes the path and any children  # it contains.
@@ -64,13 +64,12 @@ public function createDir(string dir, boolean parentDirs = false) returns error?
 public function remove(string path, boolean recursive = false) returns error? = external;
 
 # Renames(Moves) old path to new path.
-# If new path already exists and it is not a directory, this
-# replaces the file.
+# If new path already exists and it is not a directory, this replaces the file.
 #
-# + oldpath - String value of old file path.
-# + newpath - String value of new file path.
+# + oldPath - String value of old file path.
+# + newPath - String value of new file path.
 # + return - Returns an `error` if failed to rename.
-public function rename(string oldpath, string newpath) returns error? = external;
+public function rename(string oldPath, string newPath) returns error? = external;
 
 # Returns the default directory to use for temporary files.
 #
@@ -94,7 +93,7 @@ public function getFileInfo(string path) returns FileInfo|error = external;
 #
 # + path - String value of directory path.
 # + return - Returns FileInfo array or an error if there is an error while  # changing the mode.
-public function readDir(@sensitive string path) returns FileInfo[]|error = external;
+public function readDir(@untainted string path) returns FileInfo[]|error = external;
 
 # Copy file/directory in old path to new path.
 # If new path already exists, this replaces the file.

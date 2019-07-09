@@ -182,18 +182,14 @@ function testObjectAttachedFunction4() returns [[int, string, float, FooRecord],
 
 type ObjectFour object {
 
-    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord];
+    function attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
+        return [a, b * 2, c];
+    }
 
-    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord];
+    function attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
+        return [a, b, c, d];
+    }
 };
-
-function ObjectFour.attachedFunction1(string a = GLB_STRING, int b = getInt(), FooRecord c = { a: "default", b: 50, c: false, d: 11.1 }) returns [string, int, FooRecord] {
-    return [a, b * 2, c];
-}
-
-function ObjectFour.attachedFunction2(int a = getInt() + 10 + getInt(), string b = "def" + getString() + GLB_STRING, float c = getFloat() + getInt(), FooRecord d = getRecord()) returns [int, string, float, FooRecord] {
-    return [a, b, c, d];
-}
 
 type ObjectFive object {
     function foo(int x = getInt(), float y = getFloat()) returns [int, float] {

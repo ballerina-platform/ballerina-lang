@@ -52,7 +52,7 @@ service keepAliveTest on new http:Listener(9232) {
 
         http:Response[] resArr = [res1, res2, res3, res4];
         string result = processResponse("http_1_1", resArr);
-        checkpanic caller->respond(untaint result);
+        checkpanic caller->respond(<@untainted> result);
     }
 
     @http:ResourceConfig {
@@ -66,7 +66,7 @@ service keepAliveTest on new http:Listener(9232) {
 
         http:Response[] resArr = [res1, res2, res3, res4];
         string result = processResponse("http_1_0", resArr);
-        checkpanic caller->respond(untaint result);
+        checkpanic caller->respond(<@untainted> result);
     }
 }
 @http:ServiceConfig {basePath:"/test"}
@@ -88,7 +88,7 @@ service test on new http:Listener(9233) {
     }
 }
 
-function processResponse(string protocol, http:Response[] responseArr) returns string {
+function processResponse(string protocol, http:Response[] responseArr) returns @tainted string {
     string returnValue = protocol;
     foreach var response in responseArr {
        string payload = checkpanic response.getTextPayload();

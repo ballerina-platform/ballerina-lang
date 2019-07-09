@@ -21,7 +21,7 @@ public type BIRContext object {
 
     public function lookupBIRModule(ModuleID modId) returns Package {
         var modBinary = getBIRModuleBinary(self, modId);
-        return populateBIRModuleFromBinary(modBinary, false);
+        return <@untainted Package> populateBIRModuleFromBinary(modBinary, false);
     }
 };
 
@@ -39,7 +39,7 @@ public function populateBIRModuleFromBinary(byte[] modBinary, boolean symbolsOnl
     BirChannelReader birReader = new(reader, cp);
     PackageParser pkgParser = new(birReader, symbolsOnly);
     Package mod = pkgParser.parsePackage();
-    return mod;
+    return <@untainted Package> mod;
 }
 
 function checkValidBirChannel(ChannelReader reader) {
@@ -59,8 +59,8 @@ function checkMagic(ChannelReader reader) {
 
 function checkVersion(ChannelReader reader) {
     var birVersion = reader.readInt32();
-    var supportedBirVersion = 1;
-    if (birVersion != 1){
+    var supportedBirVersion = 51;
+    if (birVersion != supportedBirVersion){
         error err = error( "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion);
         panic err;
     }
