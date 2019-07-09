@@ -33,7 +33,7 @@ function initWritableChannel(string filePath) {
     wch = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
 }
 
-function readBytes(int numberOfBytes) returns @tainted (byte[]|error) {
+function readBytes(int numberOfBytes) returns @tainted byte[]|error {
     var result = rch.read(numberOfBytes);
     if (result is [byte[], int]) {
         var [bytes, val] = result;

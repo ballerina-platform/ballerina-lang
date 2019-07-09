@@ -135,7 +135,7 @@ function testSetAndGetJson(json jsonContent) returns @tainted json|error {
     return entity.getJson();
 }
 
-function testGetJsonMultipleTimes(json jsonContent) returns @tainted (json) {
+function testGetJsonMultipleTimes(json jsonContent) returns @tainted json {
     mime:Entity entity = new;
     entity.setJson(jsonContent);
     json|error returnContent1 = entity.getJson();
@@ -174,7 +174,7 @@ function testSetAndGetXml(xml xmlContent) returns @tainted xml|error {
     return entity.getXml();
 }
 
-function testGetXmlMultipleTimes(xml xmlContent) returns @tainted (xml) {
+function testGetXmlMultipleTimes(xml xmlContent) returns @tainted xml {
     mime:Entity entity = new;
     entity.setXml(xmlContent);
     xml|error returnContent1 = entity.getXml();
@@ -213,7 +213,7 @@ function testSetAndGetText(string textContent) returns @tainted string|error {
     return entity.getText();
 }
 
-function testGetTextMultipleTimes(string textContent) returns @tainted (string) {
+function testGetTextMultipleTimes(string textContent) returns @tainted string {
     mime:Entity entity = new;
     entity.setText(textContent);
     string|error returnContent1 = entity.getText();
