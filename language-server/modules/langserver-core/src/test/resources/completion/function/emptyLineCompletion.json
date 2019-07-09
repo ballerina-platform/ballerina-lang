@@ -26,7 +26,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "190",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
       "insertTextFormat": "Snippet"
     },
     {
@@ -392,14 +392,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "sortText": "110",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "json",

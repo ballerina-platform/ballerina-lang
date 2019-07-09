@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -50,8 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
  * Utilities for filtering the symbols from completion context and symbol information lists.
@@ -204,22 +201,6 @@ public class FilterUtils {
                 .findFirst()
                 .orElse(null);
     }
-
-    public static Optional<BSymbol> getBTypeEntry(Scope.ScopeEntry entry) {
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
-                if (!CommonUtil.symbolContainsInvalidChars(entry.symbol) && entry.symbol instanceof BTypeSymbol) {
-                    return Optional.of(entry.symbol);
-                }
-            }
-            entry = entry.next;
-        }
-        return Optional.empty();
-    }
-
-    public static boolean isBTypeEntry(Scope.ScopeEntry entry) {
-        return getBTypeEntry(entry).isPresent();
-    }
     
     ///////////////////////////
     ///// Private Methods /////
@@ -253,13 +234,13 @@ public class FilterUtils {
 
     private static List<SymbolInfo> loadActionsFunctionsAndTypesFromScope(Map<Name, Scope.ScopeEntry> entryMap) {
         List<SymbolInfo> actionFunctionList = new ArrayList<>();
-        entryMap.forEach((name, scopeEntry) -> {
-            BSymbol symbol = scopeEntry.symbol;
+        entryMap.forEach((name, value) -> {
+            BSymbol symbol = value.symbol;
             if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
-                    || isBTypeEntry(scopeEntry)
+                    || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
                     || symbol instanceof BVarSymbol || symbol instanceof BConstantSymbol)
                     && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                SymbolInfo entry = new SymbolInfo(name.toString(), scopeEntry);
+                SymbolInfo entry = new SymbolInfo(name.toString(), value);
                 actionFunctionList.add(entry);
             }
         });
