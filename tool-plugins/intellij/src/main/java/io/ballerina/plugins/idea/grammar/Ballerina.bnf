@@ -104,7 +104,7 @@
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeAccessExprInvocation|StringFunctionInvocation)Reference") = VariableReference
 
-    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|TableQuery|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap)Expression") = Expression
+    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Access|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|TableQuery|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
     extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -360,7 +360,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -656,6 +656,7 @@ Expression
     |   BinaryRefEqualExpression
     |   TrapExpression
     |   TypeAccessExpression
+    |   AnnotationActionExpression
     {recoverWhile=ExpressionRecover}
 
 TypeAccessExpression ::= TypeName
@@ -672,7 +673,9 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
+AnnotationActionExpression ::= Expression ANNOTATION_ACCESS NameReference
+
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
