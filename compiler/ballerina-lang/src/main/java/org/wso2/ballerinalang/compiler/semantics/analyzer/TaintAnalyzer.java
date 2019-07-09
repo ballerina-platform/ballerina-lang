@@ -2641,7 +2641,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
-        } if (varRefExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+        } else if (varRefExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
             visitAssignment(((BLangTypeConversionExpr) varRefExpr).expr, varTaintedStatus, varRefExpr.pos);
         }
     }
