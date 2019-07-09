@@ -105,28 +105,12 @@ function testSetContentIdAndGetValueAsHeader() returns @tainted string {
     return entity.getHeader(mime:CONTENT_ID);
 }
 
-function testMimeBase64EncodeString(string contentToBeEncoded) returns (string|error) {
-    return mime:base64EncodeString(contentToBeEncoded);
-}
-
-function testMimeBase64DecodeString(string contentToBeDecoded) returns (string|error) {
-    return mime:base64DecodeString(contentToBeDecoded);
-}
-
 function testMimeBase64EncodeBlob(byte[] contentToBeEncoded) returns (byte[]|error) {
     return mime:base64EncodeBlob(contentToBeEncoded);
 }
 
 function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|error) {
     return mime:base64DecodeBlob(contentToBeDecoded);
-}
-
-function testMimeBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns (io:ReadableByteChannel|error) {
-    return mime:base64EncodeByteChannel(contentToBeEncoded);
-}
-
-function testMimeBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns (io:ReadableByteChannel|error) {
-    return mime:base64DecodeByteChannel(contentToBeDecoded);
 }
 
 function testSetAndGetJson(json jsonContent) returns @tainted json|error {
@@ -252,7 +236,7 @@ function testSetAndGetByteArray(byte[] blobContent) returns @tainted byte[]|erro
     return entity.getByteArray();
 }
 
-function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
+function testGetByteArrayMultipleTimes(byte[] blobContent) returns @tainted [byte[], byte[], byte[]] {
     mime:Entity entity = new;
     entity.setByteArray(blobContent);
     byte[]|error returnContent1 = entity.getByteArray();
@@ -281,9 +265,7 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
         log:printError("error in returnContent3", err = returnContent3);
     }
 
-    string contentAsString = encoding:byteArrayToString(content1, encoding = "utf-8") + encoding:byteArrayToString(content2, encoding = "utf-8") +
-        encoding:byteArrayToString(content3, encoding = "utf-8");
-    return contentAsString;
+    return [content1, content2, content3];
 }
 
 function testSetFileAsEntityBody(string fileLocation) returns @tainted byte[]|error {
