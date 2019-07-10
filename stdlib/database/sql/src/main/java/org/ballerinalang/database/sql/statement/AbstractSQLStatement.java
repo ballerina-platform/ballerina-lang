@@ -160,7 +160,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
         return new BCursorTable(
-                new SQLDataIterator(rm, rs, columnDefinitions, structType, databaseProductName),
+                new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType, databaseProductName),
                 tableConstraint);
     }
 

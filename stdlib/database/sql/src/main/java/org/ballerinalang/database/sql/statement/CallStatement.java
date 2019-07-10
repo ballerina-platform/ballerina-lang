@@ -310,12 +310,20 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.TIMESTAMP:
                 case Constants.SQLDataTypes.DATETIME: {
-                    Timestamp value = stmt.getTimestamp(index + 1);
+                    SQLDatasource datasource = retrieveDatasource(client);
+                    boolean postgresql = datasource.getDatabaseProductName().contains(
+                            Constants.DatabaseNames.POSTGRESQL);
+                    Timestamp value;
+                    if (postgresql) {
+                        value = stmt.getTimestamp(index + 1);
+                    } else {
+                        value = stmt.getTimestamp(index + 1, utcCalendar);
+                    }
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
                 case Constants.SQLDataTypes.TIME: {
-                    Time value = stmt.getTime(index + 1);
+                    Time value = stmt.getTime(index + 1, utcCalendar);
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
