@@ -45,7 +45,7 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'Foo'", 47, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 64, 18);
-        Assert.assertEquals(err, result.getErrorCount());
+        Assert.assertEquals(result.getErrorCount(), err);
     }
 
 }
