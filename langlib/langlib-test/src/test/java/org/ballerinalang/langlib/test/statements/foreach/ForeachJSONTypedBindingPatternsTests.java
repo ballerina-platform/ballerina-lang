@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,16 +44,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testJsonWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testJsonWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:name:bob 1:age:10 2:pass:true " +
-                "3:subjects:[{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}] ");
+        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:[{\"subject\":\"maths\", \"marks\":75}, " +
+                                                      "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
     public void testJsonWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testJsonWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:name:bob 1:age:10 2:pass:true " +
-                "3:subjects:[{\"subject\":\"maths\", \"marks\":75}, {\"subject\":\"English\", \"marks\":85}] ");
+        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:[{\"subject\":\"maths\", \"marks\":75}, " +
+                                                      "{\"subject\":\"English\", \"marks\":85}] ");
     }
 
     @Test
@@ -87,7 +88,8 @@ public class ForeachJSONTypedBindingPatternsTests {
                 "1:{\"subject\":\"English\", \"marks\":85} ");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
     public void testDirectAccessInvalidElementWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithoutType");
         Assert.assertEquals(returns.length, 1);
@@ -95,7 +97,8 @@ public class ForeachJSONTypedBindingPatternsTests {
                 + "'null' value to type 'map<json>'\"}");
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'json'.*")
     public void testDirectAccessInvalidElementWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testDirectAccessInvalidElementWithType");
         Assert.assertEquals(returns.length, 1);
@@ -108,16 +111,16 @@ public class ForeachJSONTypedBindingPatternsTests {
     public void testIteratingCompleteJsonWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:name:bob 1:age:10 2:pass:true " +
-                "3:subjects:{\"subject\":\"maths\", \"marks\":75} 3:subjects:{\"subject\":\"English\", \"marks\":85} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+                                                      "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test
     public void testIteratingCompleteJsonWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testIteratingCompleteJsonWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:name:bob 1:age:10 2:pass:true " +
-                "3:subjects:{\"subject\":\"maths\", \"marks\":75} 3:subjects:{\"subject\":\"English\", \"marks\":85} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:bob 1:10 2:true 3:{\"subject\":\"maths\", \"marks\":75} " +
+                                                      "3:{\"subject\":\"English\", \"marks\":85} ");
     }
 
     @Test

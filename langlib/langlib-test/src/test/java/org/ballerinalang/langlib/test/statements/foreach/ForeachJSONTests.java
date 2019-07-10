@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -63,7 +64,8 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'map<json>'.*")
     public void testJSONString() {
         String result = "{ballerina}ConversionError {\"message\":\"'string' value " 
                 + "cannot be converted to 'map<json>'\"}";
@@ -72,7 +74,8 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test
+    @Test(expectedExceptions =  BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'map<json>'.*")
     public void testJSONNumber() {
         String result = "{ballerina}ConversionError {\"message\":\"'int' value cannot" 
                 + " be converted to 'map<json>'\"}";
@@ -81,7 +84,8 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'boolean' cannot be cast to 'map<json>'.*")
     public void testJSONBoolean() {
         String result = "{ballerina}ConversionError {\"message\":\"'boolean' value " 
                 + "cannot be converted to 'map<json>'\"}";
@@ -90,7 +94,8 @@ public class ForeachJSONTests {
         Assert.assertEquals(returns[0].stringValue(), result);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'map<json>'.*")
     public void testJSONNull() {
         String result = "{ballerina}ConversionError {\"message\":\"cannot convert 'null' value to type 'map<json>'\"}";
         BValue[] returns = BRunUtil.invoke(program, "testJSONNull");

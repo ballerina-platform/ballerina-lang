@@ -37,7 +37,8 @@
             <!--<class name="org.ballerinalang.langlib.test.LangLibStringTest" />-->
             <!--<class name="org.ballerinalang.langlib.test.LangLibIntTest" />-->
             <!--<class name="org.ballerinalang.langlib.test.TypeParamTest" />-->
-            <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachNegativeTests" />-->
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests" />
+
         </classes>
     </test>
 </suite>

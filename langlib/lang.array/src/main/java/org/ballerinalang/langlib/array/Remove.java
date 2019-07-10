@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+
 /**
  * Native implementation of lang.array:remove((any|error)[], int).
  *
@@ -39,6 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Remove {
 
     public static Object remove(Strand strand, ArrayValue arr, long i) {
+        checkIsArrayOnlyOperation(arr.getType(), "remove()");
         return arr.shift(i);
     }
 }

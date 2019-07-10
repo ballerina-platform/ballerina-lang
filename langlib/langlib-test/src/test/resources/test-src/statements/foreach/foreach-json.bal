@@ -20,7 +20,7 @@ function testJSONObject () returns string|error {
 function testJSONArray () returns (string) {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    json element = j1.subjects;
+    json element = <json> j1.subjects;
     if element is json[] {
         foreach var j in element {
             concatString(j.toString());
@@ -92,22 +92,25 @@ type Protocol record {
     string url;
 };
 
-function testJSONToStructCast () returns string|error {
-    json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var result = check <Protocols>j;
-    output = "";
-    foreach var protocol in result.plist {
-        concatString(protocol.name + "-" + protocol.url);
-    }
-    return output;
-}
+//TODO: enable when 'json -> record' is supported
+//function testJSONToStructCast () returns string|error {
+//    json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
+//    var result = check <Protocols>j;
+//    output = "";
+//    foreach var protocol in result.plist {
+//        concatString(protocol.name + "-" + protocol.url);
+//    }
+//    return output;
+//}
 
 function testAddWhileIteration () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1 {
         if (j.toString() == "bob") {
-            j1["lastname"] = "smith";
+            map<json> temp = <map<json>>j1;
+            temp["lastname"] = "smith";
+            j1 = <json>temp;
         }
     }
     foreach var j in <map<json>>j1 {
@@ -122,7 +125,8 @@ function testDeleteWhileIteration () returns string|error {
     foreach var j in <map<json>>j1 {
         string str = j.toString();
         if (str == "bob") {
-           any x = j1.remove("subjects");
+            map<json> temp = (<map<json>>j1);
+            any x = temp.remove("subjects");
         }
         concatString(str);
     }

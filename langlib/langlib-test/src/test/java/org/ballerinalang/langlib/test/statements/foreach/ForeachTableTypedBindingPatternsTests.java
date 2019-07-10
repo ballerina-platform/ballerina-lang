@@ -43,16 +43,16 @@ public class ForeachTableTypedBindingPatternsTests {
     public void testTableWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testTableWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{id:1, name:\"Mary\", salary:300.5} 1:{id:2, name:\"John\", " +
-                "salary:200.5} 2:{id:3, name:\"Jim\", salary:330.5} ");
+        Assert.assertEquals(returns[0].stringValue(),
+                "0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 ");
     }
 
     @Test
     public void testTableWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testTableWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:{id:1, name:\"Mary\", salary:300.5} 1:{id:2, name:\"John\", " +
-                "salary:200.5} 2:{id:3, name:\"Jim\", salary:330.5} ");
+        Assert.assertEquals(returns[0].stringValue(),
+                "0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 ");
     }
 
     @Test

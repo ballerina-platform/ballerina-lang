@@ -69,10 +69,10 @@ function testMapWithErrors() returns [string, string, string] {
     string result2 = "";
     foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errMap {
         result2 += reason2 + ":";
-        any temp2 = message;
+        any temp2 = message1;
         if (temp2 is string|boolean|()) {
-            result2 += io:sprintf("%s:", message);
-            result2 += io:sprintf("%s:", fatal);
+            result2 += io:sprintf("%s:", message1);
+            result2 += io:sprintf("%s:", fatal1);
         }
     }
 

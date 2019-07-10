@@ -18,7 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,6 +46,12 @@ import java.util.Base64;
 public class ToBase64 {
 
     public static String toBase64(Strand strand, ArrayValue arr) {
+        BType arrType = arr.getType();
+        if (arrType.getTag() != TypeTags.ARRAY_TAG ||
+                ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+                                              "toBase64() is only supported on 'byte[]'");
+        }
         return Base64.getEncoder().encodeToString(arr.getBytes());
     }
 }

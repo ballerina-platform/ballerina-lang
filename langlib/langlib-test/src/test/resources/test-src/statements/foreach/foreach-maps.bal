@@ -30,7 +30,7 @@ function testDeleteWhileIteration () returns (string) | error {
     map<any> m = {a:"1A", b:"2B", c:"3C"};
     output = "";
     string val;
-    foreach var v1 in m.getKeys() {
+    foreach var v1 in m.keys() {
         if (v1 == "a") {
             _ = m.remove("c");
             foreach var v2 in m {

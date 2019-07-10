@@ -202,6 +202,8 @@ public class TypeChecker {
             return BTypes.typeBoolean;
         } else if (value instanceof Byte || value instanceof Integer) {
             return BTypes.typeByte;
+        } else if (value instanceof MapValueImpl && ((RefValue) value).getType().getTag() == TypeTags.JSON_TAG) {
+            return BTypes.typeJsonMap;
         } else {
             return ((RefValue) value).getType();
         }
@@ -423,6 +425,9 @@ public class TypeChecker {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.JSON_TAG) {
+
+        }
         if (sourceType.getTag() != TypeTags.MAP_TAG) {
             return false;
         }

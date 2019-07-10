@@ -33,10 +33,6 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     public BLangExpression indexExpr;
 
-    public BLangIndexBasedAccess() {
-        this.safeNavigate = false;
-    }
-
     @Override
     public BLangExpression getExpression() {
         return expr;
@@ -84,20 +80,10 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangMapAccessExpr extends BLangIndexBasedAccess {
 
-        public boolean except = true;
-
         public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr) {
             this.pos = pos;
             this.expr = varExpr;
             this.indexExpr = keyExpr;
-        }
-
-        public BLangMapAccessExpr(DiagnosticPos pos, BLangExpression varExpr, BLangExpression keyExpr,
-                boolean except) {
-            this.pos = pos;
-            this.expr = varExpr;
-            this.indexExpr = keyExpr;
-            this.except = except;
         }
 
         @Override
@@ -156,15 +142,12 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
      */
     public static class BLangStructFieldAccessExpr extends BLangIndexBasedAccess {
 
-        public boolean except;
-
         public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangExpression varRef, BLangExpression keyExpr,
                                           BVarSymbol fieldSymbol, boolean except) {
             this.pos = pos;
             this.expr = varRef;
             this.indexExpr = keyExpr;
             this.symbol = fieldSymbol;
-            this.except = except;
         }
 
         @Override

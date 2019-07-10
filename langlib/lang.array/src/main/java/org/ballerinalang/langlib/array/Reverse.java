@@ -46,7 +46,7 @@ public class Reverse {
         int size = arr.size();
 
         for (int i = size - 1, j = 0; i >= 0; i--, j++) {
-            add(reversedArr, elemTypeTag, i, arr.get(i));
+            add(reversedArr, elemTypeTag, j, arr.get(i));
         }
 
         return reversedArr;

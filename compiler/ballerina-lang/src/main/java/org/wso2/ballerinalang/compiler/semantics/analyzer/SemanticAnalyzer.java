@@ -71,13 +71,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -1371,17 +1371,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAssignment assignNode) {
-        if (assignNode.varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            ((BLangIndexBasedAccess) assignNode.varRef).leafNode = true;
+        BLangExpression varRef = assignNode.varRef;
+        if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR ||
+                varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            ((BLangAccessExpression) varRef).leafNode = true;
         }
 
         // Check each LHS expression.
-        setTypeOfVarReferenceInAssignment(assignNode.varRef);
-        expType = assignNode.varRef.type;
+        setTypeOfVarReferenceInAssignment(varRef);
+        expType = varRef.type;
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
-        resetTypeNarrowing(assignNode.varRef, assignNode.expr);
+        resetTypeNarrowing(varRef, assignNode.expr);
     }
 
     @Override

@@ -23,13 +23,18 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.langlib.array.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
+
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:enumerate(Type[]).
@@ -45,15 +50,32 @@ import java.util.Arrays;
 public class Enumerate {
 
     public static ArrayValue enumerate(Strand strand, ArrayValue arr) {
-        BType elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.elementType));
-        BType arrType = new BArrayType(elemType);
-        ArrayValue newArr = new ArrayValue(arrType);
+        BType arrType = arr.getType();
         int size = arr.size();
+        BTupleType elemType;
+        GetFunction getFn;
+
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.elementType));
+                getFn = ArrayValue::get;
+                break;
+            case TypeTags.TUPLE_TAG:
+                BUnionType tupElemType = new BUnionType(((BTupleType) arrType).getTupleTypes());
+                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, tupElemType));
+                getFn = ArrayValue::getRefValue;
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "enumerate()");
+        }
+
+        BType newArrType = new BArrayType(elemType);
+        ArrayValue newArr = new ArrayValue(newArrType); // TODO: 7/8/19 Verify whether this needs to be sealed
 
         for (int i = 0; i < size; i++) {
             ArrayValue entry = new ArrayValue(elemType);
-            entry.add(0, i);
-            entry.add(1, arr.get(i));
+            entry.add(0, Long.valueOf(i));
+            entry.add(1, getFn.get(arr, i));
             newArr.add(i, entry);
         }
 

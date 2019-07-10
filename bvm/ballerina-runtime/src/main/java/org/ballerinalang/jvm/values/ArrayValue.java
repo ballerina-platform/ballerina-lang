@@ -676,58 +676,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     
     @Override
     public String toString() {
-        if (elementType != null) {
-            StringJoiner sj = new StringJoiner(", ", "[", "]");
-            if (elementType.getTag() == TypeTags.INT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(intValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Boolean.toString(booleanValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Double.toString(floatValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add("\"" + stringValues[i] + "\"");
-                }
-                return sj.toString();
-            }
-        }
-
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
-            return getJSONString();
-        }
-
-        StringJoiner sj;
-        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
-        } else {
-            sj = new StringJoiner(", ", "[", "]");
-        }
-
-        Object value;
-        for (int i = 0; i < size; i++) {
-            value = refValues[i];
-            if (value != null) {
-                sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
-                        : value.toString());
-            } else {
-                sj.add("()");
-            }
-        }
-        return sj.toString();
+        return stringValue();
     }
 
     public Object[] getValues() {

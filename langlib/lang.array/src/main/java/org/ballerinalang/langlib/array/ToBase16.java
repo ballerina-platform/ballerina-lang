@@ -18,7 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,6 +46,13 @@ public class ToBase16 {
     private static final char[] chars = "0123456789abcdef".toCharArray();
 
     public static String toBase16(Strand strand, ArrayValue arr) {
+        BType arrType = arr.getType();
+        if (arrType.getTag() != TypeTags.ARRAY_TAG ||
+                ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+                                              "toBase16() is only supported on 'byte[]'");
+        }
+
         // Implementation borrowed from https://stackoverflow.com/a/9855338
         byte[] bytes = arr.getBytes();
         char[] base16Chars = new char[bytes.length * 2];

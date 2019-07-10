@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], function).
@@ -42,6 +43,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
 public class Sort {
 
     public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Long> func) {
+        checkIsArrayOnlyOperation(arr.getType(), "sort()");
         return mergesort(arr, strand, func);
     }
 

@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+
 /**
  * Native implementation of lang.array:shift((any|error)[]).
  *
@@ -39,6 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Shift {
 
     public static Object shift(Strand strand, ArrayValue arr) {
+        checkIsArrayOnlyOperation(arr.getType(), "shift()");
         return arr.shift(0);
     }
 }

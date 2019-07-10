@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -30,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 /**
  * Test cases for the lang.array library.
@@ -129,5 +131,51 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(5), 2);
         assertEquals(arr.getInt(6), 1);
         assertEquals(arr.getInt(7), 13);
+    }
+
+    @Test
+    public void testReduce() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(((BFloat) returns[0]).floatValue(), 13.8);
+    }
+
+//    @Test
+//    public void testIterableOpChain() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+//        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+//    }
+
+//    @Test
+//    public void testIndexOf() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
+//        assertEquals(((BInteger) returns[0]).intValue(), 4);
+//        assertNull(returns[1]);
+//    }
+
+    @Test
+    public void testReverse() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReverse");
+
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        BValueArray arr = (BValueArray) returns[0];
+
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 5);
+        assertEquals(arr.getInt(0), 10);
+        assertEquals(arr.getInt(1), 20);
+        assertEquals(arr.getInt(2), 30);
+        assertEquals(arr.getInt(3), 40);
+        assertEquals(arr.getInt(4), 50);
+
+        assertEquals(returns[1].getType().getTag(), TypeTags.ARRAY_TAG);
+        arr = (BValueArray) returns[1];
+
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 5);
+        assertEquals(arr.getInt(0), 50);
+        assertEquals(arr.getInt(1), 40);
+        assertEquals(arr.getInt(2), 30);
+        assertEquals(arr.getInt(3), 20);
+        assertEquals(arr.getInt(4), 10);
     }
 }

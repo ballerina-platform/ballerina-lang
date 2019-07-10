@@ -68,27 +68,19 @@ public class ForeachErrorBindingPatternsTests {
 
     @Test
     public void testNegativeForEachWithErrors() {
-        Assert.assertEquals(negative.getErrorCount(), 10);
+        Assert.assertEquals(negative.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found 'error?' in type definition", 25, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'error', found 'error'", 38, 13);
+                "invalid error variable; expecting an error type but found '$anonType$3?' in type definition", 31, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'string'", 60, 25);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found '(string|boolean)?'", 52, 25);
+                "invalid error variable; expecting an error type but found '$anonType$16?' in type definition", 76, 17);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 56, 28);
+                "incompatible types: expected 'map<string>', found 'string'", 107, 25);
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found '[string,error?]' in type definition",
-                68, 17);
+                "invalid error binding pattern with type '$anonType$28'",
+                126, 17);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected '[string,error]', found '[string,error]'", 83, 13);
-        BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found '(string|boolean)?'", 97, 25);
-        BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected '(string|boolean)', found '(string|boolean)?'", 101, 28);
-        BAssertUtil.validateError(negative, i++,
-                "invalid error binding pattern with type 'error'", 116, 23);
-        BAssertUtil.validateError(negative, i,
-                "undefined symbol 'otherVar'", 119, 17);
+                "undefined symbol 'otherVar'", 129, 17);
     }
 }

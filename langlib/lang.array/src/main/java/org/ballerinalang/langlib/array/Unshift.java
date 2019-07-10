@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+
 /**
  * Native implementation of lang.array:unshift((any|error)[], (any|error)...).
  *
@@ -37,6 +39,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Unshift {
 
     public static void unshift(Strand strand, ArrayValue arr, ArrayValue vals) {
+        checkIsArrayOnlyOperation(arr.getType(), "unshift()");
         arr.unshift(0, vals);
     }
 }
