@@ -32,7 +32,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.StandardCharsets;
 
@@ -94,7 +93,7 @@ public class Utils {
                     (BRecordType) intendedType);
             break;
         default:
-            throw new BallerinaException("Unable to find a supported data type to bind the message data");
+            throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
         }
         return dispatchedData;
     }

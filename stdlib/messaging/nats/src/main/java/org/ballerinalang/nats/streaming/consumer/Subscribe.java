@@ -33,8 +33,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -96,9 +96,9 @@ public class Subscribe implements NativeCallableUnit {
             List<ObjectValue> serviceList = (List<ObjectValue>) connection.getNativeData(Constants.SERVICE_LIST);
             serviceList.add(service);
         } catch (IOException | TimeoutException e) {
-            throw new BallerinaException("Error while creating the subscription: " + e.getMessage());
+            throw Utils.createNatsError(e.getMessage());
         } catch (InterruptedException e) {
-            throw new BallerinaException("Error while creating the subscription");
+            throw Utils.createNatsError("Error while creating the subscription");
         }
     }
 
@@ -173,7 +173,7 @@ public class Subscribe implements NativeCallableUnit {
 
     private static void assertNull(Object nullableObject, String errorMessage) {
         if (nullableObject == null) {
-            throw new BallerinaException(errorMessage);
+            throw Utils.createNatsError(errorMessage);
         }
     }
 
