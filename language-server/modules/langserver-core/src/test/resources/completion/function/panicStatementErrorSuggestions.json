@@ -11,6 +11,13 @@
       "detail": "error",
       "insertText": "err",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
