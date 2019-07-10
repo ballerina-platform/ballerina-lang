@@ -74,61 +74,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private String sourceRoot;
 
+    private IDebugProtocolClient getClient() {
+        return client;
+    }
+
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
         Capabilities capabilities = new Capabilities();
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
-        this.eventBus = new EventBus();
+        this.eventBus = new EventBus(client);
+        getClient().initialized();
         return CompletableFuture.completedFuture(capabilities);
-    }
-
-    @Override
-    public CompletableFuture<Void> launch(Map<String, Object> args) {
-        try {
-            sourceRoot = args.get("sourceRoot").toString();
-            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
-
-            EventRequestManager erm = debuggee.eventRequestManager();
-            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.enable();
-            this.eventBus.startListening(debuggee, client, sourceRoot);
-
-        } catch (IOException e) {
-            return CompletableFuture.completedFuture(null);
-        } catch (IllegalConnectorArgumentsException e) {
-        }
-        client.initialized();
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletableFuture<Void> attach(Map<String, Object> args) {
-        try {
-            sourceRoot = args.get("sourceRoot").toString();
-            if (!sourceRoot.endsWith(File.separator)) {
-                sourceRoot += File.separator;
-            }
-            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
-
-            EventRequestManager erm = debuggee.eventRequestManager();
-            erm.createClassPrepareRequest().enable();
-
-            this.eventBus.startListening(debuggee, client, sourceRoot);
-
-        } catch (IOException e) {
-            return CompletableFuture.completedFuture(null);
-        } catch (IllegalConnectorArgumentsException e) {
-        }
-        client.initialized();
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
-        return CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -147,10 +104,58 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
+
+    @Override
+    public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> launch(Map<String, Object> args) {
+        try {
+            sourceRoot = args.get("sourceRoot").toString();
+            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
+            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
+
+            EventRequestManager erm = debuggee.eventRequestManager();
+            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
+            classPrepareRequest.enable();
+            this.eventBus.setDebuggee(debuggee);
+            this.eventBus.startListening(sourceRoot);
+
+        } catch (IOException e) {
+            return CompletableFuture.completedFuture(null);
+        } catch (IllegalConnectorArgumentsException e) {
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> attach(Map<String, Object> args) {
+        try {
+            sourceRoot = args.get("sourceRoot").toString();
+            if (!sourceRoot.endsWith(File.separator)) {
+                sourceRoot += File.separator;
+            }
+            int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
+            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
+
+            EventRequestManager erm = debuggee.eventRequestManager();
+            erm.createClassPrepareRequest().enable();
+            this.eventBus.setDebuggee(debuggee);
+            this.eventBus.startListening(sourceRoot);
+
+        } catch (IOException e) {
+            return CompletableFuture.completedFuture(null);
+        } catch (IllegalConnectorArgumentsException e) {
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
     @Override
     public CompletableFuture<ThreadsResponse> threads() {
         ThreadsResponse threadsResponse = new ThreadsResponse();
-        Map<Long, ThreadReference> threadsMap = this.eventBus.getThreadsMap();
+        Map<Long, ThreadReference> threadsMap = eventBus.getThreadsMap();
         Thread[] threads = new Thread[threadsMap.size()];
         threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
         threadsResponse.setThreads(threads);
@@ -160,14 +165,10 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-        try {
-            StackTraceResponse stackTraceResponse = new StackTraceResponse();
-            StackFrame[] stackFrames = eventBus.getStackframesMap().get(args.getThreadId());
-            stackTraceResponse.setStackFrames(stackFrames);
-            return CompletableFuture.completedFuture(stackTraceResponse);
-        } catch (Exception e) {
-        }
-        return CompletableFuture.completedFuture(null);
+        StackTraceResponse stackTraceResponse = new StackTraceResponse();
+        StackFrame[] stackFrames = eventBus.getStackframesMap().get(args.getThreadId());
+        stackTraceResponse.setStackFrames(stackFrames);
+        return CompletableFuture.completedFuture(stackTraceResponse);
     }
 
     @Override
@@ -283,7 +284,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
         debuggee.dispose();
-        System.exit(0);
         return CompletableFuture.completedFuture(null);
     }
 

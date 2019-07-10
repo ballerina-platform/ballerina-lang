@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
  * Listens and publishes events from JVM.
  */
 public class EventBus {
+    private final IDebugProtocolClient client;
     private Breakpoint[] breakpointsList = new Breakpoint[0];
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
 
@@ -61,12 +62,24 @@ public class EventBus {
     private String sourceRoot;
     private VirtualMachine debuggee;
 
+    public EventBus(IDebugProtocolClient client) {
+        this.client = client;
+    }
+
+    public void setDebuggee(VirtualMachine debuggee) {
+        this.debuggee = debuggee;
+    }
+
+    public VirtualMachine getDebuggee() {
+        return debuggee;
+    }
+
     public void setBreakpointsList(Breakpoint[] breakpointsList) {
-        this.breakpointsList = breakpointsList;
+        this.breakpointsList = breakpointsList.clone();
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
-        List<ThreadReference> threadReferences = debuggee.allThreads();
+        List<ThreadReference> threadReferences = getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
         });
@@ -81,12 +94,12 @@ public class EventBus {
         return stackframesMap;
     }
 
-    private void populateMaps(VirtualMachine debuggee) {
+    private void populateMaps() {
         nextStackFrameId.set(1);
         threadsMap = new HashMap<>();
         stackframesMap = new HashMap<>();
         variablesMap = new HashMap<>();
-        List<ThreadReference> threadReferences = debuggee.allThreads();
+        List<ThreadReference> threadReferences = getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
             try {
@@ -132,13 +145,12 @@ public class EventBus {
 
     }
 
-    public void startListening(VirtualMachine debuggee, IDebugProtocolClient client, String sourceRoot) {
+    public void startListening(String sourceRoot) {
         this.sourceRoot = sourceRoot;
-        this.debuggee = debuggee;
         CompletableFuture.runAsync(() -> {
                     try {
                         while (true) {
-                            EventSet eventSet = debuggee.eventQueue().remove();
+                            EventSet eventSet = getDebuggee().eventQueue().remove();
                             EventIterator eventIterator = eventSet.eventIterator();
 
                             while (eventIterator.hasNext()) {
@@ -159,7 +171,7 @@ public class EventBus {
                                             } catch (AbsentInformationException e) {
                                                 // ignore absent information
                                             }
-                                            BreakpointRequest bpReq = debuggee.eventRequestManager()
+                                            BreakpointRequest bpReq = getDebuggee().eventRequestManager()
                                                     .createBreakpointRequest(location);
                                             bpReq.enable();
                                         }
@@ -173,14 +185,14 @@ public class EventBus {
                                     // disable the breakpoint event
                                     event.request().disable();
                                     StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                                    populateMaps(debuggee);
+                                    populateMaps();
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
                                     stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                                     stoppedEventArguments.setAllThreadsStopped(true);
                                     client.stopped(stoppedEventArguments);
                                 } else if (event instanceof StepEvent) {
                                     event.request().disable();
-                                    populateMaps(debuggee);
+                                    populateMaps();
                                     StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                                     stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
                                     stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());

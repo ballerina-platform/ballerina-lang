@@ -34,11 +34,10 @@ import java.net.UnknownHostException;
 public class Launcher {
 
     public static void main(String[] args) {
-        ServerSocket server = null;
-        DataOutputStream os = null;
-        DataInputStream is = null;
-        DataInputStream stdIn = new DataInputStream(System.in);
-        Socket clientSocket = null;
+        ServerSocket server;
+        DataOutputStream os;
+        DataInputStream is;
+        Socket clientSocket;
 
         try {
             int port = 4711;
