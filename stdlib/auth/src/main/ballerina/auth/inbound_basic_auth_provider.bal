@@ -74,10 +74,12 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = username;
-            principal.username = username;
-            principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = username;
+                principal.username = username;
+                principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
+            }
         }
         return authenticated;
     }
