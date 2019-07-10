@@ -35,6 +35,7 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class WaitForAllActionsTest {
     private CompileResult result;
 
@@ -228,7 +229,7 @@ public class WaitForAllActionsTest {
         BRunUtil.invoke(result, "waitTest15");
     }
 
-    @Test(groups = { "brokenOnJBallerina" })
+    @Test
     public void waitTest16() {
         BValue[] returns = BRunUtil.invoke(result, "waitTest16");
         Assert.assertEquals(returns.length, 1);
