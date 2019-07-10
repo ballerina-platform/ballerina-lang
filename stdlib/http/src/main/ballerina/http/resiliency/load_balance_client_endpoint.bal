@@ -286,9 +286,12 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
         error err = error("Unexpected nil");
         panic err;
     }
-    string lastErrorMessage = <string> actError.detail().message;
+    string? lastErrorMessage = actError.detail()?.message;
     loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
-    loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
+    loadBalanceActionErrorData.message = "All the load balance endpoints failed.";
+    if (lastErrorMessage is string) {
+        loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
+    }
     LoadBalanceActionError err = error(HTTP_ERROR_CODE, message = loadBalanceActionErrorData.message,
                                                         statusCode = loadBalanceActionErrorData.statusCode,
                                                         httpActionErr = loadBalanceActionErrorData.httpActionErr);

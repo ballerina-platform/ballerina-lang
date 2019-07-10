@@ -37,3 +37,5 @@ public function hasSuffix(string src, string suffix) returns boolean = external;
 public function lastIndexOf(string src, string subString) returns int = external;
 
 public function split(string src, string regex) returns string[] = external;
+
+public function contains(string src, string subString) returns boolean = external;

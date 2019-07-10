@@ -244,7 +244,7 @@ public type Request object {
                 error typeError = error(mime:HEADER_UNAVAILABLE, message = errorMessage);
                 return typeError;
             }
-            if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
+            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 error typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return typeError;

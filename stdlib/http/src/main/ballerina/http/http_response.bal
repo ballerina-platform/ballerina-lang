@@ -112,7 +112,7 @@ public type Response object {
         entity.setHeader(headerName, headerValue);
 
         // TODO: see if this can be handled in a better manner
-        if (SERVER.equalsIgnoreCase(headerName)) {
+        if (internal:equalsIgnoreCase(SERVER, headerName)) {
             self.server = headerValue;
         }
     }

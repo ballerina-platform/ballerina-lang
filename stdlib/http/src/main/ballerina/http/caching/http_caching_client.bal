@@ -703,7 +703,7 @@ function retain2xxWarnings(Response cachedResponse) {
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach var warningHeader in warningHeaders {
-            if (warningHeader.contains("214") || warningHeader.contains("299")) {
+            if (internal:contains(warningHeader, "214") || internal:contains(warningHeader, "299")) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;
                 });
