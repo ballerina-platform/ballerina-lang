@@ -4,11 +4,11 @@ public function main (string... args) {
 }
 
 public function secureFunctionFirstDefaultParamSensitive (string insecureIn1,
-                                                          @sensitive string secureIn = "example",
+                                                          @untainted string secureIn = "example",
                                                           string insecureIn2 = "example") {
 }
 
 public function secureFunctionSecondDefaultParamSensitive (string insecureIn1,
                                                            string insecureIn2 = "example",
-                                                           @sensitive string secureIn = "example") {
+                                                           @untainted string secureIn = "example") {
 }

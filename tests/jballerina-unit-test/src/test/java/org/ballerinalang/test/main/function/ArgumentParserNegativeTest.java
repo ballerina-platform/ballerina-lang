@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.launcher.BLauncherException;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ import java.util.Map;
  */
 public class ArgumentParserNegativeTest {
 
-    private static final String MAIN_FUNCTION_TEST_SRC_DIR = "src/test/resources/test-src/main.function";
+    private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
 
     private final Map<String, String> runtimeParams = new HashMap<>();
     private final String configFilePath = null;
@@ -44,11 +43,11 @@ public class ArgumentParserNegativeTest {
     @Test
     public void testTooManyArgs() {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_int_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{"1", "Hello World"},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: too many arguments to call the 'main' function"),
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_int_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"1", "Hello World"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: too many arguments to call the 'main' function"),
                               "invalid error message, usage error for too many arguments not found");
             return;
         }
@@ -58,11 +57,11 @@ public class ArgumentParserNegativeTest {
     @Test
     public void testInsufficientArgs() {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath, new String[]{"1"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages()
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"1"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage()
                                       .contains("ballerina: insufficient arguments to call the 'main' function"),
                               "invalid error message, usage error for insufficient arguments not found");
             return;
@@ -73,10 +72,11 @@ public class ArgumentParserNegativeTest {
     @Test(dataProvider = "intValues")
     public void testInvalidIntArg(String arg) {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_int_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{arg}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg + "', expected integer "
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_int_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{arg});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + arg + "', expected integer "
                                                                + "value"),
                               "invalid error message, usage error for invalid int argument not found");
             return;
@@ -88,12 +88,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidFloatArg() {
         String argument = "5.5s";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"10", argument, "b", "c", "d", "e", "f", "g"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"10", argument, "b", "c", "d", "e", "f", "g"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected float value"),
                               "invalid error message, error message for invalid float value not found");
             return;
@@ -105,10 +104,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidJsonObjectArg() {
         String argument = "{name: \"maryam\"}";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_json_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{argument}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_json_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{argument});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected JSON value"),
                               "invalid error message, error message for invalid JSON object not found");
             return;
@@ -120,13 +120,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidXmlArg() {
         String argument = "<book>Harry Potter";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"10", "1.0", "string!", "255", "true", "1", argument, "g"}, offline,
-                                     observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"10", "1.0", "string!", "255", "true", "1",
+                    argument, "g"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected XML value"),
                               "invalid error message, error message for invalid XML value not found");
             return;
@@ -137,12 +136,11 @@ public class ArgumentParserNegativeTest {
     @Test(dataProvider = "invalidByteValues")
     public void testInvalidByteArg(String arg) {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"10", "1.0", "string!", arg, "a", "b", "c", "d"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"10", "1.0", "string!", arg, "a", "b", "c", "d"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + arg
                                                                + "', expected byte value"),
                               "invalid error message, error message for invalid byte value not found");
             return;
@@ -153,12 +151,11 @@ public class ArgumentParserNegativeTest {
     @Test(dataProvider = "invalidIntByteValues")
     public void testInvalidIntByteArg(String arg) {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"10", "1.0", "string!", arg, "a", "b", "c", "d"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"10", "1.0", "string!", arg, "a", "b", "c", "d"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + arg
                                                                + "', expected byte value, found int"),
                               "invalid error message, error message for int as byte not found");
             return;
@@ -170,13 +167,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidBooleanArg() {
         String argument = "truer";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_multiple_typed_params.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"10", "1.0", "string!", "255", argument, "a", "b", "c"}, offline,
-                                     observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_multiple_typed_params.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"10", "1.0", "string!", "255", argument, "a", "b", "c"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected boolean value 'true' or 'false'"),
                               "invalid error message, error message for invalid boolean value not found");
             return;
@@ -188,10 +183,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidUnionArg() {
         String argument = "true false true";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_array_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{argument}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument + "' specified"
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{argument});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument + "' specified"
                                                                + " for union type: int[]|float[]|boolean[]|json[]"),
                               "invalid error message, error message for invalid value for array union not found");
             return;
@@ -203,12 +199,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidStringElementTupleArg() {
         String argument = "[101, {\"name\":\"Maryam\"}, finance]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{argument}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid tuple element argument 'finance', expected"
-                                                               + " argument in the format \\\"str\\\" for tuple element"
-                                                               + " of type 'string'"),
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_tuple_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{argument});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid tuple element argument 'finance', expected"
+                            + " argument in the format \\\"str\\\" for tuple element of type 'string'"),
                               "invalid error message, error message for invalid tuple string element not found");
             return;
         }
@@ -218,10 +214,11 @@ public class ArgumentParserNegativeTest {
     @Test(dataProvider = "tupleArgsWithoutBrackets")
     public void testInvalidTupleArgWithoutBrackets(String arg) {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{arg}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg + "', expected tuple "
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_tuple_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{arg});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + arg + "', expected tuple "
                                                                + "notation [\"[]\"] with tuple arg"),
                               "invalid error message, error message for invalid tuple arg not found");
             return;
@@ -232,10 +229,11 @@ public class ArgumentParserNegativeTest {
     @Test(dataProvider = "tupleArgsWithIncorrectElementCount")
     public void testInvalidTupleArgWithIncorrectElementCount(String arg) {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{arg}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + arg + "', element count "
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_tuple_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{arg});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + arg + "', element count "
                                                                + "mismatch for tuple type: '[int,Employee,string]'"),
                               "invalid error message, error message for tuple element count mismatch not found");
             return;
@@ -247,10 +245,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidTupleArgWithIncorrectElementArg() {
         String arg = "[\"101\", {\"name\":\"Maryam\"}, \"finance\"]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_tuple_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{arg}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid tuple member argument '\"101\"', "
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_tuple_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{arg});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid tuple member argument '\"101\"', "
                                                                + "expected value of type 'int'"),
                               "invalid error message, error message for invalid value for tuple element not "
                                       + "found");
@@ -262,12 +261,11 @@ public class ArgumentParserNegativeTest {
     @Test
     public void testInvalidArgsWithDefaultableParams() {
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_defaultable_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{"1", "true", "hi", "not"}, offline,
-                                     observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: too many arguments to call the 'main' function"),
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_defaultable_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: too many arguments to call the 'main' function"),
                               "invalid error message, error message for too many args with defaultable params not "
                                       + "found");
             return;
@@ -279,12 +277,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidIntArrayArg() {
         String argument = "[true, \"hi\", 5]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_oneD_array_param.bal"),
-                                     runtimeParams, configFilePath, new String[]{argument, "a", "b", "c", "d", "e"},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_oneD_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{argument, "a", "b", "c", "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected array elements of type: int"),
                               "invalid error message, error message for invalid int array value not found");
             return;
@@ -296,12 +293,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidStringArrayArg() {
         String argument = "[true, hi, 5]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get
-                                             ("test_main_with_oneD_array_param.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"[1, 2]", argument, "b", "c", "d", "e"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_oneD_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"[1, 2]", argument, "b", "c", "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected array elements of type: string"),
                               "invalid error message, error message for invalid string array value not found");
             return;
@@ -313,13 +309,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidFloatArrayArg() {
         String argument = "[5, 1, hi.there]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
-                                     Paths.get("test_main_with_oneD_array_param.bal"), runtimeParams,
-                                     configFilePath,
-                                     new String[]{"[1, 2]", "[\"hello\", \"world\"]", argument, "c", "d", "e"}, offline,
-                                     observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_oneD_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"[1, 2]", "[\"hello\", \"world\"]", argument,
+                    "c", "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected array elements of type: float"),
                               "invalid error message, error message for invalid float array value not found");
             return;
@@ -331,13 +326,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidBooleanArrayArg() {
         String argument = "[0, 1, tree]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
-                                     Paths.get("test_main_with_oneD_array_param.bal"), runtimeParams,
-                                     configFilePath,
-                                     new String[]{"[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]", argument, "d", "e"},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_oneD_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]",
+                    argument, "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected array elements of type: boolean"),
                               "invalid error message, error message for invalid boolean array value not found");
             return;
@@ -349,14 +343,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidRecordArrayArg() {
         String argument = "[{name: \"maryam\"}, {names: \"maryam ziyad\"}]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR),
-                                     Paths.get("test_main_with_oneD_array_param.bal"), runtimeParams,
-                                     configFilePath,
-                                     new String[]{"[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]", "[true, false]",
-                                             "[\"hi\", 5, 2.0]", argument},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_oneD_array_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]",
+                    "[true, false]", "[\"hi\", 5, 2.0]", argument});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected array elements of type: Employee"),
                               "invalid error message, error message for invalid record array value not found");
             return;
@@ -368,11 +360,11 @@ public class ArgumentParserNegativeTest {
     public void testInvalidIntMapArg() {
         String argument = "{\"test\":\"Ballerina\", \"string\":\"str\"}";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_map_param.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{argument, "a", "b", "c", "d", "e"}, offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_map_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{argument, "a", "b", "c", "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected map argument of element type: int"),
                               "invalid error message, error message for invalid int map value not found");
             return;
@@ -384,13 +376,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidFloatMapArg() {
         String argument = "{\"int\":\"hi\", \"test\":\"there\"}";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_map_param.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"{\"int\":10, \"test\":120}", "{\"int\":\"10\", \"test\":\"120\"}",
-                                             argument, "c", "d", "e"},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_map_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"{\"int\":10, \"test\":120}",
+                    "{\"int\":\"10\", \"test\":\"120\"}", argument, "c", "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected map argument of element type: float"),
                               "invalid error message, error message for invalid float map value not found");
             return;
@@ -402,13 +393,12 @@ public class ArgumentParserNegativeTest {
     public void testInvalidBooleanMapArg() {
         String argument = "{\"int\":\"true\", \"test\":\"false\"}";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_map_param.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"{\"int\":10, \"test\":120}", "{\"int\":\"10\", \"test\":\"120\"}",
-                                             "{\"float\":1.0, \"test\":12.0}", argument, "d", "e"},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_map_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"{\"int\":10, \"test\":120}", "{\"int\":\"10\", "
+                    + "\"test\":\"120\"}", "{\"float\":1.0, \"test\":12.0}", argument, "d", "e"});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
                                                                + "', expected map argument of element type: boolean"),
                               "invalid error message, error message for invalid boolean map value not found");
             return;
@@ -420,16 +410,16 @@ public class ArgumentParserNegativeTest {
     public void testInvalidRecordMapArg() {
         String argument = "[{name: \"maryam\"}, {names: \"maryam ziyad\"}]";
         try {
-            LauncherUtils.runProgram(Paths.get(MAIN_FUNCTION_TEST_SRC_DIR), Paths.get("test_main_with_map_param.bal"),
-                                     runtimeParams, configFilePath,
-                                     new String[]{"{\"int\":10, \"test\":120}", "{\"int\":\"10\", \"test\":\"120\"}",
-                                             "{\"float\":1.0, \"test\":12.0}", "{\"boolean\":true, \"test\":true}",
-                                             "{\"json\":1, \"test\":\"12.0\"}", argument},
-                                     offline, observe);
-        } catch (BLauncherException e) {
-            Assert.assertTrue(e.getMessages().contains("ballerina: invalid argument '" + argument
-                                                               + "', expected map argument of element type: Employee"),
-                              "invalid error message, error message for invalid record map value not found");
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_map_param.bal");
+            BCompileUtil.runMain(compileResult, new String[]{"{\"int\":10, \"test\":120}",
+                    "{\"int\":\"10\", \"test\":\"120\"}",
+                    "{\"float\":1.0, \"test\":12.0}", "{\"boolean\":true, \"test\":true}",
+                    "{\"json\":1, \"test\":\"12.0\"}", argument});
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("ballerina: invalid argument '" + argument
+                            + "', expected map argument of element type: Employee"),
+                    "invalid error message, error message for invalid record map value not found");
             return;
         }
         Assert.fail("invalid record map value not identified");

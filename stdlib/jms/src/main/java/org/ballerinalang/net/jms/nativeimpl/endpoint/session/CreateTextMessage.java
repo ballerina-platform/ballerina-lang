@@ -20,21 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -43,40 +37,30 @@ import javax.jms.Session;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
                    functionName = "createTextMessage",
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   args = { @Argument(name = "content", type = TypeKind.STRING) },
-                   returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                       structType = JmsConstants.MESSAGE_OBJ_NAME)
-                   },
-                   isPublic = true)
-public class CreateTextMessage extends AbstractBlockingAction {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(CreateTextMessage.class);
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
+public class CreateTextMessage extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
+    public static Object createTextMessage(Strand strand, ObjectValue sessionObj, String content) {
 
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-
-        String content = context.getStringArgument(0);
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
 
         Message jmsMessage;
-
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.MESSAGE_OBJ_NAME);
+        ObjectValue msgObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                               JmsConstants.MESSAGE_OBJ_NAME);
         try {
             jmsMessage = session.createTextMessage(content);
-            bStruct.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
+            msgObj.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Failed to create message.", context, e);
+            return BallerinaAdapter.getError("Failed to create message.", e);
         }
-        context.setReturnValues(bStruct);
+        return msgObj;
     }
+
 }

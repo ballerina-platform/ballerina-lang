@@ -50,7 +50,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
-            <!-- <package name="org.ballerinalang.test.main.function.*"/> -->
+            <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>
@@ -79,6 +79,7 @@
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <package name="org.ballerinalang.test.statements.foreach.*"/>
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
+            <package name="org.ballerinalang.test.statements.matchstmt.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
@@ -115,7 +116,6 @@
             <package name="org.ballerinalang.test.annotations"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <!-- <package name="org.ballerinalang.test.statements.matchstmt.*"/> -->
         </packages>
 
         <classes>
@@ -135,18 +135,6 @@
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
             <class name="org.ballerinalang.test.error.ErrorTest" />
-            <class name="org.ballerinalang.test.expressions.varref.ErrorVariableReferenceTest">
-                <methods>
-                    <exclude name="testErrorInRecordWithDestructure"></exclude>
-                    <exclude name="testErrorInRecordWithDestructure2"></exclude>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.statements.variabledef.ErrorVariableDefinitionTest">
-                <methods>
-                    <!-- fails at record destructure -->
-                    <exclude name="testErrorInRecordWithDestructure"></exclude>
-                </methods>
-            </class>
         </classes>
     </test>
 </suite>

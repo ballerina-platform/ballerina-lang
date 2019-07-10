@@ -8,44 +8,32 @@ public type employee object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function getName() returns (string);
+    public function getName() returns (string) {
+        return self.name;
+    }
 
-    public function getAge() returns (int);
+    public function getAge() returns (int) {
+        return self.age;
+    }
 
-    public function getSSN() returns (string);
+    public function getSSN() returns (string) {
+        return self.ssn + ":employee";
+    }
 
-    public function setSSN(string s);
+    public function setSSN(string s) {
+        self.ssn = s;
+    }
 
-    public function getEmployeeId() returns (int);
+    public function getEmployeeId() returns (int) {
+        return self.employeeId;
+    }
 };
-
-public function employee.getName() returns (string) {
-    return self.name;
-}
-
-public function employee.getAge() returns (int) {
-    return self.age;
-}
-
-public function employee.getSSN() returns (string) {
-    return self.ssn + ":employee";
-}
-
-public function employee.setSSN(string s) {
-    self.ssn = s;
-}
-
-public function employee.getEmployeeId() returns (int) {
-    return self.employeeId;
-}
 
 public type FooObj object {
     public int age = 0;
     public string name = "";
 
-    public function getName() returns (string);
+    public function getName() returns (string) {
+        return self.name;
+    }
 };
-
-public function FooObj.getName() returns (string) {
-    return self.name;
-}

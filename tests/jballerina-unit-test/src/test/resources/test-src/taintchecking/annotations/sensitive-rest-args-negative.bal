@@ -3,5 +3,5 @@ public function main (string... args) {
     secureFunction(args[0], ...args);
 }
 
-public function secureFunction (string insecureIn, @sensitive string... secureIn) {
+public function secureFunction (string insecureIn, @untainted string... secureIn) {
 }

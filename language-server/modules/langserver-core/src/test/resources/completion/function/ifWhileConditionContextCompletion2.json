@@ -842,6 +842,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "contains(string substring)(boolean)",
       "kind": "Function",
       "detail": "Function",

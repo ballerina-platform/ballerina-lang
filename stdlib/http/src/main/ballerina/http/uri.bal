@@ -24,6 +24,6 @@ public function encode(string url, string charset) returns string|error = extern
 # Decodes the given URL.
 #
 # + url - URL to be decoded
-# + charset - Charactor set that URL to be decoded from
+# + charset - Character set from which the URL is decoded 
 # + return - The `string` Value of the decoded url or an `error` that occurred during decoding
 public function decode(string url, string charset) returns string|error = external;
