@@ -109,10 +109,15 @@ public class EventBus {
                         try {
                             List<LocalVariable> localVariables = stackFrame.visibleVariables();
                             Variable[] dapVariables = new Variable[localVariables.size()];
-                            localVariables.stream().map(localVariable -> {
+                            stackFrame.getValues(stackFrame.visibleVariables()).
+                                    entrySet().stream().map(localVariableValueEntry -> {
+                                LocalVariable localVariable = localVariableValueEntry.getKey();
                                 Variable dapVariable = new Variable();
                                 dapVariable.setName(localVariable.name());
                                 dapVariable.setType(localVariable.typeName());
+                                String value = localVariableValueEntry.getValue()
+                                                == null ? "" : localVariableValueEntry.getValue().toString();
+                                dapVariable.setValue(value);
                                 return dapVariable;
                             }).collect(Collectors.toList()).toArray(dapVariables);
                             variablesMap.put((long) frameId, dapVariables);
