@@ -105,6 +105,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ArgsData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "sortText": "160",
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Nil",

@@ -22,9 +22,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -54,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -110,6 +114,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private int cursorCol;
     private boolean currentCUnitMode;
     private String pkgName;
+    private List<TopLevelNode> topLevelNodes = new ArrayList<>();
 
     public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, Position pos, boolean currentCUnitMode) {
         this.lsContext = lsContext;
@@ -135,7 +140,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (currentPkgName.equals(this.pkgName) && currentCUnitName.equals(this.cUnitName) && !this.currentCUnitMode) {
             return;
         }
-        compUnit.getTopLevelNodes().forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode));
+        this.topLevelNodes = compUnit.getTopLevelNodes();
+        this.topLevelNodes.forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode));
     }
 
     @Override
@@ -169,12 +175,22 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<Whitespace> wsList = new ArrayList<>(serviceNode.getWS());
         if (serviceNode.name.value.equals(this.tokenName)) {
+            Optional<BVarSymbol> serviceVarSymbol = this.getServiceVarSymbol();
+            if (!serviceVarSymbol.isPresent()) {
+                return;
+            }
             DiagnosticPos servicePos = serviceNode.pos;
-            int sCol = servicePos.sCol + wsList.get(1).toString().length();
+            int sCol = servicePos.sCol + getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
+<<<<<<< HEAD
             DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.eLine, sCol, eCol);
             this.addSymbol(serviceNode, serviceNode.symbol, true, pos);
+=======
+            DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.sLine, sCol, eCol);
+            this.addSymbol(serviceVarSymbol.get(), true, pos);
+>>>>>>> Fix source prune and annotation related go to definition issues
         }
+        serviceNode.annAttachments.forEach(this::acceptNode);
         if (serviceNode.attachedExprs != null) {
             serviceNode.attachedExprs.forEach(this::acceptNode);
         }
@@ -192,9 +208,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos = new DiagnosticPos(funcPos.src, funcPos.sLine, funcPos.sLine, sCol, eCol);
             this.addSymbol(funcNode, funcNode.symbol, isDefinition, pos);
         }
-
+        funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.defaultableParams.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
+        funcNode.externalAnnAttachments.forEach(this::acceptNode);
+        funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         this.acceptNode(funcNode.body);
     }
@@ -295,6 +313,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         BLangType typeNode = varNode.typeNode;
+        if (varNode.flagSet.contains(Flag.SERVICE)) {
+            // Skip the anon service symbol generated for the BLangService,
+            // which will be visited from BLangService visitor
+            return;
+        }
         if (varNode.name.value.equals(this.tokenName)) {
             List<Whitespace> wsList = new ArrayList<>(varNode.getWS());
             DiagnosticPos varPos = varNode.getPosition();
@@ -315,6 +338,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         } else {
             this.acceptNode(typeNode);
         }
+        varNode.annAttachments.forEach(this::acceptNode);
         this.acceptNode(varNode.expr);
     }
 
@@ -648,6 +672,38 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(bLangNamedArgsExpression.expr);
     }
 
+    @Override
+    public void visit(BLangAnnotation annotationNode) {
+        if (annotationNode.name.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = annotationNode.pos;
+            List<Whitespace> wsList = new ArrayList<>(annotationNode.getWS());
+            int sCol = nodePos.sCol + getCharLengthBeforeToken(this.tokenName, wsList)
+                    + this.getTypeLengthWithWS(annotationNode.typeNode, true);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
+            this.addSymbol(annotationNode.symbol, true, pos);
+        }
+        this.acceptNode(annotationNode.typeNode);
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (annAttachmentNode.annotationName.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = annAttachmentNode.getPosition();
+            List<Whitespace> wsList = new ArrayList<>(annAttachmentNode.getWS());
+            int sCol = nodePos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
+            this.addSymbol(annAttachmentNode.annotationSymbol, false, pos);
+        }
+        this.acceptNode(annAttachmentNode.expr);
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        this.acceptNode(unaryExpr.expr);
+    }
+
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor || node == null) {
             return;
@@ -664,9 +720,17 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
 
+<<<<<<< HEAD
     private void addSymbol(BLangNode bLangNode, BSymbol bSymbol,
                            boolean isDefinition, DiagnosticPos position) {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
+=======
+    private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+        if (bSymbol == null) {
+            return;
+        }
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
+>>>>>>> Fix source prune and annotation related go to definition issues
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
@@ -847,5 +911,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
          */
         return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
                 + this.getTypeLengthWithWS(typeNode, true);
+    }
+    
+    private Optional<BVarSymbol> getServiceVarSymbol() {
+        return this.topLevelNodes.stream().filter(node -> node instanceof BLangSimpleVariable
+                && this.tokenName.equals(((BLangSimpleVariable) node).name.value))
+                .map(topLevelNode -> ((BLangSimpleVariable) topLevelNode).symbol)
+                .findAny();
     }
 }
