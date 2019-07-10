@@ -104,6 +104,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -114,6 +115,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -1289,12 +1291,27 @@ public class CommonUtil {
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
             // if already available, try appending 'Result'
-            if (allNameEntries.contains(newName)) {
-                newName = newName + "Result";
+            Iterator<String> iterator = allNameEntries.iterator();
+            boolean alreadyExists = false;
+            boolean appendResult = true;
+            boolean appendOut = true;
+            String suffixResult = "Result";
+            String suffixOut = "Out";
+            while (iterator.hasNext()) {
+                String next = iterator.next();
+                if (next.equals(newName)) {
+                    alreadyExists = true;
+                } else if (next.equals(newName + suffixResult)) {
+                    appendResult = false;
+                } else if (next.equals(newName + suffixOut)) {
+                    appendOut = false;
+                }
             }
-            // if already available, try appending 'Out'
-            if (allNameEntries.contains(newName)) {
-                newName = newName + "Out";
+            // if already available, try appending 'Result' or 'Out'
+            if (alreadyExists && appendResult) {
+                newName = newName + suffixResult;
+            } else if (alreadyExists && appendOut) {
+                newName = newName + suffixOut;
             }
             // if still already available, try a random letter
             while (allNameEntries.contains(newName)) {
