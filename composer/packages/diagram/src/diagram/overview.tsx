@@ -107,8 +107,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             <div>
                 <TopMenu
                     modes={modes}
-                    moduleNames={moduleNames}
-                    constructNames={constructNames}
                     handleModeChange={this.handleModeChange}
                     selectedModeText={this.state.modeText}
                     openedState={this.state.openedState}
@@ -119,10 +117,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleOpened={this.handleOpened}
                     handleClosed={this.handleClosed}
                     fitActive={this.state.fitToWidthOrHeight}
-                    selectedModuleName={selectedModule}
-                    selectedConstructName={selectedConstruct}
-                    handleConstructNameSelect={this.handleConstructNameSelect}
-                    handleModuleNameSelect={this.handleModuleNameSelect}
                 />
                 <div>
                 <Diagram ast={selectedAST}
