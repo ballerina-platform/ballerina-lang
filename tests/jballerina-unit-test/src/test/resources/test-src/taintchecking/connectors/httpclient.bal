@@ -15,10 +15,12 @@ public function main (string... args) {
         if (msg is string) {
             normalFunction(msg);
         } else {
-            panic msg;
+            error err = msg;
+            panic err;
         }
     } else {
-        panic response;
+        error err = response;
+        panic err;
     }
 }
 
