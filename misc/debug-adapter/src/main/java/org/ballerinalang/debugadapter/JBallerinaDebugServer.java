@@ -175,7 +175,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
         Variable[] variables = eventBus.getVariablesMap().get(args.getVariablesReference());
-        variablesResponse.setVariables(variables);
+        if (variables != null) {
+            variablesResponse.setVariables(variables);
+        };
         return CompletableFuture.completedFuture(variablesResponse);
     }
 
