@@ -19,16 +19,6 @@ import ballerina/filepath;
 import ballerina/io;
 import ballerina/time;
 
-# Constant for the artemis error code.
-public const ARTEMIS_ERROR_CODE = "{ballerina/artemis}ArtemisError";
-
-# The Artemis error record.
-#
-# + message - the error message.
-public type ArtemisError record {|
-    string message?;
-|};
-
 # The url configuration for `Producer` and `Consumer`.
 #
 # + host - The host
