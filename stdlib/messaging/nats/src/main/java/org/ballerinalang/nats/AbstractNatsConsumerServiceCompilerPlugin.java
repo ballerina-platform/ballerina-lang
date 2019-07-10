@@ -34,7 +34,7 @@ import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /**
- * Abstract class providing/defining the functionality compiler add-ons for NATS consumer services.
+ * Abstract class providing/defining the functionality for compiler add-ons for NATS consumer services.
  */
 public abstract class AbstractNatsConsumerServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
     @Override
