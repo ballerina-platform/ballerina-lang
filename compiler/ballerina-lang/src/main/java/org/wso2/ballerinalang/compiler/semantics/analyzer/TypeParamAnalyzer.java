@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -99,6 +100,11 @@ public class TypeParamAnalyzer {
                 || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
     }
 
+    public static boolean containsTypeParam(BType type) {
+
+        return containsTypeParam(type, new HashSet<>());
+    }
+
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
         // Not a langlib module invocation
         if (env.typeParamsEntries == null) {
@@ -138,6 +144,77 @@ public class TypeParamAnalyzer {
     }
 
     // Private methods.
+
+    private static boolean containsTypeParam(BType type, HashSet<BType> resolvedTypes) {
+
+        if (isTypeParam(type)) {
+            return true;
+        }
+        if (resolvedTypes.contains(type)) {
+            return false;
+        }
+        resolvedTypes.add(type);
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
+            case TypeTags.TUPLE:
+                BTupleType bTupleType = (BTupleType) type;
+                for (BType member : bTupleType.tupleTypes) {
+                    if (containsTypeParam(member, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.MAP:
+                return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields) {
+                    BType bFieldType = field.getType();
+                    if (containsTypeParam(bFieldType, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) type;
+                for (BType paramType : invokableType.paramTypes) {
+                    if (containsTypeParam(paramType, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                return containsTypeParam(invokableType.retType, resolvedTypes);
+            case TypeTags.OBJECT:
+                BObjectType objectType = (BObjectType) type;
+                for (BField field : objectType.fields) {
+                    BType bFieldType = field.getType();
+                    if (containsTypeParam(bFieldType, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+                for (BAttachedFunction fuc : objectTypeSymbol.attachedFuncs) {
+                    if (containsTypeParam(fuc.type, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType bType : unionType.getMemberTypes()) {
+                    if (containsTypeParam(bType, resolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.ERROR:
+                BErrorType errorType = (BErrorType) type;
+                return containsTypeParam(errorType.reasonType, resolvedTypes)
+                        || containsTypeParam(errorType.detailType, resolvedTypes);
+            default:
+                return false;
+        }
+    }
 
     private BType createBuiltInType(BType type, Name name, int flag) {
         // Handle built-in types.
