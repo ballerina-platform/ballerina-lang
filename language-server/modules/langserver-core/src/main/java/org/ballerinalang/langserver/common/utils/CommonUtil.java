@@ -1020,6 +1020,18 @@ public class CommonUtil {
 
         return new BallerinaParser(commonTokenStream);
     }
+
+    public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
+        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
+        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
+
+        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
+                || symbolName.equals("main")
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
+    }
     
     private static List<BField> getRecordRequiredFields(BRecordType recordType) {
         return recordType.fields.stream()
@@ -1141,18 +1153,6 @@ public class CommonUtil {
     private static boolean aggregateFunctionsAllowed(BType bType) {
         return bType instanceof BArrayType && (((BArrayType) bType).eType.toString().equals("int")
                 || ((BArrayType) bType).eType.toString().equals("float"));
-    }
-
-    private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
-        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
-
-        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
-                || symbolName.equals("main")
-                || symbolName.endsWith(".new")
-                || symbolName.startsWith("0");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {

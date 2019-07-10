@@ -158,7 +158,7 @@ public type Response object {
     # Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
     #
     # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns @tainted (json|error) {
+    public function getJsonPayload() returns @tainted json|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getJson();
@@ -170,7 +170,7 @@ public type Response object {
     # Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns @tainted (xml|error) {
+    public function getXmlPayload() returns @tainted xml|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getXml();
@@ -182,7 +182,7 @@ public type Response object {
     # Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
     #
     # + return - The string representation of the message payload or `error` in case of errors
-    public function getTextPayload() returns @tainted (string|error) {
+    public function getTextPayload() returns @tainted string|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getText();
@@ -195,7 +195,7 @@ public type Response object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns @tainted (io:ReadableByteChannel|error) {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getByteChannel();
@@ -207,7 +207,7 @@ public type Response object {
     # Gets the response payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns @tainted (byte[]|error) {
+    public function getBinaryPayload() returns @tainted byte[]|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getByteArray();

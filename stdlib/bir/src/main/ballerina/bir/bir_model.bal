@@ -92,7 +92,7 @@ public type AnnotationAttachment record {|
 |};
 
 public type AnnotationValue record {|
-    map<AnnotationValueEntry> valueEntryMap = {};
+    map<AnnotationValueEntry?[]> valueEntryMap = {};
 |};
 
 public type AnnotationValueEntry record {|

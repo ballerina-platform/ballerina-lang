@@ -31,8 +31,8 @@ public function abs(decimal x) returns decimal = external;
 # If there are two such integers, choose the one that is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE
 # and for Ballerina).
-# Same as Java Math.rint method
-# Same as .NET Math.round method
+# Same as Java Math.round method
+# Same as .NET Math.Round method
 # IEEE 754 roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
 public function round(decimal x) returns decimal = external;

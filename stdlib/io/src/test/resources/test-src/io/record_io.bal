@@ -38,7 +38,7 @@ function initWritableChannel(string filePath, string encoding, string recordSepa
 }
 
 
-function nextRecord() returns @tainted (string[]|error) {
+function nextRecord() returns @tainted string[]|error {
     var cha = rch;
     if(cha is io:ReadableTextRecordChannel) {
         var result = cha.getNext();

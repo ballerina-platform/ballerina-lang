@@ -101,7 +101,7 @@ public type Request object {
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(string headerName) returns @tainted (string[]) {
+    public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
     }
@@ -175,7 +175,7 @@ public type Request object {
     # Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
     #
     # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns @tainted (json|error) {
+    public function getJsonPayload() returns @tainted json|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getJson();
@@ -187,7 +187,7 @@ public type Request object {
     # Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns @tainted (xml|error) {
+    public function getXmlPayload() returns @tainted xml|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getXml();
@@ -199,7 +199,7 @@ public type Request object {
     # Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
     #
     # + return - The `text` payload or `error` in case of errors
-    public function getTextPayload() returns @tainted (string|error) {
+    public function getTextPayload() returns @tainted string|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getText();
@@ -212,7 +212,7 @@ public type Request object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns @tainted (io:ReadableByteChannel|error) {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getByteChannel();
@@ -224,7 +224,7 @@ public type Request object {
     # Gets the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns @tainted (byte[]|error) {
+    public function getBinaryPayload() returns @tainted byte[]|error {
         mime:Entity|error entity = self.getEntity();
         if (entity is mime:Entity) {
             return entity.getByteArray();
@@ -236,7 +236,7 @@ public type Request object {
     # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
     #
     # + return - The map of form params or `error` in case of errors
-    public function getFormParams() returns @tainted (map<string>|error) {
+    public function getFormParams() returns @tainted map<string>|error {
         var mimeEntity = self.getEntity();
         if (mimeEntity is mime:Entity) {
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {

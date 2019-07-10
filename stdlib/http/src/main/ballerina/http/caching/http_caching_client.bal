@@ -127,7 +127,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function head(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
@@ -159,7 +159,7 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function execute(string httpMethod, string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function execute(string httpMethod, string path, RequestMessage message) returns @tainted Response|error {
         Request request = <Request>message;
         setRequestCacheControlHeader(request);
 
@@ -218,7 +218,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function get(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
@@ -248,7 +248,7 @@ public type HttpCachingClient client object {
     # + path - Request path
     # + request - The HTTP request to be forwarded
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function forward(string path, @tainted Request request) returns @tainted (Response|error) {
+    public remote function forward(string path, @tainted Request request) returns @tainted Response|error {
         if (request.method == GET || request.method == HEAD) {
             return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
                                      self.cacheConfig.isShared, true);
@@ -329,7 +329,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
 }
 
 function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Request req, string httpMethod, string path,
-                           boolean isShared, boolean forwardRequest) returns @tainted (Response|error) {
+                           boolean isShared, boolean forwardRequest) returns @tainted Response|error {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
 

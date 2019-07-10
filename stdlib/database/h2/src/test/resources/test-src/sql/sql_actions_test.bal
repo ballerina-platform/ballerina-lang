@@ -1079,7 +1079,7 @@ function iterateTableAndReturnResultArray(table<CustomerFullName> dt) returns Cu
 }
 
 function testCloseConnectionPool(string connectionCountQuery)
-             returns @tainted (int) {
+             returns @tainted int {
     h2:Client testDB = new({
             path: "./target/tempdb/",
             name: "TEST_SQL_CONNECTOR_H2",

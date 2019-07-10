@@ -170,6 +170,14 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[++i].stringValue(), "Error Code:Msg");
     }
 
+    @Test(description = "Test error const reason match pattern")
+    public void testErrorConstReasonMatchPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Const reason:Msg");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
