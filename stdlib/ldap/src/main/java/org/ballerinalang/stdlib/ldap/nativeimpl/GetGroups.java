@@ -92,7 +92,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
                                                     DirContext ldapConnectionContext)
                                              throws UserStoreException, NamingException {
         if (userName == null) {
-            throw new BallerinaException("userName value is null.");
+            throw new BallerinaException("UserName value is null.");
         }
 
         SearchControls searchCtls = new SearchControls();
@@ -104,7 +104,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
         String nameInSpace = getNameInSpaceForUserName(userName, ldapAuthConfig, ldapConnectionContext);
 
         if (membershipProperty == null || membershipProperty.length() < 1) {
-            throw new BallerinaException("membershipAttribute not set in configuration");
+            throw new BallerinaException("MembershipAttribute not set in configuration");
         }
 
         String membershipValue;
@@ -122,7 +122,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
         }
 
         searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue + "))";
-        String returnedAtts[] = {roleNameProperty};
+        String[] returnedAtts = {roleNameProperty};
         searchCtls.setReturningAttributes(returnedAtts);
 
         if (LOG.isDebugEnabled()) {

@@ -33,7 +33,6 @@ import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
-
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
@@ -50,8 +49,6 @@ public class Authenticate extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(Authenticate.class);
     private static LdapConnectionContext connectionSource;
-    private static CommonLdapConfiguration ldapConfiguration;
-    private static DirContext ldapConnectionContext;
 
     @Override
     public void execute(Context context) {
@@ -62,12 +59,14 @@ public class Authenticate extends BlockingNativeCallableUnit {
                                         String password) {
         byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
-        ldapConnectionContext = (DirContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT);
-        ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(LdapConstants.LDAP_CONFIGURATION);
+        DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
+                LdapConstants.LDAP_CONNECTION_CONTEXT);
+        CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(
+                LdapConstants.LDAP_CONFIGURATION);
         LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
 
         if (LdapUtils.isNullOrEmptyAfterTrim(userName)) {
-            throw new BallerinaException("username or credential value is empty or null.");
+            throw new BallerinaException("Username or credential value is empty or null.");
         }
 
         try {
