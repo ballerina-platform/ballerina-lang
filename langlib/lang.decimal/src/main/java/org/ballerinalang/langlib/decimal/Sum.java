@@ -43,7 +43,7 @@ public class Sum {
         DecimalValue sum = new DecimalValue(BigDecimal.ZERO);
         int size = ns.size();
         for (int i = 0; i < size; i++) {
-            sum.add((DecimalValue) ns.getRefValue(i));
+            sum = sum.add((DecimalValue) ns.getRefValue(i));
         }
         return sum;
     }
