@@ -29,8 +29,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,9 +68,9 @@ public class CreateStreamingConnection implements NativeCallableUnit {
             streamingProducer.addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
             ((AtomicInteger) conn.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
         } catch (IOException e) {
-            throw new BallerinaException(e.getMessage());
+            throw Utils.createNatsError(e.getMessage());
         } catch (InterruptedException e) {
-            throw new BallerinaException("Internal error while creating streaming connection");
+            throw Utils.createNatsError("Internal error while creating streaming connection");
         }
     }
 }

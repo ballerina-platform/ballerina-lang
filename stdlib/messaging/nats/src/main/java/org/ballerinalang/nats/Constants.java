@@ -86,6 +86,12 @@ public class Constants {
      */
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
 
+    public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
+
+    public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
+    public static final String ON_MESSAGE_RESOURCE = "onMessage";
+    public static final String ON_ERROR_RESOURCE = "onError";
+
     public static final String COUNTDOWN_LATCH = "count_down_latch";
 
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";

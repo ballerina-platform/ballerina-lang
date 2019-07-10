@@ -31,7 +31,10 @@ import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+
+import static org.ballerinalang.nats.Constants.NATS_STREAMING_MESSAGE_OBJ_NAME;
+import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
+import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 
 /**
  * {@link MessageHandler} implementation to listen to Messages of the subscribed subject from NATS streaming server.
@@ -39,8 +42,6 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class StreamingListener implements MessageHandler {
     private ObjectValue service;
     private Scheduler scheduler;
-    private static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
-    private static final String ON_MESSAGE_RESOURCE = "onMessage";
 
     public StreamingListener(ObjectValue service, Scheduler threadScheduler) {
         this.service = service;
@@ -60,21 +61,31 @@ public class StreamingListener implements MessageHandler {
         AttachedFunction onMessageResource = resourceFunctions[0];
         BType[] parameterTypes = onMessageResource.getParameterType();
         if (parameterTypes.length == 1) {
-            Executor.submit(scheduler, service, ON_MESSAGE_RESOURCE, new DispatcherCallback(), null,
-                    ballerinaNatsMessage, true);
+            dispatch(ballerinaNatsMessage);
         } else {
             BType intendedTypeForData = parameterTypes[1];
-            Object typeBoundData = bindDataToIntendedType(msg.getData(), intendedTypeForData);
-            Executor.submit(scheduler, service, ON_MESSAGE_RESOURCE, new DispatcherCallback(), null,
-                    ballerinaNatsMessage, true, typeBoundData, true);
+            dispatch(ballerinaNatsMessage, intendedTypeForData, msg.getData());
         }
     }
 
-    private static Object bindDataToIntendedType(byte[] data, BType intendedTypeForData) {
+    private void dispatch(ObjectValue ballerinaNatsMessage) {
+        Executor.submit(scheduler, service, ON_MESSAGE_RESOURCE, new DispatcherCallback(), null, ballerinaNatsMessage,
+                true);
+    }
+
+    private void dispatch(ObjectValue ballerinaNatsMessage, BType intendedTypeForData, byte[] data) {
         try {
-            return Utils.bindDataToIntendedType(data, intendedTypeForData);
+            Object typeBoundData = Utils.bindDataToIntendedType(data, intendedTypeForData);
+            Executor.submit(scheduler, service, ON_MESSAGE_RESOURCE, new DispatcherCallback(), null,
+                    ballerinaNatsMessage, true, typeBoundData, true);
         } catch (NumberFormatException e) {
-            throw new BallerinaException("The received message is unsupported by the resource signature");
+            ErrorValue dataBindError = Utils
+                    .createNatsError("The received message is unsupported by the resource signature");
+            Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null, ballerinaNatsMessage,
+                    true, dataBindError, true);
+        } catch (ErrorValue e) {
+            Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null, ballerinaNatsMessage,
+                    true, e, true);
         }
     }
 
