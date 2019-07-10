@@ -341,7 +341,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class WorkerReceive extends BIRTerminator {
         public Name workerName;
-        public BIROperand lhsOp;
         public boolean isSameStrand;
 
         public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
@@ -350,6 +349,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.workerName = workerName;
             this.thenBB = thenBB;
             this.isSameStrand = isSameStrand;
+            this.lhsOp = lhsOp;
         }
 
         @Override
@@ -370,7 +370,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public BIROperand data;
         public boolean isSameStrand;
         public boolean isSync;
-        public BIROperand lhsOp;
 
         public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
                           BIROperand lhsOp, BIRBasicBlock thenBB) {

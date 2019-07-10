@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;

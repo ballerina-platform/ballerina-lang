@@ -24,7 +24,6 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     int nameIndex = getNextLocalVarNameIndex(localVars);
 
     foreach (var localVar in localVars) {
-        // bir:VariableDcl localVar = getVariableDcl(localVars[i]);
         updatedVars[index] = localVar;
         index += 1;
         if (localVar is bir:FunctionParam) {

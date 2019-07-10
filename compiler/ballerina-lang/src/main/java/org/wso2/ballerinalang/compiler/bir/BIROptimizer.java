@@ -46,10 +46,8 @@ public class BIROptimizer extends BIRVisitor {
 
     private static final CompilerContext.Key<BIROptimizer> BIR_OPTIMIZER = new CompilerContext.Key<>();
     private Map<BIROperand, List<BIRAbstractInstruction>> tempVarUpdateInstructions = new HashMap<>();
-    private Map<BIROperand, BIRErrorEntry> errorEntries = new HashMap<>();
+    private Map<BIROperand, List<BIRErrorEntry>> errorEntries = new HashMap<>();
     private List<BIRVariableDcl> removedTempVars = new ArrayList<>();
-    int tempMovesCount = 0;
-    int movesCount = 0;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -73,13 +71,21 @@ public class BIROptimizer extends BIRVisitor {
     @Override
     public void visit(BIRFunction birFunction) {
         for (BIRErrorEntry errorEntry : birFunction.errorTable) {
-            this.errorEntries.put(errorEntry.errorOp, errorEntry);
+            addErrorTableDependency(errorEntry);
         }
 
-        for (BIRBasicBlock bb : birFunction.basicBlocks) {
-            bb.accept(this);
-        }
+        // First add all the instructions within the function to a list.
+        // This is done since the order of bb's cannot be guaranteed.
+        birFunction.parameters.values().forEach(paramBBs -> addDependency(paramBBs));
+        addDependency(birFunction.basicBlocks);
 
+        // Then visit and replace any temp moves
+        for (List<BIRBasicBlock> paramBBs : birFunction.parameters.values()) {
+            paramBBs.forEach(bb -> bb.accept(this));
+        }
+        birFunction.basicBlocks.forEach(bb -> bb.accept(this));
+
+        // Remove unused temp vars
         List<BIRVariableDcl> newLocalVars = new ArrayList<>();
         for (BIRVariableDcl var : birFunction.localVars) {
             if (var.kind != VarKind.TEMP) {
@@ -95,8 +101,6 @@ public class BIROptimizer extends BIRVisitor {
             newLocalVars.add(var);
         }
 
-        birFunction.errorTable.clear();
-        birFunction.errorTable.addAll(this.errorEntries.values());
         this.removedTempVars.clear();
         this.tempVarUpdateInstructions.clear();
         this.errorEntries.clear();
@@ -109,11 +113,6 @@ public class BIROptimizer extends BIRVisitor {
         List<BIRInstruction> newInstructions = new ArrayList<>();
 
         for (BIRInstruction ins : instructions) {
-            BIRAbstractInstruction nonTerm = (BIRAbstractInstruction) ins;
-            if (nonTerm.lhsOp != null && nonTerm.lhsOp.variableDcl.kind == VarKind.TEMP) {
-                addDependency(nonTerm);
-            }
-
             // if the current instruction is not a MOVE, don't do anything.
             if (ins.getKind() != InstructionKind.MOVE) {
                 newInstructions.add(ins);
@@ -138,39 +137,51 @@ public class BIROptimizer extends BIRVisitor {
         if (tempUpdateInsList != null) {
             this.removedTempVars.add(moveIns.rhsOp.variableDcl);
             for (BIRAbstractInstruction tempUpdateIns : tempUpdateInsList) {
-                updateTempVarOperand(tempUpdateIns, moveIns.lhsOp);
-
-                if (tempUpdateIns.lhsOp.variableDcl.kind == VarKind.TEMP) {
-                    addDependency(tempUpdateIns);
-                }
+                // Here it is assumed that we replace only LHS.
+                tempUpdateIns.lhsOp = moveIns.lhsOp;
+                addDependency(tempUpdateIns);
             }
         }
 
         // Update error entry
-        BIRErrorEntry errorEntryWithTemp = this.errorEntries.get(moveIns.rhsOp);
-        if (errorEntryWithTemp != null) {
-            errorEntryWithTemp.errorOp = moveIns.lhsOp;
-            this.errorEntries.put(errorEntryWithTemp.errorOp, errorEntryWithTemp);
+        List<BIRErrorEntry> errorEntriesWithTemp = this.errorEntries.get(moveIns.rhsOp);
+        if (errorEntriesWithTemp != null) {
+            for (BIRErrorEntry errorEntryWithTemp : errorEntriesWithTemp) {
+                errorEntryWithTemp.errorOp = moveIns.lhsOp;
+                addErrorTableDependency(errorEntryWithTemp);
+            }
+        }
+    }
+
+    private void addErrorTableDependency(BIRErrorEntry errorEntryWithTemp) {
+        List<BIRErrorEntry> errorTableEntries = this.errorEntries.get(errorEntryWithTemp.errorOp);
+        if (errorTableEntries != null) {
+            errorTableEntries.add(errorEntryWithTemp);
+        } else {
+            this.errorEntries.put(errorEntryWithTemp.errorOp, Lists.of(errorEntryWithTemp));
+        }
+    }
+
+    private void addDependency(List<BIRBasicBlock> basicBlocks) {
+        for (BIRBasicBlock bb : basicBlocks) {
+            for (BIRInstruction ins : bb.instructions) {
+                addDependency((BIRAbstractInstruction) ins);
+            }
+            addDependency(bb.terminator);
         }
     }
 
     private void addDependency(BIRAbstractInstruction ins) {
-        List<BIRAbstractInstruction> tempMove = this.tempVarUpdateInstructions.get(ins.lhsOp);
-        if (tempMove != null) {
-            tempMove.add(ins);
+        if (ins.lhsOp == null || ins.lhsOp.variableDcl.kind != VarKind.TEMP) {
+            return;
+        }
+
+        List<BIRAbstractInstruction> tempVarUpdates = this.tempVarUpdateInstructions.get(ins.lhsOp);
+        if (tempVarUpdates != null) {
+            tempVarUpdates.add(ins);
         } else {
             this.tempVarUpdateInstructions.put(ins.lhsOp, Lists.of(ins));
         }
     }
 
-    /**
-     * Replace usages of a temp var with a given var.
-     * 
-     * @param ins Instruction to update
-     * @param op Operand to update with.
-     */
-    private void updateTempVarOperand(BIRAbstractInstruction ins, BIROperand op) {
-        // Here it is assumed that we replace only LHS.
-        ins.lhsOp = op;
-    }
 }
