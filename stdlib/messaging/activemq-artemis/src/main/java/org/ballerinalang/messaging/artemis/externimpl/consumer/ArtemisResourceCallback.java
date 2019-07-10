@@ -54,16 +54,7 @@ public class ArtemisResourceCallback implements CallableUnitCallback {
     @Override
     public void notifySuccess() {
         try {
-            if (autoAck) {
-                try {
-                    message.acknowledge();
-                    if (ArtemisUtils.isAnonymousSession(sessionObj)) {
-                        ((ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION)).commit();
-                    }
-                } catch (ActiveMQException e) {
-                    throw new ArtemisConnectorException("Failure during acknowledging the message", e);
-                }
-            }
+            handleAutoAck();
         } finally {
             countDownLatch.countDown();
         }
@@ -71,7 +62,24 @@ public class ArtemisResourceCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(ErrorValue error) {
-        countDownLatch.countDown();
+        try {
+            handleAutoAck();
+        } finally {
+            countDownLatch.countDown();
+        }
         ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
+    }
+
+    private void handleAutoAck() {
+        if (autoAck) {
+            try {
+                message.acknowledge();
+                if (ArtemisUtils.isAnonymousSession(sessionObj)) {
+                    ((ClientSession) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_SESSION)).commit();
+                }
+            } catch (ActiveMQException e) {
+                throw new ArtemisConnectorException("Failure during acknowledging the message", e);
+            }
+        }
     }
 }
