@@ -69,7 +69,6 @@ class PositioningVisitor implements Visitor {
 
     }
 
-    // tslint:disable-next-line:ban-types
     public beginVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
@@ -186,12 +185,16 @@ class PositioningVisitor implements Visitor {
         let height = 0;
 
         node.statements.forEach((element) => {
+            const elViewState: StmntViewState = element.viewState;
+
+            if (elViewState.hidden) {
+                return;
+            }
+
             if (ASTUtil.isWorker(element)) {
                 height += config.statement.height;
                 return;
             }
-
-            const elViewState: StmntViewState = element.viewState;
 
             elViewState.bBox.x = viewState.bBox.x;
             elViewState.bBox.y = viewState.bBox.y + elViewState.bBox.paddingTop + height;
@@ -207,6 +210,25 @@ class PositioningVisitor implements Visitor {
                     ASTUtil.traversNode(expandedSubTree, this);
                 }
             }
+            if (elViewState.hiddenBlockContext && elViewState.hiddenBlockContext.expanded) {
+                // position hidden block's nodes
+                let hiddenNodeHeight = 2 * config.statement.expanded.topMargin;
+                elViewState.hiddenBlockContext.otherHiddenNodes.forEach((hiddenNode) => {
+                    const hiddenNodeViewState = (hiddenNode.viewState as StmntViewState);
+                    hiddenNodeViewState.bBox.x = elViewState.bBox.x;
+                    hiddenNodeViewState.bBox.y = elViewState.bBox.y + hiddenNodeHeight;
+                    hiddenNodeHeight += hiddenNodeViewState.bBox.h + hiddenNodeViewState.bBox.paddingTop;
+                    if (hiddenNodeViewState.expandContext && hiddenNodeViewState.expandContext.expandedSubTree) {
+                        const expandedSubTree = hiddenNodeViewState.expandContext.expandedSubTree;
+                        const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
+                        expandedFunctionVS.bBox.x = hiddenNodeViewState.bBox.x;
+                        expandedFunctionVS.bBox.y = hiddenNodeViewState.bBox.y;
+                        ASTUtil.traversNode(expandedSubTree, this);
+                    } else {
+                        ASTUtil.traversNode(hiddenNode, this);
+                    }
+                });
+            }
         });
 
         if (node.parent && ASTKindChecker.isFunction(node.parent)) {
@@ -217,9 +239,12 @@ class PositioningVisitor implements Visitor {
                 functionViewState.implicitReturn.bBox.y = node.viewState.bBox.y + (node.viewState.bBox.h / 2);
 
                 if (node.statements.length > 0) {
-                    const lastStatement = node.statements[node.statements.length - 1];
-                    const lsvs: StmntViewState = lastStatement.viewState;
-                    functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    const visibleStatements = node.statements.filter((stmt) => !stmt.viewState.hidden);
+                    const lastStatement = visibleStatements[visibleStatements.length - 1];
+                    if (lastStatement) {
+                        const lsvs: StmntViewState = lastStatement.viewState;
+                        functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    }
                 }
             }
         }
