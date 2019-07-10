@@ -19,6 +19,8 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
+import ballerina/internal;
+import ballerina/'lang\.int as langint;
 
 final string WARNING_AGENT = getWarningAgent();
 
@@ -659,7 +661,7 @@ function hasAWeakValidator(Response validationResponse, string etag) returns boo
 function isAStrongValidator(string etag) returns boolean {
     // TODO: Consider cases where Last-Modified can also be treated as a strong validator as per
     // https://tools.ietf.org/html/rfc7232#section-2.2.2
-    if (!etag.hasPrefix(WEAK_VALIDATOR_TAG)) {
+    if (!internal:hasPrefix(etag, WEAK_VALIDATOR_TAG)) {
         return true;
     }
 
@@ -704,7 +706,7 @@ function getResponseAge(Response cachedResponse) returns @tainted int {
     }
 
     string ageHeaderString = cachedResponse.getHeader(AGE);
-    var ageValue = int.convert(ageHeaderString);
+    var ageValue = langint:fromString(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }
