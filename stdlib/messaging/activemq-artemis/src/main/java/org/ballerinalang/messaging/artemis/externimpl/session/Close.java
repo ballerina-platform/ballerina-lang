@@ -21,8 +21,6 @@ package org.ballerinalang.messaging.artemis.externimpl.session;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -48,11 +46,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Close {
 
     public static Object close(Strand strand, ObjectValue sessionObj) {
         try {
@@ -66,4 +60,6 @@ public class Close extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Close() {
+    }
 }

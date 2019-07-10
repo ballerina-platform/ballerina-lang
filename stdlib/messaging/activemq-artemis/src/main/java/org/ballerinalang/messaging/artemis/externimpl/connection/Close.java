@@ -21,8 +21,6 @@ package org.ballerinalang.messaging.artemis.externimpl.connection;
 
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -47,10 +45,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    public void execute(Context context) {
-    }
+public class Close {
 
     public static void close(Strand strand, ObjectValue connection) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
@@ -64,5 +59,8 @@ public class Close extends BlockingNativeCallableUnit {
         if (!connectionPool.isClosed()) {
             connectionPool.close();
         }
+    }
+
+    private Close() {
     }
 }

@@ -22,8 +22,6 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -51,11 +49,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class Receive extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Receive {
 
     public static Object receive(Strand strand, ObjectValue consumerObj, long timeoutInMilliSeconds) {
         ClientConsumer consumer = (ClientConsumer) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_CONSUMER);
@@ -65,7 +59,7 @@ public class Receive extends BlockingNativeCallableUnit {
         try {
             ClientMessage clientMessage = consumer.receive(timeoutInMilliSeconds);
             ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                                                                       ArtemisConstants.MESSAGE_OBJ);
+                    ArtemisConstants.MESSAGE_OBJ);
             ArtemisUtils.populateMessageObj(clientMessage, transactionContext, messageObj);
             if (autoAck) {
                 clientMessage.acknowledge();
@@ -79,4 +73,6 @@ public class Receive extends BlockingNativeCallableUnit {
         }
     }
 
+    private Receive() {
+    }
 }

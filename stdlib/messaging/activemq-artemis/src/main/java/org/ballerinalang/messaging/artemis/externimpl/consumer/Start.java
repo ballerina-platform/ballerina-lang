@@ -21,8 +21,6 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -49,11 +47,7 @@ import java.util.concurrent.CountDownLatch;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class Start extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Start {
 
     public static Object start(Strand strand, ObjectValue listenerObj) {
         try {
@@ -77,4 +71,6 @@ public class Start extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Start() {
+    }
 }

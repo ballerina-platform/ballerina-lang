@@ -22,8 +22,6 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -60,11 +58,7 @@ import java.nio.channels.Channels;
                 )
         }
 )
-public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class SaveToWritableByteChannel {
 
     public static Object saveToWritableByteChannel(Strand strand, ObjectValue messageObj, ObjectValue byteChannelObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
@@ -79,5 +73,8 @@ public class SaveToWritableByteChannel extends BlockingNativeCallableUnit {
             return ArtemisUtils.getError("Unsupported type");
         }
         return null;
+    }
+
+    private SaveToWritableByteChannel() {
     }
 }
