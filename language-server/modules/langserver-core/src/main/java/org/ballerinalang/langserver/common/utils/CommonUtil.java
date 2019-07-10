@@ -114,7 +114,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -1287,17 +1286,22 @@ public class CommonUtil {
                 List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
+            // Lower first letter
+            newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
             // if already available, try appending 'Result'
             if (allNameEntries.contains(newName)) {
                 newName = newName + "Result";
+            }
+            // if already available, try appending 'Out'
+            if (allNameEntries.contains(newName)) {
+                newName = newName + "Out";
             }
             // if still already available, try a random letter
             while (allNameEntries.contains(newName)) {
                 newName = generateVariableName(++value, bLangNode, context);
             }
         }
-        // Lower first letter
-        return newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
+        return newName;
     }
 
     public static BLangPackage getPackageNode(BLangNode bLangNode) {
