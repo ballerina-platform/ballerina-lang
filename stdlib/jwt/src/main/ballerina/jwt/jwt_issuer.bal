@@ -69,6 +69,8 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
             }
         }
     }
+    //TODO: Define a proper error
+    return prepareError("JwtSigningAlgorithm is not found.");
 }
 
 function buildHeaderString(JwtHeader header) returns string|error {

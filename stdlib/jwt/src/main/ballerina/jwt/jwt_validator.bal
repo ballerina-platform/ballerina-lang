@@ -260,10 +260,8 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
             return false;
         }
         return true;
-    } else {
-        return false;
     }
-    return true;
+    return false;
 }
 
 function validateCertificate(JwtValidatorConfig config) returns boolean|error {
@@ -320,6 +318,8 @@ returns boolean|error {
             }
         }
     }
+    //TODO: Define a proper error
+    return prepareError("JwtSigningAlgorithm is not defined");
 }
 
 function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) returns error? {
@@ -390,7 +390,13 @@ function validateNotBeforeTime(JwtPayload jwtPayload) returns boolean {
 
 function convertToStringArray(json jsonData) returns string[]|error {
     if (jsonData is json[]) {
-        return string[].convert(jsonData);
+        string[] values = [];
+        int i = 0;
+        foreach json jsonVal in jsonData {
+            values[i] = jsonVal.toString();
+            i = i + 1;
+        }
+        return values;
     } else {
         return [jsonData.toString()];
     }

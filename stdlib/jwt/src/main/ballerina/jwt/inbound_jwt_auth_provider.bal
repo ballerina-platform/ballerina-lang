@@ -79,9 +79,13 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
         // convert to current time and check the expiry time
         if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = cachedJwt.jwtPayload;
-            log:printDebug(function() returns string {
-                return "Authenticate user :" + payload.sub + " from cache";
-            });
+            string? sub = payload?.sub;
+            if (sub is string) {
+                string printMsg = sub;
+                log:printDebug(function() returns string {
+                    return "Authenticate user :" + printMsg + " from cache";
+                });
+            }
             return payload;
         } else {
             jwtValidatorConfig.jwtCache.remove(jwtToken);
@@ -92,9 +96,13 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
 function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
     CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
     jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
-    log:printDebug(function() returns string {
-        return "Add authenticated user :" + payload.sub + " to the cache";
-    });
+    string? sub = payload?.sub;
+    if (sub is string) {
+    string printMsg = sub;
+     log:printDebug(function() returns string {
+            return "Add authenticated user :" + printMsg + " to the cache";
+        });
+    }
 }
 
 function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
