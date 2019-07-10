@@ -123,6 +123,7 @@
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
         margin: 2em;
+        height: 100%;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -141,6 +142,9 @@
         .diagram-canvas {
             font-family: @diagram-font;
             font-size: @diagram-font-size;
+            width: 100%;
+            height: 100%;
+            outline: none;
 
             .panel-group-header {
                 fill: ~"@{@{color}-diagram-panel-header-background-color}";

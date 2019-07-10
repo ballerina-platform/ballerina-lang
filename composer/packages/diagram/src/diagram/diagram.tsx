@@ -1,5 +1,6 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
+import panzoom from "panzoom";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
@@ -38,12 +39,33 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     // get default context or provided context from a parent (if any)
     public static contextType = DiagramContext;
 
-    public state = {
-        currentMode: this.props.mode,
-        currentZoom: this.props.zoom
-    };
-
     private containerRef = React.createRef<HTMLDivElement>();
+    private panZoomRootRef: React.RefObject<SVGAElement>;
+
+    constructor(props: DiagramProps) {
+        super(props);
+        this.state = {
+            currentMode: this.props.mode,
+            currentZoom: this.props.zoom
+        };
+        this.panZoomRootRef = React.createRef<SVGAElement>();
+    }
+
+    public componentDidMount() {
+        if (this.panZoomRootRef.current) {
+            panzoom(this.panZoomRootRef.current, {
+                smoothScroll: false,
+            });
+        }
+    }
+
+    public componentDidUpdate() {
+        if (this.panZoomRootRef.current) {
+            panzoom(this.panZoomRootRef.current, {
+                smoothScroll: false,
+            });
+        }
+    }
 
     public render() {
         const { ast, width, height, projectAst } = this.props;
@@ -86,10 +108,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         })}>
             <div className="diagram-container" ref={this.containerRef}>
                 <SvgCanvas
-                    width = {(ast.viewState as ViewState).bBox.w}
-                    height = {(ast.viewState as ViewState).bBox.h}
-                    zoom = {this.props.zoom}
-                    fitToWidthOrHeight = {this.props.fitToWidthOrHeight}
+                    panZoomRootRef = {this.panZoomRootRef}
                 >
                     {children}
                 </SvgCanvas>
