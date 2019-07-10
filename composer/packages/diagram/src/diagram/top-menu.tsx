@@ -78,8 +78,8 @@ export const TopMenu = (props: TopMenuProps) => {
                             </Dropdown.Menu>
                         </Dropdown>
                         <Icon className="fw fw-add" />
-                        <Icon className="fw fw-expand" />
-                        <Icon className="fw fw-collapse" />
+                        <Icon className="fw fw-expand-all" />
+                        <Icon className="fw fw-collapse-all" />
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
