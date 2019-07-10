@@ -21,7 +21,7 @@ import ballerina/log;
 # + session - Session of the queue sender
 public type QueueSender client object {
 
-    public Session? session;
+    public Session session;
 
     # Initialize the QueueSender endpoint
     #
@@ -46,7 +46,7 @@ public type QueueSender client object {
         }
     }
 
-    function initQueueSender(Session? session, string|Destination dest) = external;
+    function initQueueSender(Session session, string|Destination dest) = external;
 
     # Sends a message to the JMS provider
     #

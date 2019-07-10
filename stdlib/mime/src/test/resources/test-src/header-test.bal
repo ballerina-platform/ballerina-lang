@@ -72,7 +72,7 @@ function testNonExistenceHeader () returns @tainted string {
     return entity.getHeader("header");
 }
 
-function testGetHeaderNames () returns @tainted (string[]) {
+function testGetHeaderNames () returns @tainted string[] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -84,7 +84,7 @@ function testGetHeaderNames () returns @tainted (string[]) {
     return entity.getHeaderNames();
 }
 
-function testManipulateHeaders () returns @tainted (string[]) {
+function testManipulateHeaders () returns @tainted string[] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
