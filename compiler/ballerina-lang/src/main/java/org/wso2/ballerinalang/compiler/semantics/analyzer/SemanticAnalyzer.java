@@ -540,8 +540,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
 
         typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
-                .checkListenerCompatibility(env, varNode.symbol.type)) {
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) &&
+                !types.checkListenerCompatibility(varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
         }
     }
@@ -1923,7 +1923,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
-            if (exprType != symTable.semanticError && !types.checkListenerCompatibility(env, exprType)) {
+            if (exprType != symTable.semanticError && !types.checkListenerCompatibility(exprType)) {
                 dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.ABSTRACT_LISTENER, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;

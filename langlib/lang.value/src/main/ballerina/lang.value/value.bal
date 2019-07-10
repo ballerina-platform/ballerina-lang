@@ -61,3 +61,11 @@ public function clone(anydataType value) returns anydataType = external;
 # It corresponds to the ImmutableClone(v) abstract operation,
 # defined in the Ballerina Language Specification.
 public function cloneReadOnly(anydataType value) returns anydataType = external;
+
+# Return the string that represents `v` in JSON format.
+public function toJsonString(json v) returns string = external;
+
+# Parse a string in JSON format and return the the value that it represents.
+# All numbers in the JSON will be represented as float values.
+# Returns an error if the string cannot be parsed.
+public function fromJsonString(string str) returns json|error = external;

@@ -52,11 +52,13 @@ public type InboundLdapAuthProvider object {
         [username, password] = check auth:extractUsernameAndPassword(credential);
         boolean authenticated = doAuthenticate(self, username, password);
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-            // By default set userId as username.
-            principal.username = username;
-            principal.scopes = getLdapScopes(self, username);
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
+                // By default set userId as username.
+                principal.username = username;
+                principal.scopes = getLdapScopes(self, username);
+            }
         }
         return authenticated;
     }

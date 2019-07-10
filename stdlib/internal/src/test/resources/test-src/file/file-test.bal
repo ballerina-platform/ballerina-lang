@@ -67,7 +67,7 @@ function createFolderStructure(string sourcePathValue) returns boolean {
     }
 }
 
-function testFolderContent(string rootPathValue) returns boolean|error {
+function testFolderContent(string rootPathValue) returns @tainted boolean|error {
     internal:Path rootPath = new(rootPathValue);
     internal:Path parentPath = rootPath.resolve("parent");
     internal:Path childPath = parentPath.resolve("child");
@@ -107,7 +107,7 @@ function testGetModifiedTime(string pathValue) returns string|error {
     return time:toString(modifiedTime);
 }
 
-function testCopyToFunction(string sourceStr, string target) returns boolean {
+function testCopyToFunction(string sourceStr, string target) returns @tainted boolean {
     internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
@@ -136,7 +136,7 @@ function testFolderDelete(string path) returns boolean {
     }
 }
 
-function testMoveToFunction(string sourceStr, string target) returns boolean {
+function testMoveToFunction(string sourceStr, string target) returns @tainted boolean {
     internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
@@ -158,11 +158,11 @@ function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
-    var result = byteChannel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
+    var result = byteChannel.write(TEST_CONTENT.toBytes(), 0);
     return byteChannel.close();
 }
 
-function testReadFile(string pathValue) returns boolean {
+function testReadFile(string pathValue) returns @tainted boolean {
     io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
@@ -171,6 +171,7 @@ function testReadFile(string pathValue) returns boolean {
         return false;
     } else {
         var [bytes, numberOfBytes] = readResult;
-        return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
+        byte[] testBytes = TEST_CONTENT.toBytes();
+        return bytes.length() == testBytes.length();
     }
 }
