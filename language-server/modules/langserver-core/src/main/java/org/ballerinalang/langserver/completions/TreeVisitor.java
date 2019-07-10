@@ -239,9 +239,16 @@ public class TreeVisitor extends LSNodeVisitor {
                 .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
             return;
         }
+        
         if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;
         }
+        
+        // Visit the function parameter annotation attachments
+        List<BLangNode> functionParamsOrdered = CompletionVisitorUtil.getFunctionParamsOrdered(funcNode);
+        functionParamsOrdered.forEach(param -> this.acceptNode(param, symbolEnv));
+        funcNode.returnTypeAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
+        funcNode.externalAnnAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
 
         if (funcNode.getBody() != null) {
             this.blockOwnerStack.push(funcNode);
@@ -773,7 +780,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        annotationNode.annAttachments.forEach(annotation -> this.acceptNode(annotationNode, symbolEnv));
+        annotationNode.annAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver);
         cpr.isCursorBeforeNode(annotationNode.pos, this, this.lsContext, annotationNode, annotationNode.symbol);
     }

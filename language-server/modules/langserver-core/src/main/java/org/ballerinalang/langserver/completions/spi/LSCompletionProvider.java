@@ -472,6 +472,7 @@ public abstract class LSCompletionProvider {
                 addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
                 break;
             default:
+                items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
                 return items;
         }
         return items;
