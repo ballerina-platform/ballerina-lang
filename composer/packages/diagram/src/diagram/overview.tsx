@@ -32,6 +32,7 @@ export interface OverviewState {
     modeText: string;
     fitToWidthOrHeight: boolean;
     zoom: number;
+    openedState: boolean;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
@@ -45,11 +46,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.handleZoomOut = this.handleZoomOut.bind(this);
         this.handleConstructNameSelect = this.handleConstructNameSelect.bind(this);
         this.handleModuleNameSelect = this.handleModuleNameSelect.bind(this);
+        this.handleOpened = this.handleOpened.bind(this);
+        this.handleClosed = this.handleClosed.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
+            openedState: false,
             zoom: 0,
         };
     }
@@ -107,10 +111,13 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     constructNames={constructNames}
                     handleModeChange={this.handleModeChange}
                     selectedModeText={this.state.modeText}
+                    openedState={this.state.openedState}
                     handleBackClick={this.handleBackClick}
                     handleFitClick={this.handleFitClick}
                     handleZoomIn={this.handleZoomIn}
                     handleZoomOut={this.handleZoomOut}
+                    handleOpened={this.handleOpened}
+                    handleClosed={this.handleClosed}
                     fitActive={this.state.fitToWidthOrHeight}
                     selectedModuleName={selectedModule}
                     selectedConstructName={selectedConstruct}
@@ -253,7 +260,16 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             zoom: state.zoom - 1,
         }));
     }
-
+    private handleOpened() {
+        this.setState({
+            openedState: true,
+        });
+    }
+    private handleClosed() {
+        this.setState({
+            openedState: false,
+        });
+    }
     private handleModuleNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
         const moduleList = this.getModuleList();
         const selectedModule = moduleList.find((module) => (module.name === props.data.name));
