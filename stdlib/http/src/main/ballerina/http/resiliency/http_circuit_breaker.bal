@@ -505,9 +505,10 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
         bucket.failureCount += 1;
         time:Time lastUpdated = time:currentTime();
         circuitHealth.lastErrorTime = lastUpdated;
-        if (circuitHealth.totalBuckets is Bucket[]) {
+        Bucket?[] buckets = circuitHealth.totalBuckets;
+        if (buckets is Bucket[]) {
             //TODO:Get this verified
-            time:Time? lastUpdatedTime = circuitHealth.totalBuckets[currentBucketId]?.lastUpdatedTime;
+            time:Time? lastUpdatedTime = buckets[currentBucketId]?.lastUpdatedTime;
             if (lastUpdatedTime is time:Time) {
                 lastUpdatedTime = lastUpdated;
             }
@@ -522,9 +523,10 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         circuitHealth.lastRequestSuccess = true;
-        if (circuitHealth.totalBuckets is Bucket[]) {
+        Bucket?[] buckets = circuitHealth.totalBuckets;
+        if (buckets is Bucket[]) {
             //TODO:Get this verified
-            time:Time? lastUpdatedTime = circuitHealth.totalBuckets[currentBucketId]?.lastUpdatedTime;
+            time:Time? lastUpdatedTime = buckets[currentBucketId]?.lastUpdatedTime;
             if (lastUpdatedTime is time:Time) {
                 lastUpdatedTime = lastUpdated;
             }
