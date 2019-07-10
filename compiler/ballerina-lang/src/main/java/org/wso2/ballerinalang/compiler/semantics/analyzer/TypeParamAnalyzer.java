@@ -94,7 +94,7 @@ public class TypeParamAnalyzer {
         this.types = Types.getInstance(context);
     }
 
-    public static boolean isTypeParam(BType expType) {
+    static boolean isTypeParam(BType expType) {
 
         return Symbols.isFlagOn(expType.flags, Flags.TYPE_PARAM)
                 || (expType.tsymbol != null && Symbols.isFlagOn(expType.tsymbol.flags, Flags.TYPE_PARAM));
@@ -112,12 +112,12 @@ public class TypeParamAnalyzer {
         }
 
         FindTypeParamResult findTypeParamResult = new FindTypeParamResult();
-        findTypeParam(expType, actualType, env, new ArrayList<>(), findTypeParamResult);
+        findTypeParam(expType, actualType, env, new HashSet<>(), findTypeParamResult);
         if (!findTypeParamResult.found || findTypeParamResult.isNew) {
             return;
         }
         // If type param discovered before, now type check with actual type. It has to be matched.
-        types.checkType(env.node.pos, getMatchingBoundType(expType, env, new ArrayList<>()), actualType,
+        types.checkType(env.node.pos, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
                 DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
@@ -126,7 +126,7 @@ public class TypeParamAnalyzer {
         if (env.typeParamsEntries == null || env.typeParamsEntries.isEmpty()) {
             return expType;
         }
-        return getMatchingBoundType(expType, env, new ArrayList<>());
+        return getMatchingBoundType(expType, env, new HashSet<>());
     }
 
     public BType getNominalType(BType type, Name name, int flag) {
@@ -235,7 +235,7 @@ public class TypeParamAnalyzer {
         return type;
     }
 
-    private void findTypeParam(BType expType, BType actualType, SymbolEnv env, List<BType> resolvedTypes,
+    private void findTypeParam(BType expType, BType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                FindTypeParamResult result) {
 
         if (resolvedTypes.contains(expType)) {
@@ -312,7 +312,7 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInTuple(BTupleType expType, BTupleType actualType, SymbolEnv env,
-                                      List<BType> resolvedTypes, FindTypeParamResult result) {
+                                      HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
             findTypeParam(expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
@@ -320,13 +320,13 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInTupleForArray(BArrayType expType, BTupleType actualType, SymbolEnv env,
-                                              List<BType> resolvedTypes, FindTypeParamResult result) {
+                                              HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         BUnionType tupleElementType = BUnionType.create(null, new LinkedHashSet<>(actualType.tupleTypes));
         findTypeParam(expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInRecord(BRecordType expType, BRecordType actualType, SymbolEnv env,
-                                       List<BType> resolvedTypes, FindTypeParamResult result) {
+                                       HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (BField exField : expType.fields) {
             BType actualFieldType = actualType.fields.stream()
@@ -342,7 +342,7 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInInvokableType(BInvokableType expType, BInvokableType actualType, SymbolEnv env,
-                                              List<BType> resolvedTypes, FindTypeParamResult result) {
+                                              HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
             findTypeParam(expType.paramTypes.get(i), actualType.paramTypes.get(i), env, resolvedTypes, result);
@@ -351,7 +351,7 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInObject(BObjectType expType, BObjectType actualType, SymbolEnv env,
-                                       List<BType> resolvedTypes, FindTypeParamResult result) {
+                                       HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         // Not needed now.
         for (BField exField : expType.fields) {
@@ -381,7 +381,7 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInUnion(BUnionType expType, BUnionType actualType, SymbolEnv env,
-                                      List<BType> resolvedTypes, FindTypeParamResult result) {
+                                      HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         // Limitation : supports only optional types and depends to given order.
         if ((expType.getMemberTypes().size() != 2) || !expType.isNullable()
                 || (actualType.getMemberTypes().size() != 2) || !actualType.isNullable()) {
@@ -395,7 +395,7 @@ public class TypeParamAnalyzer {
     }
 
     private void findTypeParamInError(BErrorType expType, BErrorType actualType, SymbolEnv env,
-                                      List<BType> resolvedTypes, FindTypeParamResult result) {
+                                      HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         if (expType == symTable.errorType) {
             return;
@@ -404,7 +404,7 @@ public class TypeParamAnalyzer {
         findTypeParam(expType.reasonType, actualType.reasonType, env, resolvedTypes, result);
     }
 
-    private BType getMatchingBoundType(BType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
             return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
                     .findFirst()
@@ -442,14 +442,14 @@ public class TypeParamAnalyzer {
         }
     }
 
-    private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         List<BType> tupleTypes = new ArrayList<>();
         expType.tupleTypes.forEach(type -> tupleTypes.add(getMatchingBoundType(type, env, resolvedTypes)));
         return new BTupleType(tupleTypes);
     }
 
-    private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
@@ -479,7 +479,7 @@ public class TypeParamAnalyzer {
     }
 
     private BInvokableType getMatchingFunctionBoundType(BInvokableType expType, SymbolEnv env,
-                                                        List<BType> resolvedTypes) {
+                                                        HashSet<BType> resolvedTypes) {
 
         List<BType> paramTypes = expType.paramTypes.stream()
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
@@ -489,7 +489,7 @@ public class TypeParamAnalyzer {
         return new BInvokableType(paramTypes, getMatchingBoundType(expType.retType, env, resolvedTypes), null);
     }
 
-    private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         BObjectTypeSymbol actObjectSymbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(0, expType.tsymbol.name,
                 env.enclPkg.packageID, null, expType.tsymbol.scope.owner);
@@ -520,7 +520,7 @@ public class TypeParamAnalyzer {
         return objectType;
     }
 
-    private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         if (!expType.isNullable() || expType.getMemberTypes().size() != 2) {
             return expType;
@@ -531,7 +531,7 @@ public class TypeParamAnalyzer {
         return BUnionType.create(null, members);
     }
 
-    private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env, List<BType> resolvedTypes) {
+    private BType getMatchingErrorBoundType(BErrorType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
 
         if (expType == symTable.errorType) {
             return expType;
