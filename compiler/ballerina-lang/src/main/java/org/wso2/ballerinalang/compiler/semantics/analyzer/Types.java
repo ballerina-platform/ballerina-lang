@@ -1187,7 +1187,7 @@ public class Types {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    public boolean checkListenerCompatibility(SymbolEnv env, BType type) {
+    public boolean checkListenerCompatibility(BType type) {
         if (type.tag != TypeTags.OBJECT) {
             return false;
         }
