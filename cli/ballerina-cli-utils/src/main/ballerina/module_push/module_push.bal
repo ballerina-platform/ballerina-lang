@@ -33,10 +33,9 @@ import ballerina/http;
 # + ballerinaVersion - Ballerina version the module is built
 # + msg - Message printed when the module is pushed successfully which includes module info
 # + baloVersion - Balo version of the module
-# + return - Error if occurred, else nil
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string repositoryURL,
                 string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
-                string baloVersion) returns @tainted error? {
+                string baloVersion) {
 
     http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
@@ -69,18 +68,18 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     if (result is http:Response) {
         httpResponse = result;
     } else {
-        return createError("connection to the remote host failed : " + result.reason());
+        panic createError("connection to the remote host failed : " + result.reason());
     }
     string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
-        return createError("remote registry failed for url :" + url);
+        panic createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
             string message = jsonResponse.message.toString();
-            return createError(message);
+            panic createError(message);
         } else {
-            return createError("invalid response json");
+            panic createError("invalid response json");
         }
     } else {
         io:println(msg);
@@ -89,8 +88,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 
 # This function will invoke the method to push the module.
 # + args - Arguments passed
-# + return - nil if no error occurred, else error.
-public function main (string... args) returns error? {
+public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[11];
     string strPort = args[12];
@@ -100,16 +98,16 @@ public function main (string... args) returns error? {
             http:Client|error result = trap defineEndpointWithProxy(args[7], host, port, args[13], args[14]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                return <@untainted> pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
+                pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
                     args[6], args[7], args[8], args[10], args[9], args[15]);
             } else {
-                return createError("failed to resolve host : " + host + " with port " + port);
+                panic createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
-            return createError("invalid port : " + strPort);
+            panic createError("invalid port : " + strPort);
         }
     } else  if (host != "" || strPort != "") {
-        return createError("both host and port should be provided to enable proxy");
+        panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
         return <@untainted> pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6],
@@ -178,10 +176,7 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
     stringBodyPart.setText(value);
-    var contentTypeSetResult = stringBodyPart.setContentType(mime:TEXT_PLAIN);
-    if (contentTypeSetResult is error)  {
-        panic contentTypeSetResult;
-    }
+    checkpanic stringBodyPart.setContentType(mime:TEXT_PLAIN);
     return stringBodyPart;
 }
 

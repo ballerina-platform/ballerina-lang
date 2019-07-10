@@ -77,7 +77,14 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
         }
     }
     
-    private void runStartOnSchedule(String moduleName, Scheduler scheduler) {
+    /**
+     * Executes the __start_ function of the module.
+     *
+     * @param moduleName The name of the module.
+     * @param scheduler  The scheduler.
+     * @throws RuntimeException When an error occurs invoking or within the function.
+     */
+    private void runStartOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
             final Method initMethod = initClazz.getDeclaredMethod("ballerina_" + moduleName + "__start_", Strand.class);
@@ -104,7 +111,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
                 if (t instanceof ErrorValue) {
                     throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -113,6 +120,14 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
         }
     }
     
+    /**
+     * Executes the <module_name>.main function of a module.
+     *
+     * @param moduleName The name of the module.
+     * @param scheduler  The scheduler which executes the function.
+     * @param stringArgs The string arguments for the function.
+     * @throws RuntimeException When an error occurs invoking or within the function.
+     */
     private static void runMainOnSchedule(String moduleName, Scheduler scheduler, String[] stringArgs)
             throws RuntimeException {
         try {
@@ -149,7 +164,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
                 if (t instanceof ErrorValue) {
                     throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
@@ -158,6 +173,13 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
         }
     }
     
+    /**
+     * Executes the __init_ function of the module.
+     *
+     * @param moduleName The name of the module.
+     * @param scheduler  The scheduler which executes the function.
+     * @throws RuntimeException When an error occurs invoking or within the function.
+     */
     private static void runInitOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
@@ -185,7 +207,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
                 if (t instanceof ErrorValue) {
                     throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                            "error: " + ((ErrorValue) t).getPrintableStackTrace().replaceAll("\\{}", ""));
                 }
                 throw (RuntimeException) t;
             }
