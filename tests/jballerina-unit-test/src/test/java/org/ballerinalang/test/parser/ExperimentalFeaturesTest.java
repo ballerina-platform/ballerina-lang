@@ -35,8 +35,6 @@ public class ExperimentalFeaturesTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +
                 "use '--experimental' flag to enable the experimental features", 8, 1);
-        BAssertUtil.validateError(result, i++, "using experimental feature 'channel'. " +
-                "use '--experimental' flag to enable the experimental features", 9, 1);
         BAssertUtil.validateError(result, i++, "using experimental feature 'streaming queries'. " +
                 "use '--experimental' flag to enable the experimental features", 15, 5);
         BAssertUtil.validateError(result, i++, "using experimental feature 'stream'. " +

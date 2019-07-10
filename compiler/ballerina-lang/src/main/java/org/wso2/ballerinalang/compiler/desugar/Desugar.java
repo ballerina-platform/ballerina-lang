@@ -2641,7 +2641,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         switch (typeInitExpr.type.tag) {
             case TypeTags.STREAM:
-            case TypeTags.CHANNEL:
                 result = getInitExpr(typeInitExpr.type, typeInitExpr);
                 break;
             default:
@@ -5601,8 +5600,6 @@ public class Desugar extends BLangNodeVisitor {
         switch (type.tag) {
             case TypeTags.STREAM:
                 return new BLangStreamLiteral(typeInitExpr.pos, type, identifier);
-            case TypeTags.CHANNEL:
-                return new BLangChannelLiteral(typeInitExpr.pos, type, identifier);
             default:
                 return null;
         }
