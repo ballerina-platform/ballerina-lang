@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -4526,9 +4527,10 @@ public class Desugar extends BLangNodeVisitor {
 
         if (expr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation invocation = (BLangInvocation) expr;
-            invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
+            BType retType = ((BInvokableSymbol) invocation.symbol).retType;
 
-            if (TypeParamAnalyzer.isTypeParam(invocation.type)) {
+            if (PackageID.isLangLibPackageID(invocation.symbol.pkgID) && TypeParamAnalyzer.containsTypeParam(retType)) {
+                invocation.type = retType;
                 BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
                                                                                     symTable.errorType, false, true,
                                                                                     InstructionCodes.NOP, null, null);
