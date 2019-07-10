@@ -3,19 +3,19 @@
     "file": "defFl19.bal"
   },
   "position": {
-    "line": 59,
-    "character": 60
+    "line": 15,
+    "character": 2
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 27,
-          "character": 8
+          "line": 13,
+          "character": 29
         },
         "end": {
-          "line": 27,
-          "character": 11
+          "line": 13,
+          "character": 31
         }
       },
       "uri": "defFl19.bal"
