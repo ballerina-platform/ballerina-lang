@@ -33,12 +33,12 @@ public function decodeFromBase64(string input) returns byte[]|error {
 }
 
 function testEncodeDecode(string content) returns (byte[]|error) {
-    var result = encoding:encodeBase64(content.toByteArray("UTF-8"));
+    var result = encoding:encodeBase64(content.toBytes());
     return encoding:decodeBase64(result);
 }
 
 function testBase64EncodeString(string contentToBeEncoded) returns (string|error) {
-    return encoding:encodeBase64(contentToBeEncoded.toByteArray("UTF-8"));
+    return encoding:encodeBase64(contentToBeEncoded.toBytes());
 }
 
 function testBase64DecodeString(string contentToBeDecoded) returns (byte[]|error) {

@@ -36,6 +36,7 @@
             <class name="org.ballerinalang.langlib.test.TypeParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTupleTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
             <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
         </classes>
     </test>
