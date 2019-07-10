@@ -19,8 +19,10 @@
 package org.ballerinalang.langlib.test;
 
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -46,20 +48,67 @@ public class LangLibDecimalTest {
         compileResult = BCompileUtil.compile("test-src/decimallib_test.bal");
     }
 
-    @Test(dataProvider = "decimalProvider")
+    @Test(dataProvider = "dualDecimalProvider")
     public void testSum(BValue[] args, String expected) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSum", args);
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
-    @DataProvider(name = "decimalProvider")
-    public static Object[][] decimalProvider() {
+    @Test(dataProvider = "decimalProvider")
+    public void testSingleArgMax(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testOneArgMax", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @Test(dataProvider = "decimalArrayProvider")
+    public void testMax(BValue x, BValue xs, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMultiArgMax", new BValue[] {x, xs});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @DataProvider(name = "dualDecimalProvider")
+    public static Object[][] dualDecimalProvider() {
         return new Object[][] {
-                { new BValue[] {new BDecimal("0"), new BDecimal("0")}, "0.0"},
+                { new BValue[] {new BDecimal("0"),   new BDecimal("0")},   "0.0"},
                 { new BValue[] {new BDecimal("0.0"), new BDecimal("0.0")}, "0.0"},
-                { new BValue[] {new BDecimal("0"), new BDecimal("1")}, "1"},
-                { new BValue[] {new BDecimal("-1"), new BDecimal("1")}, "0"},
-                { new BValue[] {new BDecimal("-0"), new BDecimal("1")}, "1"}
+                { new BValue[] {new BDecimal("0"),   new BDecimal("1")},   "1"},
+                { new BValue[] {new BDecimal("-1"),  new BDecimal("1")},   "0"},
+                { new BValue[] {new BDecimal("-0"),  new BDecimal("1")},   "1"}
         };
+    }
+
+    @DataProvider(name = "decimalProvider")
+    public static Object[][] singleDecimalProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),   "0.0"},
+                { new BDecimal("0.0"), "0.0"},
+                { new BDecimal("0"),   "0.0"},
+                { new BDecimal("-1"),  "-1"},
+                { new BDecimal("-0"),  "0.0"},
+                { new BDecimal("5"),   "5"}
+        };
+    }
+
+    @DataProvider(name = "decimalArrayProvider")
+    public static Object[][] decimalArrayProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),   getBArray("0"), "0"},
+                { new BDecimal("0.0"), getBArray("0"), "0"},
+                { new BDecimal("0"),   getBArray("1"), "1"},
+                { new BDecimal("-1"),  getBArray("0"), "0"},
+                { new BDecimal("-0"),  getBArray("0"), "0"},
+                { new BDecimal("5"),   getBArray("0", "2", "-2"), "5"},
+                { new BDecimal("-511111111111199999999999222222222222222.2222222"), getBArray("0"), "0"}
+        };
+    }
+
+    private static BValueArray getBArray(String ...xs) {
+        BDecimal[] decimals = new BDecimal[xs.length];
+        for (int i = 0; i < xs.length; i++) {
+            decimals[i] = new BDecimal(xs[i]);
+        }
+        BValueArray bValueArray = new BValueArray(decimals, BTypes.typeDecimal);
+        bValueArray.elementType = BTypes.typeDecimal;
+        return bValueArray;
     }
 }

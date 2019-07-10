@@ -20,3 +20,11 @@ import ballerina/'lang\.decimal as decimals;
 function testSum(decimal p1, decimal p2) returns decimal {
     return decimals:sum(p1, p2);
 }
+
+function testOneArgMax(decimal arg) returns decimal {
+    return decimals:max(arg);
+}
+
+function testMultiArgMax(decimal arg, decimal[] otherArgs) returns decimal {
+    return decimals:max(arg, ...otherArgs);
+}
