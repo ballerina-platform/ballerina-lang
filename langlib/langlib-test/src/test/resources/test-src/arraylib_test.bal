@@ -67,13 +67,6 @@ function testReduce() returns float {
     return avg;
 }
 
-//function testReduce2() returns int[] {
-//    int[][] arr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-//    return arr.reduce(function (int[] accum, int[] val) returns int[] {
-//        return [...accum, ...val];
-//    });
-//}
-
 type Grade "A+"|"A"|"A-"|"B+"|"B"|"B-"|"C"|"F";
 
 function testIterableOpChain() returns float {
@@ -116,4 +109,63 @@ function gradeToValue([Grade, int] grade) returns [float, int] {
 function testReverse() returns [int[], int[]] {
     int[] arr = [10, 20, 30, 40, 50];
     return [arr, arr.reverse()];
+}
+
+type Person record {|
+    int id;
+    string name;
+    int pilotingScore;
+    int shootingScore;
+    boolean isForceUser;
+|};
+
+// example from: https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
+function testIterableOpChain2() returns int {
+    Person[] personnel = [
+      {
+        id: 5,
+        name: "Luke Skywalker",
+        pilotingScore: 98,
+        shootingScore: 56,
+        isForceUser: true
+      },
+      {
+        id: 82,
+        name: "Sabine Wren",
+        pilotingScore: 73,
+        shootingScore: 99,
+        isForceUser: false
+      },
+      {
+        id: 22,
+        name: "Zeb Orellios",
+        pilotingScore: 20,
+        shootingScore: 59,
+        isForceUser: false
+      },
+      {
+        id: 15,
+        name: "Ezra Bridger",
+        pilotingScore: 43,
+        shootingScore: 67,
+        isForceUser: true
+      },
+      {
+        id: 11,
+        name: "Caleb Dume",
+        pilotingScore: 71,
+        shootingScore: 85,
+        isForceUser: true
+      }
+    ];
+
+    int totalJediScore = personnel.filter(function (Person p) returns boolean {
+        return p.isForceUser;
+    }).map(function (Person jedi) returns int {
+        return jedi.pilotingScore + jedi.shootingScore;
+    }).reduce(function (int accum, int val) returns int {
+        return accum + val;
+    }, 0);
+
+    return totalJediScore;
 }
