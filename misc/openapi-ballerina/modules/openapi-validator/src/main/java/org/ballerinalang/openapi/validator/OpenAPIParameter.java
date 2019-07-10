@@ -68,7 +68,7 @@ public class OpenAPIParameter {
     }
 
     String convertOpenAPITypeToBallerina() {
-        String convertedType = null;
+        String convertedType;
         switch (this.type) {
             case "integer":
                 convertedType = "int";
@@ -80,11 +80,31 @@ public class OpenAPIParameter {
                 convertedType = "boolean";
                 break;
             case "array":
-                convertedType = "array";
+                convertedType = "[]";
+                break;
+            case "object":
+                convertedType = "record";
+                break;
+            case "number":
+                convertedType = "decimal";
+                break;
             default:
                 convertedType = "";
         }
-
         return convertedType;
+    }
+
+    public boolean isTypeAvailableAsRef() {
+        return parameter.getSchema().get$ref() != null;
+    }
+
+    public String getLocalRef() {
+        String componentName = null;
+        String ref = parameter.getSchema().get$ref();
+        if (ref != null && ref.startsWith("#")) {
+            String[] splitRef = ref.split("/");
+            componentName = splitRef[splitRef.length - 1];
+        }
+        return componentName;
     }
 }

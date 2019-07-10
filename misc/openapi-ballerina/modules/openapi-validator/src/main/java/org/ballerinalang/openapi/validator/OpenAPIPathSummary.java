@@ -18,6 +18,8 @@
 package org.ballerinalang.openapi.validator;
 
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
@@ -33,10 +35,12 @@ class OpenAPIPathSummary {
     private String path;
     private List<String> availableOperations;
     private Map<String, Operation> operations;
+    private Map<String, Schema> components;
 
     OpenAPIPathSummary() {
         this.availableOperations = new ArrayList<>();
         this.operations = new HashMap<>();
+        this.components = new HashMap<>();
         this.path = null;
     }
 
@@ -108,5 +112,21 @@ class OpenAPIPathSummary {
             }
         }
         return paramNames;
+    }
+
+    Map<String, Schema> getRequestBodyForOperation(String operation) {
+        Map<String, Schema> requestBodySchemas = new HashMap<>();
+        for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
+            if (entry.getKey().equals(operation)) {
+                if (entry.getValue().getRequestBody() != null) {
+                    Content content = entry.getValue().getRequestBody().getContent();
+                    for (Map.Entry<String, MediaType> mediaTypeEntry : content.entrySet()) {
+                        requestBodySchemas.put(mediaTypeEntry.getKey(), mediaTypeEntry.getValue().getSchema());
+                    }
+                }
+                break;
+            }
+        }
+        return requestBodySchemas;
     }
 }

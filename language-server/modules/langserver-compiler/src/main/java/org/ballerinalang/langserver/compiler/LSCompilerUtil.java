@@ -205,7 +205,7 @@ public class LSCompilerUtil {
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.TAINT_ANALYZE);
+                documentManager, CompilerPhase.COMPILER_PLUGIN);
     }
 
     /**

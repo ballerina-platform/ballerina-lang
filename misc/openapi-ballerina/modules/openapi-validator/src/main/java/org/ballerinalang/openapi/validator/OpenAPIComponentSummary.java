@@ -15,21 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.providers.subproviders.parsercontext;
+package org.ballerinalang.openapi.validator;
 
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
-
-import java.util.ArrayList;
-import java.util.List;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Schema;
 
 /**
- * Parser rule based Item provider for the Worker reply statement.
+ * Class to hold the component summary.
  */
-public class ParserRuleWorkerReplyCompletionProvider extends LSCompletionProvider {
-    @Override
-    public List<CompletionItem> getCompletions(LSContext completionContext) {
-        return new ArrayList<>();
+class OpenAPIComponentSummary {
+    private Components components;
+
+    OpenAPIComponentSummary() {
+        this.components = null;
+    }
+
+    Schema getSchema(String name) {
+        if (this.components.getSchemas() != null) {
+            return components.getSchemas().get(name);
+        }
+        return null;
+    }
+
+    Components getComponents() {
+        return this.components;
+    }
+
+    void setComponents(Components components) {
+        this.components = components;
     }
 }
