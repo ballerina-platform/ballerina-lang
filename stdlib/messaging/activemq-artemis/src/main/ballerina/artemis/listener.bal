@@ -43,8 +43,8 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.createConsumer(serviceType);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.createConsumer(s);
     }
 
     # The Artemis consumer is represented by the `Service` object.
@@ -76,7 +76,7 @@ public type ArtemisServiceConfig record {|
     string? filter = ();
 |};
 
-public annotation<service> ServiceConfig ArtemisServiceConfig;
+public annotation ArtemisServiceConfig ServiceConfig on service;
 
 # ActiveMQ Artemis Queue configuration.
 # If the `autoCreated` is `false` an error will be thrown if the queue does not exist.
@@ -115,7 +115,7 @@ public type Consumer client object {
         check self.createConsumer(sessObj, config, autoAck, filter);
     }
 
-    private function createConsumer(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
-    returns error? = external;
-    public remote function receive(int timeoutInMilliSeconds = 0) returns    @tainted Message | error = external;
+    private function createConsumer(Session sessionObj, QueueConfiguration queueConfig, boolean autoAck,
+     string? consumerFilter) returns error? = external;
+    public remote function receive(int timeoutInMilliSeconds = 0) returns @tainted Message | error = external;
 };

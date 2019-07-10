@@ -23,23 +23,22 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.JBallerinaInMemoryClassLoader;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.launcher.util.BFileUtil;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.BackendCodeGeneratorProvider;
-import org.ballerinalang.util.LaunchListener;
+import org.ballerinalang.util.BootstrapRunner;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -73,8 +72,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -93,6 +92,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
@@ -384,12 +384,6 @@ public class LauncherUtils {
                                                   + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = !programFile.isMainEPAvailable();
-
-        // Load launcher listeners
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
-
         int exitCode;
         try {
             exitCode = executeCompiledProgram(programFile, args);
@@ -398,8 +392,6 @@ public class LauncherUtils {
         }
 
         BLangProgramRunner.resumeStates(programFile);
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
         if (exitCode != 0 || !programFile.isServiceEPAvailable()) {
             try {
                 ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
@@ -425,21 +417,33 @@ public class LauncherUtils {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
 
-        validateSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
+        String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
+
+        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
+                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            options.put(PROJECT_DIR, fullPath.getParent().toString());
+        } else {
+            options.put(PROJECT_DIR, sourceRootPath.toString());
+        }
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        BLangPackage entryPkgNode = compiler.compile(source);
 
-        CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-                getBackendCodeGenerator();
-        Optional result = jvmCodeGen.generate(false, entryPkgNode, context, sourceRootPath.toString());
-        if (!result.isPresent()) {
-            throw new RuntimeException("Compiled binary jar is not found");
+        String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                "ballerina.home is not set");
+        JBallerinaInMemoryClassLoader classLoader;
+        try {
+            Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+            classLoader = BootstrapRunner.createClassLoaders(entryPkgNode,
+                    Paths.get(balHome).resolve("bir-cache"),
+                    targetDirectory,  Optional.empty(), false);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error invoking jballerina backend", e);
         }
-        entryPkgNode.jarBinaryContent = (byte[]) result.get();
 
-        JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(entryPkgNode.jarBinaryContent);
-        String initClassName = getModuleInitClassName(entryPkgNode.jarBinaryContent);
+        String initClassName = BFileUtil.getQualifiedClassName(entryPkgNode.packageID.orgName.value,
+                entryPkgNode.packageID.name.value,
+                MODULE_INIT_CLASS_NAME);
         runInMemoryJar(classLoader, args, initClassName);
         return;
     }
@@ -482,16 +486,7 @@ public class LauncherUtils {
         try {
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-
-            // TODO: add validation
-            boolean runServicesOnly = false;
-
-            // Load launcher listeners
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
             mainMethod.invoke(null, (Object) args);
-            listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
             if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
                 Runtime.getRuntime().exit(0);
             }
@@ -505,11 +500,12 @@ public class LauncherUtils {
 
     }
 
-    private static void validateSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath, String srcPathStr) {
+    private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
+                                                String srcPathStr) {
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.hasProjectRepo(sourceRootPath)) {
             // running a bal file, no other packages
-            return;
+            return fullPath.getFileName().toString();
         } else if (Files.isDirectory(sourceRootPath)) {
             if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                 throw createLauncherException("you are trying to run a module that is not inside " +
@@ -534,7 +530,7 @@ public class LauncherUtils {
                 throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
                         "project. Try running 'ballerina run <module-name>'");
             }
-            return;
+            return sourcePath.toString();
         } else {
             throw createLauncherException("unexpected error while getting init class name from source in " +
                     sourcePath);
@@ -551,16 +547,7 @@ public class LauncherUtils {
             initClassName = getModuleInitClassName(sourcePath);
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-
-            // TODO: add validation
-            boolean runServicesOnly = false;
-
-            // Load launcher listeners
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
             mainMethod.invoke(null, (Object) args);
-            listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
             if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
                 Runtime.getRuntime().exit(0);
             }
@@ -579,20 +566,6 @@ public class LauncherUtils {
 
     private static String getModuleInitClassName(Path sourcePath) {
         try (JarInputStream jarStream = new JarInputStream(new FileInputStream((sourcePath.toString())))) {
-            Manifest mf = jarStream.getManifest();
-            Attributes attributes = mf.getMainAttributes();
-            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
-            if (initClassName == null) {
-                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
-            }
-            return initClassName.replaceAll("/", ".");
-        } catch (IOException e) {
-            throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
-        }
-    }
-
-    private static String getModuleInitClassName(byte[] jarContent) {
-        try (JarInputStream jarStream = new JarInputStream(new ByteArrayInputStream(jarContent))) {
             Manifest mf = jarStream.getManifest();
             Attributes attributes = mf.getMainAttributes();
             String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);

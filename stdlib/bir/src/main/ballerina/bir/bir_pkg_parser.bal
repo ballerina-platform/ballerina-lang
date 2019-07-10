@@ -52,7 +52,15 @@ public type PackageParser object {
     public function skipAnnotation() {
         _ = self.reader.readInt32();
         _ = self.reader.readInt32();
-        _ = self.reader.readInt32();
+
+        int attachPointCount = self.reader.readInt32();
+        int i = 0;
+        while (i < attachPointCount) {
+            _ = self.reader.readInt32();
+            _ = self.reader.readBoolean();
+            i += 1;
+        }
+
         _ = self.reader.readTypeCpRef();
     }
 
@@ -419,10 +427,16 @@ public type PackageParser object {
         var noOfAnnotValueEntries = self.reader.readInt32();
         foreach var i in 0..<noOfAnnotValueEntries {
             var key = self.reader.readStringCpRef();
-            var bType = self.reader.readTypeCpRef();
-            var value = parseLiteralValue(self.reader, bType);
-            AnnotationValueEntry valueEntry = {literalType: bType, value: value};
-            annotValue.valueEntryMap[key] = valueEntry;
+            // read count
+            var noOfValueEntries = self.reader.readInt32();
+            AnnotationValueEntry?[] valueEntries = [];
+            foreach var j in 0..<noOfValueEntries {
+               var bType = self.reader.readTypeCpRef();
+               var value = parseLiteralValue(self.reader, bType);
+               valueEntries[j] = {literalType: bType, value: value};
+            }
+            
+            annotValue.valueEntryMap[key] = valueEntries;
         }
         return annotValue;
     }
@@ -438,7 +452,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {
-        value = reader.readStringCpRef();
+        Decimal d = {value : reader.readStringCpRef()};
+        value = d;
     } else if (bType is BTypeBoolean) {
         value = reader.readBoolean();
     } else if (bType is BTypeFloat) {

@@ -104,7 +104,7 @@ public class Constants {
     public static final String MESSAGE = "message";
 
     // Error code for crypto error
-    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}CryptoError";
+    public static final String CRYPTO_ERROR_CODE = "{ballerina/crypto}CryptoError";
 
     // PKCS12 keystore type
     public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";

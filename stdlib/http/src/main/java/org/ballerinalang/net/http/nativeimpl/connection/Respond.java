@@ -41,22 +41,16 @@ import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.nativeimpl.pipelining.BPipelinedResponse;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.util.Optional;
-
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executeBPipeliningLogic;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.pipeliningRequired;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setBPipeliningListener;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setPipeliningListener;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
  * Extern function to respond back the caller with outbound response.
@@ -100,9 +94,9 @@ public class Respond extends ConnectionAction {
             outboundResponseMsg.completeMessage();
         }
 
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
-                (outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
+//        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+//        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
+//                (outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
         try {
             if (pipeliningRequired(inboundRequestMsg)) {
                 if (log.isDebugEnabled()) {

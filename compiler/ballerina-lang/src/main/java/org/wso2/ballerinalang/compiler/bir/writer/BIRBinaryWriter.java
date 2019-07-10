@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.writer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
@@ -295,7 +296,12 @@ public class BIRBinaryWriter {
 
         buf.writeInt(birAnnotation.flags);
 
-        buf.writeInt(birAnnotation.attachPoints);
+        buf.writeInt(birAnnotation.attachPoints.size());
+        for (AttachPoint attachPoint : birAnnotation.attachPoints) {
+            buf.writeInt(addStringCPEntry(attachPoint.point.getValue()));
+            buf.writeBoolean(attachPoint.source);
+        }
+
         writeType(buf, birAnnotation.annotationType);
     }
 
@@ -412,12 +418,18 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValueEntries(ByteBuf annotBuf,
-                                              Map<String, BIRAnnotationValueEntry> entryMap) {
+                                              Map<String, List<BIRAnnotationValueEntry>> entryMap) {
         annotBuf.writeInt(entryMap.size());
-        for (Map.Entry<String, BIRAnnotationValueEntry> annotValueEntry : entryMap.entrySet()) {
+        for (Map.Entry<String, List<BIRAnnotationValueEntry>> annotValueEntry : entryMap.entrySet()) {
             annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
-            BIRAnnotationValueEntry valueEntry = annotValueEntry.getValue();
-            writeConstValue(annotBuf, valueEntry);
+            annotBuf.writeInt(annotValueEntry.getValue().size());
+            writeConstValueForAnnotAttach(annotBuf, annotValueEntry.getValue());
+        }
+    }
+
+    private void writeConstValueForAnnotAttach(ByteBuf annotBuf, List<BIRAnnotationValueEntry> valueEntries) {
+        for (BIRAnnotationValueEntry entry : valueEntries) {
+            writeConstValue(annotBuf, entry);
         }
     }
 }

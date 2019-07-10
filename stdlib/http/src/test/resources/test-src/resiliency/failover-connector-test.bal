@@ -20,7 +20,7 @@ import ballerina/mime;
 
 int counter = 0;
 
-function testSuccessScenario () returns (http:Response | error) {
+function testSuccessScenario () returns @tainted http:Response | error {
 
     http:FailoverClient backendClientEP = new({
         failoverCodes : [400, 500, 502, 503],
@@ -48,7 +48,7 @@ function testSuccessScenario () returns (http:Response | error) {
     return clientResponse;
 }
 
-function testFailureScenario () returns (http:Response | error) {
+function testFailureScenario () returns @tainted http:Response | error {
     http:FailoverClient backendClientEP = new({
         failoverCodes : [400, 404, 500, 502, 503],
         targets: [

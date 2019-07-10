@@ -17,15 +17,17 @@
  */
 package org.ballerinalang.database.sql.statement;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
-import org.ballerinalang.model.ColumnDefinition;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.TableResourceManager;
+import org.ballerinalang.database.sql.exceptions.ApplicationException;
+import org.ballerinalang.database.sql.exceptions.DatabaseException;
+import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.TableResourceManager;
+import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,32 +44,35 @@ import javax.sql.rowset.RowSetProvider;
  */
 public class SelectStatement extends AbstractSQLStatement {
 
-    private final Context context;
+    private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final BValueArray parameters;
+    private final ArrayValue parameters;
     private final BStructureType structType;
     private final boolean loadSQLTableToMemory;
 
-    public SelectStatement(Context context, SQLDatasource datasource, String query, BValueArray parameters,
-                           BStructureType structType, boolean loadSQLTableToMemory) {
-        this.context = context;
+    public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
+                           TypedescValue recordType, boolean loadSQLTableToMemory) {
+        this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
-        this.structType = structType;
+        this.structType = recordType != null ? (BStructureType) recordType.getDescribingType() : null;
         this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 
     @Override
-    public void execute() {
-        checkAndObserveSQLAction(context, datasource, query);
+    public Object execute() {
+        //TODO: JBalMigration Commenting out observability
+        //TODO: #16033
+        // checkAndObserveSQLAction(context, datasource, query);
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        String errorMessagePrefix = "execute query failed: ";
         try {
-            BValueArray generatedParams = constructParameters(context, parameters);
-            conn = getDatabaseConnection(context, datasource, true);
+            ArrayValue generatedParams = constructParameters(parameters);
+            conn = getDatabaseConnection(client, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
@@ -82,14 +87,25 @@ public class SelectStatement extends AbstractSQLStatement {
             } else {
                 rm.addResultSet(rs);
             }
-            context.setReturnValues(constructTable(rm, context, rs, structType, columnDefinitions,
-                    datasource.getDatabaseProductName()));
-        } catch (Throwable e) {
+            return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
+        } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
-            BError error = SQLDatasourceUtils.getSQLConnectorError(context, e, "execute query failed: ");
-            context.setReturnValues(error);
-            handleErrorOnTransaction(context);
-            checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            //TODO: JBalMigration Commenting out transaction handling and observability
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+        } catch (DatabaseException e) {
+            cleanupResources(null, stmt, conn, true);
+            //TODO: JBalMigration Commenting out transaction handling and observability
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+        } catch (ApplicationException e) {
+            cleanupResources(null, stmt, conn, true);
+            //TODO: JBalMigration Commenting out transaction handling and observability
+            //handleErrorOnTransaction(context);
+            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
+            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
         }
     }
 

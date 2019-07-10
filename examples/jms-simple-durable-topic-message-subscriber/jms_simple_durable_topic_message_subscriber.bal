@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // This creates a simple durable topic subscriber.  This example makes use of
@@ -9,7 +9,7 @@ listener jms:DurableTopicListener subscriberEndpoint = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, "BallerinaTopic", "sub1");
+    }, "MyTopic", "sub1");
 
 // This binds the created consumer to the listener service.
 service jmsListener on subscriberEndpoint {

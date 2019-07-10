@@ -38,6 +38,6 @@ public class ResourceConfigurationTest {
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 1);
         Assert.assertEquals(diag[0].getMessage(),
-                            "There cannot be more than one resource annotations");
+                            "cannot specify more than one annotation value for annotation 'ResourceConfig'");
     }
 }

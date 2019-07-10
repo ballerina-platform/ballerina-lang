@@ -43,6 +43,8 @@ configurations {
     bootstrapper
     docerina
     bin
+    bir
+    birJar
     balSource
     zip
     balo
@@ -54,12 +56,22 @@ configurations {
 }
 
 dependencies {
+    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
-    dist 'org.ow2.asm:asm:6.2.1'
+    // dist 'org.ow2.asm:asm:6.2.1'
+
+    // Following dependencies are required for kraal library
+    dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
+    dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
+    dist 'org.ow2.asm:asm:7.1'
+    dist 'org.ow2.asm:asm-analysis:7.1'
+    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-util:7.1'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-jvm')
@@ -69,12 +81,11 @@ dependencies {
     dist project(':ballerina-runtime')
 
     dist project(':testerina:testerina-core')
-    
+    dist project(':ballerina-formatter')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
-    // dist project(':protobuf-ballerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
@@ -98,8 +109,6 @@ dependencies {
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
-//    distBal project(path: ':ballerina-jvm', configuration: 'baloImplementation')
-//    distBal project(path: ':ballerina-bir', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
@@ -107,7 +116,17 @@ dependencies {
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
 
-    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+}
+
+
+task configured {
+    configurations.distBal.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+    }
+
 }
 
 
@@ -121,7 +140,7 @@ def copyJarSpec = {
 def copyBootstrapperSpec = {
     base -> copySpec {
         from configurations.bootstrapper
-        into(base + 'build')
+        into(base + 'bre/bootstrap')
     }
 }
 
@@ -129,6 +148,20 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+    }
+}
+
+def copyBirSpec = {
+    path -> copySpec {
+        from configurations.bir
+        into(path + 'bir-cache')
+    }
+}
+
+def copyBirJarSpec = {
+    path -> copySpec {
+        from configurations.birJar
+        into(path + 'bre/lib')
     }
 }
 
@@ -165,6 +198,13 @@ def copyBinSpec = {
         from configurations.bin
         filter { line -> line.replace('${project.version}', "$project.version") }
         into(path + 'bin')
+    }
+}
+
+def copyKraalLib = {
+    path -> copySpec {
+        from('lib')
+        into("$path/bre/lib")
     }
 }
 
@@ -205,6 +245,8 @@ def copyComposerDistributionSpec = {
     path -> copySpec {
         from(configurations.composerDistribution)
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 
@@ -212,6 +254,8 @@ def copyComposerFontsSpec = {
     path -> copySpec {
         from configurations.composerFonts
         into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
     }
 }
 
@@ -274,6 +318,8 @@ task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
     with copyBootstrapperSpec(basePath)
+    with copyBirSpec(basePath)
+    with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
@@ -288,12 +334,15 @@ task createZip(type: Zip) {
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
+    with copyKraalLib(basePath)
 }
 
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
     with copyBootstrapperSpec(installDir)
+    with copyBirSpec(installDir)
+    with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
@@ -307,6 +356,7 @@ task updateBalHome(type: Copy) {
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
+    with copyKraalLib(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
@@ -317,6 +367,8 @@ task createDistribution(type: Copy) {
     file(filePath).mkdirs()
     with copyJarSpec("")
     with copyBootstrapperSpec("")
+    with copyBirSpec("")
+    with copyBirJarSpec("")
     with copyBaloSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
@@ -331,6 +383,7 @@ task createDistribution(type: Copy) {
     with copyStaticSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
+    with copyKraalLib("")
     destinationDir=file(filePath)
 }
 

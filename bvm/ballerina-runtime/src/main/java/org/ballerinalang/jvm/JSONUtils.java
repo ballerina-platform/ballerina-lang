@@ -37,6 +37,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.TableValue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -206,10 +208,10 @@ public class JSONUtils {
         try {
             return Lists.get((ArrayValue) jsonArray, index);
         } catch (ErrorValue e) {
-            if (e.getDetails() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetails());
-            }
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR,
+                                                           BallerinaErrors.getErrorMessageFromDetail(
+                                                                   (MapValueImpl<String, Object>) e.getDetails()));
+
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -474,6 +476,20 @@ public class JSONUtils {
         }
     }
 
+    /**
+     * Convert {@link TableValue} to JSON.
+     *
+     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
+     * @return JSON representation of the provided table
+     */
+    public static Object toJSON(TableValue table) {
+        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+        if (table.isInMemoryTable()) {
+            return jsonDataSource.build();
+        }
+
+        return new StreamingJsonValue(jsonDataSource);
+    }
     // Private methods
 
     /**
@@ -497,11 +513,11 @@ public class JSONUtils {
      * @param json node to be converted
      * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
      */
-    private static float jsonNodeToFloat(Object json) {
+    private static double jsonNodeToFloat(Object json) {
         if (json instanceof Integer) {
             return ((Integer) json).longValue();
-        } else if (json instanceof Float) {
-            return ((Float) json).floatValue();
+        } else if (json instanceof Double) {
+            return ((Double) json).doubleValue();
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -518,9 +534,9 @@ public class JSONUtils {
         BigDecimal decimal = null;
         if (json instanceof Integer) {
             decimal = new BigDecimal(((Integer) json).longValue());
-        } else if (json instanceof Float) {
-            decimal = new BigDecimal(((Float) json).floatValue());
-        } else if (json instanceof Float) {
+        } else if (json instanceof Double) {
+            decimal = new BigDecimal(((Double) json).doubleValue());
+        } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
@@ -536,7 +552,7 @@ public class JSONUtils {
      * @param json node to be converted
      * @return Boolean value of the JSON, if its a boolean node. Error, otherwise.
      */
-    private static Boolean jsonNodeToBoolean(Object json) {
+    private static boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeBoolean, getTypeName(json));
@@ -583,7 +599,7 @@ public class JSONUtils {
         ArrayValue booleanArray = new ArrayValue(BTypes.typeBoolean);
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
-            booleanArray.add(i, jsonNodeToBoolean(jsonValue) ? 1 : 0);
+            booleanArray.add(i, jsonNodeToBoolean(jsonValue));
         }
         return booleanArray;
     }
@@ -648,7 +664,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
-            json.append(new Float(value));
+            json.append(new Double(value));
         }
         return json;
     }

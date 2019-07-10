@@ -16,18 +16,24 @@
 
 string[] generatedInitFuncs = [];
 
-function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package module, bir:BType? attachedType = ()) {
-
-    // skip code generation, if this is an extern function
-    if (isExternFunc(func)) {
-        return;
+function generateMethod(bir:Function birFunc,
+                            jvm:ClassWriter cw,
+                            bir:Package birModule,
+                            bir:BType? attachedType = ()) {
+    if (isExternFunc(birFunc)) {
+        genMethodForExternalFunction(birFunc, cw, birModule, attachedType = attachedType);
+    } else {
+        genMethodForBallerinaFunction(birFunc, cw, birModule, attachedType = attachedType);
     }
+}
 
+function genMethodForBallerinaFunction(bir:Function func,
+                                           jvm:ClassWriter cw,
+                                           bir:Package module,
+                                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
-
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(untaint func.name.value);
-
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -62,7 +68,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
         generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv, module.typeDefs, indexMap, currentPackageName);
+        generateUserDefinedTypes(mv);
 
         if (!"".equalsIgnoreCase(currentPackageName)) {
             mv.visitTypeInsn(NEW, typeOwnerClass);
@@ -124,7 +130,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     returnVarRefIndex = indexMap.getIndex(varDcl);
     bir:BType returnType = func.typeValue.retType;
     genDefaultValue(mv, returnType, returnVarRefIndex);
-    
+
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
@@ -263,7 +269,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDesc) {
@@ -365,7 +371,7 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                     io:sprintf("L%s;", OBJECT_VALUE));
         } else if (bType is bir:BInvokableType) {
             mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"), 
+            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%","_"),
                     io:sprintf("L%s;", FUNCTION_POINTER));
         } else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
@@ -447,8 +453,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-        // Cases will be generate between instructions and terminator of the basic block. So if basic block is 
-        // trapped we need to generate two try catches as for instructions and terminator. 
+        // Cases will be generate between instructions and terminator of the basic block. So if basic block is
+        // trapped we need to generate two try catches as for instructions and terminator.
         if (isTrapped && insCount > 0) {
             endLabel = new;
             handlerLabel = new;
@@ -498,7 +504,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {
-                instGen.generateObjectNewIns(inst);
+                instGen.generateObjectNewIns(inst, localVarOffset);
             } else if (inst is bir:FieldAccess) {
                 if (inst.kind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(inst);
@@ -525,7 +531,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:FPLoad) {
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
-                instGen.generateTypeTestIns(inst);
+                 instGen.generateTypeTestIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {
@@ -576,13 +582,16 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
+            if (isModuleInitFunction(module, func) && terminator is bir:Return) {
+                generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
+            }
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
                 errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
             }
         }
-        
+
         // set next error entry after visiting current error entry.
         if (isTrapped) {
             errorEntryCnt = errorEntryCnt + 1;
@@ -590,7 +599,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 currentEE = errorEntries[errorEntryCnt];
             }
         }
-        
+
         var thenBB = terminator["thenBB"];
         if (thenBB is bir:BasicBlock) {
             genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
@@ -599,7 +608,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     }
 }
 
-function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName, 
+function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName,
                         int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
@@ -630,7 +639,6 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
     string lookupKey = getPackageName(orgName, moduleName) + funcName;
     string jvmClass = lookupFullQualifiedClassName(lookupKey);
-    boolean isExternFunction = isBIRFunctionExtern(lookupKey);
 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
@@ -698,20 +706,23 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VarRef?[] paramTypes = ins.args;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VarRef ref = getVarRef(paramType);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, ref.typeValue);
             paramBTypes[paramIndex -1] = paramType.typeValue;
             paramIndex += 1;
 
-            if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, paramIndex);
+            argIndex += 1;
+            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
+                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }
+            }  
+            argIndex += 1;
         }
     } else {
         //load closureMaps
@@ -725,21 +736,24 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
         int paramIndex = 1;
+        int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
             mv.visitVarInsn(ALOAD, closureMapsCount);
-            mv.visitIntInsn(BIPUSH, paramIndex);
+            mv.visitIntInsn(BIPUSH, argIndex);
             mv.visitInsn(AALOAD);
             addUnboxInsn(mv, dcl.typeValue);
             paramBTypes[paramIndex -1] = dcl.typeValue;
             paramIndex += 1;
             i += 1;
-
-            if (!isExternFunction) {
-                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, paramIndex);
+            argIndex += 1;
+            
+            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
+                addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            }   
+            } 
+            argIndex += 1; 
         }
     }
 
@@ -996,7 +1010,7 @@ function createFunctionPointer(jvm:MethodVisitor mv, string class, string lambda
     mv.visitInsn(DUP);
     mv.visitInvokeDynamicInsn(class, lambdaName, isVoid, closureMapCount);
 
-    // load null here for type, since these are fp's created for internal usages. 
+    // load null here for type, since these are fp's created for internal usages.
     mv.visitInsn(ACONST_NULL);
 
     if (isVoid) {
@@ -1013,15 +1027,14 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
+    // start all listeners
+    startListeners(mv, serviceEPAvailable);
+
     BalToJVMIndexMap indexMap = new;
     ErrorHandlerGenerator errorGen = new(mv, indexMap);
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
 
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue.retType is bir:BTypeNil;
-
-    if (!isVoidFunction) {
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-    }
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
@@ -1030,7 +1043,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(ICONST_0);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
-if (hasInitFunction(pkg)) {
+    if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
@@ -1052,44 +1065,7 @@ if (hasInitFunction(pkg)) {
 
     if (userMainFunc is bir:Function) {
         mv.visitInsn(DUP);
-        string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
-        bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
-
-        mv.visitIntInsn(BIPUSH, paramTypes.length() + 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-        // first element of the args array will be set by the scheduler
-        // load and cast param values
-        int paramIndex = 0;
-        int paramTypeIndex = 0;
-        int argArrayIndex = 0;
-        while (paramTypeIndex < paramTypes.length()) {
-            var paramType = paramTypes[paramTypeIndex];
-            bir:BType pType = getType(paramType);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
-            if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
-                // load VarArgs array
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitIntInsn(BIPUSH, argArrayIndex);
-                loadType(mv, pType);
-                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "createVarArgsArray", 
-                    io:sprintf("([L%s;IL%s;)L%s;", STRING_VALUE, ARRAY_TYPE, ARRAY_VALUE), false);
-            } else {
-                generateParamCast(argArrayIndex, pType, mv);
-            }
-            mv.visitInsn(AASTORE);
-            paramIndex += 1;
-
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            mv.visitLdcInsn("true");
-            mv.visitInsn(AASTORE);
-            paramIndex += 1;
-            argArrayIndex += 1;
-            paramTypeIndex += 2;
-        }
+        loadCLIArgsForMain(mv, userMainFunc.params, userMainFunc.restParamExist, userMainFunc.annotAttachments);
 
         // invoke the user's main method
         string lambdaName = "$lambda$main$";
@@ -1113,12 +1089,23 @@ if (hasInitFunction(pkg)) {
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
         errorGen.printStackTraceFromFutureValue(mv);
         mv.visitInsn(POP);
-    
+
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
+            // store future value
+            bir:VariableDcl futureVar = { typeValue: "any",
+                                    name: { value: "dummy" },
+                                    kind: "ARG" };
+            int futureVarIndex = indexMap.getIndex(futureVar);
+            mv.visitVarInsn(ASTORE, futureVarIndex);
+            jvm:Label jumpAfterPrint = new;
+            mv.visitVarInsn(ALOAD, futureVarIndex);
+            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+
+            mv.visitJumpInsn(IFNULL, jumpAfterPrint);
+
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitInsn(DUP_X1);
-            mv.visitInsn(POP);
+            mv.visitVarInsn(ALOAD, futureVarIndex);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
             bir:BType returnType = userMainFunc.typeValue.retType;
             addUnboxInsn(mv, returnType);
@@ -1133,14 +1120,28 @@ if (hasInitFunction(pkg)) {
             } else {
                 mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
             }
+            mv.visitLabel(jumpAfterPrint);
         }
     }
 
     scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
-    
+
+    // stop all listeners
+    stopListeners(mv, serviceEPAvailable);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+    mv.visitLdcInsn(isServiceEPAvailable);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
+}
+
+function stopListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+    mv.visitLdcInsn(isServiceEPAvailable);
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
 }
 
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable, 
@@ -1214,11 +1215,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
-            addUnboxInsn(mv, pType);
-        } else {
-            castFromString(pType, mv);
-        }
+        addUnboxInsn(mv, pType);
         paramIndex += 1;
     }
 
@@ -1233,6 +1230,70 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     mv.visitEnd();
 }
 
+function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, boolean hasRestParam, 
+    bir:AnnotationAttachment?[] annotAttachments) {
+
+    // get defaultable arg names from function annotation
+    string[] defaultableNames = [];
+    int defaultableIndex = 0;
+    foreach var attachment in annotAttachments {
+        if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == DEFAULTABLE_ARGS_ANOT_NAME) {
+            map<bir:AnnotationValueEntry?[]>? entryMap = attachment.annotValues[0].valueEntryMap;
+            if (entryMap is map<bir:AnnotationValueEntry?[]>) {
+                var entries = entryMap[DEFAULTABLE_ARGS_ANOT_FIELD];
+                if (entries is bir:AnnotationValueEntry?[]) {
+                    foreach var entry in entries {
+                        if (entry is bir:AnnotationValueEntry) {
+                            defaultableNames[defaultableIndex] = <string>entry.value;
+                            defaultableIndex += 1;
+                        }
+                    }
+                }  
+            }
+            break;
+        }
+    }   
+    // create function info array
+    mv.visitIntInsn(BIPUSH, params.length());
+    mv.visitTypeInsn(ANEWARRAY, io:sprintf("%s$ParamInfo", RUNTIME_UTILS));
+    int index = 0;
+    defaultableIndex = 0;
+    foreach var param in params {
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
+        mv.visitTypeInsn(NEW, io:sprintf("%s$ParamInfo", RUNTIME_UTILS));
+        mv.visitInsn(DUP);
+        if (param is bir:FunctionParam) {
+            if (param.hasDefaultExpr) {
+                mv.visitInsn(ICONST_1);
+                mv.visitLdcInsn(defaultableNames[defaultableIndex]);
+                defaultableIndex += 1;
+            } else {
+                mv.visitInsn(ICONST_0);
+                mv.visitLdcInsn(param.name.value);
+            }
+            // var varIndex = indexMap.getIndex(param);
+            loadType(mv, param.typeValue);
+        }
+        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s$ParamInfo", RUNTIME_UTILS), "<init>", 
+            io:sprintf("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
+        mv.visitInsn(AASTORE);   
+    }
+
+     // load string[] that got parsed into to java main
+    mv.visitVarInsn(ALOAD, 0);
+    if (hasRestParam) {
+        mv.visitInsn(ICONST_1);
+    } else {
+        mv.visitInsn(ICONST_0);
+    }
+
+     // invoke ArgumentParser.extractEntryFuncArgs()
+    mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs", 
+            io:sprintf("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
+}
+
 # Generate a lambda function to invoke ballerina main.
 #
 # + userMainFunc - ballerina main function
@@ -1243,7 +1304,7 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
             io:sprintf("$lambda$%s$", initFuncName),
             io:sprintf("([L%s;)V", OBJECT), (), ());
         mv.visitCode();
@@ -1401,6 +1462,34 @@ function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisit
     mv.visitLdcInsn(paramIndex);
     mv.visitInsn(L2I);
     mv.visitInsn(AALOAD);
+}
+
+function generateAnnotLoad(jvm:MethodVisitor mv, bir:TypeDef?[] typeDefs, string pkgName) {
+    string typePkgName = ".";
+    if (pkgName != "") {
+        typePkgName = pkgName;
+    }
+
+    foreach var optionalTypeDef in typeDefs {
+        bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
+        bir:BType bType = typeDef.typeValue;
+
+        if (bType is bir:BFiniteType || bType is bir:BServiceType) {
+            continue;
+        }
+
+        loadAnnots(mv, typePkgName, typeDef);
+    }
+}
+
+function loadAnnots(jvm:MethodVisitor mv, string pkgName, bir:TypeDef typeDef) {
+    string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
+                            lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
+    mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
+    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
+    loadExternalOrLocalType(mv, typeDef);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", ANNOTATION_UTILS), "processAnnotations",
+        io:sprintf("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
 }
 
 type BalToJVMIndexMap object {

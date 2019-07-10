@@ -19,21 +19,13 @@ package org.ballerinalang.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,7 +36,7 @@ import javax.sql.XADataSource;
  *
  * @since 0.8.0
  */
-public class SQLDatasource implements BValue {
+public class SQLDatasource {
 
     private HikariDataSource hikariDataSource;
     private String peerAddress;
@@ -99,13 +91,8 @@ public class SQLDatasource implements BValue {
         return databaseProductName;
     }
 
-    public Connection getSQLConnection() {
-        try {
-            return hikariDataSource.getConnection();
-        } catch (SQLException e) {
-            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
-                    e);
-        }
+    public Connection getSQLConnection() throws SQLException {
+        return hikariDataSource.getConnection();
     }
 
     public boolean isXAConnection() {
@@ -165,18 +152,17 @@ public class SQLDatasource implements BValue {
             config.setPassword(sqlDatasourceParams.password);
             //Set optional properties
             if (sqlDatasourceParams.poolOptionsWrapper != null) {
-                boolean isXA = ((BBoolean) sqlDatasourceParams.poolOptionsWrapper.get(Constants.Options.IS_XA))
-                        .booleanValue();
+                boolean isXA = sqlDatasourceParams.poolOptionsWrapper.getBoolean(Constants.Options.IS_XA);
 
                 String dataSourceClassName = sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.DATASOURCE_CLASSNAME).stringValue();
+                        .getString(Constants.Options.DATASOURCE_CLASSNAME);
                 if (isXA && dataSourceClassName.isEmpty()) {
                     dataSourceClassName = getXADatasourceClassName(sqlDatasourceParams.dbType,
                             sqlDatasourceParams.jdbcUrl, sqlDatasourceParams.username, sqlDatasourceParams.password);
                 }
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
-                    if (sqlDatasourceParams.dbOptionsMap == null || !sqlDatasourceParams.dbOptionsMap.getMap()
+                    if (sqlDatasourceParams.dbOptionsMap == null || !sqlDatasourceParams.dbOptionsMap
                             .containsKey(Constants.URL)) {
                         config.addDataSourceProperty(Constants.URL, sqlDatasourceParams.jdbcUrl);
                     }
@@ -186,51 +172,48 @@ public class SQLDatasource implements BValue {
                     config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
                 }
                 String connectionInitSQL = sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.CONNECTION_INIT_SQL).stringValue();
+                        .getString(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
                 }
 
-                int maximumPoolSize = (int) ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.MAXIMUM_POOL_SIZE)).intValue();
+                int maximumPoolSize = sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.MAXIMUM_POOL_SIZE).intValue();
                 if (maximumPoolSize != -1) {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
-                long connectionTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.CONNECTION_TIMEOUT)).intValue();
+                long connectionTimeout = (sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.CONNECTION_TIMEOUT));
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.IDLE_TIMEOUT)).intValue();
+                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.IDLE_TIMEOUT);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = (int) ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.MINIMUM_IDLE)).intValue();
+                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.MINIMUM_IDLE).intValue();
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.MAX_LIFE_TIME)).intValue();
+                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MAX_LIFE_TIME));
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
-                long validationTimeout = ((BInteger) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.VALIDATION_TIMEOUT)).intValue();
+                long validationTimeout = sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.VALIDATION_TIMEOUT);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
-                boolean autoCommit = ((BBoolean) sqlDatasourceParams.poolOptionsWrapper
-                        .get(Constants.Options.AUTOCOMMIT)).booleanValue();
+                boolean autoCommit = sqlDatasourceParams.poolOptionsWrapper.getBoolean(Constants.Options.AUTOCOMMIT);
                 config.setAutoCommit(autoCommit);
             } else {
                 config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
             if (sqlDatasourceParams.dbOptionsMap != null) {
-                sqlDatasourceParams.dbOptionsMap.getMap().forEach((key, value) -> {
+                sqlDatasourceParams.dbOptionsMap.forEach((key, value) -> {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
-                        config.addDataSourceProperty(key, value.value());
+                        config.addDataSourceProperty(key, value);
                     } else {
                         throw new BallerinaException("Unsupported type for the db option: " + key);
                     }
@@ -302,26 +285,6 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-    @Override
-    public String stringValue() {
-        return null;
-    }
-
-    @Override
-    public BType getType() {
-        return null;
-    }
-
-    @Override
-    public void stamp(BType type, List<BVM.TypeValuePair> unresolvedValues) {
-
-    }
-
-    @Override
-    public BValue copy(Map<BValue, BValue> refs) {
-        return null;
-    }
-
     private boolean isXADataSource() {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
@@ -341,7 +304,7 @@ public class SQLDatasource implements BValue {
         private String password;
         private String dbName;
         private boolean isGlobalDatasource;
-        private BMap<String, BRefType> dbOptionsMap;
+        private MapValue<String, Object> dbOptionsMap;
 
         private SQLDatasourceParams(SQLDatasourceParamsBuilder builder) {
             this.poolOptionsWrapper = builder.poolOptions;
@@ -374,7 +337,7 @@ public class SQLDatasource implements BValue {
         private String password;
         private String dbName;
         private boolean isGlobalDatasource;
-        private BMap<String, BRefType> dbOptionsMap;
+        private MapValue<String, Object> dbOptionsMap;
 
         public SQLDatasourceParamsBuilder(String dbType) {
             this.dbType = dbType;
@@ -404,7 +367,7 @@ public class SQLDatasource implements BValue {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withDbOptionsMap(BMap<String, BRefType> dbOptionsMap) {
+        public SQLDatasourceParamsBuilder withDbOptionsMap(MapValue<String, Object> dbOptionsMap) {
             this.dbOptionsMap = dbOptionsMap;
             return this;
         }

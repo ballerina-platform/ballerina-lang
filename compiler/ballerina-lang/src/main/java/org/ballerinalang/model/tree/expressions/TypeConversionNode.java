@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 /**
@@ -24,7 +25,7 @@ import org.ballerinalang.model.tree.types.TypeNode;
  *
  * @since 0.94
  */
-public interface TypeConversionNode extends ExpressionNode {
+public interface TypeConversionNode extends ExpressionNode, AnnotatableNode {
 
     ExpressionNode getExpression();
 

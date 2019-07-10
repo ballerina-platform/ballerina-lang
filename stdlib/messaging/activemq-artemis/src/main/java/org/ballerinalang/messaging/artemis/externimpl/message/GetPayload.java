@@ -27,14 +27,15 @@ import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -67,49 +68,49 @@ public class GetPayload extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
-        BMap<String, BValue> messageObj = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static Object getPayload(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         byte messageType = message.getType();
         if (messageType == Message.TEXT_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
-            context.setReturnValues(new BString(TextMessageUtil.readBodyText(msgBuffer).toString()));
+            return TextMessageUtil.readBodyText(msgBuffer).toString();
         } else if (messageType == Message.BYTES_TYPE || messageType == Message.DEFAULT_TYPE) {
-            context.setReturnValues(ArtemisUtils.getBArrayValue(message));
+            return ArtemisUtils.getArrayValue(message);
         } else if (messageType == Message.MAP_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
             TypedProperties properties = MapMessageUtil.readBodyMap(msgBuffer);
             Map<String, Object> map = properties.getMap();
-            BMap<String, BValue> mapObj = getMapObj(map.entrySet().iterator().next().getValue());
+            MapValue<String, Object> mapObj = getMapObj(map.entrySet().iterator().next().getValue());
             if (mapObj != null) {
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    mapObj.put(entry.getKey(), ArtemisUtils.getBValueFromObj(entry.getValue(), context));
+                    mapObj.put(entry.getKey(), ArtemisUtils.getValidObj(entry.getValue()));
                 }
-                context.setReturnValues(mapObj);
+                return mapObj;
             } else {
-                context.setReturnValues(ArtemisUtils.getError(context, "Unsupported type"));
+                return ArtemisUtils.getError("Unsupported type");
             }
         } else if (messageType == Message.STREAM_TYPE) {
-            context.setReturnValues(
-                    ArtemisUtils.getError(context, "Use the saveToFile function for STREAM type message"));
+            return ArtemisUtils.getError("Use the saveToFile function for STREAM type message");
         } else {
-            context.setReturnValues(ArtemisUtils.getError(context, "Unsupported type"));
+            return ArtemisUtils.getError("Unsupported type");
         }
     }
 
-    private BMap<String, BValue> getMapObj(Object val) {
+    private static MapValue<String, Object> getMapObj(Object val) {
         if (val instanceof String) {
-            return new BMap<>(new BMapType(BTypes.typeString));
-        } else if (val instanceof Long || val instanceof Integer || val instanceof Short) {
-            return new BMap<>(new BMapType(BTypes.typeInt));
+            return new MapValueImpl<>(new BMapType(BTypes.typeString));
+        } else if (val instanceof Long) {
+            return new MapValueImpl<>(new BMapType(BTypes.typeInt));
         } else if (val instanceof Float || val instanceof Double) {
-            return new BMap<>(new BMapType(BTypes.typeFloat));
-        } else if (val instanceof Byte) {
-            return new BMap<>(new BMapType(BTypes.typeByte));
-        } else if (val instanceof byte[]) {
-            return new BMap<>(new BMapType(BTypes.fromString("byte[]")));
+            return new MapValueImpl<>(new BMapType(BTypes.typeFloat));
+        } else if (val instanceof Byte || val instanceof Integer) {
+            return new MapValueImpl<>(new BMapType(BTypes.typeByte));
+        } else if (val instanceof byte[] || val instanceof int[]) {
+            return new MapValueImpl<>(new BMapType(BTypes.fromString("byte[]")));
         } else if (val instanceof Boolean) {
-            return new BMap<>(new BMapType(BTypes.typeBoolean));
+            return new MapValueImpl<>(new BMapType(BTypes.typeBoolean));
         }
         return null;
     }

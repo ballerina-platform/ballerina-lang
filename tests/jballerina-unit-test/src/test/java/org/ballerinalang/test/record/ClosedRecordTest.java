@@ -164,9 +164,10 @@ public class ClosedRecordTest {
     public void testStructLiteralAttachedFunc() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/record/sealed_record_literal_with_attached_functions_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
+        BAssertUtil.validateError(result, 1, "outside object method definitions are not allowed", 7, 1);
+        BAssertUtil.validateError(result, 2, "undefined symbol 'self'", 8, 12);
     }
 
     @Test(description = "Test for records defined using the 'record' keyword")
@@ -277,8 +278,8 @@ public class ClosedRecordTest {
     @Test(description = "Test ambiguous type resolution negative cases")
     public void testAmbiguityResolutionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_ambiguous_types_negative.bal");
-        BAssertUtil.validateError(result, 0, "ambiguous type 'InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig'",
-                                  36, 22);
+        BAssertUtil.validateError(result, 0, "ambiguous type '(InMemoryModeConfig|ServerModeConfig" +
+                        "|EmbeddedModeConfig)'", 36, 22);
     }
 
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
