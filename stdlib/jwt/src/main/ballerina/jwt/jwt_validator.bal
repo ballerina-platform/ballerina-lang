@@ -342,7 +342,7 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
             if (audiencePayload == audienceConfig) {
                 return ();
             }
-        } else {
+        } else if (audienceConfig is string[]) {
             foreach string audience in audienceConfig {
                 if (audience == audiencePayload) {
                     return ();
@@ -357,7 +357,7 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
                     return ();
                 }
             }
-        } else {
+        } else if (audienceConfig is string[]) {
             foreach string audienceC in audienceConfig {
                 foreach string audienceP in audiencePayload {
                     if (audienceC == audienceP) {
@@ -374,11 +374,14 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
 
 function validateExpirationTime(JwtPayload jwtPayload, JwtValidatorConfig config) returns boolean {
     //Convert current time which is in milliseconds to seconds.
-    int expTime = jwtPayload.exp;
+    int? expTime = jwtPayload?.exp;
+    if (expTime is int) {
     if (config.clockSkew > 0){
-        expTime = expTime + config.clockSkew;
+            expTime = expTime + config.clockSkew;
+        }
+        return expTime > time:currentTime().time / 1000;
     }
-    return expTime > time:currentTime().time / 1000;
+    return false;
 }
 
 function validateNotBeforeTime(JwtPayload jwtPayload) returns boolean {
