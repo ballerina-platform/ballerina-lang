@@ -249,6 +249,10 @@ public class BIRBinaryWriter {
             if (!localVar.kind.equals(VarKind.TEMP)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName));
             }
+            // add enclosing basic block id
+            if (localVar.kind.equals(VarKind.LOCAL)) {
+                birbuf.writeInt(addStringCPEntry(localVar.enclBB.id.value));
+            }
         }
 
         // Write basic blocks related to parameter default values

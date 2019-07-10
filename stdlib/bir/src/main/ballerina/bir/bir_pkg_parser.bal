@@ -202,6 +202,9 @@ public type PackageParser object {
             if (!(dcl.kind is TempVarKind)) {
                 dcl.metaVarName = self.reader.readStringCpRef();
             }
+            if (dcl.kind is LocalVarKind) {
+                dcl.bbID = self.reader.readStringCpRef();
+            }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
             count += 1;
