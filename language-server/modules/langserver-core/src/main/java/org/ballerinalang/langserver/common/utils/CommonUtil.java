@@ -390,8 +390,8 @@ public class CommonUtil {
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
                                                              LSContext ctx, CommonToken pkgAlias) {
-        boolean withAlias = pkgAlias == null;
         BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
                 .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
         
@@ -399,9 +399,12 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue()) && withAlias) {
+        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                && !currentPkgID.name.value.equals(packageID.name.value)) {
             aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
+
+        boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
         
         String label = getAnnotationLabel(aliasComponent, annotationSymbol, withAlias);
         String insertText = getAnnotationInsertText(aliasComponent, annotationSymbol, withAlias);
@@ -414,6 +417,10 @@ public class CommonUtil {
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        if (currentPkgID.name.value.equals(packageID.name.value)) {
+            // If the annotation resides within the current package, no need to set the additional text edits
+            return annotationItem;
+        }
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
@@ -430,6 +437,20 @@ public class CommonUtil {
                     packageID.name.getValue()));
         }
         return annotationItem;
+    }
+
+    /**
+     * Get the Annotation completion Item.
+     *
+     * @param packageID Package Id
+     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param ctx LS Service operation context, in this case completion context
+     *
+     * @return {@link CompletionItem} Completion item for the annotation
+     */
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol, 
+                                                             LSContext ctx) {
+        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null);
     }
 
     /**
@@ -999,6 +1020,18 @@ public class CommonUtil {
 
         return new BallerinaParser(commonTokenStream);
     }
+
+    public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
+        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
+        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
+
+        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
+                || symbolName.equals("main")
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
+    }
     
     private static List<BField> getRecordRequiredFields(BRecordType recordType) {
         return recordType.fields.stream()
@@ -1120,18 +1153,6 @@ public class CommonUtil {
     private static boolean aggregateFunctionsAllowed(BType bType) {
         return bType instanceof BArrayType && (((BArrayType) bType).eType.toString().equals("int")
                 || ((BArrayType) bType).eType.toString().equals("float"));
-    }
-
-    private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
-        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
-
-        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
-                || symbolName.equals("main")
-                || symbolName.endsWith(".new")
-                || symbolName.startsWith("0");
     }
 
     private static boolean builtinLengthFunctionAllowed(BType bType) {

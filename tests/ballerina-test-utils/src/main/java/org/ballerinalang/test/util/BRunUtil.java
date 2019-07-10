@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -283,6 +284,8 @@ public class BRunUtil {
                 paramTypes[i] = XMLValue.class;
             } else if (arg instanceof String) {
                 paramTypes[i] = String.class;
+            } else if (arg instanceof ArrayValue) {
+                paramTypes[i] = ArrayValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -390,7 +393,7 @@ public class BRunUtil {
                 getClassName(function.pos.src.cUnitName));
         Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
-            Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
+            Method method = getMethod(functionName, funcClass);
             Function<Object[], Object> func = a -> {
                 try {
                     return method.invoke(null, a);
@@ -427,6 +430,19 @@ public class BRunUtil {
 
         BValue result = getBVMValue(jvmResult);
         return new BValue[] { result };
+    }
+
+    private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
+        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
+                .filter(method -> functionName.equals(method.getName()))
+                .findAny()
+                .orElse(null);
+
+        if (declaredMethod != null) {
+            return declaredMethod;
+        } else {
+            throw new NoSuchMethodException(functionName + " is not found");
+        }
     }
 
     /**

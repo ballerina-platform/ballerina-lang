@@ -458,7 +458,7 @@ restMatchPattern
     ;
 
 simpleMatchPattern
-    :   VAR? Identifier
+    :   VAR? (Identifier | QuotedStringLiteral)
     ;
 
 errorDetailBindingPattern
@@ -758,8 +758,8 @@ expression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT typeName GT expression                                           # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT | TYPEOF) expression    # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
