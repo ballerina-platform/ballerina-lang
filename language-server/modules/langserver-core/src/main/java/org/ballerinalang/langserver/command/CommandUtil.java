@@ -467,14 +467,14 @@ public class CommandUtil {
                     });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            String varName = CommonUtil.generateName(1, bLangNode, compilerContext);
+            String varName = CommonUtil.generateVariableName(1, bLangNode, compilerContext);
             List<BType> members = new ArrayList<>((unionType).getMemberTypes());
             String typeDef = CommonUtil.getBTypeName(unionType, context);
-            String newText = String.format("%s %s = %s%s", typeDef, varName, content, LINE_SEPARATOR);
-            newText += IntStream.range(0, members.size() - 1)
+            String newText = String.format("%s %s = %s;%s", typeDef, varName, content, LINE_SEPARATOR);
+            newText += spaces + IntStream.range(0, members.size() - 1)
                     .mapToObj(value -> {
                         String bTypeName = CommonUtil.getBTypeName(members.get(value), context);
-                        return String.format("if(%s is %s) {%s}", varName, bTypeName, padding);
+                        return String.format("if (%s is %s) {%s}", varName, bTypeName, padding);
                     })
                     .collect(Collectors.joining(" else "));
             newText += String.format(" else {%s}", padding);

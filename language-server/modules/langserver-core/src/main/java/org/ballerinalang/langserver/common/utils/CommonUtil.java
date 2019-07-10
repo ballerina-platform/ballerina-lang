@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -104,10 +106,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -1256,15 +1260,44 @@ public class CommonUtil {
     }
 
     /**
-     * Generates a random name.
+     * Generates a variable name.
      *
-     * @param value    index of the argument
+     * @param value     index of the argument
      * @param bLangNode {@link BLangNode}
-     * @param context {@link CompilerContext}
+     * @param context   {@link CompilerContext}
      * @return random argument name
      */
-    public static String generateName(int value, BLangNode bLangNode, CompilerContext context) {
-        return generateName(value, getAllNameEntries(bLangNode, context));
+    public static String generateVariableName(int value, BLangNode bLangNode, CompilerContext context) {
+        Set<String> allNameEntries = getAllNameEntries(bLangNode, context);
+        String newName = generateName(value, allNameEntries);
+        if (bLangNode instanceof BLangInvocation && value == 1) {
+            newName = ((BLangInvocation) bLangNode).name.value;
+            BiFunction<String, String, String> replacer = (search, text) ->
+                    (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
+            // Replace common prefixes
+            newName = replacer.apply("get", newName);
+            newName = replacer.apply("put", newName);
+            newName = replacer.apply("delete", newName);
+            newName = replacer.apply("update", newName);
+            newName = replacer.apply("set", newName);
+            newName = replacer.apply("add", newName);
+            // Remove '_' underscores
+            while (newName.contains("_")) {
+                String[] parts = newName.split("_");
+                List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
+                newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
+            }
+            // if already available, try appending 'Result'
+            if (allNameEntries.contains(newName)) {
+                newName = newName + "Result";
+            }
+            // if still already available, try a random letter
+            while (allNameEntries.contains(newName)) {
+                newName = generateVariableName(++value, bLangNode, context);
+            }
+        }
+        // Lower first letter
+        return newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
     }
 
     public static BLangPackage getPackageNode(BLangNode bLangNode) {

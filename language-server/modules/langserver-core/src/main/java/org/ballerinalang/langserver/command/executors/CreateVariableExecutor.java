@@ -108,7 +108,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         }
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        String variableName = CommonUtil.generateName(1, functionNode, compilerContext);
+        String variableName = CommonUtil.generateVariableName(1, functionNode, compilerContext);
 
         if (packageNode == null) {
             throw new LSCommandExecutorException("Package node cannot be null");
