@@ -18,18 +18,8 @@
 
 package org.ballerinalang.stdlib.file.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-
-import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 
 /**
  * Utils class for file module.
@@ -39,20 +29,6 @@ import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 public class FileUtils {
 
     private static final String FILE_ERROR_CODE = "{ballerina/file}FileError";
-    private static final String FILE_ERROR = "FileError";
-
-    /**
-     * Creates an error message.
-     *
-     * @param context context which is invoked.
-     * @param errMsg  the cause for the error.
-     * @return an error which will be propagated to ballerina user.
-     */
-    public static BError createError(Context context, String errMsg) {
-        BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, FILE_PACKAGE, FILE_ERROR);
-        errorRecord.put("message", new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, FILE_ERROR_CODE, errorRecord);
-    }
 
     public static ErrorValue createError(String errMsg) {
         return BallerinaErrors.createError(FILE_ERROR_CODE, errMsg);

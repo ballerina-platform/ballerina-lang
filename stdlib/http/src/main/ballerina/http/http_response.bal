@@ -78,7 +78,7 @@ public type Response object {
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeader(string headerName) returns string {
+    public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
     }
@@ -97,7 +97,7 @@ public type Response object {
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(string headerName) returns string[] {
+    public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
     }
@@ -134,7 +134,7 @@ public type Response object {
     # Gets all the names of the headers of the response.
     #
     # + return - An array of all the header names
-    public function getHeaderNames() returns string[] {
+    public function getHeaderNames() returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaderNames();
     }
@@ -150,7 +150,7 @@ public type Response object {
     # Gets the type of the payload of the response (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
-    public function getContentType() returns string {
+    public function getContentType() returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getContentType();
     }
@@ -158,21 +158,21 @@ public type Response object {
     # Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
     #
     # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns json|error {
+    public function getJsonPayload() returns @tainted json|error {
         return self.getEntity()!getJson();
     }
 
     # Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns xml|error {
+    public function getXmlPayload() returns @tainted xml|error {
         return self.getEntity()!getXml();
     }
 
     # Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
     #
     # + return - The string representation of the message payload or `error` in case of errors
-    public function getTextPayload() returns string|error {
+    public function getTextPayload() returns @tainted string|error {
         return self.getEntity()!getText();
     }
 
@@ -180,14 +180,14 @@ public type Response object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns io:ReadableByteChannel|error {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         return self.getEntity()!getByteChannel();
     }
 
     # Gets the response payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns byte[]|error {
+    public function getBinaryPayload() returns @tainted byte[]|error {
         return self.getEntity()!getByteArray();
     }
 

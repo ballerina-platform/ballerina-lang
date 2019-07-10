@@ -63,7 +63,7 @@ public type Channel client object {
     # + exchangeName - The name of the exchange to which the message is published.
     # + properties - Other properties for the message - routing headers etc.
     # + return - An error if an I/O error is encountered or nil if successful.
-    public remote function basicPublish(@sensitive MessageContent messageContent, string routingKey,
+    public remote function basicPublish(@untainted MessageContent messageContent, string routingKey,
                         string exchangeName = "", BasicProperties? properties = ()) returns error? = external;
 
     # Deletes the queue with the given name although it is in use or has messages on it.

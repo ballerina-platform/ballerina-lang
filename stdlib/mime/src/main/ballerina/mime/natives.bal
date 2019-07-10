@@ -129,7 +129,7 @@ public type Entity object {
     #
     # + mediaType - Content type that needs to be set to the entity
     # + return - Nil if successful, error in case of invalid media-type
-    public function setContentType(@sensitive string mediaType) returns InvalidContentTypeError? {
+    public function setContentType(@untainted string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
     }
@@ -137,7 +137,7 @@ public type Entity object {
     # Gets the content type of entity.
     #
     # + return - Content type as a `string`
-    public function getContentType() returns string {
+    public function getContentType() returns @tainted string {
         string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
             contentTypeHeaderValue = self.getHeader(CONTENT_TYPE);
@@ -148,7 +148,7 @@ public type Entity object {
     # Sets the content ID of the entity.
     #
     # + contentId - Content ID that needs to be set to entity
-    public function setContentId(@sensitive string contentId) {
+    public function setContentId(@untainted string contentId) {
         self.cId = contentId;
         self.setHeader(CONTENT_ID, contentId);
     }
@@ -156,7 +156,7 @@ public type Entity object {
     # Gets the content ID of entity.
     #
     # + return - Content ID as a `string`
-    public function getContentId() returns string {
+    public function getContentId() returns @tainted string {
         string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
             contentId = self.getHeader(CONTENT_ID);
@@ -167,7 +167,7 @@ public type Entity object {
     # Sets the content length of the entity.
     #
     # + contentLength - Content length that needs to be set to entity
-    public function setContentLength(@sensitive int contentLength) {
+    public function setContentLength(@untainted int contentLength) {
         self.cLength = contentLength;
         var contentLengthStr = string.convert(contentLength);
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
@@ -176,7 +176,7 @@ public type Entity object {
     # Gets the content length of entity.
     #
     # + return - Content length as an `int`
-    public function getContentLength() returns int|error {
+    public function getContentLength() returns @tainted int|error {
         string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
             contentLength = self.getHeader(CONTENT_LENGTH);
@@ -210,7 +210,7 @@ public type Entity object {
     # Sets the entity body with the given content.
     #
     # + entityBody - Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`
-    public function setBody(@sensitive string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
+    public function setBody(@untainted string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
         if (entityBody is string) {
             self.setText(entityBody);
         } else if (entityBody is xml) {
@@ -233,7 +233,7 @@ public type Entity object {
     # + filePath - Represents the path to the file
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setFileAsEntityBody(@sensitive string filePath, string contentType = "application/octet-stream") {
+    public function setFileAsEntityBody(@untainted string filePath, string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
@@ -245,7 +245,7 @@ public type Entity object {
     # + jsonContent - JSON content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
     #                 is used as the default value.
-    public function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json") = external;
+    public function setJson(@untainted json jsonContent, @untainted string contentType = "application/json") = external;
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
@@ -260,7 +260,7 @@ public type Entity object {
     # + xmlContent - XML content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
     #                 is used as the default value.
-    public function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml") = external;
+    public function setXml(@untainted xml xmlContent, @untainted string contentType = "application/xml") = external;
 
     # Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
     #
@@ -275,7 +275,7 @@ public type Entity object {
     # + textContent - Text content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
     #                 is used as the default value.
-    public function setText(@sensitive string textContent, @sensitive string contentType = "text/plain") = external;
+    public function setText(@untainted string textContent, @untainted string contentType = "text/plain") = external;
 
     # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
     #
@@ -289,7 +289,7 @@ public type Entity object {
     # + blobContent - byte[] content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream") = external;
+    public function setByteArray(@untainted byte[] blobContent, @untainted string contentType = "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
     # using getByteChannel() method instead.
@@ -305,7 +305,7 @@ public type Entity object {
     # + byteChannel - Byte channel that needs to be set to entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setByteChannel(io:ReadableByteChannel byteChannel, @sensitive string contentType = "application/octet-stream") = external;
+    public function setByteChannel(io:ReadableByteChannel byteChannel, @untainted string contentType = "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a byte channel.
     #
@@ -330,7 +330,7 @@ public type Entity object {
     # + bodyParts - Represents the body parts that needs to be set to the entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `multipart/form-data` is used as the default value.
-    public function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data") = external;
+    public function setBodyParts(@untainted Entity[] bodyParts, @untainted string contentType = "multipart/form-data") = external;
 
     # Gets the header value associated with the given header name.
     #
@@ -338,14 +338,14 @@ public type Entity object {
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeader(@sensitive string headerName) returns @tainted string = external;
+    public function getHeader(@untainted string headerName) returns @tainted string = external;
 
     # Gets all the header values associated with the given header name.
     #
     # + headerName - The header name
     # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
     #            if no header is found. Use `hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(@sensitive string headerName) returns @tainted string[] = external;
+    public function getHeaders(@untainted string headerName) returns @tainted string[] = external;
 
     # Gets all header names.
     #
@@ -356,19 +356,19 @@ public type Entity object {
     #
     # + headerName - The header name
     # + headerValue - Represents the header value to be added
-    public function addHeader(@sensitive string headerName, string headerValue) = external;
+    public function addHeader(@untainted string headerName, string headerValue) = external;
 
     # Sets the given header value against the existing header. If a header already exists, its value is replaced
     # with the given header value.
     #
     # + headerName - The header name
     # + headerValue - Represents the header value
-    public function setHeader(@sensitive string headerName, string headerValue) = external;
+    public function setHeader(@untainted string headerName, string headerValue) = external;
 
     # Removes the given header from the entity.
     #
     # + headerName - Represents the header name
-    public function removeHeader(@sensitive string headerName) = external;
+    public function removeHeader(@untainted string headerName) = external;
 
     # Removes all headers associated with the entity.
     public function removeAllHeaders() = external;
@@ -377,7 +377,7 @@ public type Entity object {
     #
     # + headerName - The header name
     # + return - True if the specified header key exists
-    public function hasHeader(@sensitive string headerName) returns boolean = external;
+    public function hasHeader(@untainted string headerName) returns boolean = external;
 };
 
 # Encodes a given input with MIME specific Base64 encoding scheme.

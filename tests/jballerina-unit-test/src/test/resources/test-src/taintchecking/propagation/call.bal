@@ -18,6 +18,6 @@ public function main (string... args) {
     secureFunction.call("static-data", "static-data");
 }
 
-public function secureFunction (@sensitive any secureIn, any insecureIn) {
+public function secureFunction (@untainted any secureIn, any insecureIn) {
 
 }

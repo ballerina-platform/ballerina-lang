@@ -18,7 +18,7 @@
 #
 # + key - The configuration key to be looked-up
 # + return - Returns true if the key is present; if not returs false
-public function contains(@sensitive string key) returns boolean = external;
+public function contains(@untainted string key) returns boolean = external;
 
 # Sets the specified key/value pair as a configuration.
 #
@@ -26,4 +26,4 @@ public function contains(@sensitive string key) returns boolean = external;
 # + value - The configuration value to be set
 public function setConfig(string key, string|int|float|boolean value) = external;
 
-function get(@sensitive string key, ValueType vType) returns string|int|float|boolean|map<any> = external;
+function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any> = external;

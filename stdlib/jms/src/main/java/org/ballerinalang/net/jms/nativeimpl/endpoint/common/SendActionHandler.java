@@ -19,10 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -38,30 +35,18 @@ public class SendActionHandler {
     private SendActionHandler() {
     }
 
-    public static void handle(Context context) {
+    public static Object handle(ObjectValue sender, ObjectValue msgObj) {
 
-        Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
-        MessageProducer messageProducer = BallerinaAdapter.getNativeObject(queueSenderBObject,
-                                                                           JmsConstants.JMS_PRODUCER_OBJECT,
-                                                                           MessageProducer.class,
-                                                                           context);
-        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(queueSenderBObject,
-                                                                             JmsConstants.SESSION_CONNECTOR_OBJECT,
-                                                                             SessionConnector.class,
-                                                                             context);
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> messageBObject = ((BMap<String, BValue>) context.getRefArgument(1));
-        Message message = BallerinaAdapter.getNativeObject(messageBObject,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
-
-
+        MessageProducer messageProducer = (MessageProducer) sender.getNativeData(JmsConstants.JMS_PRODUCER_OBJECT);
+//        SessionConnector sessionConnector =
+//                (SessionConnector) sender.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
+        Message message = (Message) msgObj.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         try {
-            sessionConnector.handleTransactionBlock(context);
+//            sessionConnector.handleTransactionBlock(context);
             messageProducer.send(message);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Message sending failed.", context, e);
+            return BallerinaAdapter.getError("Message sending failed.", e);
         }
+        return null;
     }
 }

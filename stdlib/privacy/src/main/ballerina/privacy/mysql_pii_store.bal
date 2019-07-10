@@ -59,7 +59,7 @@ public type MySqlPiiStore object {
     #
     # + id - pseudonymized identifier to be depseudonymize
     # + return - PII if retrieval was successful, error if retrieval failed
-    public function depseudonymize (string id) returns string|error {
+    public function depseudonymize (string id) returns @tainted string|error {
         mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildSelectQuery(self.tableName, self.idColumn, self.piiColumn);
         var queryResult = mysqlClient->select(dbQuery, PiiData, id);

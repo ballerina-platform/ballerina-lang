@@ -717,13 +717,25 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reasonIdentifier, String restIdentifier,
-                          DiagnosticPos restParamPos) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
+                          boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
-        errorVariable.reason = (BLangSimpleVariable)
-                generateBasicVarNodeWithoutType(pos, null, reasonIdentifier, pos, false);
+
+        if (constReasonMatchPattern) {
+            BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
+            errorVariable.reasonMatchConst = reasonLiteral;
+
+            errorVariable.reason = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
+        } else {
+            errorVariable.reason = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
+        }
+
+        errorVariable.reasonVarPrefixAvailable = reasonVar;
         if (restIdentifier != null) {
             errorVariable.restDetail = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, restIdentifier, restParamPos, false);
@@ -1552,11 +1564,15 @@ public class BLangPackageBuilder {
         addExpressionNode(typeAccessExpr);
     }
 
-    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, int annotationCount,
+                                  boolean typeNameAvailable) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        attachAnnotations(typeConversionNode, annotationCount);
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
-        typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        if (typeNameAvailable) {
+            typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
+        }
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(typeConversionNode);
     }
