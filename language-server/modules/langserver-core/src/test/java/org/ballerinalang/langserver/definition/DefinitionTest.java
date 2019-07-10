@@ -117,6 +117,7 @@ public class DefinitionTest {
                 {"defService3.json", "service"},
                 {"defService4.json", "service"},
                 {"defService5.json", "service"},
+                {"defService6.json", "service"},
                 {"defArrays1.json", "array"},
                 {"defArrays2.json", "array"},
                 {"defArrays3.json", "array"},
@@ -187,6 +188,10 @@ public class DefinitionTest {
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
                 {"defExpressionConnectorInit.json", "expression"},
+                {"defAnnotation1.json", "annotation"},
+                {"defAnnotation2.json", "annotation"},
+                {"defAnnotation3.json", "annotation"},
+                {"defAnnotation4.json", "annotation"},
 //                TODO: enable
 //                {"defExpressionNamedArgs.json", "expression"},
         };
