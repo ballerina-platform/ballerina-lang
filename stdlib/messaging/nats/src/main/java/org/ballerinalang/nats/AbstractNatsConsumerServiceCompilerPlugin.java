@@ -53,6 +53,12 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
     public abstract void validateMessageParameter(BLangSimpleVariable firstParameter, BLangFunction resourceFunction,
             String errorMessage);
 
+    public abstract String getInvalidMessageResourceSignatureErrorMessage(ServiceNode serviceNode,
+            BLangFunction resourceFunction);
+
+    public abstract String getInvalidErrorResourceSignatureErrorMessage(ServiceNode serviceNode,
+            BLangFunction resourceFunction);
+
     private void validateResourceFunctionSyntax(BLangFunction resourceFunction, ServiceNode serviceNode) {
         String resourceFunctionName = resourceFunction.getName().getValue();
         switch (resourceFunctionName) {
@@ -70,23 +76,18 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
     }
 
     private void validateOnMessageResource(ServiceNode serviceNode, BLangFunction resourceFunction) {
-        String errorMessage = "Invalid resource signature for the %s resource function in %s service. "
-                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
-                + "second paramter (optional) type is "
-                + "byte[] | boolean | string | int | float | decimal | xml | json | record {}";
-        String formattedErrorMessage = String
-                .format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
+        String errorMessage = getInvalidMessageResourceSignatureErrorMessage(serviceNode, resourceFunction);
         List<BLangSimpleVariable> functionParameters = resourceFunction.getParameters();
         if (functionParameters.size() == 1) {
             BLangSimpleVariable firstParameter = functionParameters.get(0);
-            validateMessageParameter(firstParameter, resourceFunction, formattedErrorMessage);
+            validateMessageParameter(firstParameter, resourceFunction, errorMessage);
         } else if (functionParameters.size() == 2) {
             BLangSimpleVariable firstParameter = functionParameters.get(0);
-            validateMessageParameter(firstParameter, resourceFunction, formattedErrorMessage);
+            validateMessageParameter(firstParameter, resourceFunction, errorMessage);
             BLangSimpleVariable secondParamter = functionParameters.get(1);
-            validateDataTypeParameter(secondParamter, resourceFunction, formattedErrorMessage);
+            validateDataTypeParameter(secondParamter, resourceFunction, errorMessage);
         } else {
-            logDiagnostic(ERROR, resourceFunction.getPosition(), formattedErrorMessage);
+            logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
         }
     }
 
@@ -108,20 +109,16 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
     }
 
     private void validateOnErrorResource(ServiceNode serviceNode, BLangFunction resourceFunction) {
-        String errorMessage = "Invalid resource signature for the %s resource function in %s service. "
-                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
-                + "second paramter (required) type is error";
-        String formattedErrorMessage = String
-                .format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
+        String errorMessage = getInvalidErrorResourceSignatureErrorMessage(serviceNode, resourceFunction);
         List<BLangSimpleVariable> functionParameters = resourceFunction.getParameters();
 
         if (functionParameters.size() == 2) {
             BLangSimpleVariable firstParameter = functionParameters.get(0);
-            validateMessageParameter(firstParameter, resourceFunction, formattedErrorMessage);
+            validateMessageParameter(firstParameter, resourceFunction, errorMessage);
             BLangSimpleVariable secondParameter = functionParameters.get(1);
-            validateErrorParameter(secondParameter, resourceFunction, formattedErrorMessage);
+            validateErrorParameter(secondParameter, resourceFunction, errorMessage);
         } else {
-            logDiagnostic(ERROR, resourceFunction.getPosition(), formattedErrorMessage);
+            logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
         }
     }
 

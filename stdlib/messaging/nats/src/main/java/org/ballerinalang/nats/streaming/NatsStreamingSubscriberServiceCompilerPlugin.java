@@ -73,6 +73,25 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
         }
     }
 
+    @Override
+    public String getInvalidMessageResourceSignatureErrorMessage(ServiceNode serviceNode,
+            BLangFunction resourceFunction) {
+        String errorMessage =  "Invalid resource signature for the %s resource function in %s service. "
+                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
+                + "second paramter (optional) type is "
+                + "byte[] | boolean | string | int | float | decimal | xml | json | record {}";
+        return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
+    }
+
+    @Override
+    public String getInvalidErrorResourceSignatureErrorMessage(ServiceNode serviceNode,
+            BLangFunction resourceFunction) {
+        String errorMessage = "Invalid resource signature for the %s resource function in %s service. "
+                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
+                + "second paramter (required) type is error";
+        return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
+    }
+
     public void logDiagnostic(Diagnostic.Kind diagnosticKind, Diagnostic.DiagnosticPosition diagnosticPosition,
             String errorMessage) {
         dlog.logDiagnostic(ERROR, diagnosticPosition, errorMessage);
