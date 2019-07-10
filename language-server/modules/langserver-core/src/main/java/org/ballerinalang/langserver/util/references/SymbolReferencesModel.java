@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.util.references;
 
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 public class SymbolReferencesModel {
     private List<Reference> references = new ArrayList<>();
     private List<Reference> definitions = new ArrayList<>();
-    private Reference symbolAtCursor = null;
+    private Reference referenceAtCursor = null;
 
     public List<Reference> getReferences() {
         return references;
@@ -50,12 +51,12 @@ public class SymbolReferencesModel {
         this.definitions.add(definition);
     }
 
-    public Optional<Reference> getSymbolAtCursor() {
-        return Optional.ofNullable(symbolAtCursor);
+    public Optional<Reference> getReferenceAtCursor() {
+        return Optional.ofNullable(referenceAtCursor);
     }
 
-    public void setSymbolAtCursor(Reference symbol) {
-        this.symbolAtCursor = symbol;
+    public void setReferenceAtCursor(Reference symbol) {
+        this.referenceAtCursor = symbol;
     }
 
     /**
@@ -64,13 +65,15 @@ public class SymbolReferencesModel {
     public static class Reference {
         private DiagnosticPos position;
         private BSymbol symbol;
+        private BLangNode bLangNode;
         private String compilationUnit;
         private String symbolPkgName;
         private String sourcePkgName;
 
-        public Reference(DiagnosticPos position, BSymbol symbol) {
+        public Reference(DiagnosticPos position, BSymbol symbol, BLangNode bLangNode) {
             this.position = position;
             this.symbol = symbol;
+            this.bLangNode = bLangNode;
             this.symbolPkgName = symbol.pkgID.nameComps.stream().map(Name::getValue).collect(Collectors.joining("."));
             this.compilationUnit = position.src.cUnitName;
             this.sourcePkgName = position.src.pkgID.name.value;
@@ -94,6 +97,10 @@ public class SymbolReferencesModel {
 
         public BSymbol getSymbol() {
             return symbol;
+        }
+
+        public BLangNode getbLangNode() {
+            return bLangNode;
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package org.ballerinalang.langserver.util.references;
 
+import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -74,7 +75,13 @@ public class ReferencesUtil {
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
 
-            return lsCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
+            List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, docManager, true, errStrategy,
+                                                                           compileProject, false);
+
+            // Set the current package.
+            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+            context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentBLangPackage);
+            return bLangPackages;
         } catch (Exception e) {
             if (CommonUtil.LS_DEBUG_ENABLED) {
                 String msg = e.getMessage();
@@ -104,7 +111,7 @@ public class ReferencesUtil {
         if (!referencesModel.getDefinitions().isEmpty()) {
             return getLocations(Collections.singletonList(referencesModel.getDefinitions().get(0)), context);
         }
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         String symbolPkgName = symbolAtCursor.get().getSymbolPkgName();
         Optional<BLangPackage> module = modules.stream()
@@ -123,6 +130,18 @@ public class ReferencesUtil {
         }
 
         return getLocations(referencesModel.getDefinitions(), context);
+    }
+
+    public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, String fileUri,
+                                                                       Position position) throws LSReferencesException {
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
+        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager, lsCompiler,
+                                                                       position, context, true);
+        prepareReferences(modules, context, position);
+        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
+        return symbolAtCursor.orElse(null);
     }
 
     /**
@@ -150,7 +169,7 @@ public class ReferencesUtil {
         fillAllReferences(modules, context, position);
         List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
         references.addAll(referencesModel.getReferences());
-        references.add(referencesModel.getSymbolAtCursor().get());
+        references.add(referencesModel.getReferenceAtCursor().get());
 
         return getLocations(references, context);
     }
@@ -168,7 +187,7 @@ public class ReferencesUtil {
             throws LSReferencesException {
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         prepareReferences(modules, context, position);
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
 
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         BSymbol bSymbol = symbolAtCursor.get().getSymbol();
@@ -179,7 +198,7 @@ public class ReferencesUtil {
 
     private static void fillAllReferences(List<BLangPackage> modules, LSContext context, Position position) {
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getSymbolAtCursor();
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         String symbolOwnerPkg = symbolAtCursor.get().getSymbol().pkgID.toString();
 
@@ -227,11 +246,11 @@ public class ReferencesUtil {
 
         // Prune the found symbol references
         SymbolReferencesModel symbolReferencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        if (!symbolReferencesModel.getSymbolAtCursor().isPresent()) {
+        if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
             throw new LSReferencesException("Symbol Reference at Cursor is Empty");
         }
 
-        SymbolReferencesModel.Reference symbolAtCursor = symbolReferencesModel.getSymbolAtCursor().get();
+        SymbolReferencesModel.Reference symbolAtCursor = symbolReferencesModel.getReferenceAtCursor().get();
         symbolReferencesModel.getDefinitions()
                 .removeIf(reference -> reference.getSymbol() != symbolAtCursor.getSymbol()
                         && (reference.getSymbol().type.tsymbol != symbolAtCursor.getSymbol()));
@@ -257,7 +276,7 @@ public class ReferencesUtil {
         WorkspaceEdit workspaceEdit = new WorkspaceEdit();
         List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
         references.addAll(referencesModel.getReferences());
-        references.add(referencesModel.getSymbolAtCursor().get());
+        references.add(referencesModel.getReferenceAtCursor().get());
         String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
 
         references.forEach(reference -> {
