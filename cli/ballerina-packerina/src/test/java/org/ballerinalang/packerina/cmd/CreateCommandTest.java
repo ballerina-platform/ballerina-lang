@@ -58,7 +58,7 @@ public class CreateCommandTest extends CommandTest {
         new CommandLine(createCommand).parse(args);
         createCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("error: not a ballerina project"));
+        Assert.assertTrue(readOutput().contains("not a ballerina project"));
     }
 
     @Test(description = "Test create command without arguments")
@@ -69,7 +69,7 @@ public class CreateCommandTest extends CommandTest {
         new CommandLine(createCommand).parse(args);
         createCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("error: The following required arguments were not provided"));
+        Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
     }
 
     @Test(description = "Test create command")

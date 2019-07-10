@@ -17,10 +17,14 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.toml.model.Balo;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -28,10 +32,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
@@ -85,22 +91,19 @@ public class ModuleFileWriter {
 
         // Check if the module is part of the project
         String moduleName = module.packageID.name.value;
-        if (!ProjectDirs.isModuleExist(projectDirectory,moduleName)) {
+        if (!ProjectDirs.isModuleExist(projectDirectory, moduleName)) {
             return;
         }
 
-        // Get the version of the project.
-        // Calculate the name of the balo
-        // {module}-{lang spec version}-{platform}-{version}.balo
-        String baloName = moduleName + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
-                          //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
+        // get the balo file name.
+        String baloName = getFileName(moduleName);
 
         // Get the path to create balo.
         Path baloDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
         // Crate balo directory if it is not there
         if (Files.exists(baloDir)) {
-            if (!Files.isDirectory(baloDir)){
+            if (!Files.isDirectory(baloDir)) {
                 new BLangCompilerException("Found `balo` file instead of a `balo` directory inside target");
             }
         } else {
@@ -113,13 +116,36 @@ public class ModuleFileWriter {
 
         // Create the archive over write if exists
         Path baloFile = baloDir.resolve(baloName);
-        try(FileSystem balo = createBaloArchive(baloFile)) {
+        try (FileSystem balo = createBaloArchive(baloFile)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
         } catch (IOException e) {
             // todo Check for permission
-            new BLangCompilerException("Failed to create balo");
+            new BLangCompilerException("Failed to create balo :" + e.getMessage());
+        } catch (BLangCompilerException be) {
+            // clean up if an error occur
+            try {
+                Files.delete(baloFile);
+            } catch (IOException e) {
+                // We ignore this error and throw out the original error to the user
+            } finally {
+                throw be;
+            }
         }
+    }
+
+    private String getFileName(String moduleName) {
+        // Get the version of the project.
+        String versionNo = manifest.getProject().getVersion();
+        // Identify the platform version
+        String platform = manifest.getTargetPlatform();
+        // {module}-{lang spec version}-{platform}-{version}.balo
+        //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
+        return moduleName + "-"
+                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + platform + "-"
+                + versionNo
+                + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
     private FileSystem createBaloArchive(Path path) throws IOException {
@@ -152,7 +178,7 @@ public class ModuleFileWriter {
         //    └─ MODULE-DESC.md
         //    └─ api-docs/
 
-        addMetaData(root);
+        addMetaData(root, moduleName);
         addModuleSource(root, moduleSourceDir, moduleName);
         addResources(root, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
@@ -166,7 +192,7 @@ public class ModuleFileWriter {
         Path moduleMdInBalo = docsDirInBalo.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
         Files.createDirectory(docsDirInBalo);
 
-        if(Files.exists(moduleMd)){
+        if (Files.exists(moduleMd)) {
             Files.copy(moduleMd, moduleMdInBalo);
         }
     }
@@ -179,13 +205,13 @@ public class ModuleFileWriter {
                 .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
                 .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
 
-        for (Path lib : libs){
+        for (Path lib : libs) {
             Path nativeFile = projectDirectory.resolve(lib);
             Path targetPath = platformLibsDir.resolve(lib.getFileName().toString());
             try {
                 Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            }catch (IOException e){
-                e.printStackTrace();
+            } catch (IOException e) {
+                throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
             }
         }
     }
@@ -222,14 +248,14 @@ public class ModuleFileWriter {
                         .resolve(ProjectDirConstants.RESOURCE_DIR_NAME).toString();
 
                 // Skip resources directory
-                if(fd.getPathMatcher("glob:" + prefix + "**").matches(path)){
+                if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                     return false;
                 }
                 // Skip tests directory
                 prefix = moduleDirInBalo
                         .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
                 // Skip resources directory
-                if(fd.getPathMatcher("glob:" + prefix + "**").matches(path)){
+                if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
                     return false;
                 }
                 return true;
@@ -238,16 +264,29 @@ public class ModuleFileWriter {
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
 
-    private void addMetaData(Path root) throws IOException {
+    private void addMetaData(Path root, String moduleName) throws IOException {
         Path metaDir = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
 
         Files.createDirectory(metaDir);
-        Files.createFile(baloMetaFile);
-        Files.createFile(moduleMetaFile);
 
+        TomlWriter writer = new TomlWriter();
+        // Write to BALO.toml
+        String baloToml = writer.write(new Balo());
+        Files.write(baloMetaFile, baloToml.getBytes());
 
+        // Write to MODULE.toml
+        Module moduleObj = new Module();
+        moduleObj.setModule_name(moduleName);
+        moduleObj.setModule_organization(manifest.getProject().getOrgName());
+        moduleObj.setModule_version(manifest.getProject().getVersion());
+        moduleObj.setModule_authors(manifest.getProject().getAuthors());
+        moduleObj.setModule_keywords(manifest.getProject().getKeywords());
+        moduleObj.setModule_source_repository(manifest.getProject().getRepository());
+        moduleObj.setModule_licenses(manifest.getProject().getLicense());
+        String moduleToml = writer.write(moduleObj);
+        Files.write(moduleMetaFile, moduleToml.getBytes());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
@@ -257,7 +296,7 @@ public class ModuleFileWriter {
         private PathMatcher fileFilter;
         private PathMatcher dirFilter;
 
-        public Copy (Path fromPath, Path toPath, PathMatcher file, PathMatcher dir) {
+        public Copy(Path fromPath, Path toPath, PathMatcher file, PathMatcher dir) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = StandardCopyOption.REPLACE_EXISTING;
@@ -266,10 +305,10 @@ public class ModuleFileWriter {
         }
 
         @Override
-        public FileVisitResult preVisitDirectory (Path dir, BasicFileAttributes attrs)
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
                 throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
-            if(!dirFilter.matches(targetPath)){
+            if (!dirFilter.matches(targetPath)) {
                 // we do not visit the sub tree is the directory is filtered out
                 return FileVisitResult.SKIP_SUBTREE;
             }
@@ -280,10 +319,10 @@ public class ModuleFileWriter {
         }
 
         @Override
-        public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(file).toString());
-            if(fileFilter.matches(targetPath)) {
+            if (fileFilter.matches(targetPath)) {
                 Files.copy(file, targetPath, copyOption);
             }
             return FileVisitResult.CONTINUE;

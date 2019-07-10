@@ -25,6 +25,7 @@ dependencies {
     implementation project(':testerina:testerina-core')
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
+    testCompile 'com.moandjiezana.toml:toml4j'
 }
 
 test {

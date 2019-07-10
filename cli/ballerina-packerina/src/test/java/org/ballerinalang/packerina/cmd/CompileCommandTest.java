@@ -18,10 +18,14 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import com.moandjiezana.toml.Toml;
+import org.ballerinalang.toml.model.Balo;
+import org.ballerinalang.toml.model.Module;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -62,9 +66,16 @@ public class CompileCommandTest extends CommandTest {
         Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDir));
     }
 
-    @Test(description = "Test Compile Command in a Project")
+    @Test(description = "Test Compile Command in a Project", enabled = false)
     public void testCompileCommand() throws IOException {
         Path projectDirectory = tmpDir.resolve("compileTest");
+
+        // Create jar files for the test since we cannot commit jar files to git.
+        Path libs = projectDirectory.resolve("libs");
+        Files.createDirectory(libs);
+        Files.createFile(libs.resolve("toml4j.jar"));
+        Files.createFile(libs.resolve("swagger.jar"));
+        Files.createFile(libs.resolve("json.jar"));
 
         // Compile the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
@@ -92,11 +103,11 @@ public class CompileCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
                 "Check if balo directory exists");
         // {module}-{lang spec version}-{platform}-{version}.balo
-        String baloName = "mymodule-2019R3-java12-0.1.0.balo";
+        String baloName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java-0.1.0.balo";
         this.moduleBalo = target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
-                .resolve("mymodule.balo");
-//        Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
-//                "Check if balo file exists");
+                .resolve(baloName);
+        Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
+                "Check if balo file exists");
 
         Path lockFile = projectDirectory.resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertTrue(Files.exists(lockFile), "Check if lock file is created");
@@ -104,7 +115,7 @@ public class CompileCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"})
+    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -132,7 +143,16 @@ public class CompileCommandTest extends CommandTest {
                         Path moduleToml = metadata.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
                         Assert.assertTrue(Files.exists(moduleToml));
 
-                        // todo validate content of meta files
+                        // validate the content of the metafiles
+                        String moduleTomlContent = new String(Files.readAllBytes(moduleToml));
+                        String baloTomlContent = new String(Files.readAllBytes(baloToml));
+
+                        Module module = new Toml().read(moduleTomlContent).to(Module.class);
+                        Balo balo = new Toml().read(baloTomlContent).to(Balo.class);
+
+                        Assert.assertTrue(module.module_version.equals("0.1.0"));
+                        Assert.assertTrue(balo.balo_version.equals("1.0"));
+
                         Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                         Assert.assertTrue(Files.exists(srcDir));
 
@@ -168,6 +188,9 @@ public class CompileCommandTest extends CommandTest {
 
                         Path jarFile = platformLibDir.resolve("toml4j.jar");
                         Assert.assertTrue(Files.exists(jarFile));
+
+                        // check if MODULE.toml and BALO.toml can be serialise to
+
 
                     } catch (IOException ex) {
                         throw new AssertionError("Error while reading balo content");
@@ -232,18 +255,6 @@ public class CompileCommandTest extends CommandTest {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
             return FileVisitResult.CONTINUE;
-        }
-    }
-
-    static class TemplateException extends Exception {
-        public TemplateException(String message) {
-            super(message);
-        }
-    }
-
-    static class ModuleCreateException extends Exception {
-        public ModuleCreateException(String message) {
-            super(message);
         }
     }
 }
