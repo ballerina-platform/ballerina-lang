@@ -423,9 +423,6 @@ public class TypeChecker {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.JSON_TAG) {
-
-        }
         if (sourceType.getTag() != TypeTags.MAP_TAG) {
             return false;
         }

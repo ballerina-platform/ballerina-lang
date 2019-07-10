@@ -1031,7 +1031,8 @@ public class Types {
     private BAttachedFunction getNextFunc(BObjectType iteratorType) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
         Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals("next")).findFirst();
+                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
+                .findFirst();
         return nextFunc.orElse(null);
     }
 

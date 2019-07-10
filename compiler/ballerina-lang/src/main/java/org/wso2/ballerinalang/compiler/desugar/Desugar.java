@@ -2011,11 +2011,11 @@ public class Desugar extends BLangNodeVisitor {
         //
         // int[] $data$ = data;
         //
-        // any $iterator$ = $data$.iterator();
-        // map<T>? $result$ = $iterator$.next();
+        // abstract object {public function next() returns record {|int value;|}? $iterator$ = $data$.iterator();
+        // record {|int value;|}? $result$ = $iterator$.next();
         //
-        // while $result$ != () {
-        //     T i = $result$.value;
+        // while $result$ is record {|int value;|} {
+        //     int i = $result$.value;
         //     $result$ = $iterator$.next();
         //     ....
         //     [foreach node body]
@@ -3645,7 +3645,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFieldBasedAccess fieldBasedAccessExpression =
                 ASTBuilderUtil.createFieldAccessExpr(resultReferenceInVariableDef, valueIdentifier);
         fieldBasedAccessExpression.pos = foreach.pos;
-        fieldBasedAccessExpression.type = ((BRecordType) foreach.resultType).fields.get(0).type;
+        fieldBasedAccessExpression.type = foreach.varType;
         fieldBasedAccessExpression.originalType = fieldBasedAccessExpression.type;
         return fieldBasedAccessExpression;
     }
