@@ -55,7 +55,7 @@
             </class>
             <class name="org.ballerinalang.test.service.http.sample.ExpectContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPayloadTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>
+<!--            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>-->
             <class name="org.ballerinalang.test.service.http.sample.EcommerceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpOptionsTestCase"/>
@@ -238,17 +238,6 @@
 <!--    <test name="ballerina-security-tests" parallel="false">-->
 <!--        <classes>-->
 <!--            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
-
-<!--    <test name="ballerina-jms-tests" parallel="false">-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.jms.JmsConnectorTestCase"/>-->
 <!--        </classes>-->
 <!--    </test>-->
 

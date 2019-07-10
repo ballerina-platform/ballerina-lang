@@ -71,7 +71,6 @@ public abstract class JmsServiceCompilerPlugin extends AbstractTransportCompiler
             return;
         }
         validateFirstParameter(resource, paramDetails);
-
         if (!JmsConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
                                INVALID_RESOURCE_SIGNATURE_FOR + resource.getName().getValue() +

@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // This initializes a JMS connection with the provider. This example uses
@@ -23,7 +23,7 @@ public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
     // Keeps the JMS session alive until the message is received by the JMS provider.
     // If the message is not received within five seconds, the session times out.
-    var result = caller->receive(timeoutInMilliSeconds = 5000);
+    var result = caller->receive(timeoutInMilliSeconds = 30000);
 
     if (result is jms:Message) {
         // This is executed if the message is received.

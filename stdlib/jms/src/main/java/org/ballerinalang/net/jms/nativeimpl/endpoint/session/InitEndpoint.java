@@ -20,18 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
-import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Connection;
 import javax.jms.Session;
@@ -43,34 +40,23 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME)
-        }
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class InitEndpoint implements NativeCallableUnit {
+public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
+    public void execute(Context context) {
+    }
 
-        Struct sessionConfig = sessionBObject.getStructField(JmsConstants.SESSION_CONFIG);
-
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject,
-                                                                 JmsConstants.JMS_CONNECTION,
-                                                                 Connection.class,
-                                                                 context);
+    public static void initEndpoint(Strand strand, ObjectValue sessionObj, ObjectValue connectionObj) {
+        MapValue sessionConfig = sessionObj.getMapValue(JmsConstants.SESSION_CONFIG);
+        Connection connection = (Connection) connectionObj.getNativeData(JmsConstants.JMS_CONNECTION);
 
         Session session = JmsUtils.createSession(connection, sessionConfig);
-        sessionBObject.addNativeData(JmsConstants.JMS_SESSION, session);
+        sessionObj.addNativeData(JmsConstants.JMS_SESSION, session);
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
-    }
 }

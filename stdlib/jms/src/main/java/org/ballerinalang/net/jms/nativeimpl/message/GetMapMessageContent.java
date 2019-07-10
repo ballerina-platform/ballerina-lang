@@ -20,19 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -49,24 +45,23 @@ import javax.jms.Message;
  * Get text content of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
         functionName = "getMapMessageContent",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class GetMapMessageContent extends AbstractBlockingAction {
+public class GetMapMessageContent extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetMapMessageContent.class);
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> messageStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        Message jmsMessage = JmsUtils.getJMSMessage(messageStruct);
-        BMap<String, BValue> messageContent = new BMap<>();
+    public static Object getMapMessageContent(Strand strand, ObjectValue msgObj) {
+
+        Message jmsMessage = JmsUtils.getJMSMessage(msgObj);
+        MapValue<String, Object> messageContent = new MapValueImpl<>();
 
         try {
             if (jmsMessage instanceof MapMessage) {
@@ -76,15 +71,12 @@ public class GetMapMessageContent extends AbstractBlockingAction {
                     String key = (String) enumeration.nextElement();
                     Object value = mapMessage.getObject(key);
                     if (value instanceof String || value instanceof Character) {
-                        messageContent.put(key, new BString(String.valueOf(value)));
-                    } else if (value instanceof Boolean) {
-                        messageContent.put(key, new BBoolean((Boolean) value));
-                    } else if (value instanceof Integer || value instanceof Long || value instanceof Short) {
-                        messageContent.put(key, new BInteger((Long) value));
-                    } else if (value instanceof Float || value instanceof Double) {
-                        messageContent.put(key, new BFloat((Double) value));
+                        messageContent.put(key, String.valueOf(value));
+                    } else if (value instanceof Boolean || value instanceof Integer || value instanceof Long ||
+                            value instanceof Short || value instanceof Float || value instanceof Double) {
+                        messageContent.put(key, value);
                     } else if (value instanceof byte[]) {
-                        messageContent.put(key, new BValueArray((byte[]) value));
+                        messageContent.put(key, new ArrayValue((byte[]) value));
                     } else {
                         log.error("Couldn't set invalid data type to map : {}", value.getClass().getSimpleName());
                     }
@@ -93,13 +85,13 @@ public class GetMapMessageContent extends AbstractBlockingAction {
                 log.error("JMSMessage is not a Map message. ");
             }
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when retrieving JMS message content.", context, e);
+            return BallerinaAdapter.getError("Error when retrieving JMS message content.", e);
         }
 
         if (log.isDebugEnabled()) {
             log.debug("Get content from the JMS message");
         }
-
-        context.setReturnValues(messageContent);
+        return messageContent;
     }
+
 }
