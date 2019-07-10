@@ -48,51 +48,56 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             boolean isPublic = node.has(Tokens.PUBLIC)
                     && node.get(Tokens.PUBLIC).getAsBoolean();
+            boolean isConst = node.has("constant") && node.get("constant").getAsBoolean();
+
             String indentation = this.getIndentation(formatConfig, false);
 
             this.preserveHeight(ws, indentation);
 
-            int attachPointCounter = 0;
-            for (int i = 0; i < ws.size(); i++) {
-                JsonObject annotationWS = ws.get(i).getAsJsonObject();
-                String text = annotationWS.get(FormattingConstants.TEXT).getAsString();
-                if (this.noHeightAvailable(annotationWS.get(FormattingConstants.WS).getAsString())) {
-                    if (i == 0) {
-                        // If annotation or documentation attachments exists add only one new line.
+            // Iterate and update whitespaces of the node.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    if (text.equals(Tokens.PUBLIC)) {
+                        // If annotation attachments exists add only one new line.
                         // Else add given number of new lines.
                         String whiteSpace = ((node.has("annotationAttachments") &&
-                                node.getAsJsonArray("annotationAttachments").size() > 0) ||
-                                node.has("markdownDocumentationAttachment") ||
-                                (node.has("deprecatedAttachments") &&
-                                        node.getAsJsonArray("deprecatedAttachments").size() > 0))
+                                node.getAsJsonArray("annotationAttachments").size() > 0))
                                 ? (FormattingConstants.NEW_LINE + indentation)
                                 : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                 indentation);
-                        annotationWS.addProperty(FormattingConstants.WS, whiteSpace);
-                    } else if (isPublic && text.equals(Tokens.ANNOTATION)) {
-                        annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    } else if (text.equals(Tokens.LESS_THAN)) {
-                        annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        ++attachPointCounter;
-                    } else if (text.equals(Tokens.COMMA)) {
-                        annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    } else if (text.equals(Tokens.GREATER_THAN)) {
-                        annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                        attachPointCounter = 0;
-                    } else {
-                        if (attachPointCounter == 1) {
-                            annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                            ++attachPointCounter;
-                        } else if (attachPointCounter > 1) {
-                            annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                            ++attachPointCounter;
+                        currentWS.addProperty(FormattingConstants.WS, whiteSpace);
+                    } else if (text.equals(Tokens.CONST)) {
+                        if (!isPublic) {
+                            // If annotation attachments exists add only one new line.
+                            // Else add given number of new lines.
+                            String whiteSpace = ((node.has("annotationAttachments") &&
+                                    node.getAsJsonArray("annotationAttachments").size() > 0))
+                                    ? (FormattingConstants.NEW_LINE + indentation)
+                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
+                                    .getAsInt()) + indentation);
+                            currentWS.addProperty(FormattingConstants.WS, whiteSpace);
                         } else {
-                            if (text.equals(Tokens.SEMICOLON)) {
-                                annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                            } else {
-                                annotationWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                            }
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         }
+                    } else if (text.equals(Tokens.ANNOTATION)) {
+                        if (!isPublic && !isConst) {
+                            // If annotation attachments exists add only one new line.
+                            // Else add given number of new lines.
+                            String whiteSpace = ((node.has("annotationAttachments") &&
+                                    node.getAsJsonArray("annotationAttachments").size() > 0))
+                                    ? (FormattingConstants.NEW_LINE + indentation)
+                                    : (this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
+                                    .getAsInt()) + indentation);
+                            currentWS.addProperty(FormattingConstants.WS, whiteSpace);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
+                    } else if (text.equals(Tokens.SEMICOLON) || text.equals(Tokens.COMMA)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }
@@ -104,6 +109,9 @@ public class FormattingNodeTree {
                         0, false, this.getWhiteSpaceCount(indentation), false);
                 typeNode.add(FormattingConstants.FORMATTING_CONFIG, typeNodeFormattingConfig);
             }
+
+            // Update annotation attachment formatting.
+            modifyAnnotationAttachments(node, formatConfig, indentation);
         }
     }
 
@@ -118,20 +126,22 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
             // Preserve any comments or new lines that already available.
-            this.preserveHeight(node.getAsJsonArray(FormattingConstants.WS), indentWithParentIndentation);
+            this.preserveHeight(node.getAsJsonArray(FormattingConstants.WS), useParentIndentation
+                    ? indentWithParentIndentation : indentation);
 
             // Update whitespace for annotation symbol, @.
             JsonObject annotationSymbolWhitespace = ws.get(0).getAsJsonObject();
             if (this.noHeightAvailable(annotationSymbolWhitespace.get(FormattingConstants.WS).getAsString())) {
-                if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
-                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
-                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                } else if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
                     annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
                             this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                     indentWithParentIndentation);
+                } else {
+                    annotationSymbolWhitespace.addProperty(FormattingConstants.WS,
+                            this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
                 }
             } else if (this.noNewLine(annotationSymbolWhitespace.get(FormattingConstants.WS)
                     .getAsString().charAt(0) + "")) {
@@ -158,6 +168,38 @@ public class FormattingNodeTree {
                         this.getWhiteSpaceCount(indentation), false,
                         this.getWhiteSpaceCount(indentWithParentIndentation), false);
                 expression.add(FormattingConstants.FORMATTING_CONFIG, expressionFormatConfig);
+            }
+        }
+    }
+
+    /**
+     * format annotation access expression node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatAnnotAccessExpressionNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            // Preserve already available new lines.
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
+
+            // Iterate and update whitespaces in the node.
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                }
+            }
+
+            // Handle whitespaces for the expression.
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                node.getAsJsonObject(FormattingConstants.EXPRESSION)
+                        .add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
             }
         }
     }
@@ -5502,20 +5544,17 @@ public class FormattingNodeTree {
                 for (JsonElement wsItem : ws) {
                     JsonObject currentWS = wsItem.getAsJsonObject();
                     if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                         // Update opening parentheses whitespace.
-                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_PARENTHESES)) {
+                        if (text.equals(Tokens.OPENING_PARENTHESES)) {
                             currentWS.addProperty(FormattingConstants.WS,
                                     this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                             indentation);
-                        }
-
-                        // Update pipe symbol whitespace.
-                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals("|")) {
+                        } else if (text.equals("|")) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                        }
-
-                        // Update closing parentheses whitespace.
-                        if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_PARENTHESES)) {
+                        } else if (text.equals(Tokens.QUESTION_MARK)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        } else if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_PARENTHESES)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                         }
                     }
@@ -5651,7 +5690,11 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
 
             if (node.has(FormattingConstants.VARIABLE)) {
-                node.getAsJsonObject(FormattingConstants.VARIABLE).add(FormattingConstants.FORMATTING_CONFIG,
+                JsonObject variable = node.getAsJsonObject(FormattingConstants.VARIABLE);
+                if (node.has("param")) {
+                    variable.add("param", node.get("param"));
+                }
+                variable.add(FormattingConstants.FORMATTING_CONFIG,
                         formatConfig);
             }
 
@@ -5883,16 +5926,16 @@ public class FormattingNodeTree {
                             if (i == 0) {
                                 annotationAttachmentFormattingConfig = this.getFormattingConfig(0, 0,
                                         this.getWhiteSpaceCount(indentation), false,
-                                        this.getWhiteSpaceCount(indentation), false);
+                                        this.getWhiteSpaceCount(indentWithParentIndentation), true);
                             } else {
                                 annotationAttachmentFormattingConfig = this.getFormattingConfig(0, 1,
                                         this.getWhiteSpaceCount(indentation), false,
-                                        this.getWhiteSpaceCount(indentation), false);
+                                        this.getWhiteSpaceCount(indentWithParentIndentation), true);
                             }
                         } else {
                             annotationAttachmentFormattingConfig = this.getFormattingConfig(1, 0,
                                     this.getWhiteSpaceCount(indentation), false,
-                                    this.getWhiteSpaceCount(indentation), false);
+                                    this.getWhiteSpaceCount(indentWithParentIndentation), false);
                         }
                         annotationAttachment.getAsJsonObject().add(FormattingConstants.FORMATTING_CONFIG,
                                 annotationAttachmentFormattingConfig);
@@ -6395,7 +6438,13 @@ public class FormattingNodeTree {
     private void modifyReturnTypeAnnotations(JsonObject node, String indentation) {
         if (node.has("returnTypeAnnotationAttachments")) {
             JsonArray returnTypeAnnotations = node.getAsJsonArray("returnTypeAnnotationAttachments");
-            iterateAndFormatMembers(indentation, returnTypeAnnotations);
+
+            for (JsonElement element : returnTypeAnnotations) {
+                JsonObject returnTypeAnnotation = element.getAsJsonObject();
+                JsonObject memberFormatConfig = this.getFormattingConfig(0, 1,
+                        0, false, this.getWhiteSpaceCount(indentation), true);
+                returnTypeAnnotation.add(FormattingConstants.FORMATTING_CONFIG, memberFormatConfig);
+            }
         }
     }
 
@@ -6461,11 +6510,11 @@ public class FormattingNodeTree {
                     annotationFormattingConfig = this.getFormattingConfig(
                             formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(), 0,
                             formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
-                            false, this.getWhiteSpaceCount(indentation), false);
+                            false, this.getWhiteSpaceCount(indentation), true);
                 } else {
                     annotationFormattingConfig = this.getFormattingConfig(1, 0,
                             formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
-                            false, this.getWhiteSpaceCount(indentation), false);
+                            false, this.getWhiteSpaceCount(indentation), true);
                 }
 
                 annotationAttachment.add(FormattingConstants.FORMATTING_CONFIG, annotationFormattingConfig);

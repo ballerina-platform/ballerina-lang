@@ -3755,6 +3755,7 @@ public class BLangPackageBuilder {
         BLangNameReference nameReference = nameReferenceStack.pop();
         annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
+        annotAccessExpr.addWS(nameReference.ws);
         addExpressionNode(annotAccessExpr);
     }
 

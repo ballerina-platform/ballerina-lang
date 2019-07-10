@@ -114,7 +114,7 @@ public class FormattingTest {
                 {"expectedTypeDefinition.bal", "typeDefinition.bal"},
                 {"expectedTable.bal", "table.bal"},
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
-//                {"expectedAnnotation.bal", "annotation.bal"},
+                {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
                 {"expectedAsyncExpr.bal", "asyncExpr.bal"},
                 {"expectedBindingPatterns.bal", "bindingPatterns.bal"},
