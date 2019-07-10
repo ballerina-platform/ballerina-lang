@@ -50,7 +50,7 @@ public class ForeachMapTests {
     @Test
     public void testMapWithArityOne() {
         StringBuilder sb = new StringBuilder();
-        values.forEach((key, value) -> sb.append("_").append(":").append(value).append(" "));
+        values.forEach((key, value) -> sb.append(value).append(" "));
         BValue[] returns = BRunUtil.invoke(program, "testMapWithArityOne");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), sb.toString());
@@ -59,7 +59,7 @@ public class ForeachMapTests {
     @Test
     public void testMapWithArityTwo() {
         StringBuilder sb = new StringBuilder();
-        values.forEach((key, value) -> sb.append(key).append(":").append(value).append(" "));
+        values.forEach((key, value) -> sb.append(value).append(" "));
         BValue[] returns = BRunUtil.invoke(program, "testMapWithArityTwo");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), sb.toString());
@@ -67,7 +67,7 @@ public class ForeachMapTests {
 
     @Test
     public void testDeleteWhileIteration() {
-        String result = "a:1A a:1A b:2B b:2B ";
+        String result = "1A 2B ";
         BValue[] returns = BRunUtil.invoke(program, "testDeleteWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);
@@ -75,9 +75,9 @@ public class ForeachMapTests {
 
     @Test
     public void testAddWhileIteration() {
-        String result = "a:1A a:1A b:2B c:3C aa:1A1A \n" +
-                        "b:2B a:1A b:2B c:3C aa:1A1A bb:2B2B \n" +
-                        "c:3C a:1A b:2B c:3C aa:1A1A bb:2B2B cc:3C3C \n";
+        String result = "1A 1A 2B 3C 1A1A \n" +
+                        "2B 1A 2B 3C 1A1A 2B2B \n" +
+                        "3C 1A 2B 3C 1A1A 2B2B 3C3C \n";
         BValue[] returns = BRunUtil.invoke(program, "testAddWhileIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), result);

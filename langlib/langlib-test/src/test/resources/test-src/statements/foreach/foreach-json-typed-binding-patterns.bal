@@ -28,7 +28,7 @@ function testJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var v in <map<json>>jdata {
+    foreach var v in <map<json>>jdata.cloneReadOnly() {
         concatIntStringAny(i, v);
         i += 1;
     }
@@ -39,7 +39,7 @@ function testJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach json v in <map<json>>jdata {
+    foreach json v in <map<json>>jdata.cloneReadOnly() {
         concatIntStringAny(i, v);
         i += 1;
     }
@@ -142,7 +142,7 @@ function testIteratingCompleteJsonWithoutType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach var v in <map<json>>jdata {
+    foreach var v in <map<json>>jdata.cloneReadOnly() {
         if v is json[] {
             foreach var w in v {
                 concatIntStringAny(i, w);
@@ -159,7 +159,7 @@ function testIteratingCompleteJsonWithType() returns string|error {
     output = "";
 
     int i = 0;
-    foreach json v in <map<json>>jdata {
+    foreach json v in <map<json>>jdata.cloneReadOnly() {
         if v is json[] {
             foreach json w in v {
                 concatIntStringAny(i, w);
@@ -180,7 +180,7 @@ function testEmptyJsonIteration() returns string|error {
     json j = {};
 
     int i = 0;
-    foreach var v in <map<json>>j {
+    foreach var v in <map<json>>j.cloneReadOnly() {
         concatIntStringAny(i, v);
         i += 1;
     }

@@ -202,8 +202,6 @@ public class TypeChecker {
             return BTypes.typeBoolean;
         } else if (value instanceof Byte || value instanceof Integer) {
             return BTypes.typeByte;
-        } else if (value instanceof MapValueImpl && ((RefValue) value).getType().getTag() == TypeTags.JSON_TAG) {
-            return BTypes.typeJsonMap;
         } else {
             return ((RefValue) value).getType();
         }

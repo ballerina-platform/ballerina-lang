@@ -3559,6 +3559,7 @@ public class Desugar extends BLangNodeVisitor {
         iteratorInvocation.type = langLibMethodSymbol.retType;
         iteratorInvocation.argExprs = Lists.of(dataReference);
         iteratorInvocation.requiredArgs = iteratorInvocation.argExprs;
+        iteratorInvocation.langLibInvocation = true;
         BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
                 langLibMethodSymbol.retType, this.env.scope.owner);
 
@@ -3601,6 +3602,8 @@ public class Desugar extends BLangNodeVisitor {
         nextInvocation.pos = foreach.pos;
         nextInvocation.name = nextIdentifier;
         nextInvocation.expr = iteratorReferenceInNext;
+        nextInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol));
+        nextInvocation.argExprs = nextInvocation.requiredArgs;
         nextInvocation.symbol = nextFuncSymbol;
         nextInvocation.type = nextFuncSymbol.retType;
         return nextInvocation;

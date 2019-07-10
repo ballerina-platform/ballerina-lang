@@ -43,42 +43,42 @@ public class ForeachRecordTypedBindingPatternsTests {
     public void testSimpleRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testSimpleRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:1 1:s:A 2:f:1.0 ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testSimpleRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testSimpleRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:1 1:s:A 2:f:1.0 ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:A 2:1.0 ");
     }
 
     @Test
     public void testRecordInRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:2 1:s:B 2:d:{i:1, s:\"A\", f:1.0} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:i=1 s=A f=1.0 ");
     }
 
     @Test
     public void testRecordInRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testRecordInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:2 1:s:B 2:d:{i:1, s:\"A\", f:1.0} ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 1:B 2:i=1 s=A f=1.0 ");
     }
 
     @Test
     public void testTupleInRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:1 1:t:(2, \"A\") ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:2 A ");
     }
 
     @Test
     public void testTupleInRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i:1 1:t:(2, \"A\") ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:2 A ");
     }
 
     @Test
