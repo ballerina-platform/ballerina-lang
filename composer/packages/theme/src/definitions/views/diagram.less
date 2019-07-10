@@ -27,9 +27,92 @@
     display: inline-block;
     min-width: 100%;
     
+    .menu-icon {
+        font-size: 25px;
+        padding: 10px;
+        color: #333;
+        position: fixed;
+        right: 2em;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+
+    .ui.grid {
+        padding-top: 0;
+
+        &.menu-container {
+            width: 410px;
+            height: auto;
+            box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -webkit-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -moz-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            border: 1px solid #ccc;
+            margin-right: 2px;
+            position: fixed;
+            right: 2em;
+            background: ~"@{@{color}-diagram-background-color}";
+            z-index: 1000;
+            padding-top: 0;
+            margin-top: 0;
+
+            .menu-row {
+                margin: 0;
+                padding: 0 5px;
+                height: 34px;
+                margin: 5px 0;
+
+                .menu-label {
+                    font-weight: 500;
+                    padding-top: 10px;
+                }
+
+                .selection-row {
+                    background: ~"@{@{color}-diagram-menu-row-background}";
+                    padding: 0;
+                    .menu-dropdown-small {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        padding: 7px 15px;
+                        width: 80px;
+                    }
+                    .icon {
+                        font-size: 10px;
+                        padding:0 10px;
+                        width: 30px;
+                        cursor: pointer;
+
+                        &:hover {
+                            opacity: 0.5;
+                        }
+                    }
+                    .menu-dropdown-mid {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        padding: 7px 15px;
+                        width: 150px;
+                    }
+                    .ui.dropdown .menu {
+                        box-shadow: none;
+                        width:148px
+                    }
+                }
+                .menu-control {
+                    padding: 0;
+                    
+                    .icon {
+                        font-size: 12px;
+                        width: 30px;
+                        margin-top: 8px; 
+                    }
+                }
+            }
+        }
+    }
+    
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
-        margin: 4em 2em;
+        margin: 2em;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -157,13 +240,10 @@
                             text {
                                 cursor: pointer;
                             }
+                            &:hover {
+                                visibility: visible;
+                            }
                         }
-                    }
-                    .statement:hover > .expander {
-                        visibility: visible;
-                    }
-                    .expander:hover {
-                        visibility: visible;
                     }
                     .action-invocation {
                         line {
