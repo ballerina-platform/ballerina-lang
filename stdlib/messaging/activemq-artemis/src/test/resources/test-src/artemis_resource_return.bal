@@ -22,7 +22,7 @@ import ballerina/artemis;
     }
 }
 service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) {
-    resource function xyz(artemis:Message message) returns int {
+    resource function onMessage(artemis:Message message) returns int {
         return 4;
     }
 }

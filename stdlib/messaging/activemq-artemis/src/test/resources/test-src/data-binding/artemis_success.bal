@@ -24,7 +24,7 @@ listener artemis:Listener artemisListener = new({host:"localhost", port:61616});
     }
 }
 service artemisConsumer on artemisListener {
-    resource function xyz(artemis:Message message, string data) returns error? {
+    resource function onMessage(artemis:Message message, string data) returns error? {
     }
 }
 
@@ -34,7 +34,7 @@ service artemisConsumer on artemisListener {
     }
 }
 service artemisConsumer2 on artemisListener {
-    resource function xyz(artemis:Message message, json data) returns error? {
+    resource function onMessage(artemis:Message message, json data) returns error? {
     }
 }
 
@@ -44,7 +44,7 @@ service artemisConsumer2 on artemisListener {
     }
 }
 service artemisConsumer3 on artemisListener {
-    resource function xyz(artemis:Message message, xml data) returns error? {
+    resource function onMessage(artemis:Message message, xml data) returns error? {
     }
 }
 
@@ -59,7 +59,7 @@ type Person record {
     }
 }
 service artemisConsumer4 on artemisListener {
-    resource function xyz(artemis:Message message, Person data) returns error? {
+    resource function onMessage(artemis:Message message, Person data) returns error? {
     }
 }
 
@@ -69,7 +69,7 @@ service artemisConsumer4 on artemisListener {
     }
 }
 service artemisConsumer6 on artemisListener {
-    resource function xyz(artemis:Message message, byte[] data) returns error? {
+    resource function onMessage(artemis:Message message, byte[] data) returns error? {
     }
 }
 
@@ -79,7 +79,7 @@ service artemisConsumer6 on artemisListener {
     }
 }
 service artemisConsumer7 on artemisListener {
-    resource function xyz(artemis:Message message, map<string> data) returns error? {
+    resource function onMessage(artemis:Message message, map<string> data) returns error? {
     }
 }
 
@@ -89,7 +89,7 @@ service artemisConsumer7 on artemisListener {
     }
 }
 service artemisConsumer8 on artemisListener {
-    resource function xyz(artemis:Message message, map<int> data) returns error? {
+    resource function onMessage(artemis:Message message, map<int> data) returns error? {
     }
 }
 
@@ -99,7 +99,7 @@ service artemisConsumer8 on artemisListener {
     }
 }
 service artemisConsumer9 on artemisListener {
-    resource function xyz(artemis:Message message, map<float> data) returns error? {
+    resource function onMessage(artemis:Message message, map<float> data) returns error? {
     }
 }
 
@@ -109,7 +109,7 @@ service artemisConsumer9 on artemisListener {
     }
 }
 service artemisConsumer10 on artemisListener {
-    resource function xyz(artemis:Message message, map<byte> data) returns error? {
+    resource function onMessage(artemis:Message message, map<byte> data) returns error? {
     }
 }
 
@@ -119,7 +119,7 @@ service artemisConsumer10 on artemisListener {
     }
 }
 service artemisConsumer11 on artemisListener {
-    resource function xyz(artemis:Message message, map<byte[]> data) returns error? {
+    resource function onMessage(artemis:Message message, map<byte[]> data) returns error? {
     }
 }
 
@@ -129,7 +129,7 @@ service artemisConsumer11 on artemisListener {
     }
 }
 service artemisConsumer12 on artemisListener {
-    resource function xyz(artemis:Message message, map<boolean> data) returns error? {
+    resource function onMessage(artemis:Message message, map<boolean> data) returns error? {
     }
 }
 
@@ -139,6 +139,6 @@ service artemisConsumer12 on artemisListener {
     }
 }
 service artemisConsumer13 on artemisListener {
-    resource function xyz(artemis:Message message) returns error? {
+    resource function onMessage(artemis:Message message) returns error? {
     }
 }

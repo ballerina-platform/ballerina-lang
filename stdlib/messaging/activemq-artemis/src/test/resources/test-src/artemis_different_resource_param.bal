@@ -22,6 +22,6 @@ import ballerina/artemis;
     }
 }
 service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) {
-    resource function xyz(string message) returns error? {
+    resource function onMessage(string message) returns error? {
     }
 }

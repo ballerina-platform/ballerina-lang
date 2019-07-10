@@ -68,27 +68,35 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
 
         if (count == 0) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "There has to be an artemis:ServiceConfig annotation declared for service");
+                    "There has to be an artemis:ServiceConfig annotation declared for service");
         }
 
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        if (resources.size() > 1) {
+        if (resources.size() > 2) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "Only one resource is allowed in the service");
+                    "Only maximum of two resources are allowed in the service");
         }
-        validate(resources.get(0));
+        resources.forEach(
+                res -> validate(res)
+        );
     }
 
     private void validate(BLangFunction resource) {
+        if (!resource.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)
+                && !resource.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
+                    "Invalid resource name " + resource.getName().getValue() + " in service, only " +
+                            ArtemisConstants.ON_MESSAGE + " and " + ArtemisConstants.ON_ERROR + " are allowed");
+        }
         if (!isResourceReturnsErrorOrNil(resource)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "Invalid return type: expected error?");
         }
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (paramDetails == null || paramDetails.isEmpty() || paramDetails.size() > 2) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               INVALID_RESOURCE_SIGNATURE_FOR + resource.getName().getValue() +
-                                       " resource: Unexpected parameter count(expected parameter count 1 or 2)");
+                    INVALID_RESOURCE_SIGNATURE_FOR + resource.getName().getValue() +
+                            " resource: Unexpected parameter count(expected parameter count 1 or 2)");
             return;
         }
         if (!ArtemisConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
@@ -101,19 +109,26 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
     }
 
     private void validateSecondParam(BLangFunction resource, List<BLangSimpleVariable> paramDetails) {
-        BType secondParamType = paramDetails.get(1).type;
-        int secondParamTypeTag = secondParamType.tag;
-        if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
-                secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
-                secondParamTypeTag != TypeTags.MAP && checkArrayType(secondParamType)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource in service " +
-                    ": The second parameter should be a string, json, xml, byte[], map or a record type");
-        }
-        if (secondParamTypeTag == TypeTags.MAP && checkMapConstraint(secondParamType)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource in service " +
-                    ": The second parameter should be a map of string, int, float, byte, boolean or byte[]");
+        if (ArtemisConstants.ON_MESSAGE.equals(resource.getName().getValue())) {
+            BType secondParamType = paramDetails.get(1).type;
+            int secondParamTypeTag = secondParamType.tag;
+            if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
+                    secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
+                    secondParamTypeTag != TypeTags.MAP && checkArrayType(secondParamType)) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() + " resource in service " +
+                        ": The second parameter should be a string, json, xml, byte[], map or a record type");
+            }
+            if (secondParamTypeTag == TypeTags.MAP && checkMapConstraint(secondParamType)) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() + " resource in service " +
+                        ": The second parameter should be a map of string, int, float, byte, boolean or byte[]");
+            }
+        } else if (ArtemisConstants.ON_ERROR.equals(resource.getName().getValue()) &&
+                !"error".equals(paramDetails.get(1).type.toString())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format(
+                    "Invalid resource signature for %s resource in service : The second parameter should be an error",
+                    resource.getName().getValue()));
         }
     }
 
@@ -133,5 +148,3 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
         return false;
     }
 }
-
-
