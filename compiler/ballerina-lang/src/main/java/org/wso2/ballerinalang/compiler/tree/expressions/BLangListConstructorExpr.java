@@ -70,6 +70,7 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
 
         public BLangArrayLiteral() {
             super();
+            this.exprs = new ArrayList<>();
         }
 
         public BLangArrayLiteral(DiagnosticPos pos, List<BLangExpression> exprs, BType tupleType) {

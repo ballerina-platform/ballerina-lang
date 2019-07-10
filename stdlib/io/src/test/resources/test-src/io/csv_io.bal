@@ -53,7 +53,7 @@ function initOpenCsvChannel(string filePath, string encoding, io:Separator field
     }
 }
 
-function nextRecord() returns @tainted (string[]|error) {
+function nextRecord() returns @tainted string[]|error {
     var cha = rch;
     if(cha is io:ReadableCSVChannel){
         var result = cha.getNext();
@@ -92,7 +92,7 @@ function hasNextRecord() returns boolean? {
     }
 }
 
-function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted (float|error) {
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float|error {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
