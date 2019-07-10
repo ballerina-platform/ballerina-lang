@@ -117,9 +117,9 @@ public class LangLibTupleTest {
         assertEquals(((BFloat) returns[0]).floatValue(), 13.8);
     }
 
-//    @Test
-//    public void testIterableOpChain() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
-//        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
-//    }
+    @Test
+    public void testIterableOpChain() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+    }
 }

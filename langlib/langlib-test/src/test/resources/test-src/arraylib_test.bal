@@ -67,36 +67,43 @@ function testReduce() returns float {
     return avg;
 }
 
-//type Grade "A+"|"A"|"A-"|"B+"|"B"|"B-"|"C"|"F";
-//
-//function testIterableOpChain() returns float {
-//    [Grade, int][] grades = [["A+", 2], ["A-", 3], ["B", 3], ["C", 2]];
-//
-//    int totalCredits = grades.reduce(function (int accum, [Grade, int] grade) returns int {
-//         return accum + grade[1];
-//     }, 0);
-//
-//    float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
-//        return accum + (gradePoint[0] * gradePoint[1]) / totalCredits;
-//    }, 0.0);
-//
-//    return gpa;
+//function testReduce2() returns int[] {
+//    int[][] arr = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+//    return arr.reduce(function (int[] accum, int[] val) returns int[] {
+//        return [...accum, ...val];
+//    });
 //}
-//
-//function gradeToValue([Grade, int] grade) returns [float, int] {
-//    match grade[0] {
-//        "A+" => return [4.2, grade[1]];
-//        "A" => return [4.0, grade[1]];
-//        "A-" => return [3.7, grade[1]];
-//        "B+" => return [3.3, grade[1]];
-//        "B" => return [3.0, grade[1]];
-//        "B-" => return [2.7, grade[1]];
-//        "C" => return [2.0, grade[1]];
-//        "F" => return [0.0, grade[1]];
-//    }
-//    error e = error("Invalid grade: " + <string>grade[0]);
-//    panic e;
-//}
+
+type Grade "A+"|"A"|"A-"|"B+"|"B"|"B-"|"C"|"F";
+
+function testIterableOpChain() returns float {
+    [Grade, int][] grades = [["A+", 2], ["A-", 3], ["B", 3], ["C", 2]];
+
+    int totalCredits = grades.reduce(function (int accum, [Grade, int] grade) returns int {
+         return accum + grade[1];
+     }, 0);
+
+    float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
+        return accum + (gradePoint[0] * gradePoint[1]) / totalCredits;
+    }, 0.0);
+
+    return gpa;
+}
+
+function gradeToValue([Grade, int] grade) returns [float, int] {
+    match grade[0] {
+        "A+" => return [4.2, grade[1]];
+        "A" => return [4.0, grade[1]];
+        "A-" => return [3.7, grade[1]];
+        "B+" => return [3.3, grade[1]];
+        "B" => return [3.0, grade[1]];
+        "B-" => return [2.7, grade[1]];
+        "C" => return [2.0, grade[1]];
+        "F" => return [0.0, grade[1]];
+    }
+    error e = error("Invalid grade: " + <string>grade[0]);
+    panic e;
+}
 
 //function testIndexOf() returns [int?, int?] {
 //    anydata[] arr = [10, "foo", 12.34, true, <map<string>>{"k":"Bar"}];

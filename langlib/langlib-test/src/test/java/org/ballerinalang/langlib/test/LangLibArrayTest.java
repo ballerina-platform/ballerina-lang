@@ -31,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 /**
  * Test cases for the lang.array library.
@@ -140,10 +139,30 @@ public class LangLibArrayTest {
     }
 
 //    @Test
-//    public void testIterableOpChain() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
-//        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+//    public void testReduce2() {
+//        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testReduce2");
+//
+//        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+//        BValueArray arr = (BValueArray) returns[0];
+//
+//        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+//        assertEquals(arr.size(), 9);
+//        assertEquals(arr.getInt(0), 1);
+//        assertEquals(arr.getInt(1), 2);
+//        assertEquals(arr.getInt(2), 3);
+//        assertEquals(arr.getInt(3), 4);
+//        assertEquals(arr.getInt(4), 5);
+//        assertEquals(arr.getInt(5), 6);
+//        assertEquals(arr.getInt(6), 7);
+//        assertEquals(arr.getInt(7), 8);
+//        assertEquals(arr.getInt(8), 9);
 //    }
+
+    @Test
+    public void testIterableOpChain() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+    }
 
 //    @Test
 //    public void testIndexOf() {
