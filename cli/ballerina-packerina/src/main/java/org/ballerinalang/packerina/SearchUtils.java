@@ -43,7 +43,7 @@ public class SearchUtils {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        Optional<RuntimeException> executionResult = executor.executeMainFunction("packaging_search",
+        Optional<RuntimeException> executionResult = executor.executeMainFunction("module_search",
                 RepoUtils.getRemoteRepoURL(), query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
                 proxy.getPassword(), RepoUtils.getTerminalWidth());
         executionResult.ifPresent(e -> ERROR_STREAM.println(e.getMessage()));

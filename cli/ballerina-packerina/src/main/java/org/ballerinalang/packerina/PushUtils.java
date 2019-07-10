@@ -163,7 +163,7 @@ public class PushUtils {
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
     
-            Optional<RuntimeException> execute = executor.executeMainFunction("packaging_push",
+            Optional<RuntimeException> execute = executor.executeMainFunction("module_push",
                     accessToken, mdFileContent, description, repositoryURL, authors, keywords,
                     license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion,
                     proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
@@ -204,7 +204,7 @@ public class PushUtils {
                                                  "\nAuto update failed. Please visit https://central.ballerina.io");
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
-            executor.executeService("packaging_token_updater");
+            executor.executeService("module_cli_token_updater");
             
             boolean waitForToken = true;
             while (waitForToken) {

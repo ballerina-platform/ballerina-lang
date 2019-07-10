@@ -118,7 +118,7 @@ public class URIConverter implements Converter<URI> {
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
             String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            Optional<RuntimeException> execute = executor.executeMainFunction("packaging_pull",
+            Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
                     u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                     supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
