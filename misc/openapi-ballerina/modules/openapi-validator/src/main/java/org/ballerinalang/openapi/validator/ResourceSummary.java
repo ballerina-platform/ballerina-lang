@@ -32,6 +32,7 @@ import java.util.Map;
 class ResourceSummary {
     private Diagnostic.DiagnosticPosition resourcePosition;
     private String path;
+    private String body;
     private Diagnostic.DiagnosticPosition pathPosition;
     private List<String> methods;
     private Diagnostic.DiagnosticPosition methodsPosition;
@@ -141,5 +142,13 @@ class ResourceSummary {
 
     public BLangSimpleVariable getParameter(String name) {
         return this.parameters.get(name);
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 }
