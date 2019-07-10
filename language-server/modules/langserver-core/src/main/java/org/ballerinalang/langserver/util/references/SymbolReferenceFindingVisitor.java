@@ -231,6 +231,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos = new DiagnosticPos(typeDefPos.src, typeDefPos.sLine, typeDefPos.sLine, sCol, eCol);
             this.addSymbol(typeDefinition, typeDefinition.symbol, true, pos);
         }
+        typeDefinition.annAttachments.forEach(this::acceptNode);
 
         // Visit the type node
         this.acceptNode(typeDefinition.typeNode);
@@ -674,6 +675,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
+        annotationNode.annAttachments.forEach(this::acceptNode);
         if (annotationNode.name.value.equals(this.tokenName)) {
             DiagnosticPos nodePos = annotationNode.pos;
             List<Whitespace> wsList = new ArrayList<>(annotationNode.getWS());

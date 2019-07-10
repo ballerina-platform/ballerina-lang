@@ -49,6 +49,7 @@ public class ItemResolverConstants {
     public static final String MATCH = "match";
     public static final String PANIC = "panic";
     public static final String LENGTHOF = "lengthof";
+    public static final String TYPEOF = "typeof";
 
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";

@@ -115,6 +115,8 @@ public enum Snippet {
 
     KW_EXTERNAL(SnippetGenerator.getExternalKeywordSnippet()),
 
+    KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
+
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),
 
