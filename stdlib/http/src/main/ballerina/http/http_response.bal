@@ -112,7 +112,7 @@ public type Response object {
         entity.setHeader(headerName, headerValue);
 
         // TODO: see if this can be handled in a better manner
-        if (SERVER.equalsIgnoreCase(headerName)) {
+        if (internal:equalsIgnoreCase(SERVER, headerName)) {
             self.server = headerValue;
         }
     }
@@ -159,21 +159,36 @@ public type Response object {
     #
     # + return - The `json` payload or `error` in case of errors
     public function getJsonPayload() returns @tainted json|error {
-        return self.getEntity()!getJson();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getJson();
+        } else {
+            return entity;
+        }
     }
 
     # Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
     public function getXmlPayload() returns @tainted xml|error {
-        return self.getEntity()!getXml();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getXml();
+        } else {
+            return entity;
+        }
     }
 
     # Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
     #
     # + return - The string representation of the message payload or `error` in case of errors
     public function getTextPayload() returns @tainted string|error {
-        return self.getEntity()!getText();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getText();
+        } else {
+            return entity;
+        }
     }
 
     # Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
@@ -181,14 +196,24 @@ public type Response object {
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
-        return self.getEntity()!getByteChannel();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getByteChannel();
+        } else {
+            return entity;
+        }
     }
 
     # Gets the response payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns @tainted byte[]|error {
-        return self.getEntity()!getByteArray();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getByteArray();
+        } else {
+            return entity;
+        }
     }
 
     # Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
@@ -196,7 +221,12 @@ public type Response object {
     # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
     #            constructing the body parts from the response
     public function getBodyParts() returns mime:Entity[]|error {
-        return self.getEntity()!getBodyParts();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getBodyParts();
+        } else {
+            return entity;
+        }
     }
 
     # Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
