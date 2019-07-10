@@ -32,7 +32,6 @@ public class FunctionSignatureNegativeTest {
     public void testNegativeFuncSignature() {
         int i = 0;
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
-//        System.out.println(result);
         String tooManyArguments = "too many arguments in call to ";
         String notEnoughArguments = "not enough arguments in call to ";
 
@@ -61,8 +60,10 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithNoRestParam()'", 98, 5);
         BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithNoRestParam()'", 99, 5);
-        BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to 'functionWithNoRestParam'()", 100, 5);
-        BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to 'functionWithNoRestParam'()", 100, 5);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
+                "'functionWithNoRestParam'()", 100, 5);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
+                "'functionWithNoRestParam'()", 100, 5);
     }
 
     @Test
