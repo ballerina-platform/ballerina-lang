@@ -90,6 +90,8 @@ public class ArtemisConstants {
     public static final String LAST_VALUE = "lastValue";
     static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String ADDRESS_NAME = "addressName";
+    public static final String ON_MESSAGE = "onMessage";
+    public static final String ON_ERROR = "onError";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
