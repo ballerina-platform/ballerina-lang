@@ -1014,7 +1014,8 @@ public class CompiledPackageSymbolEnter {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(i), invokableSymbol);
-//            invokableSymbol.defaultableParams.add(varSymbol);
+            varSymbol.defaultableParam = true;
+            invokableSymbol.params.add(varSymbol);
         }
 
         if (restParamCount == 1) {

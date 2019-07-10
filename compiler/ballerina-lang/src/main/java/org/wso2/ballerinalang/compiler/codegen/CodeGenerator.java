@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -524,24 +525,24 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
-        for (BLangStatement stmt : blockNode.stmts) {
-            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
-                    && stmt.getKind() != NodeKind.IF) {
-                addLineNumberInfo(stmt.pos);
-            }
-
-            genNode(stmt, blockEnv);
-            if (regIndexResetDisabled) {
-                // This block node is possibly be part of a desugered expression
-                continue;
-            }
-
-            // Update the maxRegIndexes structure
-            setMaxRegIndexes(regIndexes, maxRegIndexes);
-
-            // Reset the regIndexes structure for every statement
-            regIndexes = new VariableIndex(REG);
-        }
+//        for (BLangStatement stmt : blockNode.stmts) {
+//            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
+//                    && stmt.getKind() != NodeKind.IF) {
+//                addLineNumberInfo(stmt.pos);
+//            }
+//
+//            genNode(stmt, blockEnv);
+//            if (regIndexResetDisabled) {
+//                // This block node is possibly be part of a desugered expression
+//                continue;
+//            }
+//
+//            // Update the maxRegIndexes structure
+//            setMaxRegIndexes(regIndexes, maxRegIndexes);
+//
+//            // Reset the regIndexes structure for every statement
+//            regIndexes = new VariableIndex(REG);
+//        }
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -1389,6 +1390,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral recordLiteral) {
+        /* ignore */
+    }
+
+    public void visit(BLangIgnoreExpr ignoreExpr) {
         /* ignore */
     }
 
