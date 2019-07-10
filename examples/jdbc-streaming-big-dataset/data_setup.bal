@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/sql;
 import ballerinax/jdbc;
 
 public function main() {
@@ -45,8 +44,8 @@ public function main() {
 }
 
 // Function to handle the return value of the update remote function.
-function handleUpdate(sql:UpdateResult|error returned, string message) {
-    if (returned is sql:UpdateResult) {
+function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+    if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + <string>returned.detail().message);

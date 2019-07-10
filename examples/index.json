@@ -797,7 +797,7 @@
             },
             {
                 "name": "Streaming a Big Dataset",
-                "url": "streaming-big-dataset"
+                "url": "jdbc-streaming-big-dataset"
             }
         ]
     },
