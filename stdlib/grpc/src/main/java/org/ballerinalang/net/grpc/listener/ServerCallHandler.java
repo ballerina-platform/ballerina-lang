@@ -181,13 +181,15 @@ public abstract class ServerCallHandler {
             paramValues[5] = true;
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null);
-        Executor.submit(resource.getService(), resource.getFunctionName(), callback, null, null, paramValues);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                paramValues);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
         CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource.getService(), resource.getFunctionName(), callback, null, null,
-                computeMessageParams(resource, request, responseObserver));
+        Object[] requestParams = computeMessageParams(resource, request, responseObserver);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                requestParams);
     }
 
     Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {

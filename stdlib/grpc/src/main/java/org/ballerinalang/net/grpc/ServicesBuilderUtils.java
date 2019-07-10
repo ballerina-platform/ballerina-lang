@@ -21,6 +21,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -57,7 +58,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
  */
 public class ServicesBuilderUtils {
     
-    public static ServerServiceDefinition getServiceDefinition(ObjectValue service, Object annotationData) throws
+    public static ServerServiceDefinition getServiceDefinition(Scheduler scheduler, ObjectValue service,
+                                                               Object annotationData) throws
             GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = getDescriptor(annotationData);
         if (fileDescriptor == null) {
@@ -70,11 +72,12 @@ public class ServicesBuilderUtils {
         if (serviceDescriptor == null) {
             throw new GrpcServerException("Couldn't find the service descriptor for the service: " + serviceName);
         }
-        return getServiceDefinition(service, serviceDescriptor);
+        return getServiceDefinition(scheduler, service, serviceDescriptor);
     }
     
-    private static ServerServiceDefinition getServiceDefinition(ObjectValue service, Descriptors.ServiceDescriptor
-            serviceDescriptor) throws GrpcServerException {
+    private static ServerServiceDefinition getServiceDefinition(Scheduler scheduler, ObjectValue service,
+                                                                Descriptors.ServiceDescriptor serviceDescriptor)
+            throws GrpcServerException {
         // Get full service name for the service definition. <package>.<service>
         final String serviceName = serviceDescriptor.getFullName();
         // Server Definition Builder for the service.
@@ -101,9 +104,9 @@ public class ServicesBuilderUtils {
 
             for (AttachedFunction function : service.getType().getAttachedFunctions()) {
                 if (methodDescriptor.getName().equals(function.getName())) {
-                    mappedResource = new ServiceResource(service, function);
+                    mappedResource = new ServiceResource(scheduler, service, function);
                 }
-                resourceMap.put(function.getName(), new ServiceResource(service, function));
+                resourceMap.put(function.getName(), new ServiceResource(scheduler, service, function));
             }
 
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {

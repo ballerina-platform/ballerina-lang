@@ -58,7 +58,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
     private StreamObserver invoke(StreamObserver responseObserver) {
         ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
         StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver);
-        Executor.submit(onOpen.getService(), onOpen.getFunctionName(), callback, null, null,
+        Executor.submit(onOpen.getScheduler(), onOpen.getService(), onOpen.getFunctionName(), callback, null,
                 computeMessageParams(onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
         return new StreamObserver() {
@@ -66,8 +66,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
             public void onNext(Message value) {
                 ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver);
-                Executor.submit(onMessage.getService(), onMessage.getFunctionName(), callback, null, null,
-                        computeMessageParams(onMessage, value, responseObserver));
+                Executor.submit(onMessage.getScheduler(), onMessage.getService(), onMessage.getFunctionName(),
+                        callback, null, computeMessageParams(onMessage, value, responseObserver));
             }
 
             @Override
@@ -84,8 +84,8 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                     throw new ServerRuntimeException(message);
                 }
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted.getService(), onCompleted.getFunctionName(), callback, null, null,
-                        computeMessageParams(onCompleted, null, responseObserver));
+                Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(),
+                        callback, null, computeMessageParams(onCompleted, null, responseObserver));
             }
         };
     }

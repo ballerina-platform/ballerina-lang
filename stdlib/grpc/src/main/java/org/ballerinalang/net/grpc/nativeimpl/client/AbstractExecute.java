@@ -21,7 +21,6 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -31,7 +30,7 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
  *
  * @since 1.0.0
  */
-abstract class AbstractExecute implements NativeCallableUnit {
+abstract class AbstractExecute {
 
     static MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
                                                       methodDescriptor) throws GrpcClientException {
