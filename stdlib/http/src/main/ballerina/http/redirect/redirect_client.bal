@@ -20,6 +20,7 @@ import ballerina/mime;
 import ballerina/log;
 import ballerina/math;
 import ballerina/config;
+import ballerina/internal;
 
 # Provides redirect functionality for HTTP client remote functions.
 #
@@ -397,7 +398,7 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
 }
 
 function isAbsolute(string locationUrl) returns boolean {
-    return (locationUrl.hasPrefix(HTTP_SCHEME) || locationUrl.hasPrefix(HTTPS_SCHEME));
+    return (internal:hasPrefix(locationUrl, HTTP_SCHEME) || internal:hasPrefix(locationUrl, HTTPS_SCHEME));
 }
 
 //Reset the current redirect count to 0 and set the resolved requested URI.

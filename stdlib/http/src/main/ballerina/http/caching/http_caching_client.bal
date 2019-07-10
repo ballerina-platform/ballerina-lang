@@ -343,17 +343,24 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
         updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
         setAgeHeader(<@untainted> cachedResponse);
 
+        RequestCacheControl? reqCache = req.cacheControl;
+        ResponseCacheControl? resCache = cachedResponse.cacheControl;
+
+
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!(req.cacheControl.noCache ?: false) && !(cachedResponse.cacheControl.noCache ?: false)
-                                                                                        && !req.hasHeader(PRAGMA)) {
-                log:printDebug("Serving a cached fresh response without validating with the origin server");
-                return cachedResponse;
-            } else {
-                log:printDebug("Serving a cached fresh response after validating with the origin server");
-                return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
+            if (reqCache is RequestCacheControl && resCache is ResponseCacheControl) {
+                if (!(reqCache.noCache) && !(resCache.noCache) && !req.hasHeader(PRAGMA)) {
+                    log:printDebug("Serving a cached fresh response without validating with the origin server");
+                    return cachedResponse;
+                } else {
+                    log:printDebug("Serving a cached fresh response after validating with the origin server");
+                    return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
+                }
             }
+            log:printDebug("Serving a cached fresh response after validating with the origin server");
+            return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
         }
 
         // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
@@ -362,11 +369,12 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!(req.cacheControl.noCache ?: false) && ! (cachedResponse.cacheControl.noCache ?: false)
-                                                                                            && !req.hasHeader(PRAGMA)) {
-                log:printDebug("Serving cached stale response without validating with the origin server");
-                cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                return cachedResponse;
+            if (reqCache is RequestCacheControl && resCache is ResponseCacheControl) {
+                if (!(reqCache.noCache) && ! (resCache.noCache) && !req.hasHeader(PRAGMA)) {
+                    log:printDebug("Serving cached stale response without validating with the origin server");
+                    cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+                    return cachedResponse;
+                }
             }
         }
 
@@ -569,21 +577,27 @@ function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Resp
 function isServingStaleProhibited(RequestCacheControl? requestCacheControl,
                                   ResponseCacheControl? responseCacheControl) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    return (requestCacheControl.noStore ?: false) ||
-        (requestCacheControl.noCache ?: false) ||
-        (responseCacheControl.mustRevalidate ?: false) ||
-        (responseCacheControl.proxyRevalidate ?: false) ||
-        ((responseCacheControl.sMaxAge ?: -1) >= 0);
+    if (requestCacheControl is RequestCacheControl && responseCacheControl is ResponseCacheControl) {
+        return (requestCacheControl.noStore) ||
+                (requestCacheControl.noCache) ||
+                (responseCacheControl.mustRevalidate) ||
+                (responseCacheControl.proxyRevalidate) ||
+                ((responseCacheControl.sMaxAge) >= 0);
+    }
+    //TODO:Check whether returning false is valid here
+    return false;
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
 function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Response cachedResponse,
                                  boolean isSharedCache) returns boolean {
-    if ((requestCacheControl.maxStale ?: -1) == MAX_STALE_ANY_AGE) {
-        return true;
-    } else if ((requestCacheControl.maxStale ?: -1) >=
-                            (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
-        return true;
+    if (requestCacheControl is RequestCacheControl) {
+        if ((requestCacheControl.maxStale) == MAX_STALE_ANY_AGE) {
+            return true;
+        } else if ((requestCacheControl.maxStale) >=
+                                (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
+            return true;
+        }
     }
     return false;
 }
