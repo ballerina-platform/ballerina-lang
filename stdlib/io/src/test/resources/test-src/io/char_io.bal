@@ -53,7 +53,7 @@ function readCharacters(int numberOfCharacters) returns @tainted (string|error) 
     return e;
 }
 
-function readAllCharacters() returns @tainted (string|error?) {
+function readAllCharacters() returns @tainted string|error? {
     int fixedSize = 500;
     boolean isDone = false;
     string result = "";
@@ -101,7 +101,7 @@ function appendCharacters(string content, int startOffset) returns int|error? {
 
 }
 
-function readJson() returns @tainted (json|error) {
+function readJson() returns @tainted json|error {
     var rCha = rch;
     if(rCha is io:ReadableCharacterChannel){
         var result = rCha.readJson();

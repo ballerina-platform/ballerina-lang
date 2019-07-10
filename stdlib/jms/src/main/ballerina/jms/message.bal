@@ -106,9 +106,9 @@ public type Message object {
 
     # Sets Expiration JMS transport header to the message
     #
-    # + value - The header value
+    # + time - The expiration time header value
     # + return - nil or a JMS error
-    public function setExpiration(int value) returns error? = external;
+    public function setExpiration(int time) returns error? = external;
 
     # Gets JMS transport header Expiration from the message
     #
@@ -124,7 +124,7 @@ public type Message object {
     # Gets JMS transport header Type from the message
     #
     # + return - The JMS message type header value or JMS error
-    public function getType() returns @tainted string|error = external;
+    public function getType() returns @tainted string|error? = external;
 
     # Clears JMS properties of the message
     #
@@ -138,9 +138,9 @@ public type Message object {
 
     # Sets priority JMS transport header to the message
     #
-    # + value - The header value
+    # + priority - The priority header value
     # + return - nil or a JMS error
-    public function setPriority(int value) returns error? = external;
+    public function setPriority(int priority) returns error? = external;
 
     # Gets JMS transport header Priority from the message
     #
@@ -154,9 +154,9 @@ public type Message object {
 
     # Sets CorrelationID JMS transport header to the message
     #
-    # + value - The header value
+    # + correlationId - The correlationId header value
     # + return - nil or a JMS error
-    public function setCorrelationID(string value) returns error? = external;
+    public function setCorrelationID(string correlationId) returns error? = external;
 
     # Gets JMS transport header CorrelationID from the message
     #

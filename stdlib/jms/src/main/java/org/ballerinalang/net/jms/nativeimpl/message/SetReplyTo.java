@@ -20,16 +20,14 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Destination;
@@ -40,37 +38,30 @@ import javax.jms.Message;
  * Set a string property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "setReplyTo",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {@Argument(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
-                          structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS, name = "replyTo")
-        },
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class SetReplyTo extends AbstractBlockingAction {
+public class SetReplyTo extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> destinationBObject = ((BMap<String, BValue>) context.getRefArgument(1));
-        Destination destination = BallerinaAdapter.getNativeObject(destinationBObject,
-                                                                   JmsConstants.JMS_DESTINATION_OBJECT,
-                                                                   Destination.class,
-                                                                   context);
+    public static Object setReplyTo(Strand strand, ObjectValue msgObj, ObjectValue replyTo) {
+
+        Message message = JmsUtils.getJMSMessage(msgObj);
+
+        Destination destination = (Destination) replyTo.getNativeData(JmsConstants.JMS_DESTINATION_OBJECT);
         try {
             message.setJMSReplyTo(destination);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when setting replyTo destination", context, e);
+            return BallerinaAdapter.getError("Error when setting replyTo destination", e);
         }
+        return null;
     }
+
 }

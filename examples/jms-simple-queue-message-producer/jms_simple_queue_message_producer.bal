@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // This creates a queue sender. This example makes use of the ActiveMQ Artemis
