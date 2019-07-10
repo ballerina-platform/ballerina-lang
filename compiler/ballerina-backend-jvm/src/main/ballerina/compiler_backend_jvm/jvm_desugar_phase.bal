@@ -18,14 +18,12 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
     currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
-    int i = 0;
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;
-    int nameIndex = localVars.length(); // To continue the local var numbering we take the current size as the index.
+    int nameIndex = getNextLocalVarNameIndex(localVars);
 
-    while (i < localVars.length()) {
-        bir:VariableDcl localVar = getVariableDcl(localVars[i]);
+    foreach (var localVar in localVars) {
         updatedVars[index] = localVar;
         index += 1;
         if (localVar is bir:FunctionParam) {
@@ -36,9 +34,19 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
             updatedVars[index] = booleanVar;
             index += 1;
         }
-        i = i + 1;
     }
     currentFunc.localVars = updatedVars;
+}
+
+function getNextLocalVarNameIndex(bir:VariableDcl?[] localVars) returns int {
+    if (localVars.length() == 0) {
+        return 0;
+    }
+
+    bir:VariableDcl localVar = getVariableDcl(localVars[localVars.length() - 1]);
+    string indexStr = localVar.name.value.substring(1, localVar.name.value.length());
+    int index = checkpanic int.convert(indexStr);
+    return index + 1;
 }
 
 function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) returns bir:BType?[] {

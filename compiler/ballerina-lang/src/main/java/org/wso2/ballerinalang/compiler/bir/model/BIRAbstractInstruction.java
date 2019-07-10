@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,23 +17,25 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
- * An instruction in a basic block.
- * <p>
- * There can be two kinds of instructions in a basic block: instructions that
- * terminate a basic block and instructions that do not terminate a basic block.
- * They are modeled as {@link BIRNonTerminator} and {@link BIRTerminator} instructions.
- * <p>
- * A basic block contains one or more non-terminating instructions followed by
- * only one terminating instruction.
+ * Abstract instruction with an lhs-operand.
  *
- * @see BIRTerminator
- * @see BIRNonTerminator
- * @since 0.980.0
+ * @since 1.0
  */
-public interface BIRInstruction {
-    
-    InstructionKind getKind();
+public abstract class BIRAbstractInstruction extends BIRNode implements BIRInstruction {
 
+    public InstructionKind kind;
+    public BIROperand lhsOp;
+
+    BIRAbstractInstruction(DiagnosticPos pos, InstructionKind kind) {
+        super(pos);
+        this.kind = kind;
+    }
+
+    @Override
+    public InstructionKind getKind() {
+        return this.kind;
+    }
 }

@@ -61,7 +61,7 @@ function genMethodForBallerinaFunction(bir:Function func,
 
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
-    ErrorHandlerGenerator errorGen = new(mv, indexMap);
+    ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
 
     mv.visitCode();
 
@@ -479,10 +479,10 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             }
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
+            } else if (inst is bir:TypeCast) {
+                instGen.generateCastIns(inst);
             } else if (inst is bir:Move) {
-                if (inst.kind == bir:INS_KIND_TYPE_CAST) {
-                    instGen.generateCastIns(inst);
-                } else if (inst.kind == bir:INS_KIND_MOVE) {
+                if (inst.kind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(inst);
@@ -1040,8 +1040,8 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     startListeners(mv, serviceEPAvailable);
 
     BalToJVMIndexMap indexMap = new;
-    ErrorHandlerGenerator errorGen = new(mv, indexMap);
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
+    ErrorHandlerGenerator errorGen = new(mv, indexMap, pkgName);
 
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue.retType is bir:BTypeNil;
 

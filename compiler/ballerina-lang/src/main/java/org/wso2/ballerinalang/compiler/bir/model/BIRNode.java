@@ -137,6 +137,27 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (!(other instanceof BIRVariableDcl)) {
+                return false;
+            }
+
+            BIRVariableDcl otherVarDecl = (BIRVariableDcl) other;
+
+            // Here we assume names are unique.
+            return this.name.equals(otherVarDecl.name);
+        }
+        
+        @Override
+        public String toString() {
+            return name.toString();
+        }
     }
 
     /**

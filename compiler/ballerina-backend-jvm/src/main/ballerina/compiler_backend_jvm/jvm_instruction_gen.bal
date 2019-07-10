@@ -790,7 +790,7 @@ type InstructionGenerator object {
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
-        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         self.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
 

@@ -194,6 +194,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             count += 1;
         }
+
         count = 0;
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
