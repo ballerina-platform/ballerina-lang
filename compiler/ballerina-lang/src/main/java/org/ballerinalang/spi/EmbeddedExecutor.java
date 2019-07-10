@@ -26,16 +26,18 @@ import java.util.Optional;
  */
 public interface EmbeddedExecutor {
     /**
-     * Executes a function of a balx file.
-     * @param programArg Path of the balx.
-     * @param args The arguments for the function.
+     * Executes the main function of a module.
+     *
+     * @param moduleName Name of the module.
+     * @param args       The arguments for the function.
      * @return Program execution output.
      */
     Optional<RuntimeException> executeMainFunction(String moduleName, String... args);
     
     /**
-     * Executes a service of a balx file.
-     * @param balxPath Path of the balx.
+     * Executes a service of a module.
+     *
+     * @param moduleName Name of the module.
      */
     Optional<RuntimeException> executeService(String moduleName);
 }
