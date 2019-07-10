@@ -56,3 +56,27 @@ function testCeiling(decimal arg) returns decimal {
 function testFromString(string arg) returns decimal|error {
     return decimals:fromString(arg);
 }
+
+function testMaxAsMethodInvok(decimal x, decimal...xs) returns decimal {
+    return x.max(...xs);
+}
+
+function testMinAsMethodInvok(decimal x, decimal...xs) returns decimal {
+    return x.min(...xs);
+}
+
+function testAbsAsMethodInvok(decimal x) returns decimal {
+    return x.abs();
+}
+
+function testRoundAsMethodInvok(decimal x) returns decimal {
+    return x.round();
+}
+
+function testFloorAsMethodInvok(decimal x) returns decimal {
+    return x.floor();
+}
+
+function testCeilingAsMethodInvok(decimal x) returns decimal {
+    return x.ceiling();
+}
