@@ -1,0 +1,20 @@
+{
+    "line": 5,
+    "character": 6,
+    "expected": {
+        "title": "Type Guard 'update_apple'",
+        "edit": {
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 4
+                },
+                "end": {
+                    "line": 5,
+                    "character": 19
+                }
+            },
+            "newText": "if (update_apple() is int) {\n\n    } else {\n\n    }"
+        }
+    }
+}

@@ -216,8 +216,11 @@ public class CodeActionTest {
         JsonObject responseJson = this.getResponseJson(res);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonElement right = jsonElement.getAsJsonObject().get("right");
-
-            JsonObject edit = right.getAsJsonObject().get("edit").getAsJsonObject().get("documentChanges")
+            JsonElement editText = right.getAsJsonObject().get("edit");
+            if (editText == null) {
+                continue;
+            }
+            JsonObject edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray().get(0)
                     .getAsJsonObject();
             if (right.getAsJsonObject().get("title").toString().equals(title) && edit.equals(
@@ -240,7 +243,11 @@ public class CodeActionTest {
 //                {"fixReturnType2.json", "fixReturnType.bal"}, //Re-Enable once Tuple error msg is fixed in TypeChecker
                 {"fixReturnType3.json", "fixReturnType.bal"},
 //                {"markUntaintedCodeAction1.json", "taintedVariable.bal"},
-//                {"markUntaintedCodeAction2.json", "taintedVariable.bal"}
+//                {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
+//                {"typeGuardCodeAction1.json", "typeGuard.bal"},
+//                {"typeGuardCodeAction2.json", "typeGuard.bal"},
+//                {"typeGuardCodeAction3.json", "typeGuard.bal"},
+                {"typeGuardCodeAction4.json", "typeGuard.bal"},
         };
     }
 
