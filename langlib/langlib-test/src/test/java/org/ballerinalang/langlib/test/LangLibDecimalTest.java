@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -66,6 +67,24 @@ public class LangLibDecimalTest {
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
+    @Test(dataProvider = "decimalMinProvider")
+    public void testSingleArgMin(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testOneArgMin", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @Test(dataProvider = "decimalMinArrayProvider")
+    public void testMin(BValue x, BValue xs, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMultiArgMin", new BValue[] {x, xs});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @Test(dataProvider = "decimalAbsProvider")
+    public void testAbs(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAbs", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
     @DataProvider(name = "dualDecimalProvider")
     public static Object[][] dualDecimalProvider() {
         return new Object[][] {
@@ -89,6 +108,18 @@ public class LangLibDecimalTest {
         };
     }
 
+    @DataProvider(name = "decimalMinProvider")
+    public static Object[][] singleDecimalMinProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),   "0.0"},
+                { new BDecimal("0.0"), "0.0"},
+                { new BDecimal("0"),   "0.0"},
+                { new BDecimal("-1"),  "-1"},
+                { new BDecimal("-0"),  "0.0"},
+                { new BDecimal("5"),   "5"}
+        };
+    }
+
     @DataProvider(name = "decimalArrayProvider")
     public static Object[][] decimalArrayProvider() {
         return new Object[][] {
@@ -98,7 +129,21 @@ public class LangLibDecimalTest {
                 { new BDecimal("-1"),  getBArray("0"), "0"},
                 { new BDecimal("-0"),  getBArray("0"), "0"},
                 { new BDecimal("5"),   getBArray("0", "2", "-2"), "5"},
-                { new BDecimal("-511111111111199999999999222222222222222.2222222"), getBArray("0"), "0"}
+                { new BDecimal("-511111111111199999999999222222222.2222222"), getBArray("0"), "0"}
+        };
+    }
+
+    @DataProvider(name = "decimalMinArrayProvider")
+    public static Object[][] decimalArrayMinProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),   getBArray("0"), "0"},
+                { new BDecimal("0.0"), getBArray("0"), "0"},
+                { new BDecimal("0"),   getBArray("1"), "0.0"},
+                { new BDecimal("-1"),  getBArray("0"), "-1"},
+                { new BDecimal("-0"),  getBArray("0"), "0"},
+                { new BDecimal("5"),   getBArray("0", "2", "-2"), "-2"},
+                { new BDecimal("-51111111111119999999999922222.2222222"), getBArray("0"),
+                        "-51111111111119999999999922222.22222"}
         };
     }
 
@@ -110,5 +155,109 @@ public class LangLibDecimalTest {
         BValueArray bValueArray = new BValueArray(decimals, BTypes.typeDecimal);
         bValueArray.elementType = BTypes.typeDecimal;
         return bValueArray;
+    }
+
+    @DataProvider(name = "decimalAbsProvider")
+    public static Object[][] decimalAbsProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),      "0.0"},
+                { new BDecimal("0.0"),    "0.0"},
+                { new BDecimal("-0"),     "0.0"},
+                { new BDecimal("-1"),     "1"},
+                { new BDecimal("-0.0"),   "0.0"},
+                { new BDecimal("-100.1"), "100.1"},
+                { new BDecimal("100.1"),  "100.1"},
+                { new BDecimal("5"),      "5"},
+                { new BDecimal("-504023030303030303030.3030303"), "504023030303030303030.3030303"}
+        };
+    }
+
+    @Test(dataProvider = "decimalRoundValueProvider")
+    public void testRound(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRound", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @DataProvider(name = "decimalRoundValueProvider")
+    public static Object[][] decimalRoundValueProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),      "0"},
+                { new BDecimal("0.0"),    "0"},
+                { new BDecimal("-0"),     "0"},
+                { new BDecimal("-1"),     "-1"},
+                { new BDecimal("-0.0"),   "0"},
+                { new BDecimal("-100.1"), "-100"},
+                { new BDecimal("100.1"),  "100"},
+                { new BDecimal("5"),      "5"},
+                { new BDecimal("504023030303030303030.3030303"), "504023030303030303030"},
+                { new BDecimal("-504023030303030303030.3030303"), "-504023030303030303030"}
+        };
+    }
+
+    @Test(dataProvider = "decimalFloorValueProvider")
+    public void testFloor(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloor", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @DataProvider(name = "decimalFloorValueProvider")
+    public static Object[][] decimalFloorValueProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),      "0"},
+                { new BDecimal("0.0"),    "0"},
+                { new BDecimal("-0"),     "0"},
+                { new BDecimal("-1"),     "-1"},
+                { new BDecimal("-0.0"),   "0"},
+                { new BDecimal("-100.1"), "-101"},
+                { new BDecimal("100.1"),  "100"},
+                { new BDecimal("5"),      "5"},
+                { new BDecimal("504023030303030303030.3030303"), "504023030303030303030"},
+                { new BDecimal("-504023030303030303030.3030303"), "-504023030303030303031"}
+        };
+    }
+
+    @Test(dataProvider = "decimalCeilingValueProvider")
+    public void testCeiling(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCeiling", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @DataProvider(name = "decimalCeilingValueProvider")
+    public static Object[][] decimalCeilingValueProvider() {
+        return new Object[][] {
+                { new BDecimal("0"),      "0"},
+                { new BDecimal("0.0"),    "0"},
+                { new BDecimal("-0"),     "0"},
+                { new BDecimal("-1"),     "-1"},
+                { new BDecimal("-0.0"),   "0"},
+                { new BDecimal("-100.1"), "-100"},
+                { new BDecimal("100.1"),  "101"},
+                { new BDecimal("5"),      "5"},
+                { new BDecimal("504023030303030303030.3030303"), "504023030303030303031"},
+                { new BDecimal("-504023030303030303030.3030303"), "-504023030303030303030"}
+        };
+    }
+
+    @Test(dataProvider = "decimalFromStringValueProvider")
+    public void testFromString(String arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromString",
+                new BValue[] {new BString(arg)});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @DataProvider(name = "decimalFromStringValueProvider")
+    public static Object[][] decimalFromStringValueProvider() {
+        return new Object[][] {
+                { "0",      "0"},
+                { "0.0",    "0.0"},
+                { "-0",     "0"},
+                { "-1",     "-1"},
+                { "-0.0",   "0.0"},
+                { "-100.1", "-100.1"},
+                { "100.1",  "100.1"},
+                { "5",      "5"},
+                { "504023030303030303030.3030303", "504023030303030303030.3030303"},
+                { "-504023030303030303030.3030303", "-504023030303030303030.3030303"}
+        };
     }
 }

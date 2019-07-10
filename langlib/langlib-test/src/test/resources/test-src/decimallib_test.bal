@@ -28,3 +28,31 @@ function testOneArgMax(decimal arg) returns decimal {
 function testMultiArgMax(decimal arg, decimal[] otherArgs) returns decimal {
     return decimals:max(arg, ...otherArgs);
 }
+
+function testOneArgMin(decimal arg) returns decimal {
+    return decimals:min(arg);
+}
+
+function testMultiArgMin(decimal arg, decimal[] otherArgs) returns decimal {
+    return decimals:min(arg, ...otherArgs);
+}
+
+function testAbs(decimal arg) returns decimal {
+    return decimals:abs(arg);
+}
+
+function testRound(decimal arg) returns decimal {
+    return decimals:round(arg);
+}
+
+function testFloor(decimal arg) returns decimal {
+    return decimals:floor(arg);
+}
+
+function testCeiling(decimal arg) returns decimal {
+    return decimals:ceiling(arg);
+}
+
+function testFromString(string arg) returns decimal|error {
+    return decimals:fromString(arg);
+}
