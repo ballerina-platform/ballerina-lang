@@ -90,4 +90,6 @@ public class CommandConstants {
     public static final String MAKE_OBJ_ABSTRACT_TITLE = "Make '%s' an Abstract Object";
 
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
+
+    public static final String TYPE_GUARD_TITLE = "Type Guard '%s'";
 }
