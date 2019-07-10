@@ -43,6 +43,7 @@
     "@ballerina/lang-service": "^0.990.4-SNAPSHOT",
     "lodash": "^4.17.11",
     "lodash.debounce": "^4.0.8",
-    "log4javascript": "^1.4.15"
+    "log4javascript": "^1.4.15",
+    "panzoom": "^8.1.1"
   }
 }
