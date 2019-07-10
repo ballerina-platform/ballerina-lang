@@ -32,10 +32,12 @@ import java.util.List;
  * @since 0.995.0
  */
 @SupportedResourceParamTypes(
-        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
-                                                                 name = JmsConstants.QUEUE_RECEIVER_OBJ_NAME),
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS_VERSION,
+                                                                 name = JmsConstants.QUEUE_LISTENER,
+                                                                 orgName = JmsConstants.BALLERINAX),
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
-                                                        name = JmsConstants.QUEUE_RECEIVER_CALLER_OBJ_NAME)})
+                                                        name = JmsConstants.QUEUE_RECEIVER_CALLER_OBJ_NAME,
+                                                        orgName = JmsConstants.BALLERINAX)})
 public class JmsQueueRecieverServiceCompilerPlugin extends JmsServiceCompilerPlugin {
 
     @Override

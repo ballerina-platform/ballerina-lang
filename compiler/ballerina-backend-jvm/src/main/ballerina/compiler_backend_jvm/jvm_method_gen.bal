@@ -1074,44 +1074,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     if (userMainFunc is bir:Function) {
         mv.visitInsn(DUP);
-        string desc = getMethodDesc(userMainFunc.typeValue.paramTypes, userMainFunc.typeValue.retType);
-        bir:BType?[] paramTypes = userMainFunc.typeValue.paramTypes;
-
-        mv.visitIntInsn(BIPUSH, paramTypes.length() + 1);
-        mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-        // first element of the args array will be set by the scheduler
-        // load and cast param values
-        int paramIndex = 0;
-        int paramTypeIndex = 0;
-        int argArrayIndex = 0;
-        while (paramTypeIndex < paramTypes.length()) {
-            var paramType = paramTypes[paramTypeIndex];
-            bir:BType pType = getType(paramType);
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            // need to catch last iteration, loop count get incremented by 2, due to defaultabal params
-            if (userMainFunc.restParamExist && paramTypeIndex + 2 == paramTypes.length()) {
-                // load VarArgs array
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitIntInsn(BIPUSH, argArrayIndex);
-                loadType(mv, pType);
-                mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "createVarArgsArray", 
-                    io:sprintf("([L%s;IL%s;)L%s;", STRING_VALUE, ARRAY_TYPE, ARRAY_VALUE), false);
-            } else {
-                generateParamCast(argArrayIndex, pType, mv);
-            }
-            mv.visitInsn(AASTORE);
-            paramIndex += 1;
-
-            mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, paramIndex + 1);
-            mv.visitLdcInsn("true");
-            mv.visitInsn(AASTORE);
-            paramIndex += 1;
-            argArrayIndex += 1;
-            paramTypeIndex += 2;
-        }
+        loadCLIArgsForMain(mv, userMainFunc.params, userMainFunc.restParamExist, userMainFunc.annotAttachments);
 
         // invoke the user's main method
         string lambdaName = "$lambda$main$";
@@ -1261,11 +1224,7 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
         mv.visitVarInsn(ALOAD, 0);
         mv.visitIntInsn(BIPUSH, paramIndex);
         mv.visitInsn(AALOAD);
-        if (userMainFunc.restParamExist && paramTypes.length() == paramIndex + 1) {
-            addUnboxInsn(mv, pType);
-        } else {
-            castFromString(pType, mv);
-        }
+        addUnboxInsn(mv, pType);
         paramIndex += 1;
     }
 
@@ -1278,6 +1237,70 @@ function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bi
     }
     mv.visitMaxs(0,0);
     mv.visitEnd();
+}
+
+function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, boolean hasRestParam, 
+    bir:AnnotationAttachment?[] annotAttachments) {
+
+    // get defaultable arg names from function annotation
+    string[] defaultableNames = [];
+    int defaultableIndex = 0;
+    foreach var attachment in annotAttachments {
+        if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == DEFAULTABLE_ARGS_ANOT_NAME) {
+            map<bir:AnnotationValueEntry?[]>? entryMap = attachment.annotValues[0].valueEntryMap;
+            if (entryMap is map<bir:AnnotationValueEntry?[]>) {
+                var entries = entryMap[DEFAULTABLE_ARGS_ANOT_FIELD];
+                if (entries is bir:AnnotationValueEntry?[]) {
+                    foreach var entry in entries {
+                        if (entry is bir:AnnotationValueEntry) {
+                            defaultableNames[defaultableIndex] = <string>entry.value;
+                            defaultableIndex += 1;
+                        }
+                    }
+                }  
+            }
+            break;
+        }
+    }   
+    // create function info array
+    mv.visitIntInsn(BIPUSH, params.length());
+    mv.visitTypeInsn(ANEWARRAY, io:sprintf("%s$ParamInfo", RUNTIME_UTILS));
+    int index = 0;
+    defaultableIndex = 0;
+    foreach var param in params {
+        mv.visitInsn(DUP);
+        mv.visitIntInsn(BIPUSH, index);
+        index += 1;
+        mv.visitTypeInsn(NEW, io:sprintf("%s$ParamInfo", RUNTIME_UTILS));
+        mv.visitInsn(DUP);
+        if (param is bir:FunctionParam) {
+            if (param.hasDefaultExpr) {
+                mv.visitInsn(ICONST_1);
+                mv.visitLdcInsn(defaultableNames[defaultableIndex]);
+                defaultableIndex += 1;
+            } else {
+                mv.visitInsn(ICONST_0);
+                mv.visitLdcInsn(param.name.value);
+            }
+            // var varIndex = indexMap.getIndex(param);
+            loadType(mv, param.typeValue);
+        }
+        mv.visitMethodInsn(INVOKESPECIAL, io:sprintf("%s$ParamInfo", RUNTIME_UTILS), "<init>", 
+            io:sprintf("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
+        mv.visitInsn(AASTORE);   
+    }
+
+     // load string[] that got parsed into to java main
+    mv.visitVarInsn(ALOAD, 0);
+    if (hasRestParam) {
+        mv.visitInsn(ICONST_1);
+    } else {
+        mv.visitInsn(ICONST_0);
+    }
+
+     // invoke ArgumentParser.extractEntryFuncArgs()
+    mv.visitMethodInsn(INVOKESTATIC, ARGUMENT_PARSER, "extractEntryFuncArgs", 
+            io:sprintf("([L%s$ParamInfo;[L%s;Z)[L%s;", RUNTIME_UTILS, STRING_VALUE, OBJECT), false);
 }
 
 # Generate a lambda function to invoke ballerina main.

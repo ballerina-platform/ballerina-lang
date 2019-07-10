@@ -64,13 +64,5 @@ createBalo {
     jvmTarget = 'true'
 }
 
-configurations.all {
-    resolutionStrategy.preferProjectModules()
-}
-
-createBalo {
-    jvmTarget = 'true'
-}
-
 description = 'Ballerina - ActiveMQ Artemis'
 

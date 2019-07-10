@@ -38,6 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 /**
@@ -55,6 +56,8 @@ import java.util.ArrayList;
 )
 public class Start extends BlockingNativeCallableUnit {
     private static MessageDispatcher messageDispatcher;
+    private static final PrintStream console;
+    private static String queueName;
 
     @Override
     public void execute(Context context) {
@@ -76,7 +79,7 @@ public class Start extends BlockingNativeCallableUnit {
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
             MapValue<String, Object> queueConfig =
                     (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-            String queueName = queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
+            queueName = queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
             String ackMode = serviceConfig.getStringValue(RabbitMQConstants.ALIAS_ACK_MODE);
             switch (ackMode) {
                 case RabbitMQConstants.AUTO_ACKMODE:
@@ -101,6 +104,7 @@ public class Start extends BlockingNativeCallableUnit {
                     strand.scheduler);
             receiveMessages(channel, queueName, autoAck);
         }
+        console.println("[ballerina/rabbitmq] Consumer service started for queue " + queueName);
         return null;
     }
 
@@ -152,5 +156,9 @@ public class Start extends BlockingNativeCallableUnit {
             throw new RabbitMQConnectorException("An error occurred while setting the basic QoS settings; "
                     + exception.getMessage(), exception);
         }
+    }
+
+    static {
+        console = System.out;
     }
 }
