@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -43,7 +42,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -99,12 +97,14 @@ public final class BFunctionCompletionItemBuilder {
     }
 
     private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol) {
+        // TODO: revisit usage of defaultParams
         String pkgID = bInvokableSymbol.pkgID.toString();
 
         MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
         List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
-        List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
+//        List<BVarSymbol> defaultParams = bInvokableSymbol.getParameters().stream().filter(d -> d.defaultableParam)
+//                .collect(Collectors.toList());
 
         MarkupContent docMarkupContent = new MarkupContent();
 
@@ -115,14 +115,14 @@ public final class BFunctionCompletionItemBuilder {
                 + CommonUtil.MD_LINE_SEPARATOR
                 + parameters.stream()
                 .map(parameter -> {
-                    Optional<BVarSymbol> defaultVal = defaultParams.stream()
-                            .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
-                            .findFirst();
+//                    Optional<BVarSymbol> defaultVal = defaultParams.stream()
+//                            .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
+//                            .findFirst();
                     String paramDescription = "- _" + parameter.getName() + "_" + CommonUtil.MD_LINE_SEPARATOR
                             + "    " + parameter.getDescription() + CommonUtil.MD_LINE_SEPARATOR;
-                    if (defaultVal.isPresent() && defaultVal.get().defaultValue != null) {
-                        return paramDescription + "Default Value: " + defaultVal.get().defaultValue.getValue();
-                    }
+//                    if (defaultVal.isPresent() && defaultVal.get().defaultValue != null) {
+//                        return paramDescription + "Default Value: " + defaultVal.get().defaultValue.getValue();
+//                    }
 
                     return paramDescription;
                 })
@@ -209,35 +209,39 @@ public final class BFunctionCompletionItemBuilder {
     }
 
     private static String getParameterSignature(BVarSymbol bVarSymbol, boolean isDefault) {
-        if (!isDefault) {
-            return getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
-        } else {
-            String defaultStringVal;
-            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
-                defaultStringVal = "()";
-            } else {
-                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
-            }
-            return getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
-        }
+        // TODO: revisit usage of defaultParams
+//        if (!isDefault) {
+//            return getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
+//        } else {
+//            String defaultStringVal;
+//            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
+//                defaultStringVal = "()";
+//            } else {
+//                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
+//            }
+//            return getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
+//        }
+        return getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
     }
 
     private static String getParameterInsertText(BVarSymbol bVarSymbol, boolean isDefault, int iteration) {
-        if (!isDefault) {
-            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
-        } else {
-            String defaultStringVal;
-            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
-                defaultStringVal = "()";
-            } else {
-                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
-                if (bVarSymbol.getType() != null
-                        && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
-                    defaultStringVal = "\"" + defaultStringVal + "\"";
-                }
-            }
-            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
-        }
+        // TODO: revisit usage of defaultParams
+//        if (!isDefault) {
+//            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
+//        } else {
+//            String defaultStringVal;
+//            if (bVarSymbol.defaultValue == null || bVarSymbol.defaultValue.getValue() == null) {
+//                defaultStringVal = "()";
+//            } else {
+//                defaultStringVal = bVarSymbol.defaultValue.getValue().toString();
+//                if (bVarSymbol.getType() != null
+//                        && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
+//                    defaultStringVal = "\"" + defaultStringVal + "\"";
+//                }
+//            }
+//            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
+//        }
+        return "${" + iteration + ":" + bVarSymbol.getName() + "}";
     }
 
     private static String getTypeName(BVarSymbol bVarSymbol) {
