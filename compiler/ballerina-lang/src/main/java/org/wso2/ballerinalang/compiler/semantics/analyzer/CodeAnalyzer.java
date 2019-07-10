@@ -1537,7 +1537,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (kind == NodeKind.ASSIGNMENT
                     || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
-                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE) {
+                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
+                    || kind == NodeKind.MATCH) {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
                     || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR
