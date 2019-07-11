@@ -16,12 +16,12 @@
 
 function testInvalidUsageOfParamType() returns int {
     function (string) returns int lambda = param1 => param1/2; // operator '/' not defined for 'string' and 'int'
-    return lambda.call("12");
+    return lambda("12");
 }
 
 function testInvalidParamType() returns boolean {
     function (boolean) returns boolean lambda = param1 => !param1;
-    return lambda.call("false"); // incompatible types: expected 'boolean', found 'string'
+    return lambda("false"); // incompatible types: expected 'boolean', found 'string'
 }
 
 function testInvalidNumberOfParams() {
@@ -59,7 +59,7 @@ function() foo = function () returns () {
     int i = 34;
     function (int) returns (int) addFunc1 = a => a + p + m + i; // undefined symbol 'm'
     int m = 3;
-    int k = addFunc1.call(6);
+    int k = addFunc1(6);
 };
 
 int p = 2;
