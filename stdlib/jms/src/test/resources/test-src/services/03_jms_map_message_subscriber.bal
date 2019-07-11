@@ -23,10 +23,10 @@ service jmsListener2 on topicSubscriber2 {
     resource function onMessage(jms:TopicSubscriberCaller subscriber, jms:Message message) {
         var messageRetrieved = <@untainted> message.getMapMessageContent();
         if (messageRetrieved is map<any>) {
-             msgVal += string.convert(messageRetrieved["a"]);
-             msgVal += string.convert(messageRetrieved["b"]);
-             msgVal += string.convert(messageRetrieved["c"]);
-             msgVal += string.convert(messageRetrieved["d"]);
+             msgVal += messageRetrieved["a"].toString();
+             msgVal += messageRetrieved["b"].toString();
+             msgVal += messageRetrieved["c"].toString();
+             msgVal += messageRetrieved["d"].toString();
              byte[] retrievedBlob = <byte[]>messageRetrieved["e"];
         } else {
              panic messageRetrieved;
@@ -37,4 +37,3 @@ service jmsListener2 on topicSubscriber2 {
 function getMsgVal() returns string {
     return msgVal;
 }
-

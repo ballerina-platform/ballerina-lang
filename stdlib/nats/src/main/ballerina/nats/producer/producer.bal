@@ -40,9 +40,11 @@ public type Producer client object {
     # + return -  GUID of acknowledgment or the specific error.
     public remote function send(string subject, string|json message, string charset = "UTF-8") returns string|error {
         if (message is string) {
-            return self.sendMsg(subject, message.toByteArray(charset));
+            //TODO:Consider using io StringReader if different charsets are needed
+            return self.sendMsg(subject, message.toBytes());
         } else {
-            return self.sendMsg(subject, message.toString().toByteArray(charset));
+            string msg = message.toString();
+            return self.sendMsg(subject, msg.toBytes());
         }
     }
 
@@ -55,9 +57,12 @@ public type Producer client object {
     public remote function requestReply(string subject, string|json message,
                                         string charset = "UTF-8") returns Message|error {
         if (message is string) {
-            return self.sendRequestReplyMsg(subject, message.toByteArray(charset));
+            //Consider using StringReader is different charsets are needed
+            return self.sendRequestReplyMsg(subject, message.toBytes());
         } else {
-            return self.sendRequestReplyMsg(subject, message.toString().toByteArray(charset));
+            //TODO:Consider using StringReader if different charsets are needed
+            string msg = message.toString();
+            return self.sendRequestReplyMsg(subject, msg.toBytes());
         }
     }
 
@@ -65,9 +70,10 @@ public type Producer client object {
     #
     # + return - () or error if unable to complete close operation.
     public function close() returns error? {
-        if (self.connection is Connection) {
+        var conn = self.connection;
+        if (conn is Connection) {
             if (self.adhocConnection) {
-                return self.connection.close();
+                return conn.close();
             } else {
                 error conErr = error("{ballerina/nats}CONNECTION_ERROR", message = "unable to close a shared connection.");
                 return conErr;
