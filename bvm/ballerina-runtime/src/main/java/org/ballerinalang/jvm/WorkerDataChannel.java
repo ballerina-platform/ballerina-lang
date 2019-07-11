@@ -116,8 +116,6 @@ public class WorkerDataChannel {
                 }
 
                 reschedule = true;
-//                strand.blocked = true;
-//                strand.yield = true;
                 strand.setState(BLOCK_AND_YIELD);
                 return null;
             }
@@ -177,8 +175,6 @@ public class WorkerDataChannel {
                 return error;
             } else {
                 this.receiver = strand;
-//                strand.blocked = true;
-//                strand.yield = true;
                 strand.setState(BLOCK_AND_YIELD);
                 return null;
             }

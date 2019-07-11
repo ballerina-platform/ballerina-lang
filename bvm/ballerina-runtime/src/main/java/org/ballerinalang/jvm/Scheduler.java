@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.ballerinalang.jvm.SchedulerItem.POISON_PILL;
-import static org.ballerinalang.jvm.values.State.RUNNABLE;
 
 /**
  * Strand scheduler for JBallerina.
@@ -213,7 +212,6 @@ public class Scheduler {
 
             switch (item.getState()) {
                 case BLOCK_AND_YIELD:
-                case BLOCK_AND_YIELD_ON_EXTERN:
                     if (item.blockedOn().isEmpty()) {
                         if (DEBUG) {
                             debugLog(item + " blocked");
@@ -359,10 +357,10 @@ public class Scheduler {
 
     private void reschedule(SchedulerItem item) {
         synchronized (item) {
-            if (item.getState() != RUNNABLE) {
+            if (!item.getState().equals(State.RUNNABLE)) {
                 // release if the same strand is waiting for others (wait multiple)
                 release(item.future.strand.blockedOn, item.future.strand);
-                item.setState(RUNNABLE);
+                item.setState(State.RUNNABLE);
                 runnableList.add(item);
             }
         }
@@ -445,19 +443,23 @@ class SchedulerItem {
         }
     }
 
+    public boolean isYielded() {
+        return this.future.strand.isYielded();
+    }
+
+    public State getState() {
+        return this.future.strand.getState();
+    }
+
     public List<Strand> blockedOn() {
         return this.future.strand.blockedOn;
     }
 
     public void setState(State state) {
         this.future.strand.setState(state);
-        if (state == RUNNABLE) {
+        if (state.equals(State.RUNNABLE)) {
             this.future.strand.blockedOn.clear();
         }
-    }
-
-    public State getState() {
-        return this.future.strand.getState();
     }
 
     @Override

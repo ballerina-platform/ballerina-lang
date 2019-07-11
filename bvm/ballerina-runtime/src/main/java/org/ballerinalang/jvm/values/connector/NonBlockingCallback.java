@@ -34,10 +34,8 @@ public class NonBlockingCallback {
     private final Strand strand;
 
     public NonBlockingCallback(Strand strand) {
-//        strand.yield = true;
-//        strand.blocked = true;
-//        strand.blockedOnExtern = true;
-        strand.setState(State.BLOCK_AND_YIELD_ON_EXTERN);
+        strand.blockedOnExtern = true;
+        strand.setState(State.BLOCK_AND_YIELD);
         this.strand = strand;
     }
 

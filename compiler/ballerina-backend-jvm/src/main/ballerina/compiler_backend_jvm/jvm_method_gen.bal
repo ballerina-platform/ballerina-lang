@@ -612,7 +612,6 @@ function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicB
                         int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
-    //mv.visitMethodInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "yield", "Z");
     jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
     mv.visitJumpInsn(IFNE, yieldLabel);
 
@@ -683,16 +682,12 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
         mv.visitInsn(DUP);
 
-        // mv.visitFieldInsn(GETFIELD, STRAND, "blockedOnExtern", "Z");
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
         mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
         mv.visitInsn(DUP);
-        // mv.visitInsn(ICONST_0);
-        mv.visitFieldInsn(GETSTATIC, STRAND_STATE, "RUNNABLE", 
-            io:sprintf("L%s;", STRAND_STATE));
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "setState", io:sprintf("(L%s;)V", STRAND_STATE), false);
-        // mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOnExtern", "Z");
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "blockedOnExtern", "Z");
 
         if (!isVoid) {
             mv.visitInsn(DUP);

@@ -36,8 +36,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD;
-import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD_ON_EXTERN;
-import static org.ballerinalang.jvm.values.State.DONE;
 import static org.ballerinalang.jvm.values.State.RUNNABLE;
 import static org.ballerinalang.jvm.values.State.YIELD;
 
@@ -53,12 +51,12 @@ public class Strand {
     public int resumeIndex;
     public Object returnValue;
 //    public boolean blocked;
-    public CopyOnWriteArrayList blockedOn;
+    public CopyOnWriteArrayList<Strand> blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
-//    public boolean blockedOnExtern;
+    public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
     private Map<String, Object> globalProps;
     public boolean cancel;
@@ -166,8 +164,6 @@ public class Strand {
                     target.put(entry.getKey(), entry.getValue().result);
                 } else {
                     this.setState(BLOCK_AND_YIELD);
-//                    this.yield = true;
-//                    this.blocked = true;
                     this.blockedOn.add(entry.getValue().strand);
                 }
             }
@@ -207,8 +203,6 @@ public class Strand {
             waitResult = new WaitResult(true, error);
         } else {
             this.setState(BLOCK_AND_YIELD);
-//            this.yield = true;
-//            this.blocked = true;
         }
 
         return waitResult;
@@ -237,15 +231,15 @@ public class Strand {
     }
 
     public boolean isBlocked() {
-        return BLOCK_AND_YIELD.equals(this.getState()) || BLOCK_AND_YIELD_ON_EXTERN.equals(this.getState());
+        return (this.state.getStatus() & BLOCK_AND_YIELD.getStatus()) == BLOCK_AND_YIELD.getStatus();
     }
 
     public boolean isYielded() {
-        return !(RUNNABLE.equals(this.getState()) || DONE.equals(this.getState()));
+        return (this.state.getStatus() & YIELD.getStatus()) == YIELD.getStatus();
     }
 
     public boolean isBlockedOnExtern() {
-        return BLOCK_AND_YIELD_ON_EXTERN.equals(this.getState());
+        return blockedOnExtern;
     }
 
     /**
