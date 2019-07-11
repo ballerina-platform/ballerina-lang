@@ -43,7 +43,7 @@ public class Reduce {
     public static Object reduce(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
         Object accum = initial;
         for (Object value : m.values()) {
-            accum = func.apply(new Object[]{strand, accum, value});
+            accum = func.apply(new Object[]{strand, accum, true, value, true});
         }
         return accum;
     }

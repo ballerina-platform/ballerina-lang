@@ -40,11 +40,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Filter {
 
-    public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
-        MapValue newMap = new MapValueImpl();
+    public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+        MapValue newMap = new MapValueImpl(m.getType());
 
         m.forEach((key, value) -> {
-            if (func.apply(new Object[]{strand, value})) {
+            if (func.apply(new Object[]{strand, value, true})) {
                 newMap.put(key, value);
             }
         });

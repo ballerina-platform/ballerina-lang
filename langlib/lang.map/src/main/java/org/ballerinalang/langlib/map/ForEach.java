@@ -38,6 +38,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class ForEach {
 
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        m.forEach((key, value) -> func.accept(new Object[]{strand, value}));
+        m.forEach((key, value) -> func.accept(new Object[]{strand, value, true}));
     }
 }
