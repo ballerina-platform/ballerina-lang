@@ -250,7 +250,7 @@ public type VariableDcl record {|
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
     string metaVarName?;
-    string bbID?;
+    string endBBID?;
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -267,7 +267,7 @@ public type GlobalVariableDcl record {|
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
     string metaVarName?;
-    string bbID?;
+    string endBBID?;
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;

@@ -152,8 +152,8 @@ public type BirEmitter object {
                     print(varDecl.metaVarName);
                 }
                 if (v.kind is LocalVarKind) {
-                    print(" %bbID ");
-                    print(v.bbID);
+                    print(" %endBBID ");
+                    print(v.endBBID);
                 }
             }
             println("\t// ", varDecl.kind);

@@ -653,7 +653,7 @@ public class BIRGen extends BLangNodeVisitor {
             astStmt.accept(this);
         }
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
-            birVariableDcl.enclBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
+            birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
         this.currentBlock = prevBlock;
     }

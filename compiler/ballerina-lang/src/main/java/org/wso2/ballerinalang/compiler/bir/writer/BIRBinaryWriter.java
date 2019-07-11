@@ -252,8 +252,7 @@ public class BIRBinaryWriter {
             }
             // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
-                // BIRNode.BIRBasicBlock scopeTermBB = getScopeTerminatingBlock(localVar.enclBB);
-                birbuf.writeInt(addStringCPEntry(localVar.enclBB != null ? localVar.enclBB.id.value : "sdsdsd"));
+                birbuf.writeInt(addStringCPEntry(localVar.endBB.id.value));
             }
         }
 

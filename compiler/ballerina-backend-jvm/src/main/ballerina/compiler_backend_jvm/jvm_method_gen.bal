@@ -388,7 +388,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                                         io:sprintf("%s", bType));
             panic err;
         }
-
         k = k + 1;
     }
 
@@ -423,10 +422,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
+        jvm:Label startLabel = methodStartLabel;
+        jvm:Label endLabel = methodEndLabel;
         if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam) 
             && !(localVar["metaVarName"] is ())) {
+            if (localVar.kind is bir:LocalVarKind) {
+                // startLabel = labelGen.getLabel(funcName + localVar.name.value + localVar.metaVarName);
+                endLabel = labelGen.getLabel(funcName + localVar.endBBID + "beforeTerm");
+            }
             mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
-                methodStartLabel, methodEndLabel, k);
+                startLabel, endLabel, k);
         }
         k = k + 1;
     }

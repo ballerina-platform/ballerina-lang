@@ -203,7 +203,7 @@ public type PackageParser object {
                 dcl.metaVarName = self.reader.readStringCpRef();
             }
             if (dcl.kind is LocalVarKind) {
-                dcl.bbID = self.reader.readStringCpRef();
+                dcl.endBBID = self.reader.readStringCpRef();
             }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
