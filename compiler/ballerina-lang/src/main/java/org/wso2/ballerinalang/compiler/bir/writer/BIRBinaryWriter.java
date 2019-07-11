@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -251,7 +252,8 @@ public class BIRBinaryWriter {
             }
             // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
-                birbuf.writeInt(addStringCPEntry(localVar.enclBB.id.value));
+                // BIRNode.BIRBasicBlock scopeTermBB = getScopeTerminatingBlock(localVar.enclBB);
+                birbuf.writeInt(addStringCPEntry(localVar.enclBB != null ? localVar.enclBB.id.value : "sdsdsd"));
             }
         }
 
@@ -277,6 +279,25 @@ public class BIRBinaryWriter {
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private BIRNode.BIRBasicBlock getScopeTerminatingBlock(BIRNode.BIRBasicBlock block) {
+        BIRTerminator terminator = block.terminator;
+        BIRNode.BIRBasicBlock terminatingBlock = block;
+        if (terminator instanceof BIRTerminator.GOTO) {
+            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.GOTO) terminator).targetBB);
+        } else if (terminator instanceof BIRTerminator.Branch) {
+            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Branch) terminator).falseBB);
+        } else if (terminator instanceof BIRTerminator.Return || terminator == null) {
+            terminatingBlock = block;
+        } else if (terminator instanceof BIRTerminator.Lock) {
+            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Lock) terminator).lockedBB);
+        } else if (terminator instanceof BIRTerminator.Unlock) {
+            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Unlock) terminator).unlockBB);
+        } else if (terminator.thenBB != null) {
+            terminatingBlock = getScopeTerminatingBlock(terminator.thenBB);
+        }
+        return terminatingBlock;
     }
 
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
