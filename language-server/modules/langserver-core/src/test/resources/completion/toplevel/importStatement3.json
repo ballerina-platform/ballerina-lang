@@ -20,20 +20,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "h2",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cache",
       "kind": "Module",
       "detail": "Package",
@@ -223,13 +209,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "task",
       "kind": "Module",
       "detail": "Package",
@@ -262,13 +241,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]

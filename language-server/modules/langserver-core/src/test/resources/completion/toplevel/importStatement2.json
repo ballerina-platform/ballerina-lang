@@ -6,11 +6,11 @@
   "source": "toplevel/source/importStatement2.bal",
   "items": [
     {
-      "label": "ballerinax/jms",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerinax/jms",
+      "insertText": "ballerinax/jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -19,6 +19,14 @@
       "detail": "Package",
       "sortText": "110",
       "insertText": "ballerinax/",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerinax/jms",
       "insertTextFormat": "Snippet"
     },
     {
@@ -43,22 +51,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/crypto",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/h2",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/privacy",
       "insertTextFormat": "Snippet"
     },
     {
@@ -278,14 +270,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
@@ -323,14 +307,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/sql",
       "insertTextFormat": "Snippet"
     }
   ]

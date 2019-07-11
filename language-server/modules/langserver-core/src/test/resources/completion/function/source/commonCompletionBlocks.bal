@@ -1,21 +1,21 @@
-import ballerina/h2;
 import ballerina/io;
 import ballerina/http;
 import ballerina/log;
-h2:InMemoryConfig conf = {
-    name: "testName",
-    username: "user",
-    password: "pwd"
-};
 
-h2:Client testDb = new h2:Client({
-        path: "testPath",
-        name: "hubDatabaseName",
-        username: "hubDatabaseUsername",
-        password: "hubDatabasePassword",
-        poolOptions: {
-            maximumPoolSize: 5
-        }});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 public function main(string... args) {
     int a = 10;
