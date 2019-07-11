@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -210,6 +211,8 @@ public class TypeParamAnalyzer {
                 BErrorType errorType = (BErrorType) type;
                 return containsTypeParam(errorType.reasonType, resolvedTypes)
                         || containsTypeParam(errorType.detailType, resolvedTypes);
+            case TypeTags.TYPEDESC:
+                return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
             default:
                 return false;
         }
@@ -298,6 +301,13 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.ERROR) {
                     findTypeParamInError((BErrorType) expType, (BErrorType) actualType, env, resolvedTypes, result);
                 }
+                return;
+            case TypeTags.TYPEDESC:
+                if (actualType.tag == TypeTags.TYPEDESC) {
+                    findTypeParam(((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint, env,
+                            resolvedTypes, result);
+                }
+                return;
         }
     }
 
@@ -440,6 +450,10 @@ public class TypeParamAnalyzer {
                 return getMatchingOptionalBoundType((BUnionType) expType, env, resolvedTypes);
             case TypeTags.ERROR:
                 return getMatchingErrorBoundType((BErrorType) expType, env, resolvedTypes);
+            case TypeTags.TYPEDESC:
+                constraint = ((BTypedescType) expType).constraint;
+                return new BTypedescType(TypeTags.TYPEDESC, getMatchingBoundType(constraint, env, resolvedTypes),
+                        symTable.typeDesc.tsymbol);
             default:
                 return expType;
         }
