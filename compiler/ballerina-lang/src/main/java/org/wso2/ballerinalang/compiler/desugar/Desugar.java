@@ -1815,7 +1815,6 @@ public class Desugar extends BLangNodeVisitor {
         // to distinguish between returning nil value specifically and not returning any value.
         if (returnNode.expr != null) {
             returnNode.expr = rewriteExpr(returnNode.expr);
-//            returnNode.expr = addConversionExprIfRequired(returnNode.expr, returnNode.expr.type);
         }
         result = returnNode;
     }
