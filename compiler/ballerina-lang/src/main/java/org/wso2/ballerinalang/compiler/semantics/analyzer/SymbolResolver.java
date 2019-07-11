@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -1057,6 +1058,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
+        } else if (type.tag == TypeTags.TYPEDESC) {
+            constrainedType = new BTypedescType(TypeTags.TYPEDESC, constraintType, null);
         } else if (type.tag == TypeTags.CHANNEL) {
             // only the simpleTypes, json and xml are allowed as channel data type.
             if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
