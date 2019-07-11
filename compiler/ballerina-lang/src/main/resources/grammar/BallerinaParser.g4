@@ -677,7 +677,7 @@ invocationArg
     ;
 
 actionInvocation
-    :   annotationAttachment* START? variableReference RARROW functionInvocation
+    :   (annotationAttachment* START)? variableReference RARROW functionInvocation
     ;
 
 expressionList

@@ -10449,13 +10449,13 @@ public class BallerinaParser extends Parser {
 		public FunctionInvocationContext functionInvocation() {
 			return getRuleContext(FunctionInvocationContext.class,0);
 		}
+		public TerminalNode START() { return getToken(BallerinaParser.START, 0); }
 		public List<AnnotationAttachmentContext> annotationAttachment() {
 			return getRuleContexts(AnnotationAttachmentContext.class);
 		}
 		public AnnotationAttachmentContext annotationAttachment(int i) {
 			return getRuleContext(AnnotationAttachmentContext.class,i);
 		}
-		public TerminalNode START() { return getToken(BallerinaParser.START, 0); }
 		public ActionInvocationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -10477,25 +10477,25 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1766);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==AT) {
-				{
-				{
-				setState(1763);
-				annotationAttachment();
-				}
-				}
-				setState(1768);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			}
 			setState(1770);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,183,_ctx) ) {
 			case 1:
 				{
+				setState(1766);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				while (_la==AT) {
+					{
+					{
+					setState(1763);
+					annotationAttachment();
+					}
+					}
+					setState(1768);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+				}
 				setState(1769);
 				match(START);
 				}
@@ -18778,7 +18778,7 @@ public class BallerinaParser extends Parser {
 		"\u068d\3\2\2\2\u00fa\u068f\3\2\2\2\u00fc\u0693\3\2\2\2\u00fe\u06a2\3\2"+
 		"\2\2\u0100\u06ac\3\2\2\2\u0102\u06bb\3\2\2\2\u0104\u06be\3\2\2\2\u0106"+
 		"\u06c2\3\2\2\2\u0108\u06c9\3\2\2\2\u010a\u06d0\3\2\2\2\u010c\u06d8\3\2"+
-		"\2\2\u010e\u06e3\3\2\2\2\u0110\u06e8\3\2\2\2\u0112\u06f2\3\2\2\2\u0114"+
+		"\2\2\u010e\u06e3\3\2\2\2\u0110\u06ec\3\2\2\2\u0112\u06f2\3\2\2\2\u0114"+
 		"\u06fa\3\2\2\2\u0116\u06fd\3\2\2\2\u0118\u070f\3\2\2\2\u011a\u0711\3\2"+
 		"\2\2\u011c\u071f\3\2\2\2\u011e\u0721\3\2\2\2\u0120\u0729\3\2\2\2\u0122"+
 		"\u0733\3\2\2\2\u0124\u073d\3\2\2\2\u0126\u0747\3\2\2\2\u0128\u0751\3\2"+
@@ -19260,8 +19260,8 @@ public class BallerinaParser extends Parser {
 		"\5\u0162\u00b2\2\u06e2\u06e4\5\u0164\u00b3\2\u06e3\u06e0\3\2\2\2\u06e3"+
 		"\u06e1\3\2\2\2\u06e3\u06e2\3\2\2\2\u06e4\u010f\3\2\2\2\u06e5\u06e7\5l"+
 		"\67\2\u06e6\u06e5\3\2\2\2\u06e7\u06ea\3\2\2\2\u06e8\u06e6\3\2\2\2\u06e8"+
-		"\u06e9\3\2\2\2\u06e9\u06ec\3\2\2\2\u06ea\u06e8\3\2\2\2\u06eb\u06ed\7v"+
-		"\2\2\u06ec\u06eb\3\2\2\2\u06ec\u06ed\3\2\2\2\u06ed\u06ee\3\2\2\2\u06ee"+
+		"\u06e9\3\2\2\2\u06e9\u06eb\3\2\2\2\u06ea\u06e8\3\2\2\2\u06eb\u06ed\7v"+
+		"\2\2\u06ec\u06e8\3\2\2\2\u06ec\u06ed\3\2\2\2\u06ed\u06ee\3\2\2\2\u06ee"+
 		"\u06ef\5\u0100\u0081\2\u06ef\u06f0\7\u00a0\2\2\u06f0\u06f1\5\u0108\u0085"+
 		"\2\u06f1\u0111\3\2\2\2\u06f2\u06f7\5\u0132\u009a\2\u06f3\u06f4\7\u0082"+
 		"\2\2\u06f4\u06f6\5\u0132\u009a\2\u06f5\u06f3\3\2\2\2\u06f6\u06f9\3\2\2"+

@@ -1335,7 +1335,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
         // Validate worker synchronous send
-        validateActions(syncSendExpr.pos, syncSendExpr);
+        validateActionParentNode(syncSendExpr.pos, syncSendExpr);
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
@@ -1356,7 +1356,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         // Validate worker receive
-        validateActions(workerReceiveNode.pos, workerReceiveNode);
+        validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
 
         if (workerReceiveNode.isChannel) {
             if (workerReceiveNode.keyExpr != null) {
@@ -1525,6 +1525,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         validateActionParentNode(pos, iExpr);
     }
 
+    /**
+     * Actions can only occur as part of a statement or nested inside other actions.
+     */
     private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
@@ -1538,13 +1541,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
-                    || kind == NodeKind.MATCH) {
+                    || kind == NodeKind.MATCH || kind == NodeKind.FOREACH) {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
-                    || kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.TRAP_EXPR
                     || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
                     || kind == NodeKind.WORKER_SEND || kind == NodeKind.WAIT_EXPR
-                    || kind == NodeKind.GROUP_EXPR) {
+                    || kind == NodeKind.GROUP_EXPR || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
                 if (parent.getKind() == NodeKind.BLOCK) {
                     return;
@@ -1559,10 +1561,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             break;
         }
         dlog.error(pos, DiagnosticCode.INVALID_ACTION_INVOCATION_AS_EXPR);
-    }
-
-    private void validateActions(DiagnosticPos pos, BLangNode bLangNode) {
-        validateActionParentNode(pos, bLangNode);
     }
 
     public void visit(BLangTypeInit cIExpr) {

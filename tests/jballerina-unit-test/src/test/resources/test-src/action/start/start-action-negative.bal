@@ -74,8 +74,20 @@ function process() returns string {
         b = <- w1;
         b -> w1;
         flushTestHelper(flush w1);
+        future<int> r3;
+        r3 = start foo();
     }
 
    wait w1;
    return "done";
+}
+
+function retList() returns int[] {
+    return [1, 2];
+}
+
+function forI() {
+    foreach int i in wait start retList() {
+
+    }
 }
