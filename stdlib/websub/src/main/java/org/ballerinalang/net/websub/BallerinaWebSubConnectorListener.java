@@ -57,6 +57,7 @@ import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
@@ -205,8 +206,8 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         Object returnValue;
         try {
             Object[] args = {request, httpResource.getParentService().getBalService()};
-            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), WEBSUB, "commons",
-                                                   "processWebSubNotification", args);
+            returnValue = Executor.executeFunction(scheduler, this.getClass().getClassLoader(), BALLERINA, WEBSUB,
+                                                   "commons", "processWebSubNotification", args);
         } catch (BallerinaException ex) {
             log.debug("Signature Validation failed: " + ex.getMessage());
             httpCarbonMessage.setHttpStatusCode(404);

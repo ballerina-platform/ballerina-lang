@@ -106,16 +106,18 @@ public class Executor {
      *
      * @param scheduler   current scheduler
      * @param classLoader normal classLoader
-     * @param packageName package which the function belongs to
+     * @param orgName     org which the package belongs to
+     * @param packageName package which the class belongs to
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, String packageName,
-                                         String className, String methodName, Object... paramValues) {
+    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, final String orgName,
+                                         String packageName, String className, String methodName,
+                                         Object... paramValues) {
         try {
-            Class<?> clazz = classLoader.loadClass("ballerina." + packageName + "." + className);
+            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
             int paramCount = paramValues.length * 2 + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
