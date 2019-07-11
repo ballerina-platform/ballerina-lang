@@ -21,7 +21,6 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -52,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -581,6 +581,11 @@ public class Types {
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
             // Special casing services, until we figure out service type concept.
             return true;
+        }
+
+        if (target.tag == TypeTags.TYPEDESC && source.tag == TypeTags.TYPEDESC) {
+            return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
+                    unresolvedTypes);
         }
 
         // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
