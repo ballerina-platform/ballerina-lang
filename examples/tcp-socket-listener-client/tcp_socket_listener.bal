@@ -39,7 +39,7 @@ service echoServer on new  socket:Listener(61598) {
                         err = str);
                 }
             } else {
-                log:printInfo("Client leaved: " + caller.remotePort);
+                log:printInfo("Client left: " + caller.remotePort);
             }
         } else {
             io:println(result);
