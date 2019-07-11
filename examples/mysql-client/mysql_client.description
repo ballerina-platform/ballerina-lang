@@ -1,5 +1,0 @@
-// The Ballerina MYSQL Client is used to access and manipulate data in a MYSQL
-// databases. Before running the sample, copy the
-// MySQL JDBC driver to the `BALLERINA_HOME/bre/lib` folder and change the DB
-// connection properties as required. This example contains only a subset of
-// the available operations. For all available operations, refer the JDBC client example.
