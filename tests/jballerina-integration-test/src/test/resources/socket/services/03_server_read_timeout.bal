@@ -26,8 +26,8 @@ service timeoutServer on new socket:Listener(61599, config = {readTimeout: 20000
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read(length = 18);
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
