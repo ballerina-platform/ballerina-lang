@@ -365,7 +365,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed select query error")
     public void testErrorWithSelectData() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithSelectData");
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax\\/jdbc}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }

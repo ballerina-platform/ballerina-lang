@@ -52,24 +52,23 @@ function testErrorWithSelectData() returns string {
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-    json retVal;
+    string retVal;
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
     if (x is table<record {}>) {
         var jsonConversionResult = json.convert(x);
         if (jsonConversionResult is json) {
-            retVal = jsonConversionResult;
+            retVal = io:sprintf("%s", jsonConversionResult);
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = <string> jsonConversionResult.detail().message;
         }
     } else {
         error e = x;
-        retVal = { "Error": io:sprintf("%s", e) };
+        retVal = io:sprintf("%s", e);
     }
-    string returnData = io:sprintf("%s", retVal);
 
     checkpanic testDB.stop();
-    return returnData;
+    return retVal;
 }
 
 function testGeneratedKeyOnInsert() returns int|string {
