@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.BallerinaValues;
+
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 
@@ -44,7 +46,7 @@ public class BObjectType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) BallerinaValues.createObjectValue(this.pkg.toString(), this.typeName);
     }
 
     @Override
