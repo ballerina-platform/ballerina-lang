@@ -10,13 +10,13 @@
 
 2. Always, think about the length of the example. A good example should be short.
 
-3. As a practice, use `<code>ballerina/io`</code> methods in main examples and `<code>ballerina/log</code>` in services examples. Do not use both `<code>io:println</code>` and `<code>log:printInfo</code>` in the same example.
+3. As a practice, use `ballerina/io` methods in main examples and `ballerina/log` in services examples. Do not use both `io:println` and `log:printInfo` in the same example.
 
 4. The maximum character count per line should be 80 in .bal files. Otherwise, the lines will be wrapped in the [b.io](https://ballerina.io/) reducing the readability.
 
     Example;
 
-    ![wrapping lines](images/line-wrap.png "line-wrapping")
+    <img src="images/line-wrap.png" width="600" height="70" alt="wrapping lines" />
 
 5. All keywords and any other word, which needs to be highlighted should be added within backquotes (e.g., `xml`). Do not use a single quote as it will not get highlighted. 
 
@@ -24,12 +24,11 @@
 
     - In the code:
 
-        ![backquoted keywords](images/backquoted-keywords.png "backquoted-keywords")
+        <img src="images/backquoted-keywords.png" width="400" height="58" alt="backquoted keywords" />
 
     - In the b.io:
 
-        ![keywords in bio.png](images/keyword-in-bio.png "keyword in bio")
-
+        <img src="images/keyword-in-bio.png" width="400" height="80" alt="keywords in bio" />
 
 6. Remove unused imports in `.bal` files.
 
@@ -43,7 +42,7 @@
 
     - In the code:
 
-        ![adding code comments](images/code-comments.png "code_comments")
+        <img src="images/code-comments.png" width="600" height="80" alt="adding code comments" />
 
     - In the b.io:
 
@@ -99,9 +98,9 @@
 
 5. Service examples need two `.out` files. One (i.e., the `server.out` file) to display the server output and the other (i.e., the `client.out` file) to display the cURL command and the output.
 
-    ![service example structure](images/service-example-structure.png "service-example-structure")
+    <img src="images/service-example-structure.png" width="400" height="220" alt="service example structure" />
 
 
 6. Unless it is really required, it is not encouraged to have multiple .bal files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
-    ![examples with multiple BAL files](images/multiple-bal-examples.png "multiple-bal-files-examples")
+    <img src="images/multiple-bal-examples.png" width="475" height="200" alt="multiple-bal-examples" />
