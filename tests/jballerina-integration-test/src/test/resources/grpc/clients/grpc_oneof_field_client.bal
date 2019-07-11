@@ -29,7 +29,7 @@ public function testOneofFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         Response1 resp = {message:""};
-        (resp, _) = result;
+        [resp, _] = result;
         return resp.message;
     }
 }
@@ -42,7 +42,7 @@ public function testDoubleFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneA) {
             return string.convert(val.one_a);
@@ -59,7 +59,7 @@ public function testFloatFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneB) {
             return string.convert(val.one_b);
@@ -76,7 +76,7 @@ public function testInt64FieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneC) {
             return string.convert(val.one_c);
@@ -93,7 +93,7 @@ public function testUInt64FieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneD) {
             return string.convert(val.one_d);
@@ -110,7 +110,7 @@ public function testInt32FieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneE) {
             return string.convert(val.one_e);
@@ -127,7 +127,7 @@ public function testFixed64FieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneF) {
             return string.convert(val.one_f);
@@ -144,7 +144,7 @@ public function testFixed32FieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneG) {
             return string.convert(val.one_g);
@@ -161,7 +161,7 @@ public function testBolFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneH) {
             return string.convert(val.one_h);
@@ -178,7 +178,7 @@ public function testStringFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneI) {
             return <string>val.one_i;
@@ -196,7 +196,7 @@ public function testMessageFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneJ) {
             return val.one_j.aaa;
@@ -215,7 +215,7 @@ public function testBytesFieldValue() returns string {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
     } else {
         ZZZ resp;
-        (resp, _) = result;
+        [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneK) {
             return string.convert(val.one_k == bytes);
@@ -238,30 +238,30 @@ public type OneofFieldServiceBlockingClient client object {
         }
     }
 
-    remote function hello(Request1 req, grpc:Headers? headers = ()) returns ((Response1, grpc:Headers)|error) {
+    remote function hello(Request1 req, grpc:Headers? headers = ()) returns ([Response1, grpc:Headers]|error) {
 
         var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = payload;
+        [result, resHeaders] = payload;
         var value = Response1.convert(result);
         if (value is Response1) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
             return err;
         }
     }
 
-    remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ((ZZZ, grpc:Headers)|error) {
+    remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ([ZZZ, grpc:Headers]|error) {
 
         var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = payload;
+        [result, resHeaders] = payload;
         var value = ZZZ.convert(result);
         if (value is ZZZ) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
             return err;

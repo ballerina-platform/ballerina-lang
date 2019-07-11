@@ -19,13 +19,13 @@ import ballerina/io;
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9110");
 
 function testUnaryBlockingClient(string name) returns (string) {
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
         return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
     } else {
         io:println("Client Got Response : ");
         string result;
-        (result, _) = unionResp;
+        [result, _] = unionResp;
         io:println(result);
         return "Client got response: " + result;
     }
@@ -46,12 +46,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
         any result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 };
 

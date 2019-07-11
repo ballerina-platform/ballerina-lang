@@ -32,7 +32,7 @@ function testByteArray() returns (string) {
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = addResponse;
+        [result, resHeaders] = addResponse;
         return "byte array works";
     }
 }
@@ -43,7 +43,7 @@ function testLargeByteArray(string filePath) returns (string) {
     var resultBytes = rch.read(10000);
     byte[] bytes = [];
     if (resultBytes is (byte[], int)) {
-        (bytes, _) = resultBytes;
+        [bytes, _] = resultBytes;
     } else {
         return io:sprintf("File read error: %s - %s", resultBytes.reason(), <string>resultBytes.detail().message);
     }
@@ -52,7 +52,7 @@ function testLargeByteArray(string filePath) returns (string) {
         return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         byte[] result = [];
-        (result, _) = addResponse;
+        [result, _] = addResponse;
         if(result == bytes) {
             return "30KB file content transmitted successfully";
         } else {
@@ -75,11 +75,11 @@ public type byteServiceBlockingClient client object {
         }
     }
 
-    remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ((byte[], grpc:Headers)|error) {
+    remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         var value = byte[].convert(result);
         if (value is byte[]) {
             return (value, resHeaders);

@@ -88,32 +88,32 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/hello", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 
-    remote function testInt(int req, grpc:Headers? headers = ()) returns ((int, grpc:Headers)|error) {
+    remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testInt", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         var value = int.convert(result);
         if (value is int) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }
     }
 
-    remote function testFloat(float req, grpc:Headers? headers = ()) returns ((float, grpc:Headers)|error) {
+    remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         var value = float.convert(result);
         if (value is float) {
             return (value, resHeaders);
@@ -122,27 +122,27 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ((boolean, grpc:Headers)|error) {
+    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         var value = boolean.convert(result);
         if (value is boolean) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }
     }
 
-    remote function testStruct(Request req, grpc:Headers? headers = ()) returns ((Response, grpc:Headers)|error) {
+    remote function testStruct(Request req, grpc:Headers? headers = ()) returns ([Response, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         var value = Response.convert(result);
         if (value is Response) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }

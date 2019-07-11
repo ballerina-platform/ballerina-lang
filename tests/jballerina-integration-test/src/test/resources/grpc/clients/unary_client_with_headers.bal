@@ -26,13 +26,13 @@ function testUnaryBlockingClient(string name) returns (string) {
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     if (unionResp is error) {
         return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
         if (resHeaders.exists("x-id")) {
@@ -47,13 +47,13 @@ function testBlockingHeader(string name) returns (string) {
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
     if (unionResp is error) {
         return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
         string headerValue = resHeaders.get("x-id") ?: "none";
@@ -77,12 +77,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld101/hello", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 };
 

@@ -30,7 +30,7 @@ public function testClientSocketTimeout() returns string {
         return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
     } else {
         string result;
-        (result, _) = unionResp;
+        [result, _] = unionResp;
         return result;
     }
 }
@@ -49,13 +49,13 @@ public type HelloWorld14BlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
 
         var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = payload;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = payload;
+        return [string.convert(result), resHeaders];
     }
 
 };

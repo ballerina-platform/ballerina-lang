@@ -25,7 +25,7 @@ function testEnum() returns (string) {
         return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
     } else {
         string result = "";
-        (result, _) = addResponse;
+        [result, _] = addResponse;
         return result;
     }
 }
@@ -44,12 +44,12 @@ public type testEnumServiceBlockingClient client object {
         }
     }
 
-    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 };
 

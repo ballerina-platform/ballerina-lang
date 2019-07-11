@@ -39,12 +39,12 @@ function testUnarySecuredBlocking() returns (string) {
         }
     });
 
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2");
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
         return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
     } else {
         string result;
-        (result, _) = unionResp;
+        [result, _] = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
         return result;
@@ -66,12 +66,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld85/hello", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 };
 

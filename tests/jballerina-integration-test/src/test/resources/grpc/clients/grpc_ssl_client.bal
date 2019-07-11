@@ -27,12 +27,12 @@ function testUnarySecuredBlockingWithCerts() returns (string) {
         }
     });
 
-    (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2");
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
         return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
     } else {
         string result;
-        (result, _) = unionResp;
+        [result, _] = unionResp;
         io:println("Client Got Response : ");
         io:println(result);
         return result;
@@ -58,8 +58,8 @@ public type grpcMutualSslServiceBlockingClient client object {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers = headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = unionResp;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = unionResp;
+        return [string.convert(result), resHeaders];
     }
 };
 
