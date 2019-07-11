@@ -29,6 +29,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
+
 import static java.lang.Math.min;
 
 /**

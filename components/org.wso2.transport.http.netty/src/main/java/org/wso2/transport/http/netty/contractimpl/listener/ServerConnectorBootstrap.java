@@ -29,12 +29,12 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
@@ -220,7 +220,7 @@ public class ServerConnectorBootstrap {
         @Override
         public boolean stop() {
             boolean connectorStopped = false;
-            
+
             try {
                 connectorStopped = unBindInterface();
                 if (connectorStopped) {

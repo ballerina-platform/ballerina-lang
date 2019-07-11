@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_PORT;
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_SECURE_REMOTE_SERVER_URL;
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**

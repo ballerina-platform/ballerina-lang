@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.contract;
 
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
 
 /**

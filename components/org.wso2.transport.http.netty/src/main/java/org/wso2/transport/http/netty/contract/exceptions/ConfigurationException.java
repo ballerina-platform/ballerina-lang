@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.contract;
+package org.wso2.transport.http.netty.contract.exceptions;
 
 /**
  * A class that represent configuration Exception.

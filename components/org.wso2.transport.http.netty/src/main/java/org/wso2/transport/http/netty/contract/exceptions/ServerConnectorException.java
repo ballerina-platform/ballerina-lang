@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.contract;
+package org.wso2.transport.http.netty.contract.exceptions;
 
 /**
  * Exception for Server Connectors.

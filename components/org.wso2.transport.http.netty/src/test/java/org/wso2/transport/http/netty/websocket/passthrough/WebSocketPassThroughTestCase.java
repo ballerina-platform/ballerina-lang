@@ -37,6 +37,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
