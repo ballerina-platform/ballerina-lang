@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -117,9 +118,16 @@ public class LangLibTupleTest {
         assertEquals(((BFloat) returns[0]).floatValue(), 13.8);
     }
 
-//    @Test
-//    public void testIterableOpChain() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
-//        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
-//    }
+    @Test
+    public void testIterableOpChain() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+    }
+
+    @Test
+    public void testIndexOf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
+        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        assertNull(returns[1]);
+    }
 }

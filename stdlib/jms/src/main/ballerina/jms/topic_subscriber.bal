@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 # The JMS TopicListener.
 #
@@ -23,7 +24,7 @@ import ballerina/log;
 # + messageSelector - The message selector for the topic subscriber.
 public type TopicListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public TopicSubscriberCaller consumerActions = new;
     public Session session;
@@ -131,7 +132,9 @@ public type TopicSubscriberCaller client object {
             log:printInfo("Topic subscriber is not properly initialized");
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-        var returnVal = self.topicListener.closeSubscriber();
+        if (subscriber is TopicListener) {
+            var returnVal = subscriber.closeSubscriber();
+        }
         return result;
     }
 };

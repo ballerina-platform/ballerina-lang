@@ -50,7 +50,7 @@ public class Filter {
         for (int i = 0, j = 0; i < size; i++) {
             val = arr.get(i);
             if (func.apply(new Object[]{strand, arr.get(i), true})) {
-                add(newArr, elemTypeTag, i, val);
+                add(newArr, elemTypeTag, j++, val);
             }
         }
 

@@ -84,5 +84,5 @@ public type ReadableCSVChannel object {
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or error
-    public function getTable(typedesc structType) returns @tainted table<record {}>|error = external;
+    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|error = external;
 };

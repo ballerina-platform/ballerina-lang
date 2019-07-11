@@ -56,7 +56,6 @@ import static org.ballerinalang.stdlib.utils.MultipartUtils.getCarbonMessageWith
  *
  * @since 0.962.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class MultipartFormDataDecoderTest {
 
     private static final int TEST_PORT = 9090;

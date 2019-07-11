@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.fieldaccess;
+package org.ballerinalang.test.expressions.access;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
@@ -41,8 +41,8 @@ public class OptionalFieldAccessTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/fieldaccess/optional_field_access.bal");
-        negativeResult = BCompileUtil.compile("test-src/expressions/fieldaccess/optional_field_access_negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/access/optional_field_access.bal");
+        negativeResult = BCompileUtil.compile("test-src/expressions/access/optional_field_access_negative.bal");
     }
 
     @Test
@@ -112,21 +112,6 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessNilLiftingOnLaxUnion" },
                 { "testOptionalFieldAccessErrorReturnOnLaxUnion" },
                 { "testOptionalFieldAccessErrorLiftingOnLaxUnion" }
-        };
-    }
-
-    @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
-    public void testFieldAndOptionalFieldAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @DataProvider(name = "fieldAndOptionalFieldAccessFunctions")
-    public Object[][] fieldAndOptionalFieldAccessFunctions() {
-        return new Object[][] {
-                { "testFieldAccessWithOptionalFieldAccess1" },
-                { "testFieldAccessWithOptionalFieldAccess2" },
-                { "testFieldAccessWithOptionalFieldAccess3" }
         };
     }
 }

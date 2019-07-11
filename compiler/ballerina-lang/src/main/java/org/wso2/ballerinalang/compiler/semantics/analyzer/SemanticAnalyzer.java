@@ -1615,15 +1615,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private BMapType getRestParamType(BRecordType recordType)  {
-        return new BMapType(TypeTags.MAP, recordHasAnyTypeField(recordType) ?
-                BUnionType.create(null, symTable.anyType, symTable.errorType) : symTable.pureType, null);
+        BType memberType;
+
+        if (hasErrorTypedField(recordType)) {
+            memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
+                    BUnionType.create(null, symTable.anyType, symTable.errorType);
+        } else {
+            memberType = hasOnlyAnydataTypedFields(recordType) ? symTable.anydataType : symTable.anyType;
+        }
+
+        return new BMapType(TypeTags.MAP, memberType, null);
     }
 
-    private boolean recordHasAnyTypeField(BRecordType recordType) {
-        boolean hasAnyTypedField = recordType.fields.stream()
+    private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
+        boolean allAnydataFields = recordType.fields.stream()
                 .map(field -> field.type)
-                .anyMatch(fieldType -> !types.isPureType(fieldType));
-        return hasAnyTypedField || !types.isPureType(recordType.restFieldType);
+                .allMatch(fieldType -> types.isAnydata(fieldType));
+        return allAnydataFields && (recordType.sealed || types.isAnydata(recordType.restFieldType));
+    }
+
+    private boolean hasOnlyPureTypedFields(BRecordType recordType) {
+        boolean allPureFields = recordType.fields.stream()
+                .map(field -> field.type)
+                .allMatch(fieldType -> types.isPureType(fieldType));
+        return allPureFields && (recordType.sealed || types.isPureType(recordType.restFieldType));
+    }
+
+    private boolean hasErrorTypedField(BRecordType recordType) {
+        return hasErrorType(recordType.restFieldType) ||
+                recordType.fields.stream().map(field -> field.type).anyMatch(this::hasErrorType);
+    }
+
+    private boolean hasErrorType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ERROR;
+        }
+
+        return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::hasErrorType);
     }
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef varRef, BType rhsType,
