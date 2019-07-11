@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.test.types.table;
+package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -24,15 +24,15 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils;
+import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
-import static org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
+import static org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
+import static org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
 
 /**
  * Class to test table iteration functionality.
@@ -46,10 +46,10 @@ public class TableIterationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
-        resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
+        result = BCompileUtil.compile("test-src/sql/table/table_iteration.bal");
+        resultNegative = BCompileUtil.compile("test-src/sql/table/table_iteration_negative.bal");
         testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/TableIterationTestData.sql", DB_DIRECTORY, DB_NAME);
+                "datafiles/sql/TableIterationTestData.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = "TableIterationTest", description = "Negative tests for select operation")
@@ -96,7 +96,8 @@ public class TableIterationTest {
         Assert.assertEquals(returns[3].stringValue(), "John");
     }
 
-    @Test(groups = "TableIterationTest", description = "Check count operation function on table")
+    //TODO: #16033
+    @Test(groups = "TableIterationTest", description = "Check count operation function on table", enabled = false)
     public void testCountInTable() {
         BValue[] returns = BRunUtil.invoke(result, "testCountInTable");
         Assert.assertEquals(returns.length, 1);
@@ -192,46 +193,6 @@ public class TableIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
-    }
-
-    @Test()
-    public void testSelect() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelect");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
-                                    "\"salary\":300.0}]");
-    }
-
-    @Test()
-    public void testSelectCompatibleLambdaInput() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaInput");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
-                                    "\"salary\":300.0}]");
-    }
-
-    @Test()
-    public void testSelectCompatibleLambdaOutput() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaOutput");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
-                                    "\"salary\":300.0}]");
-    }
-
-    @Test()
-    public void testSelectCompatibleLambdaInputOutput() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaInputOutput");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
-                                    "\"salary\":300.0}]");
     }
 
     @AfterSuite

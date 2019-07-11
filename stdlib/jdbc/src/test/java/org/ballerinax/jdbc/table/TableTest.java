@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.types.table;
+package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
@@ -26,23 +26,17 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.test.services.testutils.HTTPTestRequest;
-import org.ballerinalang.test.services.testutils.MessageUtils;
-import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.test.utils.ResponseReader;
-import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils;
+import org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
+import org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,7 +57,6 @@ public class TableTest {
     private CompileResult resultNegative;
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
-    private CompileResult service;
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private TestDatabase testDatabase;
     private static final String TABLE_TEST = "TableTest";
@@ -81,12 +74,11 @@ public class TableTest {
         testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/TableTest_H2_Data.sql",
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
-        result = BCompileUtil.compile("test-src/types/table/table_type.bal");
-        resultNegative = BCompileUtil.compile("test-src/types/table/table_type_negative.bal");
+        result = BCompileUtil.compile("test-src/sql/table/table_type.bal");
+        resultNegative = BCompileUtil.compile("test-src/sql/table/table_type_negative.bal");
         nillableMappingNegativeResult = BCompileUtil
-                .compile("test-src/types/table/table_nillable_mapping_negative.bal");
-        nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
-        service = BCompileUtil.compile("test-src/types/table/table_to_json_service_test.bal");
+                .compile("test-src/sql/table/table_nillable_mapping_negative.bal");
+        nillableMappingResult = BCompileUtil.compile("test-src/sql/table/table_nillable_mapping.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")
@@ -1224,18 +1216,6 @@ public class TableTest {
         Assert.assertTrue(((BBoolean) booleanArray.getRefValue(2)).booleanValue());
     }
 
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
-          dependsOnGroups = TABLE_TEST)
-    public void testTableToJsonStreamingInService() {
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar1", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
-
-        String expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
-                "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]";
-
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
-    }
-
     @Test(groups = TABLE_TEST, description = "Check table to JSON conversion.")
     public void testToJsonAndAccessFromMiddle() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonAndAccessFromMiddle");
@@ -1284,18 +1264,6 @@ public class TableTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test(description = "Check table to JSON conversion and streaming back to client in a service.",
-          dependsOnGroups = TABLE_TEST)
-    public void testTableToJsonStreamingInService_2() {
-        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar2", "GET");
-        HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
-
-        String expected = "{\"status\":\"SUCCESS\", \"resp\":{\"value\":[{\"INT_TYPE\":1, " +
-                "\"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
-                "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]}}";
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 
     @Test
@@ -1407,7 +1375,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
-        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
@@ -1424,10 +1392,5 @@ public class TableTest {
     public void testRemoveOp() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
         Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void closeConnectionPool() {
-        BRunUtil.invokeStateful(service, "closeConnectionPool");
     }
 }

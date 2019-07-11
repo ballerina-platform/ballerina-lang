@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
+import ballerinax/jdbc;
 
 type Result record {
     string STRING_TYPE;
@@ -35,40 +35,39 @@ type ResultBlobCorrectOrderWrongType record {
     int INT_TYPE;
 };
 
-function testWrongOrderInt() returns error? {
+function testWrongOrderInt() returns @tainted error? {
     return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderString() returns error? {
+function testWrongOrderString() returns @tainted error? {
     return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderBoolean() returns error? {
+function testWrongOrderBoolean() returns @tainted error? {
     return testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderDouble() returns error? {
+function testWrongOrderDouble() returns @tainted error? {
     return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderFloat() returns error? {
+function testWrongOrderFloat() returns @tainted error? {
     return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderLong() returns error? {
+function testWrongOrderLong() returns @tainted error? {
     return testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
     WHERE row_id = 1");
 }
 
-function testWrongOrderBlobWrongOrder() returns error? {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
+function testWrongOrderBlobWrongOrder() returns @tainted error? {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -91,10 +90,9 @@ function testWrongOrderBlobWrongOrder() returns error? {
     return retVal;
 }
 
-function testWrongOrderBlobCorrectOrderWrongType() returns error? {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
+function testWrongOrderBlobCorrectOrderWrongType() returns @tainted error? {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -118,10 +116,9 @@ function testWrongOrderBlobCorrectOrderWrongType() returns error? {
     return retVal;
 }
 
-function testGreaterNoOfParams() returns error? {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
+function testGreaterNoOfParams() returns @tainted error? {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -144,10 +141,9 @@ function testGreaterNoOfParams() returns error? {
     return retVal;
 }
 
-function testLowerNoOfParams() returns error? {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
+function testLowerNoOfParams() returns @tainted error? {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
@@ -171,10 +167,9 @@ function testLowerNoOfParams() returns error? {
     return retVal;
 }
 
-function testWrongOrder(string queryStr) returns error? {
-    h2:Client testDB = new({
-            path: "./target/tempdb/",
-            name: "TEST_DATA_TABLE_H2",
+function testWrongOrder(string queryStr) returns @tainted error? {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
