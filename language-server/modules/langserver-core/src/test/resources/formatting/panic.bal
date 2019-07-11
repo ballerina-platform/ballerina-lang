@@ -32,8 +32,9 @@ public function main() {
 function throwError(error err) {    panic   err   ;}
 
 function throwError2(int | error a) {
+        int b=0;
     if (a is int) {
-        a += 1;
+           b+=a;
     } else {
  panic
             a;

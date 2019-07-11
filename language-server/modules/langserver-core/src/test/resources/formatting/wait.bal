@@ -1,9 +1,9 @@
 import ballerina/runtime;
 import ballerina/io;
 
-function waitTest1() returns fourthRec {
+function waitTest1() returns any {
     future<int> f1 = start add_panic(20, 66);
-    fourthRec result =wait{id: f1};
+    any result=wait{f1};
     return result;
 }
 

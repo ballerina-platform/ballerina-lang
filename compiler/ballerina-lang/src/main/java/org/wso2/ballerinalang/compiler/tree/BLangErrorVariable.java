@@ -62,6 +62,11 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     }
 
     @Override
+    public BLangSimpleVariable getRestDetail() {
+        return this.restDetail;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
