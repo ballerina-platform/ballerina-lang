@@ -46,6 +46,7 @@ public class Names {
     public static final Name OBJECT = new Name("object");
     public static final Name STREAM = new Name("stream");
     public static final Name TABLE = new Name("table");
+    public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
     public static final Name XML = new Name("xml");

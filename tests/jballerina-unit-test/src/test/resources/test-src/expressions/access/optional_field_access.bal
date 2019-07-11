@@ -291,32 +291,3 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
     }
     return false;
 }
-
-type Baz record {
-    Qux q;
-};
-
-type Qux record {
-    string name;
-    int id?;
-};
-
-function testFieldAccessWithOptionalFieldAccess1() returns boolean {
-    Baz b = { q: { name: "John" } };
-    string name = b.q?.name;
-    int? id = b.q?.id;
-    return name == "John" && id is ();
-}
-
-function testFieldAccessWithOptionalFieldAccess2() returns boolean {
-    json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
-    json|error j2 = j1?.b.c;
-    return j2 == "qwer";
-}
-
-function testFieldAccessWithOptionalFieldAccess3() returns boolean {
-    json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
-    json|error j2 = j1?.a.b;
-    json|error j3 = j1?.d.b;
-    return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
-}

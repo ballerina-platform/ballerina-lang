@@ -116,5 +116,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a paramType.
      */
-    TYPE_PARAM
+    TYPE_PARAM,
+    /**
+     * Indicates flagged node is a lang library function
+     */
+    LANG_LIB
 }

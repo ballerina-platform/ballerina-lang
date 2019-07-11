@@ -789,6 +789,7 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BXMLType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
+        // TODO : Fix me.
         typeFieldName = "typeTypedesc";
     }  else if (bType is bir:BServiceType) {
         if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
