@@ -2990,7 +2990,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
-            if (i == 0 && isParameterizedType(expectedType)) {
+            if (i == 0 && TypeParamAnalyzer.containsTypeParam(expectedType)) {
                 types.checkType(requiredArgExprs.get(i).pos, requiredArgExprs.get(i).type, expectedType,
                                 DiagnosticCode.INCOMPATIBLE_TYPES);
             } else {
@@ -2998,11 +2998,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             typeParamAnalyzer.checkForTypeParamsInArg(requiredArgExprs.get(i).type, env, expectedType);
         }
-    }
-
-    private boolean isParameterizedType(BType type) {
-        return (type.tag == TypeTags.ARRAY && TypeParamAnalyzer.isTypeParam(((BArrayType) type).eType))
-                || TypeParamAnalyzer.isTypeParam(type);
     }
 
     private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {

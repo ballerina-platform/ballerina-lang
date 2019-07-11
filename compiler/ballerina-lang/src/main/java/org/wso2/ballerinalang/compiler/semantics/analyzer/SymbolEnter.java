@@ -123,7 +123,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -756,7 +755,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             dlog.error(funcNode.pos, DiagnosticCode.REMOTE_IN_NON_OBJECT_FUNCTION, funcNode.name.value);
         }
 
-        if (isLangLibrary(env.enclPkg.symbol.pkgID)) {
+        if (PackageID.isLangLibPackageID(env.enclPkg.symbol.pkgID)) {
             funcNode.flagSet.add(Flag.LANG_LIB);
         }
 
@@ -770,10 +769,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
-    }
-
-    private boolean isLangLibrary(PackageID module) {
-        return module.orgName.equals(Names.BALLERINA_ORG) && module.nameComps.get(0).equals(Names.LANG);
     }
 
     private void createDummyFunctionSymbol(BLangFunction funcNode) {
