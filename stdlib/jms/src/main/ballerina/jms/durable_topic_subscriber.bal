@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 # The JMS DurableTopicListener endpoint.
 #
@@ -22,7 +23,7 @@ import ballerina/log;
 # + session - Session of the topic listener.
 public type DurableTopicListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public DurableTopicSubscriberCaller consumerActions = new;
     public Session session;

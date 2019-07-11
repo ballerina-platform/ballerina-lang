@@ -31,10 +31,9 @@ function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
     error preparedError;
     if (err is error) {
-        preparedError = error(JWT_ERROR_CODE, message = message, reason = err.reason());
+        preparedError = error(JWT_ERROR_CODE, message = message, cause = err);
     } else {
         preparedError = error(JWT_ERROR_CODE, message = message);
     }
-    //error preparedError = error(JWT_ERROR_CODE, message = message, reason = err.reason());
     return preparedError;
 }

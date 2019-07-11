@@ -15,12 +15,13 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerina/'lang\.object as lang;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private int port = 0;
     private ServiceEndpointConfiguration config = {};

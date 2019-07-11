@@ -2986,7 +2986,16 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<BType> requiredParamTypes) {
         for (int i = 0; i < requiredArgExprs.size(); i++) {
             BType expectedType = requiredParamTypes.get(i);
-            checkExpr(requiredArgExprs.get(i), this.env, expectedType);
+            // Special case handling for the first param because for parameterized invocations, we have added the
+            // value on which the function is invoked as the first param of the function call. If we run checkExpr()
+            // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
+            // function call error.
+            if (i == 0 && TypeParamAnalyzer.containsTypeParam(expectedType)) {
+                types.checkType(requiredArgExprs.get(i).pos, requiredArgExprs.get(i).type, expectedType,
+                                DiagnosticCode.INCOMPATIBLE_TYPES);
+            } else {
+                checkExpr(requiredArgExprs.get(i), this.env, expectedType);
+            }
             typeParamAnalyzer.checkForTypeParamsInArg(requiredArgExprs.get(i).type, env, expectedType);
         }
     }
@@ -3521,6 +3530,7 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
             if (actualType != symTable.semanticError) {
+                fieldAccessExpr.originalType = actualType;
                 return actualType;
             }
 
@@ -3534,6 +3544,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // If this is an LHS expression, check if there is a required and/ optional field by the specified field
             // name in all records.
             actualType = checkRecordFieldAccessLhsExpr(fieldAccessExpr, varRefType, fieldName);
+            fieldAccessExpr.originalType = actualType;
             if (actualType == symTable.semanticError) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
                            varRefType.tsymbol.type.getKind().typeName(), varRefType);
@@ -3559,6 +3570,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
             actualType = symTable.xmlType;
+            fieldAccessExpr.originalType = actualType;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }
@@ -3617,8 +3629,8 @@ public class TypeChecker extends BLangNodeVisitor {
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD,
                            varRefType, fieldName);
             }
-            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
+            fieldAccessExpr.originalType = getSafeType(actualType, fieldAccessExpr);
         } else if (types.isLax(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = couldHoldNonMappingJson(effectiveType) ?
@@ -3733,6 +3745,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             actualType = checkListIndexBasedAccess(indexBasedAccessExpr, varRefType);
+            indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.INT && indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
@@ -3752,6 +3765,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             checkExpr(indexExpr, this.env);
             actualType = symTable.xmlType;
+            indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;

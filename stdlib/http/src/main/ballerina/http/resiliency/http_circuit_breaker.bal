@@ -505,7 +505,14 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
         bucket.failureCount += 1;
         time:Time lastUpdated = time:currentTime();
         circuitHealth.lastErrorTime = lastUpdated;
-        circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
+        Bucket?[] buckets = circuitHealth.totalBuckets;
+        if (buckets is Bucket[]) {
+            //TODO:Get this verified
+            time:Time? lastUpdatedTime = buckets[currentBucketId]?.lastUpdatedTime;
+            if (lastUpdatedTime is time:Time) {
+                lastUpdatedTime = lastUpdated;
+            }
+        }
     }
 }
 
@@ -516,7 +523,14 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
         time:Time lastUpdated = time:currentTime();
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         circuitHealth.lastRequestSuccess = true;
-        circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
+        Bucket?[] buckets = circuitHealth.totalBuckets;
+        if (buckets is Bucket[]) {
+            //TODO:Get this verified
+            time:Time? lastUpdatedTime = buckets[currentBucketId]?.lastUpdatedTime;
+            if (lastUpdatedTime is time:Time) {
+                lastUpdatedTime = lastUpdated;
+            }
+        }
     }
 }
 
@@ -615,8 +629,14 @@ function resetBucketStats(CircuitHealth circuitHealth, int bucketId) {
 }
 
 function getEffectiveErrorTime(CircuitHealth circuitHealth) returns time:Time {
-    return (circuitHealth.lastErrorTime.time > circuitHealth.lastForcedOpenTime.time)
-    ? circuitHealth.lastErrorTime : circuitHealth.lastForcedOpenTime;
+    time:Time? lastErrorTime = circuitHealth?.lastErrorTime;
+    time:Time? lastForcedOpenTime = circuitHealth?.lastForcedOpenTime;
+    if (lastErrorTime is time:Time && lastForcedOpenTime is time:Time) {
+     return (lastErrorTime.time > lastForcedOpenTime.time)
+        ? lastErrorTime : lastForcedOpenTime;
+    }
+    //TODO:What to send?
+    return time:currentTime();
 }
 
 # Populate the `RollingWindow` statistics to handle circuit breaking within the `RollingWindow` time frame.
@@ -626,7 +646,12 @@ function getEffectiveErrorTime(CircuitHealth circuitHealth) returns time:Time {
 function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
 
     int currentTime = time:currentTime().time;
-    int idleTime = currentTime - circuitHealth.lastRequestTime.time;
+    time:Time? lastRequestTime = circuitHealth?.lastRequestTime;
+    //TODO:Get this logic verified
+    int idleTime = 0;
+    if (lastRequestTime is time:Time) {
+        idleTime = currentTime - lastRequestTime.time;
+    }
     RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
     // If the time duration between two requests greater than timeWindowMillis values, reset the buckets to default.
     if (idleTime > rollingWindow.timeWindowMillis) {

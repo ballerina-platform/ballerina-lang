@@ -123,7 +123,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -696,7 +695,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.attachedOuterFunction) {
             if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
-                        funcNode.receiver.type.tsymbol.name);
+                           funcNode.receiver.type.tsymbol.name);
                 createDummyFunctionSymbol(funcNode);
                 visitObjectAttachedFunction(funcNode);
                 return;
@@ -711,7 +710,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (funcSymbol == symTable.notFoundSymbol) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_FUNCTION, funcNode.name,
-                        funcNode.receiver.type.tsymbol.name);
+                           funcNode.receiver.type.tsymbol.name);
                 createDummyFunctionSymbol(funcNode);
                 visitObjectAttachedFunction(funcNode);
                 return;
@@ -719,7 +718,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (Symbols.isPublic(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
                 dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
-                        funcNode.receiver.type);
+                           funcNode.receiver.type);
                 createDummyFunctionSymbol(funcNode);
                 visitObjectAttachedFunction(funcNode);
                 return;
@@ -727,7 +726,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (Symbols.isPrivate(funcSymbol) ^ Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE)) {
                 dlog.error(funcNode.pos, DiagnosticCode.INVALID_VISIBILITY_ON_INTERFACE_FUNCTION_IMPL, funcNode.name,
-                        funcNode.receiver.type);
+                           funcNode.receiver.type);
                 createDummyFunctionSymbol(funcNode);
                 visitObjectAttachedFunction(funcNode);
                 return;
@@ -755,11 +754,17 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver == null && !funcNode.attachedFunction && remoteFlagSetOnNode) {
             dlog.error(funcNode.pos, DiagnosticCode.REMOTE_IN_NON_OBJECT_FUNCTION, funcNode.name.value);
         }
+
+        if (PackageID.isLangLibPackageID(env.enclPkg.symbol.pkgID)) {
+            funcNode.flagSet.add(Flag.LANG_LIB);
+        }
+
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                 getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
+
         // Define function receiver if any.
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);

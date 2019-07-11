@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.fieldaccess;
+package org.ballerinalang.test.expressions.access;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
@@ -42,8 +42,8 @@ public class FieldAccessTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/fieldaccess/field_access.bal");
-        negativeResult = BCompileUtil.compile("test-src/expressions/fieldaccess/field_access_negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/access/field_access.bal");
+        negativeResult = BCompileUtil.compile("test-src/expressions/access/field_access_negative.bal");
     }
 
     @Test
