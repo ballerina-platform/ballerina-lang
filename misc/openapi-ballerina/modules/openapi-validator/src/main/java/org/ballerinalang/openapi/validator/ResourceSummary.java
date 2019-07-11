@@ -17,10 +17,14 @@
  */
 package org.ballerinalang.openapi.validator;
 
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Summarized details of a Ballerina resource to be validated against OpenAPI document.
@@ -28,12 +32,15 @@ import java.util.List;
 class ResourceSummary {
     private Diagnostic.DiagnosticPosition resourcePosition;
     private String path;
+    private String body;
     private Diagnostic.DiagnosticPosition pathPosition;
     private List<String> methods;
     private Diagnostic.DiagnosticPosition methodsPosition;
+    private Map<String, BLangSimpleVariable> parameters;
 
     ResourceSummary() {
         this.methods = new ArrayList<>();
+        this.parameters = new HashMap<>();
         this.path = null;
         this.resourcePosition = null;
         this.pathPosition = null;
@@ -97,5 +104,51 @@ class ResourceSummary {
 
     void setMethodsPosition(Diagnostic.DiagnosticPosition methodsPosition) {
         this.methodsPosition = methodsPosition;
+    }
+
+    public Map<String, BLangSimpleVariable> getParameters() {
+        return parameters;
+    }
+
+    public boolean isParameterExist(String paramName) {
+        return this.parameters.get(paramName) != null;
+    }
+
+    public void setParameters(List<? extends SimpleVariableNode> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i > 1) {
+                SimpleVariableNode simpleVariableNode = parameters.get(i);
+                if (simpleVariableNode instanceof BLangSimpleVariable) {
+                    BLangSimpleVariable variable = (BLangSimpleVariable) simpleVariableNode;
+                    this.parameters.put(variable.getName().getValue(), variable);
+                }
+            }
+        }
+    }
+
+    public List<ResourceParameter> getParamNames() {
+        List<ResourceParameter> paramNames = new ArrayList<>();
+        for (Map.Entry<String, BLangSimpleVariable> entry : this.parameters.entrySet()) {
+            ResourceParameter resourceParameter = new ResourceParameter();
+            resourceParameter.setName(entry.getKey());
+            if (entry.getValue().type != null && entry.getValue().type.tsymbol != null) {
+                resourceParameter.setType(entry.getValue().type.tsymbol.name.getValue());
+            }
+            resourceParameter.setParameter(entry.getValue());
+            paramNames.add(resourceParameter);
+        }
+        return paramNames;
+    }
+
+    public BLangSimpleVariable getParameter(String name) {
+        return this.parameters.get(name);
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 }

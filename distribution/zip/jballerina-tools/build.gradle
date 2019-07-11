@@ -74,14 +74,12 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
-    // dist project(':protobuf-ballerina')
+    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':openapi-ballerina:openapi-validator')
     dist project(':openapi-ballerina:ballerina-client-generator')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
     docerina project(':docerina-gradle-plugin')
 

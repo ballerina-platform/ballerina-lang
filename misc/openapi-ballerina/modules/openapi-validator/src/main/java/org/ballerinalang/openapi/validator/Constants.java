@@ -38,4 +38,5 @@ public class Constants {
     static final String TRACE = "trace";
     static final String TAGS = "tags";
     static final String OPERATIONS = "operations";
+    static final String BODY = "body";
 }

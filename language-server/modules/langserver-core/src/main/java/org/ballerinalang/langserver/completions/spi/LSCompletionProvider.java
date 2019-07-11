@@ -725,6 +725,31 @@ public abstract class LSCompletionProvider {
         return completionItems;
     }
 
+    /**
+     * Check whether the current context is annotation context.
+     *
+     * @param context Language server context
+     * @return {@link Boolean} whether the cursor is in the annotation context
+     */
+    protected boolean isAnnotationAttachmentContext(LSContext context) {
+        List<Integer> lhsDefaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        /*
+        Max token bactrack count is set to 4 in order to support the following
+        @moduleName:Rec
+         */
+        int maxTokenVisitCount = 4;
+        int counter = 0;
+        while (counter < lhsDefaultTokenTypes.size() && counter < maxTokenVisitCount) {
+            Integer token = lhsDefaultTokenTypes.get(counter);
+            if (token == BallerinaParser.AT) {
+                return true;
+            }
+            counter++;
+        }
+        
+        return false;
+    }
+
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {
         boolean found = false;
         for (BLangFunction resource : service.getResources()) {

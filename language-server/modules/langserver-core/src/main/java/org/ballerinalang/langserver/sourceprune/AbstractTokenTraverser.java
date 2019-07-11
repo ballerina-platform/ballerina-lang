@@ -42,12 +42,14 @@ abstract class AbstractTokenTraverser {
 
     void processToken(Token token) {
         this.processedTokens.add(new CommonToken(token));
-        if (token.getType() == BallerinaParser.NEW_LINE || token.getChannel() != Token.DEFAULT_CHANNEL) {
+        if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
+                token.getChannel() != Token.DEFAULT_CHANNEL) {
             return;
         }
         if (pruneTokens) {
             // If the pruneTokens flag is true, replace the token text with empty spaces
             ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
+            ((CommonToken) token).setType(BallerinaParser.WS);
         }
         // Otherwise only capture the processed tokens
         this.lastProcessedToken = token.getType();
