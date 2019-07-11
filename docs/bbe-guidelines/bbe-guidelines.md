@@ -1,174 +1,107 @@
 # Guidelines for Writing Ballerina By Examples (BBEs)
 
-## General Best Practices
+- [General best practices](#general-best-practices)
+- [Practices related to the code comments](#practices-related-to-the-code-comments)
+- [Practices related to the folder structure](#practices-related-to-the-folder-structure)
 
-1. The maximum character count per line should be 80 in .bal files. Otherwise, the lines will be wrapped in the [Ballerina](https://ballerina.io/) website reducing the readability.
+## General best practices
 
-Example:
+1. Format the Ballerina source using an IDE Plugin.
 
+2. Always, think about the length of the example. A good example should be short.
 
+3. As a practice, use `<code>ballerina/io`</code> methods in main examples and `<code>ballerina/log</code>` in services examples. Do not use both `<code>io:println</code>` and `<code>log:printInfo</code>` in the same example.
 
+4. The maximum character count per line should be 80 in .bal files. Otherwise, the lines will be wrapped in the [b.io](https://ballerina.io/) reducing the readability.
 
-<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in0.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+    Example;
 
+    ![wrapping lines](images/line-wrap.png "line-wrapping")
 
-![alt_text](images/Guidelines-in0.png "image_tooltip")
+5. All keywords and any other word, which needs to be highlighted should be added within backquotes (e.g., `xml`). Do not use a single quote as it will not get highlighted. 
 
+    Example;
 
+    - In the code:
 
+        ![backquoted keywords](images/backquoted-keywords.png "backquoted-keywords")
 
-*   **Add comments to the code blocks as much as possible with “//”. They will move to the RHS box in b.io. So comments are used as a mechanism to describe the code.**
+    - In the b.io:
 
-Ex:
+        ![keywords in bio.png](images/keyword-in-bio.png "keyword in bio")
 
-Code
 
+6. Remove unused imports in `.bal` files.
 
+7. If a new example is added/deleted, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.
 
-<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in1.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+## Practices related to the code comments
 
+1. Add comments to the code blocks as much as possible by starting them with “//”. They will be moved to the RHS boxes in the [b.io](https://ballerina.io/) as a mechanism to describe the code.
 
-![alt_text](images/Guidelines-in1.png "image_tooltip")
+    Example;
 
+    - In the code:
 
-b.io:
+        ![adding code comments](images/code-comments.png "code_comments")
 
+    - In the b.io:
 
+        ![comment boxes](images/comment-boxes.png "comment-boxes")
 
-<p id="gdcalert3" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in2.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert4">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+2. Since comments are used in the RHS as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
 
+3. After a comment is strated, it will continue being applied to the subsequent lines in the file until another comment or an empty line is found. Therefore, use comments/new lines appropriately to ensure that they apply only to the relevant lines.
 
-![alt_text](images/Guidelines-in2.png "image_tooltip")
+4. There is no restriction on the max number of chars that should be there in comment lines as they get wrapped automatically in the RHS side in the [b.io](https://ballerina.io/). However, since users can refer the same in the code in GitHub, it is better if we can have the same char limit as of a code line (i.e., 80) to increase readability.
 
+    For example, it will not be readable if comments are significantly longer than the code line as shown below. 
 
+    ![long comments](images/long-comments.png "long-comments")
 
+## Practices related to the folder structure
 
-*   **Since comments are used in RHS they should be a valid sentence. (i.e. Start with upper case letter, ends with full stop etc)**
-*   **A comment applies to the subsequent lines in the file until another comment or an empty line is found. Use comments/new lines appropriately to ensure that it applies only to the relevant lines.**
-*   **No restriction for the max chars in comment lines as they will go to RHS side and wraps automatically. But since users can refer the code in GitHub, it is better if we can have the same char limit as the code line (i.e. 80) as it increases the readability of the code file.**
+1. Each BBE should be in a separate directory with the sample name. 
 
-Ex: Comments are significantly longer than the code line, which is not readable. 
+2. Directory name should be in all lowercase letters with words separated by “-” (e.g., abstract-objects).
 
+3. Each example should contain at least the following files. 
 
+    > **Tip:** File names should be the same as folder name, with the “-” being replaced with the underscore (e.g., abstract_objects).
 
-<p id="gdcalert4" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in3.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert5">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+    .bal - Sample code to display in b.io.
 
+    .description - The sample description displayed at the top of each example in b.io
 
-![alt_text](images/Guidelines-in3.png "image_tooltip")
+    .out - Output of the sample displayed at the bottom black colour box in b.io.
 
+    _test.bal - Contains the test to validate the output of the BBE during the build time. 
 
+    ![BBE folder structure](images/bbe-folder-structure.png "bbe-folder-structure")
 
+4. As a common pattern, use the following format for `.out` files and customize it only when required (e.g., to add more command line args etc.).
 
-*   **All keywords and any other word which needs to be highlighted should be used with backquotes. (ex:  `xml`).  Don’t use a single quote as it won’t get highlighted. **
+- For an example with main;
 
-Ex:
+    ```
+    # To run this sample, navigate to the directory that contains the
+    # `.bal` file and issue the `ballerina run` command.
+    $ ballerina run <sample_file_name>.bal
+    ```
+- For an example with a service;
 
-Code:
+    ```
+    # To start the service, navigate to the directory that contains the
+    # `.bal` file and issue the `ballerina run` command.
+    $ ballerina run hello_world_service.bal
+    ```
 
 
+5. Service examples need two `.out` files. One (i.e., the `server.out` file) to display the server output and the other (i.e., the `client.out` file) to display the cURL command and the output.
 
-<p id="gdcalert5" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in4.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert6">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+    ![service example structure](images/service-example-structure.png "service-example-structure")
 
 
-![alt_text](images/Guidelines-in4.png "image_tooltip")
+6. Unless it is really required, it is not encouraged to have multiple .bal files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
-
-b.io:
-
-
-
-<p id="gdcalert6" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in5.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert7">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in5.png "image_tooltip")
-
-
-
-
-*   **We use a common pattern in `.out` files. Use the following format and customize only when necessary (ex: When needed to add more command line args etc)**
-
-<span style="text-decoration:underline;">For an example with main:</span>
-
-# To run this sample, navigate to the directory that contains the
-
-# `.bal` file and issue the `ballerina run` command.
-
-$ ballerina run <sample_file_name>.bal
-
-<span style="text-decoration:underline;">For an example with a service:</span>
-
-# To start the service, navigate to the directory that contains the
-
-# `.bal` file and issue the `ballerina run` command.
-
-$ ballerina run hello_world_service.bal
-
-
-
-*   **As a practice, we use `<code>ballerina/io`</code> methods in main examples and `<code>ballerina/log</code>` in services examples. Don’t use both `<code>io:println</code>` and `<code>log:printInfo</code>` in the same sample.</strong>
-*   <strong>Remove unused imports in `.bal` files.</strong>
-*   <strong>Format the ballerina source using an IDE Plugin. </strong>
-*   <strong>Always think about the length of the sample. A good example should be short.</strong>
-*   <strong>If a new example is added/deleted, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.</strong>
-
-
-
-**<span style="text-decoration:underline;">Folder Structure</span>**
-
-
-
-*   **Each BBE is in a separate directory with the sample name. Folder name should be all lowercase and words are separated by “-”. (ex: abstract-objects)**
-*   **Each example should contains at least following files. File name should be same as folder name, but “-” is replaced with underscore. (ex: abstract_objects)**
-
-
-
-<p id="gdcalert7" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in6.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert8">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in6.png "image_tooltip")
-
-
-           .bal - Sample code to display in b.io.
-
-           .description - The sample description displayed at the top of each example in b.io
-
-           .out - Output of the sample displayed at the bottom black colour box in b.io.
-
-           _test.bal - Contains the test to validate the output of the BBE during the build time. 
-
-
-
-*   **For service examples, we need to have two .out files. One to display the server output (.server.out file) and the other (.client.out file)  to display the curl command and the output.**
-
-    
-
-<p id="gdcalert8" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in7.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert9">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in7.png "image_tooltip")
-
-
-<p id="gdcalert9" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in8.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert10">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in8.png "image_tooltip")
-
-
-<p id="gdcalert10" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in9.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert11">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in9.png "image_tooltip")
-
-
-*   **Unless it is really required, it is not encouraged to have multiple .bal files in the same sample. In that case, each bal file can have its own name and .out file should match with the name of the .bal file. **
-
-		
-
-<p id="gdcalert11" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/Guidelines-in10.png). Store image on your image server and adjust path/filename if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert12">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
-
-
-![alt_text](images/Guidelines-in10.png "image_tooltip")
-
-
-
-<!-- Docs to Markdown version 1.0β17 -->
+    ![examples with multiple BAL files](images/multiple-bal-examples.png "multiple-bal-files-examples")
