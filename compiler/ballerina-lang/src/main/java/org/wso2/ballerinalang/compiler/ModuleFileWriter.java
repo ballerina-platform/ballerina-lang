@@ -198,20 +198,23 @@ public class ModuleFileWriter {
     }
 
     private void addPlatformLibs(Path root, Path projectDirectory, String moduleName) throws IOException {
-        Path platformLibsDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
-        Files.createDirectory(platformLibsDir);
+        //If platform libs are defined add them to balo
+        if (null != manifest.getPlatform().libraries) {
+            Path platformLibsDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
+            Files.createDirectory(platformLibsDir);
 
-        List<Path> libs = manifest.getPlatform().libraries.stream()
-                .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
-                .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
+            List<Path> libs = manifest.getPlatform().libraries.stream()
+                    .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
+                    .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
 
-        for (Path lib : libs) {
-            Path nativeFile = projectDirectory.resolve(lib);
-            Path targetPath = platformLibsDir.resolve(lib.getFileName().toString());
-            try {
-                Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+            for (Path lib : libs) {
+                Path nativeFile = projectDirectory.resolve(lib);
+                Path targetPath = platformLibsDir.resolve(lib.getFileName().toString());
+                try {
+                    Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                }
             }
         }
     }

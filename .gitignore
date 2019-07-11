@@ -1,6 +1,10 @@
 *.class
 *.log
 
+# Ballerina 
+Ballerina.lock
+
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

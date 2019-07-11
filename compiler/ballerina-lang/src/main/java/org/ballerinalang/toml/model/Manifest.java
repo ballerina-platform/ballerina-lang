@@ -85,11 +85,11 @@ public class Manifest {
 
     public String getTargetPlatform() {
         // check if platform exists else return any
-        if (null == platform) {
+        if (null == platform.libraries) {
             return ProgramFileConstants.ANY_PLATFORM;
         } else {
             // if platform exist and target not given return error
-            if (null == platform.getTarget()){
+            if (null == platform.target && null != platform.libraries){
                 throw new BLangCompilerException("Platform target is not specified in the Ballerina.toml");
             }
             // if platform exist and target not supported return error
