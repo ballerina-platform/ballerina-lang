@@ -23,7 +23,9 @@ import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.State;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +35,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD;
+import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD_ON_EXTERN;
+import static org.ballerinalang.jvm.values.State.DONE;
+import static org.ballerinalang.jvm.values.State.RUNNABLE;
+import static org.ballerinalang.jvm.values.State.YIELD;
+
 /**
  * Strand base class used with jvm code generation for functions.
  *
@@ -40,21 +48,22 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class Strand {
-    public boolean yield;
+//    public boolean yield;
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
-    public boolean blocked;
-    public List<Strand> blockedOn;
+//    public boolean blocked;
+    public CopyOnWriteArrayList blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
-    public boolean blockedOnExtern;
+//    public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
     private Map<String, Object> globalProps;
     public boolean cancel;
     public ObserverContext observerContext;
+    private State state;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -62,14 +71,12 @@ public class Strand {
         this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new HashSet<>();
         this.globalProps = new HashMap<>();
+        this.state = RUNNABLE;
     }
 
     public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
-        this.scheduler = scheduler;
+        this(scheduler);
         this.parent = parent;
-        this.wdChannels = new WDChannels();
-        this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new HashSet<>();
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
 
@@ -131,8 +138,7 @@ public class Strand {
                 }
             }
             flushDetail.inProgress = true;
-            this.yield = true;
-            this.blocked = true;
+            this.setState(BLOCK_AND_YIELD);
             return null;
         } finally {
             this.flushDetail.flushLock.unlock();
@@ -159,8 +165,9 @@ public class Strand {
                     }
                     target.put(entry.getKey(), entry.getValue().result);
                 } else {
-                    this.yield = true;
-                    this.blocked = true;
+                    this.setState(BLOCK_AND_YIELD);
+//                    this.yield = true;
+//                    this.blocked = true;
                     this.blockedOn.add(entry.getValue().strand);
                 }
             }
@@ -199,17 +206,16 @@ public class Strand {
             this.blockedOn.clear();
             waitResult = new WaitResult(true, error);
         } else {
-            this.yield = true;
-            this.blocked = true;
+            this.setState(BLOCK_AND_YIELD);
+//            this.yield = true;
+//            this.blocked = true;
         }
 
         return waitResult;
     }
 
     public void updateChannelDetails(ChannelDetails[] channels) {
-        for (ChannelDetails details : channels) {
-            this.channelDetails.add(details);
-        }
+        this.channelDetails.addAll(Arrays.asList(channels));
     }
 
     private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {
@@ -220,6 +226,26 @@ public class Strand {
             dataChannel = this.parent.wdChannels.getWorkerDataChannel(channel.name);
         }
         return dataChannel;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public boolean isBlocked() {
+        return BLOCK_AND_YIELD.equals(this.getState()) || BLOCK_AND_YIELD_ON_EXTERN.equals(this.getState());
+    }
+
+    public boolean isYielded() {
+        return !(RUNNABLE.equals(this.getState()) || DONE.equals(this.getState()));
+    }
+
+    public boolean isBlockedOnExtern() {
+        return BLOCK_AND_YIELD_ON_EXTERN.equals(this.getState());
     }
 
     /**

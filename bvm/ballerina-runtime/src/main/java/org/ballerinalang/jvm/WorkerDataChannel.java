@@ -24,6 +24,8 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD;
+
 /**
  * This represents a worker data channel that is created for each worker to
  * worker interaction for each function call.
@@ -33,7 +35,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WorkerDataChannel {
 
     private Strand receiver;
-    private Strand sender;
     private WaitingSender waitingSender;
     private WaitingSender flushSender;
     private ErrorValue error;
@@ -71,7 +72,6 @@ public class WorkerDataChannel {
 
     @SuppressWarnings("rawtypes")
     public void sendData(Object data, Strand sender) {
-        this.sender = sender;
         try {
             acquireChannelLock();
             this.channel.add(new WorkerResult(data));
@@ -116,8 +116,9 @@ public class WorkerDataChannel {
                 }
 
                 reschedule = true;
-                strand.blocked = true;
-                strand.yield = true;
+//                strand.blocked = true;
+//                strand.yield = true;
+                strand.setState(BLOCK_AND_YIELD);
                 return null;
             }
 
@@ -159,7 +160,7 @@ public class WorkerDataChannel {
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;
                     if (this.flushSender.waitingStrand.flushDetail.flushedCount
                             == this.flushSender.waitingStrand.flushDetail.flushChannels.length &&
-                            this.flushSender.waitingStrand.blocked) {
+                            this.flushSender.waitingStrand.isBlocked()) {
                             //will continue if this is a sync wait, will try to flush again if blocked on flush
                             this.flushSender.waitingStrand.scheduler.unblockStrand(this.flushSender.waitingStrand);
 
@@ -176,8 +177,9 @@ public class WorkerDataChannel {
                 return error;
             } else {
                 this.receiver = strand;
-                strand.blocked = true;
-                strand.yield = true;
+//                strand.blocked = true;
+//                strand.yield = true;
+                strand.setState(BLOCK_AND_YIELD);
                 return null;
             }
         } finally {
@@ -212,7 +214,7 @@ public class WorkerDataChannel {
         if (this.flushSender != null) {
             this.flushSender.waitingStrand.flushDetail.flushLock.lock();
             Strand flushStrand = this.flushSender.waitingStrand;
-            if (flushStrand.blocked) {
+            if (flushStrand.isBlocked()) {
                 flushStrand.flushDetail.result = error;
                 flushStrand.scheduler.unblockStrand(flushStrand);
             }
@@ -291,7 +293,7 @@ public class WorkerDataChannel {
             this.flushSender.waitingStrand.flushDetail.flushLock.lock();
             Strand flushStrand = this.flushSender.waitingStrand;
             this.flushSender.waitingStrand.flushDetail.panic = panic;
-            if (flushStrand.blocked) {
+            if (flushStrand.isBlocked()) {
                 flushStrand.scheduler.unblockStrand(flushStrand);
             }
             this.flushSender.waitingStrand.flushDetail.flushLock.unlock();

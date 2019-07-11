@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.State;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.ballerinalang.jvm.SchedulerItem.BLOCKED;
 import static org.ballerinalang.jvm.SchedulerItem.POISON_PILL;
-import static org.ballerinalang.jvm.SchedulerItem.RUNNABLE;
-import static org.ballerinalang.jvm.SchedulerItem.YIELD;
+import static org.ballerinalang.jvm.values.State.RUNNABLE;
 
 /**
  * Strand scheduler for JBallerina.
@@ -213,7 +212,8 @@ public class Scheduler {
             }
 
             switch (item.getState()) {
-                case BLOCKED:
+                case BLOCK_AND_YIELD:
+                case BLOCK_AND_YIELD_ON_EXTERN:
                     if (item.blockedOn().isEmpty()) {
                         if (DEBUG) {
                             debugLog(item + " blocked");
@@ -417,9 +417,6 @@ class SchedulerItem {
     final FutureValue future;
 
     public static final SchedulerItem POISON_PILL = new SchedulerItem();
-    public static final int RUNNABLE = 0;
-    public static final int YIELD = 1;
-    public static final int BLOCKED = 2;
 
     public SchedulerItem(Function function, Object[] params, FutureValue future) {
         this.future = future;
@@ -448,30 +445,19 @@ class SchedulerItem {
         }
     }
 
-    public boolean isYielded() {
-        return this.future.strand.yield;
-    }
-
-    public int getState() {
-        if (this.future.strand.blocked) {
-            return BLOCKED;
-        } else if (this.future.strand.yield) {
-            return YIELD;
-        } else {
-            return RUNNABLE;
-        }
-    }
-
     public List<Strand> blockedOn() {
         return this.future.strand.blockedOn;
     }
 
-    public void setState(int state) {
+    public void setState(State state) {
+        this.future.strand.setState(state);
         if (state == RUNNABLE) {
-            this.future.strand.yield = false;
             this.future.strand.blockedOn.clear();
-            this.future.strand.blocked = false;
         }
+    }
+
+    public State getState() {
+        return this.future.strand.getState();
     }
 
     @Override

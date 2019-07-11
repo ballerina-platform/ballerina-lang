@@ -30,7 +30,6 @@ public class WDChannels {
     private Map<String, WorkerDataChannel> wDChannels;
 
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
-    //simple desugaring would work for worker data channels as well
     public WDChannels() {
     }
 

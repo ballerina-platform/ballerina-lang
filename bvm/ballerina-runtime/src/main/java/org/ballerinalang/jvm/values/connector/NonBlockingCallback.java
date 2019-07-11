@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +34,10 @@ public class NonBlockingCallback {
     private final Strand strand;
 
     public NonBlockingCallback(Strand strand) {
-        strand.yield = true;
-        strand.blocked = true;
-        strand.blockedOnExtern = true;
+//        strand.yield = true;
+//        strand.blocked = true;
+//        strand.blockedOnExtern = true;
+        strand.setState(State.BLOCK_AND_YIELD_ON_EXTERN);
         this.strand = strand;
     }
 
