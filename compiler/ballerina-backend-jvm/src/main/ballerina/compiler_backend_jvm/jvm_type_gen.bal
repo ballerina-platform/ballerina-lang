@@ -1109,10 +1109,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
 
-    foreach var value in finiteType.values {
+    foreach var valueTypePair in finiteType.values {
+        var value = valueTypePair[0];
+        bir:BType valueType = valueTypePair[1];
         mv.visitInsn(DUP);
 
-        if (value is ()) {
+        if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
         } else if (value is bir:Decimal) { 
             // do nothing
@@ -1120,13 +1122,13 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
             mv.visitLdcInsn(value);
         }
 
-        if (value is int) {
+        if (valueType is bir:BTypeInt) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-        } else if (value is boolean) {
+        } else if (valueType is bir:BTypeBoolean) {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else if (value is float) {
+        } else if (valueType is bir:BTypeFloat) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (value is byte) {
+        } else if (valueType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
         } else if (value is bir:Decimal) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);

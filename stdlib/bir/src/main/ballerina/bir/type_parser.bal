@@ -362,7 +362,7 @@ public type TypeParser object {
         int c = 0;
         while c < size {
             BType valueType = self.parseTypeCpRef();
-            finiteType.values[c] = self.getValue(valueType);
+            finiteType.values[c] = [self.getValue(valueType), valueType];
             c = c + 1;
         }
         return finiteType;
