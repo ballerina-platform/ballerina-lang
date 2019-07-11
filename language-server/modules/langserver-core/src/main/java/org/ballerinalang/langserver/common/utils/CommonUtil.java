@@ -1282,6 +1282,7 @@ public class CommonUtil {
             newName = replacer.apply("update", newName);
             newName = replacer.apply("set", newName);
             newName = replacer.apply("add", newName);
+            newName = replacer.apply("create", newName);
             // Remove '_' underscores
             while (newName.contains("_")) {
                 String[] parts = newName.split("_");
