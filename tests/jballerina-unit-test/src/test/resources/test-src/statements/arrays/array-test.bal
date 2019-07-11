@@ -91,13 +91,13 @@ function testArraysAsFuncParams() returns Foo[] {
 }
 
 type A1 record {
-    B1 b;
-    string a1;
+    B1 b = {};
+    string a1?;
 };
 
 type B1 record {
     A1 a?;
-    string b1;
+    string b1 = "B1";
 };
 
 function testArraysOfCyclicDependentTypes() returns A1[] {
