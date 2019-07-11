@@ -77,41 +77,6 @@ function testMapArrayFill(int index, map<any> value) returns map<any>[] {
     return ar;
 }
 
-type Foo record {
-    string s = "foo";
-    int i;
-    float f?;
-    boolean b;
-    decimal d;
-    () n;
-    [string, int] t;
-    map<any> m;
-    xml x;
-    byte bt;
-    json j;
-    anydata ad;
-};
-
-function testRecordArrayFill(int index) returns Foo[] {
-    map<any> m = {"1": 1};
-    Foo value = {
-        i: 10,
-        f: 12.34,
-        b: true,
-        d: 23.45,
-        n: (),
-        t: ["Pubudu", 27],
-        m: m,
-        x: xml ` `,
-        bt: 5,
-        j: {name: "Pubudu"},
-        ad: 10
-    };
-    Foo[] ar = [];
-    ar[index] = value;
-    return ar;
-}
-
 type Employee record {
     int id;
     string name;
@@ -293,8 +258,8 @@ function testSequentialArrayInsertion() returns Student[] {
     return arr;
 }
 
-function testTwoDimensionalArrayFill() returns int[][2] {
-    int[][2] x = [];
+function testTwoDimensionalArrayFill() returns int[][] {
+    int[][] x = [];
     x[1] = [1, 3];
     return x;
 }
@@ -322,4 +287,15 @@ function testArrayFillWithStreams() returns stream<Obj>[] {
     stream<Obj> objStream = new;
     objStreamArr[1] = objStream;
     return objStreamArr;
+}
+
+type Rec record {
+    int i?;
+    int j = 10;
+};
+
+function testRecordTypeWithOptionalFieldsArrayFill() returns Rec[] {
+    Rec[] x = [];
+    x[1] = {i: 1, j: 2};
+    return x;
 }
