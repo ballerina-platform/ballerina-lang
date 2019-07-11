@@ -144,6 +144,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -866,23 +867,34 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (bType.tag == TypeTags.UNION) {
             Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
-            return expTypes.stream()
-                    .filter(type -> type.tag == TypeTags.JSON ||
-                            type.tag == TypeTags.MAP ||
-                            (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) ||
-                            (type.tag == TypeTags.RECORD
-                                    && ((BRecordType) type).sealed
-                                    && isCompatibleClosedRecordLiteral((BRecordType) type, recordLiteral)))
-                    .collect(Collectors.toList());
-        } else {
-            switch (expType.tag) {
-                case TypeTags.JSON:
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    return new ArrayList<>(Collections.singleton(expType));
-                default:
-                    return Collections.emptyList();
+
+            List<BType> possibleTypes =
+                    expTypes.stream()
+                            .filter(type -> type.tag == TypeTags.MAP ||
+                                    (type.tag == TypeTags.RECORD &&
+                                             (!((BRecordType) type).sealed ||
+                                                      isCompatibleClosedRecordLiteral((BRecordType) type,
+                                                                                      recordLiteral))))
+                            .collect(Collectors.toList());
+
+            if (expTypes.stream().anyMatch(type -> type.tag == TypeTags.JSON) &&
+                    expTypes.stream().noneMatch(type -> type.tag == TypeTags.MAP &&
+                            ((BMapType) type).constraint.tag == TypeTags.JSON)) {
+                possibleTypes.add(new BMapType(TypeTags.MAP, symTable.jsonType, null));
             }
+
+            return possibleTypes;
+        }
+
+
+        switch (expType.tag) {
+            case TypeTags.JSON:
+                return Collections.singletonList(new BMapType(TypeTags.MAP, symTable.jsonType, null));
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return Collections.singletonList(bType);
+            default:
+                return Collections.emptyList();
         }
     }
 
