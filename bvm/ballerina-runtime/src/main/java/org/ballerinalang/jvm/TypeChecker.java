@@ -1369,7 +1369,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return hasFillerValue(((BArrayType) type).getElementType());
+                return checkFillerValue((BArrayType) type);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -1409,10 +1409,12 @@ public class TypeChecker {
         }
         unAnalyzedTypes.add(type);
         return type.getFields().values().stream().allMatch(f -> Flags.isFlagOn(f.flags, Flags.OPTIONAL)
-                || hasFillerValue(f.type, unAnalyzedTypes));
+                || (!Flags.isFlagOn(f.flags, Flags.OPTIONAL) && !Flags.isFlagOn(f.flags, Flags.REQUIRED)));
     }
 
-
+    private static boolean checkFillerValue(BArrayType type) {
+        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
+    }
 
     private static boolean checkFillerValue(BObjectType type) {
         if (type.getTag() == TypeTags.SERVICE_TAG) {

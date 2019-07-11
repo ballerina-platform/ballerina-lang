@@ -649,7 +649,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 varNode.type = errorType;
             } else if (varNode.type.tag == TypeTags.ERROR) {
                 errorType.detailType = ((BErrorType) varNode.type).detailType;
-                varNode.type = errorType;
             }
 
             // Set error reason type.
