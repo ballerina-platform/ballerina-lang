@@ -65,7 +65,8 @@ public function main() {
         io:println("Batch 1 update counts: " + retBatch[0]);
         io:println("Batch 2 update counts: " + retBatch[1]);
     } else {
-        io:println("Batch update operation failed: " + <string>retBatch.detail().message);
+        error err = retBatch;
+        io:println("Batch update operation failed: " + <string>err.detail().message);
     }
 
     // Check the data in the database.
@@ -77,11 +78,12 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:JdbcClientError returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string>err.detail().message);
     }
 }
 
@@ -96,7 +98,8 @@ function checkData() {
             io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
         }
     } else {
+        error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>dtReturned.detail().message);
+                + <string>err.detail().message);
     }
 }

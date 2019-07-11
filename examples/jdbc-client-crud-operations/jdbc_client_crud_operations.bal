@@ -84,7 +84,8 @@ public function main() {
         io:println("Inserted row count: " + count);
         io:println("Generated key: " + generatedKey);
     } else {
-        io:println("Insert to table failed: " + <string>retWithKey.detail().message);
+        error err = retWithKey;
+        io:println("Insert to table failed: " + <string>err.detail().message);
     }
 
     // Select data using the `select` remote function. The `select` remote
@@ -107,8 +108,9 @@ public function main() {
             io:println("Error in table to json conversion");
         }
     } else {
+        error err = selectRet;
         io:println("Select data from student table failed: "
-                + <string>selectRet.detail().message);
+                + <string>err.detail().message);
     }
 
     // Re-iteration of the result is possible only if `loadToMemory` named argument
@@ -128,8 +130,9 @@ public function main() {
             io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
         }
     } else {
+        error err = selectRet;
         io:println("Select data from student table failed: "
-                + <string>selectRet.detail().message);
+                + <string>err.detail().message);
     }
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
@@ -138,10 +141,11 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:JdbcClientError returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string>err.detail().message);
     }
 }

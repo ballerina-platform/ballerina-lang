@@ -39,15 +39,17 @@ public function main() {
     if (retCall is ()|table<record {}>[]) {
         io:println("Call operation is successful");
     } else {
-        io:println("Stored procedure call failed: " + <string>retCall.detail().message);
+        error err = retCall;
+        io:println("Stored procedure call failed: " + <string>err.detail().message);
     }
 }
 
 // Function to handle the return value of the update remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:JdbcClientError returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string>err.detail().message);
     }
 }
