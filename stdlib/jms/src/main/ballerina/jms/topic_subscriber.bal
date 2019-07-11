@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 # The JMS TopicListener.
 #
@@ -23,7 +24,7 @@ import ballerina/log;
 # + messageSelector - The message selector for the topic subscriber.
 public type TopicListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public TopicSubscriberCaller consumerActions = new;
     public Session session;
@@ -63,12 +64,12 @@ public type TopicListener object {
     # + name - The name of the service.
     # + return - Returns nil or an error upon failure to register the listener.
     public function __attach(service s, string? name = ()) returns error? {
-        return self.registerListener(s, self.consumerActions, name);
+        return self.registerListener(s);
     }
 
-    function registerListener(service serviceType, TopicSubscriberCaller actions, string? name) returns error? = external;
+    function registerListener(service serviceType) returns error? = external;
 
-    function createSubscriber(Session? session, string messageSelector, string|Destination dest) = external;
+    function createSubscriber(Session session, string messageSelector, string|Destination dest) = external;
 
     # Starts the TopicListener.
     #
@@ -88,10 +89,10 @@ public type TopicListener object {
     #
     # + return - Returns nil or an error upon failure to close the subscriber.
     public function __stop() returns error? {
-        return self.closeSubscriber(self.consumerActions);
+        return self.closeSubscriber();
     }
 
-    function closeSubscriber(TopicSubscriberCaller actions) returns error? = external;
+    function closeSubscriber() returns error? = external;
     private function start() returns error? = external;
 };
 
@@ -131,7 +132,9 @@ public type TopicSubscriberCaller client object {
             log:printInfo("Topic subscriber is not properly initialized");
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-        var returnVal = self.topicListener.closeSubscriber(self);
+        if (subscriber is TopicListener) {
+            var returnVal = subscriber.closeSubscriber();
+        }
         return result;
     }
 };

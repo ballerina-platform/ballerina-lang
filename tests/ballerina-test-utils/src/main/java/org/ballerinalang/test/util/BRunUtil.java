@@ -94,6 +94,7 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -283,6 +284,8 @@ public class BRunUtil {
                 paramTypes[i] = XMLValue.class;
             } else if (arg instanceof String) {
                 paramTypes[i] = String.class;
+            } else if (arg instanceof ArrayValue) {
+                paramTypes[i] = ArrayValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -390,7 +393,7 @@ public class BRunUtil {
                 getClassName(function.pos.src.cUnitName));
         Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
-            Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
+            Method method = getMethod(functionName, funcClass);
             Function<Object[], Object> func = a -> {
                 try {
                     return method.invoke(null, a);
@@ -427,6 +430,19 @@ public class BRunUtil {
 
         BValue result = getBVMValue(jvmResult);
         return new BValue[] { result };
+    }
+
+    private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
+        Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
+                .filter(method -> functionName.equals(method.getName()))
+                .findAny()
+                .orElse(null);
+
+        if (declaredMethod != null) {
+            return declaredMethod;
+        } else {
+            throw new NoSuchMethodException(functionName + " is not found");
+        }
     }
 
     /**
@@ -591,6 +607,7 @@ public class BRunUtil {
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
                 ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
+                jvmArray.elementType = getJVMType(array.elementType);
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -688,6 +705,8 @@ public class BRunUtil {
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
+            case TypeTags.DECIMAL_TAG:
+                return new DecimalValue(((BDecimal) value).value());
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
@@ -859,6 +878,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeString;
             case TypeTags.FLOAT_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.DECIMAL_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeDecimal;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());

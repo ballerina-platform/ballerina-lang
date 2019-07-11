@@ -17,6 +17,7 @@
 import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
+import ballerina/'lang\.object as lang;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -25,7 +26,7 @@ import ballerina/system;
 # remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private int port = 0;
     private ServiceEndpointConfiguration config = {};
@@ -290,7 +291,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 // public type WebSocketListener Listener;
 public type WebSocketListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private Listener httpEndpoint;
 

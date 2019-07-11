@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -2401,7 +2402,7 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-            
+
             if (!enclLocks.isEmpty()) {
                 enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
             }
@@ -4527,9 +4528,10 @@ public class Desugar extends BLangNodeVisitor {
 
         if (expr.getKind() == NodeKind.INVOCATION) {
             BLangInvocation invocation = (BLangInvocation) expr;
-            invocation.type = ((BInvokableSymbol) invocation.symbol).retType;
+            BType retType = ((BInvokableSymbol) invocation.symbol).retType;
 
-            if (TypeParamAnalyzer.isTypeParam(invocation.type)) {
+            if (PackageID.isLangLibPackageID(invocation.symbol.pkgID) && TypeParamAnalyzer.containsTypeParam(retType)) {
+                invocation.type = retType;
                 BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
                                                                                     symTable.errorType, false, true,
                                                                                     InstructionCodes.NOP, null, null);
@@ -4710,10 +4712,12 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC,
-                                                                    names.fromString("$anonErrorType$" + errorCount++),
-                                                                    env.enclPkg.symbol.pkgID,
-                                                                    null, null);
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(
+                    SymTag.ERROR,
+                    Flags.PUBLIC,
+                    names.fromString("$anonErrorType$" + errorCount++),
+                    env.enclPkg.symbol.pkgID,
+                    null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.detailType;
@@ -4723,7 +4727,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType, detailType);
+            BErrorType errorType = new BErrorType(errorTypeSymbol,
+                    ((BErrorType) errorVariable.type).reasonType,
+                    detailType);
             errorTypeSymbol.type = errorType;
 
             createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType));

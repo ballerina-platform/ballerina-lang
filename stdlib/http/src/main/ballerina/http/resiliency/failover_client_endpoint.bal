@@ -78,7 +78,7 @@ public type FailoverClient client object {
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function post(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function post(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_POST, self);
         if (result is HttpFuture) {
@@ -94,7 +94,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -110,7 +110,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function patch(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function patch(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PATCH, self);
         if (result is HttpFuture) {
@@ -126,7 +126,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function put(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function put(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PUT, self);
         if (result is HttpFuture) {
@@ -142,7 +142,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function options(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -157,7 +157,7 @@ public type FailoverClient client object {
     # + path - Resource path
     # + request - An HTTP request
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function forward(string path, Request request) returns @tainted (Response|error) {
+    public remote function forward(string path, Request request) returns @tainted Response|error {
         var result = performFailoverAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -174,7 +174,7 @@ public type FailoverClient client object {
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public remote function execute(string httpVerb, string path, RequestMessage message) returns
-                                                                                        @tainted (Response|error) {
+                                                                                        @tainted Response|error {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, httpVerb, self);
         if (result is HttpFuture) {
@@ -190,7 +190,7 @@ public type FailoverClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns @tainted (Response|error) {
+    public remote function delete(string path, RequestMessage message) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -206,7 +206,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns @tainted (Response|error) {
+    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|error {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
@@ -226,7 +226,7 @@ public type FailoverClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
     #            fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns @tainted (HttpFuture|error) {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns @tainted HttpFuture|error {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, "SUBMIT", self, verb = httpVerb);
         if (result is Response) {
@@ -399,8 +399,11 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 function populateGenericFailoverActionError (error?[] failoverActionErr, error httpActionErr, int index)
            returns (error) {
     failoverActionErr[index] = httpActionErr;
-    string lastErrorMsg = <string> httpActionErr.detail().message;
-    string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
+    string? lastErrorMsg = httpActionErr.detail()?.message;
+    string failoverMessage = "All the failover endpoints failed.";
+    if (lastErrorMsg is string) {
+        failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
+    }
     error actionError = error(HTTP_ERROR_CODE, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;
 }

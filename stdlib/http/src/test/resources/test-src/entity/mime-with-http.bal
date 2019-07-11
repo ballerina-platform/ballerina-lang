@@ -26,7 +26,7 @@ service echo on mockEP {
     }
 }
 
-function testHeaderWithRequest() returns @tainted (string) {
+function testHeaderWithRequest() returns @tainted string {
     http:Request request = new;
     mime:Entity entity = new;
     entity.setHeader("123Authorization", "123Basicxxxxxx");
@@ -34,7 +34,7 @@ function testHeaderWithRequest() returns @tainted (string) {
     return (request.getHeader("123Authorization"));
 }
 
-function testHeaderWithResponse() returns @tainted (string) {
+function testHeaderWithResponse() returns @tainted string {
     http:Response response = new;
     mime:Entity entity = new;
     entity.setHeader("123Authorization", "123Basicxxxxxx");
