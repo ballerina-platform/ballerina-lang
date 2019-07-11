@@ -123,7 +123,7 @@ public class HostnameVerificationTest {
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (throwable.getMessage()
-                            .contains("General SSLEngine problem"))) {
+                            .contains("No name matching localhost found"))) {
                         hasSSLException = true;
                         break;
                     }

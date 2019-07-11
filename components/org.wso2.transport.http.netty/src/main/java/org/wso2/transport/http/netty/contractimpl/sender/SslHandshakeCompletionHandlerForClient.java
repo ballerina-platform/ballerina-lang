@@ -69,7 +69,11 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
                 this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
-                connectionAvailabilityFuture.notifyFailure(event.cause());
+                Throwable cause = event.cause();
+                while (cause.getCause() != null && cause.getCause() != cause) {
+                    cause = cause.getCause();
+                }
+                connectionAvailabilityFuture.notifyFailure(cause);
             }
         }
     }
