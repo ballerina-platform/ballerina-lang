@@ -43,8 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "lang.table", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "TableIterator",
                 structPackage = "ballerina/lang.table"),
-        args = {@Argument(name = "t", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Next {

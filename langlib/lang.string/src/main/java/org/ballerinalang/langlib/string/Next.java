@@ -44,8 +44,7 @@ import java.text.StringCharacterIterator;
         orgName = "ballerina", packageName = "lang.string", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
                 structPackage = "ballerina/lang.string"),
-        args = {@Argument(name = "m", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Next {

@@ -44,8 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "lang.array", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "ArrayIterator",
                 structPackage = "ballerina/lang.array"),
-        args = {@Argument(name = "arr", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Next {

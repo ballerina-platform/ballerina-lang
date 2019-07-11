@@ -43,8 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.map", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "MapIterator", structPackage = "ballerina/lang.map"),
-        args = {@Argument(name = "m", type = TypeKind.OBJECT)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Next {
