@@ -62,7 +62,7 @@ service Ecommerce on testEP {
     }
     resource function productsInfo4 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        string rID = req.getQueryParams().regID;
+        string rID = req.getQueryParamValue("regID") ?: "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
@@ -79,9 +79,9 @@ service Ecommerce on testEP {
     }
     resource function productsInfo6 (http:Caller caller, http:Request req) {
         json responseJson;
-        map<string> params = req.getQueryParams();
-        string prdID = params.prodID;
-        string rID= params.regID;
+        map<string[]> params = req.getQueryParams();
+        string prdID = params.prodID[0];
+        string rID= params.regID[0];
         io:println ("Product ID " + prdID);
         io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
@@ -98,7 +98,7 @@ service Ecommerce on testEP {
     }
     resource function productsInfo5 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        string rID = req.getQueryParams().regID;
+        string rID = req.getQueryParamValue("regID") ?: "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};

@@ -382,18 +382,16 @@ public class UriTemplateBestMatchTest {
         HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("name1").stringValue(), "a", "incorrect value");
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("name2").stringValue(), "b", "incorrect value");
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("name3").stringValue(), "c", "incorrect value");
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("name4").stringValue(), "d", "incorrect value");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":\"c\", \"name4\":\"d\"}");
 
         path = "/hello/echo155?foo=a,b,c";
         cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(response), "{ballerina}KeyNotFound");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":null, \"name4\":\"c\"}");
     }
 
     @Test(description = "Test suitable method with URL.")
@@ -425,7 +423,7 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "go",
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("third").stringValue(), "go",
                             "param value is not null");
     }
 

@@ -32,9 +32,9 @@ service testService on testEP {
         string b = <string> fooMParams.b;
         outJson.fooMatrix = string `a=${a};b=${b}`;
 
-        map<string> queryParams = req.getQueryParams();
-        string x = queryParams.x;
-        string y = queryParams.y;
+        map<string[]> queryParams = req.getQueryParams();
+        string x = queryParams.x[0];
+        string y = queryParams.y[0];
         outJson.queryParams = string `x=${x}&y=${y}`;
 
         res.setJsonPayload(<@untainted json> outJson);

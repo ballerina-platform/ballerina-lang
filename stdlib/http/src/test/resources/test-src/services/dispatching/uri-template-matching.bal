@@ -175,7 +175,8 @@ service echo11 on testEP {
     }
     resource function sameName(http:Caller caller, http:Request req) {
         map<string[]> params = req.getQueryParams();
-        json responseJson = {"name1":params.foo[0] , "name2":params.foo[1], "name3":params.bar[0], "name4":params.foo[2]};
+        json responseJson = {"name1":params["foo"][0] , "name2":params["foo"][1], "name3":params["bar"][0],
+                                "name4":params["foo"][2]};
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
