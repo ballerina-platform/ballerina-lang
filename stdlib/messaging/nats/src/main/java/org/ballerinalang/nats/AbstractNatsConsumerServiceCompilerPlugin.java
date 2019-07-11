@@ -41,6 +41,10 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         validateAnnotationPresence(serviceNode, annotations);
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
+        if (resources.size() > 2) {
+            logDiagnostic(ERROR, serviceNode.getPosition(),
+                    "A maximum of two resources are allowed in the service");
+        }
         resources.forEach(resource -> validateResourceFunctionSyntax(resource, serviceNode));
     }
 
