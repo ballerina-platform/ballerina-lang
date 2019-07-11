@@ -24,14 +24,14 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+
+import java.io.IOException;
 
 
 /**
@@ -61,7 +61,7 @@ public class QueueDeclare extends BlockingNativeCallableUnit {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             if (queueConfig == null) {
-                return ChannelUtils.queueDeclare(channel);
+                return channel.queueDeclare();
             } else {
                 @SuppressWarnings(RabbitMQConstants.UNCHECKED)
                 MapValue<String, Object> config = (MapValue<String, Object>) queueConfig;
@@ -69,14 +69,14 @@ public class QueueDeclare extends BlockingNativeCallableUnit {
                 boolean durable = config.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_DURABLE);
                 boolean exclusive = config.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE);
                 boolean autoDelete = config.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
-                ChannelUtils.queueDeclare(channel, queueName, durable, exclusive, autoDelete);
+                channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
             }
             if (transactionContext != null) {
                 transactionContext.handleTransactionBlock();
             }
-        } catch (RabbitMQConnectorException exception) {
+        } catch (IOException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
-                    + "I/O exception while declaring a queue; " + exception.getDetail());
+                    + "I/O exception while declaring a queue; " + exception.getMessage());
         }
         return null;
     }

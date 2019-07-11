@@ -34,11 +34,13 @@ public class RabbitMQConstants {
 
     // Error constant fields
     public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
+    static final String RABBITMQ_ERROR_DETAILS = "Detail";
+    static final String RABBITMQ_ERROR_MESSAGE = "message";
+    static final String RABBITMQ_ERROR_CAUSE = "cause";
     public static final String RABBITMQ_CLIENT_ERROR = "RabbitMQ Client Error: ";
 
     // Connection errors
     public static final String CLOSE_CONNECTION_ERROR = "An error occurred while closing the connection: ";
-    public static final String ABORT_CONNECTION_ERROR = "An error occurred while aborting the connection: ";
     public static final String CREATE_CONNECTION_ERROR = "An error occurred while connecting to the broker: ";
     public static final String CREATE_SECURE_CONNECTION_ERROR = "An error occurred while configuring " +
             "the SSL connection: ";
