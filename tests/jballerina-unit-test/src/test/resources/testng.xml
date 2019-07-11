@@ -40,7 +40,6 @@
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
-            <!-- <package name="org.ballerinalang.test.privacy.*"/> -->
             <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
@@ -50,7 +49,7 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
-            <!-- <package name="org.ballerinalang.test.main.function.*"/> -->
+            <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>

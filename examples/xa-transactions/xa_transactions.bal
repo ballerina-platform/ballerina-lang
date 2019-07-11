@@ -1,12 +1,10 @@
 import ballerina/io;
-import ballerina/h2;
-import ballerina/sql;
+import ballerinax/jdbc;
 
 // Create san endpoint for the first database named testdb1. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-h2:Client testDB1 = new({
-    path: "./xa-transactions/",
-    name: "Testdb1",
+jdbc:Client testDB1 = new({
+    url: "jdbc:h2:file:./xa-transactions/Testdb1",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
@@ -14,9 +12,8 @@ h2:Client testDB1 = new({
 
 // Creates an endpoint for the second database named testdb2. Since this endpoint
 // participates in a distributed transaction, the `isXA` property should be true.
-h2:Client testDB2 = new({
-    path: "./xa-transactions/",
-    name: "Testdb2",
+jdbc:Client testDB2 = new({
+    url: "jdbc:h2:file:./xa-transactions/Testdb2",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5, isXA: true }
@@ -38,7 +35,7 @@ public function main() {
         var result = testDB1->update("INSERT INTO CUSTOMER(NAME)
                                         VALUES ('Anne')");
         int key = -1;
-        if (result is sql:UpdateResult) {
+        if (result is jdbc:UpdateResult) {
             int count = result.updatedRowCount;
             key = <int>result.generatedKeys.ID;
             io:println("Inserted row count: " + count);
@@ -81,15 +78,15 @@ function onAbortFunction(string transactionId) {
 }
 
 // This function handles the return values of the `update()` remote function.
-function handleUpdate(sql:UpdateResult|error returned, string message) {
-    if (returned is sql:UpdateResult) {
+function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+    if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         io:println(message + " failed: " + returned.reason());
     }
 }
 
-function stopClient(h2:Client db) {
+function stopClient(jdbc:Client db) {
     var stopRet = db.stop();
     if (stopRet is error) {
         io:println(stopRet.detail().message);

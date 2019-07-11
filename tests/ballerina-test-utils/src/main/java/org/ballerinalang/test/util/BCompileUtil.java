@@ -695,7 +695,7 @@ public class BCompileUtil {
         }
     }
 
-    public static void runMain(CompileResult compileResult, String[] args) {
+    public static void runMain(CompileResult compileResult, String[] args) throws Throwable {
         String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
                 compileResult.getAST()).packageID.orgName.value,
                 ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
@@ -704,7 +704,12 @@ public class BCompileUtil {
         try {
             mainMethod = initClazz.getDeclaredMethod("main", String[].class);
             mainMethod.invoke(null, (Object) args);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof ErrorValue) {
+                throw e.getTargetException();
+            }
+            throw new RuntimeException("Main method invocation failed", e);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
 
