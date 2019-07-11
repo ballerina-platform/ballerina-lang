@@ -1097,7 +1097,8 @@ public class BIRGen extends BLangNodeVisitor {
         astTypeConversionExpr.expr.accept(this);
         BIROperand rhsOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp, astTypeConversionExpr.checkTypes));
+        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp,
+                astTypeConversionExpr.checkTypes));
         this.env.targetOperand = toVarRef;
     }
 
