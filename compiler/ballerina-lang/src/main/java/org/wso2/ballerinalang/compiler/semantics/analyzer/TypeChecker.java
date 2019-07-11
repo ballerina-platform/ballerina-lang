@@ -2645,7 +2645,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
             checkErrorConstructorInvocation(iExpr);
             return;
-        } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
+        } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
@@ -2661,6 +2661,18 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private boolean isNotFunction(BSymbol funcSymbol) {
+        if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+            return false;
+        }
+
+        if ((funcSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE && funcSymbol.kind == SymbolKind.FUNCTION) {
+            return false;
+        }
+
+        return true;
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
