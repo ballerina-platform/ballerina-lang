@@ -55,7 +55,7 @@
             </class>
             <class name="org.ballerinalang.test.service.http.sample.ExpectContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPayloadTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>
+<!--            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>-->
             <class name="org.ballerinalang.test.service.http.sample.EcommerceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpOptionsTestCase"/>
