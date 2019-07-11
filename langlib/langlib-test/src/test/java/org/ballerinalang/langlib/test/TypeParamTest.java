@@ -38,6 +38,8 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean[]', found 'int[]'", 20, 20);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'anydata', found 'function (string) " +
                 "returns ()[]'", 24, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'float[]', found 'function (string) " +
+                "returns ()[]'", 24, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 30, 16);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'object { public function next () " +
                 "returns (record {| string value; |}?); }', found 'object { public function next () returns (record " +
@@ -45,6 +47,7 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'Foo'", 47, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 64, 18);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'string'", 69, 16);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
