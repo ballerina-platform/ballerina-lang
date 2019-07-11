@@ -91,7 +91,7 @@
 
     _test.bal - Contains the test to validate the output of the BBE during the build time. 
 
-    ![BBE folder structure](images/bbe-folder-structure.png "bbe-folder-structure")
+    <img src="images/bbe-folder-structure.png" width="350" height="200" alt="BBE folder structure" />
 
 4. As a common pattern, use the following format for `.out` files and customize it only when required (e.g., to add more command line args etc.).
 
