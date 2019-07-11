@@ -28,6 +28,12 @@
         "onCommand:ballerina.showTraces"
     ],
     "contributes": {
+        "views": {
+            "explorer": [{
+                "id" : "ballerinaProjectTree",
+                "name": "Ballerina Project Overview"
+            }]
+        },
         "languages": [
             {
                 "id": "ballerina",
