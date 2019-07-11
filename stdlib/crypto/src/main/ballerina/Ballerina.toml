@@ -1,3 +1,6 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[dependencies]
+"commons-codec" = {  version = "1.9", path = "./lib/commons-codec-1.9.jar", groupId = "commons-codec" }

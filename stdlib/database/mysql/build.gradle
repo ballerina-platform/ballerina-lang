@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-builtin')
-    implementation project(':ballerina-sql')
     implementation project(':ballerina-runtime')
 }
 

@@ -1,3 +1,7 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[dependencies]
+"commons-logging" = {  version = "1.1.1", path = "./lib/commons-logging-1.1.1.jar", groupId = "commons-logging" }
+"slf4j-jdk14" = {  version = "1.7.26", path = "./lib/slf4j-jdk14-1.7.26.jar", groupId = "org.slf4j" }

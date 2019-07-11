@@ -1,3 +1,6 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[dependencies]
+"commons-io" = {  version = "2.6", path = "./lib/commons-io-2.6.jar", groupId = "commons-io" }
