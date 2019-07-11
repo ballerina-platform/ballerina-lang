@@ -732,6 +732,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.TABLE:
                 bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
                 break;
+            case TypeTags.TYPEDESC:
+                bSymbol = lookupLangLibMethodInModule(symTable.langTypedescModuleSymbol, name);
+                break;
             case TypeTags.XML:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
                 break;

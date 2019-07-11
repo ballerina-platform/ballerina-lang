@@ -48,6 +48,8 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 64, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'string'", 69, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found '" +
+                "(Person|error<string,record {| string message; $error0 cause; (anydata|error)...; |}>)'", 88, 16);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 

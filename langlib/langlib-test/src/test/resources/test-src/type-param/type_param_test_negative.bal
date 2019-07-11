@@ -72,3 +72,18 @@ function testInvalidIterableOpChain() {
         return accum + val;
     }, "");
 }
+
+type Person record {
+    string name;
+};
+
+type Student record {
+    string name;
+    int age?;
+};
+
+function testTypedescFunctions() {
+    Student p = { name : "Michel"};
+    Person|error q = Person.constructFrom(p); // No error;
+    string r = Person.constructFrom(p); // Error
+}

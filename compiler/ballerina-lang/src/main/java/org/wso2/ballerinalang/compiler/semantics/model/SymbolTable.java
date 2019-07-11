@@ -148,6 +148,7 @@ public class SymbolTable {
     public BPackageSymbol langStreamModuleSymbol;
     public BPackageSymbol langStringModuleSymbol;
     public BPackageSymbol langTableModuleSymbol;
+    public BPackageSymbol langTypedescModuleSymbol;
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
