@@ -2705,7 +2705,9 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isFunctionPointer(BSymbol funcSymbol) {
-        return (funcSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE && funcSymbol.kind == SymbolKind.FUNCTION;
+        return (funcSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE
+                && funcSymbol.kind == SymbolKind.FUNCTION
+                && (funcSymbol.flags & Flags.NATIVE) != Flags.NATIVE;
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
