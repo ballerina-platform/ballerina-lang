@@ -419,11 +419,7 @@ export default function(): Promise<BallerinaExampleCategory[]> {
             {
                 name: "H2 Client",
                 url: "h2-client",
-            },
-            {
-                name: "MySQL Client",
-                url: "mysql-client",
-            },
+            }
         ],
     },
      {

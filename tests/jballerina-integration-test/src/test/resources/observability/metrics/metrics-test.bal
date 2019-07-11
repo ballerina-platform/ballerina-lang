@@ -15,8 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/h2;
-import ballerina/sql;
+import ballerinax/jdbc;
 import ballerina/io;
 
 @http:ServiceConfig {
@@ -27,9 +26,8 @@ service metricsTest on new http:Listener(9090){
         path: "/"
     }
     resource function getProduct (http:Caller caller, http:Request req) {
-        h2:Client testDB =  new({
-            path: "../../tempdb/",
-            name: "TEST_DB",
+        jdbc:Client testDB =  new({
+            url: "jdbc:h2:file:../../tempdb/TEST_DB",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 10 }
