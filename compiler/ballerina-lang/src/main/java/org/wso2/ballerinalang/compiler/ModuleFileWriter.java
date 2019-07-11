@@ -50,9 +50,7 @@ public class ModuleFileWriter {
     private static final CompilerContext.Key<ModuleFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
 
-    private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
-    private final CompilerPhase compilerPhase;
     private final Manifest manifest;
 
     public static ModuleFileWriter getInstance(CompilerContext context) {
@@ -65,12 +63,10 @@ public class ModuleFileWriter {
 
     private ModuleFileWriter(CompilerContext context) {
         context.put(MODULE_FILE_WRITER_KEY, this);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
-        this.compilerPhase = CompilerOptions.getInstance(context).getCompilerPhase();
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
@@ -104,13 +100,13 @@ public class ModuleFileWriter {
         // Crate balo directory if it is not there
         if (Files.exists(baloDir)) {
             if (!Files.isDirectory(baloDir)) {
-                new BLangCompilerException("Found `balo` file instead of a `balo` directory inside target");
+                throw new BLangCompilerException("Found `balo` file instead of a `balo` directory inside target");
             }
         } else {
             try {
                 Files.createDirectory(baloDir);
             } catch (IOException e) {
-                new BLangCompilerException("Unable to create balo directory inside target");
+                throw new BLangCompilerException("Unable to create balo directory inside target");
             }
         }
 
@@ -121,16 +117,15 @@ public class ModuleFileWriter {
             populateBaloArchive(balo, module);
         } catch (IOException e) {
             // todo Check for permission
-            new BLangCompilerException("Failed to create balo :" + e.getMessage());
+            throw new BLangCompilerException("Failed to create balo :" + e.getMessage());
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
                 Files.delete(baloFile);
             } catch (IOException e) {
-                // We ignore this error and throw out the original error to the user
-            } finally {
-                throw be;
+                // We ignore this error and throw out the original blang compiler error to the user
             }
+            throw be;
         }
     }
 

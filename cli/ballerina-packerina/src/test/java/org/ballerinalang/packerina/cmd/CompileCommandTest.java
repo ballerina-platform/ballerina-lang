@@ -51,24 +51,24 @@ import java.util.stream.Stream;
 public class CompileCommandTest extends CommandTest {
 
     private Path moduleBalo;
+    private Path projectDirectory;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        Path projectDir = tmpDir.resolve("compileTest");
-        Files.createDirectory(projectDir);
+        projectDirectory = tmpDir.resolve("compileTest");
+        Files.createDirectory(projectDirectory);
         URI uri = null;
         try {
             uri = getClass().getClassLoader().getResource("compile_command_test_project").toURI();
         } catch (URISyntaxException e) {
             new AssertionError("Failed to setup compile test");
         }
-        Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDir));
+        Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
     }
 
-    @Test(description = "Test Compile Command in a Project", enabled = false)
+    @Test(description = "Test Compile Command in a Project")
     public void testCompileCommand() throws IOException {
-        Path projectDirectory = tmpDir.resolve("compileTest");
 
         // Create jar files for the test since we cannot commit jar files to git.
         Path libs = projectDirectory.resolve("libs");
@@ -115,7 +115,7 @@ public class CompileCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testCompileCommand"})
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -196,6 +196,16 @@ public class CompileCommandTest extends CommandTest {
                         throw new AssertionError("Error while reading balo content");
                     }
                 });
+    }
+
+    @Test(dependsOnMethods = {"testCompileCommand"})
+    public void testTargetCacheDirectory() throws IOException {
+        // check for the cache directory in target
+        Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                .resolve(ProjectDirConstants.CACHES_DIR_NAME);
+
+        // Assert.assertTrue(Files.exists(cache) && Files.isDirectory(cache));
+        // check if each module has a bit in cache directory
     }
 
     @Test(description = "Test Compile Command for a single file.")

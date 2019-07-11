@@ -241,17 +241,11 @@ public class CompileCommand implements BLauncherCmd {
     @Override
     public void printLongDesc(StringBuilder out) {
         out.append("Compiles Ballerina modules and create balo files. \n");
-        out.append("\n");
-        out.append("By default, output filename is the last part of module name \n");
-        out.append("or the filename (minus the extension) with the extension \".balx\". \n");
-        out.append("\n");
-        out.append("If the output file is specified with the -o flag, the output \n");
-        out.append("will be written to that file. \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina build <balfile | module-name> [-o output] \n");
+        out.append("  ballerina compile [<module-name>] \n");
     }
 
     @Override

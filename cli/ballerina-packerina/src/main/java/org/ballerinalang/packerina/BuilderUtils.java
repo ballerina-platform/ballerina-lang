@@ -145,27 +145,28 @@ public class BuilderUtils {
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
-        prepareTargetDirectory(sourceRootPath);
+        Path target = prepareTargetDirectory(sourceRootPath);
+        Path cache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
             // Write the balo and bir to the disk.
             // We do this before generating jar since at least we can push to central.
             compiler.write(packages);
-
             //Generate the jars
-            for (BLangPackage bLangPackage : packages) {
-                CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-                        getBackendCodeGenerator();
-                Optional result = jvmCodeGen.generate(false, bLangPackage, context, sourceRootPath.toString());
-                if (!result.isPresent()) {
-                    throw new RuntimeException("Compiled binary jar is not found");
-                }
-                bLangPackage.jarBinaryContent = (byte[]) result.get();
+            try {
+                //TODO: replace with actual target dir
+                Path targetDirectory = cache;
+                String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                        "ballerina.home is not set");
+
+                BootstrapRunner.createClassLoaders(packages.get(0), Paths.get(balHome).resolve("bir-cache"),
+                        cache, Optional.of(Paths.get(".")), dumpBir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("error invoking jballerina backend", e);
             }
             return;
         }
-
 
         if (skiptests) {
             if (packages.size() == 0) {
@@ -259,6 +260,7 @@ public class BuilderUtils {
                     throw new BLangCompilerException("unable to create target directory");
                 }
             }
+            createCacheDirectory(target);
         } else {
             // If it is not a project create a tmp directory as target
             try {
@@ -266,8 +268,35 @@ public class BuilderUtils {
             } catch (IOException e) {
                 throw new BLangCompilerException("unable to create target directory");
             }
+            createCacheDirectory(target);
         }
         return target;
     }
+
+    /**
+     * Prepare cache directory before the compile.
+     *
+     * @param target source root of the ballerina file or project
+     * @return target path
+     */
+    private static void createCacheDirectory(Path target) {
+        Path cacheDir = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
+        if (!Files.exists(cacheDir)) {
+            try {
+                Files.createDirectory(cacheDir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target cache directory");
+            }
+        }
+        Path birCacheDir = cacheDir.resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        if (!Files.exists(birCacheDir)) {
+            try {
+                Files.createDirectory(birCacheDir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target bir cache directory");
+            }
+        }
+    }
+
 
 }

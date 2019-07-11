@@ -47,6 +47,7 @@ public class Compiler {
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
     private final ModuleFileWriter moduleFileWriter;
+    private final BIRFileWriter birFileWriter;
     private final LockFileWriter lockFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
@@ -59,6 +60,7 @@ public class Compiler {
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
         this.moduleFileWriter = ModuleFileWriter.getInstance(context);
+        this.birFileWriter = BIRFileWriter.getInstance(context);
         this.lockFileWriter = LockFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -112,6 +114,7 @@ public class Compiler {
         }
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(this.moduleFileWriter::write);
+        packageList.forEach(this.birFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
     }
