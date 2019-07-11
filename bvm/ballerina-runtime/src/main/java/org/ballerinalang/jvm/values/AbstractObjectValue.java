@@ -158,7 +158,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         BType fieldType = type.getFields().get(fieldName).type;
-        if (TypeChecker.checkIsLikeType(value, fieldType)) {
+        if (TypeChecker.checkIsType(value, fieldType)) {
             return;
         }
 

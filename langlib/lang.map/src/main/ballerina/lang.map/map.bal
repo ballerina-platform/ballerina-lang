@@ -25,9 +25,9 @@ type PureType anydata|error;
 
 type MapIterator object {
 
-    private map<Type> m;
+    private map<Type> | record {} m;
 
-    public function __init(map<Type> m) {
+    public function __init(map<Type> | record {} m) {
         self.m = m;
     }
 
@@ -37,10 +37,10 @@ type MapIterator object {
 };
 
 # Returns number of members in `m`.
-public function length(map<any|error> m) returns int = external;
+public function length(map<any|error> | record {} m) returns int = external;
 
 # Returns an iterator over the members of `m`
-public function iterator(map<Type> m) returns abstract object {
+public function iterator(map<Type> | record {} m) returns abstract object {
     public function next() returns record {|
         Type value;
     |}?;
