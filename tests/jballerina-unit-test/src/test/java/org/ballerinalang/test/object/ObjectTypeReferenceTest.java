@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -33,7 +34,12 @@ import org.testng.annotations.Test;
  */
 public class ObjectTypeReferenceTest {
 
-    CompileResult compileResult = BCompileUtil.compile("test-src/object/object-type-reference.bal");
+    CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/object/object-type-reference.bal");
+    }
 
     @Test
     public void testSimpleObjectTypeReferenceNegative_1() {

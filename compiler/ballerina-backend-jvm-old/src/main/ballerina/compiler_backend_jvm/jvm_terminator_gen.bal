@@ -21,7 +21,7 @@ type TerminatorGenerator object {
     ErrorHandlerGenerator errorGen;
     int lambdaIndex = 0;
     bir:Package module;
-
+    string currentPackageName;
 
     public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen, 
                             ErrorHandlerGenerator errorGen, bir:Package module) {
@@ -30,6 +30,7 @@ type TerminatorGenerator object {
         self.labelGen = labelGen;
         self.errorGen = errorGen;
         self.module = module;
+        self.currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
@@ -76,9 +77,8 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         foreach var globleVar in lockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(currentPackageName + globleVar);
+            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
             var lockName = computeLockNameFromString(globleVar);
             self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
             self.mv.visitInsn(MONITORENTER);
@@ -90,11 +90,9 @@ type TerminatorGenerator object {
     function genUnlockTerm(bir:Unlock unlockIns, string funcName) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         foreach var globleVar in unlockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(currentPackageName + globleVar);
+            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
             var lockName = computeLockNameFromString(globleVar);
             self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
             self.mv.visitInsn(MONITOREXIT);
@@ -253,8 +251,7 @@ type TerminatorGenerator object {
 
         if (lhsOpVarDcl is bir:VariableDcl) {
             int lhsLndex = self.getJVMIndexOfVarRef(lhsOpVarDcl);
-            bir:BType? bType = callIns.lhsOp.typeValue;
-            genStoreInsn(self.mv, <bir:BType>bType, lhsLndex);
+            generateVarStore(self.mv, lhsOpVarDcl, self.currentPackageName, lhsLndex);
         }
     }
 
@@ -386,9 +383,9 @@ type TerminatorGenerator object {
             return false;
         }
 
-        bir:BType bType = argRef.typeValue;
-        int argIndex = self.getJVMIndexOfVarRef(getVariableDcl(argRef.variableDcl));
-        genLoadInsn(self.mv, bType, argIndex);
+        bir:VariableDcl varDcl = getVariableDcl(argRef.variableDcl);
+        int argIndex = self.getJVMIndexOfVarRef(varDcl);
+        generateVarLoad(self.mv, varDcl, self.currentPackageName, argIndex);
         return true;
     }
 
@@ -822,81 +819,4 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
     }
 
     return false;
-}
-
-function genStoreInsn(jvm:MethodVisitor mv, bir:BType bType, int localVarIndex) {
-    if (bType is bir:BTypeInt) {
-        mv.visitVarInsn(LSTORE, localVarIndex);
-    } else if (bType is bir:BTypeByte) {
-        mv.visitVarInsn(ISTORE, localVarIndex);
-    } else if (bType is bir:BTypeFloat) {
-        mv.visitVarInsn(DSTORE, localVarIndex);
-    } else if (bType is bir:BTypeString) {
-        mv.visitVarInsn(ASTORE, localVarIndex);
-    } else if (bType is bir:BTypeBoolean) {
-        mv.visitVarInsn(ISTORE, localVarIndex);
-    } else if (bType is bir:BArrayType ||
-                bType is bir:BMapType ||
-                bType is bir:BTableType ||
-                bType is bir:BStreamType ||
-                bType is bir:BErrorType ||
-                bType is bir:BTypeAny ||
-                bType is bir:BTypeAnyData ||
-                bType is bir:BTypeNil ||
-                bType is bir:BObjectType ||
-                bType is bir:BServiceType ||
-                bType is bir:BTypeDecimal ||
-                bType is bir:BUnionType ||
-                bType is bir:BRecordType ||
-                bType is bir:BTupleType ||
-                bType is bir:BFutureType ||
-                bType is bir:BJSONType ||
-                bType is bir:BXMLType ||
-                bType is bir:BInvokableType ||
-                bType is bir:BFiniteType ||
-                bType is bir:BTypeDesc) {
-        mv.visitVarInsn(ASTORE, localVarIndex);
-    } else {
-        panic error( "JVM generation is not supported for type " +
-                                    io:sprintf("%s", bType));
-    }
-}
-
-function genLoadInsn(jvm:MethodVisitor mv, bir:BType bType, int localVarIndex) {
-    if (bType is bir:BTypeInt) {
-        mv.visitVarInsn(LLOAD, localVarIndex);
-    } else if (bType is bir:BTypeByte) {
-        mv.visitVarInsn(ILOAD, localVarIndex);
-    } else if (bType is bir:BTypeFloat) {
-        mv.visitVarInsn(DLOAD, localVarIndex);
-    } else if (bType is bir:BTypeDecimal) {
-        mv.visitVarInsn(ALOAD, localVarIndex);
-    } else if (bType is bir:BTypeBoolean) {
-        mv.visitVarInsn(ILOAD, localVarIndex);
-    } else if (bType is bir:BTypeDesc) {
-        mv.visitVarInsn(ALOAD, localVarIndex);
-        mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-    } else if (bType is bir:BTypeString ||
-                bType is bir:BTypeAny ||
-                bType is bir:BTypeAnyData ||
-                bType is bir:BTypeNil ||
-                bType is bir:BUnionType ||
-                bType is bir:BErrorType ||
-                bType is bir:BObjectType ||
-                bType is bir:BServiceType ||
-                bType is bir:BStreamType ||
-                bType is bir:BTableType ||
-                bType is bir:BMapType ||
-                bType is bir:BRecordType ||
-                bType is bir:BArrayType ||
-                bType is bir:BTupleType ||
-                bType is bir:BFutureType ||
-                bType is bir:BJSONType ||
-                bType is bir:BXMLType ||
-                bType is bir:BFiniteType ||
-                bType is bir:BInvokableType) {
-        mv.visitVarInsn(ALOAD, localVarIndex);
-    } else {
-        panic error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
-    }
 }
