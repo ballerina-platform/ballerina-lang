@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -153,10 +154,15 @@ public abstract class BIRNode {
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);
         }
-        
+
         @Override
         public String toString() {
-            return name.toString();
+            return this.name.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return this.name.hashCode();
         }
     }
 
@@ -208,6 +214,32 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (!(other instanceof BIRGlobalVariableDcl)) {
+                return false;
+            }
+
+            BIRGlobalVariableDcl otherVarDecl = (BIRGlobalVariableDcl) other;
+
+            // Here we assume names are unique for a package.
+            return this.name.equals(otherVarDecl.name) && this.pkgId.equals(otherVarDecl.pkgId);
+        }
+
+        @Override
+        public String toString() {
+            return this.pkgId.toString() + ":" + this.name.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.pkgId, this.name);
+        }
     }
 
     /**
@@ -227,6 +259,16 @@ public abstract class BIRNode {
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return super.equals(other);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 

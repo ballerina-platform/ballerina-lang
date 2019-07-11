@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @since 0.980.0
  */
-public abstract class BIRNonTerminator extends BIRAbstractInstruction implements BIRInstruction {
+public abstract class BIRNonTerminator extends BIRAbstractInstruction {
 
     BIRNonTerminator(DiagnosticPos pos, InstructionKind kind) {
         super(pos, kind);

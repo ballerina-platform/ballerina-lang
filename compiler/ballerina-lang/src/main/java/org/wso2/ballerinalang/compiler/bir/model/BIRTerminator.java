@@ -31,9 +31,7 @@ import java.util.Set;
  *
  * @since 0.980.0
  */
-public abstract class BIRTerminator extends BIRAbstractInstruction implements BIRInstruction {
-
-    public InstructionKind kind;
+public abstract class BIRTerminator extends BIRAbstractInstruction {
 
     public BIRBasicBlock thenBB;
 
