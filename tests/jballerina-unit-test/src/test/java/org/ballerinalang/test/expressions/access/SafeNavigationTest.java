@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.expressions.fieldaccess;
+package org.ballerinalang.test.expressions.access;
 
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BError;
@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.970.0
  */
+@Ignore
 public class SafeNavigationTest {
 
     private CompileResult result;
@@ -45,8 +47,8 @@ public class SafeNavigationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/fieldaccess/safe_navigation.bal");
-        negativeResult = BCompileUtil.compile("test-src/expressions/fieldaccess/safe_navigation_negative.bal");
+        result = BCompileUtil.compile("test-src/expressions/access/safe_navigation.bal");
+        negativeResult = BCompileUtil.compile("test-src/expressions/access/safe_navigation_negative.bal");
     }
 
     @Test
