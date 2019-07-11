@@ -241,7 +241,7 @@ public class TypeParamAnalyzer {
             updateTypeParamAndBoundType(env, expType, actualType, result);
 
             // If type param discovered before, now type check with actual type. It has to be matched.
-            types.checkType(env.node.pos, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
+            types.checkType(env.node.pos, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
                             DiagnosticCode.INCOMPATIBLE_TYPES);
             return;
         }
