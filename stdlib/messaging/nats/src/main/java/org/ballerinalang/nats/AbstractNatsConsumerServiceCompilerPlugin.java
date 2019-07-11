@@ -41,9 +41,17 @@ public abstract class AbstractNatsConsumerServiceCompilerPlugin extends Abstract
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         validateAnnotationPresence(serviceNode, annotations);
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
-        if (resources.size() > 2) {
+        if (resources.size() == 0) {
             logDiagnostic(ERROR, serviceNode.getPosition(),
-                    "A maximum of two resources are allowed in the service");
+                    "Mandatory onMessage resource function is missing");
+        } else if (resources.size() > 2) {
+            logDiagnostic(ERROR, serviceNode.getPosition(),
+                    "A maximum of two resource functions are allowed in the service");
+        } else if (resources.size() == 1) {
+            if (!ON_MESSAGE_RESOURCE.equals(resources.get(0).getName().getValue())) {
+                logDiagnostic(ERROR, serviceNode.getPosition(),
+                        "Mandatory onMessage resource function is missing");
+            }
         }
         resources.forEach(resource -> validateResourceFunctionSyntax(resource, serviceNode));
     }
