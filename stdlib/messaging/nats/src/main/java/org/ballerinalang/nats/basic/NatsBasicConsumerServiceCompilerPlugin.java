@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nats.streaming;
+package org.ballerinalang.nats.basic;
 
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -32,19 +32,19 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
-import static org.ballerinalang.nats.Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION;
+import static org.ballerinalang.nats.Constants.NATS_BASIC_CONSUMER_ANNOTATION;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /**
- * Providing the compiler add-ons for NATS streaming consumer services.
+ * Providing the compiler add-ons for NATS basic consumer services.
  */
 @SupportedResourceParamTypes(expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "nats",
-                                                                                      name = "StreamingListener"),
+                                                                                      name = "Listener"),
                              paramTypes = {
                                      @SupportedResourceParamTypes.Type(packageName = "nats",
-                                                                       name = "StreamingMessage")
+                                                                       name = "Message")
                              })
-public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsConsumerServiceCompilerPlugin {
+public class NatsBasicConsumerServiceCompilerPlugin extends AbstractNatsConsumerServiceCompilerPlugin {
     private DiagnosticLog dlog = null;
 
     @Override
@@ -52,14 +52,22 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
         this.dlog = diagnosticLog;
     }
 
+    @Override
     public void validateAnnotationPresence(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         if (annotations.stream().noneMatch(annotation -> annotation.getAnnotationName().getValue()
-                .equals(NATS_STREAMING_SUBSCRIPTION_ANNOTATION))) {
-            logDiagnostic(ERROR, serviceNode.getPosition(), "nats:" + NATS_STREAMING_SUBSCRIPTION_ANNOTATION
-                    + " annotation is required to be declared in the subscription service");
+                .equals(NATS_BASIC_CONSUMER_ANNOTATION))) {
+            logDiagnostic(ERROR, serviceNode.getPosition(), "nats:" + NATS_BASIC_CONSUMER_ANNOTATION
+                    + " annotation is required to be declared in the consumer service");
         }
     }
 
+    @Override
+    public void logDiagnostic(Diagnostic.Kind diagnosticKind, Diagnostic.DiagnosticPosition diagnosticPosition,
+            String errorMessage) {
+        dlog.logDiagnostic(ERROR, diagnosticPosition, errorMessage);
+    }
+
+    @Override
     public void validateMessageParameter(BLangSimpleVariable firstParameter, BLangFunction resourceFunction,
             String errorMessage) {
         BType firstParamType = firstParameter.getTypeNode().type;
@@ -67,7 +75,7 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
             logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
         } else {
             BObjectType objectType = (BObjectType) firstParamType;
-            if (!objectType.tsymbol.getName().getValue().equals(Constants.NATS_STREAMING_MESSAGE_OBJ_NAME)) {
+            if (!objectType.tsymbol.getName().getValue().equals(Constants.NATS_MESSAGE_OBJ_NAME)) {
                 logDiagnostic(ERROR, resourceFunction.getPosition(), errorMessage);
             }
         }
@@ -77,7 +85,7 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
     public String getInvalidMessageResourceSignatureErrorMessage(ServiceNode serviceNode,
             BLangFunction resourceFunction) {
         String errorMessage =  "Invalid resource signature for the %s resource function in %s service. "
-                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
+                + "Expected first parameter (required) type is nats:Message and the expected "
                 + "second paramter (optional) type is "
                 + "byte[] | boolean | string | int | float | decimal | xml | json | record {}";
         return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
@@ -87,13 +95,8 @@ public class NatsStreamingSubscriberServiceCompilerPlugin extends AbstractNatsCo
     public String getInvalidErrorResourceSignatureErrorMessage(ServiceNode serviceNode,
             BLangFunction resourceFunction) {
         String errorMessage = "Invalid resource signature for the %s resource function in %s service. "
-                + "Expected first parameter (required) type is nats:StreamingMessage and the expected "
+                + "Expected first parameter (required) type is nats:Message and the expected "
                 + "second paramter (required) type is error";
         return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
-    }
-
-    public void logDiagnostic(Diagnostic.Kind diagnosticKind, Diagnostic.DiagnosticPosition diagnosticPosition,
-            String errorMessage) {
-        dlog.logDiagnostic(ERROR, diagnosticPosition, errorMessage);
     }
 }
