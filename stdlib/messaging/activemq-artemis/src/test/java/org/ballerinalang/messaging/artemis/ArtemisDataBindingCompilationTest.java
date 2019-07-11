@@ -67,6 +67,18 @@ public class ArtemisDataBindingCompilationTest {
                 27, 5);
     }
 
+    @Test(description = "Mandatory onError resource")
+    public void testMandatoryOnErrorResource() {
+        CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("mandatory_on_error_resource.bal")
+                .toAbsolutePath().toString());
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(compileResult, 0,
+                "onError resource function is not found; any errors that occur due to data " +
+                        "binding will be discarded along with the message",
+                27, 5);
+    }
+
     private void assertExpectedDiagnosticsLength(CompileResult compileResult) {
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
     }

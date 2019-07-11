@@ -77,21 +77,23 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
         if (resources.isEmpty()) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
                     "There has to be at least one resource function declared for the service");
-        }
-        for (BLangFunction res : resources) {
-            if (res.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
-                onErrorAvailable = true;
-            } else if (res.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)) {
-                onMessageAvailable = false;
+        } else {
+            for (BLangFunction res : resources) {
+                if (res.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
+                    onErrorAvailable = true;
+                } else if (res.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)) {
+                    onMessageAvailable = true;
+                }
             }
+            // Mandatory onMessage resource function not found
+            if (!onMessageAvailable) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
+                        "There has to be onMessage resource declared for the service");
+            }
+            resources.forEach(
+                    res -> ArtemisResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res),
+                            onErrorAvailable)
+            );
         }
-        // Mandatory onMessage resource function not found
-        if (!onMessageAvailable) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                    "There has to be onMessage resource declared for the service");
-        }
-        resources.forEach(
-                res -> ArtemisResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res), onErrorAvailable)
-        );
     }
 }

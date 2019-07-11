@@ -44,12 +44,6 @@ public class ArtemisResourceValidator {
         if (!resourceReturnsErrorOrNil) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "Invalid return type: expected error?");
         }
-        if (!resource.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)
-                && !resource.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                    "Invalid resource name " + resource.getName().getValue() + " in service, only " +
-                            ArtemisConstants.ON_MESSAGE + " and " + ArtemisConstants.ON_ERROR + " are allowed");
-        }
         switch (resource.getName().getValue()) {
             case ArtemisConstants.ON_MESSAGE:
                 validateOnMessageResource(resource, dlog, onErrorAvailable);
@@ -66,31 +60,34 @@ public class ArtemisResourceValidator {
 
     private static void validateOnErrorResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, resource, dlog);
-        if (!ArtemisConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource: The first parameter should be an artemis:Message");
-        }
-        if (!"error".equals(paramDetails.get(1).type.toString())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format(
-                    "Invalid resource signature for %s resource in service : The second parameter should be " +
-                            "artemis:ArtemisError",
-                    resource.getName().getValue()));
+        if (validateParamDetailsSize(paramDetails, 2, resource, dlog)) {
+            if (!ArtemisConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() +
+                        " resource: The first parameter should be an artemis:Message");
+            }
+            if (!"error".equals(paramDetails.get(1).type.toString())) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format(
+                        "Invalid resource signature for %s resource in service : The second parameter should be " +
+                                "artemis:ArtemisError",
+                        resource.getName().getValue()));
+            }
         }
     }
 
     private static void validateOnMessageResource(BLangFunction resource, DiagnosticLog dlog,
                                                   boolean onErrorAvailable) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, 1, resource, dlog);
-        if (!ArtemisConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource: The first parameter should be an artemis:Message");
+        if (validateParamDetailsSize(paramDetails, 1, 2, resource, dlog)) {
+            if (!ArtemisConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() +
+                        " resource: The first parameter should be an artemis:Message");
+            }
+            if (paramDetails.size() == 2) {
+                validateSecondParam(resource, paramDetails, dlog, onErrorAvailable);
+            }
         }
-        if (paramDetails.size() == 2) {
-            validateSecondParam(resource, paramDetails, dlog, onErrorAvailable);
-        }
-
     }
 
     private static void validateSecondParam(BLangFunction resource, List<BLangSimpleVariable> paramDetails,
@@ -133,21 +130,28 @@ public class ArtemisResourceValidator {
         return false;
     }
 
-    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
-                                                 BLangFunction resource, DiagnosticLog dlog) {
+    private static boolean validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
+                                                    BLangFunction resource, DiagnosticLog dlog) {
+        boolean flag = true;
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": Expected parameter count = " + expectedSize);
+            flag = false;
         }
+        return flag;
     }
 
-    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
-                                                 BLangFunction resource, DiagnosticLog dlog) {
+    private static boolean validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int min, int max,
+                                                    BLangFunction resource, DiagnosticLog dlog) {
+        boolean flag = true;
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + ": Unexpected parameter count");
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + ": Unexpected parameter count " +
+                    "(expected parameter count between " + min + " and " + max + ")");
+            flag = false;
         }
+        return flag;
     }
 
     private ArtemisResourceValidator() {

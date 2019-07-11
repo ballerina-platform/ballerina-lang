@@ -26,4 +26,7 @@ listener artemis:Listener artemisListener = new({host:"localhost", port:61616});
 service artemisConsumer on artemisListener {
     resource function onMessage(artemis:Message message, int[] data) returns error? {
     }
+
+    resource function onError(artemis:Message message, artemis:ArtemisError err) returns error? {
+    }
 }
