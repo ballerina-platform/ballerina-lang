@@ -905,6 +905,32 @@ function testDateTimeInParameters() returns int[] {
     return returnValues;
 }
 
+function testCheckDateTimeOutParams() returns [any, any, any, any] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_INTEGER, value: 101 };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_DATE, value: "2016-06-22-08:01" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIME, value: "13:27:01.999999-07:00" };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_TIMESTAMP, value: "2017-01-30T13:27:01.999-08:00" };
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_DATETIME, value: "2017-01-30T13:27:01.999999Z" };
+
+    jdbc:Parameter para6 = { sqlType: jdbc:TYPE_DATE, direction: jdbc:DIRECTION_OUT };
+    jdbc:Parameter para7 = { sqlType: jdbc:TYPE_TIME, direction: jdbc:DIRECTION_OUT };
+    jdbc:Parameter para8 = { sqlType: jdbc:TYPE_TIMESTAMP, direction: jdbc:DIRECTION_OUT };
+    jdbc:Parameter para9 = { sqlType: jdbc:TYPE_DATETIME, direction: jdbc:DIRECTION_OUT };
+
+    var ret = testDB->call("{call TestDateTimeOutParams(?,?,?,?,?,?,?,?,?)}", (),
+        para1, para2, para3, para4, para5, para6, para7, para8, para9);
+
+    checkpanic testDB.stop();
+    return [para6.value, para7.value, para8.value, para9.value];
+}
+
 function testDateTimeNullInValues() returns string {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",

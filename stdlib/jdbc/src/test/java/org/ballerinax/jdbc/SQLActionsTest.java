@@ -319,6 +319,16 @@ public class SQLActionsTest {
         Assert.assertEquals((int) retValue.getInt(2), 1);
     }
 
+    @Test(groups = {CONNECTOR_TEST, "broken" }, description = "Retrieve date time values")
+    public void testCheckDateTimeOutParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckDateTimeOutParams");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals((returns[0]).stringValue(), "2016-06-22+05:30");
+        Assert.assertEquals((returns[1]).stringValue(), "01:57:01.000+05:30");
+        Assert.assertEquals((returns[2]).stringValue(), "2017-01-31T02:57:01.999+05:30");
+        Assert.assertEquals((returns[3]).stringValue(), "2017-01-30T18:57:01.999+05:30");
+    }
+
     @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Check date time null in values")
     public void testDateTimeNullInValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues");
