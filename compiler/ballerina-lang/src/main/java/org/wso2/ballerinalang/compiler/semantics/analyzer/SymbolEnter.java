@@ -1314,7 +1314,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     recordType.restFieldType = symTable.noType;
                     continue;
                 }
-                recordType.restFieldType = symTable.pureType;
+                recordType.restFieldType = symTable.anydataType;
                 continue;
             }
 

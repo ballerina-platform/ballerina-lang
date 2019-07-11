@@ -60,7 +60,7 @@ type BarError error<Bar, BarDetail>;
 function testError2(){
     BarError b = error(Bar, message = "test", id = 10);
     BarDetail b1 = b.detail(); // No error;
-    record {} b2 = b.detail(); // No error;
+    record {| anydata|error...; |} b2 = b.detail(); // No error;
     boolean b3 = b.detail(); // incompatible types: expected 'boolean', found 'BarDetail'
 }
 
