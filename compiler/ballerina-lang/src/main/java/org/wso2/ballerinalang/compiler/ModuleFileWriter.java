@@ -104,9 +104,9 @@ public class ModuleFileWriter {
             }
         } else {
             try {
-                Files.createDirectory(baloDir);
+                Files.createDirectories(baloDir);
             } catch (IOException e) {
-                throw new BLangCompilerException("Unable to create balo directory inside target");
+                throw new BLangCompilerException("Unable to create balo directory inside target", e);
             }
         }
 
@@ -117,7 +117,7 @@ public class ModuleFileWriter {
             populateBaloArchive(balo, module);
         } catch (IOException e) {
             // todo Check for permission
-            throw new BLangCompilerException("Failed to create balo :" + e.getMessage());
+            throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
@@ -144,6 +144,10 @@ public class ModuleFileWriter {
     }
 
     private FileSystem createBaloArchive(Path path) throws IOException {
+        // Remove if file already exists
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
         // Define ZIP File System Properies
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
@@ -220,9 +224,11 @@ public class ModuleFileWriter {
         Path resourceDirInBalo = root.resolve(ProjectDirConstants.RESOURCE_DIR_NAME);
         Files.createDirectory(resourceDirInBalo);
 
-        // copy resources file from module directory path in to zip
-        PathMatcher filter = FileSystems.getDefault().getPathMatcher("glob:**");
-        Files.walkFileTree(resourceDir, new Copy(resourceDir, resourceDirInBalo, filter, filter));
+        if (Files.exists(resourceDir)) {
+            // copy resources file from module directory path in to zip
+            PathMatcher filter = FileSystems.getDefault().getPathMatcher("glob:**");
+            Files.walkFileTree(resourceDir, new Copy(resourceDir, resourceDirInBalo, filter, filter));
+        }
     }
 
     private void addModuleSource(Path root, Path moduleSourceDir, String moduleName) throws IOException {
@@ -267,7 +273,7 @@ public class ModuleFileWriter {
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
 
-        Files.createDirectory(metaDir);
+        Files.createDirectories(metaDir);
 
         TomlWriter writer = new TomlWriter();
         // Write to BALO.toml

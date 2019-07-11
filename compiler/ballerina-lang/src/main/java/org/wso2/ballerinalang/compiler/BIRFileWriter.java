@@ -118,6 +118,10 @@ public class BIRFileWriter {
         Path cacheDir = createCacheDirectory(moduleName);
         Path birFile = cacheDir.resolve(birFileName);
         // Write the bir file
+        //TODO: Investigate why birPackageFile can be null
+        if(module.symbol.birPackageFile == null){
+            return;
+        }
         try {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(module.symbol.birPackageFile);
             Files.write(birFile, pkgBirBinaryContent);
