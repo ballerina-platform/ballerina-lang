@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -105,7 +106,6 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
-    public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
@@ -124,6 +124,7 @@ public class SymbolTable {
     public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
+    public final BType typeDesc;
 
     public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
@@ -147,6 +148,7 @@ public class SymbolTable {
     public BPackageSymbol langStreamModuleSymbol;
     public BPackageSymbol langStringModuleSymbol;
     public BPackageSymbol langTableModuleSymbol;
+    public BPackageSymbol langTypedescModuleSymbol;
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
@@ -187,7 +189,6 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
@@ -211,6 +212,10 @@ public class SymbolTable {
         initializeErrorType();
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
+        this.typeDesc = new BTypedescType(TypeTags.TYPEDESC, BUnionType.create(null, this.anyType, this.errorType),
+                null);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
+
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;

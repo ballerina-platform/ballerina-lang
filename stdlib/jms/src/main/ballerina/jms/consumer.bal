@@ -46,7 +46,7 @@ public type ConsumerTemplate object {
     # Registers consumer endpoint in the service
     #
     # + serviceType - type descriptor of the service
-    public function register(typedesc serviceType) {
+    public function register(typedesc<service> serviceType) {
 
     }
 

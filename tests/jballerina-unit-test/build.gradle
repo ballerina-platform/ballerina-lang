@@ -19,6 +19,7 @@
 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations {
     balRuntime

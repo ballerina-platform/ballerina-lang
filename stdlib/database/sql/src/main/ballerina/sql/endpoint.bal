@@ -25,7 +25,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `sql:JdbcClientError` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|JdbcClientError {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
@@ -43,7 +43,7 @@ public type Client client object {
     //Param... parameters) returns @tainted table<record {}>|error {
     //    return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
     //}
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc<record {}>? recordType,
     Param... parameters) returns @tainted table<record {}>|JdbcClientError {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
@@ -81,10 +81,10 @@ public type Client client object {
 
 //function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
 //   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
-function nativeSelect(Client sqlClient, @untainted string sqlQuery, typedesc? recordType,
+function nativeSelect(Client sqlClient, @untainted string sqlQuery, typedesc<record {}>? recordType,
    Param... parameters) returns @tainted table<record {}>|JdbcClientError = external;
 
-function nativeCall(Client sqlClient, @untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+function nativeCall(Client sqlClient, @untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|JdbcClientError = external;
 
 function nativeUpdate(Client sqlClient, @untainted string sqlQuery, string[]? keyColumns = (),

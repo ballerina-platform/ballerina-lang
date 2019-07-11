@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -804,7 +805,9 @@ public class BIRPackageSymbolEnter {
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
                     return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
                 case TypeTags.TYPEDESC:
-                    return symTable.typeDesc;
+                    BTypedescType typedescType = new BTypedescType(TypeTags.TYPEDESC, null, symTable.typeDesc.tsymbol);
+                    typedescType.constraint = readTypeFromCp();
+                    return typedescType;
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();

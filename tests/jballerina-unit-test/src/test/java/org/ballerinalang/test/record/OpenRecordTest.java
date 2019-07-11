@@ -191,12 +191,6 @@ public class OpenRecordTest {
                 "noOfChildren:0, children:[]}, parent:(), mname:\"Bar\", height:5.9, firstName:\"John\"}");
     }
 
-    @Test
-    public void testAdditionOfErrorsForDefaultRestField() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAdditionOfErrorsForDefaultRestField");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
     @Test(description = "Test non-existent anydata or error rest field RHS access",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*cannot find key 'firstName'.*")
