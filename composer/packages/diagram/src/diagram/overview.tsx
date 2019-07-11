@@ -55,6 +55,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.handleModuleNameSelect = this.handleModuleNameSelect.bind(this);
         this.handleOpened = this.handleOpened.bind(this);
         this.handleClosed = this.handleClosed.bind(this);
+        this.handleReset = this.handleReset.bind(this);
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
@@ -126,6 +127,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleClosed={this.handleClosed}
                     fitActive={this.state.fitToWidthOrHeight}
                     zoomFactor={this.state.zoomFactor}
+                    handleReset={this.handleReset}
                 />
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
@@ -289,6 +291,17 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
     }
 
+    private handleReset() {
+        if (this.panZoomComp && this.innitialPanZoomTransform) {
+            const { x, y, scale } = this.innitialPanZoomTransform;
+            this.panZoomComp.zoomAbs(0, 0, scale);
+            this.panZoomComp.moveTo(x, y);
+            this.setState({
+                zoomFactor: scale,
+            });
+        }
+    }
+
     private handleModuleNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
         const moduleList = this.getModuleList();
         const selectedModule = moduleList.find((module) => (module.name === props.data.name));
@@ -315,13 +328,17 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     private setPanZoomComp(comp: PanZoom | undefined) {
         this.panZoomComp = comp;
-        this.innitialPanZoomTransform = comp ? comp.getTransform() : undefined;
-
         if (comp) {
+            const {x, y, scale} = comp.getTransform();
+            this.innitialPanZoomTransform = {x, y, scale};
+            this.setState({
+                zoomFactor: scale,
+            });
+
             comp.on("zoom", (e: PanZoom) => {
-                const {scale} = e.getTransform();
+                const { scale: newScale } = e.getTransform();
                 this.setState({
-                    zoomFactor: scale,
+                    zoomFactor: newScale,
                 });
             });
         }
