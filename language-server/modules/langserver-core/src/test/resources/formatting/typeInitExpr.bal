@@ -1,4 +1,4 @@
-import ballerina/mysql;
+import ballerinax/jdbc;
 
 type Person object {
     string name = "";
@@ -10,18 +10,16 @@ type Person object {
 }
 
 function name() {
-    mysql:Client studentDb1 = new ( {
-    host:"localhost",
-              port: 5690  ,
-name    : "testdb"  ,
-             username : "root" ,
-             password:"",
- dbOptions:{useSSL: false}
-    });
+    jdbc:Client studentDb1 = new( {
+        url: "jdbc:mysql://localhost:3306/testdb",
+ username: "root",
+            password: "",
+      dbOptions:{useSSL: false}
+           }   );
 
-    mysql:Client studentDb2 =new( { host : "localhost"    ,port: 5690,name: "testdb",username:"root",password:""  ,dbOptions:{  useSSL:false }});
+    jdbc:Client studentDb2 =new( {    url: "jdbc:mysql://localhost:3306/testdb",username:"root",password:""  ,dbOptions:{  useSSL:false }});
 
-    mysql:Client studentDb3 = new ({host: "localhost", port: 5690, name: "testdb", username: "root", password: "",
+    jdbc:Client studentDb3 = new ({url: "jdbc:mysql://localhost:3306/testdb", username: "root", password: "",
 dbOptions: {useSSL: false}});
 
  Person  p1=  new  Person (  "" ,{id: 0, address: ""} ) ;
@@ -32,12 +30,10 @@ id: 0,address: ""});
 Person p5 = new ("" , {id: 0,
         address: ""});
 
-     mysql:Client studentDb4 =
+     jdbc:Client studentDb4 =
              new
                ({
-                 host: "localhost",
-                 port: 5690,
-                 name: "testdb",
+                    url: "jdbc:mysql://localhost:5690/testdb",
                  username: "root",
                  password: "",
                  dbOptions: {useSSL: false}
