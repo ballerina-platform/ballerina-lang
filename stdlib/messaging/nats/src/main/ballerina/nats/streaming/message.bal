@@ -20,8 +20,6 @@ public type StreamingMessage object {
 
    private string subject;
 
-   private string? replyTo;
-
    public function __init(string subject, byte[] content, string? replyTo = ()) {
        self.subject = subject;
        self.content = content;
@@ -35,14 +33,9 @@ public type StreamingMessage object {
        return self.content;
    }
 
-    # Get message replyTo subject.
-    #
-    # + return - replyTo subject value.
-   public function getReplyTo() returns string? {
-       return self.replyTo;
-   }
-
-
+   # Get subject.
+   #
+   # + return - subject value.
    public function getSubject() returns string {
        return self.subject;
    }
