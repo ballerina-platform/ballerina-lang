@@ -22,7 +22,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -286,7 +285,7 @@ public class AnnotationAttachmentTest {
         BLangRecordLiteral.BLangRecordKeyValue keyValuePair = recordLiteral.getKeyValuePairs().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "f1");
         BLangExpression expression = keyValuePair.valueExpr;
-        Assert.assertEquals(expression.getKind(), NodeKind.LIST_CONSTRUCTOR_EXPR);
+        Assert.assertEquals(expression.getKind(), NodeKind.ARRAY_LITERAL_EXPR);
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) expression;
         Assert.assertEquals(listConstructorExpr.exprs.size(), 2);
 
@@ -307,7 +306,7 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(elementRecordLiteral.getKeyValuePairs().size(), 2);
         keyValuePair = elementRecordLiteral.getKeyValuePairs().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "s");
-        Assert.assertEquals(((BConstantSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol).value.value, "s2");
+        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s2");
         keyValuePair = elementRecordLiteral.getKeyValuePairs().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "t");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t2");
@@ -315,7 +314,7 @@ public class AnnotationAttachmentTest {
         keyValuePair = recordLiteral.getKeyValuePairs().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "f2");
         expression = keyValuePair.valueExpr;
-        Assert.assertEquals(expression.getKind(), NodeKind.LIST_CONSTRUCTOR_EXPR);
+        Assert.assertEquals(expression.getKind(), NodeKind.TUPLE_LITERAL_EXPR);
         listConstructorExpr = (BLangListConstructorExpr) expression;
         Assert.assertEquals(listConstructorExpr.exprs.size(), 2);
 
@@ -328,7 +327,7 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s3");
         keyValuePair = elementRecordLiteral.getKeyValuePairs().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "t");
-        Assert.assertEquals(((BConstantSymbol) ((BLangSimpleVarRef) keyValuePair.getValue()).symbol).value.value, "t3");
+        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t3");
 
         element = listConstructorExpr.exprs.get(1);
         Assert.assertEquals(element.getKind(), NodeKind.LITERAL);
