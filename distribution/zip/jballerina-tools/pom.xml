@@ -88,7 +88,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-jdbc</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -154,12 +154,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mysql</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-observability</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -173,12 +167,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-runtime-api</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-sql</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -227,12 +215,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-websub</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-privacy</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
@@ -458,7 +440,7 @@
                                 ballerina-file,
                                 ballerina-filepath,
                                 ballerina-grpc,
-                                ballerina-h2,
+                                ballerina-jdbc,
                                 ballerina-http,
                                 ballerina-internal,
                                 ballerina-io,
@@ -467,16 +449,13 @@
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
-                                ballerina-mysql,
                                 ballerina-nats,
                                 ballerina-observability,
                                 ballerina-openapi,
-                                ballerina-privacy,
                                 ballerina-rabbitmq,
                                 ballerina-reflect,
                                 ballerina-runtime-api,
                                 ballerina-socket,
-                                ballerina-sql,
                                 ballerina-streams,
                                 ballerina-system,
                                 ballerina-task,
@@ -625,11 +604,6 @@
                                 <!--</resource>-->
                                 <!--<resource>-->
                                     <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-mysql-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-nats-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
@@ -641,11 +615,6 @@
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-openapi-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-privacy-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
                                 <!--<resource>-->
