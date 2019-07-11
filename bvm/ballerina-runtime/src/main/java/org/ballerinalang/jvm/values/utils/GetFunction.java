@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.array.utils;
+package org.ballerinalang.jvm.values.utils;
 
 import org.ballerinalang.jvm.values.ArrayValue;
 
