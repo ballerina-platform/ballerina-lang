@@ -113,12 +113,6 @@ public class TypeParamAnalyzer {
 
         FindTypeParamResult findTypeParamResult = new FindTypeParamResult();
         findTypeParam(expType, actualType, env, new HashSet<>(), findTypeParamResult);
-        if (!findTypeParamResult.found || findTypeParamResult.isNew) {
-            return;
-        }
-        // If type param discovered before, now type check with actual type. It has to be matched.
-        types.checkType(env.node.pos, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
-                DiagnosticCode.INCOMPATIBLE_TYPES);
     }
 
     BType getReturnTypeParams(SymbolEnv env, BType expType) {
@@ -245,7 +239,10 @@ public class TypeParamAnalyzer {
         // Finding TypePram and its bound type require, both has to be same structure.
         if (isTypeParam(expType)) {
             updateTypeParamAndBoundType(env, expType, actualType, result);
-            result.found = true;
+
+            // If type param discovered before, now type check with actual type. It has to be matched.
+            types.checkType(env.node.pos, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
+                            DiagnosticCode.INCOMPATIBLE_TYPES);
             return;
         }
         // Bound type is a structure. Visit recursively to find bound type.
@@ -307,7 +304,6 @@ public class TypeParamAnalyzer {
                 .noneMatch(entry -> entry.typeParam.tsymbol.pkgID.equals(typeParamType.tsymbol.pkgID)
                         && entry.typeParam.tsymbol.name.equals(typeParamType.tsymbol.name))) {
             env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
-            result.isNew = true;
         }
     }
 

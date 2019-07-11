@@ -63,3 +63,12 @@ function testError2(){
     record {} b2 = b.detail(); // No error;
     boolean b3 = b.detail(); // incompatible types: expected 'boolean', found 'BarDetail'
 }
+
+function testInvalidIterableOpChain() {
+    int[] arr = [10, 20, 30, 40];
+    string s = arr.'map(function (int v) returns int {
+        return v / 10;
+    }).reduce(function (string accum, string val) returns string {
+        return accum + val;
+    }, "");
+}
