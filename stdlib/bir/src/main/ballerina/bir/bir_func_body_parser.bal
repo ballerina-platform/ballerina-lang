@@ -112,7 +112,8 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
             var bType = self.reader.readTypeCpRef();
-            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp, castType:bType};
+            var checkType = self.reader.readBoolean();
+            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp, castType:bType, checkType:checkType};
             return typeCast;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
