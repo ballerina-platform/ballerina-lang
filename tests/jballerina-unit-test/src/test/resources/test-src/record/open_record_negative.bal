@@ -35,6 +35,10 @@ type Baz record {|
     anydata...;
 |};
 
+type Qux record {
+    string s;
+};
+
 type MyError error<string, map<error>>;
 
 function testErrorAdditionForInvalidRestField() {
@@ -43,4 +47,8 @@ function testErrorAdditionForInvalidRestField() {
     Baz b = { a: 1 };
     b.err1 = e1;
     b.err2 = e2;
+
+    Qux q = { s: "hello" };
+    q.e1 = e1;
+    q.e2 = e2;
 }

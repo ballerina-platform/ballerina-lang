@@ -59,7 +59,7 @@ public class Map {
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = ArrayValue::get;
-                elemTypeTag = arr.elementType.getTag();
+                elemTypeTag = elemType.getTag();
                 break;
             case TypeTags.TUPLE_TAG:
                 getFn = ArrayValue::getRefValue;
