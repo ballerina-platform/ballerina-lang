@@ -7,6 +7,7 @@ public class OpenApiPropertyType {
 
     private String propertyName;
     private String propertyType;
+    private boolean isArray;
 
     public String getPropertyName() {
         return propertyName;
@@ -23,5 +24,14 @@ public class OpenApiPropertyType {
     public void setPropertyType(String propertyType) {
         this.propertyType = propertyType;
     }
+
+    public boolean getIsArray() {
+        return isArray;
+    }
+
+    public void setIsArray(boolean isArray) {
+        this.isArray = isArray;
+    }
+
 
 }
