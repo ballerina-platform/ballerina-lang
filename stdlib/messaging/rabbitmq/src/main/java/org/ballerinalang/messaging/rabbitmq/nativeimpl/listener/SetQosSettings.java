@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.bre.Context;
