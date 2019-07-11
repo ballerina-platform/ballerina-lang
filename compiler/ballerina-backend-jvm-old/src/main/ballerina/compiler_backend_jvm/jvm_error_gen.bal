@@ -17,15 +17,18 @@
 type ErrorHandlerGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
+    string currentPackageName;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
+    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
         self.mv = mv;
         self.indexMap = indexMap;
+        self.currentPackageName = currentPackageName;
     }
 
     function genPanic(bir:Panic panicTerm) {
-        int errorIndex = self.getJVMIndexOfVarRef(panicTerm.errorOp.variableDcl);
-        self.mv.visitVarInsn(ALOAD, errorIndex);
+        var varDcl = panicTerm.errorOp.variableDcl;
+        int errorIndex = self.getJVMIndexOfVarRef(varDcl);
+        generateVarLoad(self.mv, varDcl, self.currentPackageName, errorIndex);
         self.mv.visitInsn(ATHROW);
     }
 
@@ -41,8 +44,10 @@ type ErrorHandlerGenerator object {
         self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
         jvm:Label temp = new;
         self.mv.visitLabel(temp);
-        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
-        self.mv.visitVarInsn(ALOAD, lhsIndex);
+
+        var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
+        int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
+        generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
         self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
         self.mv.visitLabel(startLabel);
     }
@@ -52,8 +57,10 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
         self.mv.visitLabel(handlerLabel);
-        int lhsIndex = self.getJVMIndexOfVarRef(<bir:VariableDcl>currentEE.errorOp.variableDcl);
-        self.mv.visitVarInsn(ASTORE, lhsIndex);
+
+        var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
+        int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
+        generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
         self.mv.visitLabel(jumpLabel);
     }
 

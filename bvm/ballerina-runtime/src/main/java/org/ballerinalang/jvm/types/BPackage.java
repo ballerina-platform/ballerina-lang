@@ -35,6 +35,7 @@ public class BPackage {
     public String org;
     public String name;
     public String version;
+    private int hashCode = Objects.hash(org, name, version);
 
     public BPackage(String org, String name, String version) {
         this.org = org;
@@ -88,6 +89,6 @@ public class BPackage {
 
     @Override
     public int hashCode() {
-        return Objects.hash(org, name, version);
+        return hashCode;
     }
 }
