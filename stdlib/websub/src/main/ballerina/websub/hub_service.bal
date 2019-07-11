@@ -20,7 +20,6 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 
@@ -173,7 +172,7 @@ service {
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
                             log:printError(errorMessage);
-                            response.setTextPayload(untaint errorMessage);
+                            response.setTextPayload(<@untainted string> errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
@@ -196,7 +195,7 @@ service {
                         publishStatus = publishToInternalHub(topic, notification);
                     } else {
                         string errorCause = <string> binaryPayload.detail().message;
-                        string errorMessage = "Error extracting payload: " + untaint errorCause;
+                        string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);
@@ -211,7 +210,7 @@ service {
                     if (publishStatus is error) {
                         string errorCause = <string> publishStatus.detail().message;
                         string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                        response.setTextPayload(untaint errorMessage);
+                        response.setTextPayload(<@untainted string> errorMessage);
                         log:printError(errorMessage);
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
@@ -226,7 +225,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(untaint errorMessage);
+                    response.setTextPayload(<@untainted string> errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -303,7 +302,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
+    var subscriberResponse = callbackEp->get(<@untainted string> queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();

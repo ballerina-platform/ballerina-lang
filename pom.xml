@@ -284,64 +284,22 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-h2 -->
+            <!-- ballerina-jdbc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-mysql -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-sql -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -921,27 +879,6 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-websub</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!-- ballerina-privacy -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-privacy</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-privacy</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-privacy</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
@@ -1535,6 +1472,16 @@
                 <artifactId>mimepull</artifactId>
                 <version>${mimepull.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bcprov-jdk15on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bcpkix-jdk15on.version}</version>
+            </dependency>
             <!-- gRPC support for ballerina -->
             <dependency>
                 <groupId>com.google.protobuf</groupId>
@@ -1902,11 +1849,8 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/mysql</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
@@ -2004,11 +1948,8 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/mysql</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
@@ -2100,11 +2041,8 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
-                <module>stdlib/database/h2</module>
-                <module>stdlib/database/mysql</module>
-                <module>stdlib/database/sql</module>
+                <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/privacy</module>
                 <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
@@ -2166,6 +2104,112 @@
             </modules>
             <properties>
                 <skipBenchmarks>true</skipBenchmarks>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <modules>
+                <module>compiler/ballerina-lang</module>
+
+                <module>stdlib/builtin</module>
+                <module>stdlib/utils</module>
+                <module>stdlib/runtime-api</module>
+                <module>stdlib/test-common</module>
+                <module>stdlib/auth</module>
+                <module>stdlib/cache</module>
+                <module>stdlib/config-api</module>
+                <module>stdlib/crypto</module>
+                <module>stdlib/encoding</module>
+                <module>stdlib/file</module>
+                <module>stdlib/openapi</module>
+                <module>stdlib/io</module>
+                <module>stdlib/socket</module>
+                <module>stdlib/internal</module>
+                <module>stdlib/log-api</module>
+                <module>stdlib/transactions</module>
+                <module>stdlib/llvm</module>
+                <module>stdlib/jvm</module>
+                <module>stdlib/bir</module>
+                <module>stdlib/math</module>
+                <module>stdlib/mime</module>
+                <module>stdlib/reflect</module>
+                <module>stdlib/system</module>
+                <module>stdlib/task</module>
+                <module>stdlib/time</module>
+                <module>stdlib/http</module>
+                <module>stdlib/grpc</module>
+                <module>stdlib/filepath</module>
+                <module>stdlib/websub</module>
+                <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
+                <module>stdlib/database/h2</module>
+                <module>stdlib/database/mysql</module>
+                <module>stdlib/database/sql</module>
+                <module>stdlib/streams</module>
+                <module>stdlib/privacy</module>
+                <module>stdlib/messaging/activemq-artemis</module>
+                <module>stdlib/messaging/rabbitmq</module>
+                <module>stdlib/nats</module>
+
+                <module>misc/lib-creator</module>
+
+                <module>bvm/ballerina-config</module>
+                <module>bvm/ballerina-core</module>
+                <module>bvm/ballerina-runtime</module>
+                <module>bvm/ballerina-streaming</module>
+                <module>bvm/ballerina-logging</module>
+                <module>cli/ballerina-launcher</module>
+                <module>cli/ballerina-packerina</module>
+                <!--<module>compiler/ballerina-backend-llvm</module>-->
+                <module>compiler/ballerina-backend-jvm</module>
+                <!--<module>compiler/ballerina-backend-bvm</module>-->
+
+                <!--Should Run Before tests/ballerina-test-->
+                <module>misc/protobuf-ballerina</module>
+
+<!--                <module>tests/ballerina-unit-test</module>-->
+<!--                <module>tests/jballerina-unit-test</module>-->
+<!--                <module>tests/ballerina-spec-conformance-tests</module>-->
+<!--                <module>tests/ballerina-compiler-plugin-test</module>-->
+
+                <module>cli/ballerina-cli-utils</module>
+
+                <module>language-server</module>
+                <module>misc/ballerina-maven-plugins</module>
+                <module>misc/docerina</module>
+                <module>misc/openapi-ballerina</module>
+                <module>misc/testerina</module>
+                <module>misc/toml-parser</module>
+                <module>misc/metrics-extensions</module>
+                <module>misc/tracing-extensions</module>
+                <module>misc/strip-bouncycastle</module>
+
+<!--                <module>composer</module>-->
+
+                <module>distribution/zip/ballerina</module>
+                <module>distribution/zip/ballerina-tools</module>
+                <module>distribution/zip/jballerina</module>
+                <module>distribution/zip/jballerina-tools</module>
+
+<!--                <module>tests/observability-test-utils</module>-->
+<!--                <module>tests/ballerina-test-utils</module>-->
+<!--                <module>tests/ballerina-integration-test</module>-->
+<!--                <module>tests/ballerina-tools-integration-test</module>-->
+<!--                <module>tests/ballerina-examples-test</module>-->
+                <!-- Intellij build disabled in default build -->
+                <!--<module>tool-plugins/intellij</module>-->
+<!--                <module>tool-plugins/vscode</module>-->
+                <!--<module>tool-plugins/theia</module> -->
+
+<!--                <module>benchmarks</module>-->
+            </modules>
+            <properties>
+                <skipBenchmarks>true</skipBenchmarks>
+                <maven.test.skip>true</maven.test.skip>
+                <jacoco.skip>true</jacoco.skip>
+                <spotbugs.skip>true</spotbugs.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
             </properties>
         </profile>
     </profiles>
@@ -2535,6 +2579,8 @@
         <quartz.version>2.3.1</quartz.version>
         <jackson-core.version>2.9.8</jackson-core.version>
         <mimepull.version>1.9.11</mimepull.version>
+        <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
+        <bcpkix-jdk15on.version>1.61</bcpkix-jdk15on.version>
         <broker.version>0.970.5</broker.version>
         <netty-tcnative-boringssl-static.version>2.0.23.Final</netty-tcnative-boringssl-static.version>
 

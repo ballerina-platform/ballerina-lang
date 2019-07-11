@@ -256,6 +256,8 @@ const string LONG_STREAM = "java/util/stream/LongStream";
 const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
 const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
+const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
+const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -281,6 +283,8 @@ const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 const string ANNOTATION_MAP_NAME = "$annotation_data";
+const string DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
+const string DEFAULTABLE_ARGS_ANOT_FIELD = "args";
 
 // types related constants
 const string TYPES_ERROR =  "typeError";

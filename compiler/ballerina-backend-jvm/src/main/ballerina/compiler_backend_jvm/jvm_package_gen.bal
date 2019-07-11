@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type BIRFunctionWrapper record {|
+type BIRFunctionWrapper record {
     string orgName;
     string moduleName;
     string versionValue;
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
-|};
+};
 
 map<BIRFunctionWrapper> birFunctionMap = {};
 
@@ -119,15 +119,14 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         generatePackage(importModuleToModuleId(mod), jarFile, false);
     }
 
-    foreach var func in module.functions {
-        addDefaultableBooleanVarsToSignature(func);
-    }
     typeOwnerClass = getModuleLevelClassName(untaint orgName, untaint moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, untaint lambdas);
 
     if (!isEntry) {
         return;
     }
+
+    boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
     // generate object value classes
     ObjectGenerator objGen = new(module);
@@ -149,7 +148,6 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                 }
             }
 
-            boolean serviceEPAvailable = false;
             if (isEntry) {
                 bir:Function? mainFunc = getMainFunc(module.functions);
                 string mainClass = "";
@@ -157,7 +155,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
                     mainClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
                                                         cleanupBalExt(mainFunc.pos.sourceFileName));
                 }
-                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+
                 generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
                 if (mainFunc is bir:Function) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
@@ -382,38 +380,47 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 
         // Generate classes for other functions.
         while (count < funcSize) {
-            bir:Function func = <bir:Function>functions[count];
+            bir:Function birFunc = <bir:Function>functions[count];
             count = count + 1;
-            string  moduleClass = "";
             // link the bir function for lookup
-            bir:Function currentFunc = getFunction(func);
-            functionName = getFunction(func).name.value;
-            if (isExternFunc(getFunction(func))) { // if this function is an extern
-                var result = lookupExternClassName(cleanupPackageName(pkgName), functionName);
-                if (result is string) {
-                    moduleClass = result;
+            string birFuncName = birFunc.name.value;
+            string balFileName = birFunc.pos.sourceFileName;
+            string birModuleClassName = getModuleLevelClassName(untaint orgName, untaint moduleName,
+                                                        untaint cleanupPathSeperators(cleanupBalExt(balFileName)));
+
+            if !isBallerinaBuiltinModule(orgName, moduleName) {
+                var javaClass = jvmClassMap[birModuleClassName];
+                if (javaClass is JavaClass) {
+                    javaClass.functions[javaClass.functions.length()] = birFunc;
+                } else {
+                    class = { sourceFileName:balFileName, moduleClass:birModuleClassName };
+                    class.functions[0] = birFunc;
+                    jvmClassMap[birModuleClassName] = class;
+                }
+            }
+
+            BIRFunctionWrapper birFuncWrapper;
+            if (isExternFunc(getFunction(birFunc))) { // if this function is an extern
+                var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFuncName);
+                if (jClassName is string) {
+                    if isBallerinaBuiltinModule(orgName, moduleName) {
+                        birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
+                    } else {
+                        bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
+                        addDefaultableBooleanVarsToSignature(birFunc);
+                        birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
+                                                    birModuleClassName, jClassName, jMethodPramTypes);
+                    }
                 } else {
                     error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                        functionName);
+                        birFuncName);
                     panic err;
                 }
             } else {
-                string? balFileName = func.pos.sourceFileName;
-                if (balFileName is string) {
-                    moduleClass = getModuleLevelClassName(untaint orgName, untaint moduleName,
-                                                          untaint cleanupPathSeperators(cleanupBalExt(balFileName)));
-                    var javaClass = jvmClassMap[moduleClass];
-                    if (javaClass is JavaClass) {
-                        javaClass.functions[javaClass.functions.length()] = func;
-                    } else {
-                        class = { sourceFileName:balFileName, moduleClass:moduleClass };
-                        class.functions[0] = func;
-                        jvmClassMap[moduleClass] = class;
-                    }
-                }
+                addDefaultableBooleanVarsToSignature(birFunc);
+                birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
             }
-            birFunctionMap[pkgName + functionName] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                                                        versionValue, moduleClass);
+            birFunctionMap[pkgName + birFuncName] = birFuncWrapper;
         }
     }
     // link typedef - object attached native functions
@@ -441,14 +448,13 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                     continue;
                 }
 
-                var result = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-                if (result is string) {
-                    bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
-                    bir:BType? attachedType = currentFunc.receiverType;
-                    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                                                                attachedType = attachedType);
-                    birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                                                        versionValue, result);
+                var jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                if (jClassName is string) {
+                    bir:BType?[] jMethodPramTypes = currentFunc.typeValue.paramTypes.clone();
+                    addDefaultableBooleanVarsToSignature(currentFunc);
+                    birFunctionMap[pkgName + lookupKey] = createExternalFunctionWrapper(currentFunc, orgName,
+                                                               moduleName, versionValue, jClassName, jClassName,
+                                                               jMethodPramTypes);
                 } else {
                     error err = error("native function not available: " + pkgName + lookupKey);
                     panic err;

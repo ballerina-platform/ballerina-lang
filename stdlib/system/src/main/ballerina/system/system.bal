@@ -19,7 +19,7 @@
 #
 # + name - Name of the environment variable
 # + return - Environment variable value if it exists, otherwise an empty string
-public function getEnv(@sensitive string name) returns string = external;
+public function getEnv(@untainted string name) returns string = external;
 
 # Returns the current working directory.
 #
@@ -93,7 +93,7 @@ public function getFileInfo(string path) returns FileInfo|error = external;
 #
 # + path - String value of directory path.
 # + return - Returns FileInfo array or an error if there is an error while  # changing the mode.
-public function readDir(@sensitive string path) returns FileInfo[]|error = external;
+public function readDir(@untainted string path) returns FileInfo[]|error = external;
 
 # Copy file/directory in old path to new path.
 # If new path already exists, this replaces the file.

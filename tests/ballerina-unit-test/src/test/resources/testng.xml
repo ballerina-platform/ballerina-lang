@@ -63,7 +63,6 @@ under the License.
             <package name="org.ballerinalang.test.balo.*" />
             <package name="org.ballerinalang.test.variable.shadowing.*" />
             <package name="org.ballerinalang.test.channels.*" />
-            <package name="org.ballerinalang.test.privacy.*" />
             <package name="org.ballerinalang.test.serializer.json.*" />
             <package name="org.ballerinalang.test.dataflow.*" />
             <package name="org.ballerinalang.test.error.*" />
@@ -76,6 +75,12 @@ under the License.
 			<class name="org.ballerinalang.test.types.map.MapAccessExprTest" />
 			<class name="org.ballerinalang.test.types.map.MapInitializerExprTest" />
 		</classes>
+
+    </test>
+    <test name="TaintCheckingTests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest"></class>
+        </classes>
     </test>
     <test name="ballerina-main-function-test-suite" preserve-order="true" parallel="false">
         <packages >

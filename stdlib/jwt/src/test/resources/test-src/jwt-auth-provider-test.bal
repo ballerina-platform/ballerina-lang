@@ -21,7 +21,7 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
-        audience: ["ballerina"],
+        audience: "ballerina",
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -29,11 +29,11 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     return jwtAuthProvider;
 }
 
-function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns boolean|error {
+function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns @tainted (boolean|error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
-        audience: ["ballerina"],
+        audience: "ballerina",
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -49,7 +49,7 @@ function generateJwt(string keyStorePath) returns string|error {
     jwt:JwtPayload payload = {
         iss: "wso2",
         sub: "John",
-        aud: ["ballerina"],
+        aud: "ballerina",
         exp: 32475251189000
     };
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
@@ -61,12 +61,12 @@ function generateJwt(string keyStorePath) returns string|error {
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, string trustStorePath) returns jwt:JwtPayload|error {
+function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig validatorConfig = {
         issuer: "wso2",
         certificateAlias: "ballerina",
-        audience: ["ballerina"],
+        audience: "ballerina",
         clockSkew: 0,
         trustStore: trustStore
     };
