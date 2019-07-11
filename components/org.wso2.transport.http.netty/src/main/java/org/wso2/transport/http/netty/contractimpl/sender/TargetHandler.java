@@ -77,8 +77,14 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
-                inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
-                messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                if (((HttpResponse) msg).status().code() != 100) {
+                    inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
+                    messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Received a 100-continue response");
+                    }
+                }
             } else {
                 if (inboundResponseMsg != null) {
                     messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
