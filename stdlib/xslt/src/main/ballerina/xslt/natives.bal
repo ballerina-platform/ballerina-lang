@@ -19,4 +19,4 @@
 # + input - An XML object which needs to be transformed
 # + xsl - The XSL style sheet as an XML object
 # + return - The transformed result as an XML object or `error` in case of errors.
-public function performXSLT(xml input, xml xsl) returns xml|error = external;
+public function transform(xml input, xml xsl) returns xml|error = external;

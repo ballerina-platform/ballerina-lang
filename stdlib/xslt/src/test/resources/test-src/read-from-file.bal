@@ -21,7 +21,7 @@ function readFromFile(string xmlFilePath, string xslFilePath) returns @tainted x
     if (xmlValue is xml) {
         var xslValue = readXml(xslFilePath);
         if (xslValue is xml) {
-            var result = xslt:performXSLT(xmlValue, xslValue);
+            var result = xslt:transform(xmlValue, xslValue);
             if (result is xml) {
                 return result;
             } else {
@@ -40,7 +40,7 @@ function readMultiRootedXml(string xmlFilePath, string xslFilePath) returns @tai
     if (xmlValue is xml) {
         var xslValue = readXml(xslFilePath);
         if (xslValue is xml) {
-            var result = xslt:performXSLT(xmlValue.*, xslValue);
+            var result = xslt:transform(xmlValue.*, xslValue);
             if (result is xml) {
                 return result;
             } else {
@@ -57,7 +57,7 @@ function readMultiRootedXml(string xmlFilePath, string xslFilePath) returns @tai
 function transform() returns @tainted xml|error {
     xml xmlValue = xml `Hello, World!`;
     xml xslValue = xml `<name>Book1</name>`;
-    var result = xslt:performXSLT(xmlValue, xslValue);
+    var result = xslt:transform(xmlValue, xslValue);
     if (result is xml) {
         return result;
     } else {

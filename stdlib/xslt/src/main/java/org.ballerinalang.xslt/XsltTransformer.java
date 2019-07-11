@@ -55,7 +55,7 @@ import javax.xml.transform.stream.StreamResult;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "xslt",
-        functionName = "performXSLT",
+        functionName = "transform",
         args = {@Argument(name = "input", type = TypeKind.XML),
                 @Argument(name = "xsl", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.XML)},
@@ -68,7 +68,7 @@ public class XsltTransformer {
     private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
-    public static Object performXSLT(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
+    public static Object transform(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
         try {
             String input = xmlInput.toString();
             String xsl = xslInput.toString();
