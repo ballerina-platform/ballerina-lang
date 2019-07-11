@@ -198,3 +198,9 @@ function testRefArrayIterator() returns A {
 type A record {
     string name = "";
 };
+
+function testArrayUnion() returns [boolean[][], string[][]] {
+    (int[]|boolean[][]) x1 = [[false]];
+    (string[]|string[][]) x2 = [["scope1"]];
+    return [<boolean[][]>x1, <string[][]>x2];
+}

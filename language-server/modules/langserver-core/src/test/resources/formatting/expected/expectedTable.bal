@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/sql;
 
 type Person record {
     int id;
