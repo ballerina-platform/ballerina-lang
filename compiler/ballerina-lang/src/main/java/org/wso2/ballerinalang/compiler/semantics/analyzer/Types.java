@@ -1556,6 +1556,12 @@ public class Types {
             return symTable.notFoundSymbol;
         }
 
+        @Override
+        public BSymbol visit(BTypedescType t, BType s) {
+
+            return symTable.notFoundSymbol;
+        }
+
     };
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -1644,7 +1650,24 @@ public class Types {
 
         @Override
         public Boolean visit(BRecordType t, BType s) {
-            return t == s;
+
+            if (t == s) {
+                return true;
+            }
+            if (s.tag != TypeTags.RECORD) {
+                return false;
+            }
+            BRecordType source = (BRecordType) s;
+            boolean notSameType = source.fields
+                    .stream()
+                    .map(fs -> t.fields.stream()
+                            .anyMatch(ft -> fs.name.equals(ft.name)
+                                    && isSameType(fs.type, ft.type, this.unresolvedTypes)))
+                    .anyMatch(foundSameType -> !foundSameType);
+            if (notSameType) {
+                return false;
+            }
+            return isSameType(source.restFieldType, t.restFieldType, unresolvedTypes);
         }
 
         @Override
@@ -1733,6 +1756,17 @@ public class Types {
         public Boolean visit(BServiceType t, BType s) {
             return t == s || t.tag == s.tag;
         }
+
+        @Override
+        public Boolean visit(BTypedescType t, BType s) {
+
+            if (s.tag != TypeTags.TYPEDESC) {
+                return false;
+            }
+            BTypedescType sType = ((BTypedescType) s);
+            return isSameType(sType.constraint, t.constraint, this.unresolvedTypes);
+        }
+
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
