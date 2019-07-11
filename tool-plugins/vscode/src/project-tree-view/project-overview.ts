@@ -53,11 +53,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                         let treeNode: ProjectTreeElement[] = [];
                         this.balProjectTree = this.buildProjectTree(result.modules);
                         Object.keys(this.balProjectTree).map((node: any) => {
-                            treeNode.push(new ProjectTreeElement(node,1,{
-                                command: "ballerina.executeTreeElement",
-                                title: "Execute Tree Command",
-                                arguments: [node]
-                            }));
+                            treeNode.push(new ProjectTreeElement(node,1));
                         });
                         treeNode.sort((node1, node2) => node1.label.localeCompare(node2.label));
                         resolve(treeNode);
@@ -109,13 +105,21 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         Object.keys(projectTree).map((key) => {
             let element = projectTree[key];
             if (key === parentEl.label) {
-                Object.keys(element).map(children => {
-                    elementTree.push(new ProjectTreeElement(children,1));
+                Object.keys(element).map(child => {
+                    elementTree.push(new ProjectTreeElement(child,1,{
+                        command: "ballerina.executeTreeElement",
+                        title: "Execute Tree Command",
+                        arguments: [child]
+                    }));
                 });
             } else {
                 let treeObj = this.getTreeForKey(element, parentEl.label);
-                Object.keys(treeObj).map(children => {
-                    elementTree.push(new ProjectTreeElement(children,1));
+                Object.keys(treeObj).map(child => {
+                    elementTree.push(new ProjectTreeElement(child,1,{
+                        command: "ballerina.executeTreeElement",
+                        title: "Execute Tree Command",
+                        arguments: [child]
+                    }));
                 });
             }
         });

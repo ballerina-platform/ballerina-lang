@@ -1,6 +1,6 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
-import panzoom from "panzoom";
+import panzoom, { PanZoom } from "panzoom";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
@@ -27,6 +27,7 @@ export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
     docUri: string;
+    setPanZoomComp?: (comp: PanZoom | undefined) => void;
 }
 
 export interface DiagramState {
@@ -41,6 +42,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     private containerRef = React.createRef<HTMLDivElement>();
     private panZoomRootRef: React.RefObject<SVGAElement>;
+    private panZoomComp: PanZoom | undefined;
 
     constructor(props: DiagramProps) {
         super(props);
@@ -53,17 +55,21 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     public componentDidMount() {
         if (this.panZoomRootRef.current) {
-            panzoom(this.panZoomRootRef.current, {
+            this.panZoomComp = panzoom(this.panZoomRootRef.current, {
                 smoothScroll: false,
             });
+            if (this.props.setPanZoomComp) {
+                this.props.setPanZoomComp(this.panZoomComp);
+            }
         }
     }
 
-    public componentDidUpdate() {
-        if (this.panZoomRootRef.current) {
-            panzoom(this.panZoomRootRef.current, {
-                smoothScroll: false,
-            });
+    public componentWillUnmount() {
+        if (this.panZoomComp) {
+            this.panZoomComp.dispose();
+            if (this.props.setPanZoomComp) {
+                this.props.setPanZoomComp(undefined);
+            }
         }
     }
 

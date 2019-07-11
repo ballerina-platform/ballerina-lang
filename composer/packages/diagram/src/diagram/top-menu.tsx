@@ -17,6 +17,7 @@ export interface TopMenuProps {
     openedState: boolean;
     handleOpened: () => void;
     handleClosed: () => void;
+    zoomFactor: number;
 }
 
 export const TopMenu = (props: TopMenuProps) => {
@@ -30,7 +31,8 @@ export const TopMenu = (props: TopMenuProps) => {
         handleOpened,
         handleClosed,
         openedState,
-        fitActive
+        fitActive,
+        zoomFactor = 1,
     } = props;
 
     return (
@@ -48,7 +50,11 @@ export const TopMenu = (props: TopMenuProps) => {
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Icon onClick={handleZoomOut} className="fw fw-minus" />
+<<<<<<< HEAD
                         <Dropdown text={"4%"} className="menu-dropdown-small">
+=======
+                        <Dropdown text={`${Math.floor(zoomFactor * 100)}%`} className="menu-dropdown-small">
+>>>>>>> Show zoom factor on the top menu
                             <Dropdown.Menu>
                                 <Dropdown.Item text="10%" />
                                 <Dropdown.Item text="20%" />

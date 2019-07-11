@@ -8,7 +8,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         const projectTreeProvider = new ProjectTreeProvider(ballerinaExtInstance);
         vscode.window.registerTreeDataProvider('ballerinaProjectTree', projectTreeProvider);
 
-        vscode.commands.registerCommand('extension.openPackageOnNpm',(testing) => {
+        vscode.commands.registerCommand('ballerina.executeTreeElement',(testing) => {
             //TODO Command Execute Logic
             console.log(testing);
         });
