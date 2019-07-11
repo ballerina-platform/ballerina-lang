@@ -48,7 +48,7 @@ export const TopMenu = (props: TopMenuProps) => {
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Icon onClick={handleZoomOut} className="fw fw-minus" />
-                        <Dropdown className="menu-dropdown-small">
+                        <Dropdown text={"4%"} className="menu-dropdown-small">
                             <Dropdown.Menu>
                                 <Dropdown.Item text="10%" />
                                 <Dropdown.Item text="20%" />
