@@ -86,7 +86,9 @@ public class XsltTransformer {
             transformer.transform(xmlSource, streamResult);
 
             String resultStr = stringWriter.getBuffer().toString().trim();
-            log.debug("Transformed result : " + resultStr);
+            if (log.isDebugEnabled()) {
+                log.debug("Transformed result : {}", resultStr);
+            }
 
             if (resultStr.isEmpty()) {
                 return createError(XSLT_ERROR_CODE, OPERATION + "empty result");

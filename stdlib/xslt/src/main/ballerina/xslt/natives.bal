@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Transforms the single rooted XML to another XML/HTML/plain text using XSL transformations.
+# Transforms the single-rooted XML content to another XML/HTML/plain text using XSL transformations.
 #
-# + input - An XML object which needs to be transformed
-# + xsl - The XSL style sheet as an XML object
-# + return - The transformed result as an XML object or `error` in case of errors.
+# + input - An XML object, which needs to be transformed.
+# + xsl - The XSL style sheet represented in an XML object.
+# + return - The transformed result represented in an XML object or the `error` in case of an error.
 public function transform(xml input, xml xsl) returns xml|error = external;

@@ -1,9 +1,9 @@
 ## Module Overview
-This module provides a function to transforms the XML to another XML/HTML/plain text using XSL transformations.
+This module provides a function to transform the XML content to another XML/HTML/plain text using XSL transformations.
 
 ## Samples
-###Transform xml using a given xsl
-The following program depicts how the xsl transformation can be done for given single rooted xml, using a xsl.
+###Transform XML using a given XSL
+The following program depicts how the XSL transformation can be done for a given single-rooted XML, using a XSL.
 ``` ballerina
 import ballerina/io;
 import ballerina/xslt;
