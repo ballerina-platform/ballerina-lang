@@ -125,7 +125,7 @@
       "label": "annotation",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertText": "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};",
       "insertTextFormat": "Snippet"
     },
     {
@@ -279,6 +279,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ArgsData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Nil",
@@ -333,6 +343,28 @@
       "detail": "Service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/jdbc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jdbc",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jdbc;\n"
+        }
+      ]
     },
     {
       "label": "ballerinax/jms",
@@ -397,50 +429,6 @@
             }
           },
           "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/h2",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "h2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/h2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/privacy;\n"
         }
       ]
     },
@@ -1039,28 +1027,6 @@
       ]
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
@@ -1167,28 +1133,6 @@
             }
           },
           "newText": "import ballerina/socket;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/sql;\n"
         }
       ]
     }
