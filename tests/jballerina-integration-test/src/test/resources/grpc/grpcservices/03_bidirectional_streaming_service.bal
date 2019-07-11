@@ -59,7 +59,7 @@ service Chat on ep3 {
         io:println(self.consMap);
         foreach var con in self.consMap {
             string callerId;
-            (callerId, conn) = con;
+            [callerId, conn] = con;
             error? err = conn->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
@@ -85,7 +85,7 @@ service Chat on ep3 {
         io:println(self.consMap);
         foreach var con in self.consMap {
             string callerId;
-            (callerId, conn) = con;
+            [callerId, conn] = con;
             error? err = conn->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "

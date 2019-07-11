@@ -58,19 +58,19 @@ function testClientStreaming(string[] args) returns (string) {
 service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
-    resource function onMessage(string message) {
-        response = untaint message;
+    function onMessage(string message) {
+        response = <@untainted> message;
         io:println("Response received from server: " + response);
         total = 1;
     }
 
     // Resource registered to receive server error messages
-    resource function onError(error err) {
+    function onError(error err) {
         io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
     }
 
     // Resource registered to receive server completed message.
-    resource function onComplete() {
+    function onComplete() {
         total = 1;
         io:println("Server Complete Sending Responses.");
     }

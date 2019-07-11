@@ -74,8 +74,8 @@ public class MessageUtils {
         }
         boolean headersRequired = false;
         for (BType paramType : function.getParameterType()) {
-            if (paramType != null && PROTOCOL_PACKAGE_GRPC.equals(paramType.getPackage().getName()) &&
-                    "Headers".equals(paramType.getName())) {
+            if (paramType != null && "Headers".equals(paramType.getName()) &&
+                    paramType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(paramType.getPackage().getName())) {
                 headersRequired = true;
                 break;
             }

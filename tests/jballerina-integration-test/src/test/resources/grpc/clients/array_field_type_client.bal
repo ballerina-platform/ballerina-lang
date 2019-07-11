@@ -197,7 +197,7 @@ public type HelloWorldBlockingClient client object {
         [result, resHeaders] = payload;
         var value = int.convert(result);
         if (value is int) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }
@@ -211,7 +211,7 @@ public type HelloWorldBlockingClient client object {
         return [string.convert(result), resHeaders];
     }
 
-    remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ([float, grpc:Headers)|error] {
+    remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
         [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;

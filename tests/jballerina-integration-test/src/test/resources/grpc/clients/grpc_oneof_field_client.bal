@@ -248,7 +248,7 @@ public type OneofFieldServiceBlockingClient client object {
         if (value is Response1) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
             return err;
         }
     }
@@ -263,7 +263,7 @@ public type OneofFieldServiceBlockingClient client object {
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
             return err;
         }
     }

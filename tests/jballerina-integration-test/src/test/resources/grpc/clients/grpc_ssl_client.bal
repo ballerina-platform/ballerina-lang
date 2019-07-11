@@ -53,7 +53,7 @@ public type grpcMutualSslServiceBlockingClient client object {
         }
     }
 
-    remote function hello (string req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+    remote function hello (string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
 
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers = headers);
         grpc:Headers resHeaders = new;

@@ -179,15 +179,14 @@ public type HelloWorldBlockingClient client object {
         [result, resHeaders] = unionResp;
         var value = Response.convert(result);
         if (value is Response) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }
     }
 
     remote function testResponseInsideMatch(string req, grpc:Headers? headers = ()) returns [Response, grpc:Headers]|error {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req,
-            headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req, headers = headers);
         any result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;

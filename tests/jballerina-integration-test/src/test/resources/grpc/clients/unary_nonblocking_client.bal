@@ -116,7 +116,7 @@ public type HelloWorldBlockingClient client object {
         [result, resHeaders] = unionResp;
         var value = float.convert(result);
         if (value is float) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
             return value;
         }

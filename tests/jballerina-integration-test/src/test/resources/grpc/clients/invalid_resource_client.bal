@@ -123,7 +123,7 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
             return err;
         }
     }
