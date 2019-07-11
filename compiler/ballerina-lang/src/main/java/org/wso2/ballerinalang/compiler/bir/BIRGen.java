@@ -1657,7 +1657,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         xmlAttributeAccessExpr.expr.accept(this);
         BIROperand xmlVarOp = this.env.targetOperand;
-        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType, true));
+        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
+                true));
         this.env.targetOperand = toVarRef;
     }
 
