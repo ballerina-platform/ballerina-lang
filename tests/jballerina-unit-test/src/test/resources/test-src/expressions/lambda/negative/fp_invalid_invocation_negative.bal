@@ -16,7 +16,7 @@ type Employee object {
                         };
     }
     
-    function getFname() returns (string) {
+    public function getFname() returns (string) {
         return self.fname;
     }
 };
@@ -48,7 +48,8 @@ function test1() {
     var f4 = e.getLname;
     _ = f4();
     
-    _ = e.getLname();
+    var getLname = e.getLname;
+    _ = getLname();
     
     _ = e.getFname();
 }
@@ -64,23 +65,20 @@ function test2() {
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    string y = tom.getName.call(tom.fname, tom.lname );
+    string y = tom.getName(tom.fname, tom.lname );
 
     var f1 = foo;
-    f1.call();
+    f1();
     
     var f2 = bob.getName;
-    _ = f2.call("John", "Doe");
+    _ = f2("John", "Doe");
     
     Employee e = new;
     var f3 = e.getFname;
-    _ = f3.call();
+    _ = f3();
     
     var f4 = e.getLname;
-    _ = f4.call();
+    _ = f4();
     
-    _ = e.getLname.call();
-    
-    // Trying to invoke a valid function as a pointer. should give errors
-    _ = e.getFname.call();
+    _ = e.getLname();
 }
