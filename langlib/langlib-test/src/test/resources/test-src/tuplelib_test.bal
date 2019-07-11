@@ -116,3 +116,11 @@ function gradeToValue([Grade, int] grade) returns [float, int] {
     error e = error("Invalid grade: " + <string>grade[0]);
     panic e;
 }
+
+function testIndexOf() returns [int?, int?] {
+    [int, string, float, boolean, anydata] arr = [10, "foo", 12.34, true, <map<string>>{"k":"Bar"}];
+    map<string> m = {"k":"Bar"};
+    int? i1 = arr.indexOf(m);
+    int? i2 = arr.indexOf(50);
+    return [i1, i2];
+}

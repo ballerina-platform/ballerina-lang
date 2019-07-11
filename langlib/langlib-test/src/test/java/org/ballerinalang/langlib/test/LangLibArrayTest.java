@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 /**
  * Test cases for the lang.array library.
@@ -50,6 +51,37 @@ public class LangLibArrayTest {
     public void testLength() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
         assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+//    @Test
+//    public void testIterator() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
+//        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
+//    }
+
+    @Test
+    public void testEnumerate() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testEnumerate");
+        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+
+        BValueArray arr = (BValueArray) returns[0];
+        assertEquals(arr.elementType.getTag(), TypeTags.TUPLE_TAG);
+
+        BValueArray elem = (BValueArray) arr.getRefValue(0);
+        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 0);
+        assertEquals(elem.getRefValue(1).stringValue(), "Hello");
+
+        elem = (BValueArray) arr.getRefValue(1);
+        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 1);
+        assertEquals(elem.getRefValue(1).stringValue(), "World!");
+
+        elem = (BValueArray) arr.getRefValue(2);
+        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 2);
+        assertEquals(elem.getRefValue(1).stringValue(), "From");
+
+        elem = (BValueArray) arr.getRefValue(3);
+        assertEquals(((BInteger) elem.getRefValue(0)).intValue(), 3);
+        assertEquals(elem.getRefValue(1).stringValue(), "Ballerina");
     }
 
     @Test
@@ -150,12 +182,12 @@ public class LangLibArrayTest {
         assertEquals(((BInteger) returns[0]).intValue(), 420);
     }
 
-//    @Test
-//    public void testIndexOf() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
-//        assertEquals(((BInteger) returns[0]).intValue(), 4);
-//        assertNull(returns[1]);
-//    }
+    @Test
+    public void testIndexOf() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
+        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        assertNull(returns[1]);
+    }
 
     @Test
     public void testReverse() {

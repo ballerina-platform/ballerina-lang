@@ -19,6 +19,28 @@ function testLength() returns int {
     return arr.length();
 }
 
+//function testIterator() returns string {
+//    string[] arr = ["Hello", "World!", "From", "Ballerina"];
+//    abstract object {
+//         public function next() returns record {| string value; |}?;
+//    } itr = arr.iterator();
+//
+//    record {| string value; |}|() elem = itr.next();
+//    string result = "";
+//
+//    while (elem is record {| string value; |}) {
+//        result += elem.value;
+//        elem = itr.next();
+//    }
+//
+//    return result;
+//}
+
+function testEnumerate() returns [int, string][] {
+    string[] arr = ["Hello", "World!", "From", "Ballerina"];
+    return arr.enumerate();
+}
+
 function testMap() returns int[] {
     int[] arr = [10, 20, 30, 40];
     int[] newArr = arr.'map(function (int x) returns int {
@@ -98,13 +120,13 @@ function gradeToValue([Grade, int] grade) returns [float, int] {
     panic e;
 }
 
-//function testIndexOf() returns [int?, int?] {
-//    anydata[] arr = [10, "foo", 12.34, true, <map<string>>{"k":"Bar"}];
-//    map<string> m = {"k":"Bar"};
-//    int? i1 = arr.indexOf(m);
-//    int? i2 = arr.indexOf(50);
-//    return [i1, i2];
-//}
+function testIndexOf() returns [int?, int?] {
+    anydata[] arr = [10, "foo", 12.34, true, <map<string>>{"k":"Bar"}];
+    map<string> m = {"k":"Bar"};
+    int? i1 = arr.indexOf(m);
+    int? i2 = arr.indexOf(50);
+    return [i1, i2];
+}
 
 function testReverse() returns [int[], int[]] {
     int[] arr = [10, 20, 30, 40, 50];
