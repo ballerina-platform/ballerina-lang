@@ -35,34 +35,43 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
-        return self.register(s, {});
+        var result = self.register(s, {});
+        if (result is error) {
+            panic result;
+        }
     }
 
     public function __start() returns error? {
-        return self.start();
+        var result = self.start();
+        if (result is error) {
+            panic result;
+        }
     }
 
     public function __stop() returns error? {
-        return self.stop();
+        var result = self.stop();
+        if (result is error) {
+            panic result;
+        }
     }
 
-    function init() returns error? = external;
+    function init() returns ListenerError? = external;
 
-    function register(service s, map<any> config) returns error? = external;
+    function register(service s, map<any> config) returns ListenerError? = external;
 
-    function start() returns error? = external;
+    function start() returns ListenerError? = external;
 
-    function stop() returns error? = external;
+    function stop() returns ListenerError? = external;
 
-    function detachService(service attachedService) returns error? = external;
+    function detachService(service attachedService) returns ListenerError? = external;
 
     # Pauses the task.
     #
-    # + return - Returns error if an error is occurred while resuming, nil Otherwise.
-    public function pause() returns error? = external;
+    # + return - Returns `ListenerError` if an error is occurred while resuming, nil Otherwise.
+    public function pause() returns ListenerError? = external;
 
     # Resumes a paused task.
     #
-    # + return - Returns error when an error occurred while pausing, nil Otherwise.
-    public function resume() returns error? = external;
+    # + return - Returns `ListenerError` when an error occurred while pausing, nil Otherwise.
+    public function resume() returns ListenerError? = external;
 };
