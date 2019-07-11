@@ -76,10 +76,10 @@ function getTotalLength() returns int {
     return totalLength;
 }
 
-function getString(byte[] content) returns @tainted string|error {
-    io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+function getString(byte[] content) returns @tainted string|io:IOError {
+    io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-    return characterChannel.read(50);
+    return check characterChannel.read(50);
 }
 
 function process(any|error result, socket:Caller caller) {

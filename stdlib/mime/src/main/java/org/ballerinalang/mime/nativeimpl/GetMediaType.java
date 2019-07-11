@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -44,11 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
                 type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true)
-public class GetMediaType extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetMediaType {
 
     public static Object getMediaType(Strand strand, String contentType) {
         try {

@@ -18,11 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -50,11 +49,6 @@ import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAIL
         isPublic = true
 )
 public class GetJson extends AbstractGetPayloadHandler {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
 
     public static Object getJson(Strand strand, ObjectValue entityObj) {
         NonBlockingCallback callback = null;
@@ -90,7 +84,7 @@ public class GetJson extends AbstractGetPayloadHandler {
     private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        return TypeChecker.getType(value).getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(
-                TypeChecker.getType(value));
+        BType objectType = TypeChecker.getType(value);
+        return objectType.getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(objectType);
     }
 }

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -43,10 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
                 type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetJson extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class SetJson {
 
     public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, jsonContent);

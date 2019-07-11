@@ -17,16 +17,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -53,49 +47,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         returnType = {@ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class CloseReadableRecordChannel implements NativeCallableUnit {
-
-    /**
-     * The index of the DelimitedRecordChannel in ballerina/io#closeDelimitedRecordChannel().
-     */
-    private static final int RECORD_CHANNEL_INDEX = 0;
-
-    private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
-        CallableUnitCallback callback = eventContext.getCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
-        }
-        callback.notifySuccess();
-        return result;
-    }
-
-    /**
-     * <p>
-     * Closes a text record channel.
-     * </p>
-     * <p>
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(RECORD_CHANNEL_INDEX);
-        DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)
-                channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(context, callback);
-        CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(recordChannel, eventContext);
-        Register register = EventRegister.getFactory().register(closeEvent, CloseReadableRecordChannel::closeResponse);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public class CloseReadableRecordChannel {
 
     public static Object close(Strand strand, ObjectValue channel) {
         DelimitedRecordChannel recordChannel = (DelimitedRecordChannel)

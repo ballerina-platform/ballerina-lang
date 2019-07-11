@@ -19,20 +19,15 @@
 package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Remove the given header from the entity.
@@ -47,18 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.VOID)},
         isPublic = true
 )
-public class RemoveHeader extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
-            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
-            httpHeaders.remove(headerName);
-        }
-        context.setReturnValues();
-    }
+public class RemoveHeader {
 
     public static void removeHeader(Strand strand, ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
