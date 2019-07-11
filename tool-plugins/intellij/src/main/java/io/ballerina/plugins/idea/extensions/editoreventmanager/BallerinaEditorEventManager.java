@@ -30,6 +30,8 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
+import io.ballerina.plugins.idea.extensions.server.ModulesRequest;
+import io.ballerina.plugins.idea.extensions.server.ModulesResponse;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -54,6 +56,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     private static final Logger LOG = Logger.getInstance(BallerinaEditorEventManager.class);
     private static final int TIMEOUT_AST = 3000;
+    private static final int TIMEOUT_PROJECT_AST = 5000;
     private static final int TIMEOUT_ENDPOINTS = 2000;
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
@@ -72,6 +75,27 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         if (future != null) {
             try {
                 return future.get(TIMEOUT_AST, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                throw e;
+            } catch (InterruptedException | JsonRpcException | ExecutionException e) {
+                // Todo - Enable after fixing
+                // wrapper.crashed(e);
+                throw e;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public ModulesResponse getProjectAST(String sourceRoot) throws TimeoutException, ExecutionException,
+            InterruptedException {
+        BallerinaRequestManager ballerinaRequestManager = (BallerinaRequestManager) getRequestManager();
+        ModulesRequest ballerinaModuleRequest = new ModulesRequest();
+        ballerinaModuleRequest.setSourceRoot(sourceRoot);
+        CompletableFuture<ModulesResponse> future = ballerinaRequestManager.modules(ballerinaModuleRequest);
+        if (future != null) {
+            try {
+                return future.get(TIMEOUT_PROJECT_AST, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
                 throw e;
             } catch (InterruptedException | JsonRpcException | ExecutionException e) {
