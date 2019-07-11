@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.artemis;
+package org.ballerinalang.nats.streaming;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ import org.testng.ITestResult;
 /**
  * A test suit listener for jballerina test cases initialization.
  *
- * @since 0.995.0
+ * @since 1.0.0
  */
 public class JBallerinaTestInitializer implements ITestListener {
 

@@ -21,13 +21,13 @@ under the License.
 
 <suite name="ballerina-test-suite">
     <listeners>
-        <listener class-name="org.ballerinalang.messaging.artemis.JBallerinaTestInitializer" />
+        <listener class-name="org.ballerinalang.nats.streaming.JBallerinaTestInitializer" />
     </listeners>
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
-        <packages>
-            <package name="org.ballerinalang.messaging.artemis" />
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.nats.streaming.NatsStreamingSubscriberCompilationTest"/>
+        </classes>
     </test>
 </suite>
