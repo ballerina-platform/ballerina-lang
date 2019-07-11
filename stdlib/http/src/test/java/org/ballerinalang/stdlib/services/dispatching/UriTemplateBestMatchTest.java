@@ -417,7 +417,7 @@ public class UriTemplateBestMatchTest {
 
     @Test(description = "Test GetQueryParamValue method when params are not set with URL. /paramNeg")
     public void testGetQueryParamValueNegative() {
-        String path = "/hello?bar=zzz";
+        String path = "/hello?bar=";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
@@ -437,6 +437,25 @@ public class UriTemplateBestMatchTest {
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "",
                             "param value is not null");
+    }
+
+    @Test(description = "Test suitable method with URL.")
+    public void testAllInOneQueryParamAPIs() {
+        String path = "/hello/echo156/bar?foo=a,b&bar=c&bar=d";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"map\":\"c\", \"array\":\"c\", \"value\":\"c\", \"map_\":\"a\", \"array_\":\"d\"}");
+
+        path = "/hello/echo156/zzz?zzz=x,X&bar=x&foo=";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"map\":\"x\", \"array\":\"x\", \"value\":\"x\", \"map_\":\"\", \"array_\":\"X\"}");
     }
 
         @Test(description = "Test dispatching without verbs")

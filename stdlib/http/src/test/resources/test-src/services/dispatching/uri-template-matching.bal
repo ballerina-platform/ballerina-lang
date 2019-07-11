@@ -183,6 +183,21 @@ service echo11 on testEP {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo156/{key}"
+    }
+    resource function allApis(http:Caller caller, http:Request req, string key) {
+        map<string[]> paramMap = req.getQueryParams();
+        string[] valueArray = req.getQueryParamValues(key) ?: ["array not found"];
+        string value = req.getQueryParamValue(key) ?: "value not found";
+        json responseJson = {"map":paramMap[key][0] , "array":valueArray[0], "value":value,
+                                "map_":paramMap["foo"][0], "array_":valueArray[1] };
+        //http:Response res = new;
+        //res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(responseJson);
+    }
+
+    @http:ResourceConfig {
         methods:["POST"],
         path:"/so2"
     }

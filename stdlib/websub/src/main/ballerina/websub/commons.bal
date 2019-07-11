@@ -258,8 +258,8 @@ public type Notification object {
 
     # Retrieves the query parameters of the content delivery request, as a map.
     #
-    # + return - String constrained map of query params
-    public function getQueryParams() returns map<string> {
+    # + return - String constrained array map of query params
+    public function getQueryParams() returns map<string[]> {
         return self.request.getQueryParams();
     }
 
