@@ -14,16 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/mysql;
+import ballerinax/jdbc;
 import ballerina/io;
 
-mysql:Client mysqlDB = new({
-    host: "localhost",
-    port: 3306,
-    name: "ballerinademo",
+jdbc:Client mysqlDB = new ({
+    url: "jdbc:mysql://localhost:3306/ballerinademo",
     username: "demouser",
     password: "password@123",
-    dbOptions: { useSSL: false}
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { }
 });
 
 public function main(string... args) returns error? {

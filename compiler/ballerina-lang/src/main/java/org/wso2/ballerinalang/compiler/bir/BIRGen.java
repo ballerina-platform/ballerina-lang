@@ -437,24 +437,38 @@ public class BIRGen extends BLangNodeVisitor {
         //  2) BLangRecordLiteral
         // In this implementation, we support only the BLangRecordLiteral expressions
         //   which have only key:BLangLiteral key/value pairs
+        //   or key:BLangArrayLiteral with only BLangLiteral expressions
         // ------------------------------------------------------
         if (astAnnotAttach.expr == null) {
             return;
         }
 
-        Map<String, BIRAnnotationValueEntry> annotValueEntryMap = new HashMap<>();
+        Map<String, List<BIRAnnotationValueEntry>> annotValueEntryMap = new HashMap<>();
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) astAnnotAttach.expr;
         for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (NodeKind.LITERAL != keyValuePair.valueExpr.getKind()) {
+            List<BIRAnnotationValueEntry> entryValueList = new ArrayList<>();
+
+            if (NodeKind.LITERAL == keyValuePair.valueExpr.getKind()) {
+                BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
+                entryValueList.add(new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type));
+            } else if (NodeKind.ARRAY_LITERAL_EXPR == keyValuePair.valueExpr.getKind()) {
+                BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) keyValuePair.valueExpr;
+                arrayLiteral.exprs.forEach(expr -> {
+                    if (NodeKind.LITERAL != expr.getKind()) {
+                        return;
+                    }
+                    BLangLiteral exprLiteral = (BLangLiteral) expr;
+                    entryValueList.add(new BIRAnnotationValueEntry(exprLiteral.value, expr.type));
+                });
+            } else {
                 return;
             }
-            BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
-            BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type);
+
 
             // The keyexpr is also  a string literal
             BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
             String entryKey = (String) keyLiteral.value;
-            annotValueEntryMap.put(entryKey, entryValue);
+            annotValueEntryMap.put(entryKey, entryValueList);
         }
 
         Name annotTagRef = this.names.fromIdNode(astAnnotAttach.annotationName);

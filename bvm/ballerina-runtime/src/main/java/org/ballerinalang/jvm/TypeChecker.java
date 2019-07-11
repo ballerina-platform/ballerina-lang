@@ -1431,7 +1431,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return hasFillerValue(((BArrayType) type).getElementType());
+                return checkFillerValue((BArrayType) type);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -1470,12 +1470,20 @@ public class TypeChecker {
             return true;
         }
         unAnalyzedTypes.add(type);
-        for (BField fields : type.getFields().values()) {
-            if (!Flags.isFlagOn(fields.flags, Flags.OPTIONAL) && !hasFillerValue(fields.type, unAnalyzedTypes)) {
-                return false;
+        for (BField field : type.getFields().values()) {
+            if (Flags.isFlagOn(field.flags, Flags.OPTIONAL)) {
+                continue;
             }
+            if ((!Flags.isFlagOn(field.flags, Flags.OPTIONAL) && !Flags.isFlagOn(field.flags, Flags.REQUIRED))) {
+                continue;
+            }
+            return false;
         }
         return true;
+    }
+
+    private static boolean checkFillerValue(BArrayType type) {
+        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
     }
 
     private static boolean checkFillerValue(BObjectType type) {
