@@ -88,7 +88,11 @@ public class AttachPoint {
         /**
          * Indicate Channel Attach point.
          */
-        CHANNEL("channel");
+        CHANNEL("channel"),
+        /**
+         * Indicate Worker Attach point.
+         */
+        WORKER("worker");
 
         private String value;
 
