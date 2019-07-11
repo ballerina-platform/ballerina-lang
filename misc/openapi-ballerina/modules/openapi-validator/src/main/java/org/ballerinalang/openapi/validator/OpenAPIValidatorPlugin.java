@@ -28,11 +28,11 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -251,7 +251,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                         List<OpenAPIParameter> operationParamNames = openAPIPathSummary
                                 .getParamNamesForOperation(resourceMethod);
                         List<ResourceParameter> resourceParamNames = resourceSummary.getParamNames();
-                        Map<String, Schema> requestBodies = openAPIPathSummary.getRequestBodyForOperation(resourceMethod);
+                        Map<String, Schema> requestBodies = openAPIPathSummary.
+                                getRequestBodyForOperation(resourceMethod);
                         for (ResourceParameter parameter : resourceParamNames) {
                             boolean isExist = false;
                             for (OpenAPIParameter openAPIParameter : operationParamNames) {
@@ -264,7 +265,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                         Schema schema = openAPIComponentSummary
                                                 .getSchema(openAPIParameter.getLocalRef());
                                         if (schema != null) {
-                                            isExist = validateResourceAgainstOpenAPIParams(parameter.getParameter().symbol, schema);
+                                            isExist = validateResourceAgainstOpenAPIParams(
+                                                    parameter.getParameter().symbol, schema);
                                         }
                                     }
                                 } else if (openAPIParameter.getName().equals(parameter.getName())) {
@@ -440,7 +442,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                             isExist = true;
                             Schema schema = openAPIComponentSummary.getSchema(openAPIParameter.getLocalRef());
                             if (schema != null) {
-                                isExist = this.validateOpenAPIAgainResourceParams(parameter, parameter.getParameter().symbol, schema);
+                                isExist = this.validateOpenAPIAgainResourceParams(parameter,
+                                        parameter.getParameter().symbol, schema);
                             }
                         }
                     } else if (openAPIParameter.getName().equals(parameter.getName())) {
@@ -506,7 +509,8 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         return false;
     }
 
-    private boolean validateOpenAPIAgainResourceParams(ResourceParameter resourceParam, BVarSymbol resourceParameterType, Schema openAPIParam) {
+    private boolean validateOpenAPIAgainResourceParams(ResourceParameter resourceParam,
+                                                       BVarSymbol resourceParameterType, Schema openAPIParam) {
         if (resourceParameterType.getType().getKind().typeName().equals("record")
                 && openAPIParam.getType().equals("object")) {
             // Check the existence of the fields.
