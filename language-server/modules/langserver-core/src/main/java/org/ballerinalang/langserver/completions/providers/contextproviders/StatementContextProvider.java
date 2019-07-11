@@ -64,7 +64,8 @@ public class StatementContextProvider extends LSCompletionProvider {
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (inWorkerReturn != null && inWorkerReturn) {
             return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
-        } else if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+        }
+        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
