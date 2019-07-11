@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.970.0
  */
-@Ignore
 public class SafeNavigationTest {
 
     private CompileResult result;

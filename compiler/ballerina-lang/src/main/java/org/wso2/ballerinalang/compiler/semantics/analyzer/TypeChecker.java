@@ -3570,7 +3570,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
-        return types.isLax(fieldBasedAccess.originalType);
+        return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
     }
 
     private BType getLaxFieldAccessType(BType exprType) {
