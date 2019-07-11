@@ -78,11 +78,11 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
                     "Only maximum of two resources are allowed in the service");
         }
         resources.forEach(
-                res -> validate(res)
+                res -> validate(res, resources)
         );
     }
 
-    private void validate(BLangFunction resource) {
+    private void validate(BLangFunction resource, List<BLangFunction> resources) {
         if (!resource.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)
                 && !resource.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
@@ -104,12 +104,24 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
                     + resource.getName().getValue() + " resource: The first parameter should be an artemis:Message");
         }
         if (paramDetails.size() == 2) {
-            validateSecondParam(resource, paramDetails);
+            validateSecondParam(resource, paramDetails, resources);
         }
     }
 
-    private void validateSecondParam(BLangFunction resource, List<BLangSimpleVariable> paramDetails) {
-        if (ArtemisConstants.ON_MESSAGE.equals(resource.getName().getValue())) {
+    private void validateSecondParam(BLangFunction resource, List<BLangSimpleVariable> paramDetails,
+                                     List<BLangFunction> resources) {
+        if (resource.getName().getValue().equals(ArtemisConstants.ON_MESSAGE)) {
+            boolean isOnErrorAvailable = false;
+            for (BLangFunction res : resources) {
+                if (res.getName().getValue().equals(ArtemisConstants.ON_ERROR)) {
+                    isOnErrorAvailable = true;
+                }
+            }
+            if (!isOnErrorAvailable) {
+                dlog.logDiagnostic(Diagnostic.Kind.WARNING, resource.pos, "CAUTION: onError resource " +
+                        "function is not found; any errors that occur due to data binding will be discarded along " +
+                        "with the message.");
+            }
             BType secondParamType = paramDetails.get(1).type;
             int secondParamTypeTag = secondParamType.tag;
             if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
