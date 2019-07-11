@@ -29,6 +29,12 @@ public const OAUTH2_ERROR_CODE = "{ballerina/oauth2}OAuth2Error";
 # + return - Prepared `error` instance
 function prepareError(string message, error? err = ()) returns error {
     log:printError(message, err = err);
-    error preparedError = error(OAUTH2_ERROR_CODE, message = message, reason = err.reason());
+    error preparedError;
+    if (err is error) {
+        preparedError = error(OAUTH2_ERROR_CODE, message = message, reason = err);
+    } else {
+        preparedError = error(OAUTH2_ERROR_CODE, message = message);
+    }
+
     return preparedError;
 }

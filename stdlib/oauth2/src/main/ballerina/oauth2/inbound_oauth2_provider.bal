@@ -18,6 +18,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/mime;
 import ballerina/runtime;
+import ballerina/internal;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -74,10 +75,12 @@ public type InboundOAuth2Provider object {
         }
 
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = username;
-            principal.username = username;
-            principal.scopes = getScopes(scopes);
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = username;
+                principal.username = username;
+                principal.scopes = getScopes(scopes);
+            }
         }
         return authenticated;
     }
@@ -88,7 +91,8 @@ public type InboundOAuth2Provider object {
 # + scopes - Set of scopes seperated with a space
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
-    return scopes.trim().split(" ");
+    string scopeVal = scopes.trim();
+    return internal:split(scopeVal, " ");
 }
 
 # Represents introspection server onfigurations.
