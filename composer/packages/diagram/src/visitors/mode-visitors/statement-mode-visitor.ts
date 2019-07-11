@@ -23,6 +23,7 @@ export const visitor: Visitor = {
     beginVisitVariableDef(node: VariableDef) {
         node.viewState.hidden = false;
         node.viewState.hiddenBlock = false;
+        (node.viewState as StmntViewState).hiddenBlockContext = undefined;
         currentState.statement = node;
     },
 
@@ -34,6 +35,7 @@ export const visitor: Visitor = {
         node.viewState.hidden = false;
         currentState.statement = node;
         node.viewState.hiddenBlock = false;
+        (node.viewState as StmntViewState).hiddenBlockContext = undefined;
     },
 
     endVisitExpressionStatement(node: ExpressionStatement) {
@@ -44,6 +46,7 @@ export const visitor: Visitor = {
         node.viewState.hidden = false;
         currentState.statement = node;
         node.viewState.hiddenBlock = false;
+        (node.viewState as StmntViewState).hiddenBlockContext = undefined;
     },
 
     endVisitAssignment(node: Assignment) {

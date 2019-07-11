@@ -25,6 +25,6 @@ export class FunctionViewState extends ViewState {
     constructor() {
         super();
         this.bBox.opaque = true;
-        this.implicitReturn.hidden = true;
+        this.implicitReturn.hidden = false;
     }
 }

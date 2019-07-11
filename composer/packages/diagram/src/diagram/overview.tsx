@@ -104,7 +104,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         });
 
         return (
-            <div>
+            <div style={{height: "100%"}}>
                 <TopMenu
                     modes={modes}
                     handleModeChange={this.handleModeChange}
@@ -118,7 +118,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleClosed={this.handleClosed}
                     fitActive={this.state.fitToWidthOrHeight}
                 />
-                <div>
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
                     projectAst={modules}
@@ -127,7 +126,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     fitToWidthOrHeight={this.state.fitToWidthOrHeight}
                     mode={this.state.mode}>
                 </Diagram>
-                </div>
             </div>
         );
     }
