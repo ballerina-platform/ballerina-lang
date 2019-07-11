@@ -1284,7 +1284,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType errorDetailType = new BMapType(TypeTags.MAP, errorRefRestFieldType, null);
-        resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+        BErrorType errorType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+        errorTSymbol.type = errorType;
+        resultType = errorType;
     }
 
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
@@ -2679,12 +2681,20 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // if no such function found, then try resolving in package
-        if (funcSymbol == symTable.notFoundSymbol) {
-            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        // This if check is to avoid duplicate error message about 'undefined module'
+        if (symResolver.resolvePkgSymbol(iExpr.pos, env, pkgAlias) != symTable.notFoundSymbol) {
+            if (funcSymbol == symTable.notFoundSymbol) {
+                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+            }
+            if (funcSymbol == symTable.notFoundSymbol) {
+                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);
+            }
         }
 
-        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
+        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR
+            || ((funcSymbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR && funcSymbol.type.tag == TypeTags.ERROR)) {
+            iExpr.symbol = funcSymbol;
+            iExpr.type = funcSymbol.type;
             checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
@@ -2712,6 +2722,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
                 resultType = symTable.semanticError;
                 return;
+            } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+                expType = iExpr.type;
             } else {
                 // var e = <error> error("r");
                 expType = symTable.errorType;
@@ -2722,6 +2734,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+            return;
+        }
+
+        if (nonNamedArgsGiven(iExpr) && (iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED);
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -2757,6 +2775,10 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.symbol = lhsErrorType.ctorSymbol;
     }
 
+    private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
+        return iExpr.argExprs.stream().anyMatch(arg -> arg.getKind() != NodeKind.NAMED_ARGS_EXPR);
+    }
+
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
         if (iExpr.argExprs.isEmpty()) {
             return false;
@@ -2772,10 +2794,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
-        if (errorType.reasonType.getKind() == TypeKind.FINITE) {
+        if (errorType.reasonType.tag != TypeTags.FINITE) {
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                    expType.tsymbol.name);
+            resultType = symTable.semanticError;
+            return true;
+        } else {
             BFiniteType finiteType = (BFiniteType) errorType.reasonType;
             if (finiteType.valueSpace.size() != 1) {
-                dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                if (errorType == symTable.errorType) {
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                } else {
+                    dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                            expType.tsymbol.name);
+                }
                 resultType = symTable.semanticError;
                 return true;
             }
