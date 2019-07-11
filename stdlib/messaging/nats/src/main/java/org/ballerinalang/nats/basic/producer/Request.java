@@ -39,6 +39,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
+
 /**
  * Extern function to publish message to a given subject.
  *
@@ -47,7 +49,7 @@ import java.util.concurrent.TimeoutException;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "nats",
-        functionName = "request",
+        functionName = "externRequest",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
@@ -60,7 +62,7 @@ public class Request extends BlockingNativeCallableUnit {
     }
 
     @SuppressWarnings("unused")
-    public static Object request(Strand strand, ObjectValue producerObject, String subject, ArrayValue message,
+    public static Object externRequest(Strand strand, ObjectValue producerObject, String subject, Object data,
                                  Object duration) {
         Object connection = producerObject.get("connection");
 
@@ -72,7 +74,7 @@ public class Request extends BlockingNativeCallableUnit {
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
                         "subject " + subject + ". NATS connection doesn't exist.");
             }
-            byte[] byteContent = message.getBytes();
+            byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 Message reply;
                 Future<Message> incoming = natsConnection.request(subject, byteContent);

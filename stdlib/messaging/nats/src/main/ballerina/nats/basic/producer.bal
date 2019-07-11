@@ -36,17 +36,35 @@ public type Producer client object {
     #
     # + subject - Could also be referred as the 'topic/queue' name.
     # + replyTo - Subject for the receiver to reply. Optional parameter. Set only if reply is needed.
-    # + message - Message could be byte[] representation.
+    # + data - Data to publish.
     # + return -  A specific error, if there is a problem when publishing the message. () otherwise.
-    public remote function publish(string subject, byte[] message, string? replyTo = ()) returns NatsError? = external;
+    public remote function publish(string subject, ContentType data, string? replyTo = ()) returns NatsError? {
+        string | byte[] | error converted = convertData(data);
+        if (converted is error) {
+            return prepareNatsError("Error in data conversion", err = converted);
+        } else {
+            return self.externPublish(subject, converted, replyTo = replyTo);
+        }
+    }
+
+    function externPublish(string subject, string | byte[] data, string? replyTo = ()) returns NatsError = external;
 
     # Produces a message and would wait for a response.
     #
     # + subject - Would represent the topic/queue name.
-    # + message - Message could be byte[] representation.
+    # + data - Data to publish.
     # + duration - the time to wait for a response. measure in milliseconds
     # + return -  Response message or an error.
-    public remote function request(string subject, byte[] message, int? duration) returns Message|NatsError = external;
+    public remote function request(string subject, ContentType data, int? duration = ()) returns Message|NatsError {
+        string | byte[] | error converted = convertData(data);
+        if (converted is error) {
+            return prepareNatsError("Error in data conversion", err = converted);
+        } else {
+            return self.externRequest(subject, converted, duration = duration);
+        }
+    }
+
+    function externRequest(string subject, ContentType data, int? duration = ()) returns Message|NatsError = external;
 
     # Close a given connection.
     #

@@ -19,6 +19,8 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Dispatcher;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,7 +47,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Init {
+public class Init extends BlockingNativeCallableUnit {
 
     public static void init(Strand strand, ObjectValue listenerObject, ObjectValue connectionObject) {
         // This is to add listener to the connected client list in connection object.
@@ -53,5 +55,10 @@ public class Init {
         // Initialize dispatcher list to use in service register and listener close.
         List<Dispatcher> dispatcherList = Collections.synchronizedList(new ArrayList<>());
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
+    }
+
+    @Override
+    public void execute(Context context) {
+
     }
 }
