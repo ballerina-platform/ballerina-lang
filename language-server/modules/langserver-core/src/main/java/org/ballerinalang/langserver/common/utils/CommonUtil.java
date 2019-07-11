@@ -1289,6 +1289,10 @@ public class CommonUtil {
                 List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
+            // If empty, revert back to original name
+            if (newName.isEmpty()) {
+                newName = ((BLangInvocation) bLangNode).name.value;
+            }
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
             // if already available, try appending 'Result'
