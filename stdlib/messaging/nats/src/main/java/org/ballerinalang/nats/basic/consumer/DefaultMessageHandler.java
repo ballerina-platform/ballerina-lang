@@ -22,13 +22,23 @@ import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.services.ErrorHandlerUtils;
+
+import java.util.Arrays;
+
+import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
+import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.nats.Utils.bindDataToIntendedType;
+import static org.ballerinalang.nats.Utils.getAttachedFunction;
 
 /**
  * Handles incoming message for a given subscription.
@@ -55,8 +65,39 @@ public class DefaultMessageHandler implements MessageHandler {
         ArrayValue msgData = new ArrayValue(message.getData());
         ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE,
                 Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
-        Executor.submit(scheduler, serviceObject, "onMessage", new ResponseCallback(), null, msgObj, Boolean.TRUE);
+        AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
+        BType[] parameterTypes = onMessage.getParameterType();
+        if (parameterTypes.length == 1) {
+            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(), null, msgObj,
+                    Boolean.TRUE);
+        } else {
+            BType intendedTypeForData = parameterTypes[1];
+            dispatch(msgObj, intendedTypeForData, message.getData());
+        }
 
+    }
+
+    private void dispatch(ObjectValue msgObj, BType intendedType, byte[] data) {
+        AttachedFunction[] attachedFunctions = serviceObject.getType().getAttachedFunctions();
+        boolean onErrorResourcePresent = Arrays.stream(attachedFunctions)
+                .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
+        try {
+            Object typeBoundData = bindDataToIntendedType(data, intendedType);
+            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(), null,
+                    msgObj, true, typeBoundData, true);
+        } catch (NumberFormatException e) {
+            if (onErrorResourcePresent) {
+                ErrorValue dataBindError = Utils
+                        .createNatsError("The received message is unsupported by the resource signature");
+                Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(), null,
+                        msgObj, true, dataBindError, true);
+            }
+        } catch (ErrorValue e) {
+            if (onErrorResourcePresent) {
+                Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE, new ResponseCallback(), null,
+                        msgObj, true, e, true);
+            }
+        }
     }
 
     /**

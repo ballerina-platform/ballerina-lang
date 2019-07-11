@@ -18,6 +18,8 @@
 
 package org.ballerinalang.nats.basic.producer;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -41,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class CloseConnection {
+public class CloseConnection extends BlockingNativeCallableUnit {
 
     public static void closeConnection(Strand strand, ObjectValue producerObject) {
         Object connection = producerObject.get("connection");
@@ -49,5 +51,10 @@ public class CloseConnection {
             ObjectValue connectionObject = (ObjectValue) connection;
             ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
         }
+    }
+
+    @Override
+    public void execute(Context context) {
+
     }
 }

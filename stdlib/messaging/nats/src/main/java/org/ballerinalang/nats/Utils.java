@@ -23,7 +23,9 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -110,5 +112,27 @@ public class Utils {
                     Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
         }
         return msgObj;
+    }
+
+    public static byte[] convertDataIntoByteArray(Object data) {
+        BType dataType = TypeChecker.getType(data);
+        int typeTag = dataType.getTag();
+        if (typeTag == org.wso2.ballerinalang.compiler.util.TypeTags.STRING) {
+            return ((String) data).getBytes(StandardCharsets.UTF_8);
+        } else {
+            return ((ArrayValue) data).getBytes();
+        }
+    }
+
+    public static AttachedFunction getAttachedFunction(ObjectValue serviceObject, String functionName) {
+        AttachedFunction function = null;
+        AttachedFunction[] resourceFunctions = serviceObject.getType().getAttachedFunctions();
+        for (AttachedFunction resourceFunction : resourceFunctions) {
+            if (functionName.equals(resourceFunction.getName())) {
+                function = resourceFunction;
+                break;
+            }
+        }
+        return function;
     }
 }
