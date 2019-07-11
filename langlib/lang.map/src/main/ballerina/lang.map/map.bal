@@ -37,7 +37,7 @@ type MapIterator object {
 };
 
 # Returns number of members in `m`.
-public function length(map<any|error> | record {} m) returns int = external;
+public function length(map<any|error> m) returns int = external;
 
 # Returns an iterator over the members of `m`
 public function iterator(map<Type> | record {} m) returns abstract object {
