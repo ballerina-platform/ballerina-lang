@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -25,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -32,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
@@ -54,6 +58,8 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     /* Cached values for Built-in function invocation */
     public boolean builtinMethodInvocation;
     public BLangBuiltInMethod builtInMethod;
+    public Set<Flag> flagSet;
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
@@ -125,6 +131,26 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     @Override
     public boolean isAsync() {
         return async;
+    }
+
+    @Override
+    public Set<Flag> getFlags() {
+        return flagSet;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        this.getFlags().add(flag);
+    }
+
+    @Override
+    public List<BLangAnnotationAttachment> getAnnotationAttachments() {
+        return annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
 
     /**

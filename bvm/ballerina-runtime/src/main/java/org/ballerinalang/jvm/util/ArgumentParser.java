@@ -129,7 +129,7 @@ public class ArgumentParser {
         if (hasRestParam) {
             // getVarargs() // vararg start index = requiredParamsCount
             bValueArgs[funcInfo.length * 2 - 1] = getRestArgArray(funcInfo[funcInfo.length - 1].type,
-                    requiredParamsCount - 1, requiredAndRestArgs);
+                    requiredParamsCount, requiredAndRestArgs);
             bValueArgs[funcInfo.length * 2] = true;
         }
 

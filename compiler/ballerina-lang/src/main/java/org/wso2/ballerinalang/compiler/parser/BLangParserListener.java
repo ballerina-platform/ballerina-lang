@@ -641,7 +641,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerName = ctx.workerDefinition().Identifier().getText();
         }
         boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
-        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail);
+        int numAnnotations = ctx.annotationAttachment().size();
+        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail, numAnnotations);
     }
 
     /**
@@ -2277,8 +2278,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null);
+        int numAnnotations = ctx.annotationAttachment().size();
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null,
+                numAnnotations);
     }
 
     @Override
@@ -3409,7 +3411,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.START() != null) {
-            this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx));
+            int numAnnotations = ctx.annotationAttachment().size();
+            this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx), numAnnotations);
         }
     }
 
