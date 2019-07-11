@@ -21,6 +21,8 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,15 +35,20 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.StartNonDaemonThread
  * @since 0.995
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_RECEIVER_OBJ_NAME,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
 public class Start extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        StartNonDaemonThreadHandler.handle(context);
     }
+
+    public static Object start(Strand strand, ObjectValue queueLister) {
+        StartNonDaemonThreadHandler.handle(queueLister);
+        return null;
+    }
+
 }

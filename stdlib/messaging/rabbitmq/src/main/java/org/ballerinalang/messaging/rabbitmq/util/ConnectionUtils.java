@@ -24,10 +24,23 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeoutException;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Util class for RabbitMQ Connection handling.
@@ -35,6 +48,7 @@ import java.util.concurrent.TimeoutException;
  * @since 0.995.0
  */
 public class ConnectionUtils {
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionUtils.class);
 
     /**
      * Creates a RabbitMQ Connection using the given connection parameters.
@@ -45,6 +59,17 @@ public class ConnectionUtils {
     public static Connection createConnection(MapValue<String, Object> connectionConfig) {
         try {
             ConnectionFactory connectionFactory = new ConnectionFactory();
+
+            // Enable TLS for the connection.
+            MapValue secureSocket = connectionConfig.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_SECURE_SOCKET);
+            if (secureSocket != null) {
+                SSLContext sslContext = getSSLContext(secureSocket);
+                connectionFactory.useSslProtocol(sslContext);
+                if (secureSocket.getBooleanValue(RabbitMQConstants.RABBITMQ_CONNECTION_VERIFY_HOST)) {
+                    connectionFactory.enableHostnameVerification();
+                }
+                logger.info("TLS enabled for the connection.");
+            }
 
             String host = connectionConfig.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
             connectionFactory.setHost(host);
@@ -84,6 +109,76 @@ public class ConnectionUtils {
     }
 
     /**
+     * Creates and retrieves the initialized SSLContext.
+     *
+     * @param secureSocket secureSocket record.
+     * @return Initialized SSLContext.
+     */
+    private static SSLContext getSSLContext(MapValue secureSocket) {
+        try {
+            MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
+            MapValue cryptoTrustStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_TRUSTORE);
+            char[] keyPassphrase = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
+            String keyFilePath = cryptoKeyStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
+            char[] trustPassphrase = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PASS).toCharArray();
+            String trustFilePath = cryptoTrustStore.getStringValue(RabbitMQConstants.KEY_STORE_PATH);
+            String tlsVersion = secureSocket.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_TLS_VERSION);
+
+            KeyStore keyStore = KeyStore.getInstance(RabbitMQConstants.KEY_STORE_TYPE);
+            if (keyFilePath != null) {
+                try (FileInputStream keyFileInputStream = new FileInputStream(keyFilePath)) {
+                    keyStore.load(keyFileInputStream, keyPassphrase);
+                }
+            } else {
+                throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                        "Path for the keystore is not found.");
+            }
+            KeyManagerFactory keyManagerFactory =
+                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, keyPassphrase);
+
+            KeyStore trustStore = KeyStore.getInstance(RabbitMQConstants.KEY_STORE_TYPE);
+            if (trustFilePath != null) {
+                try (FileInputStream trustFileInputStream = new FileInputStream(trustFilePath)) {
+                    trustStore.load(trustFileInputStream, trustPassphrase);
+                }
+            } else {
+                throw new RabbitMQConnectorException("Path for the truststore is not found.");
+            }
+            TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+
+            SSLContext sslContext = SSLContext.getInstance(tlsVersion);
+            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+            return sslContext;
+        } catch (FileNotFoundException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    exception.getLocalizedMessage());
+        } catch (IOException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "I/O error occurred.");
+        } catch (CertificateException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "Certification error occurred.");
+        } catch (UnrecoverableKeyException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "A key in the keystore cannot be recovered.");
+        } catch (NoSuchAlgorithmException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "The particular cryptographic algorithm requested is not available in the environment.");
+        } catch (KeyStoreException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "No provider supports a KeyStoreSpi implementation for this keystore type." +
+                    exception.getLocalizedMessage());
+        } catch (KeyManagementException exception) {
+            throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
+                    "Error occurred in an operation with key management." +
+                    exception.getLocalizedMessage());
+        }
+    }
+
+    /**
      * Handles closing the given connection.
      *
      * @param connection   RabbitMQ Connection object.
@@ -99,14 +194,14 @@ public class ConnectionUtils {
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
         try {
             if (validTimeout && validCloseCode) {
-                close(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString(),
+                connection.close(Integer.parseInt(closeCode.toString()), closeMessage.toString(),
                         Integer.parseInt(timeout.toString()));
             } else if (validTimeout) {
-                close(connection, Integer.parseInt(timeout.toString()));
+                connection.close(Integer.parseInt(timeout.toString()));
             } else if (validCloseCode) {
-                close(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString());
+                connection.close(Integer.parseInt(closeCode.toString()), closeMessage.toString());
             } else {
-                close(connection);
+                connection.close();
             }
         } catch (IOException | ArithmeticException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
@@ -129,96 +224,15 @@ public class ConnectionUtils {
         boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
         if (validTimeout && validCloseCode) {
-            abortConnection(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString(),
+            connection.abort(Integer.parseInt(closeCode.toString()), closeMessage.toString(),
                     Integer.parseInt(timeout.toString()));
         } else if (validTimeout) {
-            abortConnection(connection, Integer.parseInt(timeout.toString()));
+            connection.abort(Integer.parseInt(timeout.toString()));
         } else if (validCloseCode) {
-            abortConnection(connection, Integer.parseInt(closeCode.toString()), closeMessage.toString());
+            connection.abort(Integer.parseInt(closeCode.toString()), closeMessage.toString());
         } else {
-            abortConnection(connection);
+            connection.abort();
         }
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    private static void close(Connection connection) throws IOException {
-        connection.close();
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    private static void close(Connection connection, int closeCode, String closeMessage) throws IOException {
-        connection.close(closeCode, closeMessage);
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    private static void close(Connection connection, int timeout) throws IOException {
-        connection.close(timeout);
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    private static void close(Connection connection, int closeCode, String closeMessage, int timeout)
-            throws IOException {
-        connection.close(closeCode, closeMessage, timeout);
-    }
-
-    /**
-     * Aborts the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     */
-    private static void abortConnection(Connection connection) {
-        connection.abort();
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     */
-    private static void abortConnection(Connection connection, int closeCode, String closeMessage) {
-        connection.abort(closeCode, closeMessage);
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
-     */
-    private static void abortConnection(Connection connection, int timeout) {
-        connection.abort(timeout);
-    }
-
-    /**
-     * Closes the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @param timeout    Timeout (in milliseconds) for completing all the close-related operations, use -1 for infinity.
-     */
-    private static void abortConnection(Connection connection, int closeCode, String closeMessage,
-                                        int timeout) {
-        connection.abort(closeCode, closeMessage, timeout);
     }
 
     /**

@@ -52,6 +52,16 @@ public class ErrorTypeTest {
                 "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
     }
 
+    @Test()
+    public void indirectErrorCtorFromAnotherPkg() {
+        BValue[] returns = BRunUtil.invoke(result, "getApplicationErrorIndirectCtor");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/sql}ApplicationError {message:\"Client has been stopped\"}");
+    }
+
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository(

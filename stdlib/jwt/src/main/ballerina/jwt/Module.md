@@ -9,7 +9,7 @@ The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundA
 ```ballerina
 jwt:InboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -25,7 +25,7 @@ The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:Outboun
 ```ballerina
 jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
     issuer: "example",
-    audience: ["ballerina"],
+    audience: "ballerina",
     keyAlias: "ballerina",
     keyPassword: "ballerina",
     keyStore: {
@@ -76,7 +76,7 @@ public function main() {
     jwt:JWTValidatorConfig config = {
         issuer: "wso2",
         certificateAlias: "ballerina",
-        audience: ["ballerinaSamples"],
+        audience: "ballerina",
         clockSkew: 60,
         trustStore: trustStore
     };

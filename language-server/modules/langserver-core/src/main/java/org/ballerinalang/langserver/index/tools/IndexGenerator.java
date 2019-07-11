@@ -41,7 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
@@ -61,10 +61,11 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", "h2", "mysql",
-                "sql", "encoding", "file", "filepath", "grpc", "http", "internal", "io", "jms", "jwt", "ldap", "log",
-                "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi", "privacy",
-                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"/*, "websub"*/);
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", /*"jdbc",*/
+                "encoding", "file", "filepath", "grpc", "http", "internal", "io", /*"jms",*/ "jwt", "ldap",
+                "log", "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
+                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"
+                /*, "websub"*/);
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
@@ -148,7 +149,7 @@ public class IndexGenerator {
         }
     }
 
-    private void insertOtherTypes(int pkgEntryId, List<BTypeSymbol> symbols, LSIndexImpl lsIndex) {
+    private void insertOtherTypes(int pkgEntryId, List<BSymbol> symbols, LSIndexImpl lsIndex) {
         List<OtherTypeSymbolDTO> dtos = symbols.stream()
                 .filter(symbol -> !CommonUtil.isInvalidSymbol(symbol))
                 .map(symbol -> DTOUtil.getOtherTypeSymbolDTO(pkgEntryId, symbol))
