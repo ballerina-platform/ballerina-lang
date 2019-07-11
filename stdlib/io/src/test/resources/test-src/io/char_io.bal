@@ -39,7 +39,7 @@ function initWritableChannelToAppend(string filePath, string encoding) returns i
     wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function readCharacters(int numberOfCharacters) returns @tainted (string|error) {
+function readCharacters(int numberOfCharacters) returns @tainted string|error {
     var result = rch.read(numberOfCharacters);
     if (result is string) {
         return result;
@@ -51,7 +51,7 @@ function readCharacters(int numberOfCharacters) returns @tainted (string|error) 
     }
 }
 
-function readAllCharacters() returns @tainted (string|io:IOError?) {
+function readAllCharacters() returns @tainted string|io:IOError? {
     int fixedSize = 500;
     boolean isDone = false;
     string result = "";
@@ -97,7 +97,7 @@ function appendCharacters(string content, int startOffset) returns int|io:IOErro
     }
 }
 
-function readJson() returns @tainted (json|error) {
+function readJson() returns @tainted json|error {
     var result = rch.readJson();
     if (result is json) {
         return result;
@@ -106,7 +106,7 @@ function readJson() returns @tainted (json|error) {
     }
 }
 
-function readXml() returns @tainted (xml|error) {
+function readXml() returns @tainted xml|error {
     var result = rch.readXml();
     if (result is xml) {
         return result;

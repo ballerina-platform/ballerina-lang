@@ -66,7 +66,7 @@ type RemoteParticipant object {
         return [(), self]; // No matching protocol
     }
 
-    function notify(string action, string? protocolName) returns @tainted (NotifyResult|error)? {
+    function notify(string action, string? protocolName) returns @tainted NotifyResult|error? {
         if (protocolName is string) {
             foreach var remoteProtocol in self.participantProtocols {
                 if (protocolName == remoteProtocol.name) {
