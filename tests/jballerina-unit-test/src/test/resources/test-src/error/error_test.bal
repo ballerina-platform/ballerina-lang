@@ -223,3 +223,9 @@ public function errorReasonSubType() returns [error, error, error, error] {
     UserDefErrorTwoB er_aBLit = error("ErrorNo-2");
     return [er_rA, er_rB, er_aALit, er_aBLit];
 }
+
+function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorTwoA, error, error] {
+    var e0 = UserDefErrorTwoA(detail1="arg");
+    UserDefErrorTwoA e1 = UserDefErrorTwoA(detail1="arg");
+    return [e0, e1, e0, e1];
+}
