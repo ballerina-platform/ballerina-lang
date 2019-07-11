@@ -1,19 +1,22 @@
 package org.ballerinalang.openapi.typemodel;
 
-import java.util.Map;
+import java.util.List;
 
+/**
+ * Java representation for OpenApi request body.
+ */
 public class OpenApiRequestBodyType {
 
     private Boolean required;
-    private String $ref;
+    private String ref;
     private String type;
-    private Map<String, OpenApiSchemaType> contentList;
+    private List<OpenApiSchemaType> contentList;
 
-    public Map<String, OpenApiSchemaType> getContentList() {
+    public List<OpenApiSchemaType> getContentList() {
         return contentList;
     }
 
-    public void setContentList(Map<String, OpenApiSchemaType> contentList) {
+    public void setContentList(List<OpenApiSchemaType> contentList) {
         this.contentList = contentList;
     }
 
@@ -25,12 +28,12 @@ public class OpenApiRequestBodyType {
         this.required = required;
     }
 
-    public String get$ref() {
-        return $ref;
+    public String getRequestBodyReference() {
+        return ref;
     }
 
-    public void set$ref(String $ref) {
-        this.$ref = $ref;
+    public void setRequestBodyReference(String ref) {
+        this.ref = ref;
     }
 
     public String getType() {

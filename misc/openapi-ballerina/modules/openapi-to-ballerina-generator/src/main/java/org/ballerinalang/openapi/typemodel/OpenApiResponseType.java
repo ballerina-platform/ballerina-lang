@@ -1,5 +1,8 @@
 package org.ballerinalang.openapi.typemodel;
 
+/**
+ * Java representation for OpenApi Response.
+ */
 public class OpenApiResponseType {
 
     private String responseCode;

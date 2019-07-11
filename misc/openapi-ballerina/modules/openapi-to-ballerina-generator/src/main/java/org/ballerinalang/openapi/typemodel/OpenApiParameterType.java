@@ -1,11 +1,15 @@
 package org.ballerinalang.openapi.typemodel;
 
+/**
+ * Java Representation for OpenApi Parameter.
+ */
 public class OpenApiParameterType {
 
     private boolean isPathParam;
     private boolean isQueryParam;
     private String paramName;
     private OpenApiSchemaType paramType;
+    private boolean isLastParameter;
 
     public boolean isPathParam() {
         return isPathParam;
@@ -39,5 +43,12 @@ public class OpenApiParameterType {
         this.paramName = paramName;
     }
 
+    public boolean getLastParameter() {
+        return isLastParameter;
+    }
+
+    public void setLastParameter(boolean lastParameter) {
+        isLastParameter = lastParameter;
+    }
 
 }

@@ -1,12 +1,14 @@
 package org.ballerinalang.openapi.typemodel;
 
-import io.swagger.v3.oas.models.parameters.Parameter;
-
 import java.util.List;
 
+/**
+ * Java representation for OpenApi Operation.
+ */
 public class OpenApiOperationType {
 
     private String operationType;
+    private String operationName;
     private List<OpenApiParameterType> parameters;
     private List<OpenApiResponseType> responses;
     private OpenApiRequestBodyType requestBody;
@@ -42,5 +44,14 @@ public class OpenApiOperationType {
     public void setRequestBodies(OpenApiRequestBodyType requestBody) {
         this.requestBody = requestBody;
     }
+
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public void setOperationName(String operationName) {
+        this.operationName = operationName;
+    }
+
 
 }

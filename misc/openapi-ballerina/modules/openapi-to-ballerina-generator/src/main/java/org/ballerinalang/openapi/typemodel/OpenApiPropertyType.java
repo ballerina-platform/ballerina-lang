@@ -1,5 +1,8 @@
 package org.ballerinalang.openapi.typemodel;
 
+/**
+ * Java representation for OpenApu Property.
+ */
 public class OpenApiPropertyType {
 
     private String propertyName;

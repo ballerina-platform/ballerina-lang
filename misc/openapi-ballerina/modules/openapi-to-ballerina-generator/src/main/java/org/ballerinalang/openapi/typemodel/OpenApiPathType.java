@@ -2,6 +2,9 @@ package org.ballerinalang.openapi.typemodel;
 
 import java.util.List;
 
+/**
+ * Java Representation for OpenApi Path.
+ */
 public class OpenApiPathType {
 
     private String pathName;

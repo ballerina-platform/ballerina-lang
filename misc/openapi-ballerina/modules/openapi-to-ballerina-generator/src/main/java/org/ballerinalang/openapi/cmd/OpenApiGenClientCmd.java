@@ -4,9 +4,11 @@ import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.OpenApiMesseges;
+import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
@@ -60,7 +62,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
 
         try {
             generator.generate(GeneratorConstants.GenType.valueOf("GEN_CLIENT"), argList.get(0), output);
-        } catch (Exception e) {
+        } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
         }
 

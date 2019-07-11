@@ -9,12 +9,15 @@ import org.ballerinalang.openapi.model.BallerinaServer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Java representation for OpenApi object.
+ */
 public class OpenApiType {
 
     private String moduleName;
     private String serviceName;
     private String definitionPath;
-    private List<BallerinaServer> servers;
+    private List<BallerinaServer> servers = new ArrayList<>();
     private List<OpenApiPathType> paths;
     private OpenApiComponentType component;
     private List<Tag> tags;
@@ -77,7 +80,6 @@ public class OpenApiType {
      * @throws BallerinaOpenApiException on failure to parse {@code Server} list
      */
     public void setServers(OpenAPI openAPI) throws BallerinaOpenApiException {
-        this.servers = new ArrayList<>();
         List<Server> serverList = openAPI.getServers();
         if (serverList == null) {
             BallerinaServer server = new BallerinaServer().getDefaultValue();
