@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -52,12 +54,17 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitTryCatchBlock extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        Label startLabel = ASMUtil.getRefArgumentNativeData(context, 1);
-        Label endLabel = ASMUtil.getRefArgumentNativeData(context, 2);
-        Label handlerLabel = ASMUtil.getRefArgumentNativeData(context, 3);
-        String exceptionType = context.getStringArgument(0);
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
+
+    public static void visitTryCatchBlock(Strand strand, ObjectValue oMv, ObjectValue oStartLabel,
+                                          ObjectValue oEndLabel, ObjectValue oHandlerLabel, String exceptionType) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        Label startLabel = ASMUtil.getRefArgumentNativeData(oStartLabel);
+        Label endLabel = ASMUtil.getRefArgumentNativeData(oEndLabel);
+        Label handlerLabel = ASMUtil.getRefArgumentNativeData(oHandlerLabel);
         mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, exceptionType);
     }
 }

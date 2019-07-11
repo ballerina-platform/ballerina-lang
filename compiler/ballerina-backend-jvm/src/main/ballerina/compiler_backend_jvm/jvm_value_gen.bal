@@ -80,7 +80,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -306,7 +306,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
-        currentClass = untaint className;
+        currentClass = <@untainted> className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;

@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -59,18 +61,19 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
 public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        String className = context.getStringArgument(0);
-        String lambdaName = context.getStringArgument(1);
-        boolean isVoid = context.getBooleanArgument(0);
-        long mapsCount = context.getIntArgument(0);
+    public static void visitInvokeDynamicInsn(Strand strand, ObjectValue oMv, String className, String lambdaName,
+                                    boolean isVoid, long mapsCount) {
 
         String mapDesc = getMapsDesc(mapsCount);
 
 
         //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns object
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
         Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
                 "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
                 + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
@@ -80,7 +83,7 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
             mv.visitInvokeDynamicInsn("accept", "(" + mapDesc + ")Ljava/util/function/Consumer;", handle,
                     new Object[]{Type.getType("(" + OBJECT_DESC + ")V"),
                             new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
-                                    "(" + mapDesc + "[" + OBJECT_DESC + ")V", false),
+                                       "(" + mapDesc + "[" + OBJECT_DESC + ")V", false),
                             Type.getType("([" + OBJECT_DESC + ")V")});
             return;
         }
@@ -88,11 +91,11 @@ public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
         mv.visitInvokeDynamicInsn("apply", "(" + mapDesc + ")" + FUNCTION_DESC, handle,
                 new Object[]{Type.getType("(" + OBJECT_DESC + ")" + OBJECT_DESC),
                         new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
-                                "(" + mapDesc + "[" + OBJECT_DESC + ")" + OBJECT_DESC, false),
+                                   "(" + mapDesc + "[" + OBJECT_DESC + ")" + OBJECT_DESC, false),
                         Type.getType("([" + OBJECT_DESC + ")" + OBJECT_DESC)});
     }
 
-    private String getMapsDesc(long count) {
+    private static String getMapsDesc(long count) {
         StringBuffer buf = new StringBuffer();
         for (long i = count; i > 0; i--) {
             buf.append(MAP_VALUE_DESC);

@@ -341,7 +341,6 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 #
 # + mv - method visitor
 # + recordType - record type
-# + name - name of the record
 function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
@@ -452,7 +451,6 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 #
 # + mv - method visitor
 # + objectType - object type
-# + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
@@ -987,7 +985,6 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 # Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
-# + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
     string fieldName = "";
     string typeOwner = "";

@@ -33,7 +33,7 @@ function genMethodForBallerinaFunction(bir:Function func,
                                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
-    string funcName = cleanupFunctionName(untaint func.name.value);
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -212,7 +212,50 @@ function genMethodForBallerinaFunction(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    k = localVarOffset;
+    yyyy(localVarOffset, localVars, mv, indexMap, frameName);
+    mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
+    mv.visitVarInsn(ISTORE, stateVarIndex);
+    mv.visitJumpInsn(GOTO, varinitLable);
+
+
+    mv.visitLabel(yieldLable);
+    mv.visitTypeInsn(NEW, frameName);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
+
+
+    xxxx(localVarOffset, localVars, mv, indexMap, frameName);
+
+    mv.visitInsn(DUP);
+    mv.visitVarInsn(ILOAD, stateVarIndex);
+    mv.visitFieldInsn(PUTFIELD, frameName, "state", "I");
+
+
+    bir:VariableDcl frameVar = { typeValue: "string", // should be record or something
+                                 name: { value: "frame" },
+                                 kind: "TEMP" };
+    var frameVarIndex = indexMap.getIndex(frameVar);
+    mv.visitVarInsn(ASTORE, frameVarIndex);
+
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitInsn(DUP);
+    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
+    mv.visitInsn(DUP_X1);
+    mv.visitInsn(ICONST_1);
+    mv.visitInsn(IADD);
+    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
+    mv.visitVarInsn(ALOAD, frameVarIndex);
+    mv.visitInsn(AASTORE);
+
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
+    mv.visitMaxs(200, 400);
+    mv.visitEnd();
+}
+
+function yyyy(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string frameName) {
+    int k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -296,18 +339,11 @@ function genMethodForBallerinaFunction(bir:Function func,
         }
         k = k + 1;
     }
-    mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
-    mv.visitVarInsn(ISTORE, stateVarIndex);
-    mv.visitJumpInsn(GOTO, varinitLable);
 
+}
 
-    mv.visitLabel(yieldLable);
-    mv.visitTypeInsn(NEW, frameName);
-    mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
-
-
-    k = localVarOffset;
+function xxxx(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string frameName) {
+    int k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -394,33 +430,6 @@ function genMethodForBallerinaFunction(bir:Function func,
 
         k = k + 1;
     }
-
-    mv.visitInsn(DUP);
-    mv.visitVarInsn(ILOAD, stateVarIndex);
-    mv.visitFieldInsn(PUTFIELD, frameName, "state", "I");
-
-
-    bir:VariableDcl frameVar = { typeValue: "string", // should be record or something
-                                 name: { value: "frame" },
-                                 kind: "TEMP" };
-    var frameVarIndex = indexMap.getIndex(frameVar);
-    mv.visitVarInsn(ASTORE, frameVarIndex);
-
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "frames", "[Ljava/lang/Object;");
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
-    mv.visitInsn(DUP_X1);
-    mv.visitInsn(ICONST_1);
-    mv.visitInsn(IADD);
-    mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
-    mv.visitVarInsn(ALOAD, frameVarIndex);
-    mv.visitInsn(AASTORE);
-
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-    mv.visitMaxs(200, 400);
-    mv.visitEnd();
 }
 
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
@@ -428,7 +437,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName) {
     int j = 0;
-    string funcName = cleanupFunctionName(untaint func.name.value);
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
@@ -640,7 +649,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     string lookupKey = getPackageName(orgName, moduleName) + funcName;
     string jvmClass = lookupFullQualifiedClassName(lookupKey);
 
-    bir:BType returnType = bir:TYPE_NIL;
+    bir:BType returnType = <bir:BType> bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
     } else if (lhsType is bir:BInvokableType) { 
@@ -752,8 +761,8 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            } 
-            argIndex += 1; 
+            }
+            argIndex += 1;
         }
     }
 
@@ -997,7 +1006,7 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
         if (func is bir:Function && func.name.value == "main") {
-            userMainFunc = untaint func;
+            userMainFunc = <@untainted> func;
             break;
         }
     }
@@ -1144,7 +1153,7 @@ function stopListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
     mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
 }
 
-function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable, 
+function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
     ErrorHandlerGenerator errorGen) {
     // schedule the start method
     string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
@@ -1296,7 +1305,6 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
 
 # Generate a lambda function to invoke ballerina main.
 #
-# + userMainFunc - ballerina main function
 # + cw - class visitor
 # + pkg - package
 function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
@@ -1543,14 +1551,14 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 
 function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
-    bir:Function currentFunc = getFunction(untaint func);
+    bir:Function currentFunc = getFunction(<@untainted> func);
     if (isExternFunc(currentFunc)) {
         return;
     }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
-    currentClass = untaint frameClassName;
+    currentClass = <@untainted> frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 
@@ -1585,6 +1593,7 @@ function getFrameClassName(string pkgName, string funcName, bir:BType? attachedT
 }
 
 # Cleanup type name by replacing '$' with '_'.
+# + return - cleaned name
 function cleanupTypeName(string name) returns string {
     return name.replace("$","_");
 }

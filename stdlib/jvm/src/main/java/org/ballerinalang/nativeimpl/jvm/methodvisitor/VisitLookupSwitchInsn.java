@@ -19,15 +19,17 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+
+import java.util.Arrays;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
@@ -52,38 +54,27 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitLookupSwitchInsn extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        Label defaultLabel = ASMUtil.getRefArgumentNativeData(context, 1);
-        BValue val = context.getRefArgument(2);
-        Label[] labels = getLabels(context.getRefArgument(3));
-        mv.visitLookupSwitchInsn(defaultLabel, getKeys(val), labels);
+        throw new UnsupportedOperationException("BVM Unsupported");
     }
 
-    private int[] getKeys(BValue value) {
-        if (!(value instanceof BValueArray)) {
-            return null;
-        }
-
-        BValueArray valueArray = (BValueArray) value;
-        int[] intArray = new int[(int) valueArray.size()];
-        for (int i = 0; i < valueArray.size(); i++) {
-            intArray[i] = (int) valueArray.getInt(i);
-        }
-        return intArray;
+    public static void visitLookupSwitchInsn(Strand strand, ObjectValue oMv, ObjectValue oDefaultLabel,
+                                                   ArrayValue oKeys, ArrayValue oLabels) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        Label defaultLabel = ASMUtil.getRefArgumentNativeData(oDefaultLabel);
+        long[] lKeys = oKeys.getLongArray();
+        int[] iKeys = Arrays.stream(lKeys).mapToInt(l -> ((int) l)).toArray();
+        Label[] labels = convertToLabel(oLabels);
+        mv.visitLookupSwitchInsn(defaultLabel, iKeys, labels);
     }
 
-    private Label[] getLabels(BValue value) {
-        if (!(value instanceof BValueArray)) {
-            return null;
-        }
-
-        BValueArray valueArray = (BValueArray) value;
-        Label[] labels = new Label[(int) valueArray.size()];
-        for (int i = 0; i < valueArray.size(); i++) {
-            value = valueArray.getBValue(i);
-            Object obj = ((BMap<String, BValue>) value).getNativeData(ASMUtil.NATIVE_KEY);
-            labels[i] = (Label) obj;
+    private static Label[] convertToLabel(ArrayValue refArray) {
+        Label[] labels = new Label[refArray.size()];
+        for (int i = 0; i < refArray.size(); i++) {
+            ObjectValue oLabel = (ObjectValue) refArray.getRefValue(i);
+            Label label = ASMUtil.getRefArgumentNativeData(oLabel);
+            labels[i] = label;
         }
 
         return labels;
