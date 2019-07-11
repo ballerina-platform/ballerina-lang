@@ -6,6 +6,7 @@ import {
     DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer
 } from 'vscode';
 import { RunningInfo } from './model';
+import * as toml from 'toml';
 
 import * as child_process from "child_process";
 import * as path from "path";
@@ -53,9 +54,22 @@ const debugConfigProvider: DebugConfigurationProvider = {
         config.debuggeePort = "5006";
 
         let cwd: string | undefined = path.dirname(config.script);
-        const { sourceRoot } = getRunningInfo(cwd, path.parse(config.script).root);
-        
-        config.sourceRoot = sourceRoot || cwd;
+        let { sourceRoot, ballerinaPackage } = getRunningInfo(cwd, path.parse(config.script).root);
+
+        if (ballerinaPackage && sourceRoot) {
+            try {
+                const balConfigString = fs.readFileSync(path.join(<string>sourceRoot, 'Ballerina.toml'));
+                var projectConfig = toml.parse(balConfigString.toString()).project;
+                config.orgName = projectConfig['org-name'];
+                config.package = ballerinaPackage;
+                config.sourceRoot = sourceRoot;
+            } catch (e) {
+                console.log(e);
+                // no log file
+            }
+        } else {
+            config.sourceRoot = cwd;
+        }
 
         let langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         if (langClient.initializeResult) {

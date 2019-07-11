@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.debug.TerminatedEventArguments;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ public class EventBus {
     private Map<Long, Variable[]> variablesMap = new HashMap<>();
     private String sourceRoot;
     private VirtualMachine debuggee;
+    private String packageName;
 
     public EventBus(IDebugProtocolClient client) {
         this.client = client;
@@ -99,6 +101,7 @@ public class EventBus {
         threadsMap = new HashMap<>();
         stackframesMap = new HashMap<>();
         variablesMap = new HashMap<>();
+        String packageSourcePath = sourceRoot + packageName + File.separator;
         List<ThreadReference> threadReferences = getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
@@ -111,7 +114,7 @@ public class EventBus {
                     int frameId = nextStackFrameId.getAndIncrement();
                     Source source = new Source();
                     try {
-                        source.setPath(sourceRoot + stackFrame.location().sourcePath());
+                        source.setPath(packageSourcePath + stackFrame.location().sourcePath());
                         source.setName(stackFrame.location().sourceName());
                     } catch (AbsentInformationException e) {
                     }
@@ -145,8 +148,9 @@ public class EventBus {
 
     }
 
-    public void startListening(String sourceRoot) {
+    public void startListening(String sourceRoot, String packageName) {
         this.sourceRoot = sourceRoot;
+        this.packageName = packageName;
         CompletableFuture.runAsync(() -> {
                     try {
                         while (true) {
