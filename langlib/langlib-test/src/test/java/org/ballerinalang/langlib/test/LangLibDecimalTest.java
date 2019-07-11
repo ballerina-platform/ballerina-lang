@@ -67,6 +67,12 @@ public class LangLibDecimalTest {
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
+    @Test(dataProvider = "decimalArrayProvider")
+    public void testMaxAsMethodInvok(BValue x, BValue xs, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMaxAsMethodInvok", new BValue[] {x, xs});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
     @Test(dataProvider = "decimalMinProvider")
     public void testSingleArgMin(BValue arg, String expected) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testOneArgMin", new BValue[] {arg});
@@ -79,9 +85,21 @@ public class LangLibDecimalTest {
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
+    @Test(dataProvider = "decimalMinArrayProvider")
+    public void testMinAsMethodInvok(BValue x, BValue xs, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMinAsMethodInvok", new BValue[] {x, xs});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
     @Test(dataProvider = "decimalAbsProvider")
     public void testAbs(BValue arg, String expected) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAbs", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @Test(dataProvider = "decimalAbsProvider")
+    public void testAbsAsMethodInvok(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAbsAsMethodInvok", new BValue[] {arg});
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
@@ -178,6 +196,12 @@ public class LangLibDecimalTest {
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
+    @Test(dataProvider = "decimalRoundValueProvider")
+    public void testRoundAsMethodInvok(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRoundAsMethodInvok", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
     @DataProvider(name = "decimalRoundValueProvider")
     public static Object[][] decimalRoundValueProvider() {
         return new Object[][] {
@@ -200,6 +224,13 @@ public class LangLibDecimalTest {
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
+
+    @Test(dataProvider = "decimalFloorValueProvider")
+    public void testFloorAsMethodInvok(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloorAsMethodInvok", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
     @DataProvider(name = "decimalFloorValueProvider")
     public static Object[][] decimalFloorValueProvider() {
         return new Object[][] {
@@ -219,6 +250,12 @@ public class LangLibDecimalTest {
     @Test(dataProvider = "decimalCeilingValueProvider")
     public void testCeiling(BValue arg, String expected) {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCeiling", new BValue[] {arg});
+        assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
+    }
+
+    @Test(dataProvider = "decimalCeilingValueProvider")
+    public void testCeilingAsMethodInvok(BValue arg, String expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCeilingAsMethodInvok", new BValue[] {arg});
         assertEquals(((BDecimal) returns[0]).decimalValue(), new BigDecimal(expected));
     }
 
