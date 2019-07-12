@@ -1,0 +1,13 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run publisher.bal
+Subject : demo
+[ballerina/nats] Connection established with server nats://localhost:4222
+Message : First Message
+GUID UBMEgrERHdxZRqUBP05PtD received for the produced message.
+Message : Second Message
+GUID UBMEgrERHdxZRqUBP05Puz received for the produced message.
+Message : Third Message
+GUID UBMEgrERHdxZRqUBP05Pwl received for the produced message.
+Message : Forth Message
+GUID UBMEgrERHdxZRqUBP05PyX received for the produced message.

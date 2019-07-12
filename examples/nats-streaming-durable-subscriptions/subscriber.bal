@@ -12,8 +12,7 @@ listener nats:StreamingListener lis = new(conn, "test-cluster", "c0");
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    durableName: "sample-name",
-    startPosition:
+    durableName: "sample-name"
 }
 service demoService on lis {
     resource function onMessage(nats:StreamingMessage message) {
