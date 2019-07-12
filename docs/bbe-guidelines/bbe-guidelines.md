@@ -47,7 +47,7 @@
 
 7. Remove unused imports in `.bal` files.
 
-8. If a new example is added/deleted, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.
+8. If a new example is added or an existing one is deleted/renamed, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.
 
 ## Practices related to the code comments
 
