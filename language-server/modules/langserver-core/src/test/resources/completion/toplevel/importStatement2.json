@@ -30,19 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/privacy",
+      "insertText": "ballerinax/jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -262,14 +254,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
@@ -307,14 +291,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerina/sql",
       "insertTextFormat": "Snippet"
     }
   ]

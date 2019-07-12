@@ -19,9 +19,14 @@
 package org.ballerinalang.messaging.rabbitmq;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Util class used to bridge the RabbitMQ connector's native code and the Ballerina API.
@@ -31,14 +36,12 @@ import org.ballerinalang.jvm.values.ErrorValue;
 public class RabbitMQUtils {
 
     public static ErrorValue returnErrorValue(String errorMessage) {
-        return BallerinaErrors.createError(RabbitMQConstants.RABBITMQ_ERROR_CODE, errorMessage);
+        return BallerinaErrors.createError(RabbitMQConstants.RABBITMQ_ERROR_CODE,
+                populateRabbitMQErrorRecord(errorMessage));
     }
 
     public static boolean checkIfInt(Object object) {
         return TypeChecker.getType(object).getTag() == TypeTags.INT_TAG;
-    }
-
-    private RabbitMQUtils() {
     }
 
     public static boolean checkIfBoolean(Object object) {
@@ -47,5 +50,15 @@ public class RabbitMQUtils {
 
     public static boolean checkIfString(Object object) {
         return TypeChecker.getType(object).getTag() == TypeTags.STRING_TAG;
+    }
+
+    private static MapValue populateRabbitMQErrorRecord(String msg) {
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put(RabbitMQConstants.RABBITMQ_ERROR_MESSAGE, msg);
+        return BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+                RabbitMQConstants.RABBITMQ_ERROR_DETAILS, valueMap);
+    }
+
+    private RabbitMQUtils() {
     }
 }
