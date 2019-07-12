@@ -12,9 +12,9 @@
 
 3. Make the examples self-contained (i.e., avoid depending on concepts other than the one being illustrated) as much as possible.
 
-4. As a practice, use `ballerina/io` methods in main examples and `ballerina/log` in services examples. Do not use both `io:println` and `log:printInfo` in the same example.
+4. As a practice, use `ballerina/io` methods in main examples and `ballerina/log` methods in services examples. E.g., Do not use both `io:println` and `log:printInfo` in the same example.
 
-5. It is recommended to limit the maximum character count per line to 80 in .bal files. Otherwise, the lines get automatically wrapped in the [Ballerina website](https://ballerina.io/) reducing the readability as shown below.
+5. It is recommended to limit the maximum character count per line to 80 in `.bal` files. Otherwise, the lines get automatically wrapped in the [Ballerina By Example](https://ballerina.io/learn/by-example/) reducing the readability as shown below.
 
     Example;
 
@@ -39,19 +39,19 @@
     // this record type allows additional fields with pure-typed (i.e., anydata|error) values.
     // The descriptor record { } is equivalent to record {| (anydata|error)...; |}.
     type Student record {
-    string name;
-    int age;
+        string name;
+        int age;
     Grades grades;
     };
-    ````
+    ```
 
 7. Remove unused imports in `.bal` files.
 
-8. If a new example is added/deleted, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.
+8. If a new example is added or an existing one is deleted/renamed, update the [index.json](https://github.com/ballerina-platform/ballerina-lang/blob/master/examples/index.json) file as well.
 
 ## Practices related to the code comments
 
-1. Add comments to the code blocks as much as possible by starting them with “//”. They will be moved to the RHS boxes in the [Ballerina website](https://ballerina.io/) as a mechanism to describe the code.
+1. Add comments to the code blocks as much as possible by starting them with “//”. They will be moved to the right hand side boxes in the [Ballerina By Example](https://ballerina.io/learn/by-example/) as a mechanism to describe the code.
 
     Example;
 
@@ -63,11 +63,11 @@
 
         ![comment boxes](images/comment-boxes.png "comment-boxes")
 
-2. Since comments are used in the RHS as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
+2. Since comments are used in the right hand side boxes as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
 
 3. After a comment is strated, it will continue being applied to the subsequent lines in the file until another comment or an empty line is found. Therefore, use comments/new lines appropriately to ensure that they apply only to the relevant lines.
 
-4. There is no restriction on the max number of chars that should be there in comment lines as they get wrapped automatically in the RHS side in the [Ballerina website](https://ballerina.io/). However, since users can refer the same in the code in GitHub, it is better if we can have the same char limit as of a code line (i.e., 80) to increase readability.
+4. There is no restriction on the max number of characters that should be there in comment lines as they get wrapped automatically in the right hand side in the [Ballerina By Example](https://ballerina.io/learn/by-example/). However, since users can refer the same in the code in GitHub, it is better if we can have the same character limit as of a code line (i.e., 80) to increase readability.
 
     For example, it will not be readable if comments are significantly longer than the code line as shown below. 
 
@@ -83,13 +83,13 @@
 
     > **Tip:** File names should be the same as folder name, with the “-” being replaced with the underscore (e.g., abstract_objects).
 
-    .bal - The code of the example to be displayed in the [Ballerina website](https://ballerina.io/).
+    `.bal` - The code of the example to be displayed in the [Ballerina By Examples](https://ballerina.io/learn/by-example/).
 
-    .description - The description of the example displayed at the top of each example in the [Ballerina website](https://ballerina.io/).
+    `.description` - The description of the example displayed at the top of each example in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
-    .out - Output of the example displayed at the bottom black colour box in the [Ballerina website](https://ballerina.io/).
+    `.out` - Output of the example displayed at the bottom black colour box in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
-    _test.bal - Contains the test to validate the output of the BBE during the build time. 
+    `<example_name>_test.bal` - Contains the test to validate the output of the BBE during the build time. 
 
     <img src="images/bbe-folder-structure.png" width="300" height="150" alt="BBE folder structure" />
 
@@ -99,14 +99,14 @@
 
     ```
     # To run this sample, navigate to the directory that contains the
-    # `.bal` file and issue the `ballerina run` command.
+    # `.bal` file and execute the `ballerina run` command.
     $ ballerina run <sample_file_name>.bal
     ```
 - For an example with a service;
 
     ```
     # To start the service, navigate to the directory that contains the
-    # `.bal` file and issue the `ballerina run` command.
+    # `.bal` file and execute the `ballerina run` command.
     $ ballerina run hello_world_service.bal
     ```
 
@@ -116,6 +116,7 @@
     <img src="images/service-example-structure.png" width="330" height="180" alt="service example structure" />
 
 
-6. Unless it is really required, it is not encouraged to have multiple .bal files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
+6. Unless it is really required, it is not encouraged to have multiple `.bal` files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
-    <img src="images/multiple-bal-examples.png" width="400" height="150" alt="multiple-bal-examples" />
+<img src="images/multiple-bal-examples.png" width="400" height="150" alt="multiple-bal-examples" />
+
