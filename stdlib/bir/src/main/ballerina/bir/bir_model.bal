@@ -521,6 +521,7 @@ public type TypeCast record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+    boolean checkType;
 |};
 
 public type IsLike record {|

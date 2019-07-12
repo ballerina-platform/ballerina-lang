@@ -1,7 +1,5 @@
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -39,12 +37,8 @@ import static org.ballerinalang.mime.util.MimeUtil.getNewMultipartDelimiter;
         returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
+public class GetBodyPartsAsChannel {
     private static final Logger log = LoggerFactory.getLogger(GetBodyPartsAsChannel.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object getBodyPartsAsChannel(Strand strand, ObjectValue entityObj) {
         try {

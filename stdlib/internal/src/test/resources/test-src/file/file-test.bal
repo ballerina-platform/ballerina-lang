@@ -67,7 +67,7 @@ function createFolderStructure(string sourcePathValue) returns boolean {
     }
 }
 
-function testFolderContent(string rootPathValue) returns @tainted boolean|error {
+function testFolderContent(string rootPathValue) returns boolean|error {
     internal:Path rootPath = new(rootPathValue);
     internal:Path parentPath = rootPath.resolve("parent");
     internal:Path childPath = parentPath.resolve("child");
@@ -107,7 +107,7 @@ function testGetModifiedTime(string pathValue) returns string|error {
     return time:toString(modifiedTime);
 }
 
-function testCopyToFunction(string sourceStr, string target) returns @tainted boolean {
+function testCopyToFunction(string sourceStr, string target) returns boolean {
     internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
@@ -136,7 +136,7 @@ function testFolderDelete(string path) returns boolean {
     }
 }
 
-function testMoveToFunction(string sourceStr, string target) returns @tainted boolean {
+function testMoveToFunction(string sourceStr, string target) returns boolean {
     internal:Path sourcePath = new(sourceStr);
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
@@ -157,17 +157,18 @@ function testMoveToFunction(string sourceStr, string target) returns @tainted bo
 function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
-    io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
+    io:WritableByteChannel byteChannel = check io:openWritableFile(absolutePath);
     var result = byteChannel.write(TEST_CONTENT.toBytes(), 0);
     return byteChannel.close();
 }
 
-function testReadFile(string pathValue) returns @tainted boolean {
+function testReadFile(string pathValue) returns boolean {
     io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
-    if (readResult is error) {
-        log:printError("Error occurred while reading content: " + pathValue, err = readResult);
+    if (readResult is io:IOError) {
+        error? temp = readResult;
+        log:printError("Error occurred while reading content: " + pathValue, err = temp);
         return false;
     } else {
         var [bytes, numberOfBytes] = readResult;

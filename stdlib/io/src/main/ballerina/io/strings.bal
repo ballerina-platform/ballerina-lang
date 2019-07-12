@@ -23,17 +23,17 @@ public type StringReader object {
     # + content - content which should be written
     # + encoding - encoding of the characters of the content
     public function __init(string content, string encoding = "UTF-8") {
-        // TODO : Fix me. 
+        // TODO : Fix me.
         // byte[] contentBytes = content.toByteArray(encoding);
         byte[] contentBytes = content.toBytes();
-        ReadableByteChannel byteChannel = createReadableChannel(contentBytes);
+        ReadableByteChannel byteChannel = checkpanic createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
     # Reads string as json from reader.
     #
-    # + return - json or an error
-    public function readJson() returns @tainted json|error {
+    # + return - json or `IOError` if any error occurred
+    public function readJson() returns @tainted json|IOError {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
             return result.readJson();
@@ -44,7 +44,7 @@ public type StringReader object {
     # Reads string as XML from reader
     #
     # + return -
-    public function readXml() returns @tainted xml|error? {
+    public function readXml() returns @tainted xml|IOError? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
             return result.readXml();
@@ -55,8 +55,8 @@ public type StringReader object {
     # Reads characters from the given string.
     #
     # + nCharacters - read specific number of characters
-    # + return - string or an error
-    public function readChar(int nCharacters) returns @tainted string|error? {
+    # + return - string or `IOError` if any error occurred
+    public function readChar(int nCharacters) returns @tainted string|IOError? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
             return result.read(nCharacters);
@@ -66,8 +66,8 @@ public type StringReader object {
 
     # Closes reader.
     #
-    # + return - An error if could not close the channel.
-    public function close() returns error? {
+    # + return - An `IOError` if could not close the channel.
+    public function close() returns IOError? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
             return result.close();
