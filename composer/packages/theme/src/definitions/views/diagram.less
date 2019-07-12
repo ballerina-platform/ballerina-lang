@@ -26,10 +26,125 @@
     background: ~"@{@{color}-diagram-background-color}";
     display: inline-block;
     min-width: 100%;
+
+    &:hover {
+        cursor: all-scroll;
+    }
+    
+    .menu-icon {
+        font-size: 20px;
+        color: #f1f1f1;
+        position: fixed;
+        right: 2em;
+        cursor: pointer;
+        border: 1px solid #e8e8e8;
+        padding: 6px 4px;
+        text-align: center;
+        width: 40px;
+        border-radius: 54%;
+        background: #333;
+        margin-right: 0;
+
+        .icon {
+            margin: 3.5px;
+        }
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+
+    .ui.grid {
+        padding-top: 0;
+
+        &.menu-container {
+            width: 410px;
+            height: auto;
+            box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -webkit-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -moz-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            border: 1px solid #ccc;
+            margin-right: 2px;
+            position: fixed;
+            right: 2em;
+            background: ~"@{@{color}-diagram-background-color}";
+            z-index: 1000;
+            padding-top: 0;
+            margin-top: 0;
+
+            .menu-row {
+                margin: 0;
+                padding: 0 5px;
+                height: 34px;
+                margin: 5px 0;
+
+                .menu-label {
+                    font-weight: 500;
+                    padding-top: 10px;
+                }
+
+                .selection-row {
+                    background: ~"@{@{color}-diagram-menu-row-background}";
+                    padding: 0;
+                    .menu-dropdown-small {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        padding: 7px;
+                        width: 100px;
+                        .text { 
+                            width: 65px;
+                        }
+                        .icon {
+                            width: 10px;
+                            padding: 0;
+                        }
+                    }
+                    .icon {
+                        font-size: 10px;
+                        padding:0 10px;
+                        width: 30px;
+                        cursor: pointer;
+
+                        &:hover {
+                            opacity: 0.5;
+                        }
+                    }
+                    .menu-dropdown-mid {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        padding: 5px 7px;
+                        width: 150px;
+                        .text { 
+                            width: 116px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                        .icon {
+                            padding:0;
+                            width: 10px;
+                        }
+                    }
+                    .ui.dropdown .menu {
+                        box-shadow: none;
+                        width:148px
+                    }
+                }
+                .menu-control {
+                    padding: 0;
+                    
+                    .icon {
+                        font-size: 12px;
+                        width: 30px;
+                        margin-top: 8px; 
+                    }
+                }
+            }
+        }
+    }
     
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
-        margin: 4em 2em;
+        margin: 2em;
+        height: 100%;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -48,6 +163,9 @@
         .diagram-canvas {
             font-family: @diagram-font;
             font-size: @diagram-font-size;
+            width: 100%;
+            height: 100%;
+            outline: none;
 
             .panel-group-header {
                 fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -87,6 +205,7 @@
                     stroke: gray;
                     stroke-width: 1px;
                     fill: aliceblue;
+                    cursor: pointer;
                 }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -157,13 +276,10 @@
                             text {
                                 cursor: pointer;
                             }
+                            &:hover {
+                                visibility: visible;
+                            }
                         }
-                    }
-                    .statement:hover > .expander {
-                        visibility: visible;
-                    }
-                    .expander:hover {
-                        visibility: visible;
                     }
                     .action-invocation {
                         line {
@@ -223,6 +339,16 @@
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
                             stroke-width: @diagram-life-line-stroke-width;
+                        }
+                    }
+                    .expanded-hidden-block {
+                        .frame {
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            fill: none;
+                        }
+                        .collapser {
+                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                            cursor: pointer;
                         }
                     }
                 }

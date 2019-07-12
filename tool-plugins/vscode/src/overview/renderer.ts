@@ -94,6 +94,13 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                         diagram.updateAST();
                         return Promise.resolve({});
                     });
+                    webViewRPCHandler.addMethod("selectConstruct", (args) => {
+                        diagram.selectConstruct({
+                            moduleName: args[0],
+                            constructName: args[1],
+                        });
+                        return Promise.resolve({});
+                    });
                 } catch(e) {
                     console.log(e.stack);
                     drawError('Oops. Something went wrong. ' + e.message);
