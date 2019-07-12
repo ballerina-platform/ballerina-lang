@@ -39,7 +39,7 @@
     // this record type allows additional fields with pure-typed (i.e., anydata|error) values.
     // The descriptor record { } is equivalent to record {| (anydata|error)...; |}.
     type Student record {
-    string name;
+        string name;
     int age;
     Grades grades;
     };
