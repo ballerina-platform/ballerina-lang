@@ -28,7 +28,7 @@ You can follow your own coding style when writing Ballerina source code. Also, p
         return     fullName;
     }
     ```
-  Few exceptions for this rule are;
+  Few exceptions for this rule are:
   - Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
       
       Example,

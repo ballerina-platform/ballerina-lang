@@ -60,7 +60,7 @@
   - can break lines from the parameter list by moving a parameter value only to a 
     new line and indenting it with four spaces from the starting position of the function.
     
-    Examples,
+    Example,
     ```ballerina
     function getAddress(int value,
         string name) returns (string | ()) {
