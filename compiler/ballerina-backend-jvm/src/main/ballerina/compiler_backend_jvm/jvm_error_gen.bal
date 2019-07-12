@@ -46,8 +46,7 @@ type ErrorHandlerGenerator object {
             errorVarNames[errorVarNames.length()] =  currentEE.errorOp.variableDcl.name.value;
             self.mv.visitInsn(ACONST_NULL);
             generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
-            self.mv.visitVarInsn(ASTORE, lhsIndex);
-        } 
+        }
 
         jvm:Label startLabel = new;
         self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
