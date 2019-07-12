@@ -38,23 +38,23 @@ public type WritableCharacterChannel object {
     #
     # + content - Content which should be written
     # + startOffset - Number of characters which should be offset when writing content
-    # + return - Content length that written or `IOError` if any error occurred
-    public function write(string content, int startOffset) returns int|IOError = external;
+    # + return - Content length that written or `IoError` if any error occurred
+    public function write(string content, int startOffset) returns int|IoError = external;
 
     # Writes a given json to the given channel.
     #
     # + content - The json which should be written
-    # + return - If an `IOError` occurred while writing
-    public function writeJson(json content) returns IOError? = external;
+    # + return - If an `IoError` occurred while writing
+    public function writeJson(json content) returns IoError? = external;
 
     # Writes a given xml to the channel.
     #
     # + content - The XML which should be written
-    # + return - Nil or `IOError` if any error occurred
-    public function writeXml(xml content) returns IOError? = external;
+    # + return - Nil or `IoError` if any error occurred
+    public function writeXml(xml content) returns IoError? = external;
 
     # Closes a given WritableCharacterChannel channel.
     #
-    # + return - Nil or `IOError` if any error occurred
-    public function close() returns IOError? = external;
+    # + return - Nil or `IoError` if any error occurred
+    public function close() returns IoError? = external;
 };

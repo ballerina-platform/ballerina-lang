@@ -19,6 +19,10 @@ type Detail record {
     error cause?;
 };
 
-public const IO_ERROR = "{ballerina/io}IOError";
+public const CONNECTION_TIMED_OUT = "{ballerina/io}ConnectionTimedOut";
+public type ConnectionTimedOutError error<CONNECTION_TIMED_OUT, Detail>;
 
-public type IOError error<IO_ERROR, Detail>;
+public const GENERIC_IO_ERROR = "{ballerina/io}GenericIoError";
+public type GenericIoError error<GENERIC_IO_ERROR, Detail>;
+
+public type IoError GenericIoError|ConnectionTimedOutError;
