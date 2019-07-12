@@ -62,6 +62,10 @@ public class Strand {
     public boolean cancel;
     public ObserverContext observerContext;
     private State state;
+    /**
+     * Used to mark the strand has completed.
+     */
+    public boolean completed;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;

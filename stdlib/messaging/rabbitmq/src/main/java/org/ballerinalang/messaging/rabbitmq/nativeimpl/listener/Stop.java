@@ -16,56 +16,56 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
- * Binds the ChannelListener to a service.
+ * Closing the channel listener.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "registerListener",
+        functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class RegisterListener extends BlockingNativeCallableUnit {
-    private static final ArrayList<ObjectValue> services = new ArrayList<>();
-
+public class Stop extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
     }
 
-    public static void registerListener(Strand strand, ObjectValue listenerObjectValue, ObjectValue service) {
+    public static Object stop(Strand strand, ObjectValue listenerObjectValue) {
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                RabbitMQConstants.SERVICE_CONFIG);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        MapValue<Strand, Object> queueConfig =
-                (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-        String queueName = queueConfig.getStringValue(RabbitMQConstants.ALIAS_QUEUE_NAME);
-        boolean durable = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_DURABLE);
-        boolean exclusive = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_EXCLUSIVE);
-        boolean autoDelete = queueConfig.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
-        ChannelUtils.queueDeclare(channel, queueName, durable, exclusive, autoDelete);
-        services.add(service);
-        listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
+        if (channel == null) {
+            return RabbitMQUtils.returnErrorValue("ChannelListener is not properly initialised.");
+        } else {
+            try {
+                Connection connection = channel.getConnection();
+                channel.close();
+                connection.close();
+            } catch (IOException | TimeoutException exception) {
+                return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CLOSE_CHANNEL_ERROR
+                        + exception.getMessage());
+            }
+        }
+        return null;
     }
 }

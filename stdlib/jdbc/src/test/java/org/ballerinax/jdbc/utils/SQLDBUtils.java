@@ -90,14 +90,13 @@ public class SQLDBUtils {
      *
      * @param directory Directory to delete.
      */
-    public static boolean deleteDirectory(File directory) {
+    public static void deleteDirectory(File directory) {
         try {
             Files.walk(directory.toPath(), FileVisitOption.FOLLOW_LINKS)
                     .sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {
-            return false;
+            log.error("Error while deleting database directory: ", e);
         }
-        return true;
     }
 
     /**
@@ -174,7 +173,7 @@ public class SQLDBUtils {
             SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
-        public FileBasedTestDatabase(DBType dbType, String dbDirectory, String dbName) {
+        FileBasedTestDatabase(DBType dbType, String dbDirectory, String dbName) {
             this.dbDirectory = dbDirectory;
             switch (dbType) {
                 case H2:
@@ -203,6 +202,6 @@ public class SQLDBUtils {
      * Database types used for testing data clients.
      */
     public enum DBType {
-        MYSQL, ORACLE, POSTGRES, HSQLDB, H2
+        HSQLDB, H2
     }
 }

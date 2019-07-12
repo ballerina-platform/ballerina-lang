@@ -2170,10 +2170,10 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Annotation such as <@untainted [T]>, where T is not provided, it's merely a annotation on inherent type
-        // of rhs operand of type cast.
+        // Annotation such as <@untainted [T]>, where T is not provided,
+        // it's merely a annotation on contextually expected type.
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env);
+            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
             resultType = expType;
             return;
         }
