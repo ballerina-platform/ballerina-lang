@@ -74,8 +74,22 @@ public class IOConstants {
      */
     public static final long VAR_INT_MIN = (0xFFFFFFFFFFFFFL * -1);
 
+
     /**
      * Specifies the error code for i/o.
      */
-    public static final String IO_ERROR_CODE = "{ballerina/io}IOError";
+    public enum ErrorCode {
+
+        GenericIoError("{ballerina/io}GenericIoError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
+
+        private String errorCode;
+
+        ErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String errorCode() {
+            return errorCode;
+        }
+    }
 }

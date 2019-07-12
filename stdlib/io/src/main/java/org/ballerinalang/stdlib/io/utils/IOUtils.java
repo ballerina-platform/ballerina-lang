@@ -57,7 +57,7 @@ import java.util.concurrent.ExecutionException;
 public class IOUtils {
 
     private static final String PACKAGE_IO = "ballerina/io";
-    public static final String DETAIL_RECORD_TYPE_NAME = "Detail";
+    private static final String DETAIL_RECORD_TYPE_NAME = "Detail";
 
     /**
      * Creates an error message.
@@ -66,7 +66,8 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(Object... values) {
-        return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, createDetailRecord(values));
+        return BallerinaErrors
+                .createError(IOConstants.ErrorCode.GenericIoError.errorCode(), createDetailRecord(values));
     }
 
     /**
@@ -76,7 +77,19 @@ public class IOUtils {
      * @return an error which will be propagated to ballerina user
      */
     public static ErrorValue createError(String errorMsg) {
-        return BallerinaErrors.createError(IOConstants.IO_ERROR_CODE, createDetailRecord(errorMsg, null));
+        return BallerinaErrors
+                .createError(IOConstants.ErrorCode.GenericIoError.errorCode(), createDetailRecord(errorMsg, null));
+    }
+
+    /**
+     * Creates an error message with given error code.
+     *
+     * @param code     the error code which represent the error type
+     * @param errorMsg the error message
+     * @return an error which will be propagated to ballerina user
+     */
+    public static ErrorValue createError(IOConstants.ErrorCode code, String errorMsg) {
+        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errorMsg, null));
     }
 
     private static MapValue<String, Object> createDetailRecord(Object... values) {

@@ -76,7 +76,7 @@ function getTotalLength() returns int {
     return totalLength;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:IoError {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(50);
