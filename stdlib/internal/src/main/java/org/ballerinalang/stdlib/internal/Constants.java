@@ -48,9 +48,4 @@ public class Constants {
      * Defines the internal struct path value.
      */
     public static final String PATH_DEFINITION_NAME = "PathDef";
-
-    /**
-     * Init function name.
-     */
-    public static final String INIT_FUNCTION_NAME = "__init";
 }
