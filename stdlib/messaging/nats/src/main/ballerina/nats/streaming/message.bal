@@ -28,7 +28,7 @@ public type StreamingMessage client object {
    # Get message content.
    #
    # + return - the data from the message as a 'byte[]'.
-   public function getData() returns byte[] {
+   public function getData() returns @tainted byte[] {
        return self.content;
    }
 
