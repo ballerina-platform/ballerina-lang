@@ -1024,13 +1024,6 @@ public class CompiledPackageSymbolEnter {
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
-
-        byte[] paramDefaultsData = attrDataMap.get(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
-        DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
-        int paramDefaultsInfoCount = paramDefaultsDataInStream.readShort();
-        for (int i = 0; i < paramDefaultsInfoCount; i++) {
-//            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
-        }
     }
 
     private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)

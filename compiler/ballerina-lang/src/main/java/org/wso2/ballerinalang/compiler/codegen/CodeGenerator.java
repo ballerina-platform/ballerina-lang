@@ -1851,7 +1851,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // TODO Read param and return param annotations
         invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
-//        invokableSymbol.defaultableParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         if (invokableSymbol.restParam != null) {
             visitVarSymbol(invokableSymbol.restParam, lvIndexes, localVarAttrInfo);
         }
@@ -2017,18 +2016,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int generateNamedArgs(BLangInvocation iExpr, Operand[] operands, int currentIndex) {
-//        if (iExpr.namedArgs.isEmpty()) {
-//            return currentIndex;
-//        }
-
         if (iExpr.symbol.kind != SymbolKind.FUNCTION) {
             throw new IllegalStateException("Unsupported callable unit");
         }
-
-//        for (BLangExpression argExpr : iExpr.namedArgs) {
-//            operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
-//        }
-
         return currentIndex;
     }
 
