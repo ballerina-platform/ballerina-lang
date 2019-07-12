@@ -47,6 +47,13 @@
         <localInspection displayName="LSP" shortName="LSP" enabledByDefault="true"
                          implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
 
+        <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
+                       id="LSPRenameHandler" order="first"/>
+
+        <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
+                                   id="LSPRenameProcessor" order="first"/>
+
+
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
 
