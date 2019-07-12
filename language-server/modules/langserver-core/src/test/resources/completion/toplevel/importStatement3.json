@@ -20,17 +20,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "h2",
+      "label": "jdbc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -223,13 +216,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "task",
       "kind": "Module",
       "detail": "Package",
@@ -262,13 +248,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]
