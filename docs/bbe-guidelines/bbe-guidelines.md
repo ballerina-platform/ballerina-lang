@@ -75,7 +75,7 @@
 
 ## Practices related to the folder structure
 
-1. Each BBE should be in a separate directory with the example name. 
+1. Each BBE should be in a separate directory in the [ballerina-lang Git Hub repository](https://github.com/ballerina-platform/ballerina-lang/tree/master/examples) with the name of the example. 
 
 2. Directory name should be in all lowercase letters with words separated by “-” (e.g., abstract-objects).
 
@@ -91,7 +91,7 @@
 
     _test.bal - Contains the test to validate the output of the BBE during the build time. 
 
-    <img src="images/bbe-folder-structure.png" width="350" height="200" alt="BBE folder structure" />
+    <img src="images/bbe-folder-structure.png" width="300" height="150" alt="BBE folder structure" />
 
 4. As a common pattern, use the following format for `.out` files and customize it only when required (e.g., to add more command line args etc.).
 
@@ -113,9 +113,9 @@
 
 5. Service examples need two `.out` files. One (i.e., the `server.out` file) to display the server output and the other (i.e., the `client.out` file) to display the cURL command and the output.
 
-    <img src="images/service-example-structure.png" width="400" height="220" alt="service example structure" />
+    <img src="images/service-example-structure.png" width="330" height="180" alt="service example structure" />
 
 
 6. Unless it is really required, it is not encouraged to have multiple .bal files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
-    <img src="images/multiple-bal-examples.png" width="475" height="200" alt="multiple-bal-examples" />
+    <img src="images/multiple-bal-examples.png" width="400" height="150" alt="multiple-bal-examples" />
