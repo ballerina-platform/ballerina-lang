@@ -20,7 +20,7 @@
 package org.wso2.transport.http.netty.contractimpl.sender;
 
 import io.netty.channel.ChannelFuture;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 
 /**
  * Listener for connection availability future.

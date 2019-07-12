@@ -22,8 +22,13 @@ package org.wso2.transport.http.netty.contractimpl.sender;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ConnectionTimedOutException;
+import org.wso2.transport.http.netty.contract.exceptions.InvalidProtocolException;
+import org.wso2.transport.http.netty.contract.exceptions.RequestCancelledException;
+import org.wso2.transport.http.netty.contract.exceptions.SslException;
+import org.wso2.transport.http.netty.contract.exceptions.UnresolvedHostException;
 
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.ERROR_COULD_NOT_RESOLVE_HOST;
@@ -82,10 +87,10 @@ public class ConnectionAvailabilityFuture {
         this.protocol = protocol;
         if (listener != null) {
             if (forceHttp2 && !(protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL) ||
-                                protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL))) {
+                    protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL))) {
                 ClientConnectorException connectorException =
-                        new ClientConnectorException("Protocol must be HTTP/2",
-                                                     HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED.code());
+                        new InvalidProtocolException("Protocol must be HTTP/2",
+                                HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED.code());
                 listener.onFailure(connectorException);
             } else {
                 listener.onSuccess(protocol, socketAvailabilityFuture);
@@ -123,18 +128,18 @@ public class ConnectionAvailabilityFuture {
             socketAddress = channelFuture.channel().remoteAddress().toString();
         }
         if (channelFuture.isDone() && channelFuture.isCancelled()) {
-            connectorException = new ClientConnectorException("Request cancelled: " + socketAddress,
+            connectorException = new RequestCancelledException("Request cancelled: " + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
         } else if (!channelFuture.isDone() && !channelFuture.isSuccess() && !channelFuture.isCancelled() && (
                 channelFuture.cause() == null)) {
-            connectorException = new ClientConnectorException("Connection timeout: " + socketAddress,
+            connectorException = new ConnectionTimedOutException("Connection timeout: " + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
         } else if (cause.toString().contains("javax.net.ssl") || cause.toString().contains("java.security")) {
-            connectorException = new ClientConnectorException(
+            connectorException = new SslException(
                     SSL_CONNECTION_ERROR + COLON + cause.getMessage() + socketAddress,
                     HttpResponseStatus.BAD_GATEWAY.code());
         } else if (cause.toString().contains(UNKNOWN_HOST_EXCEPTION)) {
-            connectorException = new ClientConnectorException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
+            connectorException = new UnresolvedHostException(ERROR_COULD_NOT_RESOLVE_HOST + COLON +
                     cause.getMessage(), HttpResponseStatus.BAD_GATEWAY.code());
         } else {
             connectorException = new ClientConnectorException(channelFuture.cause().getMessage(),

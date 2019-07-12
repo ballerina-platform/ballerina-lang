@@ -44,7 +44,6 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.Connection
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketClientConnector;
 
 import java.util.Map;
-
 import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.PIPELINING_THREAD_COUNT;
