@@ -1144,7 +1144,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         // If this is an object init using the default constructor, or a stream or channel initialization then skip the
         // taint checking.
-        if (typeInit.type.tag != TypeTags.STREAM && typeInit.type.tag != TypeTags.CHANNEL &&
+        if (typeInit.type.tag != TypeTags.STREAM &&
                 (typeInit.type.tag != TypeTags.OBJECT ||
                          ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null)) {
             typeInit.initInvocation.accept(this);
@@ -2641,6 +2641,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
+        } else if (varRefExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            visitAssignment(((BLangTypeConversionExpr) varRefExpr).expr, varTaintedStatus, varRefExpr.pos);
         }
     }
 

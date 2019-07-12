@@ -1135,22 +1135,8 @@
         ]
     },
     {
-        "title": "Channels",
-        "column": 2,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Message Correlation with Channels",
-                "url": "channels-correlation"
-            },
-            {
-                "name": "Worker Interactions with Channels",
-                "url": "channels-workers"
-            }
-        ]
-    },
-    {
         "title": "Table Queries",
-        "column": 3,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",
