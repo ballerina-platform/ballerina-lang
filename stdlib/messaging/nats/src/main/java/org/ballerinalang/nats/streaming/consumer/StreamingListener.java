@@ -32,8 +32,6 @@ import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.services.ErrorHandlerUtils;
 
-import java.util.Arrays;
-
 import static org.ballerinalang.nats.Constants.NATS_STREAMING_MESSAGE_OBJ_NAME;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
@@ -76,25 +74,18 @@ public class StreamingListener implements MessageHandler {
     }
 
     private void dispatch(ObjectValue ballerinaNatsMessage, BType intendedTypeForData, byte[] data) {
-        AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
-        boolean onErrorResourcePresent = Arrays.stream(attachedFunctions)
-                .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         try {
             Object typeBoundData = Utils.bindDataToIntendedType(data, intendedTypeForData);
             Executor.submit(scheduler, service, ON_MESSAGE_RESOURCE, new DispatcherCallback(), null,
                     ballerinaNatsMessage, true, typeBoundData, true);
         } catch (NumberFormatException e) {
-            if (onErrorResourcePresent) {
-                ErrorValue dataBindError = Utils
-                        .createNatsError("The received message is unsupported by the resource signature");
-                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null,
-                        ballerinaNatsMessage, true, dataBindError, true);
-            }
+            ErrorValue dataBindError = Utils
+                    .createNatsError("The received message is unsupported by the resource signature");
+            Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null,
+                    ballerinaNatsMessage, true, dataBindError, true);
         } catch (ErrorValue e) {
-            if (onErrorResourcePresent) {
-                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null,
-                        ballerinaNatsMessage, true, e, true);
-            }
+            Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DispatcherCallback(), null,
+                    ballerinaNatsMessage, true, e, true);
         }
     }
 

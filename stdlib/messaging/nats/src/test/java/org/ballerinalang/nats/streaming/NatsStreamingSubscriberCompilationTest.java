@@ -40,21 +40,6 @@ public class NatsStreamingSubscriberCompilationTest {
         assertDiagnosticCount(compileResult, 0);
     }
 
-    @Test(description = "Test valid service with only onMessage resource")
-    public void testValidServiceOnMessage() {
-        CompileResult compileResult = compileBasicTests("nats_valid_subscriber_on_message_only.bal");
-        assertDiagnosticCount(compileResult, 0);
-    }
-
-    @Test(description = "Test service with only onError resource")
-    public void testOnlyOnError() {
-        CompileResult compileResult = compileBasicTests("nats_on_error_only.bal");
-        assertDiagnosticCount(compileResult, 1);
-        BAssertUtil.validateError(compileResult, 0,
-                "Mandatory onMessage resource function is missing",
-                27, 1);
-    }
-
     @Test(description = "Missing annotation")
     public void testMissingAnnotation() {
         CompileResult compileResult = compileBasicTests("nats_missing_annotation.bal");
