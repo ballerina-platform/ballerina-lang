@@ -30,7 +30,7 @@ public type Message object {
     # Get the message content.
     #
     # + return - the data returned from the message as a 'byte[]'.
-    public function getData() returns byte[] {
+    public function getData() returns @tainted byte[] {
         return self.content;
     }
 
