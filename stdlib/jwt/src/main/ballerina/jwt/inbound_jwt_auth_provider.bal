@@ -45,8 +45,8 @@ public type InboundJwtAuthProvider object {
     # Authenticate with a JWT token.
     #
     # + credential - Jwt token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or `error` occurred during JWT validation
-    public function authenticate(string credential) returns @tainted (boolean|error) {
+    # + return - `true` if authentication is successful, othewise `false` or `auth:AuthError` occurred during JWT validation
+    public function authenticate(string credential) returns @tainted (boolean|auth:AuthError) {
         string[] jwtComponents = internal:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
             return false;
@@ -62,13 +62,15 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        var payload = validateJwt(credential, self.jwtValidatorConfig);
-        if (payload is JwtPayload) {
-            setAuthenticationContext(payload, credential);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, payload?.exp, payload);
+        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        if (validationResult is JwtPayload) {
+            setAuthenticationContext(validationResult, credential);
+            addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
             return true;
         } else {
-            return payload;
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = validationResult;
+            return auth:prepareAuthError("JWT validation failed.", err = e);
         }
     }
 };

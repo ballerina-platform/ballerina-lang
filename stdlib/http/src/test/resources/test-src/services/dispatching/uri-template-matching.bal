@@ -1,6 +1,7 @@
 import ballerina/http;
 import ballerina/'lang\.int as langint;
 import ballerina/'lang\.float as langfloat;
+import ballerina/io;
 
 listener http:MockListener testEP = new(9090);
 
@@ -61,7 +62,7 @@ service echo11 on testEP {
     resource function echo9(http:Caller caller, http:Request req, string abc) {
         map<string> params = req.getQueryParams();
         string? foo = params["foo"];
-        json responseJson = {"first":abc, "second":(foo is string ? foo : ""), "echo9":"echo9"};
+        json responseJson = {"first":abc, "second":(foo is string ? foo : "go"), "echo9":"echo9"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -75,7 +76,7 @@ service echo11 on testEP {
     resource function echo10(http:Caller caller, http:Request req) {
         map<string> params = req.getQueryParams();
         string? foo = params["foo"];
-        json responseJson = {"third":(foo is string ? foo : ""), "echo10":"echo10"};
+        json responseJson = {"third":(foo is string ? foo : "go"), "echo10":"echo10"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -83,9 +84,9 @@ service echo11 on testEP {
     }
 
     resource function echo11(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
-        json responseJson = {"third":(foo is string ? foo : ""), "echo11":"echo11"};
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
+        json responseJson = {"third":(foo is string[] ? foo[0] : ""), "echo11":"echo11"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -108,9 +109,9 @@ service echo11 on testEP {
         path:"/echo125"
     }
     resource function echo125(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? bar = params["foo"];
-        json responseJson = {"echo125":(bar is string ? bar : "")};
+        map<string[]> params = req.getQueryParams();
+        string[]? bar = params["foo"];
+        json responseJson = {"echo125":(bar is string[] ? bar[0] : "")};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -122,9 +123,9 @@ service echo11 on testEP {
         path:"/paramNeg"
     }
     resource function paramNeg(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? bar = params["foo"] ?: "";
-        json responseJson = {"echo125":(bar is string ? bar : "")};
+        map<string[]> params = req.getQueryParams();
+        string[]? bar = params["foo"] ?: "";
+        json responseJson = {"echo125":(bar is string[] ? bar[0] : "")};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -136,9 +137,9 @@ service echo11 on testEP {
         path:"/echo13"
     }
     resource function echo13(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? barStr = params["foo"];
-        var result = langint:fromString(barStr is string ? barStr : "0");
+        map<string[]> params = req.getQueryParams();
+        string[]? barStr = params["foo"];
+        var result = langint:fromString(barStr is string[] ? barStr[0] : "0");
         int bar = (result is int) ? result : 0;
         json responseJson = {"echo13":bar};
 
@@ -152,9 +153,9 @@ service echo11 on testEP {
         path:"/echo14"
     }
     resource function echo14(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? barStr = params["foo"];
-        var result = langfloat:fromString(barStr is string ? barStr : "0.0");
+        map<string[]> params = req.getQueryParams();
+        string[]? barStr = params["foo"];
+        var result = langfloat:fromString(barStr is string[] ? barStr[0] : "0.0");
         float bar = (result is float) ? result : 0.0;
         json responseJson = {"echo14":bar};
 
@@ -168,14 +169,42 @@ service echo11 on testEP {
         path:"/echo15"
     }
     resource function echo15(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? barStr = params["foo"];
+        map<string[]> params = req.getQueryParams();
+        string[]? barStr = params["foo"];
         boolean bar = boolean.convert(barStr);
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo155"
+    }
+    resource function sameName(http:Caller caller, http:Request req) {
+        map<string[]> params = req.getQueryParams();
+        json responseJson = {"name1":params["foo"][0] , "name2":params["foo"][1], "name3":params["bar"][0],
+                                "name4":params["foo"][2]};
+        http:Response res = new;
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo156/{key}"
+    }
+    resource function allApis(http:Caller caller, http:Request req, string key) {
+        map<string[]> paramMap = req.getQueryParams();
+        string[] valueArray = req.getQueryParamValues(key) ?: ["array not found"];
+        string value = req.getQueryParamValue(key) ?: "value not found";
+        json responseJson = {"map":paramMap[key][0] , "array":valueArray[0], "value":value,
+                                "map_":paramMap["foo"][0], "array_":valueArray[1] };
+        //http:Response res = new;
+        //res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(responseJson);
     }
 
     @http:ResourceConfig {
@@ -230,9 +259,9 @@ service echo22 on testEP {
 }
 service echo33 on testEP {
     resource function echo1(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
-        json responseJson = {"third":(foo is string ? foo : ""), "echo33":"echo1"};
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
+        json responseJson = {"third":(foo is string[] ? foo[0] : ""), "echo33":"echo1"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -253,9 +282,9 @@ service echo44 on testEP {
     }
 
     resource function echo1(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
-        json responseJson = {"first":(foo is string ? foo : ""), "echo44":"echo1"};
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
+        json responseJson = {"first":(foo is string[] ? foo[0] : ""), "echo44":"echo1"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -280,8 +309,8 @@ service echo55 on testEP {
         path:"/foo/bar"
     }
     resource function echo1(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
         json responseJson = {"echo55":"echo55"};
 
         http:Response res = new;
@@ -303,8 +332,8 @@ service echo55 on testEP {
         path:"/foo/*"
     }
     resource function echo5(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string foo = params["foo"] ?: "";
+        map<string[]> params = req.getQueryParams();
+        string[] foo = params["foo"] ?: [];
         json responseJson = {"echo55":"/foo/*"};
 
         http:Response res = new;

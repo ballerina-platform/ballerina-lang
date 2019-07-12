@@ -94,7 +94,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
 
         bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName);
+                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType);
         mv.visitLabel(paramNextLabel);
 
         birFuncParamIndex += 1;

@@ -31,11 +31,11 @@ service testService on testEP {
         string b = <string> fooMParams["b"];
         outJson.fooMatrix = string `a=${a};b=${b}`;
 
-        map<string> queryParams = req.getQueryParams();
-        string? x = queryParams["x"];
-        string? y = queryParams["y"];
-        string xVal = x is string ? x : "";
-        string yVal = y is string ? y : "";
+        map<string[]> queryParams = req.getQueryParams();
+        string[]? x = queryParams["x"];
+        string[]? y = queryParams["y"];
+        string xVal = x is string[] ? x[0] : "";
+        string yVal = y is string[] ? y[0] : "";
         outJson.queryParams = string `x=${xVal}&y=${yVal}`;
 
         res.setJsonPayload(<@untainted json> outJson);

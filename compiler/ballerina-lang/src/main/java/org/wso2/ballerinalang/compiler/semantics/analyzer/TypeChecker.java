@@ -48,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -737,15 +736,18 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.noType;
         List<BType> listCompatibleTypes = new ArrayList<>();
         for (BType type : expTypes) {
-            if (type.tag == TypeTags.ARRAY) {
-                List<BType> resTypes = checkExprs(listConstructorExpr.exprs, this.env, symTable.noType);
-                Set<BType> arrayLitExprTypeSet = new LinkedHashSet<>(resTypes);
-                BType[] uniqueExprTypes = arrayLitExprTypeSet.toArray(new BType[0]);
+            if (type.tag == TypeTags.TUPLE) {
+                BTupleType tupleType = (BTupleType) type;
+                if (checkTupleType(listConstructorExpr, tupleType)) {
+                    listCompatibleTypes.add(tupleType);
+                }
+            } else {
+                BType[] uniqueExprTypes = checkArrayExpr(listConstructorExpr, this.env);
                 BType arrayLiteralType;
                 if (uniqueExprTypes.length == 0) {
                     arrayLiteralType = symTable.anyType;
                 } else if (uniqueExprTypes.length == 1) {
-                    arrayLiteralType = resTypes.get(0);
+                    arrayLiteralType = uniqueExprTypes[0];
                 } else {
                     BType superType = uniqueExprTypes[0];
                     for (int i = 1; i < uniqueExprTypes.length; i++) {
@@ -758,13 +760,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     arrayLiteralType = superType;
                 }
-                actualType = new BArrayType(arrayLiteralType, null, listConstructorExpr.exprs.size(),
-                        BArrayState.UNSEALED);
-                listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
-            } else if (type.tag == TypeTags.TUPLE) {
-                BTupleType tupleType = (BTupleType) type;
-                if (checkTupleType(listConstructorExpr, tupleType)) {
-                    listCompatibleTypes.add(tupleType);
+                if (arrayLiteralType.tag != TypeTags.SEMANTIC_ERROR) {
+                    if (type.tag == TypeTags.ARRAY && ((BArrayType) type).state != BArrayState.UNSEALED) {
+                        actualType = new BArrayType(arrayLiteralType, null,
+                                ((BArrayType) type).state == BArrayState.CLOSED_SEALED
+                                        ? listConstructorExpr.exprs.size() : ((BArrayType) type).size,
+                                ((BArrayType) type).state);
+                    } else {
+                        actualType = new BArrayType(arrayLiteralType);
+                    }
+                    listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
                 }
             }
         }
@@ -779,12 +784,28 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(listConstructorExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
             actualType = symTable.semanticError;
         } else if (listCompatibleTypes.get(0).tag == TypeTags.ARRAY) {
-            checkExprs(listConstructorExpr.exprs, this.env, ((BArrayType) listCompatibleTypes.get(0)).eType);
+            checkExpr(listConstructorExpr, this.env, listCompatibleTypes.get(0));
         } else if (listCompatibleTypes.get(0).tag == TypeTags.TUPLE) {
             actualType = listCompatibleTypes.get(0);
             setTupleType(listConstructorExpr, actualType);
         }
         return actualType;
+    }
+
+    private BType[] checkArrayExpr(BLangListConstructorExpr expr, SymbolEnv env) {
+        List<BType> types = new ArrayList<>();
+        SymbolEnv prevEnv = this.env;
+        BType preExpType = this.expType;
+        this.env = env;
+        this.expType = symTable.noType;
+        for (BLangExpression e : expr.exprs) {
+            e.accept(this);
+            types.add(resultType);
+        }
+        this.env = prevEnv;
+        this.expType = preExpType;
+        LinkedHashSet<BType> typesSet = new LinkedHashSet<>(types);
+        return typesSet.toArray(new BType[0]);
     }
 
     private boolean checkTupleType(BLangExpression expression, BType type) {
@@ -1014,12 +1035,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
-        // TODO Need to remove this cached env
-        workerReceiveExpr.env = this.env;
-        if (workerReceiveExpr.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
-            visitChannelReceive(workerReceiveExpr, symbol);
+        if (workerReceiveExpr.isChannel) {
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
             return;
         }
+        // TODO Need to remove this cached env
+        workerReceiveExpr.env = this.env;
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             workerReceiveExpr.workerType = symTable.semanticError;
@@ -1033,38 +1054,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         workerReceiveExpr.type = this.expType;
-        resultType = this.expType;
-    }
-
-    private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
-        workerReceiveNode.isChannel = true;
-        if (symbol == null) {
-            symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
-                                              SymTag.VARIABLE);
-        }
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_SYMBOL, workerReceiveNode.workerIdentifier);
-            return;
-        }
-
-        if (TypeTags.CHANNEL != symbol.type.tag) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
-            return;
-        }
-
-        BType constraint = ((BChannelType) symbol.type).constraint;
-        if (this.expType.tag != constraint.tag) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, this.expType);
-            return;
-        }
-
-        if (workerReceiveNode.keyExpr != null) {
-            checkExpr(workerReceiveNode.keyExpr, env);
-        }
-
-        // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
-        // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         resultType = this.expType;
     }
 
@@ -1581,7 +1570,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-            case TypeTags.CHANNEL:
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.name);
                     resultType = symTable.semanticError;
@@ -2143,10 +2131,10 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Annotation such as <@untainted [T]>, where T is not provided, it's merely a annotation on inherent type
-        // of rhs operand of type cast.
+        // Annotation such as <@untainted [T]>, where T is not provided,
+        // it's merely a annotation on contextually expected type.
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env);
+            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
             resultType = expType;
             return;
         }
@@ -2676,12 +2664,20 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // if no such function found, then try resolving in package
-        if (funcSymbol == symTable.notFoundSymbol) {
-            funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+        // This if check is to avoid duplicate error message about 'undefined module'
+        if (symResolver.resolvePkgSymbol(iExpr.pos, env, pkgAlias) != symTable.notFoundSymbol) {
+            if (funcSymbol == symTable.notFoundSymbol) {
+                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+            }
+            if (funcSymbol == symTable.notFoundSymbol) {
+                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);
+            }
         }
 
-        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
+        if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR
+            || ((funcSymbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR && funcSymbol.type.tag == TypeTags.ERROR)) {
+            iExpr.symbol = funcSymbol;
+            iExpr.type = funcSymbol.type;
             checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
@@ -2733,6 +2729,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
                 resultType = symTable.semanticError;
                 return;
+            } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+                expType = iExpr.type;
             } else {
                 // var e = <error> error("r");
                 expType = symTable.errorType;
@@ -2743,6 +2741,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+            return;
+        }
+
+        if (nonNamedArgsGiven(iExpr) && (iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticCode.INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED);
+            resultType = symTable.semanticError;
             return;
         }
 
@@ -2778,6 +2782,10 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.symbol = lhsErrorType.ctorSymbol;
     }
 
+    private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
+        return iExpr.argExprs.stream().anyMatch(arg -> arg.getKind() != NodeKind.NAMED_ARGS_EXPR);
+    }
+
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
         if (iExpr.argExprs.isEmpty()) {
             return false;
@@ -2793,10 +2801,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
-        if (errorType.reasonType.getKind() == TypeKind.FINITE) {
+        if (errorType.reasonType.tag != TypeTags.FINITE) {
+            dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                    expType.tsymbol.name);
+            resultType = symTable.semanticError;
+            return true;
+        } else {
             BFiniteType finiteType = (BFiniteType) errorType.reasonType;
             if (finiteType.valueSpace.size() != 1) {
-                dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                if (errorType == symTable.errorType) {
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType.tsymbol.name);
+                } else {
+                    dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                            expType.tsymbol.name);
+                }
                 resultType = symTable.semanticError;
                 return true;
             }

@@ -81,14 +81,14 @@ service Ecommerce on testEP {
     }
     resource function productsInfo6 (http:Caller caller, http:Request req) {
         json responseJson;
-        map<string> params = req.getQueryParams();
-        string? prdID = params["prodID"];
-        string? rID= params["regID"];
-        string pId = prdID is string ? prdID : "";
-        string rgId = rID is string ? rID : "";
-        io:println ("Product ID " + pId);
-        io:println ("Reg ID " + rgId);
-        responseJson = {"Template":"T6", "ProductID":pId, "RegID":rgId};
+        map<string[]> params = req.getQueryParams();
+        string[]? prdID = params["prodID"];
+        string[]? rID= params["regID"];
+        string pId = prdID is string[] ? prdID[0] : "";
+        string rgId = rID is string[] ? rID[0] : "";
+        io:println ("Product ID " + pId[0]);
+        io:println ("Reg ID " + rgId[0]);
+        responseJson = {"Template":"T6", "ProductID":pId[0], "RegID":rgId[0]};
         io:println (responseJson.toString ());
 
         http:Response res = new;
