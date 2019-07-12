@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
-import ballerina/sql;
+import ballerinax/jdbc;
 import ballerina/time;
 
 type ResultDatesWithNillableStringType record {
@@ -117,11 +116,10 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testMappingToNillableTypeFields() returns [int?, int?, float?,
+function testMappingToNillableTypeFields() returns @tainted [int?, int?, float?,
             float?, boolean?, string?, decimal?, decimal?, float?, int?, int?, string?, byte[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -169,10 +167,9 @@ function testMappingToNillableTypeFields() returns [int?, int?, float?,
     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type];
 }
 
-function testMappingToNillableTypeFieldsBlob() returns byte[]? {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+function testMappingToNillableTypeFieldsBlob() returns @tainted byte[]? {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -193,9 +190,8 @@ function testMappingToNillableTypeFieldsBlob() returns byte[]? {
 }
 
 function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, int, int, int]|error {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -222,11 +218,11 @@ function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, 
     timestampInserted = timestampStruct.time;
     datetimeInserted = datetimeStruct.time;
 
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 150 };
-    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: dateStruct };
-    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timeStruct };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampStruct };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: datetimeStruct };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 150 };
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: dateStruct };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timeStruct };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampStruct };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct };
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
@@ -250,20 +246,20 @@ function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, 
     datetimeInserted, datetimeRetrieved];
 }
 
-function testMappingDatesToNillableIntType(int datein, int timein, int timestampin) returns [int, int, int, int] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+function testMappingDatesToNillableIntType(int datein, int timein, int timestampin) returns @tainted
+            [int, int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     });
 
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 151 };
-    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: datein };
-    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timein };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 151 };
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: datein };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timein };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: timestampin };
 
     int date = -1;
     int time = -1;
@@ -292,11 +288,10 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
     return [date, time, timestamp, datetime];
 }
 
-function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns [string, string, string,
-        string] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+function testMappingDatesToNillableStringType(int datein, int timein, int timestampin) returns @tainted
+    [string, string, string, string] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -306,11 +301,11 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
     string timestamp = "";
     string datetime = "";
 
-    sql:Parameter para0 = { sqlType: sql:TYPE_INTEGER, value: 152 };
-    sql:Parameter para1 = { sqlType: sql:TYPE_DATE, value: datein };
-    sql:Parameter para2 = { sqlType: sql:TYPE_TIME, value: timein };
-    sql:Parameter para3 = { sqlType: sql:TYPE_TIMESTAMP, value: timestampin };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DATETIME, value: timestampin };
+    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 152 };
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: datein };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timein };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: timestampin };
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
@@ -334,12 +329,11 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
     return [date, time, timestamp, datetime];
 }
 
-function testMappingNullToNillableTypes() returns [int?, int?, float?,
+function testMappingNullToNillableTypes() returns @tainted [int?, int?, float?,
             float?, boolean?, string?, decimal?, decimal?, float?, int?, int?, string?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -397,10 +391,9 @@ function testMappingNullToNillableTypes() returns [int?, int?, float?,
     timestamp_type];
 }
 
-function testMappingNullToNillableTypesBlob() returns byte[]? {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+function testMappingNullToNillableTypesBlob() returns @tainted byte[]? {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -423,10 +416,9 @@ function testMappingNullToNillableTypesBlob() returns byte[]? {
 }
 
 function testMapArrayToNonNillableTypeWithNillableElementType()
-             returns [int?[], int?[], decimal?[], string?[], boolean?[]] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -457,11 +449,10 @@ function testMapArrayToNonNillableTypeWithNillableElementType()
     return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
-function testMapArrayToNillableTypeWithNillableElementType() returns [
-            int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+function testMapArrayToNillableTypeWithNillableElementType() returns @tainted
+    [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -493,10 +484,9 @@ function testMapArrayToNillableTypeWithNillableElementType() returns [
 }
 
 function testMapArrayToNillableTypeWithNonNillableElementType()
-             returns [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -527,10 +517,9 @@ function testMapArrayToNillableTypeWithNonNillableElementType()
 }
 
 function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() returns
-                                     [int?[], int?[], decimal?[], string?[], boolean?[]] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+                                     @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -562,10 +551,9 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() return
 }
 
 function testMapNillIncludedArrayNillableTypeWithNillableElementType()
-             returns [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -597,10 +585,9 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType()
 }
 
 function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
-             returns [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int[]?, int[]?, decimal[]?, string[]?, boolean[]?] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -632,10 +619,9 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes()
 }
 
 function testMapNilArrayToNillableTypeWithNillableElementTypes()
-             returns [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int?[]?, int?[]?, decimal?[]?, string?[]?, boolean?[]?] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -667,10 +653,9 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes()
 }
 
 function testMapNillElementsOnlyArray()
-             returns [int?[], int?[], decimal?[], string?[], boolean?[]] {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+             returns @tainted [int?[], int?[], decimal?[], string?[], boolean?[]] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }

@@ -4851,6 +4851,7 @@ public class Desugar extends BLangNodeVisitor {
         conversionExpr.conversionSymbol = conversionSymbol;
         conversionExpr.type = lhsType;
         conversionExpr.pos = expr.pos;
+        conversionExpr.checkTypes = false;
         return conversionExpr;
     }
 

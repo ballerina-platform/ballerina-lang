@@ -472,10 +472,10 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             }
             if (inst is bir:ConstantLoad) {
                 instGen.generateConstantLoadIns(inst);
+            } else if (inst is bir:TypeCast) {
+                instGen.generateCastIns(inst);
             } else if (inst is bir:Move) {
-                if (inst.kind == bir:INS_KIND_TYPE_CAST) {
-                    instGen.generateCastIns(inst);
-                } else if (inst.kind == bir:INS_KIND_MOVE) {
+                if (inst.kind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(inst);

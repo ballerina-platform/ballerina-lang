@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
+import ballerinax/jdbc;
 
 type Person record {
     int id;
@@ -27,37 +27,14 @@ type ResultCount record {
     int COUNTVAL;
 };
 
-type Employee record {
-    int id;
-    string name;
-    float salary;
-};
-
-type EmployeeCompatible record {
-    int id;
-    string name;
-    float salary;
-};
-
-type EmployeeSalary record {
-    int id;
-    float salary;
-};
-
-type EmployeeSalaryCompatible record {
-    int id;
-    float salary;
-};
-
 int idValue = -1;
 int ageValue = -1;
 float salValue = -1.0;
 string nameValue = "";
 
-function testForEachInTableWithStmt() returns (int, int, float, string) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testForEachInTableWithStmt() returns @tainted [int, int, float, string] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -79,13 +56,12 @@ function testForEachInTableWithStmt() returns (int, int, float, string) {
         }
     }
     checkpanic testDB.stop();
-    return (id, age, salary, name);
+    return [id, age, salary, name];
 }
 
-function testForEachInTableWithIndex() returns (string, string) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testForEachInTableWithIndex() returns @tainted [string, string] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -104,13 +80,12 @@ function testForEachInTableWithIndex() returns (string, string) {
         }
     }
     checkpanic testDB.stop();
-    return (idStr, indexStr);
+    return [idStr, indexStr];
 }
 
-function testForEachInTable() returns (int, int, float, string) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testForEachInTable() returns [int, int, float, string] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -120,10 +95,10 @@ function testForEachInTable() returns (int, int, float, string) {
 
     if (dt is table<Person>) {
         dt.foreach(function (Person p) {
-                idValue = untaint p.id;
-                ageValue = untaint p.age;
-                salValue = untaint p.salary;
-                nameValue = untaint p.name;
+                idValue = <@untainted>p.id;
+                ageValue = <@untainted>p.age;
+                salValue = <@untainted>p.salary;
+                nameValue = <@untainted>p.name;
             }
         );
     }
@@ -132,13 +107,12 @@ function testForEachInTable() returns (int, int, float, string) {
     float salary = salValue;
     string name = nameValue;
     checkpanic testDB.stop();
-    return (id, age, salary, name);
+    return [id, age, salary, name];
 }
 
-function testCountInTable() returns (int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testCountInTable() returns @tainted int {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -153,10 +127,9 @@ function testCountInTable() returns (int) {
     return count;
 }
 
-function testFilterTable() returns (int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testFilterTable() returns @tainted [int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -174,13 +147,12 @@ function testFilterTable() returns (int, int, int) {
         id2 = personBelow35[1].id;
     }
     checkpanic testDB.stop();
-    return (count, id1, id2);
+    return [count, id1, id2];
 }
 
-function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -200,13 +172,12 @@ function testFilterWithAnonymousFuncOnTable() returns (int, int, int) {
         id2 = personBelow35[1].id;
     }
     checkpanic testDB.stop();
-    return (count, id1, id2);
+    return [count, id1, id2];
 }
 
-function testFilterTableWithCount() returns (int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testFilterTableWithCount() returns @tainted int {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -221,10 +192,9 @@ function testFilterTableWithCount() returns (int) {
     return count;
 }
 
-function testMapTable() returns (string[]) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testMapTable() returns @tainted string[] {
+    jdbc:Client testDB = new({
+       url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -239,10 +209,9 @@ function testMapTable() returns (string[]) {
     return names;
 }
 
-function testMapWithFilterTable() returns (string[]) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testMapWithFilterTable() returns @tainted string[] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -256,10 +225,9 @@ function testMapWithFilterTable() returns (string[]) {
     return names;
 }
 
-function testFilterWithMapTable() returns (string[]) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testFilterWithMapTable() returns @tainted string[] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -274,10 +242,9 @@ function testFilterWithMapTable() returns (string[]) {
     return names;
 }
 
-function testFilterWithMapAndCountTable() returns (int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testFilterWithMapAndCountTable() returns @tainted int {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -292,10 +259,9 @@ function testFilterWithMapAndCountTable() returns (int) {
     return count;
 }
 
-function testAverageWithTable() returns (float) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testAverageWithTable() returns @tainted float {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -310,10 +276,9 @@ function testAverageWithTable() returns (float) {
     return avgSal;
 }
 
-function testMinWithTable() returns (float) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testMinWithTable() returns @tainted float {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -328,10 +293,9 @@ function testMinWithTable() returns (float) {
     return avgSal;
 }
 
-function testMaxWithTable() returns (float) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testMaxWithTable() returns @tainted float {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -346,10 +310,9 @@ function testMaxWithTable() returns (float) {
     return avgSal;
 }
 
-function testSumWithTable() returns (float) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testSumWithTable() returns @tainted float {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -364,10 +327,9 @@ function testSumWithTable() returns (float) {
     return avgSal;
 }
 
-function testCloseConnectionPool() returns (int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE__ITR_DB",
+function testCloseConnectionPool() returns @tainted int {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -386,97 +348,6 @@ function testCloseConnectionPool() returns (int) {
     }
     checkpanic testDB.stop();
     return count;
-}
-
-function testSelect() returns (json) {
-
-    table<Employee> dt = createTable();
-
-    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
-    var ret = json.convert(salaryTable);
-    json res = {};
-    if (ret is json) {
-        res = ret;
-    } else {
-        res = { Error: ret.reason() };
-    }
-    return res;
-}
-
-function testSelectCompatibleLambdaInput() returns (json) {
-    table<Employee> dt = createTable();
-
-    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
-    var ret = json.convert(salaryTable);
-    json res = {};
-    if (ret is json) {
-        res = ret;
-    } else {
-        res = { Error: ret.reason() };
-    }
-    return res;
-}
-
-function testSelectCompatibleLambdaOutput() returns (json) {
-    table<Employee> dt = createTable();
-
-    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
-    var ret = json.convert(salaryTable);
-    json res = {};
-    if (ret is json) {
-        res = ret;
-    } else {
-        res = { Error: ret.reason() };
-    }
-    return res;
-}
-
-function testSelectCompatibleLambdaInputOutput() returns (json) {
-    table<Employee> dt = createTable();
-
-    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
-    var ret = json.convert(salaryTable);
-    json res = {};
-    if (ret is json) {
-        res = ret;
-    } else {
-        res = { Error: ret.reason() };
-    }
-    return res;
-}
-
-function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
-    EmployeeSalary s = { id: e.id, salary: e.salary };
-    return s;
-}
-
-function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) returns (EmployeeSalary) {
-    EmployeeSalary s = { id: e.id, salary: e.salary };
-    return s;
-}
-
-function getEmployeeSalaryCompatibleOutput(Employee e) returns (EmployeeSalaryCompatible) {
-    EmployeeSalaryCompatible s = { id: e.id, salary: e.salary };
-    return s;
-}
-
-function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (EmployeeSalaryCompatible) {
-    EmployeeSalaryCompatible s = { id: e.id, salary: e.salary };
-    return s;
-}
-
-function createTable() returns (table<Employee>) {
-    table<Employee> dt = table{};
-
-    Employee e1 = { id: 1, name: "A", salary: 100.0 };
-    Employee e2 = { id: 2, name: "B", salary: 200.0 };
-    Employee e3 = { id: 3, name: "C", salary: 300.0 };
-
-    checkpanic dt.add(e1);
-    checkpanic dt.add(e2);
-    checkpanic dt.add(e3);
-
-    return dt;
 }
 
 function isBelow35(Person p) returns (boolean) {

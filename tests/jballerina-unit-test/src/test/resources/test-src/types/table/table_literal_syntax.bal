@@ -52,6 +52,28 @@ type ArrayData record {
     decimal[] decimalArr;
 };
 
+type Employee record {
+    int id;
+    string name;
+    float salary;
+};
+
+type EmployeeCompatible record {
+    int id;
+    string name;
+    float salary;
+};
+
+type EmployeeSalary record {
+    int id;
+    float salary;
+};
+
+type EmployeeSalaryCompatible record {
+    int id;
+    float salary;
+};
+
 table<Person> tGlobal = table{};
 
 function testTableDefaultValueForLocalVariable() returns (int) {
@@ -292,4 +314,95 @@ function testArrayData() returns (int, int[], string[], float[], boolean[], byte
 
 function isBelow35(Person p) returns (boolean) {
     return p.age < 35;
+}
+
+function testSelect() returns json {
+
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalary);
+    var ret = json.convert(salaryTable);
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else {
+        res = { Error: ret.reason() };
+    }
+    return res;
+}
+
+function testSelectCompatibleLambdaInput() returns json {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInput);
+    var ret = json.convert(salaryTable);
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else {
+        res = { Error: ret.reason() };
+    }
+    return res;
+}
+
+function testSelectCompatibleLambdaOutput() returns json {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleOutput);
+    var ret = json.convert(salaryTable);
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else {
+        res = { Error: ret.reason() };
+    }
+    return res;
+}
+
+function testSelectCompatibleLambdaInputOutput() returns json {
+    table<Employee> dt = createTable();
+
+    table<EmployeeSalary> salaryTable = dt.select(getEmployeeSalaryCompatibleInputOutput);
+    var ret = json.convert(salaryTable);
+    json res = {};
+    if (ret is json) {
+        res = ret;
+    } else {
+        res = { Error: ret.reason() };
+    }
+    return res;
+}
+
+function getEmployeeSalary(Employee e) returns (EmployeeSalary) {
+    EmployeeSalary s = { id: e.id, salary: e.salary };
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInput(EmployeeCompatible e) returns (EmployeeSalary) {
+    EmployeeSalary s = { id: e.id, salary: e.salary };
+    return s;
+}
+
+function getEmployeeSalaryCompatibleOutput(Employee e) returns (EmployeeSalaryCompatible) {
+    EmployeeSalaryCompatible s = { id: e.id, salary: e.salary };
+    return s;
+}
+
+function getEmployeeSalaryCompatibleInputOutput(EmployeeCompatible e) returns (EmployeeSalaryCompatible) {
+    EmployeeSalaryCompatible s = { id: e.id, salary: e.salary };
+    return s;
+}
+
+function createTable() returns (table<Employee>) {
+    table<Employee> dt = table{};
+
+    Employee e1 = { id: 1, name: "A", salary: 100.0 };
+    Employee e2 = { id: 2, name: "B", salary: 200.0 };
+    Employee e3 = { id: 3, name: "C", salary: 300.0 };
+
+    checkpanic dt.add(e1);
+    checkpanic dt.add(e2);
+    checkpanic dt.add(e3);
+
+    return dt;
 }

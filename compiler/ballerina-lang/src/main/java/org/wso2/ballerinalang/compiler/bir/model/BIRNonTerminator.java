@@ -342,11 +342,13 @@ public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction
     public static class TypeCast extends BIRNonTerminator {
         public BIROperand lhsOp;
         public BIROperand rhsOp;
+        public boolean checkTypes;
 
-        public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp) {
+        public TypeCast(DiagnosticPos pos, BIROperand lhsOp, BIROperand rhsOp, boolean checkTypes) {
             super(pos, InstructionKind.TYPE_CAST);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;
+            this.checkTypes = checkTypes;
         }
 
         @Override
