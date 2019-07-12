@@ -17,20 +17,6 @@
 import ballerina/http;
 import ballerina/io;
 
-service simple7 on new http:Listener(9097) {
-
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradeService: castErrror
-        }
-    }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
-        http:WebSocketCaller wsServiceEp;
-        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
-    }
-}
-
 service castErrror = @http:WebSocketServiceConfig {idleTimeoutInSeconds: 10} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
@@ -59,3 +45,19 @@ service castErrror = @http:WebSocketServiceConfig {idleTimeoutInSeconds: 10} ser
         val = returnVal;
     }
 };
+
+service simple7 on new http:Listener(9097) {
+
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradeService: castErrror
+        }
+    }
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
+        http:WebSocketCaller wsServiceEp;
+        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
+    }
+}
+
+

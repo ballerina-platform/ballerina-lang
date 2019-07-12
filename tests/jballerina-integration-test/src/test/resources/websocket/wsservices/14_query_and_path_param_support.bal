@@ -22,24 +22,6 @@ final string PATH2 = "PATH2";
 final string QUERY1 = "QUERY1";
 final string QUERY2 = "QUERY2";
 
-service simple6 on new http:Listener(9096) {
-
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/{path1}/{path2}",
-            upgradeService: simpleProxy6
-        }
-    }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
-        http:WebSocketCaller wsServiceEp;
-        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes[PATH1] = path1;
-        wsServiceEp.attributes[PATH2] = path2;
-        wsServiceEp.attributes[QUERY1] = req.getQueryParams()["q1"];
-        wsServiceEp.attributes[QUERY2] = req.getQueryParams()["q2"];
-    }
-}
-
 service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
@@ -57,3 +39,21 @@ service simpleProxy6 = @http:WebSocketServiceConfig {} service {
         }
     }
 };
+
+service simple6 on new http:Listener(9096) {
+
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/{path1}/{path2}",
+            upgradeService: simpleProxy6
+        }
+    }
+    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+        http:WebSocketCaller wsServiceEp;
+        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        wsServiceEp.attributes[PATH1] = path1;
+        wsServiceEp.attributes[PATH2] = path2;
+        wsServiceEp.attributes[QUERY1] = req.getQueryParams()["q1"];
+        wsServiceEp.attributes[QUERY2] = req.getQueryParams()["q2"];
+    }
+}
