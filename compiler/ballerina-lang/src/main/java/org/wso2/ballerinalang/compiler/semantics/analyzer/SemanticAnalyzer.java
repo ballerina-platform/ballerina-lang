@@ -521,6 +521,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
 
+        validateStartAnnAttachments(varNode.expr);
+
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
@@ -542,6 +544,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
                 .checkListenerCompatibility(env, varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
+        }
+    }
+
+    /**
+     * Validate annotation attachment of START action.
+     * @param expr expression to be validated.
+     */
+    private void validateStartAnnAttachments(BLangExpression expr) {
+        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+            ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
+                annotationAttachment.accept(this);
+            });
+            validateAnnotationAttachmentCount(((BLangInvocation) expr).annAttachments);
         }
     }
 
@@ -648,7 +664,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 varNode.type = errorType;
             } else if (varNode.type.tag == TypeTags.ERROR) {
                 errorType.detailType = ((BErrorType) varNode.type).detailType;
-                varNode.type = errorType;
             }
 
             // Set error reason type.
@@ -1456,6 +1471,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
+        validateStartAnnAttachments(assignNode.expr);
+
         resetTypeNarrowing(assignNode.varRef, assignNode.expr);
     }
 
@@ -1818,6 +1835,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (bType != symTable.nilType && bType != symTable.semanticError) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
+        validateStartAnnAttachments(exprStmtNode.expr);
     }
 
     @Override
@@ -2158,6 +2176,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type);
+        validateStartAnnAttachments(returnNode.expr);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {

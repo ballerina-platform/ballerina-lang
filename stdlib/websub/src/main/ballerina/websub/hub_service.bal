@@ -20,7 +20,6 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 

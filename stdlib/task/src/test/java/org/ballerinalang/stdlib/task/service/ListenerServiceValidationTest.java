@@ -18,15 +18,9 @@
 
 package org.ballerinalang.stdlib.task.service;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
-
-/*
- * TODO: We check resources at runtime for now. Hence need to use compile and setup.
- *      If compiler plugin works, replace BCompileUtil.compileAndSetup() with BCompileUtil.compile().
- *      Issue: https://github.com/ballerina-platform/ballerina-lang/issues/14148
- */
 
 /**
  * Tests for Ballerina Task Service validation.
@@ -56,7 +50,7 @@ public class ListenerServiceValidationTest {
 
     @Test(
             description = "Tests compiler error for a task with an invalid resource name.",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = org.ballerinalang.util.exceptions.BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*"
     )
