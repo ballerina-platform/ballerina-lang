@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,28 +19,29 @@
 package io.ballerina.transactions;
 
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-
 /**
- * Extern function ballerina.transactions:abortResourceManagers.
+ * Checks whether transactions is a nested transaction.
  *
- * @since 0.964.0
+ * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "transactions",
-        functionName = "abortResourceManagers",
-        args = {@Argument(name = "transactionId", type = TypeKind.STRING),
-                @Argument(name = "transactionBlockId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
+        orgName = "ballerina",
+        packageName = "transactions",
+        functionName = "notifyResourceManagerOnAbort",
+        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
+        returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class AbortResourceManagers  {
-    
-    public static boolean abortResourceManagers(Strand strand, String transactionId, String transactionBlockId) {
-        return TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
+public class NotifyResourceManagerOnAbort {
+
+    public static void notifyResourceManagerOnAbort(Strand strand, String transactionBlockId) {
+        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
+                strand.getLocalTransactionContext();
+        org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
+                                  .notifyAbort(transactionLocalContext.getGlobalTransactionId(), transactionBlockId);
     }
 }
