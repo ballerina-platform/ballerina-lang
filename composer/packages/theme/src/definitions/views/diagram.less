@@ -26,6 +26,10 @@
     background: ~"@{@{color}-diagram-background-color}";
     display: inline-block;
     min-width: 100%;
+
+    &:hover {
+        cursor: all-scroll;
+    }
     
     .menu-icon {
         font-size: 20px;
@@ -84,8 +88,15 @@
                     padding: 0;
                     .menu-dropdown-small {
                         background: ~"@{@{color}-diagram-menu-dropdown-background}";
-                        padding: 7px 15px;
+                        padding: 7px;
                         width: 100px;
+                        .text { 
+                            width: 65px;
+                        }
+                        .icon {
+                            width: 10px;
+                            padding: 0;
+                        }
                     }
                     .icon {
                         font-size: 10px;
@@ -99,8 +110,18 @@
                     }
                     .menu-dropdown-mid {
                         background: ~"@{@{color}-diagram-menu-dropdown-background}";
-                        padding: 7px 15px;
+                        padding: 5px 7px;
                         width: 150px;
+                        .text { 
+                            width: 116px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                        .icon {
+                            padding:0;
+                            width: 10px;
+                        }
                     }
                     .ui.dropdown .menu {
                         box-shadow: none;
@@ -245,7 +266,6 @@
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
                     }
                     .statement {
-                        font-family: monospace, monospace;
                         font-size: @diagram-statement-font-size;
                         .expander {
                             visibility: hidden;
