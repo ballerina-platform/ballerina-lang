@@ -245,14 +245,18 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
+public type VariableDclMeta record {
+    string name?;
+    string endBBID?;
+    string startBBID?;
+    int insOffset?;
+};
+
 public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
-    string metaVarName?;
-    string endBBID?;
-    string startBBID?;
-    int insOffset?;
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -268,10 +272,7 @@ public type GlobalVariableDcl record {|
     VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
-    string metaVarName?;
-    string endBBID?;
-    string startBBID?;
-    int insOffset?;
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;

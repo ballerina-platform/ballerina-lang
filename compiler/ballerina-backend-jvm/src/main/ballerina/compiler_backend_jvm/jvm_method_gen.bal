@@ -425,12 +425,12 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
         jvm:Label startLabel = methodStartLabel;
         jvm:Label endLabel = methodEndLabel;
         if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam) 
-            && !(localVar["metaVarName"] is ())) {
+            && !(localVar.meta["name"] is ())) {
             if (localVar.kind is bir:LocalVarKind) {
-                startLabel = labelGen.getLabel(funcName + localVar.startBBID + "ins" + localVar.insOffset);
-                endLabel = labelGen.getLabel(funcName + localVar.endBBID + "beforeTerm");
+                startLabel = labelGen.getLabel(funcName + localVar.meta.startBBID + "ins" + localVar.meta.insOffset);
+                endLabel = labelGen.getLabel(funcName + localVar.meta.endBBID + "beforeTerm");
             }
-            mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
+            mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue), 
                 startLabel, endLabel, k);
         }
         k = k + 1;

@@ -125,7 +125,7 @@ public type BirEmitter object {
                 print(v.name.value);
                 if (!(v.kind is TempVarKind)) {
                     print(" %meta ");
-                    print(v.metaVarName);
+                    print(v.meta.name);
                 }
                 print("\t// ", v.kind);
                 if (v.hasDefaultExpr) {
@@ -149,15 +149,15 @@ public type BirEmitter object {
                 print(" ");
                 if (!(varDecl.kind is TempVarKind)) {
                     print("%meta ");
-                    print(varDecl.metaVarName);
+                    print(varDecl.meta.name);
                 }
                 if (v.kind is LocalVarKind) {
                     print(" %endBBID ");
-                    print(v.endBBID);
+                    print(v.meta.endBBID);
                     print(" %startBBID ");
-                    print(v.startBBID);
+                    print(v.meta.startBBID);
                     print(" %insOffset ");
-                    print(v.insOffset);
+                    print(v.meta.insOffset);
                 }
             }
             println("\t// ", varDecl.kind);
