@@ -14,6 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# The type bound for a table row.
+@typeParam
+type RowType map<anydata|error>;
+
+type TableIterator object {
+
+    private table <anydata|error> m;
+
+    public function __init(table<anydata|error> m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        RowType value;
+    |}? = external;
+};
+
+# Returns an iterator over the members of `tbl`.
+public function iterator(table<RowType> tbl) returns abstract object {
+    public function next() returns record {|
+        RowType value;
+    |}?;
+    } {
+    TableIterator tableIterator = new(tbl);
+    return tableIterator;
+}
+
 # Releases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit
 # close is required only if it is not fully iterated.
 public function close(table<record {}> dt) = external;
