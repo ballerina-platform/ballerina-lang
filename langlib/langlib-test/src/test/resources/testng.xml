@@ -30,14 +30,15 @@
         <parameter name="enableJBallerinaTests" value="true" />
 
         <classes>
+            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
             <class name="org.ballerinalang.langlib.test.LangLibIntTest" />
             <class name="org.ballerinalang.langlib.test.LangLibFloatTest" />
-            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTupleTest" />
             <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
             <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibMapTest" />
         </classes>
     </test>
 </suite>

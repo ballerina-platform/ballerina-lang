@@ -19,6 +19,8 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -41,10 +43,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Map {
 
     public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        MapValue newMap = new MapValueImpl();
+        BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
+        MapValue newMap = new MapValueImpl(newMapType);
 
         m.forEach((key, value) -> {
-            Object newVal = func.apply(new Object[]{strand, value});
+            Object newVal = func.apply(new Object[]{strand, value, true});
             newMap.put(key, newVal);
         });
 

@@ -113,19 +113,13 @@ service echo on echoEP {
         var params = req.getFormParams();
         http:Response res = new;
         if (params is map<string>) {
-            string name = "";
-            string team = "";
-            if (params.hasKey("firstName")) {
-                name = params.firstName;
-            }
-            if (params.hasKey("team")) {
-                team = params.team;
-            }
-            json responseJson = {"Name":name , "Team":team};
+            string? name = params["firstName"];
+            string? team = params["team"];
+            json responseJson = {"Name":(name is string ? name : "") , "Team":(team is string ? team : "")};
             res.setJsonPayload(<@untainted json> responseJson);
         } else {
-            string errMsg = <string> params.detail().message;
-            res.setPayload(<@untainted string> errMsg);
+            string? errMsg = <string> params.detail()?.message;
+            res.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing form params");
         }
         checkpanic caller->respond(res);
     }

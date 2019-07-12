@@ -121,7 +121,7 @@ public type OrOperatorProcessor object {
     public function promote(StreamEvent stateEvent, string? processorAlias) {
         // if there's partial eviction, clean it beforehand.
         string pAlias = <string>processorAlias;
-        boolean cleaned = false;
+        any|error cleaned;
         if (pAlias == self.lhsAlias) {
             cleaned = self.rhsEvicted.remove(stateEvent.getEventId());
         } else {
@@ -140,12 +140,18 @@ public type OrOperatorProcessor object {
         // in `or` processor, either side can be true,
         // therefore have to check both sides before evict
         if (pAlias == self.lhsAlias) {
-            proceed = self.rhsEvicted.remove(stateEvent.getEventId());
+            var proceedVal = self.rhsEvicted.remove(stateEvent.getEventId());
+            if (proceedVal is boolean) {
+                proceed = proceedVal;
+            }
             if (!proceed) {
                 self.lhsEvicted[stateEvent.getEventId()] = stateEvent;
             }
         } else {
-            proceed = self.lhsEvicted.remove(stateEvent.getEventId());
+            var returnVal = self.lhsEvicted.remove(stateEvent.getEventId());
+            if (returnVal is boolean) {
+                proceed = returnVal;
+            }
             if (!proceed) {
                 self.rhsEvicted[stateEvent.getEventId()] = stateEvent;
             }
@@ -172,7 +178,7 @@ public type OrOperatorProcessor object {
     #
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
-        boolean removed = self.rhsEvicted.remove(streamEvent.getEventId());
+        var removed = self.rhsEvicted.remove(streamEvent.getEventId());
         removed = self.lhsEvicted.remove(streamEvent.getEventId());
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
@@ -196,7 +202,10 @@ public type OrOperatorProcessor object {
     # + processor - lhs processor
     public function setLHSProcessor(AbstractPatternProcessor processor) {
         self.lhsProcessor = processor;
-        self.lhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? pr = self.lhsProcessor;
+        if (pr is AbstractPatternProcessor) {
+            pr.setPreviousProcessor(self);
+        }
     }
 
     # Sets a link to the rhs `AbstractOperatorProcessor`.
@@ -204,7 +213,10 @@ public type OrOperatorProcessor object {
     # + processor - rhs processor
     public function setRHSProcessor(AbstractPatternProcessor processor) {
         self.rhsProcessor = processor;
-        self.rhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? pr = self.rhsProcessor;
+        if (pr is AbstractPatternProcessor) {
+            pr.setPreviousProcessor(self);
+        }
     }
 
     # Returns the alias of the current processor.

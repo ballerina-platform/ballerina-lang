@@ -102,7 +102,7 @@ public type TimeAccumulatingWindow object {
             self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
         }
 
-        if (self.currentEventQueue.getLast() != ()) {
+        if (!(self.currentEventQueue.getLast() is ())) {
             if (currentTime - self.lastTimestamp >= self.timeInMillis) {
                 self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
                 outputStreamEvents.addLast(self.resetEvent);
