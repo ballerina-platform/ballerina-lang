@@ -15,15 +15,14 @@
 // under the License.
 
 # Represents the message a NATS Streaming Server sends to a subscription service.
-public type StreamingMessage object {
+public type StreamingMessage client object {
    private byte[] content;
 
    private string subject;
 
-   public function __init(string subject, byte[] content, string? replyTo = ()) {
+   public function __init(string subject, byte[] content) {
        self.subject = subject;
        self.content = content;
-       self.replyTo = replyTo;
    }
 
    # Get message content.
@@ -43,5 +42,5 @@ public type StreamingMessage object {
    # Acknowledge the message to the NATS Streaming server.
    #
    # + return - () if the acknowledgement completes successfully or an error.
-   public function ack() returns NatsError? = external;
+   public remote function ack() returns NatsError? = external;
 };

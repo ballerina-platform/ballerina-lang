@@ -33,7 +33,7 @@ public type StreamingProducer client object {
     #           elapses while waiting for the acknowledgement OR
     #           `nats/NatsError` only with the `message` field in case an error occurrs even before publishing
     #           is completed
-    public function publish(string subject, ContentType data) returns string | NatsError {
+    public remote function publish(string subject, ContentType data) returns string | NatsError {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareNatsError("Error in data conversion", err = converted);
