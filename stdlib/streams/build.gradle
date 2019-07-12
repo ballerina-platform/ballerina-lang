@@ -74,4 +74,8 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - Streams'
