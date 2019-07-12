@@ -122,6 +122,7 @@ public class EventBus {
 
                         dapStackFrame.setSource(source);
                         dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+                        dapStackFrame.setName(stackFrame.location().method().name());
                         try {
                             List<LocalVariable> localVariables = stackFrame.visibleVariables();
                             Variable[] dapVariables = new Variable[localVariables.size()];
