@@ -256,9 +256,9 @@ public type Notification object {
 
     private http:Request request = new;
 
-    # Retrieves the query parameters of the content delivery request, as a map.
+    # Retrieves the query parameters of the content delivery request as a map.
     #
-    # + return - String constrained array map of query params
+    # + return - String-constrained array map of the query params
     public function getQueryParams() returns map<string[]> {
         return self.request.getQueryParams();
     }

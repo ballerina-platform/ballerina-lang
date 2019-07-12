@@ -10,10 +10,10 @@ service sample on new http:Listener(9090) {
     // The `PathParam` and `QueryParam` parameters extract values from the request URI.
     resource function params(http:Caller caller, http:Request req,
                                 string foo) {
-        // Get `QueryParam` value for a given param key.
+        // Get the `QueryParam` value for a given parameter key.
         var bar = req.getQueryParamValue("bar");
 
-        // Get `MatrixParams`. 
+        // Get the `MatrixParams`.
         map<any> pathMParams = req.getMatrixParams("/sample/path");
         var a = <string>pathMParams.a;
         var b = <string>pathMParams.b;
