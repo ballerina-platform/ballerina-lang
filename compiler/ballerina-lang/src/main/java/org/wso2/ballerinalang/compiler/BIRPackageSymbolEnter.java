@@ -568,20 +568,11 @@ public class BIRPackageSymbolEnter {
 
         for (int i = 0; i < requiredParamCount; i++) {
             String paramName = getStringCPEntryValue(dataInStream);
+            int flags = dataInStream.readInt();
             BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
-            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+            BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
                     invokableType.paramTypes.get(i), invokableSymbol);
-            invokableSymbol.params.add(varSymbol);
-        }
-
-        int defaultableParamCount = dataInStream.readInt();
-
-        for (int i = requiredParamCount; i < defaultableParamCount + requiredParamCount; i++) {
-            String paramName = getStringCPEntryValue(dataInStream);
-            BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
-            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.paramTypes.get(i), invokableSymbol);
-            varSymbol.defaultableParam = true;
+            varSymbol.defaultableParam = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
             invokableSymbol.params.add(varSymbol);
         }
 
@@ -589,7 +580,7 @@ public class BIRPackageSymbolEnter {
             String paramName = getStringCPEntryValue(dataInStream);
             BInvokableType invokableType = (BInvokableType) invokableSymbol.type;
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
-                    invokableType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
+                    invokableType.paramTypes.get(requiredParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
 

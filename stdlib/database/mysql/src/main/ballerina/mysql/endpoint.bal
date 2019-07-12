@@ -97,7 +97,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
+        return self.sqlClient->update(sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for MySQL Client to batch data insert.

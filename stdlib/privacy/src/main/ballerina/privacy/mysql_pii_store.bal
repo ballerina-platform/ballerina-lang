@@ -51,7 +51,7 @@ public type MySqlPiiStore object {
         mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildInsertQuery(self.tableName, self.idColumn, self.piiColumn);
         string id = system:uuid();
-        var queryResult = mysqlClient->update(dbQuery, id, pii);
+        var queryResult = mysqlClient->update(dbQuery, (), id, pii);
         return processInsertResult(id, queryResult);
     }
 
@@ -73,7 +73,7 @@ public type MySqlPiiStore object {
     public function delete (string id) returns error? {
         mysql:Client mysqlClient = self.clientEndpoint;
         string dbQuery = buildDeleteQuery(self.tableName, self.idColumn);
-        var queryResult = mysqlClient->update(dbQuery, id);
+        var queryResult = mysqlClient->update(dbQuery, (), id);
         return processDeleteResult(id, queryResult);
     }
 

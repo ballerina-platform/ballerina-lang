@@ -135,7 +135,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.sqlClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
+        return self.sqlClient->update(sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for H2 Client to batch data insert.

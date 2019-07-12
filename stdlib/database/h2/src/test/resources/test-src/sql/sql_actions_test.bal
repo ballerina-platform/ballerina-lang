@@ -196,7 +196,7 @@ function testGeneratedKeyWithColumn() returns int {
     string lastName = "Williams";
     string queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values (?,
         ?, 4, 5000.75, 'USA')";
-    var x = testDB->update(queryString, keyColumns = keyColumnNames, firstName, lastName);
+    var x = testDB->update(queryString, keyColumnNames, firstName, lastName);
 
     int generatedID = 0;
     if (x is sql:UpdateResult) {
@@ -299,7 +299,7 @@ function testInsertTableDataWithParameters() returns int {
     sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "UK", direction: sql:DIRECTION_IN };
 
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", para1, para2, para3, para4, para5);
+                                     values (?,?,?,?,?)", (), para1, para2, para3, para4, para5);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
@@ -318,7 +318,7 @@ function testInsertTableDataWithParameters2() returns int {
         });
 
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", "Anne", "James", 3, 5000.75, "UK");
+                                     values (?,?,?,?,?)", (), "Anne", "James", 3, 5000.75, "UK");
     int insertCount = 0;
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
@@ -338,7 +338,7 @@ function testInsertTableDataWithParameters3() returns int {
 
     string s1 = "Anne";
     var result = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", s1, "James", 3, 5000.75, "UK");
+                                     values (?,?,?,?,?)", (), s1, "James", 3, 5000.75, "UK");
     int insertCount = 0;
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
@@ -472,7 +472,7 @@ function testINParameters() returns int {
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     int insertCount = 0;
@@ -497,7 +497,7 @@ function testBlobInParameter() returns @tainted [int, byte[]] {
 
     byte[] blobVal = [];
 
-    var result = testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+    var result = testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)", (),
         paraID, paraBlob);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
@@ -527,7 +527,7 @@ function testINParametersWithDirectValues() returns @tainted [int, int, float, f
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type,
         double_type, boolean_type, string_type, numeric_type, decimal_type, real_type,
-        bit_type) VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello",
+        bit_type) VALUES (?,?,?,?,?,?,?,?,?,?,?)", (), 25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello",
         1234.567, 1234.567, 1234.567, [1, 2]);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
@@ -588,7 +588,7 @@ function testINParametersWithDirectVariables() returns @tainted [int, int, float
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, bit_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)", (), rowid, intType, longType, floatType, doubleType, boolType,
             stringType, numericType, decimalType, realType, byteArray);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
@@ -652,7 +652,7 @@ function testNullINParameterValues() returns int {
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     int insertCount = 0;
@@ -675,7 +675,7 @@ function testNullINParameterBlobValue() returns int {
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 4 };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: () };
 
-    var result = testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)",
+    var result = testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)", (),
         paraID, paraBlob);
     int insertCount = 0;
     if (result is sql:UpdateResult) {
@@ -693,7 +693,7 @@ function testEmptySQLType() returns int {
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-    var result = testDB->update("Insert into Customers (firstName) values (?)", "Anne");
+    var result = testDB->update("Insert into Customers (firstName) values (?)", (), "Anne");
     int insertCount = 0;
     if (result is sql:UpdateResult) {
         insertCount = result.updatedRowCount;
@@ -896,7 +896,7 @@ function testDateTimeInParameters() returns int[] {
     sql:Parameter para4 = { sqlType: sql:TYPE_TIMESTAMP, value: "2017-01-30T13:27:01.999-08:00" };
     sql:Parameter para5 = { sqlType: sql:TYPE_DATETIME, value: "2017-01-30T13:27:01.999999Z" };
 
-    var result1 = testDB->update(stmt, para1, para2, para3, para4, para5);
+    var result1 = testDB->update(stmt, (), para1, para2, para3, para4, para5);
     int insertCount1 = 0;
     if (result1 is sql:UpdateResult) {
         insertCount1 = result1.updatedRowCount;
@@ -910,7 +910,7 @@ function testDateTimeInParameters() returns int[] {
     para4 = { sqlType: sql:TYPE_TIMESTAMP, value: "2017-01-30T13:27:01.999" };
     para5 = { sqlType: sql:TYPE_DATETIME, value: "-2017-01-30T13:27:01.999999-08:30" };
 
-    var result2 = testDB->update(stmt, para1, para2, para3, para4, para5);
+    var result2 = testDB->update(stmt, (), para1, para2, para3, para4, para5);
     int insertCount2 = 0;
     if (result2 is sql:UpdateResult) {
         insertCount2 = result2.updatedRowCount;
@@ -925,7 +925,7 @@ function testDateTimeInParameters() returns int[] {
     para4 = { sqlType: sql:TYPE_TIMESTAMP, value: timeNow };
     para5 = { sqlType: sql:TYPE_DATETIME, value: timeNow };
 
-    var result3 = testDB->update(stmt, para1, para2, para3, para4, para5);
+    var result3 = testDB->update(stmt, (), para1, para2, para3, para4, para5);
     int insertCount3 = 0;
     if (result3 is sql:UpdateResult) {
         insertCount3 = result3.updatedRowCount;
@@ -953,7 +953,7 @@ function testDateTimeNullInValues() returns string {
     sql:Parameter?[] parameters = [para0, para1, para2, para3, para4];
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)", (),
         para0, para1, para2, para3, para4);
     var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 33", ResultDates);

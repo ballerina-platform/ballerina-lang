@@ -2610,11 +2610,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression errorDetail;
         BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(iExpr.pos,
                 ((BErrorType) iExpr.symbol.type).detailType);
-        if (iExpr.namedArgs.isEmpty()) {
+        List<BLangExpression> namedArgs = iExpr.requiredArgs.stream()
+                .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR)
+                .collect(Collectors.toList());
+        if (namedArgs.isEmpty()) {
             errorDetail = visitUtilMethodInvocation(iExpr.pos,
                     BLangBuiltInMethod.FREEZE, Lists.of(rewriteExpr(recordLiteral)));
         } else {
-            for (BLangExpression arg : iExpr.namedArgs) {
+            for (BLangExpression arg : namedArgs) {
                 BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
                 BLangRecordLiteral.BLangRecordKeyValue member = new BLangRecordLiteral.BLangRecordKeyValue();
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
@@ -2626,9 +2629,8 @@ public class Desugar extends BLangNodeVisitor {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, namedArg.expr.type);
                 }
                 recordLiteral.keyValuePairs.add(member);
+                iExpr.requiredArgs.remove(arg);
             }
-            iExpr.namedArgs.clear();
-
             recordLiteral = rewriteExpr(recordLiteral);
             BLangExpression cloned = visitCloneInvocation(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
             errorDetail = visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.FREEZE, Lists.of(cloned));

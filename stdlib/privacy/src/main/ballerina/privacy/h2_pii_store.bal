@@ -51,7 +51,7 @@ public type H2PiiStore object {
         h2:Client h2Client = self.clientEndpoint;
         string dbQuery = buildInsertQuery(self.tableName, self.idColumn, self.piiColumn);
         string id = system:uuid();
-        var queryResult = h2Client->update(dbQuery, id, pii);
+        var queryResult = h2Client->update(dbQuery, (), id, pii);
         return processInsertResult(id, queryResult);
     }
 
@@ -73,7 +73,7 @@ public type H2PiiStore object {
     public function delete (string id) returns error? {
         h2:Client h2Client = self.clientEndpoint;
         string dbQuery = buildDeleteQuery(self.tableName, self.idColumn);
-        var queryResult = h2Client->update(dbQuery, id);
+        var queryResult = h2Client->update(dbQuery, (), id);
         return processDeleteResult(id, queryResult);
     }
 
