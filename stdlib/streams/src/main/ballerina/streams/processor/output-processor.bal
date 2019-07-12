@@ -47,7 +47,8 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        self.outputFunc.call(events);
+        function (map<anydata>[]) outFunction = self.outputFunc;
+        outFunction(events);
     }
 };
 

@@ -76,7 +76,8 @@ public type Scheduler object {
             StreamEvent timerEvent = new(["timer", data], "TIMER", <int>first);
             StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
-            self.processFunc.call(timerEventWrapper);
+            function (StreamEvent?[] streamEvents) processFunction = self.processFunc;
+            processFunction(timerEventWrapper);
 
             first = self.toNotifyQueue.getFirst();
             currentTime = time:currentTime().time;

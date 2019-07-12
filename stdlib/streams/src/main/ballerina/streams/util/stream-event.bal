@@ -15,6 +15,7 @@
 // under the License.
 import ballerina/system;
 import ballerina/internal;
+import ballerina/'lang\.int as langint;
 
 # The `StreamEvent` object is a wrapper around the actual data being received to the input stream. If a record is
 # receive to a input stream, that record is converted to a map of anydata values and set that map to a field called
@@ -115,12 +116,12 @@ public type StreamEvent object {
                 if (internal:contains(indexStr, "-")) {
                     string[] vals = internal:split(indexStr, "-");
                     string subCount = vals[1].trim();
-                    index = lastIndex - checkpanic int.convert(subCount);
+                    index = lastIndex - checkpanic langint:fromString(subCount);
                 } else {
                     index = lastIndex;
                 }
             } else {
-                index = checkpanic int.convert(indexStr);
+                index = checkpanic langint:fromString(indexStr);
             }
         }
         return dArray[index][attrib];
