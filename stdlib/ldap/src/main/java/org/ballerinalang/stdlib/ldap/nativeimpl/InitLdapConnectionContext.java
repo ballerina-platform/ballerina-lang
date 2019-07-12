@@ -54,7 +54,7 @@ import javax.net.ssl.SSLContext;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "initLdapConnectionContext")
+        functionName = "initLdapConnectionContext", isPublic = true)
 public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     @Override
@@ -62,8 +62,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     }
 
-    public static Object initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
-                                                   String instanceId) {
+    public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
+                                                                     String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));

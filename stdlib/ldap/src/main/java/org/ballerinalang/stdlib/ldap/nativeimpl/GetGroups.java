@@ -53,7 +53,7 @@ import javax.naming.ldap.Rdn;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "getGroups")
+        functionName = "getGroups", isPublic = true)
 public class GetGroups extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(GetGroups.class);

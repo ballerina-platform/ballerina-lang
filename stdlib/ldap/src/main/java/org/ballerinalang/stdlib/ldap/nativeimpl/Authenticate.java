@@ -33,6 +33,7 @@ import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
+
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.ldap.LdapContext;
@@ -44,7 +45,7 @@ import javax.naming.ldap.LdapContext;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "doAuthenticate")
+        functionName = "doAuthenticate", isPublic = true)
 public class Authenticate extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(Authenticate.class);
