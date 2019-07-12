@@ -71,16 +71,16 @@ public class ForeachErrorBindingPatternsTests {
         Assert.assertEquals(negative.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found '$anonType$3?' in type definition", 31, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'string'", 60, 25);
+                "invalid error variable; expecting an error type but found '$anonType$3?' in type definition", 30, 17);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'string'", 59, 25);
         BAssertUtil.validateError(negative, i++,
-                "invalid error variable; expecting an error type but found '$anonType$16?' in type definition", 76, 17);
+                "invalid error variable; expecting an error type but found '$anonType$16?' in type definition", 75, 17);
         BAssertUtil.validateError(negative, i++,
-                "incompatible types: expected 'map<string>', found 'string'", 107, 25);
+                "incompatible types: expected 'map<string>', found 'string'", 106, 25);
         BAssertUtil.validateError(negative, i++,
                 "invalid error binding pattern with type '$anonType$28'",
-                126, 17);
+                125, 17);
         BAssertUtil.validateError(negative, i++,
-                "undefined symbol 'otherVar'", 129, 17);
+                "undefined symbol 'otherVar'", 128, 17);
     }
 }

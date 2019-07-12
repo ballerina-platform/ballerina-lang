@@ -1,8 +1,8 @@
-import ballerina/io;
+string output = "";
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach var [i, s, f] in data {
-        io:println(i + " " + s + " " + f);
+        println(i + " " + s + " " + f);
     }
 }
 
@@ -11,23 +11,23 @@ function test2(){
     float i = 10.0;
     boolean s = true;
     foreach var [i, s] in data {
-        io:println(i + " " + s);
+        println(i + " " + s);
     }
 }
 
 function test3(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach var [i, j] in data {
-        io:println(i + " ");
+        println(i + " ");
     }
-    io:println(i);
+    println(i);
 }
 
 function test4(){
     int vals = 1000;
     foreach var s in vals {
         string s1 = s + s;
-        io:println(s1);
+        println(s1);
     }
 }
 
@@ -40,14 +40,14 @@ function test5(){
     person p = {};
     foreach var [i, s] in data {
         string s1 = s + s;
-        io:println(s1);
+        println(s1);
     }
 }
 
 function test6(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach var [i, j, k] in data {
-        io:println("hello");
+        println("hello");
     }
 }
 
@@ -56,8 +56,8 @@ function test8() returns error? {
     var jsonArray = <json[]> j;
 
     foreach var [x, y] in jsonArray {
-        io:print(x);
-        io:println(y);
+        print(x);
+        println(y);
     }
 
     return ();
@@ -66,26 +66,34 @@ function test8() returns error? {
 function test9(){
     string[] slist = ["a" , "b", "c"];
     foreach var v in slist {
-        io:println(v);
+        println(v);
         break;
-        io:println(v);
+        println(v);
     }
     foreach var y in slist {
-        io:println(y);
+        println(y);
         continue;
-        io:println(y);
+        println(y);
     }
     continue;
-    io:println("done");
+    println("done");
 }
 
 function test10(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
     foreach var [i, {j, k: {l, m}}] in data {
-        io:println(i + " " + j + " " + l + " " + m);
+        println(i + " " + j + " " + l + " " + m);
     }
 }
 
 public function main () {
-    io:println("done");
+    println("done");
+}
+
+function println(any... v) {
+     output = v[0].toString();
+}
+
+function print(any... v) {
+    output = v[0].toString();
 }
