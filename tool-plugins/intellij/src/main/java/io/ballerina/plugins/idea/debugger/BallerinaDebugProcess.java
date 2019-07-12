@@ -44,7 +44,6 @@ import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
 import io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import io.ballerina.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
-import io.ballerina.plugins.idea.debugger.protocol.Command;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
@@ -266,7 +265,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         Long workerID = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
                                 .getMyWorkerID();
                         if (workerID > 0) {
-                            dapClientConnector.sendCommand(Command.STOP);
+                            dapClientConnector.disconnectFromServer();
                         }
                     }
                 } else {
@@ -274,14 +273,13 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     return;
                 }
             } else {
-                dapClientConnector.sendCommand(Command.STOP);
+                dapClientConnector.disconnectFromServer();
                 session.stop();
                 getSession().getConsoleView().print("Disconnected from the debug server.\n",
                         ConsoleViewContentType.SYSTEM_OUTPUT);
             }
-
             isConnected = false;
-            dapClientConnector.close();
+            dapClientConnector.stop();
         });
     }
 
@@ -355,55 +353,23 @@ public class BallerinaDebugProcess extends XDebugProcess {
         });
     }
 
-//    private void debugHit(String response) {
-//        LOGGER.debug("Received: " + response);
-//        Message message;
-//        try {
-//            message = GSON.fromJson(response, Message.class);
-//        } catch (JsonSyntaxException e) {
-//            LOGGER.debug(e);
-//            return;
-//        }
-//
-//        String code = message.getCode();
-//        if (Response.DEBUG_HIT.name().equals(code)) {
-//            ApplicationManager.getApplication().runReadAction(() -> {
-//                XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(message.getLocation());
-//                // Get the current suspend context from the session. If the context is null, we need to create a new
-//                // context. If the context is not null, we need to add a new execution stack to the current suspend
-//                // context.
-//                XSuspendContext context = getSession().getSuspendContext();
-//                if (context == null) {
-//                    context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
-//                } else {
-//                    ((BallerinaSuspendContext) context).addToExecutionStack(BallerinaDebugProcess.this, message);
-//                }
-//                XDebugSession session = getSession();
-//                if (breakpoint == null) {
-//                    session.positionReached(context);
-//                } else {
-//                    session.breakpointReached(breakpoint, null, context);
-//                }
-//            });
-//        } else if (Response.EXIT.name().equals(code) || Response.COMPLETE.name().equals(code)) {
-//            if (isRemoteDebugMode) {
-//                // If we don't call executeOnPooledThread() here, session will not be stopped correctly since this is
-//                // called from netty. It seems like this is a blocking action and netty throws an exception.
-//                ApplicationManager.getApplication().executeOnPooledThread(
-//                        () -> {
-//                            XDebugSession session = getSession();
-//                            if (session != null) {
-//                                session.sessionResumed();
-//                                session.stop();
-//                            }
-//                            getSession().getConsoleView().print("Remote debugging finished.\n",
-//                                    ConsoleViewContentType.SYSTEM_OUTPUT);
-//
-//                        }
-//                );
-//            }
-//        }
-//    }
+    // Todo - When to use?
+    public void stopRemoteDebugSession() {
+        // If we don 't call executeOnPooledThread() here, session will not be stopped correctly since this is
+        // called from netty. It seems like this is a blocking action and netty throws an exception.
+        ApplicationManager.getApplication().executeOnPooledThread(
+                () -> {
+                    XDebugSession session = getSession();
+                    if (session != null) {
+                        session.sessionResumed();
+                        session.stop();
+                    }
+                    getSession().getConsoleView().print("Remote debugging finished.\n",
+                            ConsoleViewContentType.SYSTEM_OUTPUT);
+
+                }
+        );
+    }
 
     private void initBreakpointHandlersAndSetBreakpoints() {
         if (!breakpointsInitiated.compareAndSet(false, true)) {
@@ -422,37 +388,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
         });
     }
 
-//    private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull BreakPoint breakPoint) {
-//        String fileName = breakPoint.getFileName();
-//        String packagePath = breakPoint.getPackagePath();
-//        String relativeFilePathInProject;
-//        // If the package is ".", full path of the file will be sent as the filename.
-//        if (".".equals(packagePath)) {
-//            // Then we need to get the actual filename from the path.
-//            int index = fileName.lastIndexOf(File.separator);
-//            if (index <= -1) {
-//                return null;
-//            }
-//            relativeFilePathInProject = fileName.substring(index);
-//        } else {
-//            // If the absolute path is not sent, we need to construct the relative file path in the project.
-//            relativeFilePathInProject = packagePath.replaceAll("\\.", File.separator) + File.separator + fileName;
-//        }
-//        int lineNumber = breakPoint.getLineNumber();
-//        for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
-//            XSourcePosition breakpointPosition = breakpoint.getSourcePosition();
-//            if (breakpointPosition == null) {
-//                continue;
-//            }
-//            VirtualFile fileInBreakpoint = breakpointPosition.getFile();
-//            int line = breakpointPosition.getLine() + 1;
-//            if (fileInBreakpoint.getPath().endsWith(relativeFilePathInProject) && line == lineNumber) {
-//                return breakpoint;
-//            }
-//        }
-//        return null;
-//    }
-
     private XBreakpoint<BallerinaBreakpointProperties> findBreakPoint(@NotNull StackFrame stackFrame) {
         String filePath = stackFrame.getSource().getPath();
         int lineNumber = stackFrame.getLine().intValue();
@@ -470,7 +405,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
         return null;
     }
-
 
     @Nullable
     @Override
@@ -577,11 +511,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     }
                     // Sends attach request to the debug server.
                     LOGGER.debug("Sending Attach command.");
-                    dapClientConnector.sendCommand(Command.ATTACH);
+                    dapClientConnector.attachToServer();
                 }
             });
         }
-
     }
 
     @Override

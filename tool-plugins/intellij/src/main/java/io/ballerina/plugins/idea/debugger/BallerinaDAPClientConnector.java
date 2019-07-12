@@ -22,7 +22,6 @@ import io.ballerina.plugins.idea.debugger.client.DAPClient;
 import io.ballerina.plugins.idea.debugger.client.DAPRequestManager;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaSocketStreamConnectionProvider;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaStreamConnectionProvider;
-import io.ballerina.plugins.idea.debugger.protocol.Command;
 import io.ballerina.plugins.idea.preloading.OperatingSystemUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -72,8 +71,6 @@ public class BallerinaDAPClientConnector {
     private static final int DEBUG_ADAPTOR_PORT = 4711;
     private static final String CONFIG_SOURCEROOT = "sourceRoot";
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
-    private static final long TIMEOUT_INIT = 5000;
-
 
     public BallerinaDAPClientConnector(@NotNull Project project, @NotNull String host, int port) {
         this.project = project;
@@ -150,32 +147,24 @@ public class BallerinaDAPClientConnector {
         return String.format("host:%s and port: %d", host, port);
     }
 
-    void sendCommand(Command command) {
-        if (isConnected()) {
-            if (command == Command.ATTACH) {
-                Map<String, Object> requestArgs = new HashMap<>();
-                requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
-                requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(5006));
-                try {
-                    requestManager.attach(requestArgs);
-                } catch (Exception e) {
-                    LOG.warn("Attaching to the debug adapter failed", e);
-                }
-            } else if (command == Command.STOP) {
-                DisconnectArguments disconnectArgs = new DisconnectArguments();
-                disconnectArgs.setTerminateDebuggee(false);
-                try {
-                    requestManager.disconnect(disconnectArgs);
-                } catch (Exception e) {
-                    LOG.warn("Disconnecting from the debug adapter failed", e);
-                }
-            }
+    void attachToServer() {
+        Map<String, Object> requestArgs = new HashMap<>();
+        requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
+        requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(5006));
+        try {
+            requestManager.attach(requestArgs);
+        } catch (Exception e) {
+            LOG.warn("Attaching to the debug adapter failed", e);
         }
     }
 
-    void sendCommand(Command command, Long threadId) {
-        if (isConnected()) {
-//            debugClient.sendText(generateRequest(command, threadId));
+    void disconnectFromServer() {
+        DisconnectArguments disconnectArgs = new DisconnectArguments();
+        disconnectArgs.setTerminateDebuggee(false);
+        try {
+            requestManager.disconnect(disconnectArgs);
+        } catch (Exception e) {
+            LOG.warn("Disconnecting from the debug adapter failed", e);
         }
     }
 
@@ -184,7 +173,7 @@ public class BallerinaDAPClientConnector {
                 && !launcherFuture.isCancelled() && myConnectionState == ConnectionState.CONNECTED;
     }
 
-    void close() {
+    void stop() {
         streamConnectionProvider.stop();
         myConnectionState = ConnectionState.NOT_CONNECTED;
     }

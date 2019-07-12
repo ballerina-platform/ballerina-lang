@@ -39,7 +39,6 @@ public class DAPClient implements IDebugProtocolClient {
 
     @Override
     public void initialized() {
-
     }
 
     @Override
@@ -55,10 +54,13 @@ public class DAPClient implements IDebugProtocolClient {
 
     @Override
     public void exited(ExitedEventArguments args) {
+        //Todo - Check for args
+        requestManager.getClientConnector().getContext().stop();
     }
 
     @Override
     public void terminated(TerminatedEventArguments args) {
+        requestManager.getClientConnector().getContext().stop();
     }
 
     @Override
