@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -27,7 +28,6 @@ import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedConte
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class RecordTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
         } else {
             List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
-                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                    .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
             completionItems.addAll(this.getPackagesCompletionItems(context));

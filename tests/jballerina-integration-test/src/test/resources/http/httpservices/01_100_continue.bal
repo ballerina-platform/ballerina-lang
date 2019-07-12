@@ -52,13 +52,13 @@ service helloContinue on new http:Listener(9090) {
         var result  = request.getTextPayload();
 
         if (result is string) {
-            var responseError = caller->respond(untaint result);
+            var responseError = caller->respond(<@untainted> result);
             if (responseError is error) {
                 log:printError("Error sending response", err = responseError);
             }
         } else {
             res.statusCode = 500;
-            res.setPayload(untaint result.reason());
+            res.setPayload(<@untainted> result.reason());
             log:printError("Failed to retrieve payload from request: " + result.reason());
             var responseError = caller->respond(res);
             if (responseError is error) {
@@ -86,7 +86,7 @@ service helloContinue on new http:Listener(9090) {
                 }
                 i += 1;
             }
-            var responseError = caller->respond(untaint replyMsg);
+            var responseError = caller->respond(<@untainted> replyMsg);
             if (responseError is error) {
                 log:printError(responseError.reason(), err = responseError);
             }
@@ -103,7 +103,7 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", err = responseError);
             }
         }
-        var res = clientEndpoint->forward("/backend/hello", untaint req);
+        var res = clientEndpoint->forward("/backend/hello", <@untainted> req);
         if (res is http:Response) {
             var responseError = caller->respond(res);
             if (responseError is error) {
@@ -120,9 +120,9 @@ service backend on new http:Listener(9224) {
         http:Response response = new;
         var payload = request.getTextPayload();
         if (payload is string) {
-            response.setTextPayload(untaint payload);
+            response.setTextPayload(<@untainted> payload);
         } else {
-            response.setTextPayload(untaint payload.reason());
+            response.setTextPayload(<@untainted> payload.reason());
         }
         var responseError = caller->respond(response);
         if (responseError is error) {

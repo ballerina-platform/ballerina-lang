@@ -17,17 +17,11 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.nativeimpl.OpenWritableFile;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * <p>
@@ -39,7 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  *
  * @see OpenWritableFile
  */
-public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
+public abstract class AbstractNativeChannel {
     /**
      * The package path of the byte channel.
      */
@@ -52,37 +46,6 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
      * Writable byte channel struct.
      */
     private static final String WRITE_BYTE_CHANNEL_STRUCT = "WritableByteChannel";
-
-    /**
-     * <p>
-     * Defines the set of actions which should be performed to created a byte channel.
-     * </p>
-     *
-     * @param context holds the context received from Ballerina.
-     * @return the channel which holds the reference.
-     */
-    //TODO Remove after migration
-    public abstract Channel inFlow(Context context) throws BallerinaException;
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    //TODO Remove after migration
-    public void execute(Context context) {
-        Channel channel = inFlow(context);
-        BMap<String, BValue> channelStruct;
-        if (channel.isReadable()) {
-            channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE,
-                    READ_BYTE_CHANNEL_STRUCT);
-        } else {
-            channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE,
-                    WRITE_BYTE_CHANNEL_STRUCT);
-        }
-        channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
-        context.setReturnValues(channelStruct);
-    }
 
     protected static ObjectValue createChannel(Channel channel) {
         ObjectValue channelObj;

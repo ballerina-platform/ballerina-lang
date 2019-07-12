@@ -59,8 +59,8 @@ function checkMagic(ChannelReader reader) {
 
 function checkVersion(ChannelReader reader) {
     var birVersion = reader.readInt32();
-    var supportedBirVersion = 1;
-    if (birVersion != 1){
+    var supportedBirVersion = 51;
+    if (birVersion != supportedBirVersion){
         error err = error( "Unsupported BIR version " + birVersion + ", supports version " + supportedBirVersion);
         panic err;
     }

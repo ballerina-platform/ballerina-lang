@@ -47,6 +47,8 @@ public enum ItemSorters {
             new ConditionalStatementItemSorter()),
     MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,
             new MatchContextItemSorter()),
+    TOP_LEVEL_MATCH_STMT_CONTEXT_ITEM_SORTER(TopLevelContextSorter.class,
+            new TopLevelContextSorter()),
     ACTION_AND_FIELD_ITEM_SORTER(ActionAndFieldAccessContextItemSorter.class,
             new ActionAndFieldAccessContextItemSorter());
     

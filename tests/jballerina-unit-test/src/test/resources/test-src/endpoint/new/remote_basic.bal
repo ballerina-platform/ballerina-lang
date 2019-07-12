@@ -22,7 +22,9 @@ type TestEP client object {
         return false;
     }
 
-    remote function action2(string s, boolean b) returns int;
+    remote function action2(string s, boolean b) returns int {
+        return 10;
+    }
 
     function func1(string s) {
 
@@ -32,10 +34,6 @@ type TestEP client object {
         return 5;
     }
 };
-
-remote function TestEP.action2(string s, boolean b) returns int {
-    return 10;
-}
 
 function test1(int i) returns boolean{
     TestEP z;

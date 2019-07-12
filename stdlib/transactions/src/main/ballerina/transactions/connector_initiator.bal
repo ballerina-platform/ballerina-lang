@@ -59,6 +59,6 @@ type InitiatorClientEP client object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return RegistrationResponse.convert(resPayload);
+        return <@untainted RegistrationResponse|error> RegistrationResponse.convert(resPayload);
     }
 };

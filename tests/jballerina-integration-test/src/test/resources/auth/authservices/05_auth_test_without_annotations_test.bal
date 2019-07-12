@@ -17,12 +17,12 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:ConfigAuthStoreProvider basicAuthProvider05 = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler05 = new(basicAuthProvider05);
+auth:InboundBasicAuthProvider basicAuthProvider05 = new(());
+http:BasicAuthHandler basicAuthHandler05 = new(basicAuthProvider05);
 
 listener http:Listener listener05 = new(9096, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler05]
+        authHandlers: [basicAuthHandler05]
     },
     secureSocket: {
         keyStore: {

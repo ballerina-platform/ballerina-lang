@@ -45,6 +45,18 @@ public class BallerinaValues {
         return valueCreator.createRecordValue(recordTypeName);
     }
 
+    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
+            Map<String, Object> valueMap) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
+        MapValue<String, Object> record = valueCreator.createRecordValue(recordTypeName);
+        BRecordType recordType = (BRecordType) record.getType();
+        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            mapValue.put(fieldEntry.getKey(), valueMap.get(fieldEntry.getKey()));
+        }
+        return mapValue;
+    }
+
     /**
      * Method that creates a runtime object value using the given package name and object type name.
      *

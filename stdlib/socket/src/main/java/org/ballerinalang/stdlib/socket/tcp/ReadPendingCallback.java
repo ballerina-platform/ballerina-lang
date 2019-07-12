@@ -18,9 +18,8 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 import java.nio.ByteBuffer;
 import java.util.Timer;
@@ -33,8 +32,7 @@ import java.util.TimerTask;
  */
 public class ReadPendingCallback {
 
-    private Context context;
-    private CallableUnitCallback callback;
+    private NonBlockingCallback callback;
     private final int expectedLength;
     private int currentLength;
     private ByteBuffer buffer;
@@ -42,9 +40,7 @@ public class ReadPendingCallback {
     private Timer timer;
     private long timeout;
 
-    public ReadPendingCallback(Context context, CallableUnitCallback callback, int expectedLength, int socketHash,
-            long timeout) {
-        this.context = context;
+    public ReadPendingCallback(NonBlockingCallback callback, int expectedLength, int socketHash, long timeout) {
         this.callback = callback;
         this.expectedLength = expectedLength;
         this.socketHash = socketHash;
@@ -52,11 +48,7 @@ public class ReadPendingCallback {
         scheduleTimeout(timeout);
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public CallableUnitCallback getCallback() {
+    public NonBlockingCallback getCallback() {
         return callback;
     }
 
@@ -88,7 +80,7 @@ public class ReadPendingCallback {
     /**
      * Reset the timer to original time. This will create a new timer instance and start the count down.
      */
-    public void resetTimeout() {
+    void resetTimeout() {
         timer.cancel();
         timer = getTimer();
         timer.schedule(getTimerTask(), this.timeout);
@@ -97,7 +89,7 @@ public class ReadPendingCallback {
     /**
      * Cancel already running timer.
      */
-    public void cancelTimeout() {
+    void cancelTimeout() {
         timer.cancel();
     }
 
@@ -109,8 +101,8 @@ public class ReadPendingCallback {
         return new TimerTask() {
             public void run() {
                 ReadPendingSocketMap.getInstance().remove(socketHash);
-                final BError timeoutError = SocketUtils.createSocketError(context, "Read timed out");
-                context.setReturnValues(timeoutError);
+                final ErrorValue timeoutError = SocketUtils.createSocketError("Read timed out");
+                callback.setReturnValues(timeoutError);
                 callback.notifySuccess();
                 cancel();
             }

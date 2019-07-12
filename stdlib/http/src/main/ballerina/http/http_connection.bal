@@ -80,7 +80,11 @@ public type Caller client object {
     # Sends a `100-continue` response to the caller.
     #
     # + return - Returns an `error` if failed to send the `100-continue` response
-    public remote function continue() returns error?;
+    public remote function continue() returns error? {
+        Response res = new;
+        res.statusCode = CONTINUE_100;
+        return self->respond(res);
+    }
 
     # Sends a redirect response to the user with the specified redirection status code.
     #
@@ -88,14 +92,44 @@ public type Caller client object {
     # + code - The redirect status code to be sent
     # + locations - An array of URLs to which the caller can redirect to
     # + return - Returns an `error` if failed to send the redirect response
-    public remote function redirect(Response response, RedirectCode code, string[] locations) returns error?;
+    public remote function redirect(Response response, RedirectCode code, string[] locations) returns error? {
+        if (code == REDIRECT_MULTIPLE_CHOICES_300) {
+            response.statusCode = MULTIPLE_CHOICES_300;
+        } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
+            response.statusCode = MOVED_PERMANENTLY_301;
+        } else if (code == REDIRECT_FOUND_302) {
+            response.statusCode = FOUND_302;
+        } else if (code == REDIRECT_SEE_OTHER_303) {
+            response.statusCode = SEE_OTHER_303;
+        } else if (code == REDIRECT_NOT_MODIFIED_304) {
+            response.statusCode = NOT_MODIFIED_304;
+        } else if (code == REDIRECT_USE_PROXY_305) {
+            response.statusCode = USE_PROXY_305;
+        } else if (code == REDIRECT_TEMPORARY_REDIRECT_307) {
+            response.statusCode = TEMPORARY_REDIRECT_307;
+        } else if (code == REDIRECT_PERMANENT_REDIRECT_308) {
+            response.statusCode = PERMANENT_REDIRECT_308;
+        }
+        string locationsStr = "";
+        foreach var location in locations {
+            locationsStr = locationsStr + location + ",";
+        }
+        locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
+
+        response.setHeader(LOCATION, locationsStr);
+        return self->respond(response);
+    }
 
     # Sends the outbound response to the caller with the status 200 OK.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` if failed to respond
-    public remote function ok(ResponseMessage message) returns error?;
+    public remote function ok(ResponseMessage message) returns error? {
+        Response response = buildResponse(message);
+        response.statusCode = OK_200;
+        return self->respond(response);
+    }
 
     # Sends the outbound response to the caller with the status 201 Created.
     #
@@ -103,14 +137,25 @@ public type Caller client object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public remote function created(string uri, ResponseMessage message = ()) returns error?;
+    public remote function created(string uri, ResponseMessage message = ()) returns error? {
+        Response response = buildResponse(message);
+        response.statusCode = CREATED_201;
+        if (uri.length() > 0) {
+            response.setHeader(LOCATION, uri);
+        }
+        return self->respond(response);
+    }
 
     # Sends the outbound response to the caller with the status 202 Accepted.
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
     # + return - Returns an `error` if failed to respond
-    public remote function accepted(ResponseMessage message = ()) returns error?;
+    public remote function accepted(ResponseMessage message = ()) returns error? {
+        Response response = buildResponse(message);
+        response.statusCode = ACCEPTED_202;
+        return self->respond(response);
+    }
 };
 
 function nativeRespond(Caller caller, Response response) returns error? = external;
@@ -138,58 +183,3 @@ public const REDIRECT_USE_PROXY_305 = 305;
 public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
 public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
-
-public remote function Caller.continue() returns error? {
-    Response res = new;
-    res.statusCode = CONTINUE_100;
-    return self->respond(res);
-}
-
-public remote function Caller.redirect(Response response, RedirectCode code, string[] locations) returns error? {
-    if (code == REDIRECT_MULTIPLE_CHOICES_300) {
-        response.statusCode = MULTIPLE_CHOICES_300;
-    } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {
-        response.statusCode = MOVED_PERMANENTLY_301;
-    } else if (code == REDIRECT_FOUND_302) {
-        response.statusCode = FOUND_302;
-    } else if (code == REDIRECT_SEE_OTHER_303) {
-        response.statusCode = SEE_OTHER_303;
-    } else if (code == REDIRECT_NOT_MODIFIED_304) {
-        response.statusCode = NOT_MODIFIED_304;
-    } else if (code == REDIRECT_USE_PROXY_305) {
-        response.statusCode = USE_PROXY_305;
-    } else if (code == REDIRECT_TEMPORARY_REDIRECT_307) {
-        response.statusCode = TEMPORARY_REDIRECT_307;
-    } else if (code == REDIRECT_PERMANENT_REDIRECT_308) {
-        response.statusCode = PERMANENT_REDIRECT_308;
-    }
-    string locationsStr = "";
-    foreach var location in locations {
-        locationsStr = locationsStr + location + ",";
-    }
-    locationsStr = locationsStr.substring(0, (locationsStr.length()) - 1);
-
-    response.setHeader(LOCATION, locationsStr);
-    return self->respond(response);
-}
-
-public remote function Caller.ok(ResponseMessage message) returns error? {
-    Response response = buildResponse(message);
-    response.statusCode = OK_200;
-    return self->respond(response);
-}
-
-public remote function Caller.created(string uri, ResponseMessage message = ())returns error? {
-    Response response = buildResponse(message);
-    response.statusCode = CREATED_201;
-    if (uri.length() > 0) {
-        response.setHeader(LOCATION, uri);
-    }
-    return self->respond(response);
-}
-
-public remote function Caller.accepted(ResponseMessage message = ()) returns error? {
-    Response response = buildResponse(message);
-    response.statusCode = ACCEPTED_202;
-    return self->respond(response);
-}

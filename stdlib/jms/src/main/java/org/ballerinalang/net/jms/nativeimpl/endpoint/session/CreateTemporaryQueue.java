@@ -20,21 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -43,36 +37,30 @@ import javax.jms.Session;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
                    functionName = "createTemporaryQueue",
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                        structType = JmsConstants.DESTINATION_OBJ_NAME)
-                   },
-                   isPublic = true)
-public class CreateTemporaryQueue extends AbstractBlockingAction {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(CreateTemporaryQueue.class);
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
+public class CreateTemporaryQueue extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
+    public static Object createTemporaryTopic(Strand strand, ObjectValue sessionObj) {
         Queue jmsDestination;
-        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.JMS_DESTINATION_STRUCT_NAME);
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
+        ObjectValue destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                                JmsConstants.JMS_DESTINATION_OBJ_NAME);
         try {
             jmsDestination = session.createTemporaryQueue();
-            bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
-            bStruct.put(JmsConstants.DESTINATION_NAME, new BString(jmsDestination.getQueueName()));
-            bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("queue"));
+            destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, jmsDestination);
+            destObj.set(JmsConstants.DESTINATION_NAME, jmsDestination.getQueueName());
+            destObj.set(JmsConstants.DESTINATION_TYPE, "queue");
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Failed to create temporary destination.", context, e);
+            return BallerinaAdapter.getError("Failed to create temporary destination.", e);
         }
-        context.setReturnValues(bStruct);
+        return destObj;
     }
+
 }

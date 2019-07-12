@@ -67,6 +67,11 @@ public class BTupleType extends BType {
     }
 
     @Override
+    public String getName() {
+        return toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

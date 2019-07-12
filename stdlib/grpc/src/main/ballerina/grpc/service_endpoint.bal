@@ -88,8 +88,8 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 #                   disable timeout.
 # + requestLimits - Configures the parameters for request validation.
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
-#                          change this limit appropriately. This will be applicable only for HTTP 1.1
+#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
+#                          change this limit appropriately. This will be applicable only for HTTP 1.1.
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;

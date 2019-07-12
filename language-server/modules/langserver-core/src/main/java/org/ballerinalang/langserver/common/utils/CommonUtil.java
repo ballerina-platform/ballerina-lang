@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -55,7 +57,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -79,6 +85,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -95,11 +103,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -380,15 +393,32 @@ public class CommonUtil {
     /**
      * Get the Annotation completion Item.
      *
-     * @param packageID        Package Id
+     * @param packageID Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
-     * @param ctx                       LS Service operation context, in this case completion context
-     * @return {@link CompletionItem}   Completion item for the annotation
+     * @param ctx LS Service operation context, in this case completion context
+     * @param pkgAlias LS Service operation context, in this case completion context
+     * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx) {
-        String label = getAnnotationLabel(packageID, annotationSymbol);
-        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
+                                                             LSContext ctx, CommonToken pkgAlias) {
+        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
+        Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
+                .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
+        
+        String aliasComponent = "";
+        if (pkgAliasMap.containsKey(packageID.toString())) {
+            // Check if the imported packages contains the particular package with the alias
+            aliasComponent = pkgAliasMap.get(packageID.toString());
+        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+                && !currentPkgID.name.value.equals(packageID.name.value)) {
+            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+        }
+
+        boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
+        
+        String label = getAnnotationLabel(aliasComponent, annotationSymbol, withAlias);
+        String insertText = getAnnotationInsertText(aliasComponent, annotationSymbol, withAlias);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -398,6 +428,10 @@ public class CommonUtil {
         String relativePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage pkg = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, pkg);
+        if (currentPkgID.name.value.equals(packageID.name.value)) {
+            // If the annotation resides within the current package, no need to set the additional text edits
+            return annotationItem;
+        }
         List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, ctx);
         Optional currentPkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
@@ -414,6 +448,20 @@ public class CommonUtil {
                     packageID.name.getValue()));
         }
         return annotationItem;
+    }
+
+    /**
+     * Get the Annotation completion Item.
+     *
+     * @param packageID Package Id
+     * @param annotationSymbol BLang annotation to extract the completion Item
+     * @param ctx LS Service operation context, in this case completion context
+     *
+     * @return {@link CompletionItem} Completion item for the annotation
+     */
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol, 
+                                                             LSContext ctx) {
+        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null);
     }
 
     /**
@@ -500,15 +548,16 @@ public class CommonUtil {
     /**
      * Get the annotation Insert text.
      *
-     * @param packageID        Package ID
+     * @param aliasComponent Package ID
      * @param annotationSymbol Annotation to get the insert text
-     * @return {@link String}   Insert text
+     * @param withAlias insert text with alias
+     * @return {@link String} Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
-        String pkgAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+    private static String getAnnotationInsertText(String aliasComponent, BAnnotationSymbol annotationSymbol,
+                                                  boolean withAlias) {
         StringBuilder annotationStart = new StringBuilder();
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            annotationStart.append(pkgAlias).append(CommonKeys.PKG_DELIMITER_KEYWORD);
+        if (withAlias) {
+            annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
             annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
@@ -537,17 +586,13 @@ public class CommonUtil {
     /**
      * Get the completion Label for the annotation.
      *
-     * @param packageID  Package ID
+     * @param aliasComponent package alias
      * @param annotation BLang annotation
-     * @return {@link String}          Label string
+     * @param withAlias label with alias
+     * @return {@link String} Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
-        String pkgComponent = "";
-        if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
-            pkgComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue()
-                    + CommonKeys.PKG_DELIMITER_KEYWORD;
-        }
-
+    private static String getAnnotationLabel(String aliasComponent, BAnnotationSymbol annotation, boolean withAlias) {
+        String pkgComponent = withAlias ? aliasComponent + CommonKeys.PKG_DELIMITER_KEYWORD : "";
         return pkgComponent + annotation.getName().getValue();
     }
 
@@ -986,6 +1031,18 @@ public class CommonUtil {
 
         return new BallerinaParser(commonTokenStream);
     }
+
+    public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
+        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
+        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
+
+        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
+                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
+                || symbolName.equals("main")
+                || symbolName.endsWith(".new")
+                || symbolName.startsWith("0");
+    }
     
     private static List<BField> getRecordRequiredFields(BRecordType recordType) {
         return recordType.fields.stream()
@@ -1109,18 +1166,6 @@ public class CommonUtil {
                 || ((BArrayType) bType).eType.toString().equals("float"));
     }
 
-    private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
-        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
-
-        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
-                || symbolName.equals("main")
-                || symbolName.endsWith(".new")
-                || symbolName.startsWith("0");
-    }
-
     private static boolean builtinLengthFunctionAllowed(BType bType) {
         switch (bType.tag) {
             case TypeTags.ARRAY:
@@ -1215,6 +1260,72 @@ public class CommonUtil {
         return result.toString();
     }
 
+    /**
+     * Generates a variable name.
+     *
+     * @param value     index of the argument
+     * @param bLangNode {@link BLangNode}
+     * @param context   {@link CompilerContext}
+     * @return random argument name
+     */
+    public static String generateVariableName(int value, BLangNode bLangNode, CompilerContext context) {
+        Set<String> allNameEntries = getAllNameEntries(bLangNode, context);
+        String newName = generateName(value, allNameEntries);
+        if (bLangNode instanceof BLangInvocation && value == 1) {
+            newName = ((BLangInvocation) bLangNode).name.value;
+            BiFunction<String, String, String> replacer = (search, text) ->
+                    (text.startsWith(search)) ? text.replaceFirst(search, "") : text;
+            // Replace common prefixes
+            newName = replacer.apply("get", newName);
+            newName = replacer.apply("put", newName);
+            newName = replacer.apply("delete", newName);
+            newName = replacer.apply("update", newName);
+            newName = replacer.apply("set", newName);
+            newName = replacer.apply("add", newName);
+            newName = replacer.apply("create", newName);
+            // Remove '_' underscores
+            while (newName.contains("_")) {
+                String[] parts = newName.split("_");
+                List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
+                newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
+            }
+            // If empty, revert back to original name
+            if (newName.isEmpty()) {
+                newName = ((BLangInvocation) bLangNode).name.value;
+            }
+            // Lower first letter
+            newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
+            // if already available, try appending 'Result'
+            Iterator<String> iterator = allNameEntries.iterator();
+            boolean alreadyExists = false;
+            boolean appendResult = true;
+            boolean appendOut = true;
+            String suffixResult = "Result";
+            String suffixOut = "Out";
+            while (iterator.hasNext()) {
+                String next = iterator.next();
+                if (next.equals(newName)) {
+                    alreadyExists = true;
+                } else if (next.equals(newName + suffixResult)) {
+                    appendResult = false;
+                } else if (next.equals(newName + suffixOut)) {
+                    appendOut = false;
+                }
+            }
+            // if already available, try appending 'Result' or 'Out'
+            if (alreadyExists && appendResult) {
+                newName = newName + suffixResult;
+            } else if (alreadyExists && appendOut) {
+                newName = newName + suffixOut;
+            }
+            // if still already available, try a random letter
+            while (allNameEntries.contains(newName)) {
+                newName = generateVariableName(++value, bLangNode, context);
+            }
+        }
+        return newName;
+    }
+
     public static BLangPackage getPackageNode(BLangNode bLangNode) {
         BLangNode parent = bLangNode.parent;
         if (parent != null) {
@@ -1263,5 +1374,47 @@ public class CommonUtil {
         public int compare(BLangNode node1, BLangNode node2) {
             return node1.getPosition().getStartLine() - node2.getPosition().getStartLine();
         }
+    }
+
+
+    private static Set<String> getAllNameEntries(BLangNode bLangNode, CompilerContext context) {
+        Set<String> strings = new HashSet<>();
+        BLangPackage packageNode = null;
+        BLangNode parent = bLangNode.parent;
+        // Retrieve package node
+        while (parent != null) {
+            if (parent instanceof BLangPackage) {
+                packageNode = (BLangPackage) parent;
+                break;
+            }
+            if (parent instanceof BLangFunction) {
+                BLangFunction bLangFunction = (BLangFunction) parent;
+                bLangFunction.requiredParams.forEach(var -> strings.add(var.name.value));
+                bLangFunction.defaultableParams.forEach(def -> strings.add(def.var.name.value));
+            }
+            parent = parent.parent;
+        }
+
+        if (packageNode != null) {
+            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
+            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
+            packageNode.getServices().forEach(service -> strings.add(service.name.value));
+            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
+        }
+        // Retrieve block stmt
+        parent = bLangNode.parent;
+        while (parent != null && !(parent instanceof BLangBlockStmt)) {
+            parent = parent.parent;
+        }
+        if (parent != null && packageNode != null) {
+            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
+            SymbolTable symbolTable = SymbolTable.getInstance(context);
+            BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
+            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            entries.forEach((name, scopeEntry) -> strings.add(name.value));
+        }
+        return strings;
     }
 }

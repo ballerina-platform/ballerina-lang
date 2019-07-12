@@ -38,6 +38,6 @@ public class Constants {
     public static final String SKIP_TESTS = "false";
     public static final String OPEN_SEALED_ARRAY = "*";
 
-    public static final int INIT_METHOD_SPLIT_SIZE = 200;
+    public static final int INIT_METHOD_SPLIT_SIZE = 50;
 
 }

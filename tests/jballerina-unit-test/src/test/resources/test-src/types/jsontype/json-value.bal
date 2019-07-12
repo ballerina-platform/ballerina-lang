@@ -428,7 +428,7 @@ function testFloatArrayToJsonAssignment() returns [json, json] {
 function testDecimalArrayToJsonAssignment() returns [json, json] {
     decimal[] d = [1.3, 1.234, 4.1];
     json j = d;
-    j[3] = 4.54;
+    j[3] = <decimal>4.54;
     return [j, j[1]];
 }
 

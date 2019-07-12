@@ -65,12 +65,12 @@ public type QueueListener object {
     # + name - Name of the service.
     # + return - Returns nil or an error upon failure to register the listener.
     public function __attach(service s, string? name = ()) returns error? {
-        return self.registerListener(s, self.consumerActions, name);
+        return self.registerListener(s);
     }
 
-    function registerListener(service serviceType, QueueReceiverCaller actions, string? name) returns error? = external;
+    function registerListener(service serviceType) returns error? = external;
 
-    function createQueueReceiver(Session? session, string messageSelector, string|Destination dest) = external;
+    function createQueueReceiver(Session session, string messageSelector, string|Destination dest) = external;
 
     # Starts the endpoint.
     #
@@ -115,14 +115,16 @@ public type QueueReceiverCaller client object {
     # Synchronously receives a message from the JMS provider.
     #
     # + timeoutInMilliSeconds - Time to wait until a message is received.
-    # + return - Returns a message or nil if the timeout exceeds, or returns an error upon an internal error of the JMS provider.
+    # + return - Returns a message or nil if the timeout exceeds, or returns an error upon an internal error of the JMS
+    #             provider.
     public remote function receive(int timeoutInMilliSeconds = 0) returns Message|error? = external;
 
     # Synchronously receives a message from a given destination.
     #
     # + destination - Destination to subscribe to.
     # + timeoutInMilliSeconds - Time to wait until a message is received.
-    # + return - Returns a message or () if the timeout exceeds, or returns an error upon an internal error of the JMS provider.
+    # + return - Returns a message or () if the timeout exceeds, or returns an error upon an internal error of the JMS
+    #             provider.
     public remote function receiveFrom(Destination destination, int timeoutInMilliSeconds = 0) returns (Message|error)?
     {
         var queueListener = self.queueListener;

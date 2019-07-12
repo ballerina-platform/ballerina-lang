@@ -20,12 +20,10 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
@@ -59,28 +57,24 @@ public class InitServer extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
+    }
+
+    public static Object initServer(Strand strand, ObjectValue listener, long port, MapValue<String, Object> config) {
         try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
             serverSocket.socket().setReuseAddress(true);
-            serviceEndpoint.addNativeData(SERVER_SOCKET_KEY, serverSocket);
-            BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            serviceEndpoint.addNativeData(LISTENER_CONFIG, endpointConfig);
-            int port = (int) context.getIntArgument(0);
-            serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
-            final BValue readTimeoutBValue = endpointConfig.get(READ_TIMEOUT);
-            long timeout = ((BInteger) readTimeoutBValue).intValue();
-            serviceEndpoint.addNativeData(READ_TIMEOUT, timeout);
+            listener.addNativeData(SERVER_SOCKET_KEY, serverSocket);
+            listener.addNativeData(LISTENER_CONFIG, config);
+            listener.addNativeData(CONFIG_FIELD_PORT, (int) port);
+            final long timeout = config.getIntValue(READ_TIMEOUT);
+            listener.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
-            return;
+            return SocketUtils.createSocketError("Unable to bind the socket port");
         } catch (IOException e) {
-            log.error("Unable to initiate the server socket", e);
-            context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to initiate the socket service"));
-            return;
+            log.error("Unable to initiate the socket listener", e);
+            return SocketUtils.createSocketError("Unable to initiate the socket listener");
         }
-        context.setReturnValues();
+        return null;
     }
 }

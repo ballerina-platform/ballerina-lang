@@ -319,20 +319,7 @@ type Person object {
         };
         return foo;
     }
-
-    public function externalAttachedFP() returns (function (float) returns (string));
-
 };
-
-public function Person.externalAttachedFP() returns (function (float) returns (string)) {
-     int b = 4;
-     var foo = function (float w) returns (string) {
-        string d = w + "T" + b + self.year + self.name + self.age;
-        return d;
-     };
-     return foo;
-}
-
 
 function test19() returns (string) {
     Person p = new;
@@ -342,12 +329,6 @@ function test19() returns (string) {
 function test20() returns (string) {
     Person p = new;
     var foo = p.getAttachedFP();
-    return foo.call(7.3);
-}
-
-public function test21() returns (string) {
-    Person p = new;
-    var foo = p.externalAttachedFP();
     return foo.call(7.3);
 }
 

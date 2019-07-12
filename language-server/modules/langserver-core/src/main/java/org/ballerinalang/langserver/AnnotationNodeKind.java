@@ -25,5 +25,9 @@ public enum AnnotationNodeKind {
     SERVICE,
     RESOURCE,
     COMMON,
-    LISTENER
+    LISTENER,
+    RECORD,
+    OBJECT,
+    TYPE,
+    ANNOTATION
 }

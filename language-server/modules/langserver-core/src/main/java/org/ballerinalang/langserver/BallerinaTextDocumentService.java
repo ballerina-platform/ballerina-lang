@@ -110,6 +110,7 @@ import java.util.zip.ZipError;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
@@ -218,43 +219,47 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(sigFilePath.toString()).orElse(sigFilePath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
-            LSServiceOperationContext signatureContext = new LSServiceOperationContext();
-            signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
-            signatureContext.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-            signatureContext.put(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY, clientCapabilities.getSignatureHelp());
-            signatureContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+            LSServiceOperationContext context = new LSServiceOperationContext();
+            context.put(DocumentServiceKeys.POSITION_KEY, position);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+            context.put(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY, clientCapabilities.getSignatureHelp());
+            context.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
 
             try {
-                SourcePruner.pruneSource(signatureContext);
-                BLangPackage bLangPackage = lsCompiler.getBLangPackage(signatureContext, documentManager, false,
-                                                                       LSCustomErrorStrategy.class,
-                                                                       false);
-                signatureContext.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
-                signatureContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-                Pair<Optional<String>, Integer> funcPathAndParamCntPair = SignatureHelpUtil.captureCallableItemInfo(
-                        signatureContext);
+                // Prepare content for source-prune
+                // This fix added to handle cases such as `foo(` that causes pruner to remove all RHS tokens.
+                SignatureHelpUtil.preprocessSourcePrune(context);
 
+                // Prune the source and compile
+                SourcePruner.pruneSource(context);
+                BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
+                                                                       LSCustomErrorStrategy.class, false);
+                context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
+                context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+
+                // Capture visible symbols of the cursor position
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
+                bLangPackage.accept(signatureTreeVisitor);
+                List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+
+                // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
-                funcPathAndParamCntPair.getLeft().ifPresent(funcPath -> {
-                    // Capture visible symbols
-                    SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(signatureContext);
-                    bLangPackage.accept(signatureTreeVisitor);
-                    List<SymbolInfo> visibleSymbols = signatureContext.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
-
-                    // Search function invocation symbol
-                    Optional<SymbolInfo> searchSymbol = SignatureHelpUtil.getFuncSymbolInfo(funcPath, visibleSymbols);
+                Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
+                Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
+                funcPath.ifPresent(pathStr -> {
+                    Optional<SymbolInfo> searchSymbol = SignatureHelpUtil.getFuncSymbolInfo(pathStr, visibleSymbols);
                     searchSymbol.ifPresent(s -> {
                         if (s.getScopeEntry().symbol instanceof BInvokableSymbol) {
                             BInvokableSymbol symbol = (BInvokableSymbol) s.getScopeEntry().symbol;
-                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, signatureContext));
+                            signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, context));
                         }
                     });
                 });
 
                 SignatureHelp signatureHelp = new SignatureHelp();
-                signatureHelp.setSignatures(signatures);
-                signatureHelp.setActiveParameter(signatureContext.get(SignatureKeys.PARAMETER_INDEX));
+                signatureHelp.setActiveParameter(funcPathAndParamIndexPair.getRight());
                 signatureHelp.setActiveSignature(0);
+                signatureHelp.setSignatures(signatures);
                 return signatureHelp;
             } catch (Exception | ZipError | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

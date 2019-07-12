@@ -30,17 +30,17 @@ public type ChannelReader object {
     public function readBoolean() returns boolean {
         var (boolByte, _mustBe1) = check self.byteChannel.read(1);
         byte one = 1;
-        return boolByte[0] == one;
+        return untaint (boolByte[0] == one);
     }
 
     public function readInt8() returns int {
         var (byteValue, _mustBe1) = check self.byteChannel.read(1);
-        return int.convert(byteValue[0]);
+        return untaint int.convert(byteValue[0]);
     }
 
     public function readInt32() returns int {
         var (intBytes, _mustBe4) = check self.byteChannel.read(4);
-        return bytesToInt(intBytes);
+        return untaint bytesToInt(intBytes);
     }
 
     public function readInt64() returns int {
@@ -74,7 +74,7 @@ public type ChannelReader object {
             error err = error("Unable to read " + len + " bytes");
             panic err;
         }
-        return arr;
+        return untaint arr;
     }
 
     public function readByte() returns byte {

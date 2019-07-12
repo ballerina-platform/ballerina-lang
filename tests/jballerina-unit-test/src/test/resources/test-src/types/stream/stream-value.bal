@@ -379,13 +379,13 @@ function addToGlobalAnyArrayForTupleType([string, int] val) {
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForAssignableTupleType([json, float] val) {
+function addToGlobalAnyArrayForAssignableTupleType([json, int] val) {
     json jsonVal;
-    float floatVal;
-    [jsonVal, floatVal] = val;
+    int intVal;
+    [jsonVal, intVal] = val;
     globalAnyArray[arrayIndex] = jsonVal;
     arrayIndex = arrayIndex + 1;
-    globalAnyArray[arrayIndex] = floatVal;
+    globalAnyArray[arrayIndex] = intVal;
     arrayIndex = arrayIndex + 1;
 }
 

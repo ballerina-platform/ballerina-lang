@@ -99,7 +99,7 @@ public class EncodingTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "decodeFromHex", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "input is not a valid Hex value");
+                "Input is not a valid Hex value");
     }
 
     @Test(description = "Check decoding an non-base64 string using base64 decoding function.")
@@ -110,7 +110,7 @@ public class EncodingTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "decodeFromBase64", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "input is not a valid Base64 value");
+                "Input is not a valid Base64 value");
     }
 
     @Test(description = "Check encoding a complex strings using base64.")

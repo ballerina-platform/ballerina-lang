@@ -26,7 +26,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public function absolute(@sensitive string path) returns string|error = external;
+public function absolute(@untainted string path) returns string|error = external;
 
 # Returns path separator of underline operating system.
 #
@@ -354,7 +354,7 @@ public function relative(string base, string target) returns string|error {
 #
 # + path - String value of file path.
 # + return - Resolved file path
-public function resolve(@sensitive string path) returns string|error = external;
+public function resolve(@untainted string path) returns string|error = external;
 
 # Reports whether all of filename matches the provided pattern, not just a substring.
 # An error is returned if the pattern is malformed.

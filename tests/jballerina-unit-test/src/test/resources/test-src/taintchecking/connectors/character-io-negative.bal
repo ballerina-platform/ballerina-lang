@@ -25,7 +25,7 @@ public function main (string... args) returns error? {
     return ();
 }
 
-public function testFunction (@sensitive string sensitiveValue, string anyValue) {
+public function testFunction (@untainted string untaintedValue, string anyValue) {
 
 }
 

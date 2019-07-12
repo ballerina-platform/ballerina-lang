@@ -20,12 +20,11 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -49,15 +48,15 @@ public class GetByteArrayContent extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        boolean isInTransaction = context.isInTransaction();
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> messageObject = (BMap<String, BValue>) context.getRefArgument(0);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObject.
+    }
+
+    public static byte[] getByteArrayContent(Strand strand, ObjectValue messageObjectValue) {
+        boolean isInTransaction = false;
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock(context);
+            transactionContext.handleTransactionBlock();
         }
-        byte[] messageContent = (byte[]) messageObject.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
-        context.setReturnValues(new BValueArray(messageContent));
+        return (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
     }
 }
