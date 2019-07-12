@@ -1,6 +1,6 @@
 # Ballerina Style Guide
 
-The Ballerina Style Guide aims at maintaining a standard coding style among the Ballerina community. Therefore, code formatting and the other features provided by the Ballerina IDE plugins and tools are based on this guide. 
+The Ballerina Style Guide aims at maintaining a standard coding style among the Ballerina community. Therefore, Therefore, the code formatting tools are based on this guide.
 
 You can follow your own coding style when writing Ballerina source code. Also, plugins and tools can be configured to match your coding style.
 
