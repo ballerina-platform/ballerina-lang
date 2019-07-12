@@ -141,3 +141,11 @@ function testAnyToFuncPointerConversion_2() returns (int|error) {
     Person p = new Person(23);
     return personFunc.call(p);
 }
+
+function testInTypeGuard() returns int {
+    (function (string[]) returns int) | error func = funcWithArrayParams;
+    if (func is (function (string[]) returns int)) {
+        return func([""]);
+    }
+    return 1;
+}
