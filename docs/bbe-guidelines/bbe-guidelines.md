@@ -14,7 +14,7 @@
 
 4. As a practice, use `ballerina/io` methods in main examples and `ballerina/log` methods in services examples. E.g., Do not use both `io:println` and `log:printInfo` in the same example.
 
-5. It is recommended to limit the maximum character count per line to 80 in .bal files. Otherwise, the lines get automatically wrapped in the [Ballerina website](https://ballerina.io/) reducing the readability as shown below.
+5. It is recommended to limit the maximum character count per line to 80 in `.bal` files. Otherwise, the lines get automatically wrapped in the [Ballerina By Example](https://ballerina.io/learn/by-example/) reducing the readability as shown below.
 
     Example;
 
