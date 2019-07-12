@@ -1,5 +1,6 @@
 import { ASTKindChecker, ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
+import { PanZoom } from "panzoom";
 import React from "react";
 import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
 import { CommonDiagramProps, Diagram } from "./diagram";
@@ -21,6 +22,8 @@ const modes = [
 export interface OverviewProps extends CommonDiagramProps {
     langClient: IBallerinaLangClient;
     sourceRoot: string;
+    initialSelectedModule?: string;
+    initialSelectedConstruct?: string;
 }
 export interface OverviewState {
     modules: ProjectAST;
@@ -31,11 +34,23 @@ export interface OverviewState {
     mode: DiagramMode;
     modeText: string;
     fitToWidthOrHeight: boolean;
-    zoom: number;
+    zoomFactor: number;
     openedState: boolean;
+    maxInvocationDepth: number;
+}
+
+export interface ConstructIdentifier {
+    constructName: string;
+    moduleName: string;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
+    private panZoomComp: PanZoom | undefined;
+    private innitialPanZoomTransform: {
+        x: number;
+        y: number;
+        scale: number;
+    } | undefined;
     constructor(props: OverviewProps) {
         super(props);
         this.handleModeChange = this.handleModeChange.bind(this);
@@ -48,13 +63,17 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.handleModuleNameSelect = this.handleModuleNameSelect.bind(this);
         this.handleOpened = this.handleOpened.bind(this);
         this.handleClosed = this.handleClosed.bind(this);
+        this.handleReset = this.handleReset.bind(this);
+        this.setPanZoomComp = this.setPanZoomComp.bind(this);
+        this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
+            maxInvocationDepth: 0,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
             openedState: false,
-            zoom: 0,
+            zoomFactor: 1,
         };
     }
 
@@ -64,6 +83,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             this.setState({
                 modules: result.modules,
             });
+        });
+    }
+
+    public selectConstruct({moduleName, constructName}: ConstructIdentifier) {
+        this.setState({
+            selectedConstruct: {
+                constructName, moduleName,
+            }
         });
     }
 
@@ -117,14 +144,20 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleOpened={this.handleOpened}
                     handleClosed={this.handleClosed}
                     fitActive={this.state.fitToWidthOrHeight}
+                    zoomFactor={this.state.zoomFactor}
+                    handleReset={this.handleReset}
+                    handleDepthSelect={this.setMaxInvocationDepth}
+                    maxInvocationDepth={this.state.maxInvocationDepth}
                 />
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
                     projectAst={modules}
                     docUri={selectedUri}
-                    zoom={this.state.zoom} height={0} width={1000}
+                    zoom={0} height={0} width={1000}
                     fitToWidthOrHeight={this.state.fitToWidthOrHeight}
-                    mode={this.state.mode}>
+                    mode={this.state.mode}
+                    setPanZoomComp={this.setPanZoomComp}
+                    maxInvocationDepth={this.state.maxInvocationDepth}>
                 </Diagram>
             </div>
         );
@@ -235,33 +268,67 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     private handleFitClick() {
         this.setState((state) => ({
             fitToWidthOrHeight: !state.fitToWidthOrHeight,
-            zoom: 0,
+            zoomFactor: 1,
         }));
     }
 
     private handleZoomIn() {
+        if (!this.panZoomComp) {
+            return;
+        }
+
+        const {x, y, scale} = this.panZoomComp.getTransform();
+        this.panZoomComp.zoomAbs(x, y, scale + 0.1);
+        const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
             fitToWidthOrHeight: false,
-            zoom: state.zoom + 1,
+            zoomFactor: newScale,
         }));
     }
 
     private handleZoomOut() {
+        if (!this.panZoomComp) {
+            return;
+        }
+
+        const {x, y, scale} = this.panZoomComp.getTransform();
+        this.panZoomComp.zoomAbs(x, y, scale - 0.1);
+        const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
             fitToWidthOrHeight: false,
-            zoom: state.zoom - 1,
+            zoomFactor: newScale,
         }));
     }
+
     private handleOpened() {
         this.setState({
             openedState: true,
         });
     }
+
     private handleClosed() {
         this.setState({
             openedState: false,
         });
     }
+
+    private handleReset() {
+        if (this.panZoomComp && this.innitialPanZoomTransform) {
+            const { x, y, scale } = this.innitialPanZoomTransform;
+            this.panZoomComp.zoomAbs(0, 0, scale);
+            this.panZoomComp.moveTo(x, y);
+            this.setState({
+                zoomFactor: scale,
+            });
+        }
+    }
+
+    private setMaxInvocationDepth(depth: number) {
+        this.setState({
+            maxInvocationDepth: depth,
+        });
+    }
+
     private handleModuleNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
         const moduleList = this.getModuleList();
         const selectedModule = moduleList.find((module) => (module.name === props.data.name));
@@ -284,5 +351,23 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 constructName: props.data.name,
             }
         }));
+    }
+
+    private setPanZoomComp(comp: PanZoom | undefined) {
+        this.panZoomComp = comp;
+        if (comp) {
+            const {x, y, scale} = comp.getTransform();
+            this.innitialPanZoomTransform = {x, y, scale};
+            this.setState({
+                zoomFactor: scale,
+            });
+
+            comp.on("zoom", (e: PanZoom) => {
+                const { scale: newScale } = e.getTransform();
+                this.setState({
+                    zoomFactor: newScale,
+                });
+            });
+        }
     }
 }

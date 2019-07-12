@@ -65,6 +65,7 @@ export const Statement: React.StatelessComponent<{
                 const onClose = () => {
                     if (viewState.expandContext) {
                         viewState.expandContext.collapsed = true;
+                        viewState.expandContext.skipDepthCheck = true;
                     }
                 };
 

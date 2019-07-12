@@ -1,13 +1,14 @@
 import { ASTNode, ASTUtil } from "@ballerina/ast-model";
 import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
-import panzoom from "panzoom";
+import panzoom, { PanZoom } from "panzoom";
 import React from "react";
 import { DefaultConfig } from "../config/default";
 import { CompilationUnitViewState, ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as hiddenBlockVisitor } from "../visitors/hidden-block-visitor";
 import { visitor as initVisitor } from "../visitors/init-visitor";
-import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
+import { setMaxInvocationDepth, setProjectAST, visitor as invocationVisitor
+    } from "../visitors/invocation-expanding-visitor";
 import { visitor as interactionModeVisitor } from "../visitors/mode-visitors/interaction-mode-visitor";
 import { visitor as statementModeVisitor } from "../visitors/mode-visitors/statement-mode-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
@@ -22,11 +23,13 @@ export interface CommonDiagramProps {
     fitToWidthOrHeight: boolean;
     mode: DiagramMode;
     langClient: IBallerinaLangClient;
+    maxInvocationDepth?: number;
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
     docUri: string;
+    setPanZoomComp?: (comp: PanZoom | undefined) => void;
 }
 
 export interface DiagramState {
@@ -41,6 +44,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     private containerRef = React.createRef<HTMLDivElement>();
     private panZoomRootRef: React.RefObject<SVGAElement>;
+    private panZoomRootRefCurrent: SVGAElement | null | undefined;
+    private panZoomComp: PanZoom | undefined;
 
     constructor(props: DiagramProps) {
         super(props);
@@ -53,17 +58,55 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     public componentDidMount() {
         if (this.panZoomRootRef.current) {
-            panzoom(this.panZoomRootRef.current, {
+            this.panZoomRootRefCurrent = this.panZoomRootRef.current;
+            this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+                beforeWheel: (e) => {
+                    // allow wheel-zoom only if ctrl is down.
+                    return !e.ctrlKey;
+                },
                 smoothScroll: false,
             });
+            if (this.props.setPanZoomComp) {
+                this.props.setPanZoomComp(this.panZoomComp);
+            }
+        }
+    }
+
+    public componentWillUnmount() {
+        if (this.panZoomComp) {
+            this.panZoomComp.dispose();
+            if (this.props.setPanZoomComp) {
+                this.props.setPanZoomComp(undefined);
+            }
         }
     }
 
     public componentDidUpdate() {
-        if (this.panZoomRootRef.current) {
-            panzoom(this.panZoomRootRef.current, {
-                smoothScroll: false,
-            });
+        if (this.panZoomRootRef.current === this.panZoomRootRefCurrent) {
+            // pan-zoom root component is not updated
+            return;
+        }
+
+        if (!this.panZoomRootRef.current) {
+            // pan-zoom root component is unmounted
+            if (this.panZoomComp) {
+                this.panZoomComp.dispose();
+                if (this.props.setPanZoomComp) {
+                    this.props.setPanZoomComp(undefined);
+                }
+            }
+            return;
+        }
+
+        this.panZoomRootRefCurrent = this.panZoomRootRef.current;
+        if (this.panZoomComp) {
+            this.panZoomComp.dispose();
+        }
+        this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+            smoothScroll: false,
+        });
+        if (this.props.setPanZoomComp) {
+            this.props.setPanZoomComp(this.panZoomComp);
         }
     }
 
@@ -87,6 +130,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Initialize AST node view state
         ASTUtil.traversNode(ast, initVisitor);
         setProjectAST(projectAst);
+        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? 0 : this.props.maxInvocationDepth);
         ASTUtil.traversNode(ast, invocationVisitor);
         if (this.props.mode === DiagramMode.INTERACTION) {
             ASTUtil.traversNode(ast, interactionModeVisitor);

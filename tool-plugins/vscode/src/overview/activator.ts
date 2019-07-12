@@ -21,7 +21,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as _ from 'lodash';
 
-import { BallerinaExtension, ExtendedLangClient } from 'src/core';
+import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier } from 'src/core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
@@ -39,9 +39,24 @@ function updateWebView(docUri: Uri): void {
 	}
 }
 
+function updateSelectedConstruct(construct: ConstructIdentifier) {
+	// If Project Overview is already showing update it to show the selected construct
+	if (overviewPanel) {
+		if (rpcHandler) {
+			const { moduleName, constructName } = construct;
+			rpcHandler.invokeRemoteMethod("selectConstruct", [moduleName, constructName], () => {});
+		}
+	}
+	// If Project Overview is not yet opened open it and show the selected construct
+}
+
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
 	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+
+	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
+		updateSelectedConstruct(construct);
+	});
 
 	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
 		return ballerinaExtInstance.onReady()
