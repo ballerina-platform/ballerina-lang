@@ -57,7 +57,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `sql:JdbcClientError` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, sql:Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, sql:Param... parameters)
                                returns @tainted table<record {}>[]|()|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
@@ -75,7 +75,7 @@ public type Client client object {
     # there is any error
     //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
     //                              sql:Param... parameters) returns @tainted table<record {}>|error {
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                       sql:Param... parameters) returns @tainted table<record {}>|sql:JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();

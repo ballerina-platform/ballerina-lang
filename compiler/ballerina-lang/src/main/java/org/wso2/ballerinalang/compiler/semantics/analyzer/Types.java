@@ -21,7 +21,6 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -52,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -581,6 +581,11 @@ public class Types {
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
             // Special casing services, until we figure out service type concept.
             return true;
+        }
+
+        if (target.tag == TypeTags.TYPEDESC && source.tag == TypeTags.TYPEDESC) {
+            return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
+                    unresolvedTypes);
         }
 
         // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
@@ -1551,6 +1556,12 @@ public class Types {
             return symTable.notFoundSymbol;
         }
 
+        @Override
+        public BSymbol visit(BTypedescType t, BType s) {
+
+            return symTable.notFoundSymbol;
+        }
+
     };
 
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
@@ -1639,7 +1650,24 @@ public class Types {
 
         @Override
         public Boolean visit(BRecordType t, BType s) {
-            return t == s;
+
+            if (t == s) {
+                return true;
+            }
+            if (s.tag != TypeTags.RECORD) {
+                return false;
+            }
+            BRecordType source = (BRecordType) s;
+            boolean notSameType = source.fields
+                    .stream()
+                    .map(fs -> t.fields.stream()
+                            .anyMatch(ft -> fs.name.equals(ft.name)
+                                    && isSameType(fs.type, ft.type, this.unresolvedTypes)))
+                    .anyMatch(foundSameType -> !foundSameType);
+            if (notSameType) {
+                return false;
+            }
+            return isSameType(source.restFieldType, t.restFieldType, unresolvedTypes);
         }
 
         @Override
@@ -1728,6 +1756,17 @@ public class Types {
         public Boolean visit(BServiceType t, BType s) {
             return t == s || t.tag == s.tag;
         }
+
+        @Override
+        public Boolean visit(BTypedescType t, BType s) {
+
+            if (s.tag != TypeTags.TYPEDESC) {
+                return false;
+            }
+            BTypedescType sType = ((BTypedescType) s);
+            return isSameType(sType.constraint, t.constraint, this.unresolvedTypes);
+        }
+
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
