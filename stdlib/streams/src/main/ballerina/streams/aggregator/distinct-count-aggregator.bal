@@ -51,7 +51,7 @@ public type DistinctCount object {
                 self.distinctValues[key] = preVal;
             }
         } else if (eventType == "RESET"){
-            self.distinctValues.clear();
+            self.distinctValues.removeAll();
         }
         return self.distinctValues.length();
     }

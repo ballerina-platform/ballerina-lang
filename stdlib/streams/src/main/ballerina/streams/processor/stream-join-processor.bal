@@ -65,13 +65,14 @@ public type StreamJoinProcessor object {
             int i = 0;
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent> evt;
-                string originStream = event.data.keys()[0].split("\\.")[0];
+                string[] values = internal:split(event.data.keys()[0], "\\.");
+                string originStream = values[0];
                 // resolve trigger according to join direction
                 boolean triggerJoin = false;
                 var s = self.unidirectionalStream;
                 if (s is string) {
                     // unidirectional
-                    if (s.equalsIgnoreCase(originStream)) {
+                    if (internal:equalsIgnoreCase(s, originStream)) {
                         triggerJoin = true;
                     }
                 } else {
@@ -82,7 +83,9 @@ public type StreamJoinProcessor object {
                 if (triggerJoin) {
                     [StreamEvent?, StreamEvent?][] candidateEvents = [];
                     // join events according to the triggered side
-                    if (self.lhsStream.equalsIgnoreCase(originStream) ?: false) {
+                    string? value = self.lhsStream;
+                    string returnVal = value is string ? value : "";
+                    if (internal:equalsIgnoreCase(returnVal, originStream)) {
                         // triggered from LHS
                         var evtArr = self.rhsWindow.getCandidateEvents(event, self.onConditionFunc);
                         if (evtArr is [StreamEvent?, StreamEvent?][]) {
