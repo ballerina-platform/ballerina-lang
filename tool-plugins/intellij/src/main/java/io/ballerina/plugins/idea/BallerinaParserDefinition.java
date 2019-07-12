@@ -137,6 +137,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SECONDS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
@@ -148,8 +149,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEDESC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEOF;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNTAINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
@@ -184,8 +185,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                     CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DEPRECATED, DECIMAL, ELSE, ERROR, EXTERNAL,
                     FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON,
                     LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD,
-                    REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, START, STREAM, STRING, TABLE,
-                    TRANSACTION, TRY, TYPE, TYPEDESC, TRAP, THROW, UNTAINT, WAIT, WHILE, WITH, WORKER, VAR, VERSION,
+                    REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING, TABLE,
+                    TRANSACTION, TRY, TYPE, TYPEDESC, TYPEOF, TRAP, THROW, WAIT, WHILE, WITH, WORKER, VAR, VERSION,
                     XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE,
                     FOLLOWED, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER, RIGHT,
                     LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS, MONTH, MONTHS,

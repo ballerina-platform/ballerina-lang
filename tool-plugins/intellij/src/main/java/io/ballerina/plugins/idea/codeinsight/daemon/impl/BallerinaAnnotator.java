@@ -31,7 +31,6 @@ import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
-import io.ballerina.plugins.idea.psi.BallerinaConstantDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFloatingPointLiteral;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
@@ -76,7 +75,7 @@ public class BallerinaAnnotator implements Annotator {
             annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
-            if (elementType == BallerinaTypes.AT) {
+            if (elementType == BallerinaTypes.AT || elementType == BallerinaTypes.ANNOTATION_ACCESS) {
                 if (parent instanceof BallerinaAnnotationAttachment) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
@@ -123,16 +122,9 @@ public class BallerinaAnnotator implements Annotator {
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.TEMPLATE_LANGUAGE_COLOR);
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
-                    || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
-                    || elementType == BallerinaTypes.SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE
-                    || elementType == BallerinaTypes.DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE
-                    || elementType == BallerinaTypes.TRIPLE_BACK_TICK_DEPRECATED_INLINE_CODE
-                    || elementType == BallerinaTypes.SINGLE_BACK_TICK_INLINE_CODE
-                    || elementType == BallerinaTypes.DOUBLE_BACK_TICK_INLINE_CODE
-                    || elementType == BallerinaTypes.TRIPLE_BACK_TICK_INLINE_CODE) {
+                    || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT) {
                 annotateInlineCode(element, holder);
-            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT
-                    || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_TEXT) {
+            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
             } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START) {
@@ -186,11 +178,7 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_END) {
                 annotateInlineCode(element, holder);
             } else if (elementType == BallerinaTypes.IDENTIFIER) {
-                if (parent instanceof BallerinaGlobalVariableDefinition
-                        || parent instanceof BallerinaConstantDefinition) {
-                    Annotation annotation = holder.createInfoAnnotation(element, null);
-                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
-                } else if (parent instanceof BallerinaTableColumn) {
+                if (parent instanceof BallerinaTableColumn) {
                     if (element.getText().equals("key") && element.getNextSibling() instanceof PsiWhiteSpace) {
                         PsiElement nextElement = element.getNextSibling().getNextSibling();
                         if (nextElement instanceof LeafPsiElement
@@ -249,7 +237,7 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
-            boolean excludeEndChar) {
+                                 boolean excludeEndChar) {
         TextRange textRange = element.getTextRange();
         TextRange newTextRange = new TextRange(textRange.getStartOffset(),
                 textRange.getEndOffset() - (excludeEndChar ? 1 : 0));
@@ -258,7 +246,7 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
-            @NotNull TextAttributesKey textAttributesKey, boolean excludeEndChar) {
+                                 @NotNull TextAttributesKey textAttributesKey, boolean excludeEndChar) {
         TextRange textRange = element.getTextRange();
         TextRange newTextRange = new TextRange(textRange.getStartOffset(),
                 textRange.getEndOffset() - (excludeEndChar ? 1 : 0));
