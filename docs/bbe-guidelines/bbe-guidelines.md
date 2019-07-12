@@ -116,6 +116,6 @@
     <img src="images/service-example-structure.png" width="400" height="220" alt="service example structure" />
 
 
-6. Unless it is really required, it is not encouraged to have multiple .bal files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
+6. Unless it is really required, it is not encouraged to have multiple `.bal` files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
     <img src="images/multiple-bal-examples.png" width="475" height="200" alt="multiple-bal-examples" />
