@@ -71,7 +71,7 @@ public class ArtemisServiceCompilerPlugin extends AbstractTransportCompilerPlugi
         // More than two resource functions are found
         if (resources.size() > 2) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                    "Only onMessage and onError are allowed in the service");
+                    "Only onMessage and onError resources are allowed in the service");
         }
         // No resource functions are found
         if (resources.isEmpty()) {
