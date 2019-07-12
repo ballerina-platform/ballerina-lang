@@ -99,7 +99,7 @@
 
     ```
     # To run this sample, navigate to the directory that contains the
-    # `.bal` file and issue the `ballerina run` command.
+    # `.bal` file and execute the `ballerina run` command.
     $ ballerina run <sample_file_name>.bal
     ```
 - For an example with a service;
