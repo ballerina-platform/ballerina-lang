@@ -19,16 +19,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -55,59 +49,13 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         args = {@Argument(name = "value", type = TypeKind.INT)},
         isPublic = true
 )
-public class WriteInt64 implements NativeCallableUnit {
-    /**
-     * Represents data channel.
-     */
-    private static final int DATA_CHANNEL_INDEX = 0;
-    /**
-     * Index which holds the value of the data to be written.
-     */
-    private static final int VALUE_INDEX = 0;
-
-    /**
-     * Triggers upon receiving the response.
-     *
-     * @param result the response received after writing int.
-     */
-    private static EventResult writeIntegerResponse(EventResult<Long, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
-        Throwable error = eventContext.getError();
-        CallableUnitCallback callback = eventContext.getCallback();
-        if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
-        }
-        callback.notifySuccess();
-        return result;
-    }
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
-        DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        long value = context.getIntArgument(VALUE_INDEX);
-        EventContext eventContext = new EventContext(context, callback);
-        WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel,
-                value, Representation.BIT_64,
-                eventContext);
-        Register register = EventRegister.getFactory().register(writeIntegerEvent, WriteInt64::writeIntegerResponse);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public class WriteInt64 {
 
     public static Object writeInt64(Strand strand, ObjectValue dataChannelObj, long value) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel,
-                                                                    value, Representation.BIT_64,
-                                                                    eventContext);
+        WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel, value, Representation.BIT_64,
+                eventContext);
         Register register = EventRegister.getFactory().register(writeIntegerEvent, WriteInt64::writeResponse);
         eventContext.setRegister(register);
         register.submit();
