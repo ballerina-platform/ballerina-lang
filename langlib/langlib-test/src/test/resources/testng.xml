@@ -39,6 +39,23 @@
             <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
             <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
             <class name="org.ballerinalang.langlib.test.LangLibMapTest" />
+
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachNegativeTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.NestedForeachTest"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachXMLTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachXMLTest"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTableTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachStringTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachComplexTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTypedBindingPatternsTests"/>
+            <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>-->
+            <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>-->
         </classes>
     </test>
 </suite>

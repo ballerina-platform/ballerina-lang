@@ -417,27 +417,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             return;
         }
-        // Visit imports
-        visitImports(pkgNode);
-        // Visit top level constructs
-        visitTopLevelNodes(pkgNode);
-        // Visit the builtin functions
-        visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
-
-        // We don't need to visit constants since we don't do any code generation for constants.
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                        pkgLevelNode.getKind() != NodeKind.XMLNS)
-                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
-        // Add function symbol for all functions
-        pkgNode.functions.forEach(funcNode -> {
-            funcNode.symbol = funcNode.originalFuncSymbol;
-        });
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 
     /**

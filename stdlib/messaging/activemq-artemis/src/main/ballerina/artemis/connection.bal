@@ -104,7 +104,7 @@ public type Connection client object {
     private function buildUrlFromQueryParams(string initialUrl, map<string> queryParams) returns string {
         boolean first = true;
         var populatedUrl = initialUrl;
-        foreach (var [key, value] in queryParams) {
+        foreach (var [key, value] in queryParams.entries()) {
             if (first) {
                 populatedUrl += "?sslEnabled=true";
                 populatedUrl += self.getQueryParamPart(key, value);
