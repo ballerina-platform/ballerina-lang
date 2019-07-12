@@ -43,7 +43,7 @@
         int age;
     Grades grades;
     };
-    ````
+    ```
 
 7. Remove unused imports in `.bal` files.
 
