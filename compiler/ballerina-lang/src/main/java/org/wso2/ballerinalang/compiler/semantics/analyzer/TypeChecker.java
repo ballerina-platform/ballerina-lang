@@ -2959,7 +2959,6 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         iExpr.argExprs.add(0, iExpr.expr);
-        iExpr.expr.typeChecked = false;
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
@@ -2972,6 +2971,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
+        if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
+            return symTable.noType;
+        }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
         int requiredParamsCount;
@@ -3053,9 +3056,11 @@ public class TypeChecker extends BLangNodeVisitor {
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
-            if (i == 0 && TypeParamAnalyzer.containsTypeParam(expectedType)) {
+            if (i == 0 && requiredArgExprs.get(i).typeChecked) {
                 types.checkType(requiredArgExprs.get(i).pos, requiredArgExprs.get(i).type, expectedType,
                                 DiagnosticCode.INCOMPATIBLE_TYPES);
+                BLangExpression expr = requiredArgExprs.get(i);
+                types.setImplicitCastExpr(expr, expr.type, expectedType);
             } else {
                 checkExpr(requiredArgExprs.get(i), this.env, expectedType);
             }

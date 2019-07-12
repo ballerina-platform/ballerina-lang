@@ -98,6 +98,11 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testInTypeGuard() {
+        invokeFunctionPointerProgram(fpProgram, "testInTypeGuard", 0);
+    }
+
+    @Test
     public void testPrivateFunctionPointerTest1() {
         invokeFunctionPointerProgram(privateFPProgram, "test1", 3);
     }

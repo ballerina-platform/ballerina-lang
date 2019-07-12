@@ -53,7 +53,7 @@ public type Select object {
                     foreach var [k, v] in self.aggregatorsCloneMap {
                         boolean stateRemoved = removeState(k);
                     }
-                    self.aggregatorsCloneMap.clear();
+                    self.aggregatorsCloneMap.removeAll();
                 }
 
                 string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);

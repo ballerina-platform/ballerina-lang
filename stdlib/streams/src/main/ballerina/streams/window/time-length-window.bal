@@ -90,7 +90,7 @@ public type TimeLengthWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == ()) {
+        if (streamEventChunk.getFirst() is ()) {
             return;
         }
 
