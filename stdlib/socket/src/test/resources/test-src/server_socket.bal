@@ -63,7 +63,7 @@ service helloServer on new socket:Listener(59153) {
         result = caller->read(length = 6);
         process(result, caller);
         string msg = "Hello Client";
-        byte[] msgByteArray = msg.toByteArray("utf-8");
+        byte[] msgByteArray = msg.toBytes();
         _ = checkpanic caller->write(msgByteArray);
     }
 

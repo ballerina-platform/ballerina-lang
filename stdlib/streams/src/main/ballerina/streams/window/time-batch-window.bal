@@ -102,7 +102,7 @@ public type TimeBatchWindow object {
             self.currentEventQueue.addLast(clonedEvent);
         }
         if (sendEvents) {
-            if (self.currentEventQueue.getFirst() != ()) {
+            if (!(self.currentEventQueue.getFirst() is ())) {
                 if (!(self.resetEvent is ())) {
                     outputStreamEvents.addLast(self.resetEvent);
                     self.resetEvent = ();

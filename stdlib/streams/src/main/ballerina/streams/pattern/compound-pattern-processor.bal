@@ -184,7 +184,10 @@ public type CompoundPatternProcessor object {
     # + processor - descendant processor
     public function setProcessor(AbstractPatternProcessor processor) {
         self.processor = processor;
-        self.processor.setPreviousProcessor(self);
+        AbstractPatternProcessor? patternProcessor = self.processor;
+        if (patternProcessor is AbstractPatternProcessor) {
+            patternProcessor.setPreviousProcessor(self);
+        }
     }
 
     # Returns the alias of the current processor.

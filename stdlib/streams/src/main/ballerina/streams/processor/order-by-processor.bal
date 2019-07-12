@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+import ballerina/'lang\.int as langint;
+
 # The `OrderBy` object represents the desugared code of `order by` clause of a streaming query. This object takes 3
 # parameters to initialize itself. `nextProcessPointer` is the `process` method of the next processor. `fieldFuncs`
 # is an array of function pointers which returns the field values to be sorted. `sortTypes` is an array of string
@@ -142,18 +145,20 @@ public type MergeSort object {
 
     function stringSort(string x, string y) returns int {
 
-        byte[] v1 = x.toByteArray("UTF-8");
-        byte[] v2 = y.toByteArray("UTF-8");
+        byte[] v1 = x.toBytes();
+        byte[] v2 = y.toBytes();
 
         int len1 = v1.length();
         int len2 = v2.length();
         int lim = len1 < len2 ? len1 : len2;
         int k = 0;
         while (k < lim) {
-            int c1 = int.convert(v1[k]);
-            int c2 = int.convert(v2[k]);
-            if (c1 != c2) {
-                return c1 - c2;
+            var c1 = langint:fromString(v1[k].toString());
+            var c2 = langint:fromString(v2[k].toString());
+            if (c1 is int && c2 is int) {
+                if (c1 != c2) {
+                    return c1 - c2;
+                }
             }
             k += 1;
         }
@@ -169,7 +174,7 @@ public type MergeSort object {
             if (yFieldFuncResult is string) {
                 int c;
                 //odd indices contain the sort type (ascending/descending)
-                if (self.sortTypes[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
                     c = self.stringSort(xFieldFuncResult, yFieldFuncResult);
                 } else {
                     c = self.stringSort(yFieldFuncResult, xFieldFuncResult);
@@ -186,7 +191,7 @@ public type MergeSort object {
             var yFieldFuncResult = fieldFunc.call(y.data);
             if (yFieldFuncResult is (int|float)) {
                 int c;
-                if (self.sortTypes[fieldIndex].equalsIgnoreCase(ASCENDING)) {
+                if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
                     c = self.numberSort(xFieldFuncResult, yFieldFuncResult);
                 } else {
                     c = self.numberSort(yFieldFuncResult, xFieldFuncResult);

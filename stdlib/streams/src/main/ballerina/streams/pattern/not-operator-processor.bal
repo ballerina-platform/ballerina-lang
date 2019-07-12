@@ -61,8 +61,12 @@ public type NotOperatorProcessor object {
                         noOfRecurrences: 1
                     }
                 );
-                checkpanic self.eventScheduler.attach(self.eventSchedulerService, attachment = self);
-                checkpanic self.eventScheduler.start();
+
+                task:Scheduler? evtScheduler = self.eventScheduler;
+                if (evtScheduler is task:Scheduler) {
+                    checkpanic evtScheduler.attach(self.eventSchedulerService, attachment = self);
+                    checkpanic evtScheduler.start();
+                }
             }
         }
     }
@@ -226,7 +230,10 @@ public type NotOperatorProcessor object {
     # + processor - descendant processor
     public function setProcessor(AbstractPatternProcessor processor) {
         self.processor = processor;
-        self.processor.setPreviousProcessor(self);
+        AbstractPatternProcessor? pr = self.processor;
+        if (pr is AbstractPatternProcessor) {
+            pr.setPreviousProcessor(self);
+        }
     }
 
     # Returns the alias of the current processor.
