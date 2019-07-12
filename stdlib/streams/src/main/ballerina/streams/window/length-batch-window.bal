@@ -82,7 +82,7 @@ public type LengthBatchWindow object {
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
             if (self.count == self.length) {
-                if (self.currentEventQueue.getFirst() != ()) {
+                if (!(self.currentEventQueue.getFirst() is ())) {
                     if (!(self.resetEvent is ())) {
                         outputStreamEventChunk.addLast(self.resetEvent);
                         self.resetEvent = ();
@@ -95,7 +95,7 @@ public type LengthBatchWindow object {
                 }
                 self.currentEventQueue.clear();
                 self.count = 0;
-                if (outputStreamEventChunk.getFirst() != ()) {
+                if (!(outputStreamEventChunk.getFirst() is ())) {
                     streamEventChunks.addLast(outputStreamEventChunk);
                 }
             }
