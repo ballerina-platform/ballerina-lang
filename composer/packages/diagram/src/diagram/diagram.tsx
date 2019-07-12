@@ -7,7 +7,8 @@ import { CompilationUnitViewState, ViewState } from "../view-model/index";
 import { SvgCanvas } from "../views";
 import { visitor as hiddenBlockVisitor } from "../visitors/hidden-block-visitor";
 import { visitor as initVisitor } from "../visitors/init-visitor";
-import { setProjectAST, visitor as invocationVisitor } from "../visitors/invocation-expanding-visitor";
+import { setMaxInvocationDepth, setProjectAST, visitor as invocationVisitor
+    } from "../visitors/invocation-expanding-visitor";
 import { visitor as interactionModeVisitor } from "../visitors/mode-visitors/interaction-mode-visitor";
 import { visitor as statementModeVisitor } from "../visitors/mode-visitors/statement-mode-visitor";
 import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
@@ -22,6 +23,7 @@ export interface CommonDiagramProps {
     fitToWidthOrHeight: boolean;
     mode: DiagramMode;
     langClient: IBallerinaLangClient;
+    maxInvocationDepth?: number;
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
@@ -58,6 +60,10 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         if (this.panZoomRootRef.current) {
             this.panZoomRootRefCurrent = this.panZoomRootRef.current;
             this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+                beforeWheel: (e) => {
+                    // allow wheel-zoom only if ctrl is down.
+                    return !e.ctrlKey;
+                },
                 smoothScroll: false,
             });
             if (this.props.setPanZoomComp) {
@@ -67,7 +73,6 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     }
 
     public componentWillUnmount() {
-        console.log("will unmount")
         if (this.panZoomComp) {
             this.panZoomComp.dispose();
             if (this.props.setPanZoomComp) {
@@ -125,6 +130,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Initialize AST node view state
         ASTUtil.traversNode(ast, initVisitor);
         setProjectAST(projectAst);
+        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? 0 : this.props.maxInvocationDepth);
         ASTUtil.traversNode(ast, invocationVisitor);
         if (this.props.mode === DiagramMode.INTERACTION) {
             ASTUtil.traversNode(ast, interactionModeVisitor);

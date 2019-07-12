@@ -18,6 +18,8 @@ export interface TopMenuProps {
     handleOpened: () => void;
     handleClosed: () => void;
     handleReset: () => void;
+    handleDepthSelect: (depth: number) => void;
+    maxInvocationDepth: number;
     zoomFactor: number;
 }
 
@@ -32,9 +34,11 @@ export const TopMenu = (props: TopMenuProps) => {
         handleOpened,
         handleClosed,
         handleReset,
+        handleDepthSelect,
         openedState,
         fitActive,
         zoomFactor = 1,
+        maxInvocationDepth,
     } = props;
 
     return (
@@ -70,15 +74,19 @@ export const TopMenu = (props: TopMenuProps) => {
                 <Grid.Row className="menu-row" columns={3}>
                     <Grid.Column className="menu-label" width={4}>
                         Depth
-                        </Grid.Column>
+                    </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Icon className="fw fw-minus" />
-                        <Dropdown className="menu-dropdown-small">
+                        <Dropdown
+                            text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
+                            className="menu-dropdown-small"
+                        >
                             <Dropdown.Menu>
-                                <Dropdown.Item text={1} />
-                                <Dropdown.Item text={2} />
-                                <Dropdown.Item text={3} />
-                                <Dropdown.Item text={4} />
+                                <Dropdown.Item onClick={() => handleDepthSelect(0)} text={0} />
+                                <Dropdown.Item onClick={() => handleDepthSelect(1)} text={1} />
+                                <Dropdown.Item onClick={() => handleDepthSelect(2)} text={2} />
+                                <Dropdown.Item onClick={() => handleDepthSelect(3)} text={3} />
+                                <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
                             </Dropdown.Menu>
                         </Dropdown>
                         <Icon className="fw fw-add" />

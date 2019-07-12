@@ -36,6 +36,7 @@ export interface OverviewState {
     fitToWidthOrHeight: boolean;
     zoomFactor: number;
     openedState: boolean;
+    maxInvocationDepth: number;
 }
 
 export interface ConstructIdentifier {
@@ -64,13 +65,15 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.handleClosed = this.handleClosed.bind(this);
         this.handleReset = this.handleReset.bind(this);
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
+        this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
+            maxInvocationDepth: 0,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
             openedState: false,
-            zoomFactor: 0,
+            zoomFactor: 1,
         };
     }
 
@@ -143,6 +146,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     fitActive={this.state.fitToWidthOrHeight}
                     zoomFactor={this.state.zoomFactor}
                     handleReset={this.handleReset}
+                    handleDepthSelect={this.setMaxInvocationDepth}
+                    maxInvocationDepth={this.state.maxInvocationDepth}
                 />
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
@@ -151,7 +156,8 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     zoom={0} height={0} width={1000}
                     fitToWidthOrHeight={this.state.fitToWidthOrHeight}
                     mode={this.state.mode}
-                    setPanZoomComp={this.setPanZoomComp}>
+                    setPanZoomComp={this.setPanZoomComp}
+                    maxInvocationDepth={this.state.maxInvocationDepth}>
                 </Diagram>
             </div>
         );
@@ -315,6 +321,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                 zoomFactor: scale,
             });
         }
+    }
+
+    private setMaxInvocationDepth(depth: number) {
+        this.setState({
+            maxInvocationDepth: depth,
+        });
     }
 
     private handleModuleNameSelect(e: React.MouseEvent<HTMLDivElement, MouseEvent>, props: DropdownItemProps) {
