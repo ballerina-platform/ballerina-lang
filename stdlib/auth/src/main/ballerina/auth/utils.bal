@@ -17,9 +17,6 @@
 import ballerina/encoding;
 import ballerina/log;
 
-# Constant for the auth error code.
-public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
-
 # Constant for empty string.
 const string EMPTY_STRING = "";
 
@@ -50,24 +47,29 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # Extracts the username and password from the credential values.
 #
 # + credential - The credential values.
-# + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
-public function extractUsernameAndPassword(string credential) returns [string, string]|error {
+# + return - A `string` tuple with the extracted username and password or `AuthError` occurred while extracting credentials
+public function extractUsernameAndPassword(string credential) returns [string, string]|AuthError {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
-        return prepareError("Incorrect credential format. Format should be username:password");
+        return prepareAuthError("Incorrect credential format. Format should be username:password");
     } else {
         return [decodedCredentials[0], decodedCredentials[1]];
     }
 }
 
-# Log, prepare and return the `error`.
+# Log and prepare `error` as a `AuthError`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `error` instance
-function prepareError(string message, error? err = ()) returns error {
+# + return - Prepared `AuthError` instance
+public function prepareAuthError(string message, error? err = ()) returns AuthError {
     log:printError(message, err = err);
-    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = err.reason());
-    return preparedError;
+    AuthError authError;
+    if (err is error) {
+        authError = error(AUTH_ERROR, message = message, cause = err);
+    } else {
+        authError = error(AUTH_ERROR, message = message);
+    }
+    return authError;
 }

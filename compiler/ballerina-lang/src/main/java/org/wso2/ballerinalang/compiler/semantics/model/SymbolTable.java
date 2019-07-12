@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -88,6 +87,9 @@ public class SymbolTable {
             Names.EMPTY);
     public static final PackageID UTILS = new PackageID(Names.BUILTIN_ORG, Names.UTILS_PACKAGE, Names.EMPTY);
 
+    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
+                                                              Names.EMPTY);
+    
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
 
@@ -122,7 +124,6 @@ public class SymbolTable {
     public final BType intArrayType = new BArrayType(intType);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType anydataArrayType = new BArrayType(anydataType);
-    public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
 
     public final BTypeSymbol errSymbol;
@@ -182,7 +183,6 @@ public class SymbolTable {
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
-        initializeType(channelType, TypeKind.CHANNEL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
 
         // Initialize semantic error type;
