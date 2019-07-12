@@ -163,15 +163,6 @@ public type AndOperatorProcessor object {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
             // promoted from lhs means, it can be a partial lhs state or a completed state.
-            //var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
-            //if (rhsRemoved is boolean) {
-            //    // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
-            //    if (rhsRemoved) {
-            //        self.stateEvents.addLast(stateEvent);
-            //    } else {
-            //        self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
-            //    }
-            //}
             if (self.rhsPartialStates.hasKey(stateEvent.getEventId())) {
                 var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
                 self.stateEvents.addLast(stateEvent);
