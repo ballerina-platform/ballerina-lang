@@ -941,10 +941,32 @@
         "title": "NATS",
         "column": 3,
         "category": "Working over the network",
-        "samples": [{
-            "name": "Basic Publisher and Subscriber",
-            "url": "nats-basic-client"
-        }]
+        "samples": [
+            {
+                "name": "Basic Publisher and Subscriber",
+                "url": "nats-basic-client"
+            },
+            {
+                "name": "Basic Streaming Publisher and Subscriber",
+                "url": "nats-streaming-client"
+            },
+            {
+                "name": "Streaming Publisher and Subscriber With Data Binding",
+                "url": "nats-streaming-consumer-with-data-binding"
+            },
+            {
+                "name": "Durable Subscriptions",
+                "url": "nats-streaming-consumer-with-data-binding"
+            },
+            {
+                "name": "Queue Groups",
+                "url": "nats-streaming-queue-group"
+            },
+            {
+                "name": "Historical Message Replay",
+                "url": "nats-streaming-start-position"
+            }
+        ]
     },
     {
         "title": "RabbitMQ",
