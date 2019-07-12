@@ -63,7 +63,7 @@ public class LangLibIntTest {
 
         BError err = (BError) returns[1];
         assertEquals(err.getReason(), BallerinaErrorReasons.NUMBER_PARSING_ERROR);
-        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "{message:\"For input string: \"12invalid34\"\"}");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class LangLibIntTest {
 
         BError err = (BError) returns[1];
         assertEquals(err.getReason(), BallerinaErrorReasons.NUMBER_PARSING_ERROR);
-        assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "{message:\"For input string: \"12invalid34\"\"}");
     }
 
     @DataProvider(name = "MaxNumList")
