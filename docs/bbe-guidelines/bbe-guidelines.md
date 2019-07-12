@@ -89,7 +89,7 @@
 
     `.out` - Output of the example displayed at the bottom black colour box in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
-    _test.bal - Contains the test to validate the output of the BBE during the build time. 
+    `<example_name>_test.bal` - Contains the test to validate the output of the BBE during the build time. 
 
     <img src="images/bbe-folder-structure.png" width="350" height="200" alt="BBE folder structure" />
 
