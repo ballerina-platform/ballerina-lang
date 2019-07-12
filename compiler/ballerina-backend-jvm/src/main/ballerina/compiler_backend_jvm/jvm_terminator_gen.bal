@@ -33,7 +33,7 @@ type TerminatorGenerator object {
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
-                           int localVarOffset, int returnVarRefIndex) {
+                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName);
         } else if (terminator is bir:Unlock) {
@@ -43,7 +43,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Call) {
             self.genCallTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:AsyncCall) {
-            self.genAsyncCallTerm(terminator, funcName, localVarOffset);
+            self.genAsyncCallTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -392,7 +392,7 @@ type TerminatorGenerator object {
         return true;
     }
 
-    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset) {
+    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset, bir:BType? attachedType) {
 
         // Load the scheduler from strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -457,7 +457,13 @@ type TerminatorGenerator object {
 
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
+        string lookupKey = "";
+        if (attachedType is bir:BObjectType) {
+            lookupKey = currentPackageName + attachedType.name.value + "." + funcName;
+        } else {
+            lookupKey = currentPackageName + funcName;
+        }
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
         bir:BType? futureType = callIns.lhsOp.typeValue;
         bir:BType returnType = bir:TYPE_NIL;
         if (futureType is bir:BFutureType) {
@@ -465,7 +471,7 @@ type TerminatorGenerator object {
         }
         boolean isVoid = returnType is bir:BTypeNil;
         createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
-        lambdas[lambdaName] = (callIns, methodClass);
+        lambdas[lambdaName] = callIns;
         self.lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);
@@ -618,12 +624,17 @@ type TerminatorGenerator object {
         }
 
         // if async, we submit this to sceduler (worker scenario)
+        boolean isVoid = false;
+        bir:BType returnType = fpCall.fp.typeValue;
+        if (returnType is bir:BInvokableType) {
+            isVoid = returnType.retType is bir:BTypeNil;
+        } 
         if (fpCall.isAsync) {
             // load function ref now
             generateVarLoad(self.mv, fpCall.fp.variableDcl, currentPackageName, 
                 self.getJVMIndexOfVarRef(fpCall.fp.variableDcl));
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);           
-        } else if (fpCall.lhsOp is ()) {
+        } else if (isVoid) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);

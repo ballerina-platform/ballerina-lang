@@ -116,6 +116,7 @@
             <package name="org.ballerinalang.test.annotations"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
+            <package name="org.ballerinalang.test.statements.transaction.*"/>
         </packages>
 
         <classes>
@@ -135,6 +136,7 @@
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
             <class name="org.ballerinalang.test.error.ErrorTest" />
+            <class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>
         </classes>
     </test>
 </suite>

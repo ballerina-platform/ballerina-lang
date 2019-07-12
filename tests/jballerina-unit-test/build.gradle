@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-
+ 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
@@ -37,6 +37,7 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-jvm')
+    implementation project(':ballerina-transactions')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -59,7 +60,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ballerina-transactions configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

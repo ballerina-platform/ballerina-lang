@@ -363,7 +363,7 @@ public class BHttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -382,7 +382,7 @@ public class BHttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
         }
         return responseFuture;
@@ -399,7 +399,7 @@ public class BHttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;

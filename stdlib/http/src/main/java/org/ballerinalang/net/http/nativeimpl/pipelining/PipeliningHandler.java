@@ -62,7 +62,7 @@ public class PipeliningHandler {
             } else {
                 responseFuture = requestMsg.respond(responseMsg);
             }
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending outbound response", e);
         }
         return responseFuture;

@@ -46,4 +46,9 @@
     <Match>
         <Class name="org.ballerinalang.jvm.util.ArgumentParser"/>
     </Match>
+    <Match>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </OR>
+    </Match>
 </FindBugsFilter>
