@@ -85,7 +85,7 @@
 
     `.bal` - The code of the example to be displayed in the [Ballerina By Examples](https://ballerina.io/learn/by-example/).
 
-    .description - The description of the example displayed at the top of each example in the [Ballerina website](https://ballerina.io/).
+    `.description` - The description of the example displayed at the top of each example in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
     .out - Output of the example displayed at the bottom black colour box in the [Ballerina website](https://ballerina.io/).
 
