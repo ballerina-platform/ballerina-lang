@@ -19,8 +19,8 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/runtime;
 
-auth:OutboundCustomAuthProvider outboundCustomAuthProvider = new;
-http:OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
+OutboundCustomAuthProvider outboundCustomAuthProvider = new;
+OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
 
 http:Client client17 = new("https://localhost:9114", config = {
     auth: {
@@ -46,7 +46,7 @@ service passthrough on listener17_1 {
         path: "/{testCase}"
     }
     resource function test(http:Caller caller, http:Request req, string testCase) {
-        var response = client17->get("/echo/" + testCase);
+        var response = client17->get("/echo/" + <@untainted> testCase);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -77,7 +77,7 @@ listener http:Listener listener17_2 = new(9114, config = {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo17 on listener17 {
+service echo17 on listener17_2 {
 
     @http:ResourceConfig {
         auth: {
@@ -126,7 +126,7 @@ public type InboundCustomAuthHandler object {
         return self.authProvider.authenticate(credential);
     }
 
-    public function canHandle(http:Request req) returns boolean {
+    public function canHandle(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
         return customAuthHeader.hasPrefix("Custom");
     }
@@ -163,20 +163,20 @@ public type OutboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function prepare(http:Request req) returns Request|error {
-        string token = check authProvider.generateToken();
+    public function prepare(http:Request req) returns http:Request|error {
+        string token = check self.authProvider.generateToken();
         req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
         return req;
     }
 
-    public function inspect(http:Request req, http:Response resp) returns Request|error? {
-        map<anydata> headerMap = { http:STATUS_CODE: resp.statusCode };
-        string[] headerNames = resp.getHeaderNames();
+    public function inspect(http:Request req, http:Response resp) returns http:Request|error? {
+        map<anydata> headerMap = { "STATUS_CODE": resp.statusCode };
+        string[] headerNames = <@untainted> resp.getHeaderNames();
         foreach string header in headerNames {
-            string[] headerValues = resp.getHeaders(untaint header);
+            string[] headerValues = resp.getHeaders(header);
             headerMap[header] = headerValues;
         }
-        string? token = check authProvider.inspect(headerMap);
+        string? token = check self.authProvider.inspect(headerMap);
         if (token is string) {
             req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
             return req;

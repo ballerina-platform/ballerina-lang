@@ -92,7 +92,6 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
     private final int numThreads;
-    private static final Set<SchedulerItem> COMPLETED = Collections.emptySet();
     private Semaphore mainBlockSem;
 
     public Scheduler(int numThreads, boolean immortal) {
@@ -240,13 +239,13 @@ public class Scheduler {
                     } else {
                         item.blockedOn().forEach(blockedOn -> {
                             synchronized (blockedOn) {
-                                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
-                                if (blocked == COMPLETED) {
+                                if (blockedOn.completed) {
                                     if (DEBUG) {
                                         debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                     }
                                     reschedule(item);
                                 } else {
+                                    Set<SchedulerItem> blocked = blockedList.get(blockedOn);
                                     if (blocked == null) {
                                         blocked = new HashSet<>();
                                         blockedList.put(blockedOn, blocked);
@@ -282,16 +281,17 @@ public class Scheduler {
                     }
 
                     Strand justCompleted = item.future.strand;
+                    assert !justCompleted.completed : "Can't be completed twice";
+
                     Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
                         debugLog(item + " completed");
                     }
                     synchronized (justCompleted) {
                         cleanUp(justCompleted);
-                        blockedOnJustCompleted = blockedList.put(justCompleted, COMPLETED);
+                        justCompleted.completed = true;
+                        blockedOnJustCompleted = blockedList.remove(justCompleted);
                     }
-
-                    assert blockedOnJustCompleted != COMPLETED : "Can't be completed twice";
 
                     if (blockedOnJustCompleted != null) {
                         for (SchedulerItem blockedItem : blockedOnJustCompleted) {

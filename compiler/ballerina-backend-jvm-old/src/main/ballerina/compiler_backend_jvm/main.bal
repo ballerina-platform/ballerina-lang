@@ -67,14 +67,16 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     }
 
     JarFile jarFile = {};
-    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value), jarFile, true);
+    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value),
+                    untaint jarFile, true);
 
     return jarFile;
 }
 
 function readMap(string path) returns map<string> {
-    io:ReadableByteChannel rbc = io:openReadableFile(path);
+    var rbc = io:openReadableFile(path);
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+
     var result = untaint rch.readJson();
     var didClose = rch.close();
     if (result is error) {

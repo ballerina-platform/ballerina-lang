@@ -438,28 +438,6 @@ public class SQLActionsTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" },
-          description = "Test iterating data of a table loaded to memory multiple times")
-    public void testSelectLoadToMemory() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "([{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, "
-                + "{FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}])");
-    }
-
-    @Test(groups = { CONNECTOR_TEST, "broken" },
-          description = "Test iterating data of a table loaded to memory after closing")
-    public void testLoadToMemorySelectAfterTableClose() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "("
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "Trying to perform hasNext operation over a closed table {})");
-    }
-
     @Test(groups = CONNECTOR_TEST, description = "Test stopping a database client")
     public void testStopClient() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient");

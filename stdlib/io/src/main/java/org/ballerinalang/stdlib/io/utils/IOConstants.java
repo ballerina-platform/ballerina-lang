@@ -50,11 +50,6 @@ public class IOConstants {
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 
     /**
-     * Name of the Socket which will be represented through the native struct.
-     */
-    public static final String CLIENT_SOCKET_NAME = "clientSocket";
-
-    /**
      * Specifies the io package information.
      */
     public static final String IO_PACKAGE = "ballerina/io";

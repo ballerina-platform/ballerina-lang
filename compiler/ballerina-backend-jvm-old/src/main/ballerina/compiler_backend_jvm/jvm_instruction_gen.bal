@@ -1096,6 +1096,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         mv.visitVarInsn(LLOAD, valueIndex);
     } else if (bType is bir:BTypeByte) {
         mv.visitVarInsn(ILOAD, valueIndex);
+        mv.visitInsn(I2B);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
     } else if (bType is bir:BTypeFloat) {
         mv.visitVarInsn(DLOAD, valueIndex);
     } else if (bType is bir:BTypeBoolean) {

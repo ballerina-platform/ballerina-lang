@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-
+ 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
@@ -60,7 +60,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ballerina-transactions configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

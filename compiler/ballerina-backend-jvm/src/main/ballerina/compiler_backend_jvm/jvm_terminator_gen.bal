@@ -34,7 +34,7 @@ type TerminatorGenerator object {
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
-                           int localVarOffset, int returnVarRefIndex) {
+                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName);
         } else if (terminator is bir:Unlock) {
@@ -44,7 +44,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Call) {
             self.genCallTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:AsyncCall) {
-            self.genAsyncCallTerm(terminator, funcName, localVarOffset);
+            self.genAsyncCallTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -384,8 +384,7 @@ type TerminatorGenerator object {
         return true;
     }
 
-    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset) {
-
+    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset, bir:BType? attachedType) {
         // Load the scheduler from strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
@@ -413,7 +412,13 @@ type TerminatorGenerator object {
 
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-        string methodClass = lookupFullQualifiedClassName(currentPackageName + funcName);
+        string lookupKey = "";
+        if (attachedType is bir:BObjectType) {
+            lookupKey = currentPackageName + attachedType.name.value + "." + funcName;
+        } else {
+            lookupKey = currentPackageName + funcName;
+        }
+        string methodClass = lookupFullQualifiedClassName(lookupKey);
         bir:BType? futureType = callIns.lhsOp.typeValue;
         bir:BType returnType = bir:TYPE_NIL;
         if (futureType is bir:BFutureType) {
@@ -428,7 +433,6 @@ type TerminatorGenerator object {
     }
 
     function generateWaitIns(bir:Wait waitInst, string funcName, int localVarOffset) {
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitTypeInsn(NEW, ARRAY_LIST);
         self.mv.visitInsn(DUP);
@@ -472,7 +476,6 @@ type TerminatorGenerator object {
         self.mv.visitTypeInsn(NEW, "java/util/HashMap");
         self.mv.visitInsn(DUP);
         self.mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         int i = 0;
         while (i < waitAll.keys.length()) {
             self.mv.visitInsn(DUP);
@@ -491,7 +494,6 @@ type TerminatorGenerator object {
     }
 
     function genFPCallIns(bir:FPCall fpCall, string funcName, int localVarOffset) {
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         if (fpCall.isAsync) {
             // Load the scheduler from strand
             self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -530,11 +532,17 @@ type TerminatorGenerator object {
         }
 
         // if async, we submit this to sceduler (worker scenario)
+        boolean isVoid = false;
+        bir:BType returnType = fpCall.fp.typeValue;
+        if (returnType is bir:BInvokableType) {
+            isVoid = returnType.retType is bir:BTypeNil;
+        }
+
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);           
-        } else if (fpCall.lhsOp is ()) {
+        } else if (isVoid) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
@@ -568,7 +576,6 @@ type TerminatorGenerator object {
         self.mv.visitLdcInsn(ins.channelName.value);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, WD_CHANNELS, "getWorkerDataChannel", io:sprintf("(L%s;)L%s;", 
             STRING_VALUE, WORKER_DATA_CHANNEL), false);
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         self.loadVar(ins.dataOp.variableDcl);
         addBoxInsn(self.mv, ins.dataOp.typeValue);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -613,7 +620,6 @@ type TerminatorGenerator object {
         self.mv.visitLabel(withinReceiveSuccess);
         self.mv.visitVarInsn(ALOAD, wrkResultIndex);
         addUnboxInsn(self.mv, ins.lhsOp.typeValue);
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         self.storeToVar(ins.lhsOp.variableDcl);
 
         self.mv.visitLabel(jumpAfterReceive);
@@ -624,8 +630,6 @@ type TerminatorGenerator object {
         loadChannelDetails(self.mv, ins.workerChannels);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "handleFlush", 
                 io:sprintf("([L%s;)L%s;", CHANNEL_DETAILS, ERROR_VALUE), false);
-        
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         self.storeToVar(ins.lhsOp.variableDcl);
     }
         

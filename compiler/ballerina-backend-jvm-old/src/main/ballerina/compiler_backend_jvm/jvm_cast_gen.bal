@@ -76,6 +76,8 @@ function generateCheckCastToInt(jvm:MethodVisitor mv, bir:BType sourceType) {
     if (sourceType is bir:BTypeInt) {
         // do nothing
     } else if (sourceType is bir:BTypeByte) {
+        mv.visitInsn(I2B);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
         mv.visitInsn(I2L);
     } else if (sourceType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToInt", "(D)J", false);

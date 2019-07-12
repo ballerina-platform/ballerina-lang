@@ -31,7 +31,7 @@ public function decompressSingleFileToBlob(string baloPath, string pathInJar) re
 
 // TODO Refactor following methods
 public function populateBIRModuleFromBinary(byte[] modBinary, boolean symbolsOnly) returns Package {
-    io:ReadableByteChannel byteChannel = io:createReadableChannel(modBinary);
+    io:ReadableByteChannel byteChannel = checkpanic io:createReadableChannel(modBinary);
     ChannelReader reader = new(byteChannel);
     checkValidBirChannel(reader);
     ConstPoolParser cpParser = new(reader);

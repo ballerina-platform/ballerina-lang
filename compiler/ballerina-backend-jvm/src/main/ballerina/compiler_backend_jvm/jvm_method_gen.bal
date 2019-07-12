@@ -173,7 +173,7 @@ function genMethodForBallerinaFunction(bir:Function func,
 
             bir:BasicBlock?[] bbArray = func.paramDefaultBBs[paramBBCounter];
             generateBasicBlocks(mv, bbArray, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                                stateVarIndex, localVarOffset, true, module, currentPackageName);
+                                stateVarIndex, localVarOffset, true, module, currentPackageName, attachedType);
             mv.visitLabel(paramNextLabel);
             paramBBCounter += 1;
         }
@@ -196,7 +196,7 @@ function genMethodForBallerinaFunction(bir:Function func,
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName);
+                            localVarOffset, false, module, currentPackageName, attachedType);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -435,13 +435,14 @@ function xxxx(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisito
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
-            bir:Package module, string currentPackageName) {
+            bir:Package module, string currentPackageName, bir:BType? attachedType) {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
+    string[] errorVarNames = []; 
     jvm:Label endLabel = new;
     jvm:Label handlerLabel = new;
     jvm:Label jumpLabel = new;
@@ -469,7 +470,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             handlerLabel = new;
             jumpLabel = new;
             // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+                                                handlerLabel, jumpLabel);
         }
         while (m < insCount) {
             bir:Instruction? inst = bb.instructions[m];
@@ -588,13 +590,14 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 handlerLabel = new;
                 jumpLabel = new;
                 // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, errorVarNames, endLabel, 
+                                                handlerLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
                 generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
-            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex);
+            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
                 errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
@@ -777,6 +780,38 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
     mv.visitMaxs(0,0);
     mv.visitEnd();
+}
+
+function genLoadDataForObjectAttachedLambdas(bir:AsyncCall ins, jvm:MethodVisitor mv, int closureMapsCount,
+                    bir:VarRef?[] paramTypes , boolean isBuiltinModule) {
+    mv.visitInsn(POP);
+    mv.visitVarInsn(ALOAD, closureMapsCount);
+    mv.visitInsn(ICONST_1);
+    bir:VarRef ref = getVarRef(ins.args[0]);
+    mv.visitInsn(AALOAD);
+    addUnboxInsn(mv, ref.typeValue);
+    mv.visitVarInsn(ALOAD, closureMapsCount);
+    mv.visitInsn(ICONST_0);
+    mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, STRAND);
+  
+    mv.visitLdcInsn(cleanupObjectTypeName(ins.name.value));
+    int objectArrayLength = paramTypes.length() - 1;
+    if (!isBuiltinModule) {
+        mv.visitIntInsn(BIPUSH, objectArrayLength * 2);
+    } else {
+        mv.visitIntInsn(BIPUSH, objectArrayLength);
+    }
+    mv.visitTypeInsn(ANEWARRAY, OBJECT);
+}
+
+function generateObjectArgs(jvm:MethodVisitor mv, int paramIndex) {
+    mv.visitInsn(DUP);
+    mv.visitIntInsn(BIPUSH, paramIndex - 2);
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitIntInsn(BIPUSH, paramIndex + 1);
+    mv.visitInsn(AALOAD);
+    mv.visitInsn(AASTORE);
 }
 
 function addBooleanTypeToLambdaParamTypes(jvm:MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -1813,4 +1848,13 @@ function checkStrandCancelled(jvm:MethodVisitor mv, int localVarOffset) {
     mv.visitInsn(ATHROW);
     
     mv.visitLabel(notCancelledLabel);
+}
+
+function stringArrayContains(string[] array, string item) returns boolean {
+    foreach var listItem in array {
+        if (listItem.equalsIgnoreCase(item)) {
+            return true;
+        }
+    }
+    return false;
 }

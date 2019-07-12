@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" time-out="120000">
+<suite name="ballerina-test-suite" time-out="600000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
@@ -38,6 +38,7 @@
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
+            <package name="org.ballerinalang.test.action.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
@@ -116,6 +117,7 @@
             <package name="org.ballerinalang.test.annotations"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
+            <package name="org.ballerinalang.test.statements.transaction.*"/>
         </packages>
 
         <classes>
@@ -135,6 +137,7 @@
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
             <class name="org.ballerinalang.test.error.ErrorTest" />
+            <class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>
         </classes>
     </test>
 </suite>

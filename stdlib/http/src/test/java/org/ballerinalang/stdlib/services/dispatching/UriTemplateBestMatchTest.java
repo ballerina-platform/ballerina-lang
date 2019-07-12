@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
@@ -374,7 +375,90 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching without verbs")
+    @Test(description = "Test suitable method with URL. /echo155?foo=a,b&bar=c&foo=d")
+    public void testSameNameQueryParam() {
+        String path = "/hello/echo155?foo=a,b&bar=c&foo=d";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":\"c\", \"name4\":\"d\"}");
+
+        path = "/hello/echo155?foo=a,b,c";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":null, \"name4\":\"c\"}");
+    }
+
+    @Test(description = "Test suitable method with URL.")
+    public void testQueryParamWithSpecialChars() {
+        String path = "/hello/echo125?foo=%25aaa";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "%aaa"
+                , "Resource dispatched to wrong template");
+
+        path = "/hello/echo125?foo=abc%21";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "abc!"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test GetQueryParamValue method when params are not set with URL. /paramNeg")
+    public void testGetQueryParamValueNegative() {
+        String path = "/hello?bar=";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("third").stringValue(), "go",
+                            "param value is not null");
+    }
+
+    @Test(description = "Test GetQueryParamValues method when params are not set with URL. /paramNeg")
+    public void testGetQueryParamValuesNegative() {
+        String path = "/hello/paramNeg?bar=xxx,zzz";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "",
+                            "param value is not null");
+    }
+
+    @Test(description = "Test suitable method with URL.")
+    public void testAllInOneQueryParamAPIs() {
+        String path = "/hello/echo156/bar?foo=a,b&bar=c&bar=d";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"map\":\"c\", \"array\":\"c\", \"value\":\"c\", \"map_\":\"a\", \"array_\":\"d\"}");
+
+        path = "/hello/echo156/zzz?zzz=x,X&bar=x&foo=";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"map\":\"x\", \"array\":\"x\", \"value\":\"x\", \"map_\":\"\", \"array_\":\"X\"}");
+    }
+
+        @Test(description = "Test dispatching without verbs")
     public void testResourceWithoutMethod() {
         String path = "/echo44/echo2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST");
