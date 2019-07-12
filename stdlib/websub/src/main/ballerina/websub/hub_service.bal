@@ -145,9 +145,8 @@ service {
             }
         } else {
             if (mode != MODE_PUBLISH) {
-                params = request.getQueryParams();
-                mode = params[HUB_MODE] ?: "";
-                string topicValue = params[HUB_TOPIC] ?: "";
+                mode = request.getQueryParamValue(HUB_MODE) ?: "";
+                string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
                 var decodedTopic = http:decode(topicValue, "UTF-8");
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }

@@ -340,4 +340,21 @@ public class TypeCastExpressionsTest {
                         .forEach(arg -> result.add(new Object[]{func, arg})));
         return result.toArray(new Object[result.size()][]);
     }
+
+    @Test
+    public void testUntaintedWithoutType() {
+        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
+        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
+    @Test
+    public void testUntaintedWithoutType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
+        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
 }
