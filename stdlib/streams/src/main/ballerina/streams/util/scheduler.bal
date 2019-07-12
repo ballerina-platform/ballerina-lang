@@ -76,7 +76,8 @@ public type Scheduler object {
             StreamEvent timerEvent = new(["timer", data], "TIMER", <int>first);
             StreamEvent?[] timerEventWrapper = [];
             timerEventWrapper[0] = timerEvent;
-            self.processFunc.call(timerEventWrapper);
+            function (StreamEvent?[] streamEvents) processFunction = self.processFunc;
+            processFunction(timerEventWrapper);
 
             first = self.toNotifyQueue.getFirst();
             currentTime = time:currentTime().time;
@@ -97,7 +98,7 @@ public type Scheduler object {
         } else {
             lock {
                 self.running = false;
-                if (!(self.toNotifyQueue.getFirst() is LinkedList)) {
+                if (self.toNotifyQueue.getFirst() is LinkedList) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
                     checkpanic self.timer.attach(schedulerService, attachment = self);

@@ -20,7 +20,7 @@ const string basePath = "/balcoordinator";
 final string initiatorCoordinatorBasePath = basePath + "/initiator";
 final string initiator2pcCoordinatorBasePath = basePath + "/initiator/2pc";
 final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
-const string registrationPath = "/register";
+final string registrationPath = "/register";
 final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
 final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", defaultValue = getHostAddress());

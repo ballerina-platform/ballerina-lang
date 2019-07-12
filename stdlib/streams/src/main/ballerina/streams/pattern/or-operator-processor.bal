@@ -140,17 +140,17 @@ public type OrOperatorProcessor object {
         // in `or` processor, either side can be true,
         // therefore have to check both sides before evict
         if (pAlias == self.lhsAlias) {
-            var proceedVal = self.rhsEvicted.remove(stateEvent.getEventId());
-            if (proceedVal is boolean) {
-                proceed = proceedVal;
+            if(self.rhsEvicted.hasKey(stateEvent.getEventId())) {
+                var proceedVal = self.rhsEvicted.remove(stateEvent.getEventId());
+                proceed = true;
             }
             if (!proceed) {
                 self.lhsEvicted[stateEvent.getEventId()] = stateEvent;
             }
         } else {
-            var returnVal = self.lhsEvicted.remove(stateEvent.getEventId());
-            if (returnVal is boolean) {
-                proceed = returnVal;
+            if (self.lhsEvicted.hasKey(stateEvent.getEventId())) {
+                var tempVar = self.lhsEvicted.remove(stateEvent.getEventId());
+                proceed = true;
             }
             if (!proceed) {
                 self.rhsEvicted[stateEvent.getEventId()] = stateEvent;

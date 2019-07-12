@@ -6,12 +6,12 @@
   
   Example,
   ```ballerina
-  // Service annotations indented to align with the starting position of the service.
+  // Service annotations are indented to align it with the starting position of the service.
   @http:ServiceConfig {
       ...
   }
   service greetingService on new http:Listener(8080) {
-      // Resource annotation indented to align with start position of the resource.
+      // Resource annotation is indented to align it with the starting position of the resource.
       @http:ResourceConfig {
           ...
       }
@@ -63,7 +63,7 @@
   
   ```
 ### Comments
-* Use `//` to write both single-line and multi-line comments.
+* Use `//` for both single-line and multi-line comments.
   
   Example,
 
@@ -91,8 +91,7 @@
   ```
   
 * Add a single space between the `//` and the content.
-* If the comment is in its own line, then indent it considering the 
-  context its in (i.e., top level or in a block).
+* If the comment is in its own line, then indent it considering its context (i.e., top level or in a block).
   
   Example,
   ```ballerina
@@ -140,7 +139,7 @@
         return value;
     }
     ```
-* Add only one space after parameter marker (`+`), divider (`-`) and `return`.
+* Add only one space after the parameter marker (`+`), divider (`-`), and `return`.
 * Begin the param identifier and description with a single space.
 
   Example,
