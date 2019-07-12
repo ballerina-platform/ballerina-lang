@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the NATS Streaming Server connection a subscription service should be bound to in order to receive messages
+# Represents the NATS Streaming Server connection, to which a subscription service should be bound to in order to receive messages
 # of the corresponding subscription.
 public type StreamingListener object {
 
@@ -29,9 +29,9 @@ public type StreamingListener object {
     #
     # + connection - An established NATS connection.
     # + clusterId - The ID of the cluster configured in the NATS server. Default value is `test-cluster`.
-    # + clientId - A unique identifier representing the client. The clientId should be unique across subscriptions therefore,
+    # + clientId - A unique identifier representing the client. The `clientId` should be unique across subscriptions. Therefore,
     #              multilpe subscription services cannot be bound to a single listener.
-    # + streamingConfig - Configuration related to NATS streaming connectivity.
+    # + streamingConfig - The configuration related to the NATS streaming connectivity.
     public function __init(Connection connection, string clientId, string clusterId,
     StreamingConfig? streamingConfig = ()) {
         self.connection = connection;

@@ -1,4 +1,4 @@
-// This sample demonstrates leveraging NATS built-in load balancing
+// This sample demonstrates leveraging the NATS built-in load balancing
 // feature called "distributed queues". All subscribers with the
 // same queue name form the queue group.  As messages on the registered
 // subject are published, one member of the group is chosen randomly

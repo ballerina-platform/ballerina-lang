@@ -21,7 +21,7 @@
 # + durableName - If set, this will survive client restarts
 # + maxInFlight - The number of messages the cluster will have inflight without an ACK
 # + ackWait - The time the cluster will wait for an ACK for a given message (in Seconds)
-# + subscriptionTimeout - The amount of time the subscription will wait during creation on a network failure (in Seconds)
+# + subscriptionTimeout - The time (in Seconds) the subscription will wait if a network failure occurs during the creation of it.
 # + manualAck - Do manual ACKs
 # + startPosition - The position to start receiving messages 
 public type StreamingSubscriptionConfigData record {|
@@ -38,14 +38,14 @@ public type StreamingSubscriptionConfigData record {|
 # Streaming subscription configuration annotation.
 public annotation StreamingSubscriptionConfigData StreamingSubscriptionConfig on service;
 
-# The position to start receiving messages 
+# The position to start receiving messages.
 # NEW_ONLY - Specifies that message delivery should start with the messages, which are published after the subscription
-# is created
+# is created.
 # LAST_RECEIVED - Specifies that message delivery should start with the last (most recent) message stored for
-# this subject
-# TimeDeltaStart record - Specifies that message delivery should start with a given historical time delta (from now)
-# StartSequence - Specifies that message delivery should start at the given sequence number
-# FIRST - Specifies that message delivery should begin at the oldest available message for this subject
+# this subject.
+# TimeDeltaStart record - Specifies that message delivery should start with a given historical time delta (from now).
+# StartSequence - Specifies that message delivery should start at the given sequence number.
+# FIRST - Specifies that message delivery should begin at the oldest available message for this subject.
 public type StartPosition NEW_ONLY | LAST_RECEIVED | TimeDeltaStart | StartSequence | FIRST;
 
 public const NEW_ONLY = "NEW_ONLY";

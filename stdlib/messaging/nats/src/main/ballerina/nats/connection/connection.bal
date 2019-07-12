@@ -32,7 +32,7 @@ public type Connection object {
 
     function init(string url, ConnectionConfig config) = external;
 
-    # Close a given connection.
+    # Closes a given connection.
     #
     # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
     # By default, this is set to false.

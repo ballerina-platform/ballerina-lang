@@ -23,9 +23,9 @@ public type StreamingProducer client object {
     function createStreamingConnection(Connection conn, string clusterId, string clientId,
     StreamingConfig? streamingConfig) = external;
 
-    # Publish data to a given subject.
+    # Publishes data to a given subject.
     #
-    # + subject - NATS subject to publish data to
+    # + subject - NATS subject to publish data 
     # + data - data to publish
     # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
     #           message gets successfully published and acknowedged by the NATS server OR

@@ -15,7 +15,7 @@ listener nats:StreamingListener lis = new(conn, "test-cluster", "c0");
 }
 service demoService on lis {
     resource function onMessage(nats:StreamingMessage message, json data) {
-        // Convert json data to string.
+        // Converts JSON data to string.
         string | error val = string.convert(data);
         if (val is string) {
             // Prints the incoming message in the console.

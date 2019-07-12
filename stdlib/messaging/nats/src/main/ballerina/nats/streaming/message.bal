@@ -25,22 +25,22 @@ public type StreamingMessage client object {
        self.content = content;
    }
 
-   # Get message content.
+   # Get the message content.
    #
    # + return - the data from the message as a 'byte[]'.
    public function getData() returns @tainted byte[] {
        return self.content;
    }
 
-   # Get subject.
+   # Get the subject.
    #
    # + return - subject value.
    public function getSubject() returns string {
        return self.subject;
    }
 
-   # Acknowledge the message to the NATS Streaming server.
+   # Acknowledge the NATS Streaming server upon the receipt of the message.
    #
-   # + return - () if the acknowledgement completes successfully or an error.
+   # + return - Returns () if the acknowledgment completes successfully or an error.
    public remote function ack() returns NatsError? = external;
 };

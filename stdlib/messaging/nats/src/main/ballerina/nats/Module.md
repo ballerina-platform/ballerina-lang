@@ -30,7 +30,7 @@ nats:Connection connection = new("nats://serverone:4222,nats://servertwo:4222", 
 Publishing messages is handled differently in the NATS server and Streaming server. The 'ballerina/nats' module provides different 
 APIs to publish messages to each server.
 
-#### NATS Server
+#### Publishing messages to the NATS server
 
 Once connected, publishing is accomplished via one of the below three methods.
 
@@ -40,7 +40,7 @@ nats:Producer producer = new(connection);
 var result = producer->publish(subject, "hello world");
 ```
 
-2. Publish with subject, message content and a subject for the receiver to replyTo.
+2. Publish with the subject, message content, and a subject for the receiver to reply to.
 ```ballerina
 nats:Producer producer = new(connection);
 var result = producer->publish(subject, "hello world", replyTo = "replyTo");
@@ -52,7 +52,7 @@ nats:Producer producer = new(connection);
 var reqReply = producer->request(subject, "hello world", 5000);
 ```
 
-#### Streaming Server
+#### Publishing messages to a Streaming server
 
 Once connected to a streaming server, publishing messages is accomplished using the following method.
 ```ballerina
@@ -73,7 +73,7 @@ NOTE: Publish api supports the `byte[], boolean, string, int, float, decimal, xm
 The Ballerina NATS module provides the following mechanisms to listen to messages. Similar to message publishing, listening to messages
 is also handled differently in NATS and Streaming servers.
 
-#### NATS Server
+#### Listening to messages from a NATS server
 
 ```ballerina
 // Initializes the NATS listener.
@@ -98,10 +98,10 @@ service demo on subscription {
 }
 ```
 
-#### Streaming Server
+#### Listening to messages from a Streaming server
 
 ```ballerina
-// Initializes the NATS listener.
+// Initializes the NATS Streaming listener.
 listener nats:StreamingListener subscription = new(conn, "test-cluster", "c1");
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
