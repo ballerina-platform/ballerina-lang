@@ -132,7 +132,7 @@ public class Subscribe implements NativeCallableUnit {
             builder.startAtTimeDelta(duration, timeUnit);
             break;
         case TypeTags.INT_TAG:
-            long sequenceNumber = (Integer) startPosition;
+            long sequenceNumber = (Long) startPosition;
             builder.startAtSequence(sequenceNumber);
             break;
         case TypeTags.STRING_TAG:

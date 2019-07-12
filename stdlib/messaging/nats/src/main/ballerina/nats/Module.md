@@ -101,7 +101,7 @@ service demo on subscription {
 
 ```ballerina
 // Initializes the NATS listener.
-listener nats:StreamingListener subscription = new(connection);
+listener nats:StreamingListener subscription = new(conn, "test-cluster", "c1");
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 @nats:StreamingSubscriptionConfig {
