@@ -282,25 +282,6 @@ public class BIRBinaryWriter {
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
-    private BIRNode.BIRBasicBlock getScopeTerminatingBlock(BIRNode.BIRBasicBlock block) {
-        BIRTerminator terminator = block.terminator;
-        BIRNode.BIRBasicBlock terminatingBlock = block;
-        if (terminator instanceof BIRTerminator.GOTO) {
-            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.GOTO) terminator).targetBB);
-        } else if (terminator instanceof BIRTerminator.Branch) {
-            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Branch) terminator).falseBB);
-        } else if (terminator instanceof BIRTerminator.Return || terminator == null) {
-            terminatingBlock = block;
-        } else if (terminator instanceof BIRTerminator.Lock) {
-            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Lock) terminator).lockedBB);
-        } else if (terminator instanceof BIRTerminator.Unlock) {
-            terminatingBlock = getScopeTerminatingBlock(((BIRTerminator.Unlock) terminator).unlockBB);
-        } else if (terminator.thenBB != null) {
-            terminatingBlock = getScopeTerminatingBlock(terminator.thenBB);
-        }
-        return terminatingBlock;
-    }
-
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
         ByteBuf birbuf = Unpooled.buffer();
         birbuf.writeShort(taintTable.rowCount);
