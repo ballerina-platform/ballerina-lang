@@ -53,6 +53,4 @@ cache:
     - $HOME/.gradle/wrapper/
     - $HOME/.m2
 
-branches:
-  only:
-    - master
+if: branch = master
