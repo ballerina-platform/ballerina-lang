@@ -2971,6 +2971,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
+        if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
+            return symTable.noType;
+        }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
         int requiredParamsCount;

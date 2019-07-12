@@ -23,6 +23,19 @@ type Type1 any|error;
 @typeParam
 type PureType anydata|error;
 
+type MapIterator object {
+
+    private map<Type> m;
+
+    public function __init(map<Type> m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        Type value;
+    |}? = external;
+};
+
 # Returns number of members in `m`.
 public function length(map<any|error> m) returns int = external;
 
@@ -31,7 +44,10 @@ public function iterator(map<Type> m) returns abstract object {
     public function next() returns record {|
         Type value;
     |}?;
-} = external;
+} {
+    MapIterator mapIterator = new(m);
+    return mapIterator;
+}
 
 # Returns the member of map m with key k.
 # Panics if m does not have a member with key k.

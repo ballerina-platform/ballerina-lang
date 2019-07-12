@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -882,6 +883,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorConstructor = symTable.errorType.ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
+            symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
+            symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");
@@ -1020,6 +1023,16 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
+
+        // TODO: 7/12/19 FIX ME!!! This is a temporary hack to ensure the detail type is set to the error type when
+        //  compiling the annotations module which contains the error def
+        if (detailType == null && PackageID.ANNOTATIONS.equals(env.enclPkg.packageID)) {
+            BSymbol symbol = this.lookupSymbol(env, Names.ERROR, SymTag.ERROR);
+            resultType = symbol.type;
+            symTable.errorType = (BErrorType) resultType;
+            symTable.detailType = (BRecordType) symTable.errorType.detailType;
+            return;
+        }
 
         if (reasonType == symTable.stringType && detailType == symTable.detailType) {
             resultType = symTable.errorType;
