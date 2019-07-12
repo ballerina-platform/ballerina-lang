@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.ballerinalang.nats.Constants.NATS_ERROR_CODE;
+import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Utils.getMessageObject;
 
 /**
@@ -67,10 +68,14 @@ public class DefaultConnectionListener implements ConnectionListener {
                 ErrorValue errorValue = BallerinaErrors.createError(NATS_ERROR_CODE, message);
                 LOG.warn(message);
                 for (ObjectValue service : serviceList) {
-                    Executor.submit(scheduler, service, "onError", new DefaultMessageHandler.ResponseCallback(), null,
-                            getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
+                    boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
+                            .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
+                    if (onErrorResourcePresent) {
+                        Executor.submit(scheduler, service, ON_ERROR_RESOURCE,
+                                new DefaultMessageHandler.ResponseCallback(), null, getMessageObject(null),
+                                Boolean.TRUE, errorValue, Boolean.TRUE);
+                    }
                 }
-                // TODO: check whether we can close the application.
                 break;
             }
             case RECONNECTED: {

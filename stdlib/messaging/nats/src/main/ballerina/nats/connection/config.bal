@@ -33,6 +33,7 @@ import ballerina/crypto;
 # + inboxPrefix - The connection's inbox prefix. All inboxes will start with this string.
 # + noEcho - Turn off echo. This prevents the server from echoing messages back to the connection if it
 # has subscriptions on the subject being published to.
+# + enableErrorListener - Enable Connection Error listener.
 # + secureSocket - SSL/TLS-related options
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
@@ -46,6 +47,7 @@ public type ConnectionConfig record {|
   string token?;
   string inboxPrefix = "_INBOX.";
   boolean noEcho = false;
+  boolean enableErrorListener = false;
   SecureSocket? secureSocket = ();
 |};
 

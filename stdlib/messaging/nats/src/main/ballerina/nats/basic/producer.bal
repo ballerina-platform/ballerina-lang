@@ -38,7 +38,7 @@ public type Producer client object {
     # + replyTo - Subject for the receiver to reply to. This is an optional parameter, which will be set only if a reply is needed.
     # + data - Data to publish.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
-    public remote function publish(string subject, ContentType data, string? replyTo = ()) returns NatsError? {
+    public remote function publish(@untainted string subject, @untainted ContentType data, @untainted string? replyTo = ()) returns NatsError? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareNatsError("Error in data conversion", err = converted);
@@ -47,7 +47,7 @@ public type Producer client object {
         }
     }
 
-    function externPublish(string subject, string | byte[] data, string? replyTo = ()) returns NatsError = external;
+    function externPublish(string subject, string | byte[] data, string? replyTo = ()) returns NatsError? = external;
 
     # Produces a message and would wait for a response.
     #
@@ -55,7 +55,7 @@ public type Producer client object {
     # + data - Data to publish.
     # + duration - The time to wait for a response measured in milliseconds.
     # + return -  The response message or an error.
-    public remote function request(string subject, ContentType data, int? duration = ()) returns Message|NatsError {
+    public remote function request(@untainted string subject, @untainted ContentType data, int? duration = ()) returns Message|NatsError {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareNatsError("Error in data conversion", err = converted);

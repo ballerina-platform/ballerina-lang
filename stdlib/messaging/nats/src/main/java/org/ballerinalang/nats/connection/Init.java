@@ -86,6 +86,7 @@ public class Init extends BlockingNativeCallableUnit {
     private static final String MAX_PINGS_OUT = "maxPingsOut";
     private static final String INBOX_PREFIX = "inboxPrefix";
     private static final String NO_ECHO = "noEcho";
+    private static final String ENABLE_ERROR_LISTENER = "enableErrorListener";
 
     /**
      * {@inheritDoc}
@@ -134,8 +135,10 @@ public class Init extends BlockingNativeCallableUnit {
         opts.connectionListener(new DefaultConnectionListener(strand.scheduler, serviceList));
 
         // Add NATS error listener.
-        ErrorListener errorListener = new DefaultErrorListener(strand.scheduler, serviceList);
-        opts.errorListener(errorListener);
+        if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
+            ErrorListener errorListener = new DefaultErrorListener(strand.scheduler, serviceList);
+            opts.errorListener(errorListener);
+        }
 
         // Add noEcho.
         if (connectionConfig.getBooleanValue(NO_ECHO)) {
