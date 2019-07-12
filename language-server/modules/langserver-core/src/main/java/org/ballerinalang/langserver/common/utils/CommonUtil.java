@@ -21,9 +21,9 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -868,9 +867,6 @@ public class CommonUtil {
     }
     
     private static BType getConstraintType(BType bType) {
-        if (bType instanceof BChannelType) {
-            return ((BChannelType) bType).constraint;
-        }
         if (bType instanceof BFutureType) {
             return ((BFutureType) bType).constraint;
         }

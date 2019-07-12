@@ -183,13 +183,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos servicePos = serviceNode.pos;
             int sCol = servicePos.sCol + getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
-<<<<<<< HEAD
-            DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.eLine, sCol, eCol);
-            this.addSymbol(serviceNode, serviceNode.symbol, true, pos);
-=======
             DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.sLine, sCol, eCol);
-            this.addSymbol(serviceVarSymbol.get(), true, pos);
->>>>>>> Fix source prune and annotation related go to definition issues
+            this.addSymbol(serviceNode, serviceVarSymbol.get(), true, pos);
         }
         serviceNode.annAttachments.forEach(this::acceptNode);
         if (serviceNode.attachedExprs != null) {
@@ -685,7 +680,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     + this.getTypeLengthWithWS(annotationNode.typeNode, true);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
-            this.addSymbol(annotationNode.symbol, true, pos);
+            this.addSymbol(annotationNode, annotationNode.symbol, true, pos);
         }
         this.acceptNode(annotationNode.typeNode);
     }
@@ -698,7 +693,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = nodePos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
-            this.addSymbol(annAttachmentNode.annotationSymbol, false, pos);
+            this.addSymbol(annAttachmentNode, annAttachmentNode.annotationSymbol, false, pos);
         }
         this.acceptNode(annAttachmentNode.expr);
     }
@@ -728,18 +723,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                                                                BLangNode bLangNode) {
         return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
-
-<<<<<<< HEAD
+    
     private void addSymbol(BLangNode bLangNode, BSymbol bSymbol,
                            boolean isDefinition, DiagnosticPos position) {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
-=======
-    private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
-        if (bSymbol == null) {
-            return;
-        }
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
->>>>>>> Fix source prune and annotation related go to definition issues
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
