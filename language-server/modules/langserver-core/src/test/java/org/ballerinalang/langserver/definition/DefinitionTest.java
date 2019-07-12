@@ -194,6 +194,7 @@ public class DefinitionTest {
                 {"defAnnotation4.json", "annotation"},
                 {"defAnnotation5.json", "annotation"},
                 {"defAnnotation6.json", "annotation"},
+                {"defAnnotation7.json", "annotation"},
 //                TODO: enable
 //                {"defExpressionNamedArgs.json", "expression"},
         };

@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -347,6 +348,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
         this.acceptNode(bLangTupleVariable.typeNode);
+        this.acceptNode(bLangTupleVariable.expr);
     }
 
     @Override
@@ -704,6 +706,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
         this.acceptNode(unaryExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        this.acceptNode(annotAccessExpr.expr);
     }
 
     private void acceptNode(BLangNode node) {

@@ -65,8 +65,20 @@ function testServiceAnnotAccess() returns boolean {
 }
 
 @v5 {
-    val: "v5 value"
+    foo: "v5 value"
 }
 type T2 object {
     string name = "ballerina";
 };
+
+function annotationAccessExpressionTest() {
+    service ser = @v4 {
+        foo: v4a
+    }service {
+        resource function res() {
+        }
+    };
+
+    typedesc td = typeof ser;
+    Annot? m1 = td.@v4;
+}
