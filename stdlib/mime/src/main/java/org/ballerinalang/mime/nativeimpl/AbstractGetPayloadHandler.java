@@ -18,16 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -49,12 +44,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
  * @since 0.995-r1
  */
 
-public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public abstract class AbstractGetPayloadHandler {
 
     static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
                                                SourceType sourceType) {
@@ -88,18 +78,9 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
-        //TODO : Remove callback once strand non-blocking support is given
-//        callback.sync();
-    }
-
-    //TODO Remove after migration : implemented using bvm values/types
-    void setReturnValuesAndNotify(Context context, CallableUnitCallback callback, BValue result) {
-        context.setReturnValues(result);
-        callback.notifySuccess();
     }
 
     static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
-        //TODO remove this call back
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
@@ -111,15 +92,6 @@ public abstract class AbstractGetPayloadHandler implements NativeCallableUnit {
             return null;
         }
         return error;
-    }
-
-    //TODO Remove after migration : implemented using bvm values/types
-    void updateDataSourceAndNotify(Context context, CallableUnitCallback callback, BMap<String, BValue> entityObj,
-                                   BValue result) {
-        EntityBodyHandler.addMessageDataSource(entityObj, result);
-        //Set byte channel to null, once the message data source has been constructed
-        entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        setReturnValuesAndNotify(context, callback, result);
     }
 
     static void updateDataSource(ObjectValue entityObj, Object result) {

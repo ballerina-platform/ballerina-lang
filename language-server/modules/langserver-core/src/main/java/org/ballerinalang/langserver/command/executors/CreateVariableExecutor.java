@@ -36,26 +36,15 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
@@ -71,44 +60,6 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariabl
 public class CreateVariableExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_VAR";
-
-    private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
-        Set<String> strings = new HashSet<>();
-        BLangPackage packageNode = null;
-        BLangNode parent = functionNode.parent;
-        while (parent != null) {
-            if (parent instanceof BLangPackage) {
-                packageNode = (BLangPackage) parent;
-                break;
-            }
-            if (parent instanceof BLangFunction) {
-                BLangFunction bLangFunction = (BLangFunction) parent;
-                bLangFunction.getParameters().forEach(var -> strings.add(var.name.value));
-            }
-            parent = parent.parent;
-        }
-
-        if (packageNode != null) {
-            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
-            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
-            packageNode.getServices().forEach(service -> strings.add(service.name.value));
-            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
-        }
-        BLangNode bLangNode = functionNode.parent;
-        while (bLangNode != null && !(bLangNode instanceof BLangBlockStmt)) {
-            bLangNode = bLangNode.parent;
-        }
-        if (bLangNode != null && packageNode != null) {
-            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
-            SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangNode;
-            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
-            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            entries.forEach((name, scopeEntry) -> strings.add(name.value));
-        }
-        return strings;
-    }
 
     /**
      * {@inheritDoc}
@@ -157,7 +108,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         }
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
+        String variableName = CommonUtil.generateVariableName(1, functionNode, compilerContext);
 
         if (packageNode == null) {
             throw new LSCommandExecutorException("Package node cannot be null");

@@ -180,14 +180,16 @@ public final class BFunctionCompletionItemBuilder {
                 insertText.append("${1}");
             }
         } else {
-            for (int itr = 0; itr < parameterDefs.size(); itr++) {
-                signature.append(getParameterSignature(parameterDefs.get(itr), false));
+            if (!parameterDefs.isEmpty()) {
+                for (int itr = 0; itr < parameterDefs.size(); itr++) {
+                    signature.append(getParameterSignature(parameterDefs.get(itr), false));
 
-                if (itr != parameterDefs.size() - 1) {
-                    signature.append(", ");
+                    if (itr != parameterDefs.size() - 1) {
+                        signature.append(", ");
+                    }
                 }
+                insertText.append("${1}");
             }
-            insertText.append("${1}");
         }
         signature.append(")");
         insertText.append(")");
