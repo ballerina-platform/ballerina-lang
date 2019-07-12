@@ -21,14 +21,14 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;
-    int nameIndex = getNextLocalVarNameIndex(localVars);
+    int nameIndex = 0;
 
     foreach (var localVar in localVars) {
         updatedVars[index] = localVar;
         index += 1;
         if (localVar is bir:FunctionParam) {
             // An additional boolean arg is gen for each function parameter.
-            string argName = "%" + nameIndex;
+            string argName = "%syn" + nameIndex;
             nameIndex += 1;
             bir:FunctionParam booleanVar = { kind: bir:VAR_KIND_ARG, name: { value: argName }, typeValue: "boolean", hasDefaultExpr: false };
             updatedVars[index] = booleanVar;
@@ -36,17 +36,6 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
         }
     }
     currentFunc.localVars = updatedVars;
-}
-
-function getNextLocalVarNameIndex(bir:VariableDcl?[] localVars) returns int {
-    if (localVars.length() == 0) {
-        return 0;
-    }
-
-    bir:VariableDcl localVar = getVariableDcl(localVars[localVars.length() - 1]);
-    string indexStr = localVar.name.value.substring(1, localVar.name.value.length());
-    int index = checkpanic int.convert(indexStr);
-    return index + 1;
 }
 
 function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) returns bir:BType?[] {
