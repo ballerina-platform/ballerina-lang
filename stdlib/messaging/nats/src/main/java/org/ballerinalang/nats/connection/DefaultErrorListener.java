@@ -68,8 +68,8 @@ public class DefaultErrorListener implements ErrorListener {
             boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
                     .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
             if (onErrorResourcePresent) {
-                Executor.submit(scheduler, service, "onError", new DefaultMessageHandler.ResponseCallback(), null,
-                        getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
+                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DefaultMessageHandler.ResponseCallback(),
+                        null, getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
             }
         }
     }
@@ -83,8 +83,8 @@ public class DefaultErrorListener implements ErrorListener {
             boolean onErrorResourcePresent = Arrays.stream(service.getType().getAttachedFunctions())
                     .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
             if (onErrorResourcePresent) {
-                Executor.submit(scheduler, service, "onError", new DefaultMessageHandler.ResponseCallback(), null,
-                        getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
+                Executor.submit(scheduler, service, ON_ERROR_RESOURCE, new DefaultMessageHandler.ResponseCallback(),
+                        null, getMessageObject(null), Boolean.TRUE, errorValue, Boolean.TRUE);
             }
         }
     }
