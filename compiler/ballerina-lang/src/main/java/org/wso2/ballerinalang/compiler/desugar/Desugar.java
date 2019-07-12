@@ -653,8 +653,8 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangRecordLiteral.BLangRecordKeyValue> valuePairs =
                 ((BLangRecordLiteral) annotation.expr).getKeyValuePairs();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : valuePairs) {
-            BLangSimpleVarRef func = (BLangSimpleVarRef) keyValuePair.getKey();
-            switch (func.variableName.value) {
+            String func = (String) ((BLangLiteral) keyValuePair.getKey()).value;
+            switch (func) {
                 case Transactions.TRX_ONCOMMIT_FUNC:
                     BInvokableSymbol commitSym = (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.valueExpr).symbol;
                     BLangInvocation onCommit = ASTBuilderUtil
