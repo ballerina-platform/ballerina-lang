@@ -67,7 +67,7 @@
 
 3. After a comment is strated, it will continue being applied to the subsequent lines in the file until another comment or an empty line is found. Therefore, use comments/new lines appropriately to ensure that they apply only to the relevant lines.
 
-4. There is no restriction on the max number of chars that should be there in comment lines as they get wrapped automatically in the RHS side in the [Ballerina website](https://ballerina.io/). However, since users can refer the same in the code in GitHub, it is better if we can have the same char limit as of a code line (i.e., 80) to increase readability.
+4. There is no restriction on the max number of characters that should be there in comment lines as they get wrapped automatically in the right hand side in the [Ballerina By Example](https://ballerina.io/learn/by-example/). However, since users can refer the same in the code in GitHub, it is better if we can have the same character limit as of a code line (i.e., 80) to increase readability.
 
     For example, it will not be readable if comments are significantly longer than the code line as shown below. 
 
