@@ -20,6 +20,8 @@ import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.converter.SwaggerConverter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -34,12 +36,11 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.*;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -50,7 +51,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -124,21 +127,47 @@ public class OpenApiConverterUtils {
             if (topCompilationUnit == null) {
                 return "Error";
             }
-            String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
-            String openApiAlias = getAlias(topCompilationUnit, Constants.OPENAPI_PACKAGE_NAME);
-            OpenApiServiceMapper openApiServiceMapper = new OpenApiServiceMapper(httpAlias, openApiAlias);
-            List<BLangSimpleVariable> endpoints = new ArrayList<>();
-            Swagger openapi = getOpenApiDefinition(new Swagger(), openApiServiceMapper, serviceName, topCompilationUnit,
-                    endpoints);
-            String openApiSource = openApiServiceMapper.generateOpenApiString(openapi);
-            SwaggerConverter converter = new SwaggerConverter();
-            SwaggerDeserializationResult result = new SwaggerParser().readWithInfo(openApiSource);
 
-            if (result.getMessages().size() > 0) {
+            final TopLevelNode serviceNode = topCompilationUnit.getTopLevelNodes().stream().filter(topLevelNode -> {
+                return topLevelNode instanceof BLangService;
+            }).findAny().orElse(null);
+
+            if (serviceNode == null) {
+                return "Error";
+            }
+
+            final List<BLangAnnotationAttachment> annotationAttachments =
+                    ((BLangService) serviceNode).getAnnotationAttachments();
+            final Iterator<BLangAnnotationAttachment> annoIterator = annotationAttachments.iterator();
+            String openApiContractPath = "";
+
+            while (annoIterator.hasNext()) {
+                BLangAnnotationAttachment annotation = annoIterator.next();
+
+                if (annotation.getAnnotationName().getValue().equals("ServiceInfo")) {
+                    BLangRecordLiteral expression = (BLangRecordLiteral) annotation.getExpression();
+                    Iterator<BLangRecordLiteral.BLangRecordKeyValue> keyValueIterator = expression
+                            .getKeyValuePairs().iterator();
+                    while (keyValueIterator.hasNext()) {
+                        BLangRecordLiteral.BLangRecordKeyValue keyValuePair = keyValueIterator.next();
+                        BLangExpression key = keyValuePair.getKey();
+                        if (key instanceof BLangSimpleVarRef) {
+                            BLangSimpleVarRef varRef = (BLangSimpleVarRef) key;
+                            if ("contract".equals(varRef.variableName.value)) {
+                                openApiContractPath = ((BLangLiteral) keyValuePair.getValue()).value.toString();
+                            }
+                        }
+                    }
+                }
+            }
+
+            OpenAPI api = new OpenAPIV3Parser().read(openApiContractPath);
+
+            if (api == null) {
                 throw new OpenApiConverterException("Please check if input source is valid and complete");
             }
 
-            return Yaml.pretty(converter.convert(result).getOpenAPI());
+            return Yaml.pretty(api);
         } catch (LSCompilerException e) {
             return "Error";
         }
