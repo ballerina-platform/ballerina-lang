@@ -83,7 +83,7 @@
 
     > **Tip:** File names should be the same as folder name, with the “-” being replaced with the underscore (e.g., abstract_objects).
 
-    .bal - The code of the example to be displayed in the [Ballerina website](https://ballerina.io/).
+    `.bal` - The code of the example to be displayed in the [Ballerina By Examples](https://ballerina.io/learn/by-example/).
 
     .description - The description of the example displayed at the top of each example in the [Ballerina website](https://ballerina.io/).
 
