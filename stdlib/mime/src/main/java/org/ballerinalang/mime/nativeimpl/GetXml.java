@@ -28,17 +28,12 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body in xml form.
@@ -57,32 +52,6 @@ public class GetXml extends AbstractGetPayloadHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            BXML result;
-            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
-            if (dataSource != null) {
-                if (dataSource instanceof BXML) {
-                    result = (BXML) dataSource;
-                } else {
-                    // Build the XML from string representation of the payload.
-                    BString payload = MimeUtil.getMessageAsString(dataSource);
-                    result = XMLUtils.parse(payload.stringValue());
-                }
-                setReturnValuesAndNotify(context, callback, result);
-                return;
-            }
-
-            if (isStreamingRequired(entityObj)) {
-                result = EntityBodyHandler.constructXmlDataSource(entityObj);
-                updateDataSourceAndNotify(context, callback, entityObj, result);
-            } else {
-                constructNonBlockingDataSource(context, callback, entityObj, SourceType.XML);
-            }
-        } catch (Exception ex) {
-            createErrorAndNotify(context, callback,
-                                 "Error occurred while extracting xml data from entity : " + ex.getMessage());
-        }
     }
 
     public static Object getXml(Strand strand, ObjectValue entityObj) {
@@ -109,7 +78,7 @@ public class GetXml extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
             }
         } catch (Exception ex) {
-            return createErrorAndNotify(callback,
+            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
                                  "Error occurred while extracting xml data from entity : " + ex.getMessage());
         }
         return result;

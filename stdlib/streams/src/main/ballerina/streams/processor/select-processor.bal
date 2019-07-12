@@ -74,7 +74,7 @@ public type Select object {
                     self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
                 map<anydata> x = self.selectFunc.call(event, aggregatorsClone);
-                StreamEvent e = new([OUTPUT, x], event.eventType, event.timestamp);
+                StreamEvent e = new([<@untainted> OUTPUT, x], event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
             foreach var key in groupedEvents.keys() {
@@ -84,7 +84,7 @@ public type Select object {
         } else {
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent>evt;
-                StreamEvent e = new([OUTPUT, self.selectFunc.call(event, self.aggregatorArr)], event.eventType,
+                StreamEvent e = new([<@untainted> OUTPUT, self.selectFunc.call(event, self.aggregatorArr)], event.eventType,
                     event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }

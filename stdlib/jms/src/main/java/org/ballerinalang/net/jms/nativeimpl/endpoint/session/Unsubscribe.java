@@ -20,13 +20,12 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -36,35 +35,26 @@ import javax.jms.Session;
 /**
  * Unsubscribe a durable subscriber.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX,
                    packageName = JmsConstants.JMS,
                    functionName = "unsubscribe",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.SESSION_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   args = {
-                           @Argument(name = "subscriptionId",
-                                     type = TypeKind.STRING)
-                   },
-                   isPublic = true)
-public class Unsubscribe extends AbstractBlockingAction {
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
+public class Unsubscribe extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject,
-                                                           JmsConstants.JMS_SESSION,
-                                                           Session.class,
-                                                           context);
-
-        String subscriptionId = context.getStringArgument(0);
-
+    public static Object unsubscribe(Strand strand, ObjectValue sessionObj, String subscriptionId) {
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
         try {
             session.unsubscribe(subscriptionId);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Unsubscribe request failed.", context, e);
+            return BallerinaAdapter.getError("Unsubscribe request failed.", e);
         }
+        return null;
     }
+
 }

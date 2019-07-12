@@ -39,7 +39,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
             //TODO: set the proper protocol
             string protocolName = PROTOCOL_DURABLE;
             RemoteProtocol[] protocols = [{
-            name:protocolName, url:getParticipantProtocolAt(protocolName, untaint transactionBlockId)
+            name:protocolName, url:getParticipantProtocolAt(protocolName, <@untainted> transactionBlockId)
             }];
             return registerParticipantWithRemoteInitiator(transactionId, transactionBlockId, registerAtUrl, protocols);
         }
@@ -53,7 +53,7 @@ function beginTransaction(string? transactionId, string transactionBlockId, stri
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - nil or error when transaction abortion is successful or not respectively.
-function abortTransaction(string transactionId, string transactionBlockId) returns error? {
+function abortTransaction(string transactionId, string transactionBlockId) returns @tainted error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     var txn = participatedTransactions[participatedTxnId];
     if (txn is TwoPhaseCommitTransaction) {
@@ -77,7 +77,7 @@ function abortTransaction(string transactionId, string transactionBlockId) retur
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-function endTransaction(string transactionId, string transactionBlockId) returns string|error {
+function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");

@@ -30,7 +30,7 @@ const ARRAY = "ARRAY";
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsString(@sensitive string key, string defaultValue = "") returns string {
+public function getAsString(@untainted string key, string defaultValue = "") returns string {
     if (contains(key)) {
         var value = get(key, STRING);
 
@@ -51,7 +51,7 @@ public function getAsString(@sensitive string key, string defaultValue = "") ret
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsInt(@sensitive string key, int defaultValue = 0) returns int {
+public function getAsInt(@untainted string key, int defaultValue = 0) returns int {
     if (contains(key)) {
         var value = get(key, INT);
 
@@ -81,7 +81,7 @@ public function getAsInt(@sensitive string key, int defaultValue = 0) returns in
 # + key - The configuration to be retrieved
 # + defaultVal - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsFloat(@sensitive string key, float defaultVal = 0.0) returns float {
+public function getAsFloat(@untainted string key, float defaultVal = 0.0) returns float {
     if (contains(key)) {
         var value = get(key, FLOAT);
 
@@ -111,7 +111,7 @@ public function getAsFloat(@sensitive string key, float defaultVal = 0.0) return
 # + key - The configuration to be retrieved
 # + defaultValue - The default value to be use in case there is no mapping for the provided key
 # + return - Configuration value mapped by the key
-public function getAsBoolean(@sensitive string key, boolean defaultValue = false) returns boolean {
+public function getAsBoolean(@untainted string key, boolean defaultValue = false) returns boolean {
     if (contains(key)) {
         var value = get(key, BOOLEAN);
 
@@ -135,7 +135,7 @@ public function getAsBoolean(@sensitive string key, boolean defaultValue = false
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsMap(@sensitive string key) returns map<any> {
+public function getAsMap(@untainted string key) returns map<any> {
     var value = get(key, MAP);
 
     if (value is map<any>) {

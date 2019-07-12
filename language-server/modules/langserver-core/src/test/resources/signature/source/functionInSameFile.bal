@@ -1,5 +1,5 @@
 function testSignatureHelp () {
-    getGreeting()
+    getGreeting(
 }
 
 # Returns a sample greeting with the given content

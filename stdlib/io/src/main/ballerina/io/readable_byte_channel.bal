@@ -27,7 +27,7 @@ public type ReadableByteChannel object {
     #
     # + nBytes - Positive integer. Represents the number of bytes which should be read
     # + return - Content, the number of bytes read or an error
-    public function read(@sensitive int nBytes) returns @tainted [byte[], int]|error = external;
+    public function read(@untainted int nBytes) returns @tainted [byte[], int]|error = external;
 
     # Encodes a given ReadableByteChannel with Base64 encoding scheme.
     #

@@ -8,26 +8,16 @@ type TestConnector object {
 
     # Test Connector action testAction
     # + return - whether successful or not
-    public function testAction() returns boolean;
+    public function testAction() returns boolean {
+        boolean value = false;
+        return value;
+    }
 
     # Test Connector action testSend
     # + ep - endpoint url
     # + return - whether successful or not
-    public function testSend(string ep) returns boolean;
+    public function testSend(string ep) returns boolean {
+        boolean value = false;
+        return value;
+    }
 };
-
-# overriden description
-# + return - description
-public function TestConnector.testAction() returns boolean {
-    boolean value = false;
-    return value;
-}
-
-# overriden description
-# + ep - endpoint
-# + return - description
-public function TestConnector.testSend(string ep) returns boolean {
-    boolean value = false;
-    return value;
-}
-

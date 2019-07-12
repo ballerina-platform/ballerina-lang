@@ -2,17 +2,12 @@ import pkg1;
 
 type Person object {
 
-    public function func1();
+    public function func1() {
+
+    }
 
     private function func2() = external;
 };
-
-public function Person.func1() {
-
-}
-
-private function Person.func2() {}
-
 
 
 public type Employee object {
@@ -20,25 +15,18 @@ public type Employee object {
     private string name = "";
     string email = "";
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    private function getAge() returns (int);
+    private function getAge() returns int {
+        return self.age;
+    }
 
-    function getEmail() returns (string);
+    function getEmail() returns string {
+        return self.email;
+    }
 };
-
-
-public function Employee.getName() returns (string) {
-    return self.name;
-}
-
-private function Employee.getAge() returns (int) {
-    return self.age;
-}
-
-function Employee.getEmail() returns (string) {
-    return self.email;
-}
 
 function visibilityTest() {
     Employee emp1 = new;
@@ -67,21 +55,15 @@ public type Employee2 object {
     private string name = "";
     string email = "";
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return "";
+    }
 
-    private function getAge() returns (int);
+    private function getAge() returns int {
+        return 0;
+    }
 
-    function getEmail() returns (string);
+    function getEmail() returns string {
+        return "";
+    }
 };
-
-private function Employee2.getName() returns (string) {
-    return "";
-}
-
-public function Employee2.getAge() returns (int) {
-    return 0;
-}
-
-private function Employee2.getEmail() returns (string) {
-    return "";
-}

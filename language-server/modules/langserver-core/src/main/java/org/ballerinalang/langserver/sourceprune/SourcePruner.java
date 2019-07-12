@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Source Pruner utility class which used to prune the invalid sources.
@@ -145,7 +146,15 @@ public class SourcePruner {
                 .traverseLHS(tokenStream, tokenIndex);
         List<CommonToken> rhsTokens = new RHSTokenTraverser(sourcePruneCtx, pruneTokens)
                 .traverseRHS(tokenStream, tokenIndex + 1);
-        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens); 
+        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens); 
+        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes); 
         lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
 
         // Update document manager

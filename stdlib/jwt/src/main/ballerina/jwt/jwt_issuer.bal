@@ -22,12 +22,10 @@ import ballerina/encoding;
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
-# + audienceAsArray - Always represent audience as an array (even when there is single audience)
 public type JwtIssuerConfig record {|
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
-    boolean audienceAsArray = false;
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
@@ -38,15 +36,11 @@ public type JwtIssuerConfig record {|
 # + config - JWT issuer config record
 # + return - JWT token string or an error if token validation fails
 public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|error {
-    boolean audienceAsArray = false;
-    if (config is JwtIssuerConfig) {
-        audienceAsArray = config.audienceAsArray;
-    }
     string jwtHeader = check buildHeaderString(header);
-    string jwtPayload = check buildPayloadString(payload, audienceAsArray);
+    string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
     if (header.alg == NONE) {
-        return (jwtAssertion);
+        return jwtAssertion;
     } else {
         if (config is JwtIssuerConfig) {
             crypto:KeyStore keyStore = config.keyStore;
@@ -67,7 +61,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
             } else {
                 return prepareError("Unsupported JWS algorithm.");
             }
-            return (jwtAssertion + "." + signature);
+            return jwtAssertion + "." + signature;
         } else {
             return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
         }
@@ -90,13 +84,21 @@ function buildHeaderString(JwtHeader header) returns string|error {
     } else {
         return prepareError("Unsupported JWS algorithm.");
     }
-    headerJson[TYP] = "JWT";
+    if (header["typ"] is string) {
+        headerJson[TYP] = header.typ;
+    }
+    if (header["cty"] is string) {
+        headerJson[CTY] = header.cty;
+    }
+    if (header["kid"] is string) {
+        headerJson[KID] = header.kid;
+    }
     string headerValInString = headerJson.toString();
     string encodedPayload = encoding:encodeBase64Url(headerValInString.toByteArray("UTF-8"));
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns string|error {
+function buildPayloadString(JwtPayload payload) returns string|error {
     json payloadJson = {};
     var sub = payload["sub"];
     if (sub is string) {
@@ -119,16 +121,10 @@ function buildPayloadString(JwtPayload payload, boolean audienceAsArray) returns
         payloadJson[JTI] = jti;
     }
     var aud = payload["aud"];
-    if (aud is string[] && aud.length() > 0) {
-        if (audienceAsArray) {
-            payloadJson[AUD] = aud;
-        } else {
-            if (aud.length() == 1) {
-                payloadJson[AUD] = aud[0];
-            } else {
-                payloadJson[AUD] = aud;
-            }
-        }
+    if (aud is string) {
+        payloadJson[AUD] = aud;
+    } else if (aud is string[]) {
+        payloadJson[AUD] = aud;
     }
     var customClaims = payload["customClaims"];
     if (customClaims is map<json>) {

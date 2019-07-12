@@ -77,6 +77,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class TypeChecker {
 
     public static Object checkCast(Object sourceVal, BType targetType) {
+
         if (checkIsType(sourceVal, targetType)) {
             return sourceVal;
         }
@@ -93,7 +94,7 @@ public class TypeChecker {
                 try {
                     return TypeConverter.castValues(memberType, sourceVal);
                 } catch (Exception e) {
-                    continue;
+                    //ignore and continue
                 }
             }
         }
@@ -358,16 +359,7 @@ public class TypeChecker {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    return ((BFiniteType) sourceType).valueSpace.stream()
-                            .allMatch(bValue -> checkIsType(bValue, targetType));
-                }
-                if (sourceType.getTag() == targetType.getTag()) {
-                    return true;
-                }
-                return sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.DECIMAL_TAG:
-                return sourceType.getTag() <= TypeTags.DECIMAL_TAG;
             case TypeTags.STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
@@ -1160,27 +1152,10 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-                return lhsValue.equals(rhsValue);
             case TypeTags.FLOAT_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return lhsValue.equals(((Number) rhsValue).doubleValue());
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((double) lhsValue).equals(rhsValue);
-                }
-
-                return false;
             case TypeTags.DECIMAL_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return DecimalValue.valueOf(((Number) rhsValue).doubleValue()).equals(lhsValue);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((DecimalValue) rhsValue).equals(lhsValue);
-                }
-
-                return false;
+            case TypeTags.BOOLEAN_TAG:
+                return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
                 if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
                     return lhsValue.equals(((Number) rhsValue).longValue());
@@ -1198,16 +1173,6 @@ public class TypeChecker {
 
                 if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
                     return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
-                }
-
-                return false;
-            case TypeTags.BOOLEAN_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return ((boolean) lhsValue) == (((Number) rhsValue).longValue() == 1);
-                }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return ((boolean) lhsValue) == ((DecimalValue) rhsValue).booleanValue();
                 }
 
                 return false;
@@ -1404,7 +1369,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return hasFillerValue(((BArrayType) type).getElementType());
+                return checkFillerValue((BArrayType) type);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -1444,10 +1409,12 @@ public class TypeChecker {
         }
         unAnalyzedTypes.add(type);
         return type.getFields().values().stream().allMatch(f -> Flags.isFlagOn(f.flags, Flags.OPTIONAL)
-                || hasFillerValue(f.type, unAnalyzedTypes));
+                || (!Flags.isFlagOn(f.flags, Flags.OPTIONAL) && !Flags.isFlagOn(f.flags, Flags.REQUIRED)));
     }
 
-
+    private static boolean checkFillerValue(BArrayType type) {
+        return !(type.getState() == ArrayState.CLOSED_SEALED || type.getState() == ArrayState.OPEN_SEALED);
+    }
 
     private static boolean checkFillerValue(BObjectType type) {
         if (type.getTag() == TypeTags.SERVICE_TAG) {

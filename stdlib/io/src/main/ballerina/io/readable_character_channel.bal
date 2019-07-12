@@ -39,7 +39,7 @@ public type ReadableCharacterChannel object {
     #
     # + numberOfChars - Number of characters which should be read
     # + return - Content which is read or an error
-    public function read(@sensitive int numberOfChars) returns @tainted string|error = external;
+    public function read(@untainted int numberOfChars) returns @tainted string|error = external;
 
     # Reads a json from the given channel.
     #

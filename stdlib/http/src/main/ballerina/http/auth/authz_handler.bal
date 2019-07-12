@@ -37,7 +37,12 @@ public type AuthzHandler object {
     #
     # + req - `Request` instance
     # + return - `true` if can be authorized, else `false`, or `error` if error occurred
-    function canHandle(Request req) returns boolean|error;
+    function canHandle(Request req) returns boolean|error {
+        if (runtime:getInvocationContext().principal.username.length() == 0) {
+            return prepareError("Username not set in auth context. Unable to authorize.");
+        }
+        return true;
+    }
 
     # Tries to authorize the request
     #
@@ -48,78 +53,64 @@ public type AuthzHandler object {
     # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
     function handle(string username, string serviceName, string resourceName, string method,
-        string[]|string[][] scopes) returns boolean;
+        string[]|string[][] scopes) returns boolean {
+        // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
+        // since different resources can have different scopes
+        string authzCacheKey = runtime:getInvocationContext().principal.userId + "-" + serviceName + "-" +
+            resourceName + "-" + method;
+
+        string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
+        //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
+        if (authCtxtScopes.length() > 0) {
+            authzCacheKey += "-";
+            foreach var authCtxtScope in authCtxtScopes {
+                authzCacheKey += authCtxtScope + ",";
+            }
+        }
+
+        var authorizedFromCache = self.authorizeFromCache(authzCacheKey);
+        if (authorizedFromCache is boolean) {
+            return authorizedFromCache;
+        } else {
+            // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
+            // match against those.
+            if (authCtxtScopes.length() > 0) {
+                boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
+                // cache authz result
+                self.cacheAuthzResult(authzCacheKey, authorized);
+                return authorized;
+            }
+        }
+        return false;
+    }
 
     # Tries to retrieve authorization decision from the cached information, if any
     #
     # + authzCacheKey - Cache key
     # + return - true or false in case of a cache hit, nil in case of a cache miss
-    function authorizeFromCache(string authzCacheKey) returns boolean?;
+    function authorizeFromCache(string authzCacheKey) returns boolean? {
+        var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
+        if (positiveCacheResponse is boolean) {
+            return true;
+        }
+        var negativeCacheResponse = self.negativeAuthzCache.get(authzCacheKey);
+        if (negativeCacheResponse is boolean) {
+            return false;
+        }
+    }
 
     # Cached the authorization result
     #
     # + authzCacheKey - Cache key
     # + authorized - boolean flag to indicate the authorization decision
-    function cacheAuthzResult(string authzCacheKey, boolean authorized);
+    function cacheAuthzResult(string authzCacheKey, boolean authorized) {
+        if (authorized) {
+            self.positiveAuthzCache.put(authzCacheKey, authorized);
+        } else {
+            self.negativeAuthzCache.put(authzCacheKey, authorized);
+        }
+    }
 };
-
-function AuthzHandler.canHandle(Request req) returns boolean|error {
-    if (runtime:getInvocationContext().principal.username.length() == 0) {
-        return prepareError("Username not set in auth context. Unable to authorize.");
-    }
-    return true;
-}
-
-function AuthzHandler.handle(string username, string serviceName, string resourceName, string method,
-        string[]|string[][] scopes) returns boolean {
-    // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
-    // since different resources can have different scopes
-    string authzCacheKey = runtime:getInvocationContext().principal.userId + "-" + serviceName + "-" +
-        resourceName + "-" + method;
-
-    string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
-    //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
-    if (authCtxtScopes.length() > 0) {
-        authzCacheKey += "-";
-        foreach var authCtxtScope in authCtxtScopes {
-            authzCacheKey += authCtxtScope + ",";
-        }
-    }
-
-    var authorizedFromCache = self.authorizeFromCache(authzCacheKey);
-    if (authorizedFromCache is boolean) {
-        return authorizedFromCache;
-    } else {
-        // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
-        // match against those.
-        if (authCtxtScopes.length() > 0) {
-            boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
-            // cache authz result
-            self.cacheAuthzResult(authzCacheKey, authorized);
-            return authorized;
-        }
-    }
-    return false;
-}
-
-function AuthzHandler.authorizeFromCache(string authzCacheKey) returns boolean? {
-    var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
-    if (positiveCacheResponse is boolean) {
-        return true;
-    }
-    var negativeCacheResponse = self.negativeAuthzCache.get(authzCacheKey);
-    if (negativeCacheResponse is boolean) {
-        return false;
-    }
-}
-
-function AuthzHandler.cacheAuthzResult(string authzCacheKey, boolean authorized) {
-    if (authorized) {
-        self.positiveAuthzCache.put(authzCacheKey, authorized);
-    } else {
-        self.negativeAuthzCache.put(authzCacheKey, authorized);
-    }
-}
 
 # Check whether the scopes of the user and scopes of resource matches.
 #

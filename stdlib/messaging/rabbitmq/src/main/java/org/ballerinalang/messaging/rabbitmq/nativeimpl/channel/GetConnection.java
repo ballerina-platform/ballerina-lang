@@ -23,16 +23,15 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
  * Retrieves the RabbitMQ Connection object.
@@ -51,24 +50,23 @@ import org.ballerinalang.util.codegen.ProgramFile;
 public class GetConnection extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        Channel channel = RabbitMQUtils.getNativeObject(channelBObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
-                Channel.class, context);
-        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelBObject.
+    }
+
+    public static Object getConnection(Strand strand, ObjectValue channelObjectValue) {
+        Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             Connection connection = channel.getConnection();
-            ProgramFile programFile = context.getProgramFile();
-            BMap<String, BValue> connectionObject = BLangConnectorSPIUtil.createBStruct(
-                    programFile, RabbitMQConstants.PACKAGE_RABBITMQ, RabbitMQConstants.CONNECTION_OBJECT);
+            ObjectValue connectionObject = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_RABBITMQ,
+                    RabbitMQConstants.CONNECTION_OBJECT);
             connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
-            context.setReturnValues(connectionObject);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(context);
+                transactionContext.handleTransactionBlock();
             }
+            return connectionObject;
         } catch (AlreadyClosedException exception) {
-            RabbitMQUtils.returnError(RabbitMQConstants.CHANNEL_CLOSED_ERROR, context, exception);
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR + exception.getMessage());
         }
     }
 }

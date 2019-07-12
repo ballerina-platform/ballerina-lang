@@ -20,10 +20,10 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) returns error? {
+function initReadableChannel(string filePath, string encoding) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
     } else {
         return byteChannel;
     }
@@ -31,15 +31,15 @@ function initReadableChannel(string filePath, string encoding) returns error? {
 
 function initWritableChannel(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
-    wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function initWritableChannelToAppend(string filePath, string encoding) {
     io:WritableByteChannel byteChannel = io:openWritableFile(filePath, append = true);
-    wca = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+    wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function readCharacters(int numberOfCharacters) returns string|error {
+function readCharacters(int numberOfCharacters) returns @tainted string|error {
     var result = rch.read(numberOfCharacters);
     if (result is string) {
         return result;
@@ -51,7 +51,7 @@ function readCharacters(int numberOfCharacters) returns string|error {
     }
 }
 
-function readAllCharacters() returns string|error? {
+function readAllCharacters() returns @tainted string|error? {
     int fixedSize = 500;
     boolean isDone = false;
     string result = "";
@@ -94,7 +94,7 @@ function appendCharacters(string content, int startOffset) returns int|error? {
     }
 }
 
-function readJson() returns json|error {
+function readJson() returns @tainted json|error {
     var result = rch.readJson();
     if (result is json) {
         return result;
@@ -103,7 +103,7 @@ function readJson() returns json|error {
     }
 }
 
-function readXml() returns xml|error {
+function readXml() returns @tainted xml|error {
     var result = rch.readXml();
     if (result is xml) {
         return result;

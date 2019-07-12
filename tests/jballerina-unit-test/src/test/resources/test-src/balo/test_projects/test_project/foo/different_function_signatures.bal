@@ -82,7 +82,11 @@ public type Employee object {
 public type Person object {
     public int age = 0;
 
-    public function test1(int a = 77, string n = "inner default") returns [int, string];
+    public function test1(int a = 77, string n = "hello") returns [int, string] {
+        string val = n + " world";
+        int intVal = a + 10;
+        return [intVal, val];
+    }
 
     public function test2(int a = 89, string n = "hello") returns [int, string] {
         string val = n + " world";
@@ -90,9 +94,3 @@ public type Person object {
         return [intVal, val];
     }
 };
-
-public function Person.test1(int a = 77, string n = "hello") returns [int, string] {
-    string val = n + " world";
-    int intVal = a + 10;
-    return [intVal, val];
-}

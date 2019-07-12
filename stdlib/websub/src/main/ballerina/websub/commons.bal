@@ -185,7 +185,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + request - The request received
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
-function processWebSubNotification(http:Request request, service serviceType) returns error? {
+function processWebSubNotification(http:Request request, service serviceType) returns @tainted error? {
     string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
     // Build the data source before responding to the content delivery requests automatically
     var payload = request.getTextPayload();
@@ -284,7 +284,7 @@ public type Notification object {
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
-    public function getHeader(string headerName) returns string {
+    public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
 
@@ -293,35 +293,35 @@ public type Notification object {
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
     #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
-    public function getHeaders(string headerName) returns string[] {
+    public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
 
     # Retrieves all the names of the headers present in the content delivery request.
     #
     # + return - An array of all the header names
-    public function getHeaderNames() returns string[] {
+    public function getHeaderNames() returns @tainted string[] {
         return self.request.getHeaderNames();
     }
 
     # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
-    public function getContentType() returns string {
+    public function getContentType() returns @tainted string {
         return self.request.getContentType();
     }
 
     # Extracts `json` payload from the content delivery request.
     #
     # + return - The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
-    public function getJsonPayload() returns json|error {
+    public function getJsonPayload() returns @tainted json|error {
         return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
     # + return - The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
-    public function getXmlPayload() returns xml|error {
+    public function getXmlPayload() returns @tainted xml|error {
         return self.request.getXmlPayload();
     }
 
@@ -329,28 +329,28 @@ public type Notification object {
     #
     # + return - The `text` payload or `error` in case of errors.
     #            If the content type is not of type text, an `error` is returned.
-    public function getTextPayload() returns string|error {
+    public function getTextPayload() returns @tainted string|error {
         return self.request.getTextPayload();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns io:ReadableByteChannel|error {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         return self.request.getByteChannel();
     }
 
     # Retrieves the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns byte[]|error {
+    public function getBinaryPayload() returns @tainted byte[]|error {
         return self.request.getBinaryPayload();
     }
 
     # Retrieves the form parameters from the content delivery request as a `map`.
     #
     # + return - The map of form params or `error` in case of errors
-    public function getFormParams() returns map<string>|error {
+    public function getFormParams() returns @tainted map<string>|error {
         return self.request.getFormParams();
     }
 };
@@ -359,7 +359,7 @@ public type Notification object {
 #
 # + response - The `http:Response` received
 # + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
-public function extractTopicAndHubUrls(http:Response response) returns (string, string[])|error {
+public function extractTopicAndHubUrls(http:Response response) returns @tainted (string, string[])|error {
     string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
         linkHeaders = response.getHeaders("Link");

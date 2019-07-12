@@ -17,13 +17,13 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:ConfigAuthStoreProvider basicAuthProvider02 = new;
-http:BasicAuthHeaderAuthnHandler basicAuthnHandler02 = new(basicAuthProvider02);
+auth:InboundBasicAuthProvider basicAuthProvider02 = new(());
+http:BasicAuthHandler basicAuthHandler02 = new(basicAuthProvider02);
 
 // Listener with valid scope
 listener http:Listener listener02_1 = new(9091, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler02],
+        authHandlers: [basicAuthHandler02],
         scopes: ["scope1"]
     },
     secureSocket: {
@@ -37,7 +37,7 @@ listener http:Listener listener02_1 = new(9091, config = {
 // Listener with invalid scope
 listener http:Listener listener02_2 = new(9092, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler02],
+        authHandlers: [basicAuthHandler02],
         scopes: ["scope10"]
     },
     secureSocket: {
@@ -51,7 +51,7 @@ listener http:Listener listener02_2 = new(9092, config = {
 // Listener with scope not given
 listener http:Listener listener02_3 = new(9093, config = {
     auth: {
-        authnHandlers: [basicAuthnHandler02]
+        authHandlers: [basicAuthHandler02]
     },
     secureSocket: {
         keyStore: {

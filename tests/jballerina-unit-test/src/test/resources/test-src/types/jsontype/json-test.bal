@@ -11,7 +11,7 @@ function toString (json msg) returns (string?) {
     return msg.toString();
 }
 
-function testParse (string jsonStr) returns (json | error) {
+function testParse (string jsonStr) returns @tainted (json | error) {
     io:StringReader reader = new(jsonStr);
     return reader.readJson();
 }
@@ -60,7 +60,7 @@ function testToXMLWithOptions (json msg) returns (xml | error?) {
     return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
 }
 
-function testStringToJSONConversion() returns (json | error) {
+function testStringToJSONConversion() returns @tainted (json | error) {
     string s = "{\"foo\": \"bar\"}";
     io:StringReader reader = new(s);
     return reader.readJson();

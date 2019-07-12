@@ -24,5 +24,5 @@ function myFunc() {
 
 channel<string> lastChan = new;
 
-@sensitive
+@untainted
 channel<string> annoChan = new;

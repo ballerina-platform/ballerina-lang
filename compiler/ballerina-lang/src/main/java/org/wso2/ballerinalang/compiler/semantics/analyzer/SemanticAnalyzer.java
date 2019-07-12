@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -340,6 +342,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
     }
 
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.TYPE);
+            if (conversionExpr.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.OBJECT);
+            }
+
+            annotationAttachment.accept(this);
+        });
+        validateAnnotationAttachmentCount(conversionExpr.annAttachments);
+    }
+
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         finiteTypeNode.valueSpace.forEach(val -> {
@@ -508,6 +522,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         validateAnnotationAttachmentCount(varNode.annAttachments);
 
+        validateStartAnnAttachments(varNode.expr);
+
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
@@ -529,6 +545,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER) && !types
                 .checkListenerCompatibility(env, varNode.symbol.type)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_LISTENER_VARIABLE, varNode.name);
+        }
+    }
+
+    /**
+     * Validate annotation attachment of START action.
+     * @param expr expression to be validated.
+     */
+    private void validateStartAnnAttachments(BLangExpression expr) {
+        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+            ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
+                annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
+                annotationAttachment.accept(this);
+            });
+            validateAnnotationAttachmentCount(((BLangInvocation) expr).annAttachments);
         }
     }
 
@@ -599,12 +629,59 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariable varNode) {
+        // Error variable declarations (destructuring etc.)
         if (varNode.isDeclaredWithVar) {
             handleDeclaredWithVar(varNode);
             return;
         }
+
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
+        }
+
+        // match err1 { error(reason,....) => ... }
+        // reason must be a const of subtype of string.
+        // then we match the error with this specific reason.
+        if (!varNode.reasonVarPrefixAvailable && varNode.type == null) {
+            BErrorType errorType = new BErrorType(varNode.type.tsymbol, null, null);
+
+            if (varNode.type.tag == TypeTags.UNION) {
+                Set<BType> members = types.expandAndGetMemberTypesRecursive(varNode.type);
+                List<BErrorType> errorMembers = members.stream()
+                        .filter(m -> m.tag == TypeTags.ERROR)
+                        .map(m -> (BErrorType) m)
+                        .collect(Collectors.toList());
+
+                if (errorMembers.isEmpty()) {
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_ERROR_MATCH_PATTERN);
+                    return;
+                } else if (errorMembers.size() == 1) {
+                    errorType.detailType = errorMembers.get(0).detailType;
+                    errorType.reasonType = errorMembers.get(0).reasonType;
+                } else {
+                    errorType.detailType = symTable.pureTypeConstrainedMap;
+                    errorType.reasonType = symTable.stringType;
+                }
+                varNode.type = errorType;
+            } else if (varNode.type.tag == TypeTags.ERROR) {
+                errorType.detailType = ((BErrorType) varNode.type).detailType;
+            }
+
+            // Set error reason type.
+            // For var error binding pattern, set reason type to string.
+            // For error match pattern with const reason, set the reason type to provided const type.
+            if (varNode.reasonMatchConst != null) {
+                BTypeSymbol reasonConstTypeSymbol = new BTypeSymbol(SymTag.FINITE_TYPE,
+                        Flags.PUBLIC, names.fromString(""), this.env.enclPkg.packageID, null, this.env.scope.owner);
+                varNode.reasonMatchConst.type = symTable.stringType;
+                typeChecker.checkExpr(varNode.reasonMatchConst, env);
+
+                LinkedHashSet<BLangExpression> members = new LinkedHashSet<>();
+                members.add(varNode.reasonMatchConst);
+                errorType.reasonType = new BFiniteType(reasonConstTypeSymbol, members);
+            } else {
+                errorType.reasonType = symTable.stringType;
+            }
         }
         if (!validateErrorVariable(varNode)) {
             varNode.type = symTable.semanticError;
@@ -1395,6 +1472,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
+        validateStartAnnAttachments(assignNode.expr);
+
         resetTypeNarrowing(assignNode.varRef, assignNode.expr);
     }
 
@@ -1757,6 +1836,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (bType != symTable.nilType && bType != symTable.semanticError) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
+        validateStartAnnAttachments(exprStmtNode.expr);
     }
 
     @Override
@@ -2097,6 +2177,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.type);
+        validateStartAnnAttachments(returnNode.expr);
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -2415,16 +2496,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      */
     private void validateObjectAttachedFunction(BLangFunction funcNode) {
         if (funcNode.attachedOuterFunction) {
-            // object outer attached function must have a body
-            if (funcNode.body == null && !Symbols.isNative(funcNode.symbol)) {
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            }
-
-            if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-                dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_ABSTRACT_OBJECT, funcNode.name,
-                        funcNode.receiver.type);
-            }
-
+            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_OUTSIDE_METHODS_NOT_ALLOWED);
             return;
         }
 

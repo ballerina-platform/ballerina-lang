@@ -48,8 +48,8 @@ BALLERINA COMMANDS
          doc        Generate Ballerina API documentation
          grpc       Generate connector/service using protobuf   
                     definition
-         openapi    Generate client/service using OpenApi definition
-                    or export OpenApi file for a Ballerina service
+         openapi    Generate client/service using OpenAPI definition
+                    or export OpenAPI file for a Ballerina service
          test       Test Ballerina program
          version    Print Ballerina version
          encrypt    Encrypt sensitive data

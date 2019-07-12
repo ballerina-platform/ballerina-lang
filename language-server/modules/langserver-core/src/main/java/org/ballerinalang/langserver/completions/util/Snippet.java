@@ -40,7 +40,9 @@ public enum Snippet {
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
-    DEF_RESOURCE(SnippetGenerator.getResourceDefinitionSnippet()),
+    DEF_RESOURCE_HTTP(SnippetGenerator.getHttpResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
 
     DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
 

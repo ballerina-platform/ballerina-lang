@@ -1,4 +1,0 @@
-// The Ballerina H2 Client is used to access and manipulate data in H2
-// databases. Before running the sample, change the properties of the DB connection
-// as required. This sample contains only a subset of operations.
-// For all available operations, refer the JDBC client sample.

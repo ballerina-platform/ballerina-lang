@@ -2394,7 +2394,7 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-            
+
             if (!enclLocks.isEmpty()) {
                 enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
             }
@@ -3042,6 +3042,16 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
+        // Usually the parameter for a type-cast-expr includes a type-descriptor.
+        // However, it is also allowed for the parameter to consist only of annotations; in
+        // this case, the only effect of the type cast is for the contextually expected
+        // type for expression to be augmented with the specified annotations.
+
+        // No actual type-cast is implied here.
+        if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
+            result = rewriteExpr(conversionExpr.expr);
+            return;
+        }
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
     }
@@ -4677,11 +4687,12 @@ public class Desugar extends BLangNodeVisitor {
             recordVarType.fields = fields;
             if (recordVariable.isClosed) {
                 recordVarType.sealed = true;
+                recordVarType.restFieldType = symTable.noType;
             } else {
                 // if rest param is null we treat it as an open record with anydata rest param
                 recordVarType.restFieldType = recordVariable.restParam != null ?
                         ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
-                        symTable.anydataType;
+                        symTable.pureType;
             }
             BLangRecordTypeNode recordTypeNode = createRecordTypeNode(typeDefFields, recordVarType);
             recordTypeNode.pos = bindingPatternVariable.pos;
@@ -4698,10 +4709,12 @@ public class Desugar extends BLangNodeVisitor {
 
         if (NodeKind.ERROR_VARIABLE == bindingPatternVariable.getKind()) {
             BLangErrorVariable errorVariable = (BLangErrorVariable) bindingPatternVariable;
-            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC,
-                                                                    names.fromString("$anonErrorType$" + errorCount++),
-                                                                    env.enclPkg.symbol.pkgID,
-                                                                    null, null);
+            BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(
+                    SymTag.ERROR,
+                    Flags.PUBLIC,
+                    names.fromString("$anonErrorType$" + errorCount++),
+                    env.enclPkg.symbol.pkgID,
+                    null, null);
             BType detailType;
             if ((errorVariable.detail == null || errorVariable.detail.isEmpty()) && errorVariable.restDetail != null) {
                 detailType = symTable.pureTypeConstrainedMap;
@@ -4711,7 +4724,9 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
                 createTypeDefinition(detailType, detailType.tsymbol, recordTypeNode);
             }
-            BErrorType errorType = new BErrorType(errorTypeSymbol, symTable.stringType, detailType);
+            BErrorType errorType = new BErrorType(errorTypeSymbol,
+                    ((BErrorType) errorVariable.type).reasonType,
+                    detailType);
             errorTypeSymbol.type = errorType;
 
             createTypeDefinition(errorType, errorTypeSymbol, createErrorTypeNode(errorType));
@@ -5679,9 +5694,9 @@ public class Desugar extends BLangNodeVisitor {
         int varDefIndex = 0;
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
-                varDefIndex = i;
                 break;
             }
+            varDefIndex++;
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
@@ -5696,6 +5711,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = varDefIndex; i < stmts.size(); i++) {
             BLangStatement stmt = stmts.get(i);
             chunkStmts.add(stmt);
+            varDefIndex++;
             if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
                     (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
                     (newFunc.body.stmts.size() + chunkStmts.size() > methodSize)) {
@@ -5707,15 +5723,27 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 newFunc.body.stmts.addAll(chunkStmts);
                 chunkStmts.clear();
+            } else if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
+                    (((BLangAssignment) stmt).varRef instanceof BLangPackageVarRef) &&
+                    Symbols.isFlagOn(((BLangPackageVarRef) ((BLangAssignment) stmt).varRef).varSymbol.flags,
+                            Flags.LISTENER)
+            ) {
+                // this is where listener registrations starts, they are independent stmts
+                break;
             }
         }
-
-        if (newFunc.body.stmts.size() + chunkStmts.size() > methodSize) {
-            generatedFunctions.add(newFunc);
-            newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
-            symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
-        }
         newFunc.body.stmts.addAll(chunkStmts);
+
+        // rest of the statements can be split without chunks
+        for (int i = varDefIndex; i < stmts.size(); i++) {
+            if (i > 0 && i % methodSize == 0) {
+                generatedFunctions.add(newFunc);
+                newFunc = createIntermediateInitFunction(packageNode, env, generatedFunctions.size());
+                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+            }
+            newFunc.body.stmts.add(stmts.get(i));
+        }
+
         generatedFunctions.add(newFunc);
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {

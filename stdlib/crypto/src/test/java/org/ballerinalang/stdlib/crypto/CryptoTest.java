@@ -45,14 +45,12 @@ public class CryptoTest {
     private static final int KEY_SIZE = 16; // Set to 16 to ensure compatibility with older JDKs
 
     private CompileResult compileResult;
-    private String resourceRoot;
-    private Path sourceRoot;
     private Path confRoot;
 
     @BeforeClass
     public void setup() {
-        resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
-        sourceRoot = Paths.get(resourceRoot, "test-src");
+        String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+        Path sourceRoot = Paths.get(resourceRoot, "test-src");
         confRoot = Paths.get(resourceRoot, "datafiles");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("crypto-test.bal").toString());
     }

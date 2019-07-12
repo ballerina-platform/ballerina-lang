@@ -55,6 +55,10 @@ public class Strand {
     private Map<String, Object> globalProps;
     public boolean cancel;
     public ObserverContext observerContext;
+    /**
+     * Used to mark the strand has completed.
+     */
+    public boolean completed;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;

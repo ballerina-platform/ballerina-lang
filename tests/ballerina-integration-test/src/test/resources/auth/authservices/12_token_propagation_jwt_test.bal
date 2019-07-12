@@ -19,7 +19,7 @@ import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider12_1 = new({
     issuer: "example1",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -72,7 +72,7 @@ service passthroughService12 on listener12_1 {
 
 jwt:InboundJwtAuthProvider jwtAuthProvider12_3 = new({
     issuer: "example1",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

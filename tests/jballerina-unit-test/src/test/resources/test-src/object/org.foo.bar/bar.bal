@@ -20,36 +20,28 @@ public type userBar object {
         self.name = name;
     }
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    public function getAge() returns (int);
+    public function getAge() returns int {
+        return self.age;
+    }
 
-    public function getZipcode() returns (string);
+    public function getZipcode() returns string {
+        return self.zipcode;
+    }
 };
-
-public function userBar.getName() returns (string) {
-    return self.name;
-}
-
-public function userBar.getAge() returns (int) {
-    return self.age;
-}
-
-public function userBar.getZipcode() returns (string) {
-    return self.zipcode;
-}
 
 public type BarObj object {
     public int age = 0;
     public string name = "";
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    function getAge() returns (int) {
+    function getAge() returns int {
         return self.age;
     }
 };
-
-public function BarObj.getName() returns (string) {
-    return self.name;
-}

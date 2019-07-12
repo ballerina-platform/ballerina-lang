@@ -28,11 +28,11 @@ function echo(string msg) returns string {
     }
     string returnStr = "";
     var result = socketClient->receiveFrom();
-    if (result is (byte[], int, socket:Address)) {
-        var (content, length, address) = result;
+    if (result is [byte[], int, socket:Address]) {
+        var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted> str;
         } else {
             io:println(str.detail().message);
         }
@@ -47,11 +47,11 @@ function contentReceive() returns string {
     socket:UdpClient socketClient = new(localAddress = { port: 48827 });
     string returnStr = "";
     var result = socketClient->receiveFrom();
-    if (result is (byte[], int, socket:Address)) {
-        var (content, length, address) = result;
+    if (result is [byte[], int, socket:Address]) {
+        var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted> str;
         } else {
             io:println(str.detail().message);
         }
@@ -66,11 +66,11 @@ function contentReceiveWithLength() returns string {
     socket:UdpClient socketClient = new(localAddress = { host: "localhost", port: 48828 });
     string returnStr = "";
     var result = socketClient->receiveFrom(length = 56);
-    if (result is (byte[], int, socket:Address)) {
-        var (content, length, address) = result;
+    if (result is [byte[], int, socket:Address]) {
+        var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = untaint str;
+            returnStr = <@untainted> str;
         } else {
             io:println(str.detail().message);
         }
@@ -81,7 +81,7 @@ function contentReceiveWithLength() returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns string|error {
+function getString(byte[] content) returns @tainted string|error {
     io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return characterChannel.read(60);
