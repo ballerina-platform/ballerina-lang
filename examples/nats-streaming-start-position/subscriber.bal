@@ -15,7 +15,7 @@ listener nats:StreamingListener lis5 = new(conn, "test-cluster", "c5");
 
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
-// By default receives only new messages.
+// By default, only new messages are received.
 @nats:StreamingSubscriptionConfig {
     subject: "demo"
 }

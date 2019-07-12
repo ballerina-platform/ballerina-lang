@@ -68,7 +68,7 @@ public type Producer client object {
 
     # Close a given connection.
     #
-    # + return - () or error if unable to complete the close operation.
+    # + return - Retruns () or the error if unable to complete the close operation.
     public function close() returns NatsError? {
         self.closeConnection();
         if (self.connection is Connection) {

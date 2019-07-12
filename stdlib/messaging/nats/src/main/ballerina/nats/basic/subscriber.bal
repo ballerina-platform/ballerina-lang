@@ -34,7 +34,7 @@ public type Listener object {
     #
     # + s - Type descriptor of the service.
     # + name - Name of the service.
-    # + return - Nil or error upon failure to register the listener.
+    # + return - Returns nil or the error upon failure to register the listener.
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }

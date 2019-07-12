@@ -6,12 +6,12 @@
 #     the messages were sent within a historical offset of 5 seconds
 #     from the current server date/time
 # 2. `receiveFromGivenIndex` service receives services messages
-#     starting from the 3rd message published.
+#     starting from the third message published.
 # 3. `receiveFromLastReceived` service receives messages starting
 #     from the last published message.
 # 4. `receiveFromBeginning` service receives all messages ever
 #     published
-# 5. `receiveNewOnly` service receives only the messages which are
+# 5. `receiveNewOnly` service receives only the messages, which are
 #    published after the subscriber starts.
 
 $ ballerina run subscriber.bal
