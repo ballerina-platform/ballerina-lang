@@ -16,10 +16,8 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel.listener;
+package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
@@ -30,42 +28,32 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
 /**
- * Closing the channel listener.
+ * Retrieve the Channel which initializes this listener.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = RabbitMQConstants.ORG_NAME,
         packageName = RabbitMQConstants.RABBITMQ,
-        functionName = "stop",
+        functionName = "getChannel",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class Stop extends BlockingNativeCallableUnit {
+public class GetChannel extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
     }
 
-    public static Object stop(Strand strand, ObjectValue listenerObjectValue) {
-        ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        Channel channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        if (channel == null) {
-            return RabbitMQUtils.returnErrorValue("ChannelListener is not properly initialised.");
+    public static Object getChannel(Strand strand, ObjectValue listenerObjectValue) {
+        ObjectValue channel = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        if (channel != null) {
+            return channel;
         } else {
-            try {
-                Connection connection = channel.getConnection();
-                channel.close();
-                connection.close();
-            } catch (IOException | TimeoutException exception) {
-                return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CLOSE_CHANNEL_ERROR
-                        + exception.getMessage());
-            }
+            return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the Channel," +
+                    " Channel is not properly initialized");
         }
-        return null;
     }
 }

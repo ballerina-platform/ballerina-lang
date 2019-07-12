@@ -14,15 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/errors version v1 as er;
+type Detail record {
+    string message;
+    error cause?;
+};
 
-function getApplicationError() returns error {
-    er:ApplicationError e = error(message = "Client has been stopped");
-    return e;
-}
-
-function getApplicationErrorIndirectCtor() returns error {
-    er:ApplicationError e = er:ApplicationError(message = "Client has been stopped");
-    error e1 = er:ApplicationError(message = "Client has been stopped");
-    return e;
-}
+public const RABBITMQ_ERROR = "{ballerina/rabbitmq}RabbitMQError";
+public type RabbitMQError error<RABBITMQ_ERROR, Detail>;

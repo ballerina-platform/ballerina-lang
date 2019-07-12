@@ -61,7 +61,7 @@ public type Listener object {
     # + name - Name of the service.
     # + return - () or error upon failure to register listener.
     public function __attach(service s, string? name = ()) returns error? {
-       self.registerListener(s);
+       return self.registerListener(s);
     }
 
     # Retrieve the Channel which initializes this listener.
@@ -69,7 +69,7 @@ public type Listener object {
     # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
     public function getChannel() returns Channel | error = external;
 
-    private function registerListener(service serviceType) = external;
+    private function registerListener(service serviceType) returns error? = external;
     private function stop() returns error? = external;
     private function start() returns error? = external;
     private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? = external;
