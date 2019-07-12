@@ -101,7 +101,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                      getCurrentPos(ctx.Identifier()), false,
-                                     ctx.annotationAttachment().size());
+                                     ctx.annotationAttachment().size(), ctx.PUBLIC() != null);
     }
 
     /**

@@ -846,7 +846,7 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* PUBLIC? typeName Identifier
     ;
 
 defaultableParameter
