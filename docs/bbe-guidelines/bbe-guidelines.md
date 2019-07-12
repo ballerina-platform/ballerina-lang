@@ -1,4 +1,4 @@
-# Guidelines for Writing Ballerina By Examples (BBEs)
+# Guidelines for Writing Ballerina Examples 
 
 - [General best practices](#general-best-practices)
 - [Practices related to the code comments](#practices-related-to-the-code-comments)
@@ -75,7 +75,7 @@
 
 ## Practices related to the folder structure
 
-1. Each BBE should be in a separate directory in the [ballerina-lang Git Hub repository](https://github.com/ballerina-platform/ballerina-lang/tree/master/examples) with the name of the example. 
+1. Each BBE should be in a separate directory in the [ballerina-lang Git Hub repository](https://github.com/ballerina-platform/ballerina-lang/tree/master/examples) named by the example (e.g., https://github.com/ballerina-platform/ballerina-lang/tree/master/examples/artemis-transaction-producer).
 
 2. Directory name should be in all lowercase letters with words separated by “-” (e.g., abstract-objects).
 
@@ -83,7 +83,7 @@
 
     > **Tip:** File names should be the same as folder name, with the “-” being replaced with the underscore (e.g., abstract_objects).
 
-    `.bal` - The code of the example to be displayed in the [Ballerina By Examples](https://ballerina.io/learn/by-example/).
+    `.bal` - The code of the example to be displayed in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
     `.description` - The description of the example displayed at the top of each example in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
