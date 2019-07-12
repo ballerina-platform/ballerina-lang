@@ -94,8 +94,7 @@ public class ArtemisResourceValidator {
                                             DiagnosticLog dlog, boolean onErrorAvailable) {
         if (!onErrorAvailable) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "onError resource " +
-                    "function is not found; any errors that occur due to data binding will be discarded along " +
-                    "with the message");
+                    "function is not found");
         }
         BType secondParamType = paramDetails.get(1).type;
         int secondParamTypeTag = secondParamType.tag;

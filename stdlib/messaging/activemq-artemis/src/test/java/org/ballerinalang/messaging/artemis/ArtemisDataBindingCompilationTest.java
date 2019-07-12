@@ -74,8 +74,7 @@ public class ArtemisDataBindingCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                "onError resource function is not found; any errors that occur due to data " +
-                        "binding will be discarded along with the message",
+                "onError resource function is not found",
                 27, 5);
     }
 

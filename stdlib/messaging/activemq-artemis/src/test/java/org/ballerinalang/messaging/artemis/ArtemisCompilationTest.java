@@ -47,7 +47,7 @@ public class ArtemisCompilationTest {
         CompileResult compileResult = getCompileResult("artemis_more_resources.bal");
 
         Assert.assertEquals(compileResult.getDiagnostics().length, 2);
-        BAssertUtil.validateError(compileResult, 0, "Only maximum of two resources are allowed in the service", 24, 1);
+        BAssertUtil.validateError(compileResult, 0, "Only onMessage and onError are allowed in the service", 24, 1);
     }
 
     @Test(description = "More than expected number of annotations for the service", enabled = false)
