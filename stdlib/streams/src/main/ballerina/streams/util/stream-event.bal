@@ -92,7 +92,8 @@ public type StreamEvent object {
         self.data[k] = val;
         // add to dataMap
         self.dataMap[self.getStreamName()] = self.dataMap[self.getStreamName()] ?: [];
-        map<anydata> dataMap = self.dataMap[self.getStreamName()][0] ?: {};
+        map<anydata>[]? values = self.dataMap[self.getStreamName()];
+        map<anydata> dataMap = values is map<anydata>[] ? values[0] : {};
         self.dataMap[self.getStreamName()][0] = dataMap;
         dataMap[key] = val;
     }

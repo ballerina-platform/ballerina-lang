@@ -37,7 +37,7 @@ public type Filter object {
         int index = 0;
         foreach var ev in streamEvents {
             StreamEvent event = <StreamEvent> ev;
-            if (self.conditionFunc.call(event.data)) {
+            if (self.conditionFunc(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;
             }

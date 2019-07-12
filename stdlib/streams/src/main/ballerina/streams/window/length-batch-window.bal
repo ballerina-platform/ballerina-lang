@@ -118,7 +118,7 @@ public type LengthBatchWindow object {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(events);
+                nextProcessFuncPointer(events);
             }
         }
     }

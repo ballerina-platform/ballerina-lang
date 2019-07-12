@@ -41,7 +41,7 @@ public type StateMachine object {
             }
         }
         StreamEvent?[] events = self.rootProcessor.flushAndGetFulfilledEvents();
-        self.nextProcessorPointer.call(events);
+        self.nextProcessorPointer(events);
     }
 
     # Injects a given `StreamEvent` to the `StateMachine`.
