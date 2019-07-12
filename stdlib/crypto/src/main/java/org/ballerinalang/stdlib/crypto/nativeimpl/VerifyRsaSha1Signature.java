@@ -50,7 +50,7 @@ public class VerifyRsaSha1Signature extends BlockingNativeCallableUnit {
             PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
             return CryptoUtils.verify("SHA1withRSA", key, data, signature);
         } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("Invalid uninitialized key");
+            return CryptoUtils.createCryptoError("Uninitialized public key");
         }
     }
 }

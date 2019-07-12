@@ -81,7 +81,7 @@ public class EncodingUtil {
     /**
      * Converts a hexadecimal character to an integer.
      *
-     * @param ch A character to convert to an integer digit
+     * @param ch    A character to convert to an integer digit
      * @param index The index of the character in the source
      * @return An integer
      * @throws IllegalArgumentException Thrown if ch is an illegal hex character
@@ -97,7 +97,7 @@ public class EncodingUtil {
     /**
      * Create encoding error.
      *
-     * @param errMsg  Error description
+     * @param errMsg Error description
      * @return conversion error
      */
     public static ErrorValue createEncodingError(String errMsg) {

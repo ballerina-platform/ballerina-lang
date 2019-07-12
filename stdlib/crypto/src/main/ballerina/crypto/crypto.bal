@@ -220,7 +220,7 @@ public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[
 # + signature - Signature value
 # + publicKey - Public key used for verification
 # + return - Validity of the signature or `CryptoError` if public key is invalid
-public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey) 
+public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                       returns boolean|CryptoError = external;
 
 # Verify RSA-SHA1 based signature.

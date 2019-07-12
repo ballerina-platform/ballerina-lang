@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Convert byte array to string.
@@ -45,10 +44,6 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
 
     public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
         try {
-            // TODO : Remove null check once extern functions are supported with default value parameters.
-            if (encoding == null) {
-                encoding = StandardCharsets.UTF_8.name();
-            }
             return new String(bytes.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported encoding: " + encoding , e);

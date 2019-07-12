@@ -20,8 +20,6 @@ package org.ballerinalang.messaging.rabbitmq.util;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
@@ -39,21 +37,6 @@ import java.util.concurrent.TimeoutException;
 public class ChannelUtils {
 
     /**
-     * Creates a RabbitMQ AMQ Channel.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @return RabbitMQ Channel object.
-     */
-    public static Channel createChannel(Connection connection) {
-        try {
-            return connection.createChannel();
-        } catch (IOException exception) {
-            String errorMessage = "An error occurred while creating the channel ";
-            throw new BallerinaException(errorMessage + exception.getMessage(), exception);
-        }
-    }
-
-    /**
      * Closes the channel.
      *
      * @param channel      RabbitMQ Channel object.
@@ -65,36 +48,14 @@ public class ChannelUtils {
         boolean validCloseMessage = closeMessage != null && RabbitMQUtils.checkIfString(closeMessage);
         try {
             if (validCloseCode && validCloseMessage) {
-                abort(channel, (int) closeCode, closeMessage.toString());
+                channel.abort((int) closeCode, closeMessage.toString());
             } else {
-                abort(channel);
+                channel.abort();
             }
         } catch (IOException | ArithmeticException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.ABORT_CHANNEL_ERROR + exception.getMessage(),
                     exception);
         }
-    }
-
-    /**
-     * Aborts the channel.
-     *
-     * @param channel RabbitMQ Channel object.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    public static void abort(Channel channel) throws IOException {
-        channel.abort();
-    }
-
-    /**
-     * Aborts the channel.
-     *
-     * @param channel      RabbitMQ Channel object.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     * @throws IOException If an I/O problem is encountered.
-     */
-    public static void abort(Channel channel, int closeCode, String closeMessage) throws IOException {
-        channel.abort(closeCode, closeMessage);
     }
 
     /**
@@ -109,73 +70,13 @@ public class ChannelUtils {
         boolean validCloseMessage = closeMessage != null && RabbitMQUtils.checkIfString(closeMessage);
         try {
             if (validCloseCode && validCloseMessage) {
-                close(channel, (int) closeCode, closeMessage.toString());
+                channel.close((int) closeCode, closeMessage.toString());
             } else {
-                close(channel);
+                channel.close();
             }
         } catch (IOException | ArithmeticException | TimeoutException exception) {
             throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CHANNEL_ERROR + exception.getMessage(),
                     exception);
-        }
-    }
-
-    /**
-     * Closes the channel.
-     *
-     * @param channel RabbitMQ Channel object.
-     * @throws IOException      If an I/O problem is encountered.
-     * @throws TimeoutException Thrown the operation times out.
-     */
-    public static void close(Channel channel) throws IOException, TimeoutException {
-        channel.close();
-    }
-
-    /**
-     * Closes the channel.
-     *
-     * @param channel      RabbitMQ Channel object.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     * @throws IOException      If an I/O problem is encountered.
-     * @throws TimeoutException Thrown the operation times out.
-     */
-    public static void close(Channel channel, int closeCode, String closeMessage)
-            throws IOException, TimeoutException {
-        channel.close(closeCode, closeMessage);
-
-    }
-
-    /**
-     * Declares a queue with an auto-generated queue name.
-     *
-     * @param channel RabbitMQ Channel object.
-     * @return An auto-generated queue name.
-     */
-    public static String queueDeclare(Channel channel) {
-        try {
-            return channel.queueDeclare().getQueue();
-        } catch (IOException exception) {
-            String errorMessage = "An error occurred while auto-declaring the queue ";
-            throw new BallerinaException(errorMessage + exception.getMessage(), exception);
-        }
-    }
-
-    /**
-     * Declare a queue.
-     *
-     * @param channel    RabbitMQ Channel object.
-     * @param queueName  The name of the queue.
-     * @param durable    True if we are declaring a durable queue (the queue will survive a server restart).
-     * @param exclusive  True if we are declaring an exclusive queue (restricted to this connection).
-     * @param autoDelete True if we are declaring an autodelete queue (server will delete it when no longer in use).
-     */
-    public static void queueDeclare(Channel channel, String queueName, boolean durable, boolean exclusive,
-                                    boolean autoDelete) {
-        try {
-            channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
-        } catch (IOException exception) {
-            String errorMessage = "An error occurred while declaring the queue: ";
-            throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
         }
     }
 
@@ -195,23 +96,6 @@ public class ChannelUtils {
         } catch (IOException exception) {
             String errorMessage = "An error occurred while declaring the exchange: ";
             throw new RabbitMQConnectorException(errorMessage + exception.getMessage(), exception);
-        }
-    }
-
-    /**
-     * Binds a queue to an exchange.
-     *
-     * @param channel      RabbitMQ Channel object.
-     * @param queueName    Name of the queue.
-     * @param exchangeName Name of the exchange.
-     * @param bindingKey   The binding key used for the binding.
-     */
-    public static void queueBind(Channel channel, String queueName, String exchangeName, String bindingKey) {
-        try {
-            channel.queueBind(queueName, exchangeName, bindingKey);
-        } catch (Exception e) {
-            String errorMessage = "An error occurred while binding the queue to an exchange ";
-            throw new RabbitMQConnectorException(errorMessage + e.getMessage(), e);
         }
     }
 

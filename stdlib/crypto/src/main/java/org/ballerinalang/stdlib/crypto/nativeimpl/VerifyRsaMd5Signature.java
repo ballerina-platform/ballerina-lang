@@ -50,7 +50,7 @@ public class VerifyRsaMd5Signature extends BlockingNativeCallableUnit {
             PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
             return CryptoUtils.verify("MD5withRSA", key, data, signature);
         } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("Invalid uninitialized key");
+            return CryptoUtils.createCryptoError("Uninitialized public key");
         }
     }
 }
