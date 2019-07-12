@@ -109,7 +109,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     elementTree.push(new ProjectTreeElement(child,1,{
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
-                        arguments: [child]
+                        arguments: [key, child]
                     }));
                 });
             } else {
@@ -118,7 +118,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     elementTree.push(new ProjectTreeElement(child,1,{
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
-                        arguments: [child]
+                        arguments: [key, child]
                     }));
                 });
             }
