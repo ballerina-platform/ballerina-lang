@@ -1,7 +1,7 @@
 ## Module overview
 
-NATS is a simple, secure and high performance open source messaging system for cloud native applications.
-'ballerina/nats' provides the capability to connect with a NATS and Streaming server and perform the following
+NATS is a simple, secure, and high-performance open source messaging system for cloud-native applications.
+The 'ballerina/nats' module provides the capability to connect with NATS and Streaming servers and perform the following functionalities.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
@@ -9,12 +9,12 @@ NATS is a simple, secure and high performance open source messaging system for c
 
 ## Basic Usage
 
-### Connecting
+### Setting up the connection
 
-First step is setting up connection with NATS/Streaming server. Following ways can be used to connect to 
+First step is setting up the connection with the NATS/Streaming server. The following ways can be used to connect to a
 NATS/Streaming server.
 
-1. Connect to a server using a URL
+1. Connect to a server using the URL
 ```ballerina
 nats:Connection connection = new("nats://localhost:4222");
 ```
@@ -24,16 +24,16 @@ nats:Connection connection = new("nats://localhost:4222");
 nats:Connection connection = new("nats://serverone:4222,nats://servertwo:4222",  config = config);
 ```
 
-### Publishing
+### Publishing messages
 
-Publishing messages is handled differently in NATS server and Streaming server. 'ballerina/nats' provides different 
-apis to publish messages to each server.
+Publishing messages is handled differently in the NATS server and Streaming server. The 'ballerina/nats' module provides different 
+APIs to publish messages to each server.
 
 #### NATS Server
 
-Once connected, publishing is accomplished via one of three methods.
+Once connected, publishing is accomplished via one of the below three methods.
 
-1. Publish with subject and message content
+1. Publish with the subject and the message content.
 ```ballerina
 nats:Producer producer = new(connection);
 var result = producer->publish(subject, "hello world");
@@ -53,7 +53,7 @@ var reqReply = producer->request(subject, "hello world", 5000);
 
 #### Streaming Server
 
-Once connected to streaming server, publishing message is accomplished using following method.
+Once connected to a streaming server, publishing messages is accomplished using the following method.
 ```ballerina
 nats:StreamingProducer producer = new(connection);
 var result = producer->publish(subject, "hello world");
@@ -64,13 +64,13 @@ if (result is error) {
 }
 ```
 
-NOTE: Publish api supports `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
+NOTE: Publish api supports the `byte[], boolean, string, int, float, decimal, xml, json, record {}` message types.
 
 
-### Listening for Incoming Messages
+### Listening to incoming messages
 
-The Ballerina NATS module provides following mechanisms to listen for messages. Like message publishing, listening 
-also handles differently in NATS server and Streaming server.
+The Ballerina NATS module provides the following mechanisms to listen to messages. Similar to message publishing, listening to messages
+is also handled differently in NATS and Streaming servers.
 
 #### NATS Server
 
@@ -124,10 +124,10 @@ service demo on subscription {
 
 ## Advanced Usage
 
-### TLS
+### Using the TLS protocol
 
-The Ballerina NATS module allows the use of the tls:// protocol in its urls. This setting expects secureSocket to be 
-set in connection configuration like below.
+The Ballerina NATS module allows the use of the tls:// protocol in its URLs. This setting expects a secure socket to be 
+set in the connection configuration as shown below.
 
 ```ballerina
 nats:ConnectionConfig config = {

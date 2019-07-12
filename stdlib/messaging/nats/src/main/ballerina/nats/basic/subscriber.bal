@@ -22,7 +22,7 @@ public type Listener object {
 
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.
     #
-    # + c - An already established connection or configuration to create a new connection.
+    # + c - An already-established connection or configuration to create a new connection.
     public function __init(Connection c) {
         self.connection = c;
         self.init(c);
@@ -34,7 +34,7 @@ public type Listener object {
     #
     # + s - Type descriptor of the service.
     # + name - Name of the service.
-    # + return - Nil or error upon failure to register listener.
+    # + return - Nil or error upon failure to register the listener.
     public function __attach(service s, string? name = ()) returns error? {
         return self.register(s, name);
     }

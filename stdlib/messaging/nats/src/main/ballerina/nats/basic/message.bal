@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a message which will be pushed from the NATS server to the consumer.
+# Represents a message, which will be pushed from the NATS server to the consumer.
 public type Message object {
     byte[] content;
     string? replyTo;
@@ -27,21 +27,21 @@ public type Message object {
         self.replyTo = replyTo;
     }
 
-    # Get message content.
+    # Get the message content.
     #
-    # + return - the data from the message as a 'byte[]'.
+    # + return - the data returned from the message as a 'byte[]'.
     public function getData() returns byte[] {
         return self.content;
     }
 
-    # Get message replyTo subject.
+    # Get the replyTo subject of the message.
     #
     # + return - replyTo subject value.
     public function getReplyTo() returns string? {
         return self.replyTo;
     }
 
-    # Get message subject.
+    # Get the subject of the message.
     #
     # + return - the subject that this message was sent to.
     public function getSubject() returns string {

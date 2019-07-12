@@ -20,10 +20,10 @@ public type Connection object {
     private ConnectionConfig config = {};
     private string url;
 
-    # Initializes a connection with NATS server.
+    # Initializes a connection with the NATS server.
     #
-    # + url - NATS Broker url. For clustered usecase, pass urls in comma separated manner.
-    # + config - Information neccasary for NATS client to establish a connection with the server.
+    # + url - NATS Broker URL. For a clustered use case, pass the URLs as comma-separated values.
+    # + config - Information necessary for the NATS client to establish a connection with the server.
     public function __init(string url, ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
@@ -34,8 +34,8 @@ public type Connection object {
 
     # Close a given connection.
     #
-    # + forceful - Graceful shutdown flag. If `true`, Connection close immediately.
-    # Default is set to false.
-    # + return - () or error if unable to complete close operation.
+    # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
+    # By default, this is set to false.
+    # + return - Returns () or the error if unable to complete the close operation.
     public function close(boolean? forceful = ()) returns NatsError? = external;
 };

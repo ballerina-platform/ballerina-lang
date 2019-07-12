@@ -16,24 +16,24 @@
 
 import ballerina/crypto;
 
-# NATS Core Connection Configuration
+# NATS core connection configuration
 #
-# + connectionName - Connection's optional name
+# + connectionName - Name of the connection. This is optional.
 # + maxReconnect - Maximum number of reconnect attempts. Use 0 to turn off auto reconnect.
-# Use -1 to turn on infinite reconnects. The reconnect state is entered when the connection is connected and loses
-# that connection. During the initial connection attempt, the client will cycle over
-# its server list one time, regardless of what maxReconnects is set to.
-# + reconnectWait - The time to wait between reconnect attempts to the same server. Measure in seconds
-# + connectionTimeout - The timeout for connection attempts. Measure in seconds
-# + pingInterval - ** The interval between attempts to pings the server. Measure in minutes. **
-# + maxPingsOut - ** the maximum number of pings the client can have in flight. Default to a small number
-# + username - the username for basic authentication.
-# + password - the password for basic authentication.
-# + token - the token for token-based authentication.
+# Use -1 to turn on infinite reconnects. The reconnect state is entered when the connection is connected and when
+# that connection is lost. During the initial connection attempt, the client will cycle over
+# its server list one time regardless of the maxReconnects value that is set.
+# + reconnectWait - The time to wait between reconnect attempts to reconnect to the same server. This is measured in seconds.
+# + connectionTimeout - The timeout for connection attempts measured in seconds.
+# + pingInterval - ** The interval between the attempts of pinging the server. This is measured in minutes. **
+# + maxPingsOut - ** The maximum number of pings the client can have in flight. The default value will be a small number.
+# + username - The username for basic authentication.
+# + password - The password for basic authentication.
+# + token - The token for token-based authentication.
 # + inboxPrefix - The connection's inbox prefix. All inboxes will start with this string.
-# + noEcho - Turn off echo. Prevent the server from echoing messages back to the connection if it
+# + noEcho - Turn off echo. This prevents the server from echoing messages back to the connection if it
 # has subscriptions on the subject being published to.
-# + secureSocket - SSL/TLS related options
+# + secureSocket - SSL/TLS-related options
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   int maxReconnect = 60;
@@ -51,8 +51,8 @@ public type ConnectionConfig record {|
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
-# + trustStore - Configurations associated with TrustStore
-# + keyStore - Configurations associated with KeyStore
+# + trustStore - Configurations associated with the TrustStore.
+# + keyStore - Configurations associated with the KeyStore.
 # + protocol - The standard name of the requested protocol.
 public type SecureSocket record {|
     crypto:TrustStore? trustStore = ();

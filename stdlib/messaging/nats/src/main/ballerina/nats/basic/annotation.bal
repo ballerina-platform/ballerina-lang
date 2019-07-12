@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# NATS Basic Subscription Parameters.
+# NATS basic subscription parameters
 #
 # + subject - Name of the subject.
 # + queueName - Name of the queue group.

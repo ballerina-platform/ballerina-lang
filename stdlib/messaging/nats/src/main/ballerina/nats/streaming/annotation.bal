@@ -16,14 +16,14 @@
 
 #  NATS Streaming Subscription Parameters.
 #
-# + subject - Name of the subject subscribed to
-# + queueName - The name of the queue group subscription belongs to
-# + durableName - DurableName, if set will survive client restarts
+# + subject - Name of the subject to which it is subscribed 
+# + queueName - The name of the queue group to which the subscription belongs 
+# + durableName - If set, this will survive client restarts
 # + maxInFlight - The number of messages the cluster will have inflight without an ACK
-# + ackWait - The amount of time the cluster will wait for an ACK for a given message (in Seconds)
+# + ackWait - The time the cluster will wait for an ACK for a given message (in Seconds)
 # + subscriptionTimeout - The amount of time the subscription will wait during creation on a network failure (in Seconds)
-# + manualAck - Do Manual Acks
-# + startPosition - The position starting from which to receive messages
+# + manualAck - Do manual ACKs
+# + startPosition - The position to start receiving messages 
 public type StreamingSubscriptionConfigData record {|
    string subject;
    string queueName?;
@@ -35,12 +35,12 @@ public type StreamingSubscriptionConfigData record {|
    StartPosition startPosition = NEW_ONLY;
 |};
 
-# Streaming Subscription configuration annotation.
+# Streaming subscription configuration annotation.
 public annotation StreamingSubscriptionConfigData StreamingSubscriptionConfig on service;
 
-# The position starting from which to receive messages
-# NEW_ONLY - Specifies that message delivery should start with the messages which are published after the subscription
-# getting created
+# The position to start receiving messages 
+# NEW_ONLY - Specifies that message delivery should start with the messages, which are published after the subscription
+# is created
 # LAST_RECEIVED - Specifies that message delivery should start with the last (most recent) message stored for
 # this subject
 # TimeDeltaStart record - Specifies that message delivery should start with a given historical time delta (from now)
@@ -52,8 +52,8 @@ public const NEW_ONLY = "NEW_ONLY";
 public const LAST_RECEIVED = "LAST_RECEIVED";
 public const FIRST = "FIRST";
 
-# Represents the start position based on a certain point in time which lies a duration of `timeDelta` back from the
-# current moment, measured in the time unit specified with `timeUnit`.
+# Represents the starting position based on a certain point of time, which lies a duration of `timeDelta` back from the
+# current moment. This is measured in the time unit specified as the `timeUnit`.
 #
 # + timeDelta - The duration of time
 # + timeUnit - The unit of time corresponding to the `timeDelta`
@@ -62,7 +62,7 @@ public type TimeDeltaStart record {|
     TimeUnit timeUnit = SECONDS;
 |};
 
-# Specifies the sequence number from which to start receiving messages.
+# Specifies the sequence number from which receiving messages starts.
 public type StartSequence int;
 
 # Types of time units.

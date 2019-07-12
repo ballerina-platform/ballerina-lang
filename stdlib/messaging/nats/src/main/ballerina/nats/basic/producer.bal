@@ -16,15 +16,15 @@
 
 import ballerina/log;
 
-# NATS producer would act as a basic client allowing to publish messages to NATS server.
-# Producer need NATS connection to initialize.
+# NATS producer would act as a basic client allowing to publish messages to the NATS server.
+# Producer needs the NATS connection to be initialized.
 public type Producer client object {
 
     private Connection? connection = ();
 
     # Creates a new producer.
     #
-    # + c - An already established connection.
+    # + c - An already-established connection.
     public function __init(Connection c) {
         self.connection = c;
         self.init(c);
@@ -35,9 +35,9 @@ public type Producer client object {
     # Produces a message to a NATS basic server for the given subject.
     #
     # + subject - Could also be referred as the 'topic/queue' name.
-    # + replyTo - Subject for the receiver to reply. Optional parameter. Set only if reply is needed.
+    # + replyTo - Subject for the receiver to reply to. This is an optional parameter, which will be set only if a reply is needed.
     # + data - Data to publish.
-    # + return -  A specific error, if there is a problem when publishing the message. () otherwise.
+    # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
     public remote function publish(string subject, ContentType data, string? replyTo = ()) returns NatsError? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -53,8 +53,8 @@ public type Producer client object {
     #
     # + subject - Would represent the topic/queue name.
     # + data - Data to publish.
-    # + duration - the time to wait for a response. measure in milliseconds
-    # + return -  Response message or an error.
+    # + duration - The time to wait for a response measured in milliseconds.
+    # + return -  The response message or an error.
     public remote function request(string subject, ContentType data, int? duration = ()) returns Message|NatsError {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -68,7 +68,7 @@ public type Producer client object {
 
     # Close a given connection.
     #
-    # + return - () or error if unable to complete close operation.
+    # + return - () or error if unable to complete the close operation.
     public function close() returns NatsError? {
         self.closeConnection();
         if (self.connection is Connection) {
