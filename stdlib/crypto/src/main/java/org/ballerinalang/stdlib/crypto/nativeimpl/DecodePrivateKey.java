@@ -74,7 +74,7 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                         .toCharArray());
             } catch (NoSuchAlgorithmException e) {
                 return CryptoUtils.createCryptoError(
-                        "keystore integrity check algorithm is not found: " + e.getMessage());
+                        "Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
             try {
