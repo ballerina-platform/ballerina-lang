@@ -38,8 +38,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -179,6 +181,10 @@ public class TypeParamAnalyzer {
                 }
                 return containsTypeParam(invokableType.retType, resolvedTypes);
             case TypeTags.OBJECT:
+                if (type instanceof BServiceType) {
+                    return false;
+                }
+
                 BObjectType objectType = (BObjectType) type;
                 for (BField field : objectType.fields) {
                     BType bFieldType = field.getType();
@@ -205,6 +211,8 @@ public class TypeParamAnalyzer {
                 BErrorType errorType = (BErrorType) type;
                 return containsTypeParam(errorType.reasonType, resolvedTypes)
                         || containsTypeParam(errorType.detailType, resolvedTypes);
+            case TypeTags.TYPEDESC:
+                return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
             default:
                 return false;
         }
@@ -280,7 +288,7 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.OBJECT:
-                if (actualType.tag == TypeTags.OBJECT) {
+                if (actualType.tag == TypeTags.OBJECT && !(actualType instanceof BServiceType)) {
                     findTypeParamInObject((BObjectType) expType, (BObjectType) actualType, env, resolvedTypes, result);
                 }
                 return;
@@ -292,6 +300,12 @@ public class TypeParamAnalyzer {
             case TypeTags.ERROR:
                 if (actualType.tag == TypeTags.ERROR) {
                     findTypeParamInError((BErrorType) expType, (BErrorType) actualType, env, resolvedTypes, result);
+                }
+                return;
+            case TypeTags.TYPEDESC:
+                if (actualType.tag == TypeTags.TYPEDESC) {
+                    findTypeParam(((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint, env,
+                            resolvedTypes, result);
                 }
                 return;
         }
@@ -428,11 +442,18 @@ public class TypeParamAnalyzer {
             case TypeTags.INVOKABLE:
                 return getMatchingFunctionBoundType((BInvokableType) expType, env, resolvedTypes);
             case TypeTags.OBJECT:
+                if (expType instanceof BServiceType) {
+                    return expType;
+                }
                 return getMatchingObjectBoundType((BObjectType) expType, env, resolvedTypes);
             case TypeTags.UNION:
                 return getMatchingOptionalBoundType((BUnionType) expType, env, resolvedTypes);
             case TypeTags.ERROR:
                 return getMatchingErrorBoundType((BErrorType) expType, env, resolvedTypes);
+            case TypeTags.TYPEDESC:
+                constraint = ((BTypedescType) expType).constraint;
+                return new BTypedescType(TypeTags.TYPEDESC, getMatchingBoundType(constraint, env, resolvedTypes),
+                        symTable.typeDesc.tsymbol);
             default:
                 return expType;
         }

@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -1140,7 +1141,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
-                actualType = symTable.typeDesc;
+                actualType = new BTypedescType(TypeTags.TYPEDESC, symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
@@ -1497,18 +1498,44 @@ public class TypeChecker extends BLangNodeVisitor {
                 // Then perform arg and param matching
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
+            case TypeTags.RECORD:
+                boolean methodFound = checkFieldFunctionPointer(iExpr);
+                if (!methodFound) {
+                    checkInLangLib(iExpr, varRefType);
+                }
+                break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 break;
             default:
-                boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
-                if (!langLibMethodExists) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
-                    resultType = symTable.semanticError;
-                }
+                checkInLangLib(iExpr, varRefType);
         }
+    }
+
+    private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
+        boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
+        if (!langLibMethodExists) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+            resultType = symTable.semanticError;
+        }
+    }
+
+    private boolean checkFieldFunctionPointer(BLangInvocation iExpr) {
+        BType type = checkExpr(iExpr.expr, this.env);
+        if (type == symTable.semanticError) {
+            return false;
+        }
+        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name), type.tsymbol);
+        if (funcSymbol == symTable.notFoundSymbol) {
+            return false;
+        }
+        iExpr.symbol = funcSymbol;
+        iExpr.type = ((BInvokableSymbol) funcSymbol).retType;
+        checkInvocationParamAndReturnType(iExpr);
+        iExpr.functionPointerInvocation = true;
+        return true;
     }
 
     public void visit(BLangTypeInit cIExpr) {
@@ -2657,11 +2684,14 @@ public class TypeChecker extends BLangNodeVisitor {
         if ((funcSymbol.tag & SymTag.ERROR) == SymTag.ERROR) {
             checkErrorConstructorInvocation(iExpr);
             return;
-        } else if (funcSymbol == symTable.notFoundSymbol || (funcSymbol.tag & SymTag.FUNCTION) != SymTag.FUNCTION) {
+        } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
+        }
+        if (isFunctionPointer(funcSymbol)) {
+            iExpr.functionPointerInvocation = true;
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -2673,6 +2703,27 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private boolean isNotFunction(BSymbol funcSymbol) {
+        if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+            return false;
+        }
+
+        if (isFunctionPointer(funcSymbol)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isFunctionPointer(BSymbol funcSymbol) {
+        if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+            return false;
+        }
+        return (funcSymbol.tag & SymTag.FUNCTION) == SymTag.VARIABLE
+                && funcSymbol.kind == SymbolKind.FUNCTION
+                && (funcSymbol.flags & Flags.NATIVE) != Flags.NATIVE;
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
@@ -2908,7 +2959,6 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         iExpr.argExprs.add(0, iExpr.expr);
-        iExpr.expr.typeChecked = false;
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
@@ -3002,9 +3052,11 @@ public class TypeChecker extends BLangNodeVisitor {
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
-            if (i == 0 && TypeParamAnalyzer.containsTypeParam(expectedType)) {
+            if (i == 0 && requiredArgExprs.get(i).typeChecked) {
                 types.checkType(requiredArgExprs.get(i).pos, requiredArgExprs.get(i).type, expectedType,
                                 DiagnosticCode.INCOMPATIBLE_TYPES);
+                BLangExpression expr = requiredArgExprs.get(i);
+                types.setImplicitCastExpr(expr, expr.type, expectedType);
             } else {
                 checkExpr(requiredArgExprs.get(i), this.env, expectedType);
             }

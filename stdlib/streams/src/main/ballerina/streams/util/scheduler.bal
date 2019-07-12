@@ -97,7 +97,7 @@ public type Scheduler object {
         } else {
             lock {
                 self.running = false;
-                if (self.toNotifyQueue.getFirst() != ()) {
+                if (!(self.toNotifyQueue.getFirst() is LinkedList)) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
                     checkpanic self.timer.attach(schedulerService, attachment = self);

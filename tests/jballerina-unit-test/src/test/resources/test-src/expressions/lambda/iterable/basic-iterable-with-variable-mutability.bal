@@ -194,7 +194,7 @@ function testInExpression() returns [string, int] {
         strArr[4] = "mno";
     };
 
-    x.call("total count " + strArr.filter(function (string str) returns boolean {
+    x("total count " + strArr.filter(function (string str) returns boolean {
                                                 // Add a new element to the array
                                                 strArr[5] = "stu";
                                                 return str.length() == 3;
@@ -388,7 +388,7 @@ function multipleIterableOps() returns string[] {
         strArr[index] = currency;
         index += 1;
     };
-    closure.call("key");
+    closure("key");
 
     map<int> currencies = { USD: 318, EUR: 322, GBP: 400 };
     // Anonymus functions works as function literal.

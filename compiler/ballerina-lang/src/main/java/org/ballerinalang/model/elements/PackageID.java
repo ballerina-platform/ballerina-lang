@@ -66,6 +66,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.STRING), Names.EMPTY);
     public static final PackageID TABLE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.TABLE), Names.EMPTY);
+    public static final PackageID TYPEDESC = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.TYPEDESC), Names.EMPTY);
     public static final PackageID VALUE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.VALUE), Names.EMPTY);
     public static final PackageID XML = new PackageID(Names.BALLERINA_ORG,

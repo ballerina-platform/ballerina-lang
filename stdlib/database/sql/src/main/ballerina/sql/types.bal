@@ -191,7 +191,7 @@ public type Parameter record {|
     SQLType sqlType;
     any value = ();
     Direction direction = DIRECTION_IN;
-    typedesc recordType?;
+    typedesc<record{}> recordType?;
 |};
 
 # Result represents the output of the `update` remote function.
