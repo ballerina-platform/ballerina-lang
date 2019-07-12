@@ -87,7 +87,7 @@
 
     `.description` - The description of the example displayed at the top of each example in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
-    .out - Output of the example displayed at the bottom black colour box in the [Ballerina website](https://ballerina.io/).
+    `.out` - Output of the example displayed at the bottom black colour box in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
     _test.bal - Contains the test to validate the output of the BBE during the build time. 
 
