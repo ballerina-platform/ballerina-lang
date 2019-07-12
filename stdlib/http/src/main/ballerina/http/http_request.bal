@@ -69,7 +69,8 @@ public type Request object {
     #            present, then the first value is returned. Nil is returned if no key is found.
     public function getQueryParamValue(@untainted string key) returns @tainted string? {
         map<string[]> params = self.getQueryParams();
-        return params[key][0];
+        var result = params[key];
+        return result is () ? () : result[0];
     }
 
     # Gets all the query param values associated with the given key.
