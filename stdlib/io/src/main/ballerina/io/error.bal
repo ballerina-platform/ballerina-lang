@@ -14,7 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type IOError record {|
+type Detail record {
     string message;
-    int id;
-|};
+    error cause?;
+};
+
+public const IO_ERROR = "{ballerina/io}IOError";
+
+public type IOError error<IO_ERROR, Detail>;

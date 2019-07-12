@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -1023,12 +1022,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
                                                   SymTag.VARIABLE);
 
-        // TODO Need to remove this cached env
-        workerReceiveExpr.env = this.env;
-        if (workerReceiveExpr.isChannel || symbol.getType().tag == TypeTags.CHANNEL) {
-            visitChannelReceive(workerReceiveExpr, symbol);
+        if (workerReceiveExpr.isChannel) {
+            this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
             return;
         }
+        // TODO Need to remove this cached env
+        workerReceiveExpr.env = this.env;
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             workerReceiveExpr.workerType = symTable.semanticError;
@@ -1042,38 +1041,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
         // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         workerReceiveExpr.type = this.expType;
-        resultType = this.expType;
-    }
-
-    private void visitChannelReceive(BLangWorkerReceive workerReceiveNode, BSymbol symbol) {
-        workerReceiveNode.isChannel = true;
-        if (symbol == null) {
-            symbol = symResolver.lookupSymbol(env, names.fromString(workerReceiveNode.getWorkerName().getValue()),
-                                              SymTag.VARIABLE);
-        }
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.UNDEFINED_SYMBOL, workerReceiveNode.workerIdentifier);
-            return;
-        }
-
-        if (TypeTags.CHANNEL != symbol.type.tag) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
-            return;
-        }
-
-        BType constraint = ((BChannelType) symbol.type).constraint;
-        if (this.expType.tag != constraint.tag) {
-            dlog.error(workerReceiveNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, this.expType);
-            return;
-        }
-
-        if (workerReceiveNode.keyExpr != null) {
-            checkExpr(workerReceiveNode.keyExpr, env);
-        }
-
-        // We cannot predict the type of the receive expression as it depends on the type of the data sent by the other
-        // worker/channel. Since receive is an expression now we infer the type of it from the lhs of the statement.
         resultType = this.expType;
     }
 
@@ -1608,7 +1575,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.STREAM:
-            case TypeTags.CHANNEL:
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.name);
                     resultType = symTable.semanticError;
@@ -2170,10 +2136,10 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Annotation such as <@untainted [T]>, where T is not provided, it's merely a annotation on inherent type
-        // of rhs operand of type cast.
+        // Annotation such as <@untainted [T]>, where T is not provided,
+        // it's merely a annotation on contextually expected type.
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env);
+            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
             resultType = expType;
             return;
         }

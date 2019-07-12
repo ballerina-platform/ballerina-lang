@@ -364,6 +364,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
         writeType(birTypeCast.type);
+        buf.writeBoolean(birTypeCast.checkTypes);
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {

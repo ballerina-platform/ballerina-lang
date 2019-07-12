@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Test cases for verifying token propagation scenario.
  */
-@Test(groups = "broken")
+@Test(groups = "auth-test")
 public class TokenPropagationTest extends AuthBaseTest {
 
     @Test(description = "Test JWT Token propagation with basic auth as the inbound authentication mechanism")
