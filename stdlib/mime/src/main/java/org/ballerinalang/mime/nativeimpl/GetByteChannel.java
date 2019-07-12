@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -54,12 +52,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
         returnType = {@ReturnType(type = TypeKind.RECORD), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetByteChannel extends BlockingNativeCallableUnit {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context) {
-    }
+public class GetByteChannel {
 
     public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
         ObjectValue byteChannelObj;

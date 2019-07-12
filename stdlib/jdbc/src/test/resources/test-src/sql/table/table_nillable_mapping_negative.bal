@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
+import ballerina/jdbc;
 import ballerina/time;
 
 type NonNillableInt record {
@@ -210,9 +210,8 @@ function testAssignNilToNonNillableTimeStamp() returns string {
 }
 
 function testAssignNilToNonNillableField(string field, typedesc recordType) returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -313,9 +312,8 @@ function testAssignToInvalidUnionTimeStamp() returns string {
 }
 
 function testAssignNullArrayToNonNillableWithNonNillableElements() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -337,9 +335,8 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns strin
 }
 
 function testAssignNullArrayToNonNillableTypeWithNillableElements() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -361,9 +358,8 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns stri
 }
 
 function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -385,9 +381,8 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
 }
 
 function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -409,9 +404,8 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
 }
 
 function testAssignInvalidUnionArray() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -431,9 +425,8 @@ function testAssignInvalidUnionArray() returns string {
 }
 
 function testAssignInvalidUnionArrayElement() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -453,9 +446,8 @@ function testAssignInvalidUnionArrayElement() returns string {
 }
 
 function testAssignInvalidUnionArray2() returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -475,9 +467,8 @@ function testAssignInvalidUnionArray2() returns string {
 }
 
 function testAssignToInvalidUnionField(string field) returns string {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_DATA_TABLE_H2",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }

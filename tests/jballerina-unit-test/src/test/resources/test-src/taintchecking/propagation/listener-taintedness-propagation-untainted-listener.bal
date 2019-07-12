@@ -28,9 +28,7 @@ service sample on helloWorldEP {
         path:"/path/{foo}"
     }
     resource function params (http:Caller caller, http:Request req, string foo) {
-        map<any> paramsMap = req.getQueryParams();
-        var bar = paramsMap.bar;
-
+        var bar = req.getQueryParamValue("bar");
         sensitiveFunc(foo);
     }
 }
