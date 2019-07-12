@@ -97,7 +97,9 @@ public type PackageParser object {
             name: { value: name },
             kind: kind,
             hasDefaultExpr: hasDefaultExpr,
-            metaVarName: metaVarName
+            meta: {
+                name: metaVarName
+            }
         };
         return dcl;
     }
@@ -200,12 +202,13 @@ public type PackageParser object {
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
             if (!(dcl.kind is TempVarKind)) {
-                dcl.metaVarName = self.reader.readStringCpRef();
+                dcl.meta.name = self.reader.readStringCpRef();
             }
             if (dcl.kind is LocalVarKind) {
-                dcl.endBBID = self.reader.readStringCpRef();
-                dcl.startBBID = self.reader.readStringCpRef();
-                dcl.insOffset = self.reader.readInt32();
+                var meta = dcl.meta;
+                meta.endBBID = self.reader.readStringCpRef();
+                meta.startBBID = self.reader.readStringCpRef();
+                meta.insOffset = self.reader.readInt32();
             }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
