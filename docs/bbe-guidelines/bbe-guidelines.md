@@ -51,7 +51,7 @@
 
 ## Practices related to the code comments
 
-1. Add comments to the code blocks as much as possible by starting them with “//”. They will be moved to the RHS boxes in the [Ballerina website](https://ballerina.io/) as a mechanism to describe the code.
+1. Add comments to the code blocks as much as possible by starting them with “//”. They will be moved to the right hand side boxes in the [Ballerina By Example](https://ballerina.io/learn/by-example/) as a mechanism to describe the code.
 
     Example;
 
