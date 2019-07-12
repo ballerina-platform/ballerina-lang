@@ -23,13 +23,30 @@ type Type1 any|error;
 @typeParam
 type PureType anydata|error;
 
+type ArrayIterator object {
+
+    private Type[] m;
+
+    public function __init(Type[] m) {
+        self.m = m;
+    }
+
+    public function next() returns record {|
+        Type value;
+    |}? = external;
+};
+
 public function length((any|error)[] arr) returns int = external;
 
+# Returns an iterator over the elements of `arr`.
 public function iterator(Type[] arr) returns abstract object {
     public function next() returns record {|
         Type value;
     |}?;
-} = external;
+    } {
+    ArrayIterator arrIterator = new(arr);
+    return arrIterator;
+}
 
 public function enumerate(Type[] arr) returns [int, Type][] = external;
 
