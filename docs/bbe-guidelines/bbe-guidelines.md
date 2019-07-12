@@ -40,7 +40,7 @@
     // The descriptor record { } is equivalent to record {| (anydata|error)...; |}.
     type Student record {
         string name;
-    int age;
+        int age;
     Grades grades;
     };
     ````
