@@ -333,9 +333,12 @@ public function restoreState(string key, any reference) {
 # + key - An unique `string` identifier for the snapshotable reference.
 # + return - A `boolean` indicating whether the state for the given key removed successfully.
 public function removeState(string key) returns boolean {
-    boolean snapshotableRemoved = snapshotables.remove(key);
-    boolean stateRemoved = streamsPersistanceState.remove(key);
-    return snapshotableRemoved && stateRemoved;
+    var snapshotableRemoved = snapshotables.remove(key);
+    var stateRemoved = streamsPersistanceState.remove(key);
+    if (snapshotableRemoved is boolean && stateRemoved is boolean) {
+        return snapshotableRemoved && stateRemoved;
+    }
+    return false;
 }
 
 # Function to register Snapshotables.

@@ -62,7 +62,8 @@ public type AndOperatorProcessor object {
             if (lProcessor is AbstractPatternProcessor) {
                 if (self.rhsPartialStates.length() > 0) {
                     // foreach rhs partial state, copy event data and process in lhsProcessor.
-                    string[] evtIds = self.rhsPartialStates.keys().clone();
+                    string[] originalEvtIds = self.rhsPartialStates.keys();
+                    string[] evtIds = <string[]>originalEvtIds.clone();
                     foreach string id in evtIds {
                         StreamEvent partialEvt = <StreamEvent>self.rhsPartialStates[id];
                         partialEvt.addData(event.cloneData());
@@ -86,7 +87,8 @@ public type AndOperatorProcessor object {
                 if (rProcessor is AbstractPatternProcessor) {
                     if (self.lhsPartialStates.length() > 0) {
                         // foreach lhs partial state, copy event data and process in rhsProcessor.
-                        string[] evtIds = self.lhsPartialStates.keys().clone();
+                        string[] originalEvtIds = self.lhsPartialStates.keys();
+                        string[] evtIds = <string[]>originalEvtIds.clone();
                         foreach string id in evtIds {
                             StreamEvent partialEvt = <StreamEvent>self.lhsPartialStates[id];
                             partialEvt.addData(event.cloneData());
@@ -161,21 +163,25 @@ public type AndOperatorProcessor object {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
             // promoted from lhs means, it can be a partial lhs state or a completed state.
-            boolean rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
-            // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
-            if (rhsRemoved) {
-                self.stateEvents.addLast(stateEvent);
-            } else {
-                self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
+            var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
+            if (rhsRemoved is boolean) {
+                // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
+                if (rhsRemoved) {
+                    self.stateEvents.addLast(stateEvent);
+                } else {
+                    self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
+                }
             }
         } else {
             // promoted from rhs means, it can be a partial rhs state or a completed state.
-            boolean lhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
-            // lhsRemoved=true means, it was earlier a partial lhs state, and now it's a completed state.
-            if (lhsRemoved) {
-                self.stateEvents.addLast(stateEvent);
-            } else {
-                self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
+            var lhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
+            if (lhsRemoved is boolean) {
+                // lhsRemoved=true means, it was earlier a partial lhs state, and now it's a completed state.
+                if (lhsRemoved) {
+                    self.stateEvents.addLast(stateEvent);
+                } else {
+                    self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
+                }
             }
         }
     }
@@ -186,7 +192,7 @@ public type AndOperatorProcessor object {
     # + processorAlias - alias for the calling processor, for identification purposes (lhs, rhs).
     public function evict(StreamEvent stateEvent, string? processorAlias) {
         // remove matching partial states from this processor.
-        boolean removed;
+        any|error removed;
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
             removed = self.lhsPartialStates.remove(stateEvent.getEventId());
@@ -213,7 +219,7 @@ public type AndOperatorProcessor object {
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching partial states from this processor.
-        boolean removed = self.lhsPartialStates.remove(streamEvent.getEventId());
+        var removed = self.lhsPartialStates.remove(streamEvent.getEventId());
         removed = self.rhsPartialStates.remove(streamEvent.getEventId());
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
@@ -237,7 +243,10 @@ public type AndOperatorProcessor object {
     # + processor - lhs processor
     public function setLHSProcessor(AbstractPatternProcessor processor) {
         self.lhsProcessor = processor;
-        self.lhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? patternProcessor = self.lhsProcessor;
+        if (patternProcessor is AbstractPatternProcessor) {
+            patternProcessor.setPreviousProcessor(self);
+        }
     }
 
     # Sets a link to the RHS `AbstractOperatorProcessor`.
@@ -245,7 +254,10 @@ public type AndOperatorProcessor object {
     # + processor - rhs processor
     public function setRHSProcessor(AbstractPatternProcessor processor) {
         self.rhsProcessor = processor;
-        self.rhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? patternProcessor = self.rhsProcessor;
+        if (patternProcessor is AbstractPatternProcessor) {
+            patternProcessor.setPreviousProcessor(self);
+        }
     }
 
     # Returns the alias of the current processor.

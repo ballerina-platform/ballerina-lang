@@ -26,8 +26,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
+import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
  * Native implementation of lang.array:sort((any|error)[], function).

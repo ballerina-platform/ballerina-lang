@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -2567,9 +2566,25 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         result = genIExpr;
-        if (iExpr.langLibInvocation) {
+
+        if (iExpr.langLibInvocation && TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+            BType originalInvType = iExpr.type;
+            iExpr.type = ((BInvokableSymbol) iExpr.symbol).retType;
+            BOperatorSymbol conversionSymbol = Symbols
+                    .createCastOperatorSymbol(iExpr.type, originalInvType, symTable.errorType, false, true,
+                                              InstructionCodes.NOP, null, null);
+
+            BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+            conversionExpr.expr = iExpr;
+            conversionExpr.targetType = originalInvType;
+            conversionExpr.conversionSymbol = conversionSymbol;
+            conversionExpr.type = originalInvType;
+            conversionExpr.pos = iExpr.pos;
+
+            this.result = conversionExpr;
             return;
         }
+
         // TODO : Remove this if block. Not needed.
         if (iExpr.expr == null) {
             if (iExpr.exprSymbol == null) {
@@ -3770,8 +3785,9 @@ public class Desugar extends BLangNodeVisitor {
         }
         expr.symbol = iExpr.symbol;
         expr.type = iExpr.symbol.type;
-        expr = rewriteExpr(expr);
-        result = new BFunctionPointerInvocation(iExpr, expr);
+
+        BLangExpression rewritten = rewriteExpr(expr);
+        result = new BFunctionPointerInvocation(iExpr, rewritten);
     }
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
@@ -4524,26 +4540,6 @@ public class Desugar extends BLangNodeVisitor {
     BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
         if (lhsType.tag == TypeTags.NONE) {
             return expr;
-        }
-
-        if (expr.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) expr;
-            BType retType = ((BInvokableSymbol) invocation.symbol).retType;
-
-            if (PackageID.isLangLibPackageID(invocation.symbol.pkgID) && TypeParamAnalyzer.containsTypeParam(retType)) {
-                invocation.type = retType;
-                BOperatorSymbol conversionSymbol = Symbols.createCastOperatorSymbol(invocation.type, lhsType,
-                                                                                    symTable.errorType, false, true,
-                                                                                    InstructionCodes.NOP, null, null);
-                BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
-                        TreeBuilder.createTypeConversionNode();
-                conversionExpr.expr = expr;
-                conversionExpr.targetType = lhsType;
-                conversionExpr.conversionSymbol = conversionSymbol;
-                conversionExpr.type = lhsType;
-                conversionExpr.pos = expr.pos;
-                return conversionExpr;
-            }
         }
 
         BType rhsType = expr.type;

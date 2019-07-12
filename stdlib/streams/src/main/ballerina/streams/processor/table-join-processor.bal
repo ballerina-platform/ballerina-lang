@@ -100,7 +100,7 @@ public type TableJoinProcessor object {
         if (lhsEvent is StreamEvent) {
             joined = lhsEvent.copy();
 
-            if (rhsEvent is StreamEvent) {
+            if (rhsEvent is StreamEvent && joined is StreamEvent) {
                 joined.addData(rhsEvent.data);
             }
         }

@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.array.utils;
+package org.ballerinalang.jvm.values.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
