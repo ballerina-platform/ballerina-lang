@@ -388,7 +388,6 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
                                         io:sprintf("%s", bType));
             panic err;
         }
-
         k = k + 1;
     }
 
@@ -423,10 +422,16 @@ function generateMethod(bir:Function func, jvm:ClassWriter cw, bir:Package modul
     k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
+        jvm:Label startLabel = methodStartLabel;
+        jvm:Label endLabel = methodEndLabel;
         if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam) 
             && !(localVar["metaVarName"] is ())) {
+            if (localVar.kind is bir:LocalVarKind) {
+                startLabel = labelGen.getLabel(funcName + localVar.startBBID + "ins" + localVar.insOffset);
+                endLabel = labelGen.getLabel(funcName + localVar.endBBID + "beforeTerm");
+            }
             mv.visitLocalVariable(localVar.metaVarName, getJVMTypeSign(localVar.typeValue), 
-                methodStartLabel, methodEndLabel, k);
+                startLabel, endLabel, k);
         }
         k = k + 1;
     }
@@ -520,6 +525,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);
         }
         while (m < insCount) {
+            jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m);
+            mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
             var pos = inst.pos;
             if (pos is bir:DiagnosticPos) {

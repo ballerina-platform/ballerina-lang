@@ -121,6 +121,9 @@ public abstract class BIRNode {
         public VarKind kind;
         public VarScope scope;
         public boolean ignoreVariable;
+        public BIRBasicBlock endBB;
+        public BIRBasicBlock startBB;
+        public int insOffset;
 
         public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
                               VarKind kind, String metaVarName) {
