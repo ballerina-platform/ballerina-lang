@@ -109,31 +109,31 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-    <test name="ballerina-auth-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
-            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
-            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
-            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
-            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
-            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
-            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
-            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-auth-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <groups>-->
+<!--            <run>-->
+<!--                <exclude name="broken"/>-->
+<!--            </run>-->
+<!--        </groups>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />-->
+<!--            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />-->
+<!--            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />-->
+<!--            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>-->
+<!--            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
 <!--    <test name="ballerina-filter-tests" parallel="false">-->
 <!--        <classes>-->
@@ -272,12 +272,13 @@
 <!--            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>-->
 <!--        </classes>-->
 <!--    </test>-->
-<!--    <test name="ballerina-socket-tests" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>-->
-<!--            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-socket-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
+            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
+        </classes>
+    </test>
 
 <!--    <test name="artemis-test" parallel="false">-->
 <!--        <classes>-->
