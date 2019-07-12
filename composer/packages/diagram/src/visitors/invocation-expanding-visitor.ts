@@ -10,6 +10,8 @@ import { visitor as initVisitor } from "./init-visitor";
 
 let projectAST: ProjectAST;
 let envEndpoints: VisibleEndpoint[] = [];
+let invocationDepth = 0;
+let maxInvocationDepth = 0;
 
 // This function processes endpoint parameters of expanded functions
 // so that actions to these parameters can be drawn to the original endpoint passed to them
@@ -40,11 +42,6 @@ function handleEndpointParams(expandContext: ExpandContext) {
 }
 
 function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
-    if (viewState.expandContext) {
-        // The statement is collapsed by the user. No need to process it
-        return;
-    }
-
     let invocation;
     if (ASTKindChecker.isInvocation(expression)) {
             invocation = expression;
@@ -73,14 +70,23 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
     }
 
     (expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded = true;
-    const expandedFunction = _.cloneDeep(expandedFunctionOriginalNode);
-    ASTUtil.traversNode(expandedFunction, initVisitor);
-    expandedFunction.viewState.isExpandedFunction = true;
-    (expandedFunction.viewState as FunctionViewState).soroundingVisibleEndpoints = [...envEndpoints];
-    ASTUtil.traversNode(expandedFunction, visitor);
+    if (!viewState.expandContext) {
+        const expandedFunction = _.cloneDeep(expandedFunctionOriginalNode);
+        expandedFunction.viewState.isExpandedFunction = true;
+        (expandedFunction.viewState as FunctionViewState).soroundingVisibleEndpoints = [...envEndpoints];
+        viewState.expandContext = new ExpandContext(invocation, expandedFunction, expandedInfo.uri);
+    }
+    ASTUtil.traversNode(viewState.expandContext.expandedSubTree, initVisitor);
+
+    invocationDepth += 1;
+    ASTUtil.traversNode(viewState.expandContext.expandedSubTree, visitor);
+    invocationDepth -= 1;
+
     (expandedFunctionOriginalNode.viewState as FunctionViewState).isViewedExpanded = false;
 
-    viewState.expandContext = new ExpandContext(invocation, expandedFunction, expandedInfo.uri);
+    if (!viewState.expandContext.skipDepthCheck) {
+        viewState.expandContext.collapsed = !((invocationDepth < maxInvocationDepth) || maxInvocationDepth === -1);
+    }
     handleEndpointParams(viewState.expandContext);
 }
 
@@ -145,6 +151,11 @@ function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: st
 
 export function setProjectAST(ast: ProjectAST) {
     projectAST = ast;
+    invocationDepth = 0;
+}
+
+export function setMaxInvocationDepth(depth: number) {
+    maxInvocationDepth = depth;
 }
 
 export const visitor: Visitor = {
