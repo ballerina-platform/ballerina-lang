@@ -22,6 +22,8 @@ const modes = [
 export interface OverviewProps extends CommonDiagramProps {
     langClient: IBallerinaLangClient;
     sourceRoot: string;
+    initialSelectedModule?: string;
+    initialSelectedConstruct?: string;
 }
 export interface OverviewState {
     modules: ProjectAST;
@@ -34,6 +36,11 @@ export interface OverviewState {
     fitToWidthOrHeight: boolean;
     zoomFactor: number;
     openedState: boolean;
+}
+
+export interface ConstructIdentifier {
+    constructName: string;
+    moduleName: string;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
@@ -73,6 +80,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             this.setState({
                 modules: result.modules,
             });
+        });
+    }
+
+    public selectConstruct({moduleName, constructName}: ConstructIdentifier) {
+        this.setState({
+            selectedConstruct: {
+                constructName, moduleName,
+            }
         });
     }
 

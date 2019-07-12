@@ -42,6 +42,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     private containerRef = React.createRef<HTMLDivElement>();
     private panZoomRootRef: React.RefObject<SVGAElement>;
+    private panZoomRootRefCurrent: SVGAElement | null | undefined;
     private panZoomComp: PanZoom | undefined;
 
     constructor(props: DiagramProps) {
@@ -55,6 +56,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
     public componentDidMount() {
         if (this.panZoomRootRef.current) {
+            this.panZoomRootRefCurrent = this.panZoomRootRef.current;
             this.panZoomComp = panzoom(this.panZoomRootRef.current, {
                 smoothScroll: false,
             });
@@ -65,11 +67,41 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     }
 
     public componentWillUnmount() {
+        console.log("will unmount")
         if (this.panZoomComp) {
             this.panZoomComp.dispose();
             if (this.props.setPanZoomComp) {
                 this.props.setPanZoomComp(undefined);
             }
+        }
+    }
+
+    public componentDidUpdate() {
+        if (this.panZoomRootRef.current === this.panZoomRootRefCurrent) {
+            // pan-zoom root component is not updated
+            return;
+        }
+
+        if (!this.panZoomRootRef.current) {
+            // pan-zoom root component is unmounted
+            if (this.panZoomComp) {
+                this.panZoomComp.dispose();
+                if (this.props.setPanZoomComp) {
+                    this.props.setPanZoomComp(undefined);
+                }
+            }
+            return;
+        }
+
+        this.panZoomRootRefCurrent = this.panZoomRootRef.current;
+        if (this.panZoomComp) {
+            this.panZoomComp.dispose();
+        }
+        this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+            smoothScroll: false,
+        });
+        if (this.props.setPanZoomComp) {
+            this.props.setPanZoomComp(this.panZoomComp);
         }
     }
 
