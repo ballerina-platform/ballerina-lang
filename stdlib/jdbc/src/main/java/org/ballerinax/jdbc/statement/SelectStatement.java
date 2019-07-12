@@ -35,8 +35,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.RowSetProvider;
 /**
  * Represents a Select SQL statement.
  *
@@ -49,16 +47,14 @@ public class SelectStatement extends AbstractSQLStatement {
     private final String query;
     private final ArrayValue parameters;
     private final BStructureType structType;
-    private final boolean loadSQLTableToMemory;
 
     public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
-                           TypedescValue recordType, boolean loadSQLTableToMemory) {
+                           TypedescValue recordType) {
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
         this.structType = recordType != null ? (BStructureType) recordType.getDescribingType() : null;
-        this.loadSQLTableToMemory = loadSQLTableToMemory;
     }
 
     @Override
@@ -74,19 +70,13 @@ public class SelectStatement extends AbstractSQLStatement {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(client, datasource, true);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-            stmt = getPreparedStatement(conn, datasource, processedQuery, loadSQLTableToMemory);
+            stmt = getPreparedStatement(conn, datasource, processedQuery);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             rs = stmt.executeQuery();
             TableResourceManager rm = new TableResourceManager(conn, stmt, true);
             List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
-            if (loadSQLTableToMemory) {
-                CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
-                cachedRowSet.populate(rs);
-                rs = cachedRowSet;
-                rm.gracefullyReleaseResources();
-            } else {
-                rm.addResultSet(rs);
-            }
+            rm.addResultSet(rs);
+            rm.addResultSet(rs);
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
         } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
@@ -109,13 +99,13 @@ public class SelectStatement extends AbstractSQLStatement {
         }
     }
 
-    private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query,
-                                                     boolean loadToMemory) throws SQLException {
+    private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query)
+            throws SQLException {
         PreparedStatement stmt;
         boolean mysql = datasource.getDatabaseProductName().contains(Constants.DatabaseNames.MYSQL);
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
-        if (mysql && !loadToMemory) {
+        if (mysql) {
             stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             // To fulfill OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE findbugs validation.
             try {
