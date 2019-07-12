@@ -18,6 +18,8 @@
 
 package org.ballerinalang.nats.basic.producer;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -40,10 +42,15 @@ import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Init {
+public class Init extends BlockingNativeCallableUnit {
 
     public static void init(Strand strand, ObjectValue producerObject, ObjectValue connectionObject) {
         // This is to add producer to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
+    }
+
+    @Override
+    public void execute(Context context) {
+
     }
 }

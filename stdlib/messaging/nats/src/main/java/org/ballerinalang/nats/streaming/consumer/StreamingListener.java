@@ -35,6 +35,7 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import static org.ballerinalang.nats.Constants.NATS_STREAMING_MESSAGE_OBJ_NAME;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
+import static org.ballerinalang.nats.Utils.getAttachedFunction;
 
 /**
  * {@link MessageHandler} implementation to listen to Messages of the subscribed subject from NATS streaming server.
@@ -57,8 +58,7 @@ public class StreamingListener implements MessageHandler {
                 .createObjectValue(Constants.NATS_PACKAGE, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
                         new ArrayValue(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
-        AttachedFunction[] resourceFunctions = service.getType().getAttachedFunctions();
-        AttachedFunction onMessageResource = resourceFunctions[0];
+        AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
         BType[] parameterTypes = onMessageResource.getParameterType();
         if (parameterTypes.length == 1) {
             dispatch(ballerinaNatsMessage);
@@ -98,7 +98,7 @@ public class StreamingListener implements MessageHandler {
 
         @Override
         public void notifyFailure(ErrorValue error) {
-            ErrorHandlerUtils.printError("error:" + error.getPrintableStackTrace());
+            ErrorHandlerUtils.printError(error);
         }
     }
 }

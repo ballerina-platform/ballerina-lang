@@ -25,12 +25,13 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+
+import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 
 /**
  * Extern function to publish message to a given subject.
@@ -40,7 +41,7 @@ import org.ballerinalang.nats.Constants;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "nats",
-        functionName = "publish",
+        functionName = "externPublish",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
@@ -52,7 +53,7 @@ public class Publish extends BlockingNativeCallableUnit {
     public void execute(Context context) {
     }
 
-    public static Object publish(Strand strand, ObjectValue producerObject, String subject, ArrayValue message,
+    public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
                                  Object replyTo) {
         Object connection = producerObject.get("connection");
 
@@ -64,7 +65,7 @@ public class Publish extends BlockingNativeCallableUnit {
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while publishing message to " +
                         "subject " + subject + ". NATS connection doesn't exist.");
             }
-            byte[] byteContent = message.getBytes();
+            byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                     natsConnection.publish(subject, (String) replyTo, byteContent);
