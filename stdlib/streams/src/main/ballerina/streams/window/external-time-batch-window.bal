@@ -164,7 +164,7 @@ public type ExternalTimeBatchWindow object {
             streamEventChunk.addLast(event);
         }
 
-        if (streamEventChunk.getFirst() == ()) {
+        if (streamEventChunk.getFirst() is ()) {
             return;
         }
 
@@ -352,16 +352,18 @@ public type ExternalTimeBatchWindow object {
             clonedEvent.data[self.timeStamp] = self.endTime;
         }
         self.currentEventChunk.addLast(clonedEvent);
-
-        if (self.resetEvent is ()) {
-            self.resetEvent = currStreamEvent.copy();
-            self.resetEvent.eventType = RESET;
+        StreamEvent? evnt = self.resetEvent;
+        if (evnt is ()) {
+            evnt = currStreamEvent.copy();
+            if (evnt is StreamEvent) {
+                evnt.eventType = RESET;
+            }
         }
     }
 
     public function flushToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
-        if (self.expiredEventChunk.getFirst() != ()) {
+        if (!(self.expiredEventChunk.getFirst() is ())) {
             // mark the timestamp for the expiredType event
             self.expiredEventChunk.resetToFront();
             while (self.expiredEventChunk.hasNext()) {
@@ -379,7 +381,7 @@ public type ExternalTimeBatchWindow object {
             self.expiredEventChunk.clear();
         }
 
-        if (self.currentEventChunk.getFirst() != ()) {
+        if (!(self.currentEventChunk.getFirst() is ())) {
             // add reset event in front of current events
             any streamEvent = self.resetEvent;
             if (streamEvent is StreamEvent) {
@@ -418,8 +420,8 @@ public type ExternalTimeBatchWindow object {
     public function appendToOutputChunk(LinkedList complexEventChunks, int currentTime, boolean preserveCurrentEvents) {
         LinkedList newEventChunk = new();
         LinkedList sentEventChunk = new();
-        if (self.currentEventChunk.getFirst() != ()) {
-            if (self.expiredEventChunk.getFirst() != ()) {
+        if (!(self.currentEventChunk.getFirst() is ())) {
+            if (!(self.expiredEventChunk.getFirst() is ())) {
                 // mark the timestamp for the expiredType event
                 self.expiredEventChunk.resetToFront();
                 while (self.expiredEventChunk.hasNext()) {
