@@ -25,14 +25,14 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.langlib.array.utils.GetFunction;
+import org.ballerinalang.jvm.values.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.add;
-import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
+import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:map(Type[]).
