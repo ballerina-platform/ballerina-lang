@@ -1658,6 +1658,11 @@ public class Types {
                 return false;
             }
             BRecordType source = (BRecordType) s;
+
+            if (source.fields.size() != t.fields.size()) {
+                return false;
+            }
+
             boolean notSameType = source.fields
                     .stream()
                     .map(fs -> t.fields.stream()
