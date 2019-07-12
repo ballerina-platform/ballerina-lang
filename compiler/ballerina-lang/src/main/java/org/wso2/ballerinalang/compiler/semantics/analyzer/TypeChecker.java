@@ -141,6 +141,7 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -2020,6 +2021,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
+            if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
+                opSymbol = resolveIntRangeOperator(binaryExpr.opKind, lhsType, rhsType);
+            }
+
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
             }
@@ -2040,6 +2045,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BSymbol resolveIntRangeOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.intRangeType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), env.enclPkg.packageID, opType, env.enclPkg.symbol,
+                InstructionCodes.INT_RANGE);
     }
 
     private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr) {

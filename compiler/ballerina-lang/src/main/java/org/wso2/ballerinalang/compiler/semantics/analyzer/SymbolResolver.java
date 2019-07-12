@@ -887,6 +887,20 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in error not found ?");
     }
 
+    public void reloadIntRangeType() {
+
+        ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.INT_RANGE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.intRangeType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {

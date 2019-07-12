@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -134,6 +136,7 @@ public class SymbolTable {
     public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
     public BFiniteType trueType;
+    public BObjectType intRangeType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -210,6 +213,8 @@ public class SymbolTable {
         defineType(semanticError, semanticErrSymbol);
 
         initializeErrorType();
+
+        initializeIntRangeType();
 
         this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
         this.typeDesc = new BTypedescType(TypeTags.TYPEDESC, BUnionType.create(null, this.anyType, this.errorType),
@@ -314,6 +319,12 @@ public class SymbolTable {
                 invokableType, detailSymbol, false);
         detailSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initSymbol, invokableType);
         detailSymbol.scope.define(initSymbol.name, initSymbol);
+    }
+
+    public void initializeIntRangeType() {
+        BObjectTypeSymbol intRangeTypeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, Flags.PUBLIC, Names.EMPTY,
+                                                                     rootPkgSymbol.pkgID, null, rootPkgSymbol);
+        this.intRangeType = new BObjectType(intRangeTypeSymbol);
     }
 
     private void defineOperators() {

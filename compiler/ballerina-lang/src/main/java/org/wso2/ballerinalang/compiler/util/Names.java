@@ -84,6 +84,8 @@ public class Names {
     public static final Name DETAIL_MESSAGE = new Name("message");
     public static final Name DETAIL_CAUSE = new Name("cause");
 
+    public static final Name INT_RANGE = new Name("IntRange");
+
     public CompilerContext context;
 
     public static Names getInstance(CompilerContext context) {
