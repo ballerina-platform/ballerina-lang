@@ -4019,7 +4019,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            return addNilForNillableIndexBasedAccess(((BMapType) type).constraint);
+            BType constraint = ((BMapType) type).constraint;
+            return accessExpr.lhsVar ? constraint : addNilForNillableIndexBasedAccess(constraint);
         }
 
         if (type.tag == TypeTags.RECORD) {
