@@ -16,12 +16,11 @@
 
 package io.ballerina.plugins.idea.debugger;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
-import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
@@ -32,14 +31,13 @@ import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.StackFrame;
-import org.eclipse.lsp4j.debug.Variable;
+import org.eclipse.lsp4j.debug.VariablesArguments;
+import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
  * Represents a stack frame in debug window.
@@ -69,7 +67,8 @@ public class BallerinaStackFrame extends XStackFrame {
     @Override
     public XSourcePosition getSourcePosition() {
         VirtualFile file = findFile();
-        return file == null ? null : XDebuggerUtil.getInstance().createPosition(file, myFrame.getLine().intValue());
+        return file == null ? null : XDebuggerUtil.getInstance().createPosition(file,
+                myFrame.getLine().intValue() - 1);
     }
 
     @Nullable
@@ -126,9 +125,9 @@ public class BallerinaStackFrame extends XStackFrame {
     @Override
     public void customizePresentation(@NotNull ColoredTextContainer component) {
         super.customizePresentation(component);
-        component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-        component.append(myFrame.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-        component.setIcon(AllIcons.Debugger.Frame);
+//        component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+//        component.append(myFrame.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+//        component.setIcon(AllIcons.Debugger.Frame);
     }
 
     /**
@@ -137,31 +136,33 @@ public class BallerinaStackFrame extends XStackFrame {
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
 
-        // Todo - Enable variable support
-        BallerinaDAPClientConnector dapConnector = myProcess.getDapClientConnector();
-        if (!dapConnector.isConnected()) {
-            LOG.warn("Debug Scope fetching failed since debug client connector is not active");
-            return;
-        }
-        Map<String, List<Variable>> scopeMap = new HashMap<>();
-        ScopesArguments scopeArgs = new ScopesArguments();
-        scopeArgs.setFrameId(myFrame.getId());
-        try {
-            ScopesResponse scopes = dapConnector.getRequestManager().scopes(scopeArgs);
-            for (Scope scope : scopes.getScopes()) {
-                // Create a new XValueChildrenList to hold the XValues.
-                XValueChildrenList xValueChildrenList = new XValueChildrenList();
-                // Todo - Replace with the real implementation
-                Variable dummyVar = new Variable();
-                // Add the variables to the children list using a ValueGroup.
-                xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scope.getName(),
-                        dummyVar));
-                // Add the list to the node as children.
-                node.addChildren(xValueChildrenList, true);
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            // Checks for the DAP connection.
+            BallerinaDAPClientConnector dapConnector = myProcess.getDapClientConnector();
+            if (!dapConnector.isConnected()) {
+                LOG.warn("Debug Scope fetching failed since debug client connector is not active");
+                return;
             }
-        } catch (Exception e) {
-            LOG.warn("Scope Request Failed.", e);
-        }
+            // Requests available scopes for the stack frame, from the debug server.
+            ScopesArguments scopeArgs = new ScopesArguments();
+            scopeArgs.setFrameId(myFrame.getId());
+            try {
+                ScopesResponse scopes = dapConnector.getRequestManager().scopes(scopeArgs);
+                for (Scope scope : scopes.getScopes()) {
+                    // Create a new XValueChildrenList to hold the XValues.
+                    XValueChildrenList xValueChildrenList = new XValueChildrenList();
+                    // Sends a variable request to the debug server,
+                    VariablesArguments variablesArgs = new VariablesArguments();
+                    variablesArgs.setVariablesReference(scope.getVariablesReference());
+                    VariablesResponse variableResp = dapConnector.getRequestManager().variables(variablesArgs);
+                    xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scope.getName(),
+                            Arrays.asList(variableResp.getVariables())));
+                    // Add the list to the node as children.
+                    node.addChildren(xValueChildrenList, true);
+                }
+            } catch (Exception e) {
+                LOG.warn("Scope/Variable Request Failed.", e);
+            }
 
 //        // Iterate through each variable.
 //        List<Variable> variables = myFrame.getVariables();
@@ -196,5 +197,6 @@ public class BallerinaStackFrame extends XStackFrame {
 //            // Add the list to the node as children.
 //            node.addChildren(xValueChildrenList, true);
 //        });
+        });
     }
 }

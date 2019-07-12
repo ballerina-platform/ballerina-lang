@@ -25,7 +25,6 @@ import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -37,12 +36,12 @@ public class BallerinaXValueGroup extends XValueGroup {
 
     private final BallerinaDebugProcess process;
     private final StackFrame stackFrame;
-    private final Variable variable;
+    private final List<Variable> variables;
 
     protected BallerinaXValueGroup(@NotNull BallerinaDebugProcess myProcess, @NotNull StackFrame myFrame,
-                                   @NotNull String name, @NotNull Variable myVariable) {
+                                   @NotNull String name, @NotNull List<Variable> myVariables) {
         super(name);
-        this.variable = myVariable;
+        this.variables = myVariables;
         this.process = myProcess;
         this.stackFrame = myFrame;
     }
@@ -60,14 +59,13 @@ public class BallerinaXValueGroup extends XValueGroup {
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        // Todo - Add child variable fetching.
-        List<Variable> children = new ArrayList<>();
-        if (children == null || children.isEmpty()) {
+        if (variables.isEmpty()) {
             super.computeChildren(node);
         } else {
             XValueChildrenList list = new XValueChildrenList();
-            for (Variable child : children) {
-                list.add(child.getName(), new BallerinaXValue(process, stackFrame.getName(), child,
+            for (Variable variable : variables) {
+                // Todo - Fix stack frame name
+                list.add(variable.getName(), new BallerinaXValue(process, "dummy frame name", variable,
                         AllIcons.Nodes.Field));
             }
             node.addChildren(list, true);

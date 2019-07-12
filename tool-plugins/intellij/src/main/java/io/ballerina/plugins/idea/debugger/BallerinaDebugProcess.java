@@ -463,7 +463,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 continue;
             }
             VirtualFile fileInBreakpoint = breakpointPosition.getFile();
-            int line = breakpointPosition.getLine();
+            int line = breakpointPosition.getLine() + 1;
             if (fileInBreakpoint.getPath().endsWith(filePath) && line == lineNumber) {
                 return breakpoint;
             }
@@ -510,9 +510,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
             if (breakpointPosition == null) {
                 return;
             }
-            breakpoints.add(breakpoint);
-            sendBreakpoints(false);
             getSession().updateBreakpointPresentation(breakpoint, AllIcons.Debugger.Db_verified_breakpoint, null);
+            if (isConnected && !breakpoints.contains(breakpoint)) {
+                breakpoints.add(breakpoint);
+                sendBreakpoints(false);
+            }
         }
 
         @Override
@@ -522,8 +524,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
             if (breakpointPosition == null) {
                 return;
             }
-            breakpoints.remove(breakpoint);
-            sendBreakpoints(false);
+            if (isConnected && breakpoints.contains(breakpoint)) {
+                breakpoints.remove(breakpoint);
+                sendBreakpoints(false);
+            }
         }
 
         void sendBreakpoints(boolean attach) {
@@ -543,7 +547,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         source.setPath(bp.getSourcePosition().getFile().getPath());
 
                         SourceBreakpoint dapBreakpoint = new SourceBreakpoint();
-                        dapBreakpoint.setLine((long) bp.getSourcePosition().getLine());
+                        dapBreakpoint.setLine((long) bp.getSourcePosition().getLine() + 1);
                         if (sourceBreakpoints.get(source) == null) {
                             sourceBreakpoints.put(source, new ArrayList<>(Collections.singleton(dapBreakpoint)));
                         } else {

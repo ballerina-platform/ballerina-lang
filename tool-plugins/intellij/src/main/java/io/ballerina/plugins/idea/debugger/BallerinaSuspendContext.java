@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.debugger;
 
+import com.google.common.base.Strings;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
@@ -68,9 +69,23 @@ public class BallerinaSuspendContext extends XSuspendContext {
     private List<BallerinaStackFrame> toBalStackFrames(StackFrame[] frames) {
         List<BallerinaStackFrame> balStackFrames = new ArrayList<>();
         for (StackFrame frame : frames) {
-            balStackFrames.add(new BallerinaStackFrame(myProcess, frame));
+            // Todo - Enable java stack frames
+            if (isBallerinaSource(frame)) {
+                balStackFrames.add(new BallerinaStackFrame(myProcess, frame));
+            }
         }
         return balStackFrames;
+    }
+
+    private boolean isBallerinaSource(StackFrame frame) {
+        if (frame == null || frame.getSource() == null || frame.getSource().getName() == null) {
+            return false;
+        }
+        String fileName = frame.getSource().getName();
+        if (Strings.isNullOrEmpty(fileName) || fileName.split("\\.").length <= 1) {
+            return false;
+        }
+        return fileName.split("\\.")[fileName.split("\\.").length - 1].equals("bal");
     }
 
     static class BallerinaExecutionStack extends XExecutionStack {

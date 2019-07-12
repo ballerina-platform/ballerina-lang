@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.debugger;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -34,7 +33,6 @@ import com.intellij.xdebugger.frame.XInlineDebuggerDataCallback;
 import com.intellij.xdebugger.frame.XNamedValue;
 import com.intellij.xdebugger.frame.XNavigatable;
 import com.intellij.xdebugger.frame.XStackFrame;
-import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
@@ -44,7 +42,6 @@ import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
@@ -84,17 +81,8 @@ public class BallerinaXValue extends XNamedValue {
 
     @Override
     public void computeChildren(@NotNull XCompositeNode node) {
-        // Todo - Add child variable fetching
-        List<Variable> children = null;
-        if (children == null) {
-            super.computeChildren(node);
-        } else {
-            XValueChildrenList list = new XValueChildrenList();
-            for (Variable child : children) {
-                list.add(child.getName(), new BallerinaXValue(process, frameName, child, AllIcons.Nodes.Field));
-            }
-            node.addChildren(list, true);
-        }
+        // Todo
+        return;
     }
 
     @Nullable

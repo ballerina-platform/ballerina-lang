@@ -31,14 +31,14 @@ import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
+import org.eclipse.lsp4j.debug.VariablesArguments;
+import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Debugger Adaptor protocol based client request handler implementation.
@@ -74,9 +74,7 @@ public class DAPRequestManager {
         return clientConnector;
     }
 
-    public SetBreakpointsResponse setBreakpoints(SetBreakpointsArguments args) throws InterruptedException,
-            ExecutionException, TimeoutException {
-
+    public SetBreakpointsResponse setBreakpoints(SetBreakpointsArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<SetBreakpointsResponse> resp = server.setBreakpoints(args);
             return resp.get(TIMEOUT_SET_BREAKPOINTS, TimeUnit.MILLISECONDS);
@@ -85,9 +83,7 @@ public class DAPRequestManager {
         }
     }
 
-    public void configurationDone(ConfigurationDoneArguments args) throws InterruptedException,
-            ExecutionException, TimeoutException {
-
+    public void configurationDone(ConfigurationDoneArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.configurationDone(args);
             resp.get(TIMEOUT_CONFIG_DONE, TimeUnit.MILLISECONDS);
@@ -96,7 +92,7 @@ public class DAPRequestManager {
         }
     }
 
-    public void attach(Map<String, Object> args) throws InterruptedException, ExecutionException, TimeoutException {
+    public void attach(Map<String, Object> args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.attach(args);
             resp.get(TIMEOUT_CONFIG_DONE, TimeUnit.MILLISECONDS);
@@ -105,7 +101,7 @@ public class DAPRequestManager {
         }
     }
 
-    public ThreadsResponse threads() throws InterruptedException, ExecutionException, TimeoutException {
+    public ThreadsResponse threads() throws Exception {
         if (checkStatus()) {
             CompletableFuture<ThreadsResponse> resp = server.threads();
             return resp.get(TIMEOUT_THREADS, TimeUnit.MILLISECONDS);
@@ -114,9 +110,7 @@ public class DAPRequestManager {
         }
     }
 
-    public StackTraceResponse stackTrace(StackTraceArguments args) throws InterruptedException,
-            ExecutionException, TimeoutException {
-
+    public StackTraceResponse stackTrace(StackTraceArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<StackTraceResponse> resp = server.stackTrace(args);
             return resp.get(TIMEOUT_STACK_TRACE, TimeUnit.MILLISECONDS);
@@ -126,9 +120,7 @@ public class DAPRequestManager {
     }
 
     @JsonRequest
-    public ScopesResponse scopes(ScopesArguments args) throws InterruptedException, ExecutionException,
-            TimeoutException {
-
+    public ScopesResponse scopes(ScopesArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ScopesResponse> resp = server.scopes(args);
             return resp.get(TIMEOUT_SCOPES, TimeUnit.MILLISECONDS);
@@ -137,7 +129,16 @@ public class DAPRequestManager {
         }
     }
 
-    public void next(NextArguments args) throws InterruptedException, ExecutionException, TimeoutException {
+    public VariablesResponse variables(VariablesArguments args) throws Exception {
+        if (checkStatus()) {
+            CompletableFuture<VariablesResponse> resp = server.variables(args);
+            return resp.get(TIMEOUT_VARIABLES, TimeUnit.MILLISECONDS);
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    public void next(NextArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.next(args);
             resp.get(TIMEOUT_STEP_OVER, TimeUnit.MILLISECONDS);
@@ -146,7 +147,7 @@ public class DAPRequestManager {
         }
     }
 
-    public void stepIn(StepInArguments args) throws InterruptedException, ExecutionException, TimeoutException {
+    public void stepIn(StepInArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.stepIn(args);
             resp.get(TIMEOUT_STEP_IN, TimeUnit.MILLISECONDS);
@@ -155,7 +156,7 @@ public class DAPRequestManager {
         }
     }
 
-    public void stepOut(StepOutArguments args) throws InterruptedException, ExecutionException, TimeoutException {
+    public void stepOut(StepOutArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.stepOut(args);
             resp.get(TIMEOUT_STEP_OUT, TimeUnit.MILLISECONDS);
@@ -164,9 +165,7 @@ public class DAPRequestManager {
         }
     }
 
-    public ContinueResponse resume(ContinueArguments args) throws InterruptedException, ExecutionException,
-            TimeoutException {
-
+    public ContinueResponse resume(ContinueArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<ContinueResponse> resp = server.continue_(args);
             return resp.get(TIMEOUT_RESUME, TimeUnit.MILLISECONDS);
@@ -175,8 +174,7 @@ public class DAPRequestManager {
         }
     }
 
-    public void disconnect(DisconnectArguments args) throws InterruptedException,
-            ExecutionException, TimeoutException {
+    public void disconnect(DisconnectArguments args) throws Exception {
         if (checkStatus()) {
             CompletableFuture<Void> resp = server.disconnect(args);
             resp.get(TIMEOUT_DISCONNECT, TimeUnit.MILLISECONDS);
