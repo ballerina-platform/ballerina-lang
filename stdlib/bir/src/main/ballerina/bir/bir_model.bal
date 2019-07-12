@@ -251,6 +251,8 @@ public type VariableDcl record {|
     Name name = {};
     string metaVarName?;
     string endBBID?;
+    string startBBID?;
+    int insOffset?;
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -268,6 +270,8 @@ public type GlobalVariableDcl record {|
     Name name = {};
     string metaVarName?;
     string endBBID?;
+    string startBBID?;
+    int insOffset?;
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;

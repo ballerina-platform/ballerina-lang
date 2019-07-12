@@ -662,6 +662,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
         BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
+        birVarDcl.startBB = this.env.enclBB;
         this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
         this.env.enclFunc.localVars.add(birVarDcl);
         // We maintain a mapping from variable symbol to the bir_variable declaration.
@@ -678,6 +679,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Create a variable reference and
         BIROperand varRef = new BIROperand(birVarDcl);
         emit(new Move(astVarDefStmt.pos, this.env.targetOperand, varRef));
+        birVarDcl.insOffset = this.env.enclBB.instructions.size() - 1;
     }
 
     @Override

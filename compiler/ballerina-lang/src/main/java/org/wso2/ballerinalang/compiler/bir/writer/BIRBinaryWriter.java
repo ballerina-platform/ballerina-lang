@@ -253,6 +253,8 @@ public class BIRBinaryWriter {
             // add enclosing basic block id
             if (localVar.kind.equals(VarKind.LOCAL)) {
                 birbuf.writeInt(addStringCPEntry(localVar.endBB.id.value));
+                birbuf.writeInt(addStringCPEntry(localVar.startBB.id.value));
+                birbuf.writeInt(localVar.insOffset);
             }
         }
 

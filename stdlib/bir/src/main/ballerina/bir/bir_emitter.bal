@@ -154,6 +154,10 @@ public type BirEmitter object {
                 if (v.kind is LocalVarKind) {
                     print(" %endBBID ");
                     print(v.endBBID);
+                    print(" %startBBID ");
+                    print(v.startBBID);
+                    print(" %insOffset ");
+                    print(v.insOffset);
                 }
             }
             println("\t// ", varDecl.kind);
