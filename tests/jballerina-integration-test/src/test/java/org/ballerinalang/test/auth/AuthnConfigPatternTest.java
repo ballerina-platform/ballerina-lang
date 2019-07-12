@@ -28,16 +28,16 @@ import java.util.Map;
 /**
  * Test cases for authentication config pattern test scenarios.
  * The followings are the config patterns used for authentication handlers:
- * Pattern 1 - authnHandlers: [jwtAuthnHandler19_1]
- * Pattern 2 - authnHandlers: [jwtAuthnHandler19_1, jwtAuthnHandler19_2]
- * Pattern 3 - authnHandlers: [[jwtAuthnHandler19_1]]
- * Pattern 4 - authnHandlers: [[jwtAuthnHandler19_1], [jwtAuthnHandler19_3]]
- * Pattern 5 - authnHandlers: [[jwtAuthnHandler19_1, jwtAuthnHandler19_2], [jwtAuthnHandler19_3, jwtAuthnHandler19_4]]
+ * Pattern 1 - authHandlers: [jwtAuthHandler19_1]
+ * Pattern 2 - authHandlers: [jwtAuthHandler19_1, jwtAuthHandler19_2]
+ * Pattern 3 - authHandlers: [[jwtAuthHandler19_1]]
+ * Pattern 4 - authHandlers: [[jwtAuthHandler19_1], [jwtAuthHandler19_3]]
+ * Pattern 5 - authHandlers: [[jwtAuthHandler19_1, jwtAuthHandler19_2], [jwtAuthHandler19_3, jwtAuthHandler19_4]]
  */
 @Test(groups = "auth-test")
 public class AuthnConfigPatternTest extends AuthBaseTest {
 
-    private final int servicePort = 9114;
+    private final int servicePort = 9116;
 
     @Test(description = "Test pattern 1 with JWT of issuer: example1")
     public void testExample1IssuerJWTForPattern1() throws Exception {

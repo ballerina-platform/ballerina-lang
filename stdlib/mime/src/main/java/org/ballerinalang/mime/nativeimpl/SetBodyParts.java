@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -44,10 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
                 type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetBodyParts extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class SetBodyParts {
 
     public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
