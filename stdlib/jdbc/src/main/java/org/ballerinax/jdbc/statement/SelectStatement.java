@@ -76,7 +76,6 @@ public class SelectStatement extends AbstractSQLStatement {
             TableResourceManager rm = new TableResourceManager(conn, stmt, true);
             List<ColumnDefinition> columnDefinitions = getColumnDefinitions(rs);
             rm.addResultSet(rs);
-            rm.addResultSet(rs);
             return constructTable(rm, rs, structType, columnDefinitions, datasource.getDatabaseProductName());
         } catch (SQLException e) {
             cleanupResources(rs, stmt, conn, true);
