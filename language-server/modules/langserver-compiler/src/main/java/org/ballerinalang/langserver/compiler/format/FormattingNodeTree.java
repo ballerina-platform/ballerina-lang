@@ -5309,15 +5309,14 @@ public class FormattingNodeTree {
                 JsonObject currentWS = wsItem.getAsJsonObject();
 
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+
                     // Update the type or public keywords whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.PUBLIC)) {
+                    if (text.equals(Tokens.PUBLIC)) {
                         currentWS.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                         indentation);
-                    }
-
-                    // Update type keyword whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(FormattingConstants.TYPE)) {
+                    } else if (text.equals(FormattingConstants.TYPE)) {
                         if (node.has(Tokens.PUBLIC)
                                 && node.get(Tokens.PUBLIC).getAsBoolean()) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
@@ -5326,28 +5325,12 @@ public class FormattingNodeTree {
                                     this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
                                             indentation);
                         }
-                    }
-
-                    // Update record or object keyword whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OBJECT) ||
-                            currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.RECORD)) {
+                    } else if (text.equals(Tokens.OBJECT) || text.equals(Tokens.RECORD)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update identifier whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(
-                            node.getAsJsonObject(FormattingConstants.NAME).get("valueWithBar").getAsString())) {
-                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update opening bracket whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.OPENING_BRACE)) {
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                         isEnum = false;
-                    }
-
-                    // Update the closing bracket whitespaces.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.CLOSING_BRACE)) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has(FormattingConstants.TYPE_NODE)
                                 && node.getAsJsonObject(FormattingConstants.TYPE_NODE)
                                 .getAsJsonArray(FormattingConstants.FIELDS).size() <= 0) {
@@ -5355,11 +5338,10 @@ public class FormattingNodeTree {
                         } else {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE + indentation);
                         }
-                    }
-
-                    // Update the semicolon whitespace.
-                    if (currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.SEMICOLON)) {
+                    } else if (text.equals(Tokens.SEMICOLON)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }

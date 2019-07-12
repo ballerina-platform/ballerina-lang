@@ -156,6 +156,7 @@ public class FormattingTest {
                 {"expectedServiceConstruct.bal", "serviceConstruct.bal"},
                 {"expectedForkJoin.bal", "forkJoin.bal"},
                 {"expectedEmpty.bal", "empty.bal"},
+                {"expectedDelimiter.bal", "delimiter.bal"},
         };
     }
 
