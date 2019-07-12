@@ -14,9 +14,15 @@ listener nats:StreamingListener lis = new(conn, "test-cluster", "c0");
     subject: "demo"
 }
 service demoService on lis {
-    resource function onMessage(nats:StreamingMessage message) {
-       // Prints the incoming message in the console.
-       io:println("Message Received: " + encoding:byteArrayToString(message.getData()));
+    resource function onMessage(nats:StreamingMessage message, json data) {
+        // Convert json data to string.
+        string | error val = string.convert(data);
+        if (val is string) {
+            // Prints the incoming message in the console.
+            log:printInfo("Message Received: " + val);
+        } else {
+            log:printError("Error occurred during json to string conversion", err = val);
+        }
     }
 
     resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
