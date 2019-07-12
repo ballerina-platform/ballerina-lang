@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
 import ballerina/'lang\.error as lang;
 
 type Detail record {
@@ -30,16 +29,16 @@ function testArrayWithErrors() returns [string, string, string] {
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
         result1 += reason + ":";
-        result1 += io:sprintf("%s:", message);
-        result1 += io:sprintf("%s:", fatal);
+        result1 += message + ":";
+        result1 += fatal + ":";
     }
 
     string result2 = "";
     foreach error<string, Detail> error(reason2, message = message1, fatal = fatal1) in errorArray {
         result2 += reason2 + ":";
         any temp2 = message;
-        result2 += io:sprintf("%s:", message1);
-        result2 += io:sprintf("%s:", fatal1);
+        result2 += message1 + ":";
+        result2 += fatal1 + ":";
     }
 
     string result3 = "";
@@ -62,8 +61,8 @@ function testMapWithErrors() returns [string, string, string] {
     string result1 = "";
     foreach var error(reason, message = message, fatal = fatal) in errMap {
         result1 += reason + ":";
-        result1 += io:sprintf("%s:", message);
-        result1 += io:sprintf("%s:", fatal);
+        result1 += message + ":";
+        result1 += fatal + ":";
     }
 
     string result2 = "";
@@ -71,8 +70,8 @@ function testMapWithErrors() returns [string, string, string] {
         result2 += reason2 + ":";
         any temp2 = message1;
         if (temp2 is string|boolean|()) {
-            result2 += io:sprintf("%s:", message1);
-            result2 += io:sprintf("%s:", fatal1);
+            result2 += message1 + ":";
+            result2 += fatal1 + ":";
         }
     }
 
