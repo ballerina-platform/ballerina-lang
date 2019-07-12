@@ -31,16 +31,20 @@ service echoServer on server {
 
     resource function onReadReady(socket:Caller caller) {
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
-                io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
-                io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-                var str = characterChannel.read(20);
-                if (str is string) {
-                    io:println(untaint str);
+                var byteChannel = io:createReadableChannel(content);
+                if (byteChannel is io:ReadableByteChannel) {
+                    io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+                    var str = characterChannel.read(20);
+                    if (str is string) {
+                        io:println(<@untainted> str);
+                    } else {
+                        io:println("Error: ", str.detail().message);
+                    }
                 } else {
-                    io:println("Error: ", str.detail().message);
+                    io:println("Error: ", byteChannel.detail().message);
                 }
             } else {
                 io:println("Client close: ", caller.remotePort);

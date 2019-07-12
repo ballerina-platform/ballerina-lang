@@ -52,7 +52,8 @@ public function workerSendToWorker() returns int {
       return j;
     }
 
-    return (wait w2) + 1;
+    int res = wait w2;
+    return res + 1;
 }
 
 function workerSendToDefault() returns int{
