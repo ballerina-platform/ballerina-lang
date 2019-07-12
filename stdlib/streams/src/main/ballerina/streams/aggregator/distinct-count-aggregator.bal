@@ -46,7 +46,7 @@ public type DistinctCount object {
             int preVal = self.distinctValues[key] ?: 1;
             preVal -= 1;
             if (preVal <= 0) {
-                _ = self.distinctValues.remove(key);
+                var tempVar = self.distinctValues.remove(key);
             } else {
                 self.distinctValues[key] = preVal;
             }
