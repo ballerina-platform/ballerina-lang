@@ -46,17 +46,9 @@ public type Client client object {
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `JdbcClientError` will be returned if there
     # is any error
-    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-    //                              Param... parameters) returns @tainted table<record {}>|error {
-    //    if (!self.clientActive) {
-    //        return self.handleStoppedClientInvocation();
-    //    }
-    //    return self.sqlClient->select(sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
-    //}
     public remote function select(@untainted string sqlQuery, typedesc? recordType,
                                   Param... parameters) returns @tainted table<record {}>|JdbcClientError {
         if (!self.clientActive) {
@@ -64,7 +56,6 @@ public type Client client object {
         }
         return self.jdbcClient->select(sqlQuery, recordType, ...parameters);
     }
-
 
     # The update remote function implementation for JDBC Client to update data and schema of the database.
     #
