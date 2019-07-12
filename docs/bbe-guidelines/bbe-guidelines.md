@@ -106,7 +106,7 @@
 
     ```
     # To start the service, navigate to the directory that contains the
-    # `.bal` file and issue the `ballerina run` command.
+    # `.bal` file and execute the `ballerina run` command.
     $ ballerina run hello_world_service.bal
     ```
 
