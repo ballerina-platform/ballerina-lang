@@ -143,7 +143,8 @@ public type StreamJoinProcessor object {
                 }
             }
         }
-        self.nextProcessor.call(outputEvents);
+        function (StreamEvent?[]) nProcessor = self.nextProcessor;
+        nProcessor(outputEvents);
     }
 
     # Sets the left hand side stream name and the respective window instance.
