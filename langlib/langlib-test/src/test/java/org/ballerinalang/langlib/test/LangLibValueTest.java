@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -86,6 +87,16 @@ public class LangLibValueTest {
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
         assertEquals(arr.get("anInvalid").getType().getTag(), TypeTags.ERROR_TAG);
         assertEquals(arr.size(), 7);
+    }
+
+    @Test
+    public void testToString() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToStringMethod");
+        BValueArray array = (BValueArray) returns[0];
+        assertEquals(array.getRefValue(0).stringValue(), "4");
+        assertEquals(array.getRefValue(1).stringValue(), "4");
+        assertEquals(array.getRefValue(2).stringValue(), "4");
+        assertEquals(array.getRefValue(3).stringValue(), "4");
     }
 
 }

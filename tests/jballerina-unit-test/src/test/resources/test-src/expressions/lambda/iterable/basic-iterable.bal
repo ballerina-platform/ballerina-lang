@@ -1,29 +1,31 @@
 import ballerina/io;
+import ballerina/'lang\.int as ints;
+import ballerina/'lang\.float as floats;
 
 int add = 0;
 int index = 0;
 
-function testInt1() returns [int, int, int, int, int, float] {
+function testInt1() returns [int, int, int, int, int] {
     add = 0;
     int[] fa = [-5, 2, 4, 5, 7, -8, -3, 2];
-    fa.foreach(function (int i) { add = add + i;});
+    fa.forEach(function (int i) { add = add + i;});
     int fadd1 = add;
-    int count = fa.count();
-    int max = fa.max();
-    int min = fa.min();
-    int sum = fa.sum();
-    float avg = fa.average();
-    return [fadd1, count, max, min, sum, avg];
+    int count = fa.length();
+    int max = ints:max(0, ...fa);
+    int min = ints:min(0, ...fa);
+    int sum = ints:sum(...fa);
+    return [fadd1, count, max, min, sum];
 }
 
-function testInt2() returns [int, int, int, int, float] {
+function testInt2() returns [int, int, int, int] {
     int[] fa = [-5, 2, 4, 5, 7, -8, -3, 2];
-    int count = fa.filter(filterIntNegative).count();
-    int max = fa.filter(filterIntNegative).max();
-    int min = fa.filter(filterIntNegative).min();
-    int sum = fa.filter(filterIntNegative).sum();
-    float avg = fa.filter(filterIntNegative).average();
-    return [count, max, min, sum, avg];
+    int count = fa.filter(function (int i) returns boolean {
+                    return i >= 0;
+                }).length();
+    int max = ints:max(0, ...fa.filter(filterIntNegative));
+    int min = ints:min(0, ...fa.filter(filterIntNegative));
+    int sum = ints:sum(...fa.filter(filterIntNegative));
+    return [count, max, min, sum];
 }
 
 function filterIntNegative(int i) returns boolean {
@@ -31,27 +33,25 @@ function filterIntNegative(int i) returns boolean {
 }
 
 float fadd = 0;
-function testFloat1() returns [float, int, float, float, float, float]{
+function testFloat1() returns [float, int, float, float, float]{
     fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
-    fa.foreach(function (float i) { fadd = fadd + i;});
+    fa.forEach(function (float i) { fadd = fadd + i;});
     float fsum = fadd;
-    int count = fa.count();
-    float max = fa.max();
-    float min = fa.min();
-    float sum = fa.sum();
-    float avg = fa.average();
-    return [fsum, count, max, min, sum, avg];
+    int count = fa.length();
+    float max = floats:max(...fa);
+    float min = floats:min(...fa);
+    float sum = floats:sum(...fa);
+    return [fsum, count, max, min, sum];
 }
 
-function testFloat2() returns [int, float, float, float, float]{
+function testFloat2() returns [int, float, float, float]{
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
-    int count = fa.filter(filterFloatNegative).count();
-    float max = fa.filter(filterFloatNegative).max();
-    float min = fa.filter(filterFloatNegative).min();
-    float sum = fa.filter(filterFloatNegative).sum();
-    float avg = fa.filter(filterFloatNegative).average();
-    return [count, max, min, sum, avg];
+    int count = fa.filter(filterFloatNegative).length();
+    float max = floats:max(...fa.filter(filterFloatNegative));
+    float min = floats:min(...fa.filter(filterFloatNegative));
+    float sum = floats:sum(...fa.filter(filterFloatNegative));
+    return [count, max, min, sum];
 }
 
 function filterFloatNegative(float i) returns boolean {
@@ -62,13 +62,13 @@ string output = "";
 
 function testBasicArray1(string[] values) returns string {
     output = "";
-    values.map(mapString).foreach(concat);
+    values.'map(mapString).forEach(concat);
     return output.trim();
 }
 
 function mapString(string x) returns [string, string] {
-    string up = x.toUpper();
-    string lower = x.toLower();
+    string up = x.toUpperAscii();
+    string lower = x.toLowerAscii();
     return [up, lower];
 }
 
@@ -82,11 +82,11 @@ function testBasicArray2(string[] values) returns string {
 
     index = 0;
     values.map(function (string s) returns string {
-                    var value = string.convert(index) + s;
+                    var value = index.toString() + s;
                     index += 1;
                     return value;
                })
-    .foreach(function (string s) {
+    .forEach(function (string s) {
                  output = output + s + " ";
              });
     return output.trim();
@@ -94,10 +94,10 @@ function testBasicArray2(string[] values) returns string {
 
 function testBasicMap1() returns [int, string[]] {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-    int count = m.count();
-    string[] values = m.map(function ([string, string] value) returns string {
+    int count = m.length();
+    string[] values = m.'map(function ([string, string] value) returns string {
                                 var [k, v] = value;
-                                return k.toLower();
+                                return k.toLowerAscii();
                             })
                       .filter(function (string v) returns boolean {
                                   if (v == "a" || v == "e") {
@@ -109,14 +109,14 @@ function testBasicMap1() returns [int, string[]] {
 
 function testBasicMap2() returns string[] {
     map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-    string[] values = m.map(mapToTuple)
+    string[] values = m.'map(mapToTuple)
                       .filter(function ([string, string] v) returns boolean {
                                   var [k, t] = v;
                                   if (k == "a" || k == "e") {
                                       return true;
                                   }
                                   return false; })
-                      .map(concatString);
+                      .'map(concatString);
     return values;
 }
 
@@ -139,12 +139,12 @@ function xmlTest() returns [int, int, map<any>] {
         </p:address>
         <q:ID>1131313</q:ID>
     </p:person>`;
-    int nodeCount = xdata.*.count();
-    int elementCount = xdata.*.elements().count();
+    int nodeCount = xdata.*.length();
+    int elementCount = xdata.*.elements().length();
 
     index = -1;
     map<xml> m = xdata.*.elements()[1].*.elements()
-                 .map(function (xml|string x) returns [string, xml] {
+                 .'map(function (xml|string x) returns [string, xml] {
                             index += 1;
                             if x is xml {
                                 return [string.convert(index), x];
@@ -164,8 +164,8 @@ function structTest() returns [int, string[]] {
     person tom = {name:"tom", age:20};
     person sam = {name:"sam", age:24};
     person[] p = [bob, tom, sam];
-    int count = p.filter(isBellow25).count();
-    string[] names = p.map(getName);
+    int count = p.filter(isBellow25).length();
+    string[] names = p.'map(getName);
     return [count, names];
 }
 
@@ -181,7 +181,7 @@ function testIgnoredValue() returns (string) {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     s = s.filter(function (string ss) returns boolean {return ss.length() == 3;})
-    .map(function (string ss) returns string {
+    .'map(function (string ss) returns string {
             output = output + " " + ss;
             return (ss + ss);
              });
@@ -197,8 +197,8 @@ function testInExpression() returns [string, int] {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter(function (string ss) returns boolean {return ss.length() == 3;}).count());
-    int i = s.count() + r.count();
+    appendAny("total count " + s.filter(function (string ss) returns boolean {return ss.length() == 3;}).length());
+    int i = s.length() + r.length();
     return [output, i];
 }
 
@@ -208,7 +208,7 @@ function testInFunctionInvocation() returns int {
                                   var [k, v] = value;
                                   int i = v.length();
                                   return i == 3;})
-                     .count());
+                     .length());
 }
 
 function doubleInt(int i) returns int {
@@ -220,7 +220,7 @@ function testInStatement() returns int {
     if (5 > m.filter(function ([string, string] value) returns boolean {
                          var [k, v] = value;
                          return v.length() == 3;})
-            .count()) {
+            .length()) {
         return 10;
     }
     return 0;
@@ -228,9 +228,9 @@ function testInStatement() returns int {
 
 function testIterableOutputPrint() returns [any, any, any, any, any] {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
-    any count = m.count();
+    any count = m.length();
     foo(count);
-    foo(m.count());
+    foo(m.length());
 
     int[] a = [-5, 2, 4, 5, 7, -8, -3, 2];
 
@@ -261,7 +261,7 @@ function testIterableReturnLambda() returns (function (int) returns boolean)?[] 
 
     map<string> words = { a: "ant", b: "bear", c: "tiger"};
 
-    (function (int) returns boolean)?[] lambdas = words.map(function ([string, string] input) returns
+    (function (int) returns boolean)?[] lambdas = words.'map(function ([string, string] input) returns
         (function (int) returns boolean) {
         return function (int param) returns boolean {
             return true;
