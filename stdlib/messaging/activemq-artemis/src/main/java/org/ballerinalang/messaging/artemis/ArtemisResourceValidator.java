@@ -133,9 +133,8 @@ public class ArtemisResourceValidator {
                                                     BLangFunction resource, DiagnosticLog dlog) {
         boolean flag = true;
         if (paramDetails == null || paramDetails.size() != expectedSize) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
-                    ": Expected parameter count = " + expectedSize);
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "onError resource only accepts the " +
+                    "parameters artemis:Message and artemis:ArtemisError");
             flag = false;
         }
         return flag;
@@ -145,9 +144,9 @@ public class ArtemisResourceValidator {
                                                     BLangFunction resource, DiagnosticLog dlog) {
         boolean flag = true;
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + ": Unexpected parameter count " +
-                    "(expected parameter count between " + min + " and " + max + ")");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "onMessage resource only " +
+                    "accepts artemis:Message as the first parameter and string, json, xml, byte[], " +
+                    "map or a record type as the second parameter");
             flag = false;
         }
         return flag;

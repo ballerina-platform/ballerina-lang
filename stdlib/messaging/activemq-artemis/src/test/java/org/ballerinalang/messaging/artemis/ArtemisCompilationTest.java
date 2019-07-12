@@ -83,8 +83,8 @@ public class ArtemisCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                "Invalid resource signature for onMessage resource in service : " +
-                        "Unexpected parameter count (expected parameter count between 1 and 2)", 25, 5);
+                "onMessage resource only accepts artemis:Message as the first parameter and string, json, " +
+                        "xml, byte[], map or a record type as the second parameter", 25, 5);
     }
 
     @Test(description = "Resource with multiple resource parameters")
@@ -93,8 +93,8 @@ public class ArtemisCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                "Invalid resource signature for onMessage resource in service : " +
-                        "Unexpected parameter count (expected parameter count between 1 and 2)", 25, 5);
+                "onMessage resource only accepts artemis:Message as the first parameter and string, json, xml, " +
+                        "byte[], map or a record type as the second parameter", 25, 5);
     }
 
     @Test(description = "Invalid resource parameters")
