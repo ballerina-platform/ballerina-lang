@@ -146,27 +146,27 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         Path target = prepareTargetDirectory(sourceRootPath);
-        Path cache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
+        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
-            // Write the balo and bir to the disk.
-            // We do this before generating jar since at least we can push to central.
-            compiler.write(packages);
-            //Generate the jars
-            try {
-                //TODO: replace with actual target dir
-                Path targetDirectory = cache;
-                String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
-                        "ballerina.home is not set");
+            for (BLangPackage bLangPackage : packages) {
+                try {
+                    //TODO: replace with actual target dir
+                    //Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+                    String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                            "ballerina.home is not set");
 
-                BootstrapRunner.createClassLoaders(packages.get(0), Paths.get(balHome).resolve("bir-cache"),
-                        cache, Optional.of(Paths.get(".")), dumpBir);
-            } catch (IOException e) {
-                throw new BLangCompilerException("error invoking jballerina backend", e);
+                    BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
+                            jarCache, Optional.of(Paths.get(".")), dumpBir);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("error invoking jballerina backend", e);
+                }
             }
+            compiler.write(packages);
             return;
         }
+
 
         if (skiptests) {
             if (packages.size() == 0) {
