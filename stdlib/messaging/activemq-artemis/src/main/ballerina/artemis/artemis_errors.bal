@@ -14,14 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/artemis;
+type Detail record {
+    string message;
+    error cause?;
+};
 
-@artemis:ServiceConfig {
-    queueConfig: {
-        queueName: "my_queue"
-    }
-}
-service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) {
-    resource function onMessage() returns error? {
-    }
-}
+public const ARTEMIS_ERROR = "{ballerina/artemis}ArtemisError";
+public type ArtemisError error<ARTEMIS_ERROR, Detail>;

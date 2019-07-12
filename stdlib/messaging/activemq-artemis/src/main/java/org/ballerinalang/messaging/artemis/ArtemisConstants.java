@@ -36,7 +36,9 @@ public class ArtemisConstants {
     // Error related constants
     static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}ArtemisError";
     static final String ARTEMIS_ERROR_RECORD = "ArtemisError";
+    static final String ARTEMIS_ERROR_DETAILS = "Detail";
     static final String ARTEMIS_ERROR_MESSAGE = "message";
+    static final String ARTEMIS_ERROR_CAUSE = "cause";
 
     // Native objects
     public static final String ARTEMIS_CONNECTION_POOL = "artemis-connection-pool";
@@ -88,6 +90,8 @@ public class ArtemisConstants {
     public static final String LAST_VALUE = "lastValue";
     static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String ADDRESS_NAME = "addressName";
+    public static final String ON_MESSAGE = "onMessage";
+    public static final String ON_ERROR = "onError";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
