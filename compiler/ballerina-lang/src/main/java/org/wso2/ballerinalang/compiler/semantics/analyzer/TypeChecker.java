@@ -2021,9 +2021,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
-            if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
-                opSymbol = resolveIntRangeOperator(binaryExpr.opKind, lhsType, rhsType);
-            }
+//            if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
+//                opSymbol = resolveIntRangeOperator(binaryExpr.opKind, lhsType, rhsType);
+//            }
 
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
@@ -2047,11 +2047,11 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
-    private BSymbol resolveIntRangeOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
-        BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.intRangeType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), env.enclPkg.packageID, opType, env.enclPkg.symbol,
-                InstructionCodes.INT_RANGE);
-    }
+//    private BSymbol resolveIntRangeOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+//        BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.intRangeType, null);
+//        return new BOperatorSymbol(names.fromString(opKind.value()), env.enclPkg.packageID, opType, env.enclPkg.symbol,
+//                InstructionCodes.INT_RANGE);
+//    }
 
     private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr) {
         if (expType.tag != TypeTags.DECIMAL) {
@@ -2982,6 +2982,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
+        if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
+            return symTable.noType;
+        }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
         int requiredParamsCount;

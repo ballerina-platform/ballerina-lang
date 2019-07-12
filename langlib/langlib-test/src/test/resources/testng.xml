@@ -30,14 +30,15 @@
         <parameter name="enableJBallerinaTests" value="true" />
 
         <classes>
+            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
             <class name="org.ballerinalang.langlib.test.LangLibIntTest" />
             <class name="org.ballerinalang.langlib.test.LangLibFloatTest" />
-            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
             <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTupleTest" />
             <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
             <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibMapTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>
@@ -53,6 +54,7 @@
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachComplexTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.LangLibTest"/>
             <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>-->
             <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>-->
         </classes>

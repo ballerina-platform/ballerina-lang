@@ -432,18 +432,24 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
-            if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+            string? clientId = config?.clientId;
+            string? clientSecret = config?.clientSecret;
+            if (clientId is string && clientSecret is string) {
+                if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+                    return prepareError("Client id or client secret cannot be empty.");
+                }
+                refreshUrl = <@untainted> refreshConfig.refreshUrl;
+                requestConfig = {
+                    payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
+                    clientId: clientId,
+                    clientSecret: clientSecret,
+                    scopes: refreshConfig["scopes"],
+                    credentialBearer: refreshConfig.credentialBearer
+                };
+                clientConfig = refreshConfig.clientConfig;
+            } else {
                 return prepareError("Client id or client secret cannot be empty.");
             }
-            refreshUrl = <@untainted> refreshConfig.refreshUrl;
-            requestConfig = {
-                payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
-                clientId: config.clientId,
-                clientSecret: config.clientSecret,
-                scopes: refreshConfig["scopes"],
-                credentialBearer: refreshConfig.credentialBearer
-            };
-            clientConfig = refreshConfig.clientConfig;
         } else {
             return prepareError("Failed to refresh access token since RefreshTokenConfig is not provided.");
         }
@@ -523,7 +529,7 @@ function prepareRequest(RequestConfig config) returns http:Request|error {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
             req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC +
-                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
+                    encoding:encodeBase64(clientIdSecret.toBytes()));
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }
@@ -577,11 +583,11 @@ function updateTokenCache(json responsePayload, CachedToken tokenCache, int cloc
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
-    var expiresIn = responsePayload["expires_in"];
+    var expiresIn = responsePayload.expires_in;
     if (expiresIn is int) {
         tokenCache.expiryTime = issueTime + (expiresIn - clockSkew) * 1000;
     }
-    if (responsePayload["refresh_token"] is string) {
+    if (responsePayload.refresh_token is string) {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }

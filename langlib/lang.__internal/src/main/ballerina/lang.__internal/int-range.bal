@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type IntRange object {
+public type IntRange object {
     private int iStart;
     private int iEnd;
     private int iCurrent;

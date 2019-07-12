@@ -54,7 +54,7 @@ public class BTypes {
             null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
-    private static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
+    public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
             null), 0, false);
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
             null, null), typeString, typeErrorDetail);
