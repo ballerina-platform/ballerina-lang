@@ -30,8 +30,11 @@ import com.sun.jdi.event.Event;
 import com.sun.jdi.event.EventIterator;
 import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.StepEvent;
+import com.sun.jdi.event.VMDeathEvent;
+import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
+import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -203,7 +206,13 @@ public class EventBus {
                                     stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
                                     stoppedEventArguments.setAllThreadsStopped(true);
                                     client.stopped(stoppedEventArguments);
-                                } else {
+                                } else if (event instanceof VMDisconnectEvent || event instanceof VMDeathEvent
+                                        || event instanceof VMDisconnectedException) {
+                                    ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
+                                    exitedEventArguments.setExitCode((long) 0);
+                                    client.exited(exitedEventArguments);
+                                }
+                                else {
                                     eventSet.resume();
                                 }
                             }
