@@ -3769,8 +3769,9 @@ public class Desugar extends BLangNodeVisitor {
         }
         expr.symbol = iExpr.symbol;
         expr.type = iExpr.symbol.type;
-        expr = rewriteExpr(expr);
-        result = new BFunctionPointerInvocation(iExpr, expr);
+
+        BLangExpression rewritten = rewriteExpr(expr);
+        result = new BFunctionPointerInvocation(iExpr, rewritten);
     }
 
     private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
