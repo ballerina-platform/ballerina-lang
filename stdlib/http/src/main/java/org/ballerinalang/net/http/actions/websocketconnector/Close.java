@@ -32,8 +32,14 @@ import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
+import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketUtil.getRemoteUrl;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -49,6 +55,7 @@ import java.util.concurrent.TimeUnit;
         )
 )
 public class Close implements NativeCallableUnit {
+    private static final PrintStream console = System.out;
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
@@ -65,7 +72,7 @@ public class Close implements NativeCallableUnit {
             ChannelFuture closeFuture =
                     initiateConnectionClosure(strand, callback, (int) statusCode, reason, connectionInfo,
                                               countDownLatch);
-            waitForTimeout(callback, (int) timeoutInSecs, countDownLatch);
+            waitForTimeout(callback, (int) timeoutInSecs, countDownLatch, connectionInfo);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
@@ -94,9 +101,17 @@ public class Close implements NativeCallableUnit {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.setReturnValues(HttpUtil.getError(cause));
-                //TODO remove this call back
-                callback.setReturnValues(HttpUtil.getError(cause));
+                if (connectionInfo.getWebSocketEndpoint().getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG).
+                        size() > 0) {
+                    if (!reconnect(connectionInfo)) {
+                        //TODO Temp fix to get return values. Remove
+                        console.println("Attempt maximum retry but couldn't connect to the server: " +
+                                getRemoteUrl(connectionInfo));
+                        strand.setReturnValues(HttpUtil.getError(cause));
+                        //TODO remove this call back
+                        callback.setReturnValues(HttpUtil.getError(cause));
+                    }
+                }
             } else {
                 strand.setReturnValues(null);
                 //TODO remove this call back
@@ -107,18 +122,26 @@ public class Close implements NativeCallableUnit {
     }
 
     private static void waitForTimeout(NonBlockingCallback callback, int timeoutInSecs,
-                                       CountDownLatch latch) {
+                                       CountDownLatch latch, WebSocketOpenConnectionInfo connectionInfo) {
         try {
             if (timeoutInSecs < 0) {
                 latch.await();
             } else {
                 boolean countDownReached = latch.await(timeoutInSecs, TimeUnit.SECONDS);
                 if (!countDownReached) {
-                    String errMsg = String.format(
-                            "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
-                            timeoutInSecs);
-                    //TODO remove this call back
-                    callback.setReturnValues(HttpUtil.getError(errMsg));
+                    if (connectionInfo.getWebSocketEndpoint().getMapValue(CLIENT_ENDPOINT_CONFIG).
+                            getMapValue(RETRY_CONFIG).size() > 0) {
+                        if (!reconnect(connectionInfo)) {
+                            //TODO Temp fix to get return values. Remove
+                            console.println("Attempt maximum retry but couldn't connect to the server: " +
+                                    getRemoteUrl(connectionInfo));
+                            String errMsg = String.format(
+                                    "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
+                                    timeoutInSecs);
+                            //TODO remove this call back
+                            callback.setReturnValues(HttpUtil.getError(errMsg));
+                        }
+                    }
                 }
             }
         } catch (InterruptedException err) {

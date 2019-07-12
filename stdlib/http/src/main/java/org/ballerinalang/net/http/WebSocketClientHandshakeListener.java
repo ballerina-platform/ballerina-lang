@@ -18,14 +18,11 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BString;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
@@ -34,21 +31,18 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_INTEVAL;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
-import static org.ballerinalang.net.http.WebSocketConstants.INDEX;
-import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_COUNT;
-import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_INTERVAL;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECTING;
 import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_INTERVAL;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.RETRY_DECAY;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGETS_URLS;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
+import static org.ballerinalang.net.http.WebSocketUtil.getIntegerValue;
+import static org.ballerinalang.net.http.WebSocketUtil.getRemoteUrl;
+import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
-import static org.ballerinalang.net.http.WebSocketUtil.setWebSocketConnection;
+import static org.ballerinalang.net.http.WebSocketUtil.waitForTime;
 
 /**
  * The handshake listener for the client.
@@ -106,51 +100,34 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT)) {
+        int reconnetAttemptCount = 0;
+        if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
+            reconnetAttemptCount = getIntegerValue(Long.valueOf(webSocketClient.
+                    getNativeData(RECONNECT_ATTEMPTS).toString()));
+        }
+        if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                reconnetAttemptCount == 0) {
             ArrayValue targets = clientEndpointConfig.getArrayValue(TARGETS_URLS);
-            long failoverInterval =  Long.valueOf(clientEndpointConfig.get(FAILOVER_INTEVAL).toString());
-            long index = Long.valueOf(clientEndpointConfig.get(INDEX).toString());
-            long size = targets.size();
-            if (index < size) {
-                ((MapValue<String, Object>) webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG))
-                        .put(INDEX, index + 1);
-                try {
-                    countDownLatch.await(failoverInterval, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
-                }
-                setWebSocketConnection(targets.get(index).toString(), webSocketClient, wsService);
+            int failoverInterval =  getIntegerValue(Long.valueOf(clientEndpointConfig.get(FAILOVER_INTEVAL).
+                    toString()));
+            int targetsUrlIndex = getIntegerValue(Long.valueOf(webSocketClient.getNativeData(TARGET_URL_INDEX).
+                    toString()));
+            int size = targets.size();
+            if (targetsUrlIndex < size) {
+                webSocketClient.addNativeData(TARGET_URL_INDEX, targetsUrlIndex + 1);
+                waitForTime(countDownLatch, failoverInterval, TimeUnit.MILLISECONDS);
+                initialiseWebSocketConnection(targets.get(targetsUrlIndex).toString(), webSocketClient, wsService);
                 countDownLatch.countDown();
             } else {
                 console.println("Couldn't connect to the one of the server in the targets: " + targets);
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
-        } else if (webSocketClient.getType().getName().equalsIgnoreCase(WEBSOCKET_CLIENT)) {
-            MapValue<String, Object> reconnectConfig = (MapValue<String, Object>) clientEndpointConfig
-                    .getMapValue(RETRY_CONFIG);
-            WebSocketClientConnector clientConnector = (WebSocketClientConnector) clientEndpointConfig
-                    .get(CLIENT_CONNECTOR);
-            int reconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(RECONNECT_INTERVAL));
-            Double reconnectDecay = reconnectConfig.getFloatValue(RETRY_DECAY);
-            int maxReconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_INTERVAL));
-            int maxReconnectAttempts = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_COUNT));
-            int reconnectAttempts = Integer.valueOf(reconnectConfig.get(RECONNECT_ATTEMPTS).toString());
-            int timeout = (int) (reconnectInterval * Math.pow(reconnectDecay, reconnectAttempts));
-            if (timeout > maxReconnectInterval) {
-                maxReconnectInterval = timeout;
-            }
-            if (reconnectAttempts < maxReconnectAttempts) {
-                console.println(RECONNECTING);
-                ((MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                        HttpConstants.CLIENT_ENDPOINT_CONFIG)).getMapValue(RETRY_CONFIG).
-                        addNativeData(RECONNECT_ATTEMPTS, new BString(String.valueOf(reconnectAttempts + 1)));
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
-            } else if (reconnectAttempts == 0 && maxReconnectAttempts == 0) {
-                console.println(RECONNECTING);
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
+        } else if (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG).size() > 0) {
+            if (!reconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                        getRemoteUrl(connectionInfo));
+                WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             } else {
-                console.println("Couldn't connect to the server");
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else {

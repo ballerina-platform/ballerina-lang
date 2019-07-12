@@ -21,8 +21,6 @@ package org.ballerinalang.net.http.websocketclientendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -32,10 +30,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
 
-import static org.ballerinalang.net.http.WebSocketConstants.INDEX;
-import static org.ballerinalang.net.http.WebSocketUtil.setWebSocketConnection;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
+import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
+import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
 
 /**
  * Initialize the failover WebSocket Client.
@@ -65,19 +65,13 @@ public class Init extends BlockingNativeCallableUnit {
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         ArrayValue targets = clientEndpointConfig.getArrayValue(WebSocketConstants.TARGETS_URLS);
-        Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        ((MapValue<String, Object>) webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG)).put(INDEX, 1);
-        WebSocketService wsService;
-        if (clientService != null) {
-            BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
-            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
-                    param.toString())) {
-                throw new BallerinaConnectorException("The callback service should be a WebSocket Client Service");
-            }
-            wsService = new WebSocketService((ObjectValue) clientService, strand.scheduler);
-        } else {
-            wsService = new WebSocketService(strand.scheduler);
+        if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
+            webSocketClient.addNativeData(RECONNECT_ATTEMPTS, 0);
         }
-        setWebSocketConnection(targets.getString(0), webSocketClient, wsService);
+        webSocketClient.addNativeData(TARGET_URL_INDEX, 1);
+        ((MapValue<String, Object>) webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG)).
+                put(TARGET_URL_INDEX, 1);
+        initialiseWebSocketConnection(targets.getString(0), webSocketClient,
+                getWebSocketService(clientEndpointConfig, strand));
     }
 }

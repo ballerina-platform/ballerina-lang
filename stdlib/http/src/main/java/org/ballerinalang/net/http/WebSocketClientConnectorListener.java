@@ -19,11 +19,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BString;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
@@ -33,15 +29,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.io.PrintStream;
 
-import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_COUNT;
-import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_INTERVAL;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECTING;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_INTERVAL;
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.RETRY_DECAY;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
+import static org.ballerinalang.net.http.WebSocketUtil.getRemoteUrl;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 
 /**
@@ -91,36 +81,12 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        if (connectionInfo.getWebSocketEndpoint().getType().getName().equalsIgnoreCase(WEBSOCKET_CLIENT)) {
-            ObjectValue clientEndpointConfig = connectionInfo.getWebSocketEndpoint();
-            MapValue<String, Object> clientConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                    HttpConstants.CLIENT_ENDPOINT_CONFIG);
-            MapValue<String, Object> reconnectConfig = (MapValue<String, Object>) clientConfig
-                    .getMapValue(RETRY_CONFIG);
-            int reconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(RECONNECT_INTERVAL));
-            Double reconnectDecay = reconnectConfig.getFloatValue(RETRY_DECAY);
-            int maxReconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_INTERVAL));
-            int maxReconnectAttempts = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_COUNT));
-            int reconnectAttempts = Integer.valueOf(reconnectConfig.get(RECONNECT_ATTEMPTS).toString());
-            int timeout = (int) (reconnectInterval * Math.pow(reconnectDecay, reconnectAttempts));
-            ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
-            WebSocketService wsService = connectionInfo.getService();
-            WebSocketClientConnector clientConnector = (WebSocketClientConnector) clientConfig.get(CLIENT_CONNECTOR);
-            if (timeout > maxReconnectInterval) {
-                maxReconnectInterval = timeout;
-            }
-            if (reconnectAttempts < maxReconnectAttempts) {
-                console.println(RECONNECTING);
-                ((MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                        HttpConstants.CLIENT_ENDPOINT_CONFIG)).getMapValue(RETRY_CONFIG).
-                        addNativeData(RECONNECT_ATTEMPTS, new BString(String.valueOf(reconnectAttempts + 1)));
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
-            } else if (reconnectAttempts == 0 && maxReconnectAttempts == 0) {
-                console.println(RECONNECTING);
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
-            } else {
+        if (connectionInfo.getWebSocketEndpoint().getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG).
+                size() > 0) {
+            if (!reconnect(connectionInfo)) {
                 try {
-                    console.println("Couldn't connect to the server");
+                    console.println("Attempt maximum retry but couldn't connect to the server: " +
+                            getRemoteUrl(connectionInfo));
                     WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
                 } catch (IllegalAccessException e) {
                     // Ignore as it is not possible have an Illegal access
@@ -128,7 +94,6 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
             }
         } else {
             try {
-                console.println("Couldn't connect to the server");
                 WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
             } catch (IllegalAccessException e) {
                 // Ignore as it is not possible have an Illegal access
@@ -138,39 +103,14 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        if (connectionInfo.getWebSocketEndpoint().getType().getName().equalsIgnoreCase(WEBSOCKET_CLIENT)) {
-            ObjectValue clientEndpointConfig = connectionInfo.getWebSocketEndpoint();
-            MapValue<String, Object> clientConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                    HttpConstants.CLIENT_ENDPOINT_CONFIG);
-            MapValue<String, Object> reconnectConfig = (MapValue<String, Object>) clientConfig
-                    .getMapValue(RETRY_CONFIG);
-            int reconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(RECONNECT_INTERVAL));
-            Double reconnectDecay = reconnectConfig.getFloatValue(RETRY_DECAY);
-            int maxReconnectInterval = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_INTERVAL));
-            int maxReconnectAttempts = Math.toIntExact(reconnectConfig.getIntValue(MAX_RETRY_COUNT));
-            int reconnectAttempts = Integer.valueOf(reconnectConfig.get(RECONNECT_ATTEMPTS).toString());
-            int timeout = (int) (reconnectInterval * Math.pow(reconnectDecay, reconnectAttempts));
-            ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
-            WebSocketService wsService = connectionInfo.getService();
-            WebSocketClientConnector clientConnector = (WebSocketClientConnector) clientConfig.get(CLIENT_CONNECTOR);
-            if (timeout > maxReconnectInterval) {
-                maxReconnectInterval = timeout;
-            }
-            if (reconnectAttempts < maxReconnectAttempts) {
-                console.println(RECONNECTING);
-                ((MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                        HttpConstants.CLIENT_ENDPOINT_CONFIG)).getMapValue(RETRY_CONFIG).
-                        addNativeData(RECONNECT_ATTEMPTS, new BString(String.valueOf(reconnectAttempts + 1)));
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
-            } else if (reconnectAttempts == 0 && maxReconnectAttempts == 0) {
-                console.println(RECONNECTING);
-                reconnect(clientConnector, webSocketClient, maxReconnectInterval, wsService);
-            } else {
-                console.println("Couldn't connect to the server");
+        if (connectionInfo.getWebSocketEndpoint().getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG).
+                size() > 0) {
+            if (!reconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                        getRemoteUrl(connectionInfo));
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else {
-            console.println("Couldn't connect to the server");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }

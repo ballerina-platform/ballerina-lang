@@ -79,16 +79,17 @@ public class WebSocketConstants {
     // WebSocketClient struct field names
     public static final String CLIENT_RESPONSE_FIELD = "response";
     public static final String CLIENT_CONNECTOR_FIELD = "conn";
-    public static final String TARGETS_URLS = "targetURLs";
+    public static final String TARGETS_URLS = "targetUrls";
     public static final String RETRY_CONFIG = "retryConfig";
     public static final String FAILOVER_CONFIG = "failoverConfig";
     public static final String FAILOVER_CLIENTS = "failoverClientsArray";
     public static final String RECONNECT_ATTEMPTS = "reconnectAttempts";
-    public static final String INDEX = "index";
-    public static final String MAX_RETRY_COUNT = "maxRetryCount";
-    public static final String RECONNECT_INTERVAL = "retryInterval";
-    public static final String RETRY_DECAY = "retryDecay";
-    public static final String MAX_RETRY_INTERVAL = "maxretryInterval";
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String TARGET_URL_INDEX = "index";
+    public static final String MAX_RETRY_COUNT = "maxCount";
+    public static final String RECONNECT_INTERVAL = "interval";
+    public static final String RETRY_DECAY = "decay";
+    public static final String MAX_RETRY_INTERVAL = "maxInterval";
     public static final String FAILOVER_INTEVAL = "failoverInterval";
     public static final String ONE = "1";
     public static final String ZERO = "0";

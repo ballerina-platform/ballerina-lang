@@ -116,8 +116,9 @@ public type FailoverWebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
-# + targetURLs - The set of urls which are used to connect the server.
+# + targetUrls - The set of urls which are used to connect the server.
 # + failoverInterval - The maximum number of milliseconds to delay a failover attempt.
+# + retryConfig - Configurations related to retry
 public type FailoverWebSocketClientEndpointConfig record {|
     service? callbackService = ();
     string[] subProtocols = [];
@@ -126,6 +127,7 @@ public type FailoverWebSocketClientEndpointConfig record {|
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
     int maxFrameSize = 0;
-    string[] targetURLs = [];
+    string[] targetUrls = [];
     int failoverInterval = 0;
+    WebSocketRetryConfig retryConfig?;
 |};
