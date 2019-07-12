@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -25,7 +26,7 @@ import ballerina/log;
 # + config - The configuration for the endpoint
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public SubscriberServiceEndpointConfiguration? config = ();
 
