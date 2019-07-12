@@ -63,7 +63,7 @@
 
         ![comment boxes](images/comment-boxes.png "comment-boxes")
 
-2. Since comments are used in the RHS as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
+2. Since comments are used in the right hand side boxes as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
 
 3. After a comment is strated, it will continue being applied to the subsequent lines in the file until another comment or an empty line is found. Therefore, use comments/new lines appropriately to ensure that they apply only to the relevant lines.
 
