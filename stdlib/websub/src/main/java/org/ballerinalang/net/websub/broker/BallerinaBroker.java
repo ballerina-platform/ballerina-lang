@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.broker;
+package org.ballerinalang.net.websub.broker;
 
 import io.ballerina.messaging.broker.common.StartupContext;
 import io.ballerina.messaging.broker.common.ValidationException;

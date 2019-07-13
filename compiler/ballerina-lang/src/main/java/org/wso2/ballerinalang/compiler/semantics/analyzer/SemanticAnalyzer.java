@@ -2296,6 +2296,40 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO: 7/10/19 Remove this once const support is added for lists. A separate method is introduced temporarily
+    //  since we allow array/tuple literals with cont exprs for annotations
+    private void checkAnnotConstantExpression(BLangExpression expression) {
+        // Recursively check whether all the nested expressions in the provided expression are constants or can be
+        // evaluated to constants.
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+                break;
+            case SIMPLE_VARIABLE_REF:
+                BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
+                // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
+                if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+                    dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                }
+                break;
+            case RECORD_LITERAL_EXPR:
+                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
+                    checkAnnotConstantExpression(pair.key.expr);
+                    checkAnnotConstantExpression(pair.valueExpr);
+                });
+                break;
+            case LIST_CONSTRUCTOR_EXPR:
+                ((BLangListConstructorExpr) expression).exprs.forEach(this::checkAnnotConstantExpression);
+                break;
+            case FIELD_BASED_ACCESS_EXPR:
+                checkAnnotConstantExpression(((BLangFieldBasedAccess) expression).expr);
+                break;
+            default:
+                dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                break;
+        }
+    }
+
     private void handleForeachVariables(BLangForeach foreachStmt, SymbolEnv blockEnv) {
         BLangVariable variableNode = (BLangVariable) foreachStmt.variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
@@ -2448,7 +2482,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                    annotType.tag == TypeTags.ARRAY ? ((BArrayType) annotType).eType : annotType);
 
         if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
-            checkConstantExpression(annAttachmentNode.expr);
+            if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
+                checkConstantExpression(annAttachmentNode.expr);
+                return;
+            }
+            checkAnnotConstantExpression(annAttachmentNode.expr);
         }
     }
 
