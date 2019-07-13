@@ -32,8 +32,14 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.typedesc", functionName = "constructFrom",
-        args = {@Argument(name = "t", type = TypeKind.TYPEDESC), @Argument(name = "v", type = TypeKind.ANYDATA)},
-        returnType = {@ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR)},
+        args = {
+                @Argument(name = "t", type = TypeKind.TYPEDESC),
+                @Argument(name = "v", type = TypeKind.ANYDATA)
+        },
+        returnType = {
+                @ReturnType(type = TypeKind.ANYDATA),
+                @ReturnType(type = TypeKind.ERROR)
+        },
         isPublic = true
 )
 public class ConstructFrom {

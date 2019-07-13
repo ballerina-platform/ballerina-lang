@@ -19,7 +19,7 @@ type Person record {
     int age;
 };
 
-function testRecToJson() returns json {
+function testRecToJson() returns json|error {
     Person  p = {name: "N", age: 3};
     return typedesc<json>.constructFrom(p);
 }
