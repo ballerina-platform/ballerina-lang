@@ -75,6 +75,7 @@ dependencies {
     dist 'org.ow2.asm:asm-util:7.1'
 
     dist project(':ballerina-cli-utils')
+    dist project(':ballerina-tool')
     dist project(':ballerina-jvm')
     birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')

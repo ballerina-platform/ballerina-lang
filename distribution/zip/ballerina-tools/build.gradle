@@ -61,6 +61,7 @@ dependencies {
     dist 'org.ow2.asm:asm:6.2.1'
 
     dist project(':ballerina-cli-utils')
+    dist project(':ballerina-tool')
 //    dist project(':ballerina-jvm')
     dist project(':ballerina-encoding')
 //    dist project(':ballerina-bir')
