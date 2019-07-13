@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ import java.util.concurrent.ThreadFactory;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 import static org.ballerinalang.stdlib.socket.SocketConstants.DEFAULT_EXPECTED_READ_LENGTH;
+import static org.ballerinalang.stdlib.socket.SocketConstants.ErrorCode.ReadTimedOutError;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
 /**
@@ -337,15 +339,13 @@ public class SelectorManager {
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (CancelledKeyException | ClosedChannelException e) {
-            processError(callback, "Connection closed");
+            processError(callback, null, "Connection closed");
         } catch (IOException e) {
             log.error("Error while data receive.", e);
-            processError(callback, e.getMessage());
+            processError(callback, null, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            ErrorValue socketError = SocketUtils.createSocketError("Error while on receiveFrom operation");
-            callback.getCallback().setReturnValues(socketError);
-            callback.getCallback().notifySuccess();
+            processError(callback, ReadTimedOutError, "Error while on receiveFrom operation");
         }
     }
 
@@ -380,22 +380,21 @@ public class SelectorManager {
             callback.getCallback().notifySuccess();
             callback.cancelTimeout();
         } catch (NotYetConnectedException e) {
-            processError(callback, "Connection not yet connected");
+            processError(callback, null, "Connection not yet connected");
         } catch (CancelledKeyException | ClosedChannelException e) {
-            processError(callback, "Connection closed");
+            processError(callback, null, "Connection closed");
         } catch (IOException e) {
             log.error("Error while read.", e);
-            processError(callback, e.getMessage());
+            processError(callback, null, e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            ErrorValue socketError = SocketUtils.createSocketError("Error while on read operation");
-            callback.getCallback().setReturnValues(socketError);
-            callback.getCallback().notifySuccess();
+            processError(callback, null, "Error while on read operation");
         }
     }
 
-    private void processError(ReadPendingCallback callback, String msg) {
-        ErrorValue socketError = SocketUtils.createSocketError(msg);
+    private void processError(ReadPendingCallback callback, SocketConstants.ErrorCode code, String msg) {
+        ErrorValue socketError =
+                code == null ? SocketUtils.createSocketError(msg) : SocketUtils.createSocketError(code, msg);
         callback.getCallback().setReturnValues(socketError);
         callback.getCallback().notifySuccess();
     }

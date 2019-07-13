@@ -35,11 +35,13 @@ service timeoutServer on new socket:Listener(61599, config = {readTimeout: 20000
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result.detail().message);
+            error resultError = result;
+            io:println(resultError.detail().message);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on timeout server", err = er);
+        error e = er;
+        log:printError("Error on timeout server", err = e);
     }
 }

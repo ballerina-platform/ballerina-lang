@@ -40,12 +40,14 @@ service echoServer on server {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error on echo server read", err = result);
+            error e = result;
+            log:printError("Error on echo server read", err = e);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on echo service", err = er);
+        error e = er;
+        log:printError("Error on echo service", err = e);
     }
 }
 
@@ -68,7 +70,8 @@ service helloServer on new socket:Listener(59153) {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on hello server", err = er);
+        error e = er;
+        log:printError("Error on hello server", err = e);
     }
 }
 
@@ -92,7 +95,8 @@ function process(any|error result, socket:Caller caller) {
             return;
         }
     } else if (result is error) {
-        log:printError("Error while process data", err = result);
+        error e = result;
+        log:printError("Error while process data", err = e);
     }
 }
 
@@ -113,12 +117,14 @@ service BlockingReadServer on new socket:Listener(59154) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error while read data", err = result);
+            error resultError = result;
+            log:printError("Error while read data", err = resultError);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on blocking read server", err = er);
+        error e = er;
+        log:printError("Error on blocking read server", err = e);
     }
 }
 
@@ -139,12 +145,14 @@ service errorServer on new socket:Listener(59155) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error on error server read", err = result);
+            error resultError = result;
+            log:printError("Error on error server read", err = resultError);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        errorString = <@untainted> string.convert(er.reason());
+        error e = er;
+        errorString = <@untainted> string.convert(e.reason());
     }
 }
 

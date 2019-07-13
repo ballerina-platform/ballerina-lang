@@ -24,7 +24,8 @@ function echo(string msg) returns string {
     if (sendResult is int) {
         io:println("Number of bytes written: ", sendResult);
     } else {
-        panic sendResult;
+        error sendResultError = sendResult;
+        panic sendResultError;
     }
     string returnStr = "";
     var result = socketClient->receiveFrom();
@@ -34,11 +35,12 @@ function echo(string msg) returns string {
         if (str is string) {
             returnStr = <@untainted>str;
         } else {
-            error e = <error>str;
+            error e = str;
             io:println(e.detail().message);
         }
     } else {
-        io:println(result);
+        error errorResult = result;
+        io:println(errorResult);
     }
     checkpanic socketClient->close();
     return returnStr;
@@ -58,7 +60,8 @@ function contentReceive() returns string {
             io:println(e.detail().message);
         }
     } else {
-        io:println(result);
+        error errorResult = result;
+        io:println(errorResult);
     }
     checkpanic socketClient->close();
     return returnStr;
@@ -78,7 +81,8 @@ function contentReceiveWithLength() returns string {
             io:println(e.detail().message);
         }
     } else {
-        io:println(result);
+        error errorResult = result;
+        io:println(errorResult);
     }
     checkpanic socketClient->close();
     return returnStr;
