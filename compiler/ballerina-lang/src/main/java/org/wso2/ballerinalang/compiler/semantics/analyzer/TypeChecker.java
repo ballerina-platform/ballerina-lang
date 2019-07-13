@@ -3714,6 +3714,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT)) {
             actualType = checkObjectFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+            fieldAccessExpr.originalType = actualType;
         } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
             actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
