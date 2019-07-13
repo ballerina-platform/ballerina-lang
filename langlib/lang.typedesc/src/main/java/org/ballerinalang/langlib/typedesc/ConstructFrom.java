@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ConstructFrom {
 
-    public static Object concat(Strand strand, TypedescValue t, Object v) {
+    public static Object constructFrom(Strand strand, TypedescValue t, Object v) {
 
         throw new UnsupportedOperationException();
     }
