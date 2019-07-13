@@ -53,28 +53,28 @@ public type ReadableCSVChannel object {
         if (recordChannel is ReadableTextRecordChannel) {
             return recordChannel.hasNext();
         } else {
-            GenericIoError e = error(GENERIC_IO_ERROR, message = "Channel not initialized");
+            GenericError e = error(GENERIC_ERROR, message = "Channel not initialized");
             panic e;
         }
     }
 
     # Gets the next record from the CSV file.
     #
-    # + return - List of fields in the CSV or `IoError` if any error occurred
-    public function getNext() returns @tainted string[]|IoError? {
+    # + return - List of fields in the CSV or `Error` if any error occurred
+    public function getNext() returns @tainted string[]|Error? {
         return self.dc.getNext();
     }
 
     # Closes a given CSVChannel.
     #
-    # + return - Returns `IoError` if any error occurred
-    public function close() returns IoError? {
+    # + return - Returns `Error` if any error occurred
+    public function close() returns Error? {
         return self.dc.close();
     }
 
     # Returns a table which corresponds to the CSV records.
     #
     # + structType - The object the CSV records should be deserialized
-    # + return - Table which represents CSV records or `IoError` if any error occurred
-    public function getTable(typedesc structType) returns @tainted table<record {}>|IoError = external;
+    # + return - Table which represents CSV records or `Error` if any error occurred
+    public function getTable(typedesc structType) returns @tainted table<record {}>|Error = external;
 };

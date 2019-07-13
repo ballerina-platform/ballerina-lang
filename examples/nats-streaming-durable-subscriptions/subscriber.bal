@@ -20,7 +20,7 @@ service demoService on lis {
        io:println("Message Received: " + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }

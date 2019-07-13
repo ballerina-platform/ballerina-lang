@@ -15,7 +15,7 @@ public function main (string... args) {
             (readData, readLen) = data;
             testFunction(readData, readData);
         }
-        io:IoError ioError => return;
+        io:Error ioError => return;
     }
 }
 

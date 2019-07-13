@@ -26,7 +26,7 @@ service receiveNewOnly on lis1 {
         + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -45,7 +45,7 @@ service receiveFromBegining on lis2 {
         + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -64,7 +64,7 @@ service receiveFromLastReceived on lis3 {
         + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -84,7 +84,7 @@ service receiveFromGivenIndex on lis4 {
         + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -104,7 +104,7 @@ service receiveSinceTimeDelta on lis5 {
         + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }

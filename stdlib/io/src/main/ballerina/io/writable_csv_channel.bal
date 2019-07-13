@@ -48,15 +48,15 @@ public type WritableCSVChannel object {
     # Writes record to a given CSV file.
 
     # + csvRecord - A record to be written to the channel
-    # + return - Returns an `IoError` if the record could not be written properly
-    public function write(string[] csvRecord) returns IoError? {
+    # + return - Returns an `Error` if the record could not be written properly
+    public function write(string[] csvRecord) returns Error? {
         return self.dc.write(csvRecord);
     }
 
     # Closes a given CSVChannel.
 
-    # + return - Nil or `IoError` if any error occurred
-    public function close() returns IoError? {
+    # + return - Nil or `Error` if any error occurred
+    public function close() returns Error? {
         return self.dc.close();
     }
 };

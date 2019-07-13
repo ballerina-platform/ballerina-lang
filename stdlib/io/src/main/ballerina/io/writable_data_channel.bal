@@ -39,53 +39,53 @@ public type WritableDataChannel object {
     # Writes 16 bit integer.
     #
     # + value - integer which will be written
-    # + return - nill if the content is written successfully or `IoError` if any error occurred
-    public function writeInt16(int value) returns IoError? = external;
+    # + return - nill if the content is written successfully or `Error` if any error occurred
+    public function writeInt16(int value) returns Error? = external;
 
     # Writes 32 bit integer.
     #
     # + value - integer which will be written
-    # + return - nill if the content is written successfully or `IoError` if any error occurred
-    public function writeInt32(int value) returns IoError? = external;
+    # + return - nill if the content is written successfully or `Error` if any error occurred
+    public function writeInt32(int value) returns Error? = external;
 
     # Writes 64 bit integer.
     #
     # + value - integer which will be written
-    # + return - nill if the content is written successfully or `IoError` if any error occurred
-    public function writeInt64(int value) returns IoError? = external;
+    # + return - nill if the content is written successfully or `Error` if any error occurred
+    public function writeInt64(int value) returns Error? = external;
 
     # Writes 32 bit float.
     #
     # + value - float which will be written
-    # + return - nill if the float is written successfully or `IoError` if any error occurred
-    public function writeFloat32(float value) returns IoError? = external;
+    # + return - nill if the float is written successfully or `Error` if any error occurred
+    public function writeFloat32(float value) returns Error? = external;
 
     # Writes 64 bit float.
     #
     # + value - float which will be written
-    # + return - nill if the float is written successfully or `IoError` if any error occurred
-    public function writeFloat64(float value) returns IoError? = external;
+    # + return - nill if the float is written successfully or `Error` if any error occurred
+    public function writeFloat64(float value) returns Error? = external;
 
     # Writes boolean.
     #
     # + value - boolean which will be written
-    # + return - nill if the content is written successfully or `IoError` if any error occurred
-    public function writeBool(boolean value) returns IoError? = external;
+    # + return - nill if the content is written successfully or `Error` if any error occurred
+    public function writeBool(boolean value) returns Error? = external;
 
     # Writes a given string value to the respective channel.
     #
     # + value - the value which should be written
     # + encoding - the encoding which will represent the value string
-    # + return - nill if the content is written successfully or `IoError` if any error occurred
-    public function writeString(string value, string encoding) returns IoError? = external;
+    # + return - nill if the content is written successfully or `Error` if any error occurred
+    public function writeString(string value, string encoding) returns Error? = external;
 
     # Reads a variable length integer.
     #
-    # + return - value of the integer which is read or `IoError` if any error occurred
-    public function writeVarInt(int value) returns IoError? = external;
+    # + return - value of the integer which is read or `Error` if any error occurred
+    public function writeVarInt(int value) returns Error? = external;
 
     # Closes the data channel.
     #
-    # + return - nill if the channel is closed successfully or `IoError` if any error occurred
-    public function close() returns IoError? = external;
+    # + return - nill if the channel is closed successfully or `Error` if any error occurred
+    public function close() returns Error? = external;
 };

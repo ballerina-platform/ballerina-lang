@@ -23,11 +23,11 @@ public type WritableByteChannel object {
     #
     # + content - Block of bytes which should be written
     # + return - Offset which should be kept when writing bytes.
-    #            Number of bytes written or `IoError` if any error occurred
-    public function write(byte[] content, int offset) returns int|IoError = external;
+    #            Number of bytes written or `Error` if any error occurred
+    public function write(byte[] content, int offset) returns int|Error = external;
 
     # Closes a given byte channel.
     #
     # + return - Will return () if there's no error
-    public function close() returns IoError? = external;
+    public function close() returns Error? = external;
 };

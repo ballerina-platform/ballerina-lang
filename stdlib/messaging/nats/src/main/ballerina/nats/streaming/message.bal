@@ -42,5 +42,5 @@ public type StreamingMessage client object {
    # Acknowledge the NATS Streaming server upon the receipt of the message.
    #
    # + return - Returns () if the acknowledgment completes successfully or an error.
-   public remote function ack() returns NatsError? = external;
+   public remote function ack() returns Error? = external;
 };

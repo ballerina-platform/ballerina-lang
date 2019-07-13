@@ -23,17 +23,17 @@ type Detail record {
     error cause?;
 };
 
-public const NATS_ERROR = "{ballerina/nats}NatsError";
+public const NATS_ERROR = "{ballerina/nats}Error";
 
-public type NatsError error<NATS_ERROR, Detail>;
+public type Error error<NATS_ERROR, Detail>;
 
-# Prepare the `error` as a `NatsError`.
+# Prepare the `error` as a `Error`.
 #
 # + message - the error message.
 # + err - the `error` instance.
-# + return - prepared `NatsError` instance.
-public function prepareNatsError(string message, error? err = ()) returns NatsError {
-    NatsError natsError;
+# + return - prepared `Error` instance.
+public function prepareError(string message, error? err = ()) returns Error {
+    Error natsError;
     if (err is error) {
         natsError = error(NATS_ERROR, message = message, cause = err);
     } else {
