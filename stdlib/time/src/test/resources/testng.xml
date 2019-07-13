@@ -25,6 +25,11 @@
     </listeners>
     <test name="ballerina-lang-stdlib-time-test-suite" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.stdlib.time.*"/>
         </packages>

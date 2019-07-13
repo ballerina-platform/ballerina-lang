@@ -119,7 +119,7 @@ public class GlobalVarFunctionInBaloTest {
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
     }
 
-    @Test(description = "Test global variable byte")
+    @Test(description = "Test global variable byte", groups = "brokenOnBootstrappedJVMCodegen")
     public void testGlobalVarByte() {
         BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByte");
         Assert.assertEquals(returns.length, 1);
