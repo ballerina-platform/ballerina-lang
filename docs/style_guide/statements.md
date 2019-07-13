@@ -4,9 +4,9 @@
 
 ### If statement
 
-* Always, enclose the condition with parentheses in the If statement.
+* Always enclose the condition with parentheses in the If statement.
   
-  Dos
+  **Do's**
   ```ballerina
   if (true) {
       ...
@@ -15,7 +15,7 @@
   }
   ```
   
-  Don'ts
+  **Don'ts**
   ```ballerina
   if true {
       ...
@@ -29,7 +29,7 @@
 #### Empty block
 
 * Do not have any empty `if`, `else if`, or `else` blocks.
-* If empty add an empty line between the opening and closing braces.
+* If empty, add an empty line between the opening and closing braces.
       
   Example,
   ```ballerina
@@ -48,8 +48,7 @@
 
 * Block indent each pattern clause in its own line.
 * Keep a single space before and after the `=>` sign.
-* If a pattern clause contains only one statement, place it in the same line as the 
-  pattern clause without curly braces enclosing it.
+* If a pattern clause contains only one statement, place it in the same line as the pattern clause without enclosing it with curly braces.
 
   Example,
   ```ballerina
@@ -85,9 +84,8 @@
   ```
 ## Transaction statement
 
-* Start each optional clause(`onretry`, `committed` and `aborted`) in the same line 
-  as the closing brace of the matching clause.
-* If `transaction`, `onretry`, `committed` and `aborted` blocks are empty, add an empty line between the braces. 
+* Start each optional clause (`onretry`, `committed`, and `aborted`) in the same line as the closing brace of the matching clause.
+* If `transaction`, `onretry`, `committed`, and `aborted` blocks are empty, add an empty line between the braces. 
   
   Example,
   ```ballerina

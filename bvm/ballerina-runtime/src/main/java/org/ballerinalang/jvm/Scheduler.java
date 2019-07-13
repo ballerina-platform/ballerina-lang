@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -82,6 +83,7 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
     private final int numThreads;
+    private Semaphore mainBlockSem;
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
@@ -156,10 +158,16 @@ public class Scheduler {
             debugLogger.setDaemon(true);
             debugLogger.start();
         }
+        this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
         }
         this.runSafely();
+        try {
+            this.mainBlockSem.acquire();
+        } catch (InterruptedException e) {
+            logger.error("Error while waiting for poison to work", e);
+        }
     }
 
     /**
@@ -186,6 +194,7 @@ public class Scheduler {
             }
 
             if (item == POISON_PILL) {
+                this.mainBlockSem.release();
                 break;
             }
 
