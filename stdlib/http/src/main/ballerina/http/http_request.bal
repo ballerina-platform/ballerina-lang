@@ -57,10 +57,30 @@ public type Request object {
     # + e - The `Entity` to be set to the request
     public function setEntity(mime:Entity e) = external;
 
-    # Gets the query parameters of the request, as a map.
+    # Gets the query parameters of the request as a map consisting of a string array.
     #
-    # + return - String map of query params
-    public function getQueryParams() returns map<string> = external;
+    # + return - String array map of the query params
+    public function getQueryParams() returns map<string[]> = external;
+
+    # Gets the query param value associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns the query param value associated with the given key as a string. If multiple param values are
+    #            present, then the first value is returned. Nil is returned if no key is found.
+    public function getQueryParamValue(@untainted string key) returns @tainted string? {
+        map<string[]> params = self.getQueryParams();
+        return params[key][0];
+    }
+
+    # Gets all the query param values associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns all the query param values associated with the given key as a `string[]`. Nil is returned if no key
+    #            is found.
+    public function getQueryParamValues(@untainted string key) returns @tainted string[]? {
+        map<string[]> params = self.getQueryParams();
+        return params[key];
+    }
 
     # Gets the matrix parameters of the request.
     #

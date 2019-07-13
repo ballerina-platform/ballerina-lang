@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -54,7 +55,12 @@ public class Strand {
     public Set<ChannelDetails> channelDetails;
     private Map<String, Object> globalProps;
     public boolean cancel;
+    private TransactionLocalContext transactionStrandContext;
     public ObserverContext observerContext;
+    /**
+     * Used to mark the strand has completed.
+     */
+    public boolean completed;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -96,6 +102,22 @@ public class Strand {
 
     public void setProperty(String key, Object value) {
         this.globalProps.put(key, value);
+    }
+
+    public boolean isInTransaction() {
+        return this.transactionStrandContext != null;
+    }
+
+    public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
+        this.transactionStrandContext = transactionLocalContext;
+    }
+
+    public TransactionLocalContext getLocalTransactionContext() {
+        return this.transactionStrandContext;
+    }
+
+    public void removeLocalTransactionContext() {
+        this.transactionStrandContext = null;
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {

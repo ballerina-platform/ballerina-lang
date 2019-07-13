@@ -62,6 +62,7 @@ import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,9 +162,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.CONNECTION_TIMED_OUT;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.GENERIC_IO_ERROR;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
@@ -542,10 +541,16 @@ public class HttpUtil {
         } else if (throwable instanceof PromiseRejectedException) {
             return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
         } else if (throwable instanceof ConnectionTimedOutException) {
-            cause = createErrorCause(throwable.getMessage(), CONNECTION_TIMED_OUT, IO_PACKAGE, DETAIL_RECORD_TYPE);
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Connection timed out", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
-            cause = createErrorCause(throwable.getMessage(), GENERIC_IO_ERROR, IO_PACKAGE, DETAIL_RECORD_TYPE);
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.GenericIoError.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
             return createHttpError("IO error occurred", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else {
             return createHttpError(throwable.getMessage());

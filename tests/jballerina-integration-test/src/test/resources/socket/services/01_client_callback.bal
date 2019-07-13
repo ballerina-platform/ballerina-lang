@@ -50,7 +50,7 @@ service echo on echoEP {
         } else {
             string errMsg = <string>payload.detail().message;
             resp.statusCode = 500;
-            resp.setPayload(untaint errMsg);
+            resp.setPayload(<@untainted> errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
                 io:println("Error sending response: ", responseError.detail().message);
@@ -68,14 +68,15 @@ service ClientService = service {
     resource function onReadReady(socket:Caller caller) {
         io:println("New content received for callback");
         var result = caller->read();
-        if (result is (byte[], int)) {
-            var (content, length) = result;
+        if (result is [byte[], int]) {
+            var [content, length] = result;
             if (length > 0) {
-                var str = getString(content);
+                var str = <@untainted> getString(content);
                 if (str is string) {
-                    io:println(untaint str);
+                    io:println(<@untainted>str);
                 } else {
-                    io:println(str.reason());
+                    error e = <error>str;
+                    io:println(e.detail().message);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
@@ -96,8 +97,8 @@ service ClientService = service {
     }
 };
 
-function getString(byte[] content) returns string|error {
-    io:ReadableByteChannel byteChannel = io:createReadableChannel(content);
+function getString(byte[] content) returns @tainted string|io:IoError {
+    io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-    return characterChannel.read(15);
+    return check characterChannel.read(15);
 }

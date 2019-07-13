@@ -84,7 +84,7 @@ service {
 
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding to subscription change request", err = responseError);
+                log:printError("Error responding to subscription change request", err = <error>responseError);
             } else {
                 if (validSubscriptionChangeRequest) {
                     verifyIntentAndAddSubscription(callback, topic, params);
@@ -98,7 +98,7 @@ service {
                 log:printWarn("Remote topic registration denied at Hub");
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding on remote topic registration failure", err = responseError);
+                    log:printError("Error responding on remote topic registration failure", err = <error>responseError);
                 }
                 return;
             }
@@ -115,7 +115,7 @@ service {
             }
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding remote topic registration status", err = responseError);
+                log:printError("Error responding remote topic registration status", err = <error>responseError);
             }
         } else if (mode == MODE_UNREGISTER) {
             if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
@@ -124,7 +124,7 @@ service {
                 log:printWarn("Remote topic unregistration denied at Hub");
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding on remote topic unregistration failure", err = responseError);
+                    log:printError("Error responding on remote topic unregistration failure", err = <error> responseError);
                 }
                 return;
             }
@@ -141,13 +141,12 @@ service {
             }
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding remote topic unregistration status", err = responseError);
+                log:printError("Error responding remote topic unregistration status", err = <error> responseError);
             }
         } else {
             if (mode != MODE_PUBLISH) {
-                params = request.getQueryParams();
-                mode = params[HUB_MODE] ?: "";
-                string topicValue = params[HUB_TOPIC] ?: "";
+                mode = request.getQueryParamValue(HUB_MODE) ?: "";
+                string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
                 var decodedTopic = http:decode(topicValue, "UTF-8");
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }
@@ -176,7 +175,7 @@ service {
                             response.statusCode = http:BAD_REQUEST_400;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
-                                log:printError("Error responding on update fetch failure", err = responseError);
+                                log:printError("Error responding on update fetch failure", err = <error> responseError);
                             }
                             return;
                         }
@@ -202,7 +201,7 @@ service {
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on payload extraction failure for"
-                                                    + " publish request", err = responseError);
+                                                    + " publish request", err = <error> responseError);
                         }
                         return;
                     }
@@ -218,7 +217,7 @@ service {
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on update notification for topic[" + topic
-                                                    + "]", err = responseError);
+                                                    + "]", err = <error> responseError);
                         }
                         return;
                     }
@@ -230,13 +229,13 @@ service {
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding to publish request", err = responseError);
+                    log:printError("Error responding to publish request", err = <error> responseError);
                 }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding to request", err = responseError);
+                    log:printError("Error responding to request", err = <error> responseError);
                 }
             }
         }
@@ -254,17 +253,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Malformed URL specified as callback" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Subscription request denied for unregistered topic" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
-    error err = error(WEBSUB_ERROR_CODE, errorDetail);
+    error err = error(WEBSUB_ERROR_CODE, message = "Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
@@ -335,12 +333,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                         + callback + "]");
             }
         } else {
-            string errCause = <string> respStringPayload.detail().message;
+            error err = respStringPayload;
+            string errCause = <string> err.detail().message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        string errCause = <string> subscriberResponse.detail().message;
+        error err = subscriberResponse;
+        string errCause = <string> err.detail().message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
@@ -474,8 +474,8 @@ returns error? {
         if (contentDistributionResponse is http:Response) {
             int respStatusCode = contentDistributionResponse.statusCode;
             if (isSuccessStatusCode(respStatusCode)) {
-                log:printDebug("Content delivery to callback[" + callback
-                                + "] successful for topic[" + subscriptionDetails.topic + "]");
+                log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
+                                    + subscriptionDetails.topic + "]");
             } else if (respStatusCode == http:GONE_410) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
@@ -488,7 +488,8 @@ returns error? {
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
         } else {
-            string errCause = <string> contentDistributionResponse.detail().message;
+            error err = contentDistributionResponse;
+            string errCause = <string> err.detail().message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }

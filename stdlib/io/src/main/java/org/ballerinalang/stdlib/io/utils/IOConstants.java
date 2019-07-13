@@ -50,11 +50,6 @@ public class IOConstants {
     public static final int CHANNEL_BUFFER_SIZE = 16384;
 
     /**
-     * Name of the Socket which will be represented through the native struct.
-     */
-    public static final String CLIENT_SOCKET_NAME = "clientSocket";
-
-    /**
      * Specifies the io package information.
      */
     public static final String IO_PACKAGE = "ballerina/io";
@@ -79,8 +74,24 @@ public class IOConstants {
      */
     public static final long VAR_INT_MIN = (0xFFFFFFFFFFFFFL * -1);
 
+    public static final String DETAIL_RECORD_TYPE_NAME = "Detail";
+
+
     /**
      * Specifies the error code for i/o.
      */
-    public static final String IO_ERROR_CODE = "{ballerina/io}IOError";
+    public enum ErrorCode {
+
+        GenericIoError("{ballerina/io}GenericIoError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
+
+        private String errorCode;
+
+        ErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String errorCode() {
+            return errorCode;
+        }
+    }
 }

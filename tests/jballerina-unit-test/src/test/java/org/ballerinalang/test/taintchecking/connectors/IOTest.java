@@ -40,7 +40,7 @@ public class IOTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'path'", 9, 69);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'path'", 12, 58);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'path'", 12, 69);
         BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'numberOfChars'", 16, 35);
         BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'untaintedValue'", 18,
                 26);

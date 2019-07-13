@@ -23,27 +23,27 @@ final string HUB_THREE = "https://three.hub.ballerina.com";
 
 final string TOPIC_ONE = "https://topic.ballerina.com";
 
-function testTopicAndSingleHubAsSingleLinkHeader() returns @tainted (string, string[])|error {
+function testTopicAndSingleHubAsSingleLinkHeader() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\", <" + TOPIC_ONE + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testTopicAndMultipleHubsAsSingleLinkHeader() returns @tainted (string, string[])|error {
+function testTopicAndMultipleHubsAsSingleLinkHeader() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\", <" + HUB_TWO + ">; rel=\"hub\", <" + HUB_THREE +
             ">; rel=\"hub\", <" + TOPIC_ONE + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testTopicAndSingleHubAsMultipleLinkHeaders() returns @tainted (string, string[])|error {
+function testTopicAndSingleHubAsMultipleLinkHeaders() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\"");
     response.addHeader("Link", "<" + TOPIC_ONE + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testTopicAndMultipleHubsAsMultipleLinkHeaders() returns @tainted (string, string[])|error {
+function testTopicAndMultipleHubsAsMultipleLinkHeaders() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\"");
     response.addHeader("Link", "<" + TOPIC_ONE + ">; rel=\"self\"");
@@ -52,45 +52,45 @@ function testTopicAndMultipleHubsAsMultipleLinkHeaders() returns @tainted (strin
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMissingTopicWithSingleLinkHeader() returns @tainted (string, string[])|error {
+function testMissingTopicWithSingleLinkHeader() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\", <" + TOPIC_ONE + ">; rel=\"not_self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMissingTopicWithMultipleLinkHeaders() returns @tainted (string, string[])|error {
+function testMissingTopicWithMultipleLinkHeaders() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"hub\"");
     response.addHeader("Link", "<" + TOPIC_ONE + ">; rel=\"not_self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMissingHubWithSingleLinkHeader() returns @tainted (string, string[])|error {
+function testMissingHubWithSingleLinkHeader() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"not_hub\", <" + TOPIC_ONE + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMissingHubWithMultipleLinkHeaders() returns @tainted (string, string[])|error {
+function testMissingHubWithMultipleLinkHeaders() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"not_hub\"");
     response.addHeader("Link", "<" + TOPIC_ONE + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMissingLinkHeader() returns @tainted (string, string[])|error {
+function testMissingLinkHeader() returns @tainted [string, string[]]|error {
     http:Response response = new;
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testSingleLinkHeaderWithMultipleTopics() returns @tainted (string, string[])|error {
+function testSingleLinkHeaderWithMultipleTopics() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"not_hub\", <" + TOPIC_ONE + ">; rel=\"self\", <" +
             HUB_TWO + ">; rel=\"self\"");
     return websub:extractTopicAndHubUrls(response);
 }
 
-function testMultipleLinkHeadersWithMultipleTopics() returns @tainted (string, string[])|error {
+function testMultipleLinkHeadersWithMultipleTopics() returns @tainted [string, string[]]|error {
     http:Response response = new;
     response.addHeader("Link", "<" + HUB_ONE + ">; rel=\"not_hub\"");
     response.addHeader("Link", "<" + TOPIC_ONE + ">; rel=\"self\"");
