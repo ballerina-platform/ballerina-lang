@@ -22,7 +22,7 @@ type Detail record {
 public const CONNECTION_TIMED_OUT = "{ballerina/io}ConnectionTimedOut";
 public type ConnectionTimedOutError error<CONNECTION_TIMED_OUT, Detail>;
 
-public const GENERIC_IO_ERROR = "{ballerina/io}GenericIoError";
-public type GenericIoError error<GENERIC_IO_ERROR, Detail>;
+public const GENERIC_ERROR = "{ballerina/io}GenericError";
+public type GenericError error<GENERIC_ERROR, Detail>;
 
-public type IoError GenericIoError|ConnectionTimedOutError;
+public type Error GenericError|ConnectionTimedOutError;
