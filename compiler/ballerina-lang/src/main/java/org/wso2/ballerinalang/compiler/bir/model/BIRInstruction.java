@@ -33,5 +33,7 @@ package org.wso2.ballerinalang.compiler.bir.model;
  * @since 0.980.0
  */
 public interface BIRInstruction {
+    
+    InstructionKind getKind();
 
 }

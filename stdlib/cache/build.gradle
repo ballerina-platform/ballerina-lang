@@ -48,7 +48,6 @@ dependencies {
     testCompile project(':ballerina-encoding')
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
 }

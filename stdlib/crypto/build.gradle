@@ -34,7 +34,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
 }
 
 configurations.all {

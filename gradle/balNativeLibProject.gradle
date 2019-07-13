@@ -24,6 +24,20 @@ configurations {
 }
 project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
 
+// TODO: remove project names 
+if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
+
+    dependencies {
+        testRuntime project(':ballerina-jvm')
+        testRuntime project(':ballerina-bir')
+        testRuntime project(':ballerina-backend-jvm')
+
+        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
+        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
+    }
+}
+
 class CreateBaloTask extends JavaExec {
     def isBuiltin = 'false'
     def skipWarnings = 'false'

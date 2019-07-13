@@ -295,6 +295,7 @@ public enum DiagnosticCode {
     ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE("annotation.attachment.requires.a.value"),
     ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES("annotation.attachment.cannot.specify.multiple.values"),
     ANNOTATION_INVALID_TYPE("annotation.invalid.type"),
+    ANNOTATION_INVALID_CONST_TYPE("annotation.invalid.const.type"),
     ANNOTATION_REQUIRES_CONST("annotation.requires.const"),
     INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found"),
     CANNOT_GET_ALL_FIELDS("cannot.get.all.fields"),

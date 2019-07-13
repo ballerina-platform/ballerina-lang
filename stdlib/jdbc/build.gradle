@@ -76,7 +76,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'
-    testCompile project(':ballerina-jvm')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     
     implementation 'com.zaxxer:HikariCP'

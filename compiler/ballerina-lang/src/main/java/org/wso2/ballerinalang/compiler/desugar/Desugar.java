@@ -74,6 +74,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -518,6 +519,8 @@ public class Desugar extends BLangNodeVisitor {
                 || typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             typeDef.typeNode = rewrite(typeDef.typeNode, env);
         }
+
+        typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
     }
 
@@ -602,6 +605,17 @@ public class Desugar extends BLangNodeVisitor {
         if (participantAnnotation.isEmpty()) {
             // function not annotated for transaction participation.
             funcNode.body = rewrite(funcNode.body, fucEnv);
+
+            funcNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+
+            if (funcNode.returnTypeNode != null) {
+                funcNode.returnTypeAnnAttachments.forEach(attachment ->  rewrite(attachment, env));
+            }
+
+            if (Symbols.isNative(funcNode.symbol)) {
+                funcNode.externalAnnAttachments.forEach(attachment ->  rewrite(attachment, env));
+            }
+
             result = funcNode;
             return;
         }
@@ -643,8 +657,8 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangRecordLiteral.BLangRecordKeyValue> valuePairs =
                 ((BLangRecordLiteral) annotation.expr).getKeyValuePairs();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : valuePairs) {
-            BLangSimpleVarRef func = (BLangSimpleVarRef) keyValuePair.getKey();
-            switch (func.variableName.value) {
+            String func = (String) ((BLangLiteral) keyValuePair.getKey()).value;
+            switch (func) {
                 case Transactions.TRX_ONCOMMIT_FUNC:
                     BInvokableSymbol commitSym = (BInvokableSymbol) ((BLangSimpleVarRef) keyValuePair.valueExpr).symbol;
                     BLangInvocation onCommit = ASTBuilderUtil
@@ -754,6 +768,15 @@ public class Desugar extends BLangNodeVisitor {
         result = workerNode;
     }
 
+    public void visit(BLangAnnotation annotationNode) {
+        annotationNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+    }
+
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
+        result = annAttachmentNode;
+    }
+
     @Override
     public void visit(BLangSimpleVariable varNode) {
         if ((varNode.symbol.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
@@ -768,6 +791,9 @@ public class Desugar extends BLangNodeVisitor {
             bLangExpression = addConversionExprIfRequired(bLangExpression, varNode.type);
         }
         varNode.expr = bLangExpression;
+
+        varNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
+
         result = varNode;
     }
 
@@ -3772,6 +3798,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         final BLangTypeInit typeInit = ASTBuilderUtil.createEmptyTypeInit(serviceConstructorExpr.pos,
                 serviceConstructorExpr.serviceNode.serviceTypeDefinition.symbol.type);
+        serviceConstructorExpr.serviceNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = rewriteExpr(typeInit);
     }
 
@@ -3824,6 +3851,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstant constant) {
         constant.expr = rewriteExpr(constant.expr);
+        constant.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = constant;
     }
 

@@ -688,6 +688,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         return Arrays.copyOf(stringValues, size);
     }
 
+    public long[] getLongArray() {
+        return Arrays.copyOf(intValues, size);
+    }
+
     @Override
     public void serialize(OutputStream outputStream) {
         if (elementType.getTag() == TypeTags.BYTE_TAG) {
