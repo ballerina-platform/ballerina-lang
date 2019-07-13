@@ -1254,6 +1254,20 @@ public class CommonUtil {
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
+
+    /**
+     * Get visible worker symbols from context.
+     * 
+     * @param context Language Server operation conext
+     * @return {@link List} filtered visible symbols
+     */
+    public static List<SymbolInfo> getWorkerSymbols(LSContext context) {
+        List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        return visibleSymbols.stream().filter(symbolInfo -> {
+            BType bType = symbolInfo.getScopeEntry().symbol.type;
+            return bType instanceof BFutureType && ((BFutureType) bType).workerDerivative;
+        }).collect(Collectors.toList());
+    }
     
     private static List<BField> getRecordRequiredFields(BRecordType recordType) {
         return recordType.fields.stream()
