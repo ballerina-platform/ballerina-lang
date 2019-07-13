@@ -48,6 +48,7 @@ subprojects {
         // Disable check snapshots temporarily
         failOnSnapshotDependencies = false
         failOnCommitNeeded = false
+        tagTemplate = 'v${version}'
         git {
             // To release from any branch
             requireBranch = null
