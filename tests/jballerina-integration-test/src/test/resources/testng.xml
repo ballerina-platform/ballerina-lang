@@ -81,18 +81,6 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-    <test name="ballerina-service-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.service.HelloServiceTest"/>
-        </classes>
-    </test>
-
 <!--    <test name="ballerina-future-tests" parallel="false">-->
 <!--        <classes>-->
 <!--            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>-->
