@@ -25,6 +25,7 @@ import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +43,7 @@ public class UriTemplateBestMatchTest {
 
     @BeforeClass()
     public void setup() {
-        BCompileUtil.compile("test-src/services/dispatching/uri-template-matching.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/dispatching/uri-template-matching.bal");
     }
 
     @Test(description = "Test dispatching with URL. /hello/world/echo2?regid=abc")

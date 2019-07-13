@@ -108,7 +108,7 @@ function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, J
     return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([json, json]|JwtError) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([map<json>, map<json>]|JwtError) {
     string jwtHeader = "";
     string jwtPayload = "";
 
@@ -297,7 +297,11 @@ function validateCertificate(JwtValidatorConfig config) returns boolean|JwtError
 
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtValidatorConfig config)
                            returns boolean|JwtError {
-    if (jwtHeader.alg == NONE) {
+    JwtSigningAlgorithm? alg = jwtHeader?.alg;
+    if (alg is ()) {
+        return prepareJwtError("JwtSigningAlgorithm is not defined");
+    }
+    if (alg == NONE) {
         return prepareJwtError("Not a valid JWS. Signature algorithm is NONE.");
     } else {
         if (encodedJWTComponents.length() == 2) {
@@ -306,24 +310,24 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
             string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
             var signPart = encoding:decodeBase64Url(encodedJWTComponents[2]);
             if (signPart is byte[]) {
-                var publicKey = crypto:decodePublicKey(keyStore = config.trustStore, keyAlias = config.certificateAlias);
+                var publicKey = crypto:decodePublicKey(keyStore = config?.trustStore , keyAlias = config?.certificateAlias);
                 if (publicKey is crypto:PublicKey) {
-                    if (jwtHeader.alg == RS256) {
-                        var verification = crypto:verifyRsaSha256Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+                    if (alg == RS256) {
+                        var verification = crypto:verifyRsaSha256Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
                             return prepareJwtError("SHA256 singature verification failed.", err = verification);
                         }
-                    } else if (jwtHeader.alg == RS384) {
-                        var verification = crypto:verifyRsaSha384Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+                    } else if (alg == RS384) {
+                        var verification = crypto:verifyRsaSha384Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
                             return prepareJwtError("SHA384 singature verification failed.", err = verification);
                         }
-                    } else if (jwtHeader.alg == RS512) {
-                        var verification = crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
+                    } else if (alg == RS512) {
+                        var verification = crypto:verifyRsaSha512Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
@@ -340,8 +344,6 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
             }
         }
     }
-    //TODO: Define a proper error
-    return prepareJwtError("JwtSigningAlgorithm is not defined");
 }
 
 function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) returns JwtError? {
@@ -349,7 +351,7 @@ function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) return
     string? issuer = config?.issuer;
     if (iss is string && issuer is string) {
         if (iss != issuer) {
-            return prepareJwtError("JWT contained invalid issuer name : " + jwtPayload.iss);
+            return prepareJwtError("JWT contained invalid issuer name : " + iss);
         }
     } else {
         return prepareJwtError("JWT must contain a valid issuer name.");
