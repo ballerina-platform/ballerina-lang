@@ -25,6 +25,7 @@ under the License.
         <groups>
             <run>
                 <exclude name="broken"/>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
             </run>
         </groups>
         <packages>
@@ -36,6 +37,9 @@ under the License.
             <class name="org.ballerinax.jdbc.SQLActionsTest"/>
             <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>
             <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
+
+<!--            <class name="org.ballerinax.jdbc.table.TableTest"/>-->
+            <class name="org.ballerinax.jdbc.table.TableIterationTest"/>
         </classes>
     </test>
 </suite>

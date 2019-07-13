@@ -18,14 +18,11 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
  * Extern function ballerina.transactions:commitResourceManagers.
@@ -39,13 +36,10 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
                 @Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class CommitResourceManagers extends BlockingNativeCallableUnit {
+public class CommitResourceManagers {
 
-    public void execute(Context ctx) {
-        String transactionId = ctx.getStringArgument(0);
-        String transactionBlockId = ctx.getStringArgument(1);
-        boolean commitSuccessful =
-                TransactionResourceManager.getInstance().notifyCommit(transactionId, transactionBlockId);
-        ctx.setReturnValues(new BBoolean(commitSuccessful));
+    public static boolean commitResourceManagers(Strand strand, String transactionId, String transactionBlockId) {
+        return org.ballerinalang.jvm.transactions.TransactionResourceManager
+                .getInstance().notifyCommit(strand, transactionId, transactionBlockId);
     }
 }

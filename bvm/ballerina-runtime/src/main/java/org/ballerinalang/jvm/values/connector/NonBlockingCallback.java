@@ -40,18 +40,18 @@ public class NonBlockingCallback {
     }
 
     public void notifySuccess() {
-        log.debug("Notify success");
+        // log.debug("Notify success");
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void notifyFailure(ErrorValue error) {
         log.debug("Notify error");
-        strand.setReturnValues(error);
+        // strand.setReturnValues(error);
         this.strand.scheduler.unblockStrand(strand);
     }
 
     public void setReturnValues(Object returnValue) {
-        log.debug("Populate return values");
+        // log.debug("Populate return values");
         strand.setReturnValues(returnValue);
     }
 }
