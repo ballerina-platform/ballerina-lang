@@ -49,7 +49,8 @@ public type OrderBy object {
     # + streamEvents - The array of stream events to be sorted.
     public function process(StreamEvent?[] streamEvents) {
         self.mergeSort.topDownMergeSort(streamEvents);
-        self.nextProcessorPointer.call(streamEvents);
+        function (StreamEvent?[]) processorPointer = self.nextProcessorPointer;
+        processorPointer(streamEvents);
     }
 };
 
@@ -167,44 +168,48 @@ public type MergeSort object {
 
     function sortFunc(StreamEvent x, StreamEvent y, int fieldIndex) returns int {
         var fieldFunc = self.fieldFuncs[fieldIndex];
-        var xFieldFuncResult = fieldFunc.call(x.data);
-
-        if (xFieldFuncResult is string) {
-            var yFieldFuncResult = fieldFunc.call(y.data);
-            if (yFieldFuncResult is string) {
-                int c;
-                //odd indices contain the sort type (ascending/descending)
-                if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
-                    c = self.stringSort(xFieldFuncResult, yFieldFuncResult);
+        if (fieldFunc is (function (map<anydata>) returns anydata)) {
+            var xFieldFuncResult = fieldFunc(x.data);
+            if (xFieldFuncResult is string) {
+                var yFieldFuncResult = fieldFunc(y.data);
+                if (yFieldFuncResult is string) {
+                    int c;
+                    //odd indices contain the sort type (ascending/descending)
+                    if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
+                        c = self.stringSort(xFieldFuncResult, yFieldFuncResult);
+                    } else {
+                        c = self.stringSort(yFieldFuncResult, xFieldFuncResult);
+                    }
+                    // if c == 0 then check for the next sort field
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1);
                 } else {
-                    c = self.stringSort(yFieldFuncResult, xFieldFuncResult);
+                    error err = error("Values to be orderred contain non-string values in fieldIndex: " +
+                        fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                    panic err;
                 }
-                // if c == 0 then check for the next sort field
-                return self.callNextSortFunc(x, y, c, fieldIndex + 1);
-            } else {
-                error err = error("Values to be orderred contain non-string values in fieldIndex: " +
-                    fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
-                panic err;
-            }
-
-        } else if (xFieldFuncResult is (int|float)) {
-            var yFieldFuncResult = fieldFunc.call(y.data);
-            if (yFieldFuncResult is (int|float)) {
-                int c;
-                if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
-                    c = self.numberSort(xFieldFuncResult, yFieldFuncResult);
+            } else if (xFieldFuncResult is (int|float)) {
+                var yFieldFuncResult = fieldFunc(y.data);
+                if (yFieldFuncResult is (int|float)) {
+                    int c;
+                    if (internal:equalsIgnoreCase(self.sortTypes[fieldIndex], ASCENDING)) {
+                        c = self.numberSort(xFieldFuncResult, yFieldFuncResult);
+                    } else {
+                        c = self.numberSort(yFieldFuncResult, xFieldFuncResult);
+                    }
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1);
                 } else {
-                    c = self.numberSort(yFieldFuncResult, xFieldFuncResult);
+                    error err = error("Values to be orderred contain non-number values in fieldIndex: " +
+                        fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                    panic err;
                 }
-                return self.callNextSortFunc(x, y, c, fieldIndex + 1);
             } else {
-                error err = error("Values to be orderred contain non-number values in fieldIndex: " +
-                    fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
+                     " + fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
                 panic err;
             }
         } else {
-            error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
-                 " + fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+            //TODO: Add a meaningful error
+            error err = error("Function does not exist");
             panic err;
         }
     }

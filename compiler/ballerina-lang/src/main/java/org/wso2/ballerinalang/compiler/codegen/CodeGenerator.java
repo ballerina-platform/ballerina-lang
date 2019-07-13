@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
@@ -167,7 +168,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
-import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -503,24 +503,24 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, this.env);
 
-        for (BLangStatement stmt : blockNode.stmts) {
-            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
-                    && stmt.getKind() != NodeKind.IF) {
-                addLineNumberInfo(stmt.pos);
-            }
-
-            genNode(stmt, blockEnv);
-            if (regIndexResetDisabled) {
-                // This block node is possibly be part of a desugered expression
-                continue;
-            }
-
-            // Update the maxRegIndexes structure
-            setMaxRegIndexes(regIndexes, maxRegIndexes);
-
-            // Reset the regIndexes structure for every statement
-            regIndexes = new VariableIndex(REG);
-        }
+//        for (BLangStatement stmt : blockNode.stmts) {
+//            if (stmt.getKind() != NodeKind.TRY && stmt.getKind() != NodeKind.CATCH
+//                    && stmt.getKind() != NodeKind.IF) {
+//                addLineNumberInfo(stmt.pos);
+//            }
+//
+//            genNode(stmt, blockEnv);
+//            if (regIndexResetDisabled) {
+//                // This block node is possibly be part of a desugered expression
+//                continue;
+//            }
+//
+//            // Update the maxRegIndexes structure
+//            setMaxRegIndexes(regIndexes, maxRegIndexes);
+//
+//            // Reset the regIndexes structure for every statement
+//            regIndexes = new VariableIndex(REG);
+//        }
     }
 
     public void visit(BLangSimpleVariable varNode) {
@@ -1385,6 +1385,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        /* ignore */
+    }
+
     public void visit(BLangTernaryExpr ternaryExpr) {
         // Determine the reg index of the ternary expression and this reg index will be used by both then and else
         // expressions to store their result
@@ -1766,7 +1770,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
-            this.emitTransactionParticipantBeginIfApplicable(body);
+          //  this.emitTransactionParticipantBeginIfApplicable(body);
             this.genNode(body, invokableSymbolEnv);
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
@@ -1830,7 +1834,6 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // TODO Read param and return param annotations
         invokableSymbol.params.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
-        invokableSymbol.defaultableParams.forEach(param -> visitVarSymbol(param, lvIndexes, localVarAttrInfo));
         if (invokableSymbol.restParam != null) {
             visitVarSymbol(invokableSymbol.restParam, lvIndexes, localVarAttrInfo);
         }
@@ -1960,7 +1963,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Operand[] getFuncOperands(BLangInvocation iExpr, int funcRefCPIndex) {
         // call funcRefCPIndex, nArgRegs, argRegs[nArgRegs], nRetRegs, retRegs[nRetRegs]
         int i = 0;
-        int nArgRegs = iExpr.requiredArgs.size() + iExpr.namedArgs.size() + iExpr.restArgs.size();
+        int nArgRegs = iExpr.requiredArgs.size() + iExpr.restArgs.size();
         int nRetRegs = 1; // TODO Improve balx format and VM side
         int flags = FunctionFlags.NOTHING;
         Operand[] operands = new Operand[nArgRegs + nRetRegs + 4];
@@ -1996,18 +1999,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int generateNamedArgs(BLangInvocation iExpr, Operand[] operands, int currentIndex) {
-        if (iExpr.namedArgs.isEmpty()) {
-            return currentIndex;
-        }
-
         if (iExpr.symbol.kind != SymbolKind.FUNCTION) {
             throw new IllegalStateException("Unsupported callable unit");
         }
-
-        for (BLangExpression argExpr : iExpr.namedArgs) {
-            operands[currentIndex++] = genNode(argExpr, this.env).regIndex;
-        }
-
         return currentIndex;
     }
 
@@ -3841,8 +3835,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETERS_ATTRIBUTE.value());
         ParameterAttributeInfo paramAttrInfo =
                 new ParameterAttributeInfo(paramAttrIndex);
-        paramAttrInfo.requiredParamsCount = funcSymbol.params.size();
-        paramAttrInfo.defaultableParamsCount = funcSymbol.defaultableParams.size();
+        paramAttrInfo.requiredParamsCount = (int) funcSymbol.params.stream()
+                .filter(param -> !param.defaultableParam)
+                .count();
+        paramAttrInfo.defaultableParamsCount = (int) funcSymbol.params.stream()
+                .filter(param -> param.defaultableParam)
+                .count();
         paramAttrInfo.restParamCount = funcSymbol.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
 
@@ -3871,22 +3869,22 @@ public class CodeGenerator extends BLangNodeVisitor {
                 new ParamDefaultValueAttributeInfo(paramDefaultsAttrNameIndex);
 
         // Only named parameters can have default values.
-        for (BVarSymbol param : funcSymbol.defaultableParams) {
-            if (param.defaultValue != null) {
-                DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
-                paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
-            } else if (param.defaultExpression != null) {
-                if (param.defaultExpression.getKind() == NodeKind.LITERAL ||
-                        param.defaultExpression.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    BLangLiteral literal = (BLangLiteral) param.defaultExpression;
-                    param.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
-                    DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
-                    paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
-                } else {
-                    throw new BLangCompilerException("only literals supported for parameter default values.");
-                }
-            }
-        }
+//        for (BVarSymbol param : funcSymbol.defaultableParams) {
+//            if (param.defaultValue != null) {
+//                DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+//                paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+//            } else if (param.defaultExpression != null) {
+//                if (param.defaultExpression.getKind() == NodeKind.LITERAL ||
+//                        param.defaultExpression.getKind() == NodeKind.NUMERIC_LITERAL) {
+//                    BLangLiteral literal = (BLangLiteral) param.defaultExpression;
+//                    param.defaultValue = new DefaultValueLiteral(literal.value, literal.type.tag);
+//                    DefaultValue defaultVal = getDefaultValue(param.defaultValue.getValue());
+//                    paramDefaulValAttrInfo.addParamDefaultValueInfo(defaultVal);
+//                } else {
+//                    throw new BLangCompilerException("only literals supported for parameter default values.");
+//                }
+//            }
+//        }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE, paramDefaulValAttrInfo);
     }

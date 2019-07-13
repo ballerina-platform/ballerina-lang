@@ -57,6 +57,16 @@ public class ErrorTest {
     }
 
     @Test
+    public void testIndirectErrorCtor() {
+        BValue[] errors = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
+        Assert.assertEquals(errors.length, 4);
+        Assert.assertEquals(errors[0].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
+        Assert.assertEquals(errors[1].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
+        Assert.assertEquals(errors[2], errors[0]);
+        Assert.assertEquals(errors[3], errors[1]);
+    }
+
+    @Test
     public void errorConstructReasonTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructReasonTest");
 
@@ -218,7 +228,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -236,8 +246,11 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
         BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 41);
         BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 40);
+        BAssertUtil.validateError(negativeCompileResult, 10,
+                "cannot infer reason type from error constructor: 'UserDefErrorOne'", 55, 27);
+        BAssertUtil.validateError(negativeCompileResult, 11,
+                "cannot infer reason type from error constructor: 'MyError'", 56, 19);
     }
-
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
         return new Object[][] {

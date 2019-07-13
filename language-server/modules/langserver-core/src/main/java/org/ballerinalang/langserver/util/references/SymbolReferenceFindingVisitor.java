@@ -148,7 +148,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     + napespaceUriWsList.get(0).getPrevious().length() + napespaceUriWsList.get(0).getWs().length();
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(xmlNsPos.src, xmlNsPos.sLine, xmlNsPos.sLine, sCol, eCol);
-            this.addSymbol(xmlnsNode.symbol, true, pos);
+            this.addSymbol(xmlnsNode, xmlnsNode.symbol, true, pos);
         }
     }
 
@@ -161,7 +161,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     + this.getTypeLengthWithWS(constant.typeNode, true);
             int eCol = sSol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sSol, eCol);
-            this.addSymbol(constant.symbol, true, pos);
+            this.addSymbol(constant, constant.symbol, true, pos);
         }
     }
 
@@ -173,7 +173,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = servicePos.sCol + wsList.get(1).toString().length();
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.eLine, sCol, eCol);
-            this.addSymbol(serviceNode.symbol, true, pos);
+            this.addSymbol(serviceNode, serviceNode.symbol, true, pos);
         }
         if (serviceNode.attachedExprs != null) {
             serviceNode.attachedExprs.forEach(this::acceptNode);
@@ -190,10 +190,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = funcPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(funcPos.src, funcPos.sLine, funcPos.sLine, sCol, eCol);
-            this.addSymbol(funcNode.symbol, isDefinition, pos);
+            this.addSymbol(funcNode, funcNode.symbol, isDefinition, pos);
         }
 
-        funcNode.defaultableParams.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         this.acceptNode(funcNode.body);
@@ -211,7 +210,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = typeDefPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(typeDefPos.src, typeDefPos.sLine, typeDefPos.sLine, sCol, eCol);
-            this.addSymbol(typeDefinition.symbol, true, pos);
+            this.addSymbol(typeDefinition, typeDefinition.symbol, true, pos);
         }
 
         // Visit the type node
@@ -311,7 +310,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             } else {
                 pos = varPos;
             }
-            this.addSymbol(varNode.symbol, true, pos);
+            this.addSymbol(varNode, varNode.symbol, true, pos);
         } else {
             this.acceptNode(typeNode);
         }
@@ -347,7 +346,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             }
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sCol, eCol);
-            this.addSymbol(variable.symbol, true, pos);
+            this.addSymbol(variable, variable.symbol, true, pos);
         } else {
             // In the foreach's variable definition node, type becomes null and will be handled by the acceptNode
             this.acceptNode(typeNode);
@@ -412,12 +411,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = varRefPos.getStartColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
-            this.addSymbol(varRefExpr.symbol, false, pos);
+            this.addSymbol(varRefExpr, varRefExpr.symbol, false, pos);
         } else if (varRefExpr.pkgAlias.value.equals(this.tokenName)) {
             int sCol = varRefPos.getStartColumn();
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
-            this.addSymbol(varRefExpr.pkgSymbol, false, pos);
+            this.addSymbol(varRefExpr, varRefExpr.pkgSymbol, false, pos);
         }
     }
 
@@ -444,7 +443,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             wsList.remove(0);
             int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.sLine, sCol, eCol);
-            this.addSymbol(fieldAccessExpr.symbol, false, symbolPos);
+            this.addSymbol(fieldAccessExpr, fieldAccessExpr.symbol, false, symbolPos);
         }
     }
 
@@ -494,7 +493,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (!this.isMatchingUserDefinedType(userDefinedType)) {
             return;
         }
-        this.addSymbol(userDefinedType.type.tsymbol, false, this.getTypeNamePosition(userDefinedType, this.tokenName));
+        this.addSymbol(userDefinedType, userDefinedType.type.tsymbol, false,
+                       this.getTypeNamePosition(userDefinedType, this.tokenName));
     }
 
     @Override
@@ -581,7 +581,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
-            this.addSymbol(invocationExpr.symbol, false, symbolPos);
+            this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
         }
         invocationExpr.argExprs.forEach(this::acceptNode);
     }
@@ -658,12 +658,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return bType.typeName.value.equals(this.tokenName);
     }
 
-    private SymbolReferencesModel.Reference getSymbolReference(BSymbol symbol, DiagnosticPos position) {
-        return new SymbolReferencesModel.Reference(position, symbol);
+    private SymbolReferencesModel.Reference getSymbolReference(DiagnosticPos position, BSymbol symbol,
+                                                               BLangNode bLangNode) {
+        return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
 
-    private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
+    private void addSymbol(BLangNode bLangNode, BSymbol bSymbol,
+                           boolean isDefinition, DiagnosticPos position) {
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
@@ -675,11 +677,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BSymbol originalSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
-        SymbolReferencesModel.Reference ref = this.getSymbolReference(originalSymbol, zeroBasedPos);
+        SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, originalSymbol, bLangNode);
         if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
                 && this.cursorCol <= zeroBasedPos.eCol) {
             // This is the symbol at current cursor position
-            this.symbolReferences.setSymbolAtCursor(ref);
+            this.symbolReferences.setReferenceAtCursor(ref);
             return;
         }
 

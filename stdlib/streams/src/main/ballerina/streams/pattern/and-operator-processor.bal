@@ -163,25 +163,19 @@ public type AndOperatorProcessor object {
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
             // promoted from lhs means, it can be a partial lhs state or a completed state.
-            var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
-            if (rhsRemoved is boolean) {
-                // rhsRemoved=true means, it was earlier a partial rhs state, and now it's a completed state.
-                if (rhsRemoved) {
-                    self.stateEvents.addLast(stateEvent);
-                } else {
-                    self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
-                }
+            if (self.rhsPartialStates.hasKey(stateEvent.getEventId())) {
+                var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
+                self.stateEvents.addLast(stateEvent);
+            } else {
+                self.lhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         } else {
             // promoted from rhs means, it can be a partial rhs state or a completed state.
-            var lhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
-            if (lhsRemoved is boolean) {
-                // lhsRemoved=true means, it was earlier a partial lhs state, and now it's a completed state.
-                if (lhsRemoved) {
-                    self.stateEvents.addLast(stateEvent);
-                } else {
-                    self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
-                }
+            if (self.lhsPartialStates.hasKey(stateEvent.getEventId())) {
+                var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
+                self.stateEvents.addLast(stateEvent);
+            } else {
+                self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
             }
         }
     }

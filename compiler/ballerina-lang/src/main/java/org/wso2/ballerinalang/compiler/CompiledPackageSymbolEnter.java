@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -1014,7 +1013,8 @@ public class CompiledPackageSymbolEnter {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(i), invokableSymbol);
-            invokableSymbol.defaultableParams.add(varSymbol);
+            varSymbol.defaultableParam = true;
+            invokableSymbol.params.add(varSymbol);
         }
 
         if (restParamCount == 1) {
@@ -1022,13 +1022,6 @@ public class CompiledPackageSymbolEnter {
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
-        }
-
-        byte[] paramDefaultsData = attrDataMap.get(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
-        DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
-        int paramDefaultsInfoCount = paramDefaultsDataInStream.readShort();
-        for (int i = 0; i < paramDefaultsInfoCount; i++) {
-            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
         }
     }
 
@@ -1409,8 +1402,6 @@ public class CompiledPackageSymbolEnter {
                     return new BMapType(TypeTags.MAP, constraint, symTable.mapType.tsymbol);
                 case 'H':
                     return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
-                case 'Q':
-                    return new BChannelType(TypeTags.CHANNEL, constraint, symTable.channelType.tsymbol);
                 case 'G':
                 case 'T':
                 case 'X':

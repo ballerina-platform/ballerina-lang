@@ -29,7 +29,7 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<(bir:AsyncCall|bir:FPLoad,string)> lambdas = {};
+map<bir:AsyncCall|bir:FPLoad> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
@@ -176,7 +176,7 @@ public function generatePackage(bir:ModuleID moduleId, JarFile jarFile, boolean 
         }
         // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
-            generateLambdaMethod(call[0], cw, call[1], name);
+            generateLambdaMethod(call, cw, name);
         }
         // clear the lambdas
         lambdas = {};
@@ -342,7 +342,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<(bir:AsyncCall|bir:FPLoad,string)> lambdaCalls) returns map<JavaClass> {
+                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -445,6 +445,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 string lookupKey = bType.name.value + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
+                    var result = pkgName + cleanupTypeName(bType.name.value);
+                    birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
+                                                                        versionValue, result);
                     continue;
                 }
 

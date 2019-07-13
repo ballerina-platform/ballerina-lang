@@ -263,7 +263,7 @@ function testUninitializedVarReferrencing() {
 
     // uninitialized var in function invocation, expression statement
     _ = m.hasKey(s);
-    foo(a, str = s, s);
+    foo(a, s, s);
 
     // uninitialized var in xml attribute access
     xml x;
@@ -304,7 +304,7 @@ type Foo object {
     int d;
     int e;
 
-    function __init (int c, int e=4, int f, int x) {
+    function __init (int c, int f, int x, int e=4) {
         self.a = globalVar;
         self.b = e;
         self.c = c;
