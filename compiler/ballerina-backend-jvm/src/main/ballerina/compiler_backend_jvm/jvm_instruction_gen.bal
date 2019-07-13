@@ -869,7 +869,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = [inst, methodClass];
+        lambdas[lambdaName] = inst;
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
