@@ -62,7 +62,7 @@
             <!--<package name="org.ballerinalang.test.types.var.*"/>-->
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.tuples.*"/>-->
+            <package name="org.ballerinalang.test.types.tuples.*"/>
             <!--<package name="org.ballerinalang.test.types.anydata.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.arrays.*"/>-->
             <package name="org.ballerinalang.test.statements.assign.*"/>
