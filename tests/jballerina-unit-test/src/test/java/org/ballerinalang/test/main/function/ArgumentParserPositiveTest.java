@@ -58,6 +58,24 @@ public class ArgumentParserPositiveTest {
     }
 
     @Test
+    public void testMainWithOnlyRestParams() throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_function_rest_args.bal");
+        resetTempOut();
+        runMain(compileResult, new String[]{"restArg"});
+        Assert.assertEquals(tempOutStream.toString(), "restArg", "rest arg parsing failed");
+    }
+
+    @Test
+    public void testMainWithOnlyRestParamsNotProvided() throws IOException {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_rest_args_missing.bal");
+        resetTempOut();
+        runMain(compileResult, new String[0]);
+        Assert.assertEquals(tempOutStream.toString(), "main invoked", "missing rest arg parsing failed");
+    }
+
+    @Test
     public void testNoArg() throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_no_params.bal");
