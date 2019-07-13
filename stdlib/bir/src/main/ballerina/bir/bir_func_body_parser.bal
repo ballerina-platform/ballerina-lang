@@ -152,7 +152,8 @@ public type FuncBodyParser object {
             kind = INS_KIND_TYPE_CAST;
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp};
+            var checkType = self.reader.readBoolean();
+            TypeCast typeCast = {pos:pos, kind:kind, lhsOp:lhsOp, rhsOp:rhsOp, checkType:checkType};
             return typeCast;
         } else if (kindTag == INS_IS_LIKE) {
             kind = INS_KIND_IS_LIKE;
@@ -406,6 +407,7 @@ public type FuncBodyParser object {
             return call;
         } else if (kindTag == INS_ASYNC_CALL){
             TerminatorKind kind = TERMINATOR_ASYNC_CALL;
+            var isVirtual = self.reader.readBoolean();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
             var argsCount = self.reader.readInt32();
@@ -422,7 +424,7 @@ public type FuncBodyParser object {
             }
 
             BasicBlock thenBB = self.parseBBRef();
-            AsyncCall call = {pos:pos, args:args, kind:kind, lhsOp:lhsOp, pkgID:pkgId, 
+            AsyncCall call = {pos:pos, args:args, kind:kind, isVirtual: isVirtual, lhsOp:lhsOp, pkgID:pkgId, 
                                 name:{ value: name }, thenBB:thenBB};
             return call;
         } else if (kindTag == INS_PANIC) {
