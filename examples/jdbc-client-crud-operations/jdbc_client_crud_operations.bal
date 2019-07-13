@@ -113,6 +113,27 @@ public function main() {
                 + <string>err.detail().message);
     }
 
+    // Re-iteration of the result is possible only if `loadToMemory` named argument
+    // is set to `true` in `select` remote function.
+    io:println("\nThe select operation - By loading table to memory");
+    selectRet = testDB->select("SELECT * FROM student", Student,
+        loadToMemory = true);
+    if (selectRet is table<Student>) {
+        // First iteration of data.
+        io:println("Iterating data first time:");
+        foreach var row in selectRet {
+            io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+        }
+        // Second iteration of data.
+        io:println("Iterating data second time:");
+        foreach var row in selectRet {
+            io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+        }
+    } else {
+        error err = selectRet;
+        io:println("Select data from student table failed: "
+                + <string>err.detail().message);
+    }
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
     ret = testDB->update("DROP TABLE student");

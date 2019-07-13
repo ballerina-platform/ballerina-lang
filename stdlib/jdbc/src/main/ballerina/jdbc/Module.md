@@ -207,6 +207,25 @@ if (selectRet is table<Student>) {
 }
 ```
 
+To re-iterate the same table multiple times, set the `loadToMemory` argument to true within the `select` remote function.
+
+```ballerina
+var selectRet = testDB->select("SELECT * FROM student", Student, loadToMemory = true);
+if (selectRet is table<Student>) {
+    // Iterating data first time.
+    foreach var row in selectRet {
+        io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+    }
+    // Iterating data second time.
+    foreach var row in selectRet {
+        io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+    }
+} else {
+    error err = selectRet;
+    io:println("Select data from student table failed: " + <string>err.detail().message);
+}
+````
+
 ### Updating data
 
 This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of the client
