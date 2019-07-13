@@ -144,7 +144,8 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         Path target = prepareTargetDirectory(sourceRootPath);
-        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME).resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                              .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
@@ -294,16 +295,5 @@ public class BuilderUtils {
                 throw new BLangCompilerException("unable to create target bir cache directory");
             }
         }
-    }
-
-
-    /**
-     * Create the uber jar using the dependencies
-     *
-     * @param projectDir
-     * @param packages
-     */
-    private static void assemble(Path projectDir, List<BLangPackage> packages){
-        // todo implement
     }
 }

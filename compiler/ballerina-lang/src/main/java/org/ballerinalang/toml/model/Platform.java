@@ -19,6 +19,11 @@ package org.ballerinalang.toml.model;
 
 import java.util.List;
 
+/**
+ * Model for Platform config in Ballerina.toml.
+ *
+ * @since 1.0
+ */
 public class Platform {
     public String target;
     public List<Library> libraries;

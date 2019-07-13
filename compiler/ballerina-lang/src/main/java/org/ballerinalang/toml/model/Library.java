@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.toml.model;
 
+/**
+ * Model for Native Library config in Ballerina.toml.
+ *
+ * @since 1.0
+ */
 public class Library {
     public String artafactId;
     public String version;

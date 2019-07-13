@@ -36,7 +36,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.*;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BIR_CACHE_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.CACHES_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
 /**
  * Write a bir to cache.
@@ -119,7 +122,7 @@ public class BIRFileWriter {
         Path birFile = cacheDir.resolve(birFileName);
         // Write the bir file
         //TODO: Investigate why birPackageFile can be null
-        if(module.symbol.birPackageFile == null){
+        if (module.symbol.birPackageFile == null) {
             return;
         }
         try {

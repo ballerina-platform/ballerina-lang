@@ -30,6 +30,9 @@ description = 'Ballerina - Lang'
 
 checkstyleMain {
     exclude 'org/wso2/ballerinalang/compiler/parser/antlr4/*'
+    exclude 'org/ballerinalang/toml/model/Module.java'
+    exclude 'org/ballerinalang/toml/model/Balo.java'
+
 }
 
 

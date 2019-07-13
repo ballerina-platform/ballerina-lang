@@ -20,7 +20,11 @@ package org.ballerinalang.toml.model;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -89,11 +93,11 @@ public class Manifest {
             return ProgramFileConstants.ANY_PLATFORM;
         } else {
             // if platform exist and target not given return error
-            if (null == platform.target && null != platform.libraries){
+            if (null == platform.target) {
                 throw new BLangCompilerException("Platform target is not specified in the Ballerina.toml");
             }
             // if platform exist and target not supported return error
-            if(Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals)){
+            if (Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals)) {
                 // else return the target platform
                 return platform.getTarget();
             } else {

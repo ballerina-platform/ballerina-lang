@@ -17,28 +17,29 @@
  */
 package org.wso2.ballerinalang.compiler;
 
-import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.toml.model.Balo;
-import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,6 +47,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Generator and writer for module balo file.
+ *
+ * @since 1.0
+ */
 public class ModuleFileWriter {
     private static final CompilerContext.Key<ModuleFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
@@ -70,6 +76,11 @@ public class ModuleFileWriter {
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
+    /**
+     * Generate balo file for the given module.
+     *
+     * @param module ballerina module
+     */
     public void write(BLangPackage module) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
@@ -154,9 +165,9 @@ public class ModuleFileWriter {
         env.put("encoding", "UTF-8");
 
         /* Locate File on disk for creation */
-        URI zip_disk = URI.create("jar:" + path.toUri());
+        URI zipDisk = URI.create("jar:" + path.toUri());
         /* Create ZIP file System */
-        return FileSystems.newFileSystem(zip_disk, env);
+        return FileSystems.newFileSystem(zipDisk, env);
     }
 
     private void populateBaloArchive(FileSystem balo, BLangPackage module) throws IOException {
