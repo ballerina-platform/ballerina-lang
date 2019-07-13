@@ -15,8 +15,9 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/internal;
+import ballerina/filepath;
 import ballerina/io;
+import ballerina/system;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -173,8 +174,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
 
             if (!createDirectories(destDirPath)) {
-                internal:Path pkgArchivePath = new(destArchivePath);
-                if (pkgArchivePath.exists()) {
+                if (system:exists(destArchivePath)) {
                     return createError("module already exists in the home repository");
                 }
             }
@@ -196,9 +196,8 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 } else {
                     if (nightlyBuild) {
                         // If its a nightly build tag the file as a module from nightly
-                        internal:Path sourcePath = new(destDirPath);
-                        internal:Path metaFilePath = sourcePath.resolve("nightly.build");
-                        var createFileResult = metaFilePath.createFile();
+                        string metaFilePath = check filepath:build(destDirPath, sourcePath.resolve("nightly.build"));
+                        var createFileResult = system:createFile(metaFilePath);
                         if (createFileResult is error) {
                             return createError("Error occurred while creating nightly.build file.");
                         }
@@ -365,9 +364,8 @@ function truncateString (string text, int maxSize) returns (string) {
 # + directoryPath - Directory path to be created
 # + return - If the directories were created or not
 function createDirectories(string directoryPath) returns (boolean) {
-    internal:Path dirPath = new(directoryPath);
-    if (!dirPath.exists()){
-        var result = dirPath.createDirectory();
+    if (!system:exists(directoryPath)){
+        var result = system:createDir(directoryPath, parentDirs = true);
         if (result is error) {
             return false;
         } else {
