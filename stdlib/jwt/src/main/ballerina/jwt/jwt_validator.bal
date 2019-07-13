@@ -51,8 +51,8 @@ public type CachedJwt record {|
 #
 # + jwtToken - JWT token that need to validate
 # + config - JWT validator config record
-# + return - If JWT token is valied return the JWT payload. An `JwtError` if token validation fails.
-public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|JwtError) {
+# + return - If JWT token is valied return the JWT payload. An `Error` if token validation fails.
+public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     string[] encodedJWTComponents = [];
     var jwtComponents = getJWTComponents(jwtToken);
     if (jwtComponents is string[]) {
@@ -72,26 +72,26 @@ public function validateJwt(string jwtToken, JwtValidatorConfig config) returns 
     }
 
     var jwtValidity = validateJwtRecords(encodedJWTComponents, header, payload, config);
-    if (jwtValidity is JwtError) {
+    if (jwtValidity is Error) {
         return jwtValidity;
     } else {
         if (jwtValidity) {
             return payload;
         } else {
-            return prepareJwtError("Invalid JWT token.");
+            return prepareError("Invalid JWT token.");
         }
     }
 }
 
-function getJWTComponents(string jwtToken) returns string[]|JwtError {
+function getJWTComponents(string jwtToken) returns string[]|Error {
     string[] jwtComponents = jwtToken.split("\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
-        return prepareJwtError("Invalid JWT token.");
+        return prepareError("Invalid JWT token.");
     }
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, JwtPayload]|JwtError) {
+function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     json headerJson = {};
     json payloadJson = {};
     var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
@@ -106,7 +106,7 @@ function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, J
     return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([json, json]|JwtError) {
+function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([json, json]|Error) {
     string jwtHeader = "";
     string jwtPayload = "";
 
@@ -114,14 +114,14 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (decodeResult is byte[]) {
         jwtHeader = encoding:byteArrayToString(decodeResult);
     } else {
-        return prepareJwtError("Base64 url decode failed for JWT header.", err = decodeResult);
+        return prepareError("Base64 url decode failed for JWT header.", err = decodeResult);
     }
 
     decodeResult = encoding:decodeBase64Url(encodedJWTComponents[1]);
     if (decodeResult is byte[]) {
         jwtPayload = encoding:byteArrayToString(decodeResult);
     } else {
-        return prepareJwtError("Base64 url decode failed for JWT payload.", err = decodeResult);
+        return prepareError("Base64 url decode failed for JWT payload.", err = decodeResult);
     }
 
     json jwtHeaderJson = {};
@@ -132,7 +132,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (jsonHeader is json) {
         jwtHeaderJson = jsonHeader;
     } else {
-        return prepareJwtError("String to JSON conversion failed for JWT header.", err = jsonHeader);
+        return prepareError("String to JSON conversion failed for JWT header.", err = jsonHeader);
     }
 
     reader = new(jwtPayload);
@@ -140,7 +140,7 @@ function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted
     if (jsonPayload is json) {
         jwtPayloadJson = jsonPayload;
     } else {
-        return prepareJwtError("String to JSON conversion failed for JWT paylaod.", err = jsonPayload);
+        return prepareError("String to JSON conversion failed for JWT paylaod.", err = jsonPayload);
     }
     return [jwtHeaderJson, jwtPayloadJson];
 }
@@ -168,7 +168,7 @@ function parseHeader(json jwtHeaderJson) returns JwtHeader {
     return jwtHeader;
 }
 
-function parsePayload(json jwtPayloadJson) returns JwtPayload|JwtError {
+function parsePayload(json jwtPayloadJson) returns JwtPayload|Error {
     string[] aud = [];
     JwtPayload jwtPayload = {};
     map<json> customClaims = {};
@@ -215,47 +215,47 @@ function parsePayload(json jwtPayloadJson) returns JwtPayload|JwtError {
 }
 
 function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload,
-                            JwtValidatorConfig config) returns boolean|JwtError {
+                            JwtValidatorConfig config) returns boolean|Error {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
-        return prepareJwtError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
+        return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
     }
     if (config["validateCertificate"] is ()) {
         config.validateCertificate = true;
     }
     if (config.validateCertificate == true && !check validateCertificate(config)) {
-        return prepareJwtError("Public key certificate validity period has passed.");
+        return prepareError("Public key certificate validity period has passed.");
     }
     var trustStore = config["trustStore"];
     if (trustStore is crypto:TrustStore) {
         var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, config);
-        if (signatureValidationResult is JwtError) {
+        if (signatureValidationResult is Error) {
             return signatureValidationResult;
         }
     }
     var iss = config["issuer"];
     if (iss is string) {
         var issuerStatus = validateIssuer(jwtPayload, config);
-        if (issuerStatus is JwtError) {
+        if (issuerStatus is Error) {
             return issuerStatus;
         }
     }
     var aud = config["audience"];
     if (aud is string || aud is string[]) {
         var audienceStatus = validateAudience(jwtPayload, config);
-        if (audienceStatus is JwtError) {
+        if (audienceStatus is Error) {
             return audienceStatus;
         }
     }
     var exp = jwtPayload["exp"];
     if (exp is int) {
         if (!validateExpirationTime(jwtPayload, config)) {
-            return prepareJwtError("JWT token is expired.");
+            return prepareError("JWT token is expired.");
         }
     }
     var nbf = jwtPayload["nbf"];
     if (nbf is int) {
         if (!validateNotBeforeTime(jwtPayload)) {
-            return prepareJwtError("JWT token is used before Not_Before_Time.");
+            return prepareError("JWT token is used before Not_Before_Time.");
         }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
@@ -269,7 +269,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
     return true;
 }
 
-function validateCertificate(JwtValidatorConfig config) returns boolean|JwtError {
+function validateCertificate(JwtValidatorConfig config) returns boolean|Error {
     var publicKey = crypto:decodePublicKey(keyStore = config.trustStore, keyAlias = config.certificateAlias);
     if (publicKey is crypto:PublicKey) {
         time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
@@ -285,17 +285,17 @@ function validateCertificate(JwtValidatorConfig config) returns boolean|JwtError
         }
         return false;
     } else {
-        return prepareJwtError("Public key decode failed.", err = publicKey);
+        return prepareError("Public key decode failed.", err = publicKey);
     }
 }
 
 function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtValidatorConfig config)
-                           returns boolean|JwtError {
+                           returns boolean|Error {
     if (jwtHeader.alg == NONE) {
-        return prepareJwtError("Not a valid JWS. Signature algorithm is NONE.");
+        return prepareError("Not a valid JWS. Signature algorithm is NONE.");
     } else {
         if (encodedJWTComponents.length() == 2) {
-            return prepareJwtError("Not a valid JWS. Signature is required.");
+            return prepareError("Not a valid JWS. Signature is required.");
         } else {
             string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
             var signPart = encoding:decodeBase64Url(encodedJWTComponents[2]);
@@ -307,47 +307,47 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA256 singature verification failed.", err = verification);
+                            return prepareError("SHA256 singature verification failed.", err = verification);
                         }
                     } else if (jwtHeader.alg == RS384) {
                         var verification = crypto:verifyRsaSha384Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA384 singature verification failed.", err = verification);
+                            return prepareError("SHA384 singature verification failed.", err = verification);
                         }
                     } else if (jwtHeader.alg == RS512) {
                         var verification = crypto:verifyRsaSha512Signature(assertion.toByteArray("UTF-8"), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA512 singature verification failed.", err = verification);
+                            return prepareError("SHA512 singature verification failed.", err = verification);
                         }
                     } else {
-                        return prepareJwtError("Unsupported JWS algorithm.");
+                        return prepareError("Unsupported JWS algorithm.");
                     }
                 } else {
-                    return prepareJwtError("Public key decode failed.", err = publicKey);
+                    return prepareError("Public key decode failed.", err = publicKey);
                 }
             } else {
-                return prepareJwtError("Base64 url decode failed for JWT signature.", err = signPart);
+                return prepareError("Base64 url decode failed for JWT signature.", err = signPart);
             }
         }
     }
 }
 
-function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) returns JwtError? {
+function validateIssuer(JwtPayload jwtPayload, JwtValidatorConfig config) returns Error? {
     var iss = jwtPayload["iss"];
     if (iss is string) {
         if (jwtPayload.iss != config.issuer) {
-            return prepareJwtError("JWT contained invalid issuer name : " + jwtPayload.iss);
+            return prepareError("JWT contained invalid issuer name : " + jwtPayload.iss);
         }
     } else {
-        return prepareJwtError("JWT must contain a valid issuer name.");
+        return prepareError("JWT must contain a valid issuer name.");
     }
 }
 
-function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) returns JwtError? {
+function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) returns Error? {
     var audiencePayload = jwtPayload["aud"];
     var audienceConfig = config.audience;
     if (audiencePayload is string) {
@@ -362,7 +362,7 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
                 }
             }
         }
-        return prepareJwtError("Invalid audience.");
+        return prepareError("Invalid audience.");
     } else if (audiencePayload is string[]) {
         if (audienceConfig is string) {
             foreach string audience in audiencePayload {
@@ -379,9 +379,9 @@ function validateAudience(JwtPayload jwtPayload, JwtValidatorConfig config) retu
                 }
             }
         }
-        return prepareJwtError("Invalid audience.");
+        return prepareError("Invalid audience.");
     } else {
-        return prepareJwtError("JWT must contain a valid audience.");
+        return prepareError("JWT must contain a valid audience.");
     }
 }
 
@@ -398,13 +398,13 @@ function validateNotBeforeTime(JwtPayload jwtPayload) returns boolean {
     return time:currentTime().time > (jwtPayload["nbf"] ?: 0);
 }
 
-function convertToStringArray(json jsonData) returns string[]|JwtError {
+function convertToStringArray(json jsonData) returns string[]|Error {
     if (jsonData is json[]) {
         var result = string[].convert(jsonData);
         if (result is string[]) {
             return result;
         } else {
-            return prepareJwtError("JSON-Data to String convertion failed.", err = result);
+            return prepareError("JSON-Data to String convertion failed.", err = result);
         }
     } else {
         return [jsonData.toString()];

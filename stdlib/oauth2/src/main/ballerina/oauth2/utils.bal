@@ -19,11 +19,11 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Log and prepare `error` as a `JwtError`.
+# Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `JwtError` instance
+# + return - Prepared `Error` instance
 function prepareOAuth2Error(string message, error? err = ()) returns OAuth2Error {
     log:printError(message, err = err);
     OAuth2Error oauth2Error;

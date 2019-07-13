@@ -80,8 +80,8 @@ public type InferredJwtIssuerConfig record {|
 # Process auth token for JWT auth.
 #
 # + jwtIssuerConfig - Inferred JWT issuer configurations
-# + return - Auth token or `JwtError` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|JwtError {
+# + return - Auth token or `Error` if an error occurred during the JWT issuing or validation
+function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     JwtPayload payload = {
         sub: runtime:getInvocationContext().principal.username,
