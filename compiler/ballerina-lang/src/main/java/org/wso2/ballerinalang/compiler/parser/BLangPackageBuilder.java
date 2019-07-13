@@ -1497,6 +1497,17 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
+    void createWorkerLambdaInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        invocationNode.addWS(ws);
+        invocationNode.addWS(invocationWsStack.pop());
+
+        invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
+        invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
+        addExpressionNode(invocationNode);
+    }
+
     void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, int numAnnotations) {
         BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
         invocationExpr.actionInvocation = true;
@@ -1707,9 +1718,8 @@ public class BLangPackageBuilder {
         }
 
         addNameReference(pos, null, null, workerLambdaName);
-        createSimpleVariableReference(pos, null);
         startInvocationNode(null);
-        createInvocationNode(pos, null, BLangBuiltInMethod.CALL.toString(), false, false);
+        createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
         markLastInvocationAsAsync(pos, numAnnotations);
         addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
     }
