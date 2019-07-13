@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -329,9 +328,6 @@ public class FilterUtils {
             Map<Name, Scope.ScopeEntry> entries = objectTypeSymbol.methodScope.entries;
             entries.putAll(objectTypeSymbol.scope.entries);
             return entries;
-        }
-        if (symbolType.tsymbol.scope == null || symbolType.tsymbol.scope.entries == null) {
-            return new HashMap<>();
         }
         return symbolType.tsymbol.scope.entries;
     }

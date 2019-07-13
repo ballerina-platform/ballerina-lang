@@ -68,6 +68,9 @@ public abstract class CompletionItemSorter {
             case ItemResolverConstants.STATEMENT_TYPE:
                 completionItem.setSortText(Priority.PRIORITY200.toString());
                 break;
+            case ItemResolverConstants.SNIPPET_TYPE:
+                completionItem.setSortText(Priority.PRIORITY190.toString());
+                break;
             case ItemResolverConstants.FIELD_TYPE:
                 completionItem.setSortText(Priority.PRIORITY180.toString());
                 break;
@@ -78,13 +81,10 @@ public abstract class CompletionItemSorter {
                 completionItem.setSortText(Priority.PRIORITY140.toString());
                 break;
             case ItemResolverConstants.FUNCTION_TYPE:
-                completionItem.setSortText(Priority.PRIORITY130.toString());
-                break;
-            case ItemResolverConstants.SNIPPET_TYPE:
-                completionItem.setSortText(Priority.PRIORITY110.toString());
+                completionItem.setSortText(Priority.PRIORITY120.toString());
                 break;
             default:
-                completionItem.setSortText(Priority.PRIORITY120.toString());
+                completionItem.setSortText(Priority.PRIORITY110.toString());
                 break;
         }
     }
