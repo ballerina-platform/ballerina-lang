@@ -104,13 +104,20 @@ public class BuilderUtils {
         BLangPackage bLangPackage = compiler.build(packageName);
 
         try {
-            //TODO: replace with actual target dir
-            Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+            Path targetDirectory;
+            Optional<Path> jarTargetRoot;
+            if (Files.isDirectory(sourceRootPath.resolve(packageName))) {
+                targetDirectory = sourceRootPath.resolve("target");
+                jarTargetRoot = Optional.empty();
+            } else {
+                targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+                jarTargetRoot = Optional.of(Paths.get("."));
+            }
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                                                     "ballerina.home is not set");
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                                               targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                                               targetDirectory, jarTargetRoot, dumpBIR);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
