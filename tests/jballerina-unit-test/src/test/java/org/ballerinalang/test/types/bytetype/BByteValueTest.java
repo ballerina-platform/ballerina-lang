@@ -468,7 +468,7 @@ public class BByteValueTest {
         invokeRightShiftOperatorTestFunction2(a, b, i, j);
     }
 
-    @Test(description = "Test bitwise right shift operator")
+    @Test(description = "Test bitwise right shift operator", groups = "brokenOnBootstrappedJVMCodegen")
     public void testBitwiseRightShiftOperator2() {
         int a = -27;
         int b = 6;
@@ -529,7 +529,7 @@ public class BByteValueTest {
         Assert.assertEquals(bInteger2.intValue(), i >>> a, "Invalid result");
     }
 
-    @Test(description = "Test bitwise left shift operator 1")
+    @Test(description = "Test bitwise left shift operator 1", groups = "brokenOnBootstrappedJVMCodegen")
     public void testBitwiseLeftShiftOperator1() {
         int a = 23;
         int b = 6;
@@ -540,7 +540,7 @@ public class BByteValueTest {
     }
 
 
-    @Test(description = "Test bitwise left shift operator 2")
+    @Test(description = "Test bitwise left shift operator 2", groups = "brokenOnBootstrappedJVMCodegen")
     public void testBitwiseLeftShiftOperator2() {
         int a = -27;
         int b = 6;
@@ -575,7 +575,7 @@ public class BByteValueTest {
         Assert.assertEquals(bInteger3.intValue(), a << j, "Invalid result");
     }
 
-    @Test(description = "Test byte shift")
+    @Test(description = "Test byte shift", groups = "brokenOnBootstrappedJVMCodegen")
     public void testByteShift() {
         int a = 129;
         int c =  (a << 1);

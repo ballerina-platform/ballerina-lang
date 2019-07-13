@@ -19,8 +19,10 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,10 +48,14 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 public class ToByteArray extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        ClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
-        context.setReturnValues(new BValueArray(cw.toByteArray()));
+    public static ArrayValue toByteArray(Strand strand, ObjectValue oCw) {
+        ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
+        return new ArrayValue(cw.toByteArray());
     }
 }
 

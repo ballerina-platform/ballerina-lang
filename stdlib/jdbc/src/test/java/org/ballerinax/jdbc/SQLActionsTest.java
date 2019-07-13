@@ -172,7 +172,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
     public void testINParametersWithDirectValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -185,7 +185,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
     public void testINParametersWithDirectVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -365,7 +365,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed select query error")
     public void testErrorWithSelectData() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithSelectData");
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax\\/jdbc}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));
     }
