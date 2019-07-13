@@ -69,6 +69,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
+    private int systemExit = 1;
 
     private EventBus eventBus;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
@@ -286,13 +287,26 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
+    private void exit() {
+        systemExit = 0;
+        new java.lang.Thread(() -> {
+            try {
+                java.lang.Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+            System.exit(systemExit);
+        }).start();
+    }
+
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
+        this.exit();
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
+        this.exit();
         debuggee.dispose();
         return CompletableFuture.completedFuture(null);
     }
