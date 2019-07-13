@@ -135,7 +135,7 @@ public class BasicTupleTest {
                 resultNegative, 3, "ambiguous type '([Person,int]|[Employee,int])?'", 38, 47);
     }
 
-    @Test(description = "Test negatives of index based access of tuple type")
+    @Test(enabled = false, description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
         BAssertUtil.validateError(resultNegative, 4, "tuple and expression size does not match", 49, 30);
         BAssertUtil.validateError(resultNegative, 5, "tuple index out of range: index: '-1', size: '3'", 54, 14);
