@@ -210,9 +210,8 @@ public class LockFileWriter {
             builderList.add(builder);
         }
 
-        Path ballerinaLockFilePath = this.sourceDirectory.getPath().resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                                                         .resolve(Paths.get(LockFileConstants
-                                                                                    .LOCK_FILE_NAME));
+        Path ballerinaLockFilePath = this.sourceDirectory.getPath()
+                                         .resolve(Paths.get(ProjectDirConstants.LOCK_FILE_NAME));
         builderList.add(0, generateProjectDesc(manifest));
 
         StringBuilder sb = new StringBuilder(builderList.size() * 10);

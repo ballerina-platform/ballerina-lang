@@ -72,7 +72,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("error: The following required arguments were not provided"));
+        Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
     }
 
     @Test(description = "Test new command with multiple arguments")
@@ -83,7 +83,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("error: too many arguments"));
+        Assert.assertTrue(readOutput().contains("too many arguments"));
     }
 
     @Test(description = "Test new command with argument and a help")
@@ -117,7 +117,7 @@ public class NewCommandTest extends CommandTest {
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("error: destination '"
+        Assert.assertTrue(readOutput().contains("destination '"
                 + tmpDir.resolve("exist").toString()
                 + "' already exists"));
     }

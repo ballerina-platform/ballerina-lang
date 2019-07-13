@@ -19,11 +19,13 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-core')
     implementation project(':ballerina-launcher')
     implementation project(':testerina:testerina-core')
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
+    testCompile 'com.moandjiezana.toml:toml4j'
 }
 
 test {

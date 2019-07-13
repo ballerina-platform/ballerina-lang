@@ -34,6 +34,4 @@ public class Constants {
     static final String PUSH_COMMAND = "push";
     static final String SEARCH_COMMAND = "search";
     static final String UNINSTALL_COMMAND = "uninstall";
-
-    static final String SOURCE_DIR = "src";
 }

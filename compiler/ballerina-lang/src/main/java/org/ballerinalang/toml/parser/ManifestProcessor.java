@@ -85,7 +85,9 @@ public class ManifestProcessor {
      * @return manifest object
      */
     public static Manifest parseTomlContentFromString(String content) {
-        Manifest manifest = new Toml().read(content).to(Manifest.class);
+        Toml toml = new Toml().read(content);
+        Manifest manifest = toml.to(Manifest.class);
+        manifest.getProject().setOrgName(toml.getString("project.org-name"));
         validateManifestDependencies(manifest);
         return manifest;
     }

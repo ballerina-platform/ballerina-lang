@@ -20,6 +20,8 @@ package org.ballerinalang.packerina.cmd;
 
 
 import org.ballerinalang.launcher.BLauncherCmd;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -115,7 +117,7 @@ public class CreateCommand implements BLauncherCmd {
         }
 
         // Check if inside a project repo
-        Path projectPath = CommandUtil.findProjectRoot(userDir);
+        Path projectPath = ProjectDirs.findProjectRoot(userDir);
         if (null == projectPath) {
             CommandUtil.printError(errStream,
                     "not a ballerina project (or any parent up to mount point)\n" +
@@ -156,10 +158,11 @@ public class CreateCommand implements BLauncherCmd {
         }
 
         // Check if the module already exists
-        if (CommandUtil.isModuleExist(projectPath, moduleName)) {
+        if (ProjectDirs.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
                     "A module already exists with the given name : '" + moduleName + "' :\n" +
-                         "Existing module path " + projectPath.resolve(Constants.SOURCE_DIR).resolve(moduleName),
+                         "Existing module path "
+                         + projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName),
                     null,
                     false);
             return;
@@ -185,7 +188,7 @@ public class CreateCommand implements BLauncherCmd {
         }
 
         errStream.println("Created new ballerina module at '" + userDir.relativize(projectPath
-                .resolve(Constants.SOURCE_DIR)
+                .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(moduleName)) + "'");
     }
 
@@ -211,7 +214,7 @@ public class CreateCommand implements BLauncherCmd {
 
     private void createModule(Path projectPath, String moduleName, String template)
             throws ModuleCreateException {
-        Path modulePath = projectPath.resolve(Constants.SOURCE_DIR).resolve(moduleName);
+        Path modulePath = projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName);
         try {
             Files.createDirectories(modulePath);
 

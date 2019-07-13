@@ -50,24 +50,6 @@ public class CommandUtil {
     }
 
     /**
-     * Find the project root by recursively up to the root.
-     *
-     * @param projectDir project path
-     * @return project root
-     */
-    public static Path findProjectRoot(Path projectDir) {
-        Path path = projectDir.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
-        if (Files.exists(path)) {
-            return projectDir;
-        }
-        Path parentsParent = projectDir.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent);
-        }
-        return null;
-    }
-
-    /**
      * Print command errors with a standard format.
      *
      * @param stream error will be sent to this stream
@@ -76,7 +58,7 @@ public class CommandUtil {
      * @param help if the help message should be printed
      */
     public static void printError(PrintStream stream, String error, String usage, boolean help) {
-        stream.println("error: " + error);
+        stream.println("ballerina: " + error);
 
         if (null != usage) {
             stream.println();
@@ -89,18 +71,6 @@ public class CommandUtil {
             stream.println("For more information try --help");
         }
     }
-
-    /**
-     * Check if a ballerina module exist.
-     * @param projectPath project path
-     * @param moduleName module name
-     * @return module exist
-     */
-    public static boolean isModuleExist(Path projectPath, String moduleName) {
-        Path modulePath = projectPath.resolve(Constants.SOURCE_DIR).resolve(moduleName);
-        return Files.exists(modulePath);
-    }
-
 
     /**
      * Initialize a new ballerina project in the given path.
@@ -117,7 +87,7 @@ public class CommandUtil {
             // - .gitignore       <- git ignore file
 
             Path manifest = path.resolve("Ballerina.toml");
-            Path src = path.resolve(Constants.SOURCE_DIR);
+            Path src = path.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
             Path test = path.resolve("tests");
             Path testResources = test.resolve("resources");
             Path gitignore = path.resolve(".gitignore");
@@ -140,12 +110,4 @@ public class CommandUtil {
 
     }
 
-    /**
-     * Check of given path is a valid ballerina project.
-     * @param path project path
-     * @return true if a project
-     */
-    public static boolean isProject(Path path) {
-        return Files.exists(path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
-    }
 }

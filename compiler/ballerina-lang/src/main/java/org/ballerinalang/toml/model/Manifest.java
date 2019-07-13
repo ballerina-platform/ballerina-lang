@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.toml.model;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,20 +35,21 @@ import java.util.stream.Collectors;
 public class Manifest {
     private Project project = new Project();
     private Map<String, Object> dependencies = new LinkedHashMap<>();
-    
+    private Platform platform = new Platform();
+
     public Project getProject() {
         return project;
     }
-    
+
     public void setProject(Project project) {
         this.project = project;
     }
-    
+
     public Map<String, Object> getDependenciesAsObjectMap() {
         return this.dependencies.entrySet().stream()
                 .collect(Collectors.toMap(d -> d.getKey().replaceAll("^\"|\"$", ""), Map.Entry::getValue));
     }
-    
+
     public List<Dependency> getDependencies() {
         return this.dependencies.entrySet().stream()
                 .map(entry -> {
@@ -56,7 +61,7 @@ public class Manifest {
                 })
                 .collect(Collectors.toList());
     }
-    
+
     private DependencyMetadata convertObjectToDependencyMetadata(Object obj) {
         DependencyMetadata metadata = new DependencyMetadata();
         if (obj instanceof String) {
@@ -66,14 +71,41 @@ public class Manifest {
             if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
                 metadata.setVersion((String) metadataMap.get("version"));
             }
-    
-            if (metadataMap.keySet().contains("path") &&  metadataMap.get("path") instanceof String) {
+
+            if (metadataMap.keySet().contains("path") && metadataMap.get("path") instanceof String) {
                 metadata.setPath((String) metadataMap.get("path"));
             }
         }
         return metadata;
     }
-    
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(Platform platform) {
+        this.platform = platform;
+    }
+
+    public String getTargetPlatform() {
+        // check if platform exists else return any
+        if (null == platform.libraries) {
+            return ProgramFileConstants.ANY_PLATFORM;
+        } else {
+            // if platform exist and target not given return error
+            if (null == platform.target) {
+                throw new BLangCompilerException("Platform target is not specified in the Ballerina.toml");
+            }
+            // if platform exist and target not supported return error
+            if (Arrays.stream(ProgramFileConstants.SUPPORTED_PLATFORMS).anyMatch(platform.getTarget()::equals)) {
+                // else return the target platform
+                return platform.getTarget();
+            } else {
+                throw new BLangCompilerException("Platform target is not supported by installed Ballerina SDK");
+            }
+        }
+    }
+
     /**
      * Project definition.
      */
@@ -84,51 +116,51 @@ public class Manifest {
         private List<String> authors = new LinkedList<>();
         private String repository = "";
         private List<String> keywords = new LinkedList<>();
-        
+
         public String getOrgName() {
             return orgName;
         }
-        
+
         public void setOrgName(String orgName) {
             this.orgName = orgName;
         }
-        
+
         public String getVersion() {
             return version;
         }
-        
+
         public void setVersion(String version) {
             this.version = version;
         }
-        
+
         public String getLicense() {
             return license;
         }
-        
+
         public void setLicense(String license) {
             this.license = license;
         }
-        
+
         public List<String> getAuthors() {
             return authors;
         }
-        
+
         public void setAuthors(List<String> authors) {
             this.authors = authors;
         }
-        
+
         public String getRepository() {
             return repository;
         }
-        
+
         public void setRepository(String repository) {
             this.repository = repository;
         }
-        
+
         public List<String> getKeywords() {
             return keywords;
         }
-        
+
         public void setKeywords(List<String> keywords) {
             this.keywords = keywords;
         }

@@ -57,7 +57,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--lockEnabled"})
     private boolean lockEnabled;
 
-    @CommandLine.Option(names = {"--skiptests"})
+    @CommandLine.Option(names = {"--skip-tests"})
     private boolean skiptests;
 
     @CommandLine.Parameters
@@ -86,7 +86,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
@@ -131,7 +131,7 @@ public class BuildCommand implements BLauncherCmd {
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&
                     sourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
-                    !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                    !RepoUtils.isBallerinaProject(sourceRootPath)) {
                 // If there is no output file name provided, then the executable (balx) should be created in the user's
                 // current directory with the same source file name with a balx extension. So if there's no output file
                 // name provided (with flag -o) and the target file name contains the full path (along with its parent
@@ -149,7 +149,7 @@ public class BuildCommand implements BLauncherCmd {
 
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a module from a project
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
-                if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                if (Files.isDirectory(resolvedFullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
                     throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
                             "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                             "project and then build the module.");

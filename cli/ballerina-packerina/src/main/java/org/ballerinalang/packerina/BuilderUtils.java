@@ -19,15 +19,15 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
@@ -107,10 +107,10 @@ public class BuilderUtils {
             //TODO: replace with actual target dir
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
-                                                    "ballerina.home is not set");
+                    "ballerina.home is not set");
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                                               targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                    targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
@@ -143,17 +143,24 @@ public class BuilderUtils {
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
+        Path target = prepareTargetDirectory(sourceRootPath);
+        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                              .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
             for (BLangPackage bLangPackage : packages) {
-                CompilerBackendCodeGenerator jvmCodeGen = BackendCodeGeneratorProvider.getInstance().
-                        getBackendCodeGenerator();
-                Optional result = jvmCodeGen.generate(false, bLangPackage, context, sourceRootPath.toString());
-                if (!result.isPresent()) {
-                    throw new RuntimeException("Compiled binary jar is not found");
+                try {
+                    //TODO: replace with actual target dir
+                    //Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
+                    String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
+                            "ballerina.home is not set");
+
+                    BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
+                            jarCache, Optional.of(jarCache), dumpBir);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("error invoking jballerina backend", e);
                 }
-                bLangPackage.jarBinaryContent = (byte[]) result.get();
             }
             compiler.write(packages);
             return;
@@ -188,21 +195,21 @@ public class BuilderUtils {
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         packageList.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
-                   .forEach(bLangPackage -> {
-                       CompiledBinaryFile.ProgramFile programFile;
-                       if (bLangPackage.containsTestablePkg()) {
-                           programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
-                       } else {
-                           // In this package there are no tests to be executed. But we need to say to the users that
-                           // there are no tests found in the package to be executed as :
-                           // Running tests
-                           //     <org-name>/<package-name>:<version>
-                           //         No tests found
-                           programFile = compiler.getExecutableProgram(bLangPackage);
-                       }
+                .forEach(bLangPackage -> {
+                    CompiledBinaryFile.ProgramFile programFile;
+                    if (bLangPackage.containsTestablePkg()) {
+                        programFile = compiler.getExecutableProgram(bLangPackage.getTestablePkg());
+                    } else {
+                        // In this package there are no tests to be executed. But we need to say to the users that
+                        // there are no tests found in the package to be executed as :
+                        // Running tests
+                        //     <org-name>/<package-name>:<version>
+                        //         No tests found
+                        programFile = compiler.getExecutableProgram(bLangPackage);
+                    }
 
-                       programFileMap.put(bLangPackage, programFile);
-                   });
+                    programFileMap.put(bLangPackage, programFile);
+                });
 
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap);
@@ -230,5 +237,63 @@ public class BuilderUtils {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
         return context;
+    }
+
+    /**
+     * Prepare target directory before the compile.
+     *
+     * @param sourceRoot source root of the ballerina file or project
+     * @return target path
+     */
+    private static Path prepareTargetDirectory(Path sourceRoot) {
+        // Check if the source root is a project
+        Path target;
+        if (ProjectDirs.isProject(sourceRoot)) {
+            // If source root is a project create and return target inside it.
+            target = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            // Before creating lets see if the target exists.
+            if (!Files.exists(target)) {
+                try {
+                    Files.createDirectory(target);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("unable to create target directory");
+                }
+            }
+            createCacheDirectory(target);
+        } else {
+            // If it is not a project create a tmp directory as target
+            try {
+                target = Files.createTempDirectory("b7a-compiler");
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target directory");
+            }
+            createCacheDirectory(target);
+        }
+        return target;
+    }
+
+    /**
+     * Prepare cache directory before the compile.
+     *
+     * @param target source root of the ballerina file or project
+     * @return target path
+     */
+    private static void createCacheDirectory(Path target) {
+        Path cacheDir = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
+        if (!Files.exists(cacheDir)) {
+            try {
+                Files.createDirectory(cacheDir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target cache directory");
+            }
+        }
+        Path birCacheDir = cacheDir.resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        if (!Files.exists(birCacheDir)) {
+            try {
+                Files.createDirectory(birCacheDir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("unable to create target bir cache directory");
+            }
+        }
     }
 }

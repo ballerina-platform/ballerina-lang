@@ -25,11 +25,10 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -182,8 +181,7 @@ public class TestCmd implements BLauncherCmd {
      * @return true if its a project else false.
      */
     private boolean isBallerinaProject(Path projectPath) {
-        return Files.isDirectory(projectPath) &&
-                Files.exists(projectPath.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME));
+        return ProjectDirs.isProject(projectPath);
     }
 
     @Override
