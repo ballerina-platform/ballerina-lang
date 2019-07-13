@@ -71,7 +71,7 @@ service Participant2pcService on coordinatorListener {
             }
         }
 
-        var jsonResponse = json.convert(prepareRes);
+        var jsonResponse = typedesc<json>.constructFrom(prepareRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
@@ -80,7 +80,8 @@ service Participant2pcService on coordinatorListener {
                 transactionId + " failed", err = resResult);
             }
         } else {
-            panic jsonResponse;
+            error er = <error>jsonResponse;
+            panic er;
         }
     }
 
@@ -141,7 +142,7 @@ service Participant2pcService on coordinatorListener {
             removeParticipatedTransaction(participatedTxnId);
         }
 
-        var jsonResponse = json.convert(notifyRes);
+        var jsonResponse = typedesc<json>.constructFrom(notifyRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
@@ -150,7 +151,8 @@ service Participant2pcService on coordinatorListener {
                         " failed", err = resResult);
             }
         } else {
-            panic jsonResponse;
+            error e = <error> jsonResponse;
+            panic e;
         }
     }
 }
