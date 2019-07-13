@@ -113,14 +113,13 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.SERVER.toString()).contains("ballerina"));
     }
 
-    @Test(description = "Test header server name from a resource function generate 500")
-    public void testHeaderServernameReturnedFromAErrorResourceFunction() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9228,
-                "manualErrorReturn"));
-        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
-                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+    @Test(description = "Test header server name if 500 response is returned when the server times out. " +
+            "In this case a sleep is introduced in the server.")
+    public void test500Response() throws Exception {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9112,
+                "idle/timeout500"));
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
-        Assert.assertEquals(response.getData(), "simulated error", "Message content mismatched");
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 }
