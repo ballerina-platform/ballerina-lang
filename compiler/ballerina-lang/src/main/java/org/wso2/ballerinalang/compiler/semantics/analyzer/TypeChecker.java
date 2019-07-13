@@ -2997,6 +2997,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
+        Map<String, BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params
+                .stream().collect(Collectors.toMap(a -> a.name.getValue(), a -> a));
         int parameterCount;
         if (iExpr.symbol.tag == SymTag.VARIABLE) {
             // Here we assume function pointers can have only required params.
@@ -3015,6 +3017,14 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
+                    BVarSymbol varSymbol = params.get(((BLangNamedArgsExpression) expr).name.value);
+                    if (!env.enclPkg.packageID.equals(iExpr.symbol.pkgID)
+                            && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC)) {
+                        // can not provide a named arg, if the arg is not public and the caller is not from same package
+                        dlog.error(expr.pos, DiagnosticCode.NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG,
+                                ((BLangNamedArgsExpression) expr).name.value, iExpr.toString());
+                        return symTable.semanticError;
+                    }
                     foundNamedArg = true;
                     if (i < parameterCount) {
                         iExpr.requiredArgs.add(expr);
