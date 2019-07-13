@@ -23,6 +23,7 @@ import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
+import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -131,24 +132,12 @@ public class EventBus {
                         stackFrame.getValues(stackFrame.visibleVariables()).
                                 entrySet().stream().map(localVariableValueEntry -> {
                             LocalVariable localVariable = localVariableValueEntry.getKey();
-                            Variable dapVariable = new Variable();
-                            dapVariable.setName(localVariable.name());
-                            dapVariable.setType(localVariable.typeName());
-                            String value = localVariableValueEntry.getValue()
-                                    == null ? "" : localVariableValueEntry.getValue().toString();
-                            dapVariable.setValue(value);
-                            return dapVariable;
+                            return getDapVariable(localVariable, localVariableValueEntry.getValue());
                         }).collect(Collectors.toList()).toArray(dapVariables);
                         variablesMap.put((long) frameId, dapVariables);
                     } catch (AbsentInformationException e) {
                     }
                     return dapStackFrame;
-                }).filter(stackFrame -> {
-//                    if (stackFrame.getSource() == null && stackFrame.getSource().getPath() == null) {
-//                        return false;
-//                    }
-//                    return stackFrame.getSource().getPath().endsWith(".bal");
-                    return true;
                 }).collect(Collectors.toList())
                         .toArray(stackFrames);
                 stackframesMap.put(threadReference.uniqueID(), stackFrames);
@@ -156,6 +145,67 @@ public class EventBus {
             }
         });
 
+    }
+
+    private Variable getDapVariable(LocalVariable variable, Value value) {
+        String balType;
+        switch (variable.signature()) {
+            case "J":
+                balType = "BTypeInt";
+                break;
+            case "I":
+                balType = "BTypeByte";
+                break;
+            case "D":
+                balType = "BTypeFloat";
+                break;
+            case "Z":
+                balType = "BTypeBoolean";
+                break;
+            case "Ljava/lang/String;":
+                balType = "BTypeString";
+                break;
+            case "Lorg/ballerinalang/jvm/values/DecimalValue;":
+                balType = "BTypeDecimal";
+                break;
+            case "Lorg/ballerinalang/jvm/values/MapValue;":
+                balType = "BMapType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/TableValue;":
+                balType = "BTableType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/StreamValue;":
+                balType = "BStreamType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/ArrayValue;":
+                balType = "BArrayType";
+                break;
+            case "Ljava/lang/Object;":
+                balType = "BObjectType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/ErrorValue;":
+                balType = "BErrorType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/FutureValue;":
+                balType = "BFutureType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/FPValue;":
+                balType = "BInvokableType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/TypedescValue;":
+                balType = "BTypeDesc";
+                break;
+            default:
+                balType = "Object";
+                break;
+        }
+
+        Variable dapVariable = new Variable();
+        dapVariable.setName(variable.name());
+        dapVariable.setType(balType);
+        String stringValue = value == null ? "" : value.toString();
+        dapVariable.setValue(stringValue);
+        return dapVariable;
     }
 
     public void startListening(String sourceRoot, String packageName) {
