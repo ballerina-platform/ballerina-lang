@@ -50,7 +50,7 @@ public type Producer client object {
     #
     # + data - the `Message` or data to send 
     # + return - `error` on failure
-    public remote function send(MessageContent | Message data) returns error? {
+    public remote function send(MessageContent | Message data) returns ArtemisError? {
         return self.externSend(data is Message ? data : new(self.session, data));
     }
 
@@ -62,9 +62,9 @@ public type Producer client object {
     # Closes the ClientProducer. If already closed nothing is done.
     # 
     # + return - `error` on failure to close.
-    public remote function close() returns error? = external;
+    public remote function close() returns ArtemisError? = external;
 
-    function externSend(Message data) returns error? = external;
+    function externSend(Message data) returns ArtemisError? = external;
 };
 
 # The ActiveMQ Artemis address related configuration.

@@ -166,7 +166,7 @@ function testReadFile(string pathValue) returns boolean {
     io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
-    if (readResult is io:IOError) {
+    if (readResult is io:IoError) {
         error? temp = readResult;
         log:printError("Error occurred while reading content: " + pathValue, err = temp);
         return false;

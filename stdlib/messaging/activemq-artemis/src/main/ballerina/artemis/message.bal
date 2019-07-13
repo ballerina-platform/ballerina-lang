@@ -54,7 +54,7 @@ public type Message client object {
     # Acknowledges reception of this message.
     #
     # + return - If an error occurred while acknowledging the message
-    public remote function acknowledge() returns error? = external;
+    public remote function acknowledge() returns ArtemisError? = external;
 
     # Returns the size (in bytes) of this message's body.
     #
@@ -72,7 +72,7 @@ public type Message client object {
     # + key - The name of the property
     # + return - The value of the property or nil if not found
     public function getProperty(string key) returns @tainted string | int | float | boolean | byte | byte[] | () |
-                                                        error = external;
+                                                        ArtemisError = external;
 
     # The type of the message.
     #
@@ -84,13 +84,13 @@ public type Message client object {
     # + return - The message payload or error on failure to retrieve payload or if the type is unsupported.
     #  A map payload can contain an error if the type is unsupported.
     public function getPayload() returns @tainted string | byte[] | map<string | int | float | byte | boolean | byte[]> |
-                                            error | () = external;
+                                            ArtemisError | () = external;
 
     # Call this function to save to a WritableByteChannel if the message is `STREAM` type.
     #
     # + ch - The byte channel to save to
     # + return - will return an `error` if the message is not of type `STREAM` or on failure
-    public function saveToWritableByteChannel(@untainted io:WritableByteChannel ch) returns error? = external;
+    public function saveToWritableByteChannel(@untainted io:WritableByteChannel ch) returns ArtemisError? = external;
 
     # Get the message configuration.
     #
