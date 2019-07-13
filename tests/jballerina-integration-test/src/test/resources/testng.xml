@@ -71,6 +71,7 @@
 <!--            <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>-->
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
         </classes>
     </test>
 
@@ -79,18 +80,6 @@
 <!--            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>-->
 <!--        </classes>-->
 <!--    </test>-->
-
-    <test name="ballerina-service-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.service.HelloServiceTest"/>
-        </classes>
-    </test>
 
 <!--    <test name="ballerina-future-tests" parallel="false">-->
 <!--        <classes>-->
