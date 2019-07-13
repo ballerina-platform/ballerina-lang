@@ -15,7 +15,6 @@
  *
  */
  
-apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 
