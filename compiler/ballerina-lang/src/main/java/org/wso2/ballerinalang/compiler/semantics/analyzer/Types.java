@@ -737,6 +737,10 @@ public class Types {
                 return isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
             }
 
+            if (target.tag == TypeTags.UNION) {
+                return isAssignable(source, target);
+            }
+
             // Then lhs type should 'any' type
             return target.tag == TypeTags.ANY;
 
