@@ -67,7 +67,6 @@ public class AnnotationDeclarationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
-        BAssertUtil.validateError(compileResult, 1, "constant cannot be defined with type 'Bar'. only value types " +
-                "are supported", 43, 25);
+        BAssertUtil.validateError(compileResult, 1, "expression is not a constant expression", 56, 8);
     }
 }

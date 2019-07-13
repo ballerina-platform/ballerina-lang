@@ -290,13 +290,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isValidAnnotationType(type)) {
                 dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
-
-            if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
-                if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source) &&
-                        !types.isAllowedConstantType(type.tag == TypeTags.ARRAY ? ((BArrayType) type).eType : type)) {
-                    dlog.error(annotTypeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
-                }
-            }
         }
 
         if (!annotationNode.flagSet.contains(Flag.CONSTANT) &&

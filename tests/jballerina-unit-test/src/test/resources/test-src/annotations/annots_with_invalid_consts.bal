@@ -40,4 +40,23 @@ service ser2 = @v1 {
     }
 };
 
-public const annotation Bar v2 on service, source listener;
+type Baz record {
+    string st;
+    Qux q?;
+};
+
+type Qux object {
+
+};
+
+public const annotation Baz v2 on service, source listener;
+
+service ser3 = @v2 {
+    st: "string value",
+    q: new
+} service {
+    resource function res() {
+
+    }
+};
+
