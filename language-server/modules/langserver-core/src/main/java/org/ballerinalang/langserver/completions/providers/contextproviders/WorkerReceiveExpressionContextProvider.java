@@ -18,29 +18,25 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.List;
 
 /**
- * Parser rule based statement context provider.
+ * Parser rule based worker receive expression context resolver.
  */
 @JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class InvocationOrFieldAccessContextProvider extends LSCompletionProvider {
+public class WorkerReceiveExpressionContextProvider extends LSCompletionProvider {
 
-    public InvocationOrFieldAccessContextProvider() {
-        this.attachmentPoints.add(InvocationOrFieldAccessContextProvider.class);
+    public WorkerReceiveExpressionContextProvider() {
+        this.attachmentPoints.add(BallerinaParser.WorkerReceiveExpressionContext.class);
     }
-
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-        Either<List<CompletionItem>, List<SymbolInfo>> content = new DelimiterBasedContentFilter().filterItems(context);
-        return this.getCompletionItemList(content, context);
+        return this.getCompletionItemList(CommonUtil.getWorkerSymbols(context), context);
     }
 }
-
