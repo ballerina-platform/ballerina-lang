@@ -50,7 +50,7 @@ public type JdbcClient client object {
     #            else `JdbcClientError` will be returned if there is any error
     public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
                                returns UpdateResult|JdbcClientError {
-        return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
+        return nativeUpdate(self, sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.

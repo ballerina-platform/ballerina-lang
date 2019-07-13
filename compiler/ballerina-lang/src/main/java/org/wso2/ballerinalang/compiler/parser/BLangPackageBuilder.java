@@ -346,8 +346,6 @@ public class BLangPackageBuilder {
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
-    private List<VariableDefinitionNode> defaultableParamsList = new ArrayList<>();
-
     private Stack<SimpleVariableNode> restParamStack = new Stack<>();
 
     private Deque<BLangMatch> matchStmtStack;
@@ -975,12 +973,6 @@ public class BLangPackageBuilder {
             this.varListStack.pop().forEach(variableNode -> {
                 invNode.addParameter((SimpleVariableNode) variableNode);
             });
-
-            this.defaultableParamsList.forEach(variableDef -> {
-                BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) variableDef;
-                invNode.addDefaultableParameter(varDef);
-            });
-            this.defaultableParamsList = new ArrayList<>();
 
             if (restParamAvail) {
                 invNode.setRestParameter(this.restParamStack.pop());
@@ -3018,15 +3010,9 @@ public class BLangPackageBuilder {
     }
 
     void addDefaultableParam(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangSimpleVariableDef defaultableParam =
-                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        defaultableParam.pos = pos;
-        defaultableParam.addWS(ws);
         List<BLangVariable> params = this.varListStack.peek();
-        BLangSimpleVariable var = (BLangSimpleVariable) params.remove(params.size() - 1);
+        BLangSimpleVariable var = (BLangSimpleVariable) params.get(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
-        defaultableParam.var = var;
-        this.defaultableParamsList.add(defaultableParam);
     }
 
     void addRestParam(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,

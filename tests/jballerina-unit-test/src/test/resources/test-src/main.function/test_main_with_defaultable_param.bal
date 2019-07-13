@@ -15,6 +15,6 @@
 // under the License.
 import ballerina/io;
 
-public function main(int i = 1, boolean b, string s = "default hello", string s2) {
+public function main(int i, boolean b, string s = "default hello", string s2 = "default") {
     io:print(string.convert(i) + " " + s + " world: " + s2 + " " + string.convert(b));
 }

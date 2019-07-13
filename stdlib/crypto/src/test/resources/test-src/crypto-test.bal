@@ -208,12 +208,12 @@ function testDecryptRsaEcbWithPublicKey(byte[] input, string path, string keySto
         password: keyStorePassword
     };
     crypto:PublicKey pk = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = keyAlias);
-    return crypto:decryptRsaEcb(input, pk, padding = padding);
+    return crypto:decryptRsaEcb(input, pk, padding);
 }
 
 function testEncryptRsaEcbWithInvalidKey(byte[] input, crypto:RsaPadding padding) returns byte[]|crypto:CryptoError {
     crypto:PrivateKey pk = {algorithm:"RSA"};
-    return crypto:encryptRsaEcb(padding = padding, input, pk);
+    return crypto:encryptRsaEcb(input, pk, padding);
 }
 
 function testVerifyRsaSha1(byte[] input, byte[] signature, string path, string keyStorePassword, string keyAlias)

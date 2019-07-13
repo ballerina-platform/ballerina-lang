@@ -291,7 +291,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
-        funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
