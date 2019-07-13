@@ -26,7 +26,7 @@ import ballerina/crypto;
 # + reconnectWait - The time to wait between reconnect attempts to reconnect to the same server. This is measured in seconds.
 # + connectionTimeout - The timeout for connection attempts measured in seconds.
 # + pingInterval - ** The interval between the attempts of pinging the server. This is measured in minutes. **
-# + maxPingsOut - ** The maximum number of pings the client can have in flight. The default value will be a small number.
+# + maxPingsOut - The maximum number of pings the client can have in flight. The default value will be a small number.
 # + username - The username for basic authentication.
 # + password - The password for basic authentication.
 # + token - The token for token-based authentication.
