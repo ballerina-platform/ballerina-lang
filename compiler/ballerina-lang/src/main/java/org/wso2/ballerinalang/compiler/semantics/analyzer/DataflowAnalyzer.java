@@ -302,6 +302,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
+
+        service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
+        service.resourceFunctions.forEach(function -> analyzeNode(function, env));
         this.currDependentSymbol.pop();
     }
 
@@ -1048,14 +1051,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         addDependency(serviceConstructorExpr.type.tsymbol, serviceConstructorExpr.serviceNode.symbol);
-
-        BLangService serviceNode = serviceConstructorExpr.serviceNode;
-        serviceNode.annAttachments.forEach(bLangAnnotationAttachment ->
-                                                   analyzeNode(bLangAnnotationAttachment.expr, env));
-        serviceNode.resourceFunctions.forEach(function -> {
-            addDependency(serviceNode.symbol, function.symbol);
-            analyzeNode(function, env);
-        });
+        analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
     @Override
