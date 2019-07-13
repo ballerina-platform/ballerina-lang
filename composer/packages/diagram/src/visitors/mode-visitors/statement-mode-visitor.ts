@@ -21,7 +21,9 @@ export const visitor: Visitor = {
     },
 
     beginVisitVariableDef(node: VariableDef) {
-        node.viewState.hidden = false;
+        if (!(ASTUtil.isWorker(node) || ASTUtil.isWorkerFuture(node))) {
+            node.viewState.hidden = false;
+        }
         node.viewState.hiddenBlock = false;
         (node.viewState as StmntViewState).hiddenBlockContext = undefined;
         currentState.statement = node;

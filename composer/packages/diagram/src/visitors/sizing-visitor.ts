@@ -205,6 +205,9 @@ class SizingVisitor implements Visitor {
             viewState.implicitReturn.client = client;
             viewState.implicitReturn.bBox.h = config.statement.height;
             viewState.implicitReturn.bBox.w = config.statement.width;
+            viewState.implicitReturn.hidden = false;
+        } else {
+            viewState.implicitReturn.hidden = true;
         }
 
         this.soroundingEndpoints = [];
@@ -563,6 +566,10 @@ class SizingVisitor implements Visitor {
         viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
             config.lifeLine.width;
         viewState.lifeline.bBox.w = config.lifeLine.width;
+        // set minimum left margin as 60
+        functionNode.body!.viewState.bBox.leftMargin =
+            functionNode.body!.viewState.bBox.leftMargin > 60 ? functionNode.body!.viewState.bBox.leftMargin : 60;
+
         // tslint:disable-next-line:prefer-conditional-expression
         if (functionNode.body!.viewState.bBox.leftMargin) {
             viewState.bBox.leftMargin = functionNode.body!.viewState.bBox.leftMargin;

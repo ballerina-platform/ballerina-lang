@@ -35,23 +35,13 @@ export class DiagramUtils {
             nodeArray = [nodeArray];
         }
 
-        const {
-            skipHidden = true,
-            commonProps = {}
-        } = options;
-
         const children: any = [];
         nodeArray.forEach((node: any) => {
-            const allProps = {
-                model: node,
-                ...commonProps
-            };
-
             const ChildComp = (components as any)[node.kind];
             if (!ChildComp) { return; }
             // Do not return hidden elements
-            if (node.viewState && node.viewState.hidden && skipHidden) { return; }
-            children.push(<ChildComp {...allProps} />);
+            if (node.viewState && node.viewState.hidden) { return; }
+            children.push(<ChildComp model={node} />);
         });
         return children;
     }

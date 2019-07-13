@@ -117,5 +117,5 @@ export const visitor: Visitor = {
                 }
             }
         }
-    }
+    },
 };
