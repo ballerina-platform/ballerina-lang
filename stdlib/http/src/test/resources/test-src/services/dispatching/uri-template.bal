@@ -62,9 +62,9 @@ service Ecommerce on testEP {
     }
     resource function productsInfo4 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        map<string> qParams = req.getQueryParams();
-        string? rID = qParams["regID"];
-        string returnID = rID is string ? rID : "";
+        map<string[]> qParams = req.getQueryParams();
+        string[]? rID = qParams["regID"];
+        string returnID = rID is string[] ? rID[0] : "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + returnID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":returnID};
@@ -86,9 +86,9 @@ service Ecommerce on testEP {
         string[]? rID= params["regID"];
         string pId = prdID is string[] ? prdID[0] : "";
         string rgId = rID is string[] ? rID[0] : "";
-        io:println ("Product ID " + pId[0]);
-        io:println ("Reg ID " + rgId[0]);
-        responseJson = {"Template":"T6", "ProductID":pId[0], "RegID":rgId[0]};
+        io:println ("Product ID " + pId);
+        io:println ("Reg ID " + rgId);
+        responseJson = {"Template":"T6", "ProductID":pId, "RegID":rgId};
         io:println (responseJson.toString ());
 
         http:Response res = new;
@@ -102,9 +102,9 @@ service Ecommerce on testEP {
     }
     resource function productsInfo5 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        map<string> params = req.getQueryParams();
-        string? rID = params["regID"];
-        string rgId = rID  is string ? rID : "";
+        map<string[]> params = req.getQueryParams();
+        string[]? rID = params["regID"];
+        string rgId = rID  is string[] ? rID[0] : "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + rgId);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rgId};
