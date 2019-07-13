@@ -37,18 +37,21 @@ public type OutboundJwtAuthProvider object {
 
     # Generate token for JWT authentication.
     #
-    # + return - Generated token or `error` if an error occurred during the JWT issuing or validation
-    public function generateToken() returns string|error {
+    # + return - Generated token or `auth:AuthError` if an error occurred during the JWT issuing or validation
+    public function generateToken() returns string|auth:AuthError {
         string authToken = EMPTY_STRING;
         var jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is InferredJwtIssuerConfig) {
             authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
         } else {
-            authToken = runtime:getInvocationContext().authenticationContext.authToken;
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                authToken = authContext.authToken;
+            }
         }
         if (authToken == EMPTY_STRING) {
-            return prepareError("JWT was not used during inbound authentication.
-                                Provide OutboundJwtAuthProviderConfig to issue new token.");
+            return auth:prepareAuthError("JWT was not used during inbound authentication.
+                                    Provide OutboundJwtAuthProviderConfig to issue new token.");
         }
         return authToken;
     }
@@ -56,8 +59,8 @@ public type OutboundJwtAuthProvider object {
     # Inspect the incoming data and generate the token for JWT authentication.
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `error` occurred when generating token or `()` if nothing to be returned
-    public function inspect(map<anydata> data) returns string|error? {
+    # + return - String token, or `auth:AuthError` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns string|auth:AuthError? {
         return ();
     }
 };
@@ -80,18 +83,23 @@ public type InferredJwtIssuerConfig record {|
 # Process auth token for JWT auth.
 #
 # + jwtIssuerConfig - Inferred JWT issuer configurations
-# + return - Auth token or `error` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|error {
+# + return - Auth token or `JwtError` if an error occurred during the JWT issuing or validation
+function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|JwtError {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-    JwtPayload payload = {
-        sub: runtime:getInvocationContext().principal.username,
-        iss: jwtIssuerConfig.issuer,
-        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
-        iat: time:currentTime().time / 1000,
-        nbf: time:currentTime().time / 1000,
-        jti: system:uuid(),
-        aud: jwtIssuerConfig.audience
-    };
-    // TODO: cache the token per-user per-client and reuse it
-    return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        JwtPayload payload = {
+            sub: principal.username,
+            iss: jwtIssuerConfig.issuer,
+            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+            iat: time:currentTime().time / 1000,
+            nbf: time:currentTime().time / 1000,
+            jti: system:uuid(),
+            aud: jwtIssuerConfig.audience
+        };
+         // TODO: cache the token per-user per-client and reuse it
+        return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
+    }
+    //TODO: Define a proper error
+    return prepareError("Principal is not found");
 }

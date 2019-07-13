@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -25,7 +26,7 @@ import ballerina/log;
 # + config - The configuration for the endpoint
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public SubscriberServiceEndpointConfiguration? config = ();
 
@@ -185,7 +186,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<(string, typedesc)>? headerResourceMap = ();
+    map<(string, typedesc<any>)>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -194,7 +195,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<(string, typedesc)>>? payloadKeyResourceMap = ();
+    map<map<(string, typedesc<any>)>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -206,7 +207,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<(string, typedesc<any>)>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.

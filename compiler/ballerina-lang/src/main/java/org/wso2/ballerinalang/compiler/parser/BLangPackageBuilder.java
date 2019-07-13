@@ -1477,7 +1477,6 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
-        invocationNode.safeNavigate = safeNavigate;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -1503,7 +1502,7 @@ public class BLangPackageBuilder {
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
-                                    FieldKind fieldType, boolean safeNavigate) {
+                                    FieldKind fieldType, boolean optionalFieldAccess) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
@@ -1511,7 +1510,7 @@ public class BLangPackageBuilder {
         fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
-        fieldBasedAccess.safeNavigate = safeNavigate;
+        fieldBasedAccess.optionalFieldAccess = optionalFieldAccess;
         addExpressionNode(fieldBasedAccess);
     }
 
@@ -2543,7 +2542,7 @@ public class BLangPackageBuilder {
 
         compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
         List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
                 Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 

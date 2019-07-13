@@ -8,10 +8,10 @@ function funcWithNamedParams (int a, int b, string c="John") returns [int, int, 
 
 function testFunctionPointerAssignmentWithRestParams() returns [int, int, int[]]{
     function (int, int, int[]) returns [int, int, int[]] func = funcWithRestParams;
-    return func.call(1, 2, [3, 4]);
+    return func(1, 2, [3, 4]);
 }
 
 function testFunctionPointerAssignmentWithNamedParams() returns [int, int, string]{
     function (int, int, string) returns [int, int, string] func = funcWithNamedParams;
-    return func.call(1, 2, "Alex");
+    return func(1, 2, "Alex");
 }

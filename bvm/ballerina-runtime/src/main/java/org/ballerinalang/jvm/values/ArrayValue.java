@@ -279,7 +279,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return intValues[(int) index];
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
-            case TypeTags.BYTE_ARRAY_TAG:
+            case TypeTags.BYTE_TAG:
                 return byteValues[(int) index];
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
@@ -339,10 +339,144 @@ public class ArrayValue implements RefValue, CollectionValue {
         add(size, value);
     }
 
+    public Object shift(long index) {
+        handleFrozenArrayValue();
+        Object val = get(index);
+        shiftArray((int) index, getArrayFromType(elementType.getTag()));
+        return val;
+    }
+
+    private void shiftArray(int index, Object arr) {
+        int nElemsToBeMoved = this.size - 1 - index;
+        if (nElemsToBeMoved >= 0) {
+            System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
+        }
+        this.size--;
+    }
+
+    public void unshift(long index, ArrayValue vals) {
+        handleFrozenArrayValue();
+
+        Object valArr = getArrayFromType(elementType.getTag());
+        unshiftArray(index, vals.size, valArr, getCurrentArrayLength());
+
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                addToIntArray(vals, (int) index);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                addToBooleanArray(vals, (int) index);
+                break;
+            case TypeTags.BYTE_TAG:
+                addToByteArray(vals, (int) index);
+                break;
+            case TypeTags.FLOAT_TAG:
+                addToFloatArray(vals, (int) index);
+                break;
+            case TypeTags.STRING_TAG:
+                addToStringArray(vals, (int) index);
+                break;
+            default:
+                addToRefArray(vals, (int) index);
+        }
+    }
+
+    private void addToIntArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getInt(j));
+        }
+    }
+
+    private void addToFloatArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getFloat(j));
+        }
+    }
+
+    private void addToStringArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getString(j));
+        }
+    }
+
+    private void addToByteArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        byte[] bytes = vals.getBytes();
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            this.byteValues[i] = bytes[j];
+        }
+    }
+
+    private void addToBooleanArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getBoolean(j));
+        }
+    }
+
+    private void addToRefArray(ArrayValue vals, int startIndex) {
+        int endIndex = startIndex + vals.size;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.getRefValue(j));
+        }
+    }
+
+    private void unshiftArray(long index, int unshiftByN, Object arr, int arrLength) {
+        int lastIndex = arrLength + unshiftByN - 1;
+        prepareForAdd(lastIndex, arrLength);
+
+        if (index > lastIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+
+        int i = (int) index;
+        System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
+
+        this.size += unshiftByN;
+    }
+
+    private Object getArrayFromType(int typeTag) {
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                return intValues;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues;
+            case TypeTags.BYTE_TAG:
+                return byteValues;
+            case TypeTags.FLOAT_TAG:
+                return floatValues;
+            case TypeTags.STRING_TAG:
+                return stringValues;
+            default:
+                return refValues;
+        }
+    }
+
+    private int getCurrentArrayLength() {
+        switch (elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                return intValues.length;
+            case TypeTags.BOOLEAN_TAG:
+                return booleanValues.length;
+            case TypeTags.BYTE_TAG:
+                return byteValues.length;
+            case TypeTags.FLOAT_TAG:
+                return floatValues.length;
+            case TypeTags.STRING_TAG:
+                return stringValues.length;
+            default:
+                return refValues.length;
+        }
+    }
+
     @Override
     public String stringValue() {
         if (elementType != null) {
-            StringJoiner sj = new StringJoiner(", ", "[", "]");
+            StringJoiner sj = new StringJoiner(" ");
             if (elementType.getTag() == TypeTags.INT_TAG) {
                 for (int i = 0; i < size; i++) {
                     sj.add(Long.toString(intValues[i]));
@@ -365,7 +499,7 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return sj.toString();
             } else if (elementType.getTag() == TypeTags.STRING_TAG) {
                 for (int i = 0; i < size; i++) {
-                    sj.add("\"" + stringValues[i] + "\"");
+                    sj.add(stringValues[i]);
                 }
                 return sj.toString();
             }
@@ -377,15 +511,15 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         StringJoiner sj;
         if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
+            sj = new StringJoiner(" ");
         } else {
-            sj = new StringJoiner(", ", "[", "]");
+            sj = new StringJoiner(" ");
         }
 
         for (int i = 0; i < size; i++) {
             if (refValues[i] != null) {
                 sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
-                        (refValues[i] instanceof String) ? ("\"" + refValues[i] + "\"") :  refValues[i].toString());
+                        (refValues[i] instanceof String) ? (String) refValues[i] :  refValues[i].toString());
             } else {
                 sj.add("()");
             }
@@ -530,61 +664,19 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         return refValueArray;
     }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        ArrayValue copy = (ArrayValue) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
     
     @Override
     public String toString() {
-        if (elementType != null) {
-            StringJoiner sj = new StringJoiner(", ", "[", "]");
-            if (elementType.getTag() == TypeTags.INT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(intValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Boolean.toString(booleanValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Integer.toString(Byte.toUnsignedInt(byteValues[i])));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Double.toString(floatValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add("\"" + stringValues[i] + "\"");
-                }
-                return sj.toString();
-            }
-        }
-
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
-            return getJSONString();
-        }
-
-        StringJoiner sj;
-        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(", ", "(", ")");
-        } else {
-            sj = new StringJoiner(", ", "[", "]");
-        }
-
-        Object value;
-        for (int i = 0; i < size; i++) {
-            value = refValues[i];
-            if (value != null) {
-                sj.add((TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) ? ("\"" + value + "\"")
-                        : value.toString());
-            } else {
-                sj.add("()");
-            }
-        }
-        return sj.toString();
+        return stringValue();
     }
 
     public Object[] getValues() {
@@ -772,6 +864,22 @@ public class ArrayValue implements RefValue, CollectionValue {
                 Object value = this.getRefValue(i);
                 if (value instanceof RefValue) {
                     ((RefValue) value).attemptFreeze(freezeStatus);
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+            for (int i = 0; i < this.size; i++) {
+                Object value = this.getRefValue(i);
+                if (value instanceof RefValue) {
+                    ((RefValue) value).freezeDirect();
                 }
             }
         }

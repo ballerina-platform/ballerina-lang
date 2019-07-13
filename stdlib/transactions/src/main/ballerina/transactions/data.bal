@@ -62,3 +62,7 @@ public type NotifyRequest record {
 public type NotifyResponse record {
     string message = "";
 };
+
+public type ParticipantFunctionResult record {|
+    any|error data;
+|};

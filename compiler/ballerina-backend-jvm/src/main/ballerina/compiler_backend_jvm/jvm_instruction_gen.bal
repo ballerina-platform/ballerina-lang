@@ -652,15 +652,23 @@ type InstructionGenerator object {
         self.loadVar(mapLoadIns.keyOp.variableDcl);
 
         if (varRefType is bir:BJSONType) {
-            self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
-        } else if (mapLoadIns.except) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            if (mapLoadIns.optionalFieldAccess) {
+                self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
+                        io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+            } else {
+                self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
+                        io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+            }
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            if (mapLoadIns.fillingRead) {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            }
         }
 
         // store in the target reg
@@ -743,15 +751,12 @@ type InstructionGenerator object {
     # + inst - field access instruction
     function generateArrayValueLoad(bir:FieldAccess inst) {
         self.loadVar(inst.rhsOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         self.loadVar(inst.keyOp.variableDcl);
         bir:BType bType = inst.lhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
-        if (varRefType is bir:BJSONType ||
-                (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
-            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
-                        io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
-        } else if (varRefType is bir:BTupleType) {
+        if (varRefType is bir:BTupleType) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
             addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
@@ -841,9 +846,6 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
-        string methodClass = lookupFullQualifiedClassName(lookupKey);
-
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
@@ -869,7 +871,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = inst;
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

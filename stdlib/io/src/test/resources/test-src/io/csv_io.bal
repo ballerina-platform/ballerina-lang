@@ -54,28 +54,42 @@ function initOpenCsvChannel(string filePath, string encoding, io:Separator field
 }
 
 function nextRecord() returns @tainted string[]|error {
-    var result = rch.getNext();
-    if (result is string[]) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
-        return e;
+    var cha = rch;
+    if(cha is io:ReadableCSVChannel){
+        var result = cha.getNext();
+        if (result is string[]) {
+            return result;
+        } else if(result is error) {
+            return result;
+        }
     }
+    error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
+    return e;
 }
 
 function writeRecord(string[] fields) {
-    var result = wch.write(fields);
+    var cha = wch;
+    if(cha is io:WritableCSVChannel){
+        var result = cha.write(fields);
+    }
 }
 
 function close() {
-    checkpanic rch.close();
-    checkpanic wch.close();
+    var rcha = rch;
+    var wcha = wch;
+    if(rcha is io:ReadableCSVChannel) {
+        checkpanic rcha.close();
+    }
+    if(wcha is io:WritableCSVChannel) {
+        checkpanic wcha.close();
+    }
 }
 
 function hasNextRecord() returns boolean? {
-    return rch.hasNext();
+    var rcha = rch;
+    if(rcha is io:ReadableCSVChannel) {
+        return rcha.hasNext();
+    }
 }
 
 function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float|error {

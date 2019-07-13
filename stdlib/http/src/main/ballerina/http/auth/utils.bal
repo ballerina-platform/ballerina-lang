@@ -217,7 +217,12 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
 # + err - The `error` instance.
 # + return - Returns the prepared `error` instance.
 function prepareError(string message, error? err = ()) returns error {
+    error preparedError;
     log:printDebug(function () returns string { return message; });
-    error preparedError = error(HTTP_ERROR_CODE, message = message, reason = err.reason());
+    if (err is error) {
+        preparedError = error(HTTP_ERROR_CODE, message = message, cause = err);
+    } else {
+        preparedError = error(HTTP_ERROR_CODE, message = message);
+    }
     return preparedError;
 }

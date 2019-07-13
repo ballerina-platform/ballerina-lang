@@ -39,30 +39,44 @@ function initWritableChannel(string filePath, string encoding, string recordSepa
 
 
 function nextRecord() returns @tainted string[]|error {
-    var result = rch.getNext();
-    if (result is string[]) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error("Record channel not initialized properly");
-        return e;
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        var result = cha.getNext();
+        if (result is string[]) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    error e = error("Record channel not initialized properly");
+    return e;
 }
 
 function writeRecord(string[] fields) {
-    var result = wch.write(fields);
+    var cha = wch;
+    if(cha is io:WritableTextRecordChannel){
+        var result = cha.write(fields);
+    }
 }
 
 function closeReadableChannel() {
-    var err = rch.close();
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        var err = cha.close();
+    }
 }
 
 function closeWritableChannel() {
-    var err = wch.close();
+    var cha = wch;
+    if(cha is io:WritableTextRecordChannel) {
+        var err = cha.close();
+    }
 }
 
 
 function hasNextRecord() returns boolean? {
-    return rch.hasNext();
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        return cha.hasNext();
+    }
 }

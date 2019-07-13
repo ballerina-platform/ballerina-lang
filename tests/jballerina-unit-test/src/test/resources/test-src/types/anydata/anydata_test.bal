@@ -903,9 +903,10 @@ function testMapsWithErrorsAsAnydata() returns boolean {
     return a3.e1 === e1 && a3.e3 === e3 && a4.e1 === e1 && a4.e2 === e2 && a4.e3 === e3 && a3 === a1 && a4 === a2;
 }
 
-type MyRecord record {
+type MyRecord record {|
     string name;
-};
+    anydata|error...;
+|};
 
 type MyRecordTwo record {|
     int id;

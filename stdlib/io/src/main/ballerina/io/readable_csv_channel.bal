@@ -62,19 +62,27 @@ public type ReadableCSVChannel object {
     #
     # + return - List of fields in the CSV or `IOError` if any error occurred
     public function getNext() returns @tainted string[]|IOError? {
-        return self.dc.getNext();
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.getNext();
+        }
+        return ();
     }
 
     # Closes a given CSVChannel.
     #
     # + return - Returns `IOError` if any error occurred
     public function close() returns IOError? {
-        return self.dc.close();
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.close();
+        }
+        return ();
     }
 
     # Returns a table which corresponds to the CSV records.
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or `IOError` if any error occurred
-    public function getTable(typedesc structType) returns @tainted table<record {}>|IOError = external;
+    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|IOError = external;
 };

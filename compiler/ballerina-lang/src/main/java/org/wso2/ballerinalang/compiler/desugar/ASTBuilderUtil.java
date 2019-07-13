@@ -311,6 +311,20 @@ public class ASTBuilderUtil {
         return returnStmt;
     }
 
+    public static BLangReturn createReturnStmt(DiagnosticPos pos, BType returnType, Object value) {
+        final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pos;
+        returnStmt.expr = createLiteral(pos, returnType, value);
+        return returnStmt;
+    }
+
+    public static BLangReturn createReturnStmt(DiagnosticPos pos, BLangExpression expr) {
+        final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pos;
+        returnStmt.expr = expr;
+        return returnStmt;
+    }
+
     static void createContinueStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangContinue nextStmt = (BLangContinue) TreeBuilder.createContinueNode();
         nextStmt.pos = pos;

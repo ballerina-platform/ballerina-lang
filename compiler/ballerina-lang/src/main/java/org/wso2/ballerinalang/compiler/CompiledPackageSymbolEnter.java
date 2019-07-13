@@ -159,7 +159,7 @@ public class CompiledPackageSymbolEnter {
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
                 packageBinaryContent, 6, packageBinaryContent.length);
         pkgSymbol.packageFile = new CompiledBinaryFile.PackageFile(modifiedPkgBinaryContent);
-        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
+        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.langAnnotationModuleSymbol);
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, builtinEnv);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
         return pkgSymbol;
@@ -1448,7 +1448,7 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getErrorType(BType reasonType, BType detailsType) {
-            if (reasonType == symTable.stringType && detailsType == symTable.pureTypeConstrainedMap) {
+            if (reasonType == symTable.stringType && detailsType == symTable.detailType) {
                 return symTable.errorType;
             }
             BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,

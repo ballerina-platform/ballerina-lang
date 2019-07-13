@@ -19,7 +19,7 @@ import ballerina/socket;
 
 function echo(string msg) returns string {
     socket:UdpClient socketClient = new;
-    byte[] c1 = msg.toByteArray("utf-8");
+    byte[] c1 = msg.toBytes();
     var sendResult = socketClient->sendTo(c1, { host: "localhost", port: 48826 });
     if (sendResult is int) {
         io:println("Number of bytes written: ", sendResult);
@@ -34,7 +34,8 @@ function echo(string msg) returns string {
         if (str is string) {
             returnStr = <@untainted> str;
         } else {
-            io:println(str.detail().message);
+            string? errMsg = str.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(result);
@@ -53,7 +54,8 @@ function contentReceive() returns string {
         if (str is string) {
             returnStr = <@untainted> str;
         } else {
-            io:println(str.detail().message);
+            string? errMsg = str.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(result);
@@ -72,7 +74,8 @@ function contentReceiveWithLength() returns string {
         if (str is string) {
             returnStr = <@untainted> str;
         } else {
-            io:println(str.detail().message);
+            string? errMsg = str.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(result);
