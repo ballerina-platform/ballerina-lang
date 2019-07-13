@@ -52,7 +52,7 @@ public type StreamEvent object {
             self.toData(self.dataMap);
         } else if (eventData is [string, map<anydata>]) {
             self.streamName = eventData[0];
-            foreach var [k, v] in eventData[1] {
+            foreach var [k, v] in eventData[1].entries() {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
             self.toDataMap(self.data);
@@ -78,7 +78,7 @@ public type StreamEvent object {
     #
     # + eventData - map of anydata values to be added to field `data`.
     public function addData(map<anydata> eventData) {
-        foreach var [k, v] in eventData {
+        foreach var [k, v] in eventData.entries() {
             self.data[k] = v;
         }
         self.toDataMap(eventData);
@@ -110,7 +110,8 @@ public type StreamEvent object {
         int index = 0;
         map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
-            string indexStr = aliasSplit[1].replaceAll("]", "").trim();
+            string replacedString = internal:replaceAll(aliasSplit[1], "]", "");
+            string indexStr = replacedString.trim();
             if (internal:contains(indexStr, "last")) {
                 int lastIndex = dArray.length();
                 if (internal:contains(indexStr, "-")) {
@@ -161,9 +162,9 @@ public type StreamEvent object {
     #
     # + dataMap - map containg event attribute values.
     public function toData(map<map<anydata>[]> dataMap) {
-        foreach var [key, val] in dataMap {
+        foreach var [key, val] in dataMap.entries() {
             map<anydata> data = (val.length() > 0) ? val[0] : {};
-            foreach var [k, v] in data {
+            foreach var [k, v] in data.entries() {
                 self.data[key + DELIMITER + k] = v;
             }
         }
@@ -173,7 +174,7 @@ public type StreamEvent object {
     #
     # + data - map containg event attribute values.
     public function toDataMap(map<anydata> data) {
-        foreach var [k, v] in data {
+        foreach var [k, v] in data.entries() {
             string[] key = internal:split(k, "\\.");
             if (key.length() == 2) {
                 map<anydata>[] dataMapArray = self.dataMap[key[0]] ?: [];

@@ -49,6 +49,10 @@ function testSubString() returns string {
 //    return chars;
 //}
 
+function testStartsWith() returns boolean {
+    return strings:startsWith("Hello Ballerina!", "Hello");
+}
+
 function testConcat() returns string {
     return strings:concat("Hello ", "from ", "Ballerina");
 }

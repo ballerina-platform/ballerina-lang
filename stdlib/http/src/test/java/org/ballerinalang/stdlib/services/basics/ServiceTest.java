@@ -25,6 +25,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -218,8 +219,8 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertTrue(bJson instanceof MapValue);
-        Assert.assertTrue(((MapValue<String, Object>) bJson).get("Team").toString().isEmpty(),
-                "Team variable not set properly.");
+
+        Assert.assertTrue(((MapValueImpl) bJson).get("Team").toString().isEmpty(), "Team variable not set properly");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
