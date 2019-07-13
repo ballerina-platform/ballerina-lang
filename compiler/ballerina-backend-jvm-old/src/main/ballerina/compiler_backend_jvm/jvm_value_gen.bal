@@ -81,7 +81,7 @@ public type ObjectGenerator object {
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
         foreach var (name, call) in lambdas {
-             generateLambdaMethod(call, cw, name);
+            generateLambdaMethod(call, cw, name);
         }
         // clear the lambdas
         lambdas = {};

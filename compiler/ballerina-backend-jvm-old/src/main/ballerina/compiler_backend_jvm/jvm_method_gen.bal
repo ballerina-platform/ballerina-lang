@@ -750,7 +750,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
                     addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
                     paramBTypes[paramIndex -1] = "boolean";
                     paramIndex += 1;
-                }  
+                }
                 argIndex += 1;
             }
         }
@@ -782,8 +782,8 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
-            } 
-            argIndex += 1; 
+            }
+            argIndex += 1;
         }
     }
 
