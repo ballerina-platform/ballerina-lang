@@ -1675,6 +1675,12 @@ public class HttpUtil {
         return listenerConfiguration;
     }
 
+    public static String getServiceName(ObjectValue balService) {
+        String serviceTypeName = balService.getType().getName();
+        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
+        return serviceTypeName.substring(0, serviceIndex);
+    }
+
     private HttpUtil() {
     }
 }
