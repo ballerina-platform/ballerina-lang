@@ -50,6 +50,7 @@ type IntRange object {
 
 # The `createIntRange` function creates a `IntRange` object and returns it. This function is used to replace the binary
 # integer range expression in Desugar phase.
+#
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
 # + return - `IntRange` object
