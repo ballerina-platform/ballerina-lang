@@ -15,8 +15,8 @@ public function main (string... args) {
     if (readOutput is string) {
         testFunction(readOutput, readOutput);
     } else {
-        error e = <error>readOutput;
-        panic e;
+        error err = readOutput;
+        panic err;
     }
 }
 
