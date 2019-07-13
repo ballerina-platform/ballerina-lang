@@ -115,7 +115,7 @@ public class SimpleConstantAccessInBaloTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
     }
 
-    @Test
+    @Test (groups = "brokenOnBootstrappedJVMCodegen")
     public void testByteTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns[0]);

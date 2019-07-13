@@ -29,19 +29,13 @@ public type JdbcClient client object {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
-     //TODO: #16033
     # The select remote function implementation for JDBC Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `JdbcClientError` will be returned if there
     # is any error
-    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-    //Param... parameters) returns @tainted table<record {}>|error {
-    //    return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
-    //}
     public remote function select(@untainted string sqlQuery, typedesc? recordType,
     Param... parameters) returns @tainted table<record {}>|JdbcClientError {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
@@ -78,8 +72,6 @@ public type JdbcClient client object {
     }
 };
 
-//function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
-//   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
 function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc? recordType,
    Param... parameters) returns @tainted table<record {}>|JdbcClientError = external;
 
