@@ -15,28 +15,25 @@
 // under the License.
 
 function addDefaultableBooleanVarsToSignature(bir:Function? func) {
-    bir:Function currentFunc = getFunction(untaint func);
+    bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
     currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
-    int i = 0;
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;
-    int nameIndex = localVars.length(); // To continue the local var numbering we take the current size as the index.
+    int nameIndex = 0;
 
-    while (i < localVars.length()) {
-        bir:VariableDcl localVar = getVariableDcl(localVars[i]);
+    foreach (var localVar in localVars) {
         updatedVars[index] = localVar;
         index += 1;
         if (localVar is bir:FunctionParam) {
             // An additional boolean arg is gen for each function parameter.
-            string argName = "%" + nameIndex;
+            string argName = "%syn" + nameIndex;
             nameIndex += 1;
             bir:FunctionParam booleanVar = { kind: bir:VAR_KIND_ARG, name: { value: argName }, typeValue: "boolean", hasDefaultExpr: false };
             updatedVars[index] = booleanVar;
             index += 1;
         }
-        i = i + 1;
     }
     currentFunc.localVars = updatedVars;
 }
