@@ -51,22 +51,22 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
                 var privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
                                                          keyPassword = keyPassword);
                 if (privateKey is crypto:PrivateKey) {
-                    if (header.alg == RS256) {
-                        var signature = crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"), privateKey);
+                    if (alg == RS256) {
+                        var signature = crypto:signRsaSha256(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
                             return prepareJwtError("Private key signing failed for SHA256 algorithm.", err = signature);
                         }
-                    } else if (header.alg == RS384) {
-                        var signature = crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"), privateKey);
+                    } else if (alg == RS384) {
+                        var signature = crypto:signRsaSha384(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
                             return prepareJwtError("Private key signing failed for SHA384 algorithm.", err = signature);
                         }
-                    } else if (header.alg == RS512) {
-                        var signature = crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"), privateKey);
+                    } else if (alg == RS512) {
+                        var signature = crypto:signRsaSha512(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
@@ -84,7 +84,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
         }
     }
     //TODO: Define a proper error
-    return prepareError("JwtSigningAlgorithm is not found.");
+    return prepareJwtError("JwtSigningAlgorithm is not found.");
 }
 
 function buildHeaderString(JwtHeader header) returns string|JwtError {
