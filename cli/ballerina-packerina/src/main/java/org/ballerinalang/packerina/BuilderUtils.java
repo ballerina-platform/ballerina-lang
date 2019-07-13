@@ -19,9 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.spi.CompilerBackendCodeGenerator;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.BackendCodeGeneratorProvider;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -146,7 +144,7 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         Path target = prepareTargetDirectory(sourceRootPath);
-        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME);
+        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME).resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
@@ -158,7 +156,7 @@ public class BuilderUtils {
                             "ballerina.home is not set");
 
                     BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                            jarCache, Optional.of(Paths.get(".")), dumpBir);
+                            jarCache, Optional.of(jarCache), dumpBir);
                 } catch (IOException e) {
                     throw new BLangCompilerException("error invoking jballerina backend", e);
                 }
@@ -299,4 +297,13 @@ public class BuilderUtils {
     }
 
 
+    /**
+     * Create the uber jar using the dependencies
+     *
+     * @param projectDir
+     * @param packages
+     */
+    private static void assemble(Path projectDir, List<BLangPackage> packages){
+        // todo implement
+    }
 }
