@@ -73,9 +73,10 @@ service ClientService = service {
             if (length > 0) {
                 var str = <@untainted> getString(content);
                 if (str is string) {
-                    io:println(<@untainted> str);
+                    io:println(<@untainted>str);
                 } else {
-                    io:println(str.reason());
+                    error e = <error>str;
+                    io:println(e.detail().message);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
@@ -96,7 +97,7 @@ service ClientService = service {
     }
 };
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(15);

@@ -791,9 +791,9 @@ type InstructionGenerator object {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         } else {
-            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
         self.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
@@ -869,7 +869,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = [inst, methodClass];
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
@@ -1096,6 +1096,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         mv.visitVarInsn(LLOAD, valueIndex);
     } else if (bType is bir:BTypeByte) {
         mv.visitVarInsn(ILOAD, valueIndex);
+        mv.visitInsn(I2B);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
     } else if (bType is bir:BTypeFloat) {
         mv.visitVarInsn(DLOAD, valueIndex);
     } else if (bType is bir:BTypeBoolean) {

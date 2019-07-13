@@ -341,7 +341,6 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 #
 # + mv - method visitor
 # + recordType - record type
-# + name - name of the record
 function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
@@ -452,7 +451,6 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 #
 # + mv - method visitor
 # + objectType - object type
-# + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
@@ -987,7 +985,6 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 # Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
-# + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
     string fieldName = "";
     string typeOwner = "";
@@ -1112,10 +1109,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
 
-    foreach var value in finiteType.values {
+    foreach var valueTypePair in finiteType.values {
+        var value = valueTypePair[0];
+        bir:BType valueType = valueTypePair[1];
         mv.visitInsn(DUP);
 
-        if (value is ()) {
+        if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
         } else if (value is bir:Decimal) { 
             // do nothing
@@ -1123,13 +1122,13 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
             mv.visitLdcInsn(value);
         }
 
-        if (value is int) {
+        if (valueType is bir:BTypeInt) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-        } else if (value is boolean) {
+        } else if (valueType is bir:BTypeBoolean) {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else if (value is float) {
+        } else if (valueType is bir:BTypeFloat) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (value is byte) {
+        } else if (valueType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
         } else if (value is bir:Decimal) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);

@@ -30,30 +30,30 @@ public type StringReader object {
 
     # Reads string as json from reader.
     #
-    # + return - json or `IOError` if any error occurred
-    public function readJson() returns @tainted json|IOError {
+    # + return - json or `Error` if any error occurred
+    public function readJson() returns @tainted json|Error {
         return self.charChannel.readJson();
     }
 
     # Reads string as XML from reader
     #
     # + return -
-    public function readXml() returns @tainted xml|IOError? {
+    public function readXml() returns @tainted xml|Error? {
         return self.charChannel.readXml();
     }
 
     # Reads characters from the given string.
     #
     # + nCharacters - read specific number of characters
-    # + return - string or `IOError` if any error occurred
-    public function readChar(int nCharacters) returns @tainted string|IOError? {
+    # + return - string or `Error` if any error occurred
+    public function readChar(int nCharacters) returns @tainted string|Error? {
         return self.charChannel.read(nCharacters);
     }
 
     # Closes reader.
     #
-    # + return - An `IOError` if could not close the channel
-    public function close() returns IOError? {
+    # + return - An `Error` if could not close the channel
+    public function close() returns Error? {
         return self.charChannel.close();
     }
 };

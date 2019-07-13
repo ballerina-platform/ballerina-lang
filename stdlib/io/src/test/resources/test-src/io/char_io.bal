@@ -20,7 +20,7 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) returns @tainted io:IOError? {
+function initReadableChannel(string filePath, string encoding) returns @tainted io:Error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
@@ -29,12 +29,12 @@ function initReadableChannel(string filePath, string encoding) returns @tainted 
     }
 }
 
-function initWritableChannel(string filePath, string encoding) returns io:IOError? {
+function initWritableChannel(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function initWritableChannelToAppend(string filePath, string encoding) returns io:IOError? {
+function initWritableChannelToAppend(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, append = true);
     wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
@@ -51,7 +51,7 @@ function readCharacters(int numberOfCharacters) returns @tainted string|error {
     }
 }
 
-function readAllCharacters() returns @tainted string|io:IOError? {
+function readAllCharacters() returns @tainted string|io:Error? {
     int fixedSize = 500;
     boolean isDone = false;
     string result = "";
@@ -64,7 +64,7 @@ function readAllCharacters() returns @tainted string|io:IOError? {
             if (<string>e.detail().message == "io.EOF") {
                 isDone = true;
             } else {
-                io:IOError readError = error(io:IO_ERROR, message = "Error while reading the content", cause = readResult);
+                io:GenericError readError = error(io:GENERIC_ERROR, message = "Error while reading the content", cause = readResult);
                 return readError;
             }
         }
@@ -72,27 +72,26 @@ function readAllCharacters() returns @tainted string|io:IOError? {
     return result;
 }
 
-function writeCharacters(string content, int startOffset) returns int|io:IOError? {
+function writeCharacters(string content, int startOffset) returns int|io:Error? {
     var result = wch.write(content, startOffset);
     if (result is int) {
         return result;
     } else if (result is error) {
         return result;
     } else {
-        // error e = error("Character channel not initialized properly");
-        io:IOError e = error(io:IO_ERROR, message = "Character channel not initialized properly");
+        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
         return e;
     }
 }
 
-function appendCharacters(string content, int startOffset) returns int|io:IOError? {
+function appendCharacters(string content, int startOffset) returns int|io:Error? {
     var result = wca.write(content, startOffset);
     if (result is int) {
         return result;
     } else if (result is error) {
         return result;
     } else {
-        io:IOError e = error(io:IO_ERROR, message = "Character channel not initialized properly");
+        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
         return e;
     }
 }
@@ -113,7 +112,7 @@ function readXml() returns @tainted xml|error {
     } else if (result is error) {
         return result;
     } else {
-        io:IOError e = error(io:IO_ERROR, message = "Character channel not initialized properly");
+        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
         return e;
     }
 }
@@ -128,7 +127,7 @@ function writeJsonWithHigherUnicodeRange() {
     };
     var result = wch.writeJson(content);
     if (result is error) {
-        panic result;
+        panic <error>result;
     }
 }
 
