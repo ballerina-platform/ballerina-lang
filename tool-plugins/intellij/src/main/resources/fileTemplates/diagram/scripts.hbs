@@ -16,7 +16,7 @@ function loadedScript() {
                     langClient: getLangClient()
                 }
             };
-            const diagram = ballerinaComposer.renderDiagramEditor(options);
+            const diagram = ballerinaComposer.renderOverview(options);
             window.updateAST = () => {
                 diagram.updateAST(docUri);
             };
