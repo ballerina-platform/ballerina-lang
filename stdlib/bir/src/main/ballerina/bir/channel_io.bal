@@ -24,7 +24,7 @@ public type ChannelReader object {
 
     public function __init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
-        self.dataChannel = new (byteChannel, bOrder = "BE");
+        self.dataChannel = new (byteChannel, "BE");
     }
 
     public function readBoolean() returns boolean {
@@ -62,7 +62,7 @@ public type ChannelReader object {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
             var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
-            return encoding:byteArrayToString(strBytes, encoding = "utf-8");
+            return encoding:byteArrayToString(strBytes, "utf-8");
         } else {
             return "";
         }
