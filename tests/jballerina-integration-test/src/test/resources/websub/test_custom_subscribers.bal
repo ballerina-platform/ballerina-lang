@@ -124,7 +124,7 @@ public type WebhookServerForPayload object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {
@@ -162,7 +162,7 @@ public type WebhookServerForHeader object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {
@@ -221,7 +221,7 @@ public type WebhookServerForHeaderAndPayload object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
     public function __attach(service serviceType, string? name = ()) returns error? {

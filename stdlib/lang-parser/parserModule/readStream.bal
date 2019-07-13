@@ -31,7 +31,7 @@ function parseFile(string fileLocation) returns PackageNode? {
     BufferReader | error bReader = new BufferReader(sourceChannel);
 
     if (bReader is error) {
-        log:printError("error occurred while processing chars ", err = bReader);
+        log:printError("error occurred while processing chars ", bReader);
         closeRc(sourceChannel);
         return ();
     } else {
@@ -47,6 +47,6 @@ function parseFile(string fileLocation) returns PackageNode? {
 function closeRc(io:ReadableCharacterChannel ch) {
     var readChannel = ch.close();
     if (readChannel is error) {
-        log:printError("Error occured while closing the channel: ", err = readChannel);
+        log:printError("Error occured while closing the channel: ", readChannel);
     }
 }

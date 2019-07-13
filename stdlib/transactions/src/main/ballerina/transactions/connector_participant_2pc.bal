@@ -31,7 +31,7 @@ public type Participant2pcClientEP client object {
     Participant2pcClientConfig conf = {};
 
     public function __init(Participant2pcClientConfig c) {
-        http:Client httpEP = new(c.participantURL, config = {
+        http:Client httpEP = new(c.participantURL, {
             timeoutMillis: c.timeoutMillis,
             retryConfig:{
                 count: c.retryConfig.count, interval: c.retryConfig.interval
@@ -45,7 +45,7 @@ public type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
-        json j = check json.convert(prepareReq);
+        json j = check typedesc<json>.constructFrom(prepareReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/prepare", req);
         http:Response res = check result;
@@ -55,12 +55,12 @@ public type Participant2pcClientEP client object {
             return err;
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
-            PrepareResponse prepareRes = check PrepareResponse.convert(payload);
-            return <@untainted string> prepareRes.message;
+            PrepareResponse prepareRes = check typedesc<PrepareResponse>.constructFrom(payload);
+            return <@untainted> prepareRes.message;
         } else {
             error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
                 self.conf.participantURL);
-            return <@untainted error> err;
+            return <@untainted> err;
         }
     }
 
@@ -68,12 +68,12 @@ public type Participant2pcClientEP client object {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
-        json j = check json.convert(notifyReq);
+        json j = check typedesc<json>.constructFrom(notifyReq);
         req.setJsonPayload(j);
         var result = httpClient->post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
-        NotifyResponse notifyRes = check NotifyResponse.convert(payload);
+        NotifyResponse notifyRes = check typedesc<NotifyResponse>.constructFrom(payload);
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {

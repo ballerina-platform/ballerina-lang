@@ -37,7 +37,7 @@ public type JwtValidatorConfig record {|
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
-    cache:Cache jwtCache = new(capacity = 1000);
+    cache:Cache jwtCache = new(900000, 1000, 0.25);
 |};
 
 # Represents parsed and cached JWT.
@@ -276,7 +276,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
 }
 
 function validateCertificate(JwtValidatorConfig config) returns boolean|JwtError {
-    var publicKey = crypto:decodePublicKey(keyStore = config?.trustStore, keyAlias = config?.certificateAlias);
+    var publicKey = crypto:decodePublicKey(config?.trustStore, config?.certificateAlias);
     if (publicKey is crypto:PublicKey) {
         time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
         int currTimeInGmtMillis = currTimeInGmt.time;
@@ -310,37 +310,37 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
             string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
             var signPart = encoding:decodeBase64Url(encodedJWTComponents[2]);
             if (signPart is byte[]) {
-                var publicKey = crypto:decodePublicKey(keyStore = config?.trustStore , keyAlias = config?.certificateAlias);
+                var publicKey = crypto:decodePublicKey(config?.trustStore , config?.certificateAlias);
                 if (publicKey is crypto:PublicKey) {
                     if (alg == RS256) {
                         var verification = crypto:verifyRsaSha256Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA256 singature verification failed.", err = verification);
+                            return prepareJwtError("SHA256 singature verification failed.", verification);
                         }
                     } else if (alg == RS384) {
                         var verification = crypto:verifyRsaSha384Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA384 singature verification failed.", err = verification);
+                            return prepareJwtError("SHA384 singature verification failed.", verification);
                         }
                     } else if (alg == RS512) {
                         var verification = crypto:verifyRsaSha512Signature(assertion.toBytes(), signPart, publicKey);
                         if (verification is boolean) {
                             return verification;
                         } else {
-                            return prepareJwtError("SHA512 singature verification failed.", err = verification);
+                            return prepareJwtError("SHA512 singature verification failed.", verification);
                         }
                     } else {
                         return prepareJwtError("Unsupported JWS algorithm.");
                     }
                 } else {
-                    return prepareJwtError("Public key decode failed.", err = publicKey);
+                    return prepareJwtError("Public key decode failed.", publicKey);
                 }
             } else {
-                return prepareJwtError("Base64 url decode failed for JWT signature.", err = signPart);
+                return prepareJwtError("Base64 url decode failed for JWT signature.", signPart);
             }
         }
     }

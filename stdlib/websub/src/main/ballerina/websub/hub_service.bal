@@ -29,7 +29,7 @@ service hubService =
 @http:ServiceConfig {
     basePath: BASE_PATH,
     auth: {
-        enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", defaultValue = false),
+        enabled: config:getAsBoolean("b7a.websub.hub.auth.enabled", false),
         scopes: getArray(config:getAsString("b7a.websub.hub.auth.scopes"))
     }
 }
@@ -84,7 +84,7 @@ service {
 
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding to subscription change request", err = responseError);
+                log:printError("Error responding to subscription change request", responseError);
             } else {
                 if (validSubscriptionChangeRequest) {
                     verifyIntentAndAddSubscription(callback, topic, params);
@@ -98,7 +98,7 @@ service {
                 log:printWarn("Remote topic registration denied at Hub");
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding on remote topic registration failure", err = responseError);
+                    log:printError("Error responding on remote topic registration failure", responseError);
                 }
                 return;
             }
@@ -115,7 +115,7 @@ service {
             }
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding remote topic registration status", err = responseError);
+                log:printError("Error responding remote topic registration status", responseError);
             }
         } else if (mode == MODE_UNREGISTER) {
             if (!remotePublishConfig.enabled || !hubTopicRegistrationRequired) {
@@ -124,7 +124,7 @@ service {
                 log:printWarn("Remote topic unregistration denied at Hub");
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding on remote topic unregistration failure", err = responseError);
+                    log:printError("Error responding on remote topic unregistration failure", responseError);
                 }
                 return;
             }
@@ -141,7 +141,7 @@ service {
             }
             var responseError = httpCaller->respond(response);
             if (responseError is error) {
-                log:printError("Error responding remote topic unregistration status", err = responseError);
+                log:printError("Error responding remote topic unregistration status", responseError);
             }
         } else {
             if (mode != MODE_PUBLISH) {
@@ -175,7 +175,7 @@ service {
                             response.statusCode = http:BAD_REQUEST_400;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
-                                log:printError("Error responding on update fetch failure", err = responseError);
+                                log:printError("Error responding on update fetch failure", responseError);
                             }
                             return;
                         }
@@ -201,7 +201,7 @@ service {
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on payload extraction failure for"
-                                                    + " publish request", err = responseError);
+                                                    + " publish request", responseError);
                         }
                         return;
                     }
@@ -217,7 +217,7 @@ service {
                         var responseError = httpCaller->respond(response);
                         if (responseError is error) {
                             log:printError("Error responding on update notification for topic[" + topic
-                                                    + "]", err = responseError);
+                                                    + "]", responseError);
                         }
                         return;
                     }
@@ -229,13 +229,13 @@ service {
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding to publish request", err = responseError);
+                    log:printError("Error responding to publish request", responseError);
                 }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
                 if (responseError is error) {
-                    log:printError("Error responding to request", err = responseError);
+                    log:printError("Error responding to request", responseError);
                 }
             }
         }
@@ -273,7 +273,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
 # + topic - The topic specified in the new subscription/unsubscription request
 # + params - Parameters specified in the new subscription/unsubscription request
 function verifyIntentAndAddSubscription(string callback, string topic, map<string> params) {
-    http:Client callbackEp = new http:Client(callback, config = hubClientConfig);
+    http:Client callbackEp = new http:Client(callback, hubClientConfig);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
     var result = int.convert(strLeaseSeconds);
@@ -418,7 +418,7 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) {
 # + return - `http:Response` indicating the response received on fetching the topic URL if successful,
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
-    http:Client topicEp = new http:Client(topic, config = hubClientConfig);
+    http:Client topicEp = new http:Client(topic, hubClientConfig);
     http:Request request = new;
 
     var fetchResponse = topicEp->get("", message = request);
@@ -433,7 +433,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 # + return - Nil if successful, error in case of invalid content-type
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent)
 returns error? {
-    http:Client callbackEp = new http:Client(callback, config = hubClientConfig);
+    http:Client callbackEp = new http:Client(callback, hubClientConfig);
     http:Request request = new;
     request.setPayload(webSubContent.payload);
     check request.setContentType(webSubContent.contentType);

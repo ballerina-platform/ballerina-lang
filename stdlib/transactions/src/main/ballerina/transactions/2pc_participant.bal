@@ -100,7 +100,7 @@ type RemoteParticipant object {
         // If a participant voted NO or failed then abort
         var result = participantEP->prepare(self.transactionId);
         if (result is error) {
-            log:printError("Remote participant: " + self.participantId + " failed", err = result);
+            log:printError("Remote participant: " + self.participantId + " failed", result);
             return result;
         } else {
             if (result == "aborted") {
@@ -130,7 +130,7 @@ type RemoteParticipant object {
         participantEP = getParticipant2pcClient(protocolUrl);
         var result = participantEP->notify(self.transactionId, action);
         if (result is error) {
-            log:printError("Remote participant: " + self.participantId + " replied with an error", err = result);
+            log:printError("Remote participant: " + self.participantId + " replied with an error", result);
             return result;
         } else {
             if (result == NOTIFY_RESULT_ABORTED_STR) {

@@ -33,7 +33,7 @@ public type InboundOAuth2Provider object {
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config["tokenTypeHint"];
-        self.introspectionClient = new(config.url, config = config.clientConfig);
+        self.introspectionClient = new(config.url, config.clientConfig);
     }
 
     # Attempts to authenticate with credential.
@@ -56,7 +56,7 @@ public type InboundOAuth2Provider object {
         if (tokenTypeHint is string) {
             textPayload += "&token_type_hint=" + tokenTypeHint;
         }
-        req.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+        req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
         var response = self.introspectionClient->post("", req);
         if (response is http:Response) {
             json payload = check response.getJsonPayload();

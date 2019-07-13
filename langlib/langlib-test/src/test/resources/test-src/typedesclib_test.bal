@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,16 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-import ballerina/io;
+type Person record {
+    string name;
+    int age;
+};
 
-listener http:WebSocketListener wsListener = new(9090, {host: "0.0.0.0"});
-
-@http:WebSocketServiceConfig {
-    path: "/echo"
-}
-service wsService on wsListener {
-
-    resource function onFind(http:WebSocketCaller caller) {
-    }
+function testRecToJson() returns json|error {
+    Person  p = {name: "N", age: 3};
+    json|error j = typedesc<json>.constructFrom(p);
+    return j;
 }

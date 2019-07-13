@@ -682,6 +682,20 @@ public class BLangPackageBuilder {
                                      String identifier,
                                      DiagnosticPos identifierPos,
                                      boolean exprAvailable,
+                                     int annotCount,
+                                     boolean isPublic) {
+        BLangSimpleVariable var  = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
+        if (isPublic) {
+            var.flagSet.add(Flag.PUBLIC);
+        }
+        return var;
+    }
+
+    BLangSimpleVariable addSimpleVar(DiagnosticPos pos,
+                                     Set<Whitespace> ws,
+                                     String identifier,
+                                     DiagnosticPos identifierPos,
+                                     boolean exprAvailable,
                                      int annotCount) {
         BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier, identifierPos,
                                                                                   exprAvailable);

@@ -26,11 +26,11 @@ public type Producer client object {
             Connection connection;
             var secureSocket = sessionOrEndpointConfig["secureSocket"];
             if (secureSocket is SecureSocket) {
-                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+                connection = new(parseUrl(sessionOrEndpointConfig), {secureSocket: secureSocket});
             } else {
                 connection = new(parseUrl(sessionOrEndpointConfig));
             }
-            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+            self.session = new(connection, { username: sessionOrEndpointConfig["username"],
                     password: sessionOrEndpointConfig["password"],
                     autoCommitSends: false, autoCommitAcks:  false});
             self.session.anonymousSession = true;

@@ -20,7 +20,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8181, config = { host: "0.0.0.0" });
+listener websub:Listener websubEP = new websub:Listener(8181, { host: "0.0.0.0" });
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
