@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-http:Client internalErrorEP = new("http://localhost:8080", config = {
+http:Client internalErrorEP = new("http://localhost:8080", {
     retryConfig: {
         interval: 3000,
         count: 3,
@@ -43,7 +43,7 @@ service retryStatusService on new http:Listener(9225) {
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             } else {
                 http:Response errorResponse = new;
@@ -51,7 +51,7 @@ service retryStatusService on new http:Listener(9225) {
                 errorResponse.setPayload(backendResponse.reason());
                 var responseError = caller->respond(errorResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             }
         } else if (request.getHeader("x-retry") == "internalError") {
@@ -59,7 +59,7 @@ service retryStatusService on new http:Listener(9225) {
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             } else {
                 http:Response errorResponse = new;
@@ -67,7 +67,7 @@ service retryStatusService on new http:Listener(9225) {
                 errorResponse.setPayload(backendResponse.reason());
                 var responseError = caller->respond(errorResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             }
         }
@@ -90,12 +90,12 @@ service mockStatusCodeService on new http:Listener(8080) {
             res.setPayload("Gateway Timed out.");
             var responseError = caller->respond(res);
             if (responseError is error) {
-                log:printError("Error sending response from the service", err = responseError);
+                log:printError("Error sending response from the service", responseError);
             }
         } else {
             var responseError = caller->respond("Hello World!!!");
             if (responseError is error) {
-                log:printError("Error sending response from the service", err = responseError);
+                log:printError("Error sending response from the service", responseError);
             }
         }
     }
@@ -110,7 +110,7 @@ service mockStatusCodeService on new http:Listener(8080) {
         res.setPayload("Gateway Timed out.");
         var responseError = caller->respond(res);
         if (responseError is error) {
-            log:printError("Error sending response from the service", err = responseError);
+            log:printError("Error sending response from the service", responseError);
         }
     }
 }

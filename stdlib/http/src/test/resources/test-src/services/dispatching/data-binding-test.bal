@@ -59,7 +59,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = <@untainted> encoding:byteArrayToString(person, encoding = "UTF-8");
+        string name = <@untainted> encoding:byteArrayToString(person, "UTF-8");
         checkpanic caller->respond({ Key: name });
     }
 

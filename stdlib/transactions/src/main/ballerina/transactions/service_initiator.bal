@@ -109,7 +109,7 @@ service InitiatorService on coordinatorListener {
                     var resResult = conn->respond(res);
                     if (resResult is error) {
                         log:printError("Sending response for register request for transaction " + txnId +
-                                " failed", err = resResult);
+                                " failed", resResult);
                     } else {
                         log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }

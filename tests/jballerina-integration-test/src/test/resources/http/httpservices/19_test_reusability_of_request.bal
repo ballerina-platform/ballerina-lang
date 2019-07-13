@@ -138,13 +138,13 @@ service testService_1 on testEP {
                         secondVal = result2.reason();
                     }
                 } else {
-                    log:printError(secondResponse.reason(), err = secondResponse);
+                    log:printError(secondResponse.reason(), secondResponse);
                 }
             } else {
-                log:printError(firstResponse.reason(), err = firstResponse);
+                log:printError(firstResponse.reason(), firstResponse);
             }
         } else {
-            log:printError(entity.reason(), err = entity);
+            log:printError(entity.reason(), entity);
         }
         testResponse.setTextPayload(firstVal + secondVal);
         checkpanic caller->respond(testResponse);
@@ -196,7 +196,7 @@ service testService_1 on testEP {
         http:Request clientReq = new;
         var byteChannel = clientRequest.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            clientReq.setByteChannel(byteChannel, contentType = "text/plain");
+            clientReq.setByteChannel(byteChannel, "text/plain");
             var firstResponse = clientEP1 -> post("/consumeChannel", clientReq);
             if (firstResponse is http:Response) {
                 var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
@@ -224,10 +224,10 @@ service testService_1 on testEP {
                 testResponse.setTextPayload(<@untainted> firstVal + <@untainted> secondVal);
                 checkpanic caller->respond(testResponse);
             } else {
-                log:printError(firstResponse.reason(), err = firstResponse);
+                log:printError(firstResponse.reason(), firstResponse);
             }
         } else {
-            log:printError(byteChannel.reason(), err = byteChannel);
+            log:printError(byteChannel.reason(), byteChannel);
         }
     }
 }

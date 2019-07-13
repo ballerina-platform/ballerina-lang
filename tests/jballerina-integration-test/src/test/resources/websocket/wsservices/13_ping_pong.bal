@@ -26,7 +26,7 @@ final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 service PingPongTestService2 on new http:WebSocketListener(9095) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("ws://localhost:15200/websocket", config = { callbackService:
+        http:WebSocketClient wsClientEp = new("ws://localhost:15200/websocket", { callbackService:
             clientCallbackService2, readyOnConnect: false });
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;

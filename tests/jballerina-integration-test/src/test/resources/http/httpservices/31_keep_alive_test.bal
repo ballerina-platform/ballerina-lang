@@ -28,7 +28,7 @@ http:Client http_1_1_always = new("http://localhost:9233",
 http:Client http_1_1_never = new("http://localhost:9233",
                                  config = { http1Settings : { keepAlive: http:KEEPALIVE_NEVER }});
 
-http:Client http_1_0_default = new("http://localhost:9233", config = { httpVersion: "1.0" } );
+http:Client http_1_0_default = new("http://localhost:9233", { httpVersion: "1.0" } );
 
 http:Client http_1_0_auto = new("http://localhost:9233",
                                  config = { httpVersion: "1.0", http1Settings : { keepAlive: http:KEEPALIVE_AUTO }});

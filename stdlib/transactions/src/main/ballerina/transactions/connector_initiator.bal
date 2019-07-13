@@ -29,7 +29,7 @@ type InitiatorClientEP client object {
     http:Client httpClient;
 
     function __init(InitiatorClientConfig conf) {
-        http:Client httpEP = new(conf.registerAtURL, config = {
+        http:Client httpEP = new(conf.registerAtURL, {
                 timeoutMillis:conf.timeoutMillis,
                 retryConfig:{
                     count:conf.retryConfig.count,

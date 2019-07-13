@@ -65,7 +65,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 # + err - `error` instance
 # + return - Prepared `AuthError` instance
 public function prepareAuthError(string message, error? err = ()) returns AuthError {
-    log:printError(message, err = err);
+    log:printError(message, err);
     AuthError authError;
     if (err is error) {
         authError = error(AUTH_ERROR, message = message, cause = err);

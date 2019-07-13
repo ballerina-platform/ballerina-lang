@@ -37,7 +37,7 @@ http:ClientEndpointConfig conf01 = {
     timeoutMillis: 2000
 };
 
-http:Client healthyClientEP = new("http://localhost:8087", config = conf01);
+http:Client healthyClientEP = new("http://localhost:8087", conf01);
 
 @http:ServiceConfig {
     basePath: "/cb"
@@ -58,7 +58,7 @@ service circuitbreaker01 on circuitBreakerEP01 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -67,7 +67,7 @@ service circuitbreaker01 on circuitBreakerEP01 {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -82,7 +82,7 @@ service healthyService on new http:Listener(8087) {
     resource function sayHello(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Hello World!!!");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }

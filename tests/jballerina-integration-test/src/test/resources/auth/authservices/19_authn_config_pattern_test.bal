@@ -65,7 +65,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_4 = new({
 });
 http:BearerAuthHandler jwtAuthHandler19_4 = new(jwtAuthProvider19_4);
 
-listener http:Listener listener19 = new(9115, config = {
+listener http:Listener listener19 = new(9115, {
     auth: {
         authHandlers: [basicAuthHandler19]
     },
