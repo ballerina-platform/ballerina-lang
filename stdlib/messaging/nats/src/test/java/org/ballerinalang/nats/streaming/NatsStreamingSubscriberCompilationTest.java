@@ -117,11 +117,13 @@ public class NatsStreamingSubscriberCompilationTest {
     }
 
     private CompileResult compileBasicTests(String fileName) {
-        return BCompileUtil.compile(BASIC_TEST_SRC_PATH.resolve(fileName).toAbsolutePath().toString(), false);
+        return BCompileUtil.compileOnJBallerina(BASIC_TEST_SRC_PATH.toAbsolutePath().toString(), fileName,
+                false, false);
     }
 
     private CompileResult compileDataBindingTests(String fileName) {
-        return BCompileUtil.compile(DATA_BINDING_TEST_SRC_PATH.resolve(fileName).toAbsolutePath().toString(), false);
+        return BCompileUtil.compileOnJBallerina(DATA_BINDING_TEST_SRC_PATH.toAbsolutePath().toString(), fileName,
+                false, false);
     }
 
     private void assertDiagnosticCount(CompileResult compileResult, int expectedDiagnosticCount) {
