@@ -37,7 +37,7 @@ install:
 
 script:
   - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan -x :jballerina-unit-test:test -x jballerina-integration-test:test
+  - ./gradlew build jacocoTestReport --console=plain --stacktrace -scan -x jballerina-integration-test:test
   # Killing background sleep loop
   - kill %1
 
