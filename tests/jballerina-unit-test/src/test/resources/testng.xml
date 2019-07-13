@@ -72,7 +72,7 @@
             <!--<package name="org.ballerinalang.test.statements.compoundassignment.*"/>-->
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
-            <!--<package name="org.ballerinalang.test.statements.ifelse.*"/>-->
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <!--<package name="org.ballerinalang.test.statements.returnstmt.*"/>-->
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
