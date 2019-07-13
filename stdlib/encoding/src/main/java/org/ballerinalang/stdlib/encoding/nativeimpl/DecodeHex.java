@@ -45,7 +45,7 @@ public class DecodeHex extends BlockingNativeCallableUnit {
             byte[] output = EncodingUtil.decodeHex(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("input is not a valid Hex value");
+            return EncodingUtil.createEncodingError("Input is not a valid Hex value");
         }
     }
 }

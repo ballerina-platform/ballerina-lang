@@ -795,7 +795,11 @@ type InstructionGenerator object {
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
-        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        if (typeCastIns.checkType) {
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        } else {
+            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        }
         self.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
 
@@ -842,9 +846,6 @@ type InstructionGenerator object {
         self.mv.visitInsn(DUP);
 
         string lambdaName = inst.name.value + "$lambda$";
-        string lookupKey = getPackageName(inst.pkgID.org, inst.pkgID.name) + inst.name.value;
-        string methodClass = lookupFullQualifiedClassName(lookupKey);
-
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
@@ -870,7 +871,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = inst;
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {

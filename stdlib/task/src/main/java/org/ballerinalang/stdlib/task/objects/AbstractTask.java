@@ -48,7 +48,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 public abstract class AbstractTask implements Task {
 
     protected String id = TaskIdGenerator.generate();
-    private HashMap<String, ServiceWithParameters> serviceMap;
+    private HashMap<String, ServiceInformation> serviceMap;
     Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
     Scheduler scheduler;
@@ -90,13 +90,8 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public void addService(ServiceWithParameters service) {
-        //TODO Remove this condition after migration : Added just to distinguish both bvm and jvm exec
-        if (service.getService() != null) {
-            this.serviceMap.put(service.getService().getName(), service);
-        } else {
-            this.serviceMap.put(service.getServiceObj().getType().getName(), service);
-        }
+    public void addService(ServiceInformation service) { 
+        this.serviceMap.put(service.getService().getType().getName(), service);
     }
 
     /**
@@ -111,7 +106,7 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public HashMap<String, ServiceWithParameters> getServicesMap() {
+    public HashMap<String, ServiceInformation> getServicesMap() {
         return this.serviceMap;
     }
 
@@ -119,7 +114,7 @@ public abstract class AbstractTask implements Task {
      * {@inheritDoc}
      */
     @Override
-    public ServiceWithParameters getService(String serviceName) {
+    public ServiceInformation getService(String serviceName) {
         return this.serviceMap.get(serviceName);
     }
 

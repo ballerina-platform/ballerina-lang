@@ -27,6 +27,7 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,7 +48,7 @@ public class DataBindingTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
+        CompileResult result = BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
     }
 
     @Test(description = "Test data binding with string payload")

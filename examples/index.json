@@ -782,14 +782,7 @@
         "title": "Database",
         "column": 2,
         "category": "Working over the network",
-        "samples": [{
-                "name": "H2 Client",
-                "url": "h2-client"
-            },
-            {
-                "name": "MySQL Client",
-                "url": "mysql-client"
-            },
+        "samples": [
             {
                 "name": "JDBC Client CRUD Operations",
                 "url": "jdbc-client-crud-operations"
@@ -804,7 +797,7 @@
             },
             {
                 "name": "Streaming a Big Dataset",
-                "url": "streaming-big-dataset"
+                "url": "jdbc-streaming-big-dataset"
             }
         ]
     },
@@ -1120,22 +1113,8 @@
         ]
     },
     {
-        "title": "Channels",
-        "column": 2,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Message Correlation with Channels",
-                "url": "channels-correlation"
-            },
-            {
-                "name": "Worker Interactions with Channels",
-                "url": "channels-workers"
-            }
-        ]
-    },
-    {
         "title": "Table Queries",
-        "column": 3,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",
