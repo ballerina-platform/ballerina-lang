@@ -38,6 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class StartsWith {
 
     public static boolean startsWith(Strand strand, String str, String substr) {
-        return false;
+        return str.startsWith(substr);
     }
 }

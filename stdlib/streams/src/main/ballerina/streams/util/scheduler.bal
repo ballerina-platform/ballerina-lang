@@ -54,7 +54,7 @@ public type Scheduler object {
 
                     checkpanic self.timer.stop();
                     self.timer = new({ interval: timeDiff, initialDelay: timeDelay, noOfRecurrences: 1 });
-                    checkpanic self.timer.attach(schedulerService, attachment = self);
+                    checkpanic self.timer.attach(schedulerService, self);
                     checkpanic self.timer.start();
                 }
             }
@@ -92,7 +92,7 @@ public type Scheduler object {
                 _ = self.wrapperFunc();
             } else {
                 self.timer = new({ interval: <int>first - currentTime, noOfRecurrences: 1 });
-                checkpanic self.timer.attach(schedulerService, attachment = self);
+                checkpanic self.timer.attach(schedulerService, self);
                 checkpanic self.timer.start();
             }
         } else {
@@ -101,7 +101,7 @@ public type Scheduler object {
                 if (self.toNotifyQueue.getFirst() is LinkedList) {
                     self.running = true;
                     self.timer = new({ interval: 1, initialDelay: 0, noOfRecurrences: 1 });
-                    checkpanic self.timer.attach(schedulerService, attachment = self);
+                    checkpanic self.timer.attach(schedulerService, self);
                     checkpanic self.timer.start();
                 }
             }

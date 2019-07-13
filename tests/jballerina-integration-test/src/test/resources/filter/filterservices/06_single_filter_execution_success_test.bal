@@ -32,7 +32,7 @@ public type Filter12 object {
 
 Filter12 filter12 = new;
 
-listener http:Listener echoEP05 = new(9095, config = { filters: [filter12] });
+listener http:Listener echoEP05 = new(9095, { filters: [filter12] });
 
 @http:ServiceConfig {
     basePath: "/echo"

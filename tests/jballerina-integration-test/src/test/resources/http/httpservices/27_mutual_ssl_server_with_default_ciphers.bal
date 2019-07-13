@@ -31,7 +31,7 @@ http:ServiceEndpointConfiguration strongCipherConfig = {
     }
 };
 
-listener http:Listener strongCipher = new(9226, config = strongCipherConfig);
+listener http:Listener strongCipher = new(9226, strongCipherConfig);
 
 @http:ServiceConfig {
     basePath: "/echo"
@@ -64,7 +64,7 @@ http:ServiceEndpointConfiguration weakCipherConfig = {
     }
 };
 
-listener http:Listener weakCipher = new(9227, config = weakCipherConfig);
+listener http:Listener weakCipher = new(9227, weakCipherConfig);
 
 @http:ServiceConfig {
     basePath: "/echo"

@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -555,7 +556,14 @@ public class TypeParamAnalyzer {
         }
         BType reasonType = getMatchingBoundType(expType.reasonType, env, resolvedTypes);
         BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
-        return new BErrorType(null, reasonType, detailType);
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
+                symTable.errorType.tsymbol.flags,
+                symTable.errorType.tsymbol.name,
+                symTable.errorType.tsymbol.pkgID,
+                null, null);
+        BErrorType errorType = new BErrorType(typeSymbol, reasonType, detailType);
+        typeSymbol.type = errorType;
+        return errorType;
     }
 
     /**

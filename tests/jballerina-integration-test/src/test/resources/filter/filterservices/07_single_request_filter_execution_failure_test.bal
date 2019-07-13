@@ -27,7 +27,7 @@ public type Filter13 object {
 
         var result = caller->respond(response);
         if (result is error) {
-           log:printError("Error", err = result);
+           log:printError("Error", result);
         }
 
         return false;
@@ -40,7 +40,7 @@ public type Filter13 object {
 
 Filter13 filter13 = new;
 
-listener http:Listener echoEP06 = new(9096, config = { filters: [filter13] });
+listener http:Listener echoEP06 = new(9096, { filters: [filter13] });
 
 @http:ServiceConfig {
     basePath:"/echo"

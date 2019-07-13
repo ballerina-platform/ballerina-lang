@@ -39,20 +39,99 @@ public type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
         self.registerWebSubSubscriberServiceEndpoint(s);
-        return;
+    }
+
+    public function __start() returns error? {
+        // TODO: handle data and return error on error
+        self.startWebSubSubscriberServiceEndpoint();
+        self.sendSubscriptionRequests();
+    }
+
+    public function __stop() returns error? {
+        return self.serviceEndpoint.__stop();
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
     #
     # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
-    function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ());
+    function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ()) {
+        self.config = sseEpConfig;
+        http:ServiceEndpointConfiguration? serviceConfig = ();
+        if (sseEpConfig is SubscriberServiceEndpointConfiguration) {
+            http:ServiceEndpointConfiguration httpServiceConfig = {
+                host: sseEpConfig.host,
+                secureSocket: sseEpConfig.httpServiceSecureSocket
+            };
+            serviceConfig = httpServiceConfig;
+        }
+        http:Listener httpEndpoint = new(port, serviceConfig);
+        self.serviceEndpoint = httpEndpoint;
+
+        self.initWebSubSubscriberServiceEndpoint();
+    }
 
     function initWebSubSubscriberServiceEndpoint() = external;
 
     function registerWebSubSubscriberServiceEndpoint(service serviceType) = external;
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
-    function sendSubscriptionRequests();
+    function sendSubscriptionRequests() {
+        map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
+
+        foreach var subscriptionDetails in subscriptionDetailsArray {
+            if (subscriptionDetails.keys().length() == 0) {
+                continue;
+            }
+
+            // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
+            string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
+            boolean subscribeOnStartUp = boolean.convert(strSubscribeOnStartUp);
+
+            if (subscribeOnStartUp) {
+                string resourceUrl = <string>subscriptionDetails.resourceUrl;
+                string hub = <string>subscriptionDetails.hub;
+                string topic = <string>subscriptionDetails.topic;
+
+                var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails.subscriptionClientConfig;
+                http:ClientEndpointConfig? subscriptionClientConfig =
+                                                    clientConfig is http:ClientEndpointConfig ? clientConfig : ();
+
+                if (hub == "" || topic == "") {
+                    if (resourceUrl == "") {
+                        log:printError(
+                            "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
+                        return;
+                    }
+                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
+                    if (discoveredDetails is [string, string]) {
+                        var [retHub, retTopic] = discoveredDetails;
+                        var hubDecodeResponse = http:decode(retHub, "UTF-8");
+                        if (hubDecodeResponse is string) {
+                            retHub = hubDecodeResponse;
+                        } else {
+                            panic hubDecodeResponse;
+                        }
+                        var topicDecodeResponse = http:decode(retTopic, "UTF-8");
+                        if (topicDecodeResponse is string) {
+                            retTopic = topicDecodeResponse;
+                        } else {
+                            panic topicDecodeResponse;
+                        }
+                        subscriptionDetails["hub"] = retHub;
+                        hub = retHub;
+                        subscriptionDetails["topic"] = retTopic;
+                        string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
+                        self.setTopic(webSubServiceName, retTopic);
+                    } else {
+                        string errCause = <string> discoveredDetails.detail().message;
+                        log:printError("Error sending out subscription request on start up: " + errCause);
+                        continue;
+                    }
+                }
+                invokeClientConnectorForSubscription(hub, subscriptionClientConfig, <@untainted> subscriptionDetails);
+            }
+        }
+    }
 
     # Start the registered WebSub Subscriber service.
     function startWebSubSubscriberServiceEndpoint() = external;
@@ -68,93 +147,7 @@ public type Listener object {
     #
     # + return - `map[]` array of maps containing subscription details for each service
     function retrieveSubscriptionParameters() returns map<any>[] = external;
-
 };
-
-function Listener.init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ()) {
-    self.config = sseEpConfig;
-    http:ServiceEndpointConfiguration? serviceConfig = ();
-    if (sseEpConfig is SubscriberServiceEndpointConfiguration) {
-        http:ServiceEndpointConfiguration httpServiceConfig = {
-            host: sseEpConfig.host,
-            secureSocket: sseEpConfig.httpServiceSecureSocket
-        };
-        serviceConfig = httpServiceConfig;
-    }
-    http:Listener httpEndpoint = new(port, config = serviceConfig);
-    self.serviceEndpoint = httpEndpoint;
-
-    self.initWebSubSubscriberServiceEndpoint();
-}
-
-public function Listener.__start() returns error? {
-    // TODO: handle data and return error on error
-    self.startWebSubSubscriberServiceEndpoint();
-    self.sendSubscriptionRequests();
-    return;
-}
-
-public function Listener.__stop() returns error? {
-    return self.serviceEndpoint.__stop();
-}
-
-function Listener.sendSubscriptionRequests() {
-    map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
-
-    foreach var subscriptionDetails in subscriptionDetailsArray {
-        if (subscriptionDetails.keys().length() == 0) {
-            continue;
-        }
-
-        // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
-        string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-        boolean subscribeOnStartUp = boolean.convert(strSubscribeOnStartUp);
-
-        if (subscribeOnStartUp) {
-            string resourceUrl = <string>subscriptionDetails.resourceUrl;
-            string hub = <string>subscriptionDetails.hub;
-            string topic = <string>subscriptionDetails.topic;
-
-            var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails.subscriptionClientConfig;
-            http:ClientEndpointConfig? subscriptionClientConfig =
-                                                clientConfig is http:ClientEndpointConfig ? clientConfig : ();
-
-            if (hub == "" || topic == "") {
-                if (resourceUrl == "") {
-                    log:printError(
-                        "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
-                    return;
-                }
-                var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
-                if (discoveredDetails is (string, string)) {
-                    var (retHub, retTopic) = discoveredDetails;
-                    var hubDecodeResponse = http:decode(retHub, "UTF-8");
-                    if (hubDecodeResponse is string) {
-                        retHub = hubDecodeResponse;
-                    } else {
-                        panic hubDecodeResponse;
-                    }
-                    var topicDecodeResponse = http:decode(retTopic, "UTF-8");
-                    if (topicDecodeResponse is string) {
-                        retTopic = topicDecodeResponse;
-                    } else {
-                        panic topicDecodeResponse;
-                    }
-                    subscriptionDetails["hub"] = retHub;
-                    hub = retHub;
-                    subscriptionDetails["topic"] = retTopic;
-                    string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
-                    self.setTopic(webSubServiceName, retTopic);
-                } else {
-                    string errCause = <string> discoveredDetails.detail().message;
-                    log:printError("Error sending out subscription request on start up: " + errCause);
-                    continue;
-                }
-            }
-            invokeClientConnectorForSubscription(hub, subscriptionClientConfig, subscriptionDetails);
-        }
-    }
-}
 
 # Object representing the configuration for the WebSub Subscriber Service Endpoint.
 #
@@ -186,7 +179,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<(string, typedesc<any>)>? headerResourceMap = ();
+    map<[string, typedesc<any>]>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -195,7 +188,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<(string, typedesc<any>)>>? payloadKeyResourceMap = ();
+    map<map<[string, typedesc<any>]>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -207,7 +200,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<(string, typedesc<any>)>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<[string, typedesc<any>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
@@ -216,26 +209,25 @@ public type ExtensionConfig record {|
 # + subscriptionClientConfig - The configuration for subscription client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
-                                            returns @tainted (string, string)|error {
-    http:Client resourceEP = new http:Client(resourceUrl, config = subscriptionClientConfig);
+                                            returns @tainted [string, string]|error {
+    http:Client resourceEP = new http:Client(resourceUrl, subscriptionClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
         var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
-        if (topicAndHubs is (string, string[])) {
+        if (topicAndHubs is [string, string[]]) {
             string topic = "";
             string[] hubs = [];
-            (topic, hubs) = topicAndHubs;
-            return (hubs[0], topic); // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
+            [topic, hubs] = topicAndHubs;
+            return [hubs[0], topic]; // guaranteed by `extractTopicAndHubUrls` for hubs to have length > 0
         } else {
             return topicAndHubs;
         }
     } else {
         string errCause = <string> discoveryResponse.detail().message;
-        map<anydata> errorDetail = { message : "Error occurred with WebSub discovery for Resource URL [" +
-                                resourceUrl + "]: " + errCause };
-        websubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        websubError = error(WEBSUB_ERROR_CODE, message = "Error occurred with WebSub discovery for Resource URL [" +
+                                resourceUrl + "]: " + errCause );
     }
     return websubError;
 }
@@ -246,7 +238,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 # + subscriptionClientConfig - The configuration for subscription client
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, config = subscriptionClientConfig);
+    Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

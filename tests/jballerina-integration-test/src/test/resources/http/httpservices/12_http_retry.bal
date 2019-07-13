@@ -24,7 +24,7 @@ import ballerina/internal;
 listener http:Listener serviceEndpoint1 = new(9105);
 
 // Define the end point to the call the `mockHelloService`.
-http:Client backendClientEP = new ("http://localhost:9105", config = {
+http:Client backendClientEP = new ("http://localhost:9105", {
     // Retry configuration options.
     retryConfig: {
         interval: 3000,
@@ -50,7 +50,7 @@ service retryDemoService on serviceEndpoint1 {
         if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -59,7 +59,7 @@ service retryDemoService on serviceEndpoint1 {
             response.setPayload(errCause is string ? errCause : "Internal server error");
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -89,7 +89,7 @@ service mockHelloService on serviceEndpoint1 {
             var result = caller->respond(res);
 
             if (result is error) {
-                log:printError("Error sending response from mock service", err = result);
+                log:printError("Error sending response from mock service", result);
             }
         } else {
             log:printInfo("Request received from the client to healthy service.");
@@ -114,13 +114,13 @@ service mockHelloService on serviceEndpoint1 {
                                     var childBlobContent = childPart.getByteArray();
                                 }
                                 io:println(bodyPart.getContentType());
-                                bodyPart.setBodyParts(<@untainted> childParts, contentType = <@untainted> bodyPart.getContentType());
+                                bodyPart.setBodyParts(<@untainted> childParts, <@untainted> bodyPart.getContentType());
                             }
                         } else {
                             var bodyPartBlobContent = bodyPart.getByteArray();
                         }
                     }
-                    response.setBodyParts(<@untainted> bodyParts, contentType = <@untainted> req.getContentType());
+                    response.setBodyParts(<@untainted> bodyParts, <@untainted> req.getContentType());
                 } else {
                     log:printError(bodyParts.reason());
                     response.setPayload("Error in decoding multiparts!");
@@ -131,7 +131,7 @@ service mockHelloService on serviceEndpoint1 {
             }
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response from mock service", err = responseToCaller);
+                log:printError("Error sending response from mock service", responseToCaller);
             }
         }
     }

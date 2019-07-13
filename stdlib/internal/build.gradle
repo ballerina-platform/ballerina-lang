@@ -50,7 +50,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.slf4j:slf4j-jdk14'

@@ -35,7 +35,7 @@ function initWritableChannel(string filePath, string encoding) returns io:IOErro
 }
 
 function initWritableChannelToAppend(string filePath, string encoding) returns io:IOError? {
-    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, append = true);
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, true);
     wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 

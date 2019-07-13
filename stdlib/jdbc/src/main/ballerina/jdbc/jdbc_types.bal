@@ -70,16 +70,16 @@ public type ClientEndpointConfig record {|
 #                       Default value of this field can be set through the configuration API with the key
 #                       "b7a.jdbc.validation.time.out"
 public type PoolOptions record {|
-    string connectionInitSql = config:getAsString("b7a.jdbc.connection.init.sql", defaultValue = "");
-    string dataSourceClassName = config:getAsString("b7a.jdbc.datasource.class.name", defaultValue = "");
-    boolean autoCommit = config:getAsBoolean("b7a.jdbc.connection.auto.commit", defaultValue = true);
-    boolean isXA = config:getAsBoolean("b7a.jdbc.xa.enabled", defaultValue = false);
-    int maximumPoolSize = config:getAsInt("b7a.jdbc.max.pool.size", defaultValue = 15);
-    int connectionTimeout = config:getAsInt("b7a.jdbc.connection.time.out", defaultValue = 30000);
-    int idleTimeout =  config:getAsInt("b7a.jdbc.connection.idle.time.out", defaultValue = 600000);
-    int minimumIdle = config:getAsInt("b7a.jdbc.connection.min.idle.count", defaultValue = 15);
-    int maxLifetime = config:getAsInt("b7a.jdbc.connection.max.life.time", defaultValue = 1800000);
-    int validationTimeout = config:getAsInt("b7a.jdbc.validation.time.out", defaultValue = 5000);
+    string connectionInitSql = config:getAsString("b7a.jdbc.connection.init.sql", "");
+    string dataSourceClassName = config:getAsString("b7a.jdbc.datasource.class.name", "");
+    boolean autoCommit = config:getAsBoolean("b7a.jdbc.connection.auto.commit", true);
+    boolean isXA = config:getAsBoolean("b7a.jdbc.xa.enabled", false);
+    int maximumPoolSize = config:getAsInt("b7a.jdbc.max.pool.size", 15);
+    int connectionTimeout = config:getAsInt("b7a.jdbc.connection.time.out", 30000);
+    int idleTimeout =  config:getAsInt("b7a.jdbc.connection.idle.time.out", 600000);
+    int minimumIdle = config:getAsInt("b7a.jdbc.connection.min.idle.count", 15);
+    int maxLifetime = config:getAsInt("b7a.jdbc.connection.max.life.time", 1800000);
+    int validationTimeout = config:getAsInt("b7a.jdbc.validation.time.out", 5000);
 |};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools

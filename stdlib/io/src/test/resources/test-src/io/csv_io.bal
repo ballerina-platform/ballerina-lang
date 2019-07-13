@@ -31,7 +31,7 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel( <@untainted> byteChannel, encoding);
-        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+        rch = new io:ReadableCSVChannel(charChannel, fieldSeparator);
     } else {
         return byteChannel;
     }
@@ -40,14 +40,14 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
     io:WritableByteChannel byteChannel = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
+    wch = new io:WritableCSVChannel(charChannel, fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
     var byteChannel =  <@untainted> io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
+        rch = new io:ReadableCSVChannel(charChannel, fieldSeparator, nHeaders);
     } else {
         return byteChannel;
     }
@@ -96,7 +96,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fieldSeparator);
         float total = 0.0;
         var tableResult = csv.getTable(Employee);
         if (tableResult is table<Employee>) {

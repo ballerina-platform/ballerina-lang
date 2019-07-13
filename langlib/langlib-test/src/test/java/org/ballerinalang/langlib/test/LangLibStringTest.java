@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.test;
 
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -28,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the lang.string library.
@@ -71,5 +73,11 @@ public class LangLibStringTest {
     public void testConcat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
         assertEquals(returns[0].stringValue(), "Hello from Ballerina");
+    }
+
+    @Test
+    public void testStartsWith() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStartsWith");
+        assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

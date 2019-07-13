@@ -28,7 +28,7 @@ function attachTimer() {
     };
 
     task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    checkpanic timer.attach(timerService, attachment = person);
+    checkpanic timer.attach(timerService, person);
     checkpanic timer.start();
 }
 

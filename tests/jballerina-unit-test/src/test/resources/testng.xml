@@ -32,6 +32,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
             </run>
         </groups>
         <packages>
@@ -62,7 +63,7 @@
             <!--<package name="org.ballerinalang.test.types.var.*"/>-->
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.tuples.*"/>-->
+            <package name="org.ballerinalang.test.types.tuples.*"/>
             <!--<package name="org.ballerinalang.test.types.anydata.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.arrays.*"/>-->
             <package name="org.ballerinalang.test.statements.assign.*"/>
@@ -72,11 +73,11 @@
             <!--<package name="org.ballerinalang.test.statements.compoundassignment.*"/>-->
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
-            <!--<package name="org.ballerinalang.test.statements.ifelse.*"/>-->
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <!--<package name="org.ballerinalang.test.statements.returnstmt.*"/>-->
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
-            <!--<package name="org.ballerinalang.test.statements.whilestatement.*"/>-->
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.variabledef.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.matchstmt.*"/>-->
@@ -107,8 +108,8 @@
             <package name="org.ballerinalang.test.packaging.*" />
             <!--<package name="org.ballerinalang.test.types.xml.*" />-->
             <!--<package name="org.ballerinalang.test.record.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.constant.*" />-->
-            <!--<package name="org.ballerinalang.test.types.bytetype.*"/>-->
+            <package name="org.ballerinalang.test.types.constant.*" />
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typecast.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
@@ -137,6 +138,7 @@
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
             <!--<class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>-->
+            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
         </classes>
     </test>
 </suite>

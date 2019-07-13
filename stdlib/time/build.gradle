@@ -37,7 +37,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
 
     bir project(path: ':ballerina-utils', configuration: 'bir')
     bir project(path: ':ballerina-lang:annotations', configuration: 'bir')

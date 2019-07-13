@@ -30,6 +30,7 @@ public class WebSubSubscriberConstants {
 
     public static final String SERVICE_ENDPOINT_CONFIG_NAME = "config";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+    public static final String BALLERINA = "ballerina";
     public static final String WEBSUB = "websub";
     public static final String WEBSUB_PACKAGE = "ballerina/websub";
     public static final String WEBSUB_SERVICE_LISTENER = "Listener";
@@ -69,8 +70,8 @@ public class WebSubSubscriberConstants {
     static final String DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING = "deferredForPayloadBasedDispatching";
     static final String ENTITY_ACCESSED_REQUEST = "entityAccessedRequest";
 
-    public static final String STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
-    public static final String STRUCT_WEBSUB_NOTIFICATION_REQUEST = "Notification";
+    public static final String WEBSUB_INTENT_VERIFICATION_REQUEST = "IntentVerificationRequest";
+    public static final String WEBSUB_NOTIFICATION_REQUEST = "Notification";
 
     public static final String RESOURCE_NAME_ON_INTENT_VERIFICATION = "onIntentVerification";
     public static final String RESOURCE_NAME_ON_NOTIFICATION = "onNotification";
