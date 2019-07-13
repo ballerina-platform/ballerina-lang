@@ -137,6 +137,7 @@
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
             <!--<class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>-->
+            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
         </classes>
     </test>
 </suite>
