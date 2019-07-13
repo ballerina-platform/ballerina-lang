@@ -80,9 +80,10 @@ function echo(string msg) returns string {
         if (length > 0) {
             var str = getString(content);
             if (str is string) {
-                returnStr = <@untainted> str;
+                returnStr = <@untainted>str;
             } else {
-                io:println(str.detail().message);
+                error e = <error>str;
+                io:println(e.detail().message);
             }
             var closeResult = socketClient->close();
             if (closeResult is error) {
@@ -99,7 +100,7 @@ function echo(string msg) returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:IoError {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(50);

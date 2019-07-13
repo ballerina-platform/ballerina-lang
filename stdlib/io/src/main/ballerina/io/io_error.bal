@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,14 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/artemis;
+type Detail record {
+    string message;
+    error cause?;
+};
 
-@artemis:ServiceConfig {
-    queueConfig: {
-        queueName: "my_queue"
-    }
-}
-service artemisConsumer on new artemis:Listener({host:"localhost", port:61616}) {
-    resource function onMessage() returns error? {
-    }
-}
+public const CONNECTION_TIMED_OUT = "{ballerina/io}ConnectionTimedOut";
+public type ConnectionTimedOutError error<CONNECTION_TIMED_OUT, Detail>;
+
+public const GENERIC_IO_ERROR = "{ballerina/io}GenericIoError";
+public type GenericIoError error<GENERIC_IO_ERROR, Detail>;
+
+public type IoError GenericIoError|ConnectionTimedOutError;

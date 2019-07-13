@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "WritableRecordChannel",
                 structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IoError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CreateWritableDelimitedRecordChannel {
