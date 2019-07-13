@@ -132,7 +132,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
-    foreach var [ moduleClass, v ] in jvmClassMap {
+    foreach var [ moduleClass, v ] in jvmClassMap.entries() {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         currentClass = <@untainted> moduleClass;
         if (moduleClass == typeOwnerClass) {
@@ -149,7 +149,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             }
 
             if (isEntry) {
-                bir:Function? mainFunc = getMainFunc(module.functions);
+                bir:Function? mainFunc = getMainFunc(module?.functions);
                 string mainClass = "";
                 if (mainFunc is bir:Function) {
                     mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
@@ -175,7 +175,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             generateMethod(getFunction(func), cw, module);
         }
         // generate lambdas created during generating methods
-        foreach var [name, call] in lambdas {
+        foreach var [name, call] in lambdas.entries() {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -258,7 +258,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
         internal:Path mappingPath = new(mappingFile);
         if (mappingPath.exists()) {
             var externalMap = readMap(mappingFile);
-            foreach var [key,val] in externalMap {
+            foreach var [key,val] in externalMap.entries() {
                 externalMapCache[key] = val;
             }
         }
@@ -289,11 +289,11 @@ function calculateBirCachePath(string birCacheDir, bir:ModuleID modId, string ex
 
 function getModuleLevelClassName(string orgName, string moduleName, string sourceFileName) returns string {
     string className = cleanupName(sourceFileName);
-    if (!moduleName.equalsIgnoreCase(".")) {
+    if (moduleName != ".") {
         className = cleanupName(moduleName) + "/" + className;
     }
 
-    if (!orgName.equalsIgnoreCase("$anon")) {
+    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
         className = cleanupName(orgName) + "/" + className;
     }
 
@@ -302,11 +302,11 @@ function getModuleLevelClassName(string orgName, string moduleName, string sourc
 
 function getPackageName(string orgName, string moduleName) returns string {
     string packageName = "";
-    if (!moduleName.equalsIgnoreCase(".")) {
+    if (moduleName != ".") {
         packageName = cleanupName(moduleName) + "/";
     }
 
-    if (!orgName.equalsIgnoreCase("$anon")) {
+    if (!internal:equalsIgnoreCase(orgName, "$anon")) {
         packageName = cleanupName(orgName) + "/" + packageName;
     }
 
@@ -314,18 +314,18 @@ function getPackageName(string orgName, string moduleName) returns string {
 }
 
 function splitPkgName(string key) returns [string, string] {
-    int index = key.lastIndexOf("/");
+    int index = internal:lastIndexOf(key, "/");
     string pkgName = key.substring(0, index);
     string functionName = key.substring(index + 1, key.length());
     return [pkgName, functionName];
 }
 
 function cleanupName(string name) returns string {
-    return name.replace(".","_");
+    return internal:replace(name, ".","_");
 }
 
 function cleanupPackageName(string pkgName) returns string {
-    int index = pkgName.lastIndexOf("/");
+    int index = internal:lastIndexOf(pkgName, "/");
     if (index > 0) {
         return pkgName.substring(0, index);
     } else {
@@ -473,7 +473,7 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
     bir:BType? attachedType = currentFunc.receiverType;
-    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
     return {
         orgName : orgName,

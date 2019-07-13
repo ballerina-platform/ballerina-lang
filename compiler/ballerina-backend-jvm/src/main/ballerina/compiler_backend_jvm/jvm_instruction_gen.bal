@@ -852,7 +852,7 @@ type InstructionGenerator object {
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
-            isVoid = returnType.retType is bir:BTypeNil;
+            isVoid = returnType?.retType is bir:BTypeNil;
         } else {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
@@ -1089,7 +1089,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
@@ -1146,7 +1146,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);

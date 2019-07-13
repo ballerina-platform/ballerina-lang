@@ -375,7 +375,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (sig.lastIndexOf("(N)") == (sig.length() - 3)) {
+        if (internal:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
             returnType = "()";
         }
         return {
@@ -457,7 +457,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        error err = error("unsupported literal value type in annotation attachment value", err = {"type":bType});
+        record{| anydata|error...; |} detailMap = { 'type : bType };
+        error err = error("unsupported literal value type in annotation attachment value", err = detailMap);
         panic err;
     }
     return value;

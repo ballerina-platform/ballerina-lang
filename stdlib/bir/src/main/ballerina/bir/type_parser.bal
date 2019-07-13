@@ -439,10 +439,10 @@ public type TypeParser object {
         int octave2 = 16;
         int octave3 = 24;
         var b = self.reader.buf;
-        int b0 = int.convert(b[pos + 0]);
-        int b1 = int.convert(b[pos + 1]);
-        int b2 = int.convert(b[pos + 2]);
-        int b3 = int.convert(b[pos + 3]);
+        int b0 = <int> b[pos + 0];
+        int b1 = <int> b[pos + 1];
+        int b2 = <int> b[pos + 2];
+        int b3 = <int> b[pos + 3];
         self.reader.pos = pos + 4;
         return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
     }

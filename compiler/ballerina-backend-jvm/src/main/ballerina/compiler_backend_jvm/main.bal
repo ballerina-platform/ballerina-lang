@@ -39,7 +39,7 @@ public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
-    boolean dumpBir = boolean.convert(args[3]);
+    boolean dumpBir = internal:equalsIgnoreCase(args[3], "true");
 
     var numCacheDirs = args.length() - 4;
     int i = 0;
@@ -53,13 +53,7 @@ public function main(string... args) {
 
 function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
     if (mapPath != "") {
-        map<string> tempMap = readMap(mapPath);
-
-        // TODO 29/06/2019: See if this call to cleanupName() can be removed
-        externalMapCache = {};
-        foreach var (k, v) in tempMap {
-            externalMapCache[k] = v;
-        }
+        externalMapCache = readMap(mapPath);
     }
 
     byte[] moduleBytes = readFileFully(pathToEntryBir);
@@ -91,12 +85,12 @@ function readMap(string path) returns map<string> {
         if (result is error) {
             panic result;
         } else {
-            var externalMap = map<string>.convert(result);
-            if (externalMap is error){
-                panic externalMap;
-            } else {
-                return externalMap;
+            map<string> externalMap = {};
+            map<json> jsonMapResult = <map<json>> result;
+            foreach var [key, val] in jsonMapResult.entries() {
+                externalMap[key] = <string> val;
             }
+            return externalMap;
         }
     }
 }

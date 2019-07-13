@@ -80,7 +80,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var [name, call] in lambdas {
+        foreach var [name, call] in lambdas.entries() {
             generateLambdaMethod(call[0], cw, call[1], name);
         }
         // clear the lambdas
@@ -372,7 +372,7 @@ function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode
     foreach var node in nodes {
         if (node is NamedNode) {
             labels[i] = new jvm:Label();
-            hashCodes[i] = getName(node).hashCode();
+            hashCodes[i] = internal:hashCode(getName(node));
             i += 1;
         }
     }
@@ -470,7 +470,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return getName(node).hashCode();
+        return internal:hashCode(getName(node));
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

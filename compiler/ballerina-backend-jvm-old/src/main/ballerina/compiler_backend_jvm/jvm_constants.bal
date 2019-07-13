@@ -304,7 +304,7 @@ const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
 const string BALLERINA = "ballerina";
-const string BUILT_IN_PACKAGE_NAME = "builtin";
+const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 
 // scheduler related constants

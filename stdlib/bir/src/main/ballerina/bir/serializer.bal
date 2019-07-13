@@ -34,7 +34,7 @@ public function serialize(BType bType) returns string {
     } else if (bType is BUnionType) {
         return serializeTypes(bType.members, "|");
     } else if (bType is BInvokableType) {
-        return "function (" + serializeTypes(bType.paramTypes, ", ") + ") returns " + serialize(bType.retType);
+        return "function (" + serializeTypes(bType.paramTypes, ", ") + ") returns " + serialize(<BType> bType?.retType);
     } else if (bType is BArrayType) {
         return serialize(bType.eType) + "[]";
     } else if (bType is BRecordType) {
