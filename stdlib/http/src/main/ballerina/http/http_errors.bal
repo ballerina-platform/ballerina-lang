@@ -15,7 +15,7 @@
 // under the License.
 
 # Holds the details of an HTTP error
-# 
+#
 # + message - Specific error message for the error
 # + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
 public type Detail record {
@@ -95,19 +95,19 @@ public type SslError error<SSL_ERROR, Detail>;
 public type ResiliencyClientError FailoverAllEndpointsFailedError|FailoverActionFailedError|
                             UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
                             IdleTimeoutTriggeredError;
-                            
+
 public type SecutiryError AuthenticationError|AuthorizationError;
 
 public type ClientAuthError AuthenticationError|AuthorizationError;
 
-public type ClientOutboundRequestError InitializingOutboundRequestError|WritingOutboundRequestHeadersError|
+public type OutboundRequestError InitializingOutboundRequestError|WritingOutboundRequestHeadersError|
                             WritingOutboundRequestBodyError;
 
-public type ClientInboundResponseError InitializingInboundResponseError|ReadingInboundResponseHeadersError|
+public type InboundResponseError InitializingInboundResponseError|ReadingInboundResponseHeadersError|
                             ReadingInboundResponseBodyError;
 
-public type ClientError ResiliencyClientError|ClientAuthError|ClientOutboundRequestError|
-                            ClientInboundResponseError|UnsupportedActionError|Http2ClientError|
+public type ClientError ResiliencyClientError|ClientAuthError|OutboundRequestError|
+                            InboundResponseError|UnsupportedActionError|Http2ClientError|
                             MaximumWaitTimeExceededError|SslError|GenericClientError;
 
 public type ListenerError GenericListenerError;

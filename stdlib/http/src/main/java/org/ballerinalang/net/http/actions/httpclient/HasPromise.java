@@ -60,7 +60,7 @@ public class HasPromise extends AbstractHTTPAction {
                 setPromiseAvailabilityListener(new BPromiseAvailabilityCheckListener(context, callback));
     }
 
-    public static void hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
         ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
@@ -68,6 +68,7 @@ public class HasPromise extends AbstractHTTPAction {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         clientConnector.hasPushPromise(responseHandle).
                 setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(new NonBlockingCallback(strand)));
+        return null;
     }
 
     private static class BPromiseAvailabilityCheckListener implements HttpClientConnectorListener {

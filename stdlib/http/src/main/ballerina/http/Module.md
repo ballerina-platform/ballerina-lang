@@ -1,14 +1,14 @@
 ## Module overview
 
-This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of endpoints as ‘Client’ and ‘Listener’. 
+This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of endpoints as ‘Client’ and ‘Listener’.
 
 ### Client endpoints
 
-`Client` endpoints are used to connect to and interact with HTTP endpoints. They support connection pooling and can be configured to have a maximum number of active connections that can be made with the remote endpoint. `Client` endpoints activate connection eviction after a given idle period and also support follow-redirects so that the users do not have to manually handle 3xx HTTP status codes. 
+`Client` endpoints are used to connect to and interact with HTTP endpoints. They support connection pooling and can be configured to have a maximum number of active connections that can be made with the remote endpoint. `Client` endpoints activate connection eviction after a given idle period and also support follow-redirects so that the users do not have to manually handle 3xx HTTP status codes.
 
 `Client` endpoints handle resilience in multiple ways such as load balancing, circuit breaking, endpoint timeouts, and a retry mechanism.
 
-Load balancing is used in the round robin or failover manner. 
+Load balancing is used in the round robin or failover manner.
 
 When a failure occurs in the remote service, the client connections might wait for some time before a timeout occurs. Awaiting requests consume resources in the system. Circuit Breakers are used to trip after a certain number of failed requests to the remote service. Once a circuit breaker trips, it does not allow the client to send requests to the remote service for a period of time.
 
@@ -20,7 +20,7 @@ For more information, see [Client Endpoint Example](https://ballerina.io/learn/b
 
 ### Listener endpoints
 
-A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `endpoint` and `http:Request` are mandatory parameters while `path` and `body` are optional. 
+A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `endpoint` and `http:Request` are mandatory parameters while `path` and `body` are optional.
 
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
@@ -79,8 +79,8 @@ This module supports two types of logs:
     - `b7a.http.tracelog.path=<path_to_log_file>`
     - `b7a.http.tracelog.host=<host_name>`
     - `b7a.http.tracelog.port=<port>`
-    
-To publish logs to a socket, both the host and port configurations must be provided.  
+
+To publish logs to a socket, both the host and port configurations must be provided.
 
 See [HTTP Access Logs Example](https://ballerina.io/learn/by-example/http-access-logs.html), [HTTP Trace Logs Example](https://ballerina.io/learn/by-example/http-trace-logs.html)
 
@@ -124,8 +124,9 @@ service helloWorld on helloWorldEP {
        res.setPayload("Hello, World! I’m " + untaint name + ". " + untaint message);
        // Sends the response back to the client.
        var result = caller->respond(res);
-       if (result is error) {
-            log:printError("Error sending response", err = result);
+       if (result is http:ListenerError) {
+            error err = result;
+            log:printError("Error sending response", err = err);
        }
    }
 }

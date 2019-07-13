@@ -76,6 +76,11 @@ import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ConnectionTimedOutException;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.PromiseRejectedException;
+import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
@@ -129,6 +134,7 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CER
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
@@ -155,6 +161,10 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.CONNECTION_TIMED_OUT;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.GENERIC_IO_ERROR;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
@@ -382,7 +392,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -401,7 +411,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
         }
         return responseFuture;
@@ -418,7 +428,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -496,10 +506,9 @@ public class HttpUtil {
      * @return Error struct
      */
     public static ErrorValue getError(String errMsg) {
-//        MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
-//        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
-//        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
-        return createHttpError(errMsg);
+        MapValue<String, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
+        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
 
     /**
@@ -509,16 +518,38 @@ public class HttpUtil {
      * @return Error struct
      */
     public static ErrorValue getError(Throwable throwable) {
+        if (throwable instanceof ClientConnectorException) {
+            return createHttpError(throwable);
+        }
         if (throwable.getMessage() == null) {
-            return getError(IO_EXCEPTION_OCCURED);
+            return createHttpError(IO_EXCEPTION_OCCURED);
         } else {
-            return getError(throwable.getMessage());
+            return createHttpError(throwable.getMessage());
         }
     }
 
     public static ErrorValue createHttpError(String errorMessage) {
         HttpErrorType errorType = getErrorType(errorMessage);
         return createHttpError(errorMessage, errorType);
+    }
+
+    public static ErrorValue createHttpError(Throwable throwable) {
+        ErrorValue cause;
+        if (throwable instanceof EndpointTimeOutException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.IDLE_TIMEOUT_TRIGGERED);
+        } else if (throwable instanceof SslException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.SSL_ERROR);
+        } else if (throwable instanceof PromiseRejectedException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
+        } else if (throwable instanceof ConnectionTimedOutException) {
+            cause = createErrorCause(throwable.getMessage(), CONNECTION_TIMED_OUT, IO_PACKAGE, DETAIL_RECORD_TYPE);
+            return createHttpError("Connection timed out", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else if (throwable instanceof ClientConnectorException) {
+            cause = createErrorCause(throwable.getMessage(), GENERIC_IO_ERROR, IO_PACKAGE, DETAIL_RECORD_TYPE);
+            return createHttpError("IO error occurred", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else {
+            return createHttpError(throwable.getMessage());
+        }
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
@@ -556,6 +587,13 @@ public class HttpUtil {
             default:
                 return HttpErrorType.GENERIC_CLIENT_ERROR;
         }
+    }
+
+    private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
+
+        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
+        MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
+        return BallerinaErrors.createError(reason, detailRecord);
     }
 
     //TODO Remove after migration : implemented using bvm values/types
