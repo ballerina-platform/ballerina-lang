@@ -23,6 +23,8 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -54,7 +56,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/echo-service.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/echo-service.bal");
         negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
     }
 
@@ -214,9 +216,9 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson instanceof BMap);
-        Assert.assertTrue(((BMap<String, BValue>) bJson).get("Team").stringValue().isEmpty(),
+        Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertTrue(bJson instanceof MapValue);
+        Assert.assertTrue(((MapValue<String, Object>) bJson).get("Team").toString().isEmpty(),
                 "Team variable not set properly.");
     }
 

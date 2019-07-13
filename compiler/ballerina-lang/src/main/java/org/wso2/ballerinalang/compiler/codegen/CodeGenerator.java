@@ -417,27 +417,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.CODE_GEN)) {
             return;
         }
-        // Visit imports
-        visitImports(pkgNode);
-        // Visit top level constructs
-        visitTopLevelNodes(pkgNode);
-        // Visit the builtin functions
-        visitBuiltinFunctions(pkgNode, pkgNode.initFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.startFunction);
-        visitBuiltinFunctions(pkgNode, pkgNode.stopFunction);
-
-        // We don't need to visit constants since we don't do any code generation for constants.
-        pkgNode.topLevelNodes.stream()
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
-                .filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.VARIABLE &&
-                        pkgLevelNode.getKind() != NodeKind.XMLNS)
-                .forEach(pkgLevelNode -> genNode((BLangNode) pkgLevelNode, this.env));
-        // Add function symbol for all functions
-        pkgNode.functions.forEach(funcNode -> {
-            funcNode.symbol = funcNode.originalFuncSymbol;
-        });
-        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNoAttrInfo);
-        pkgNode.completedPhases.add(CompilerPhase.CODE_GEN);
     }
 
     /**
@@ -1035,7 +1014,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (variableStore) {
             storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, fieldAccessExpr.except ? 1 : 0);
+//            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, fieldAccessExpr.except ? 1 : 0);
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex, 0);
         }
 
         this.varAssignment = variableStore;
@@ -1060,7 +1040,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+//            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+            if (opcode == InstructionCodes.NOP) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -1068,10 +1049,12 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
             }
         } else {
-            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
+//            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
+            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+//            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
+            if (opcode == InstructionCodes.NOP) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {
@@ -1787,7 +1770,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             workerInfo.codeAttributeInfo.codeAddrs = nextIP();
             this.lvIndexes = lvIndexCopy;
             this.currentWorkerInfo = workerInfo;
-            this.emitTransactionParticipantBeginIfApplicable(body);
+          //  this.emitTransactionParticipantBeginIfApplicable(body);
             this.genNode(body, invokableSymbolEnv);
         }
         this.endWorkerInfoUnit(workerInfo.codeAttributeInfo);
@@ -1937,17 +1920,17 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int emit(int opcode) {
-        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
+//        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(int opcode, Operand... operands) {
-        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
+//        currentPkgInfo.instructionList.add(InstructionFactory.get(opcode, operands));
         return currentPkgInfo.instructionList.size();
     }
 
     private int emit(Instruction instr) {
-        currentPkgInfo.instructionList.add(instr);
+//        currentPkgInfo.instructionList.add(instr);
         return currentPkgInfo.instructionList.size();
     }
 

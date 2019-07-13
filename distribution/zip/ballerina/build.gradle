@@ -61,7 +61,7 @@ dependencies {
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.294'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.298'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
 
@@ -117,7 +117,7 @@ dependencies {
     dist 'io.netty:netty-transport-native-kqueue:4.1.34.Final'
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -144,6 +144,7 @@ dependencies {
     distBal project(path: ':ballerina-time', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     // distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
@@ -153,7 +154,7 @@ dependencies {
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
-    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
     balSource project(path: ':ballerina-config-api', configuration: 'balSource')
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
@@ -180,6 +181,7 @@ dependencies {
     balSource project(path: ':ballerina-time', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
     // balSource project(path: ':ballerina-websub', configuration: 'balSource')
+    balSource project(path: ':ballerina-xslt', configuration: 'balSource')
     balSource project(path: ':ballerina-activemq-artemis', configuration: 'balSource')
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
@@ -190,7 +192,7 @@ dependencies {
 
     dist 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     dist project(':ballerina-auth')
-    dist project(':ballerina-builtin')
+    dist project(':ballerina-lang:annotations')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
@@ -226,6 +228,7 @@ dependencies {
     dist project(':ballerina-time')
     dist project(':ballerina-transactions')
     // dist project(':ballerina-websub')
+    dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
 //    dist project(':metrics-extensions:ballerina-prometheus-extension')

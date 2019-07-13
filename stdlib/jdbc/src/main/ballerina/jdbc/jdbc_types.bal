@@ -88,7 +88,7 @@ public type GlobalPoolConfigContainer object {
 
      public function __init() {
          // poolConfig record is frozen so that it cannot be modified during runtime
-         PoolOptions frozenConfig = self.poolConfig.freeze();
+         PoolOptions frozenConfig = self.poolConfig.cloneReadOnly();
          self.initGlobalPoolContainer(frozenConfig);
      }
 
@@ -207,7 +207,7 @@ public type Parameter record {|
     SQLType sqlType;
     any value = ();
     Direction direction = DIRECTION_IN;
-    typedesc recordType?;
+    typedesc<record{}> recordType?;
 |};
 
 # Result represents the output of the `update` remote function.

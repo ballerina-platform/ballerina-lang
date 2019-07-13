@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.int as langint;
+import ballerina/'lang\.float as langfloat;
+import ballerina/internal;
 import ballerina/system;
 
 type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
@@ -68,7 +71,7 @@ public function getAsInt(@untainted string key, int defaultValue = 0) returns in
         return defaultValue;
     }
 
-    var envVar = int.convert(strVal);
+    var envVar = langint:fromString(strVal);
     if (envVar is int) {
         return envVar;
     } else {
@@ -98,7 +101,7 @@ public function getAsFloat(@untainted string key, float defaultVal = 0.0) return
         return defaultVal;
     }
 
-    var envVar = float.convert(strVal);
+    var envVar = langfloat:fromString(strVal);
     if (envVar is float) {
         return envVar;
     } else {
@@ -128,7 +131,7 @@ public function getAsBoolean(@untainted string key, boolean defaultValue = false
         return defaultValue;
     }
 
-    return boolean.convert(strVal);
+    return (strVal.toLowerAscii() == "true");
 }
 
 # Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.
@@ -147,6 +150,6 @@ public function getAsMap(@untainted string key) returns map<any> {
 }
 
 function lookupEnvVar(string key) returns string {
-    string convertedKey = key.replace(".", "_");
+    string convertedKey = internal:replace(key, ".", "_");
     return system:getEnv(convertedKey);
 }

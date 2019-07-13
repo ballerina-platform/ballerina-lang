@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
@@ -23,7 +24,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(":ballerina-http")
     implementation project(':ballerina-encoding')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-io')
@@ -35,7 +36,7 @@ dependencies {
     implementation 'io.ballerina.messaging:broker-core'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')

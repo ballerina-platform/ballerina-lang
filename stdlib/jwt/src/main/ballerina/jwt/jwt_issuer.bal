@@ -34,72 +34,103 @@ public type JwtIssuerConfig record {|
 # + header - JwtHeader object
 # + payload - JwtPayload object
 # + config - JWT issuer config record
-# + return - JWT token string or an error if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|error {
+# + return - JWT token string or an `JwtError` if token validation fails
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|JwtError {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
-    if (header.alg == NONE) {
-        return jwtAssertion;
-    } else {
-        if (config is JwtIssuerConfig) {
-            crypto:KeyStore keyStore = config.keyStore;
-            string keyAlias = config.keyAlias;
-            string keyPassword = config.keyPassword;
-            var privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
-                                                           keyPassword = keyPassword);
-            string signature = "";
-            if (header.alg == RS256) {
-                signature = encoding:encodeBase64Url(check crypto:signRsaSha256(jwtAssertion.toByteArray("UTF-8"),
-                                                                                privateKey));
-            } else if (header.alg == RS384) {
-                signature = encoding:encodeBase64Url(check crypto:signRsaSha384(jwtAssertion.toByteArray("UTF-8"),
-                                                                                privateKey));
-            } else if (header.alg == RS512) {
-                signature = encoding:encodeBase64Url(check crypto:signRsaSha512(jwtAssertion.toByteArray("UTF-8"),
-                                                                                privateKey));
-            } else {
-                return prepareError("Unsupported JWS algorithm.");
-            }
-            return jwtAssertion + "." + signature;
+    JwtSigningAlgorithm? alg = header?.alg;
+    if (alg is JwtSigningAlgorithm) {
+        if (alg == NONE) {
+            return jwtAssertion;
         } else {
-            return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
+            if (config is JwtIssuerConfig) {
+                crypto:KeyStore keyStore = config.keyStore;
+                string keyAlias = config.keyAlias;
+                string keyPassword = config.keyPassword;
+                var privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
+                                                         keyPassword = keyPassword);
+                if (privateKey is crypto:PrivateKey) {
+                    if (alg == RS256) {
+                        var signature = crypto:signRsaSha256(jwtAssertion.toBytes(), privateKey);
+                        if (signature is byte[]) {
+                            return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
+                        } else {
+                            return prepareJwtError("Private key signing failed for SHA256 algorithm.", err = signature);
+                        }
+                    } else if (alg == RS384) {
+                        var signature = crypto:signRsaSha384(jwtAssertion.toBytes(), privateKey);
+                        if (signature is byte[]) {
+                            return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
+                        } else {
+                            return prepareJwtError("Private key signing failed for SHA384 algorithm.", err = signature);
+                        }
+                    } else if (alg == RS512) {
+                        var signature = crypto:signRsaSha512(jwtAssertion.toBytes(), privateKey);
+                        if (signature is byte[]) {
+                            return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
+                        } else {
+                            return prepareJwtError("Private key signing failed for SHA512 algorithm.", err = signature);
+                        }
+                    } else {
+                        return prepareJwtError("Unsupported JWS algorithm.");
+                    }
+                } else {
+                    return prepareJwtError("Private key decoding failed.", err = privateKey);
+                }
+            } else {
+                return prepareJwtError("Signing JWT requires JwtIssuerConfig with keystore information.");
+            }
         }
     }
+    //TODO: Define a proper error
+    return prepareJwtError("JwtSigningAlgorithm is not found.");
 }
 
-function buildHeaderString(JwtHeader header) returns string|error {
-    json headerJson = {};
+function buildHeaderString(JwtHeader header) returns string|JwtError {
+    map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
-        return prepareError("Mandatory field signing algorithm (alg) is empty.");
+        return prepareJwtError("Mandatory field signing algorithm (alg) is empty.");
     }
-    if (header.alg == RS256) {
-        headerJson[ALG] = "RS256";
-    } else if (header.alg == RS384) {
-        headerJson[ALG] = "RS384";
-    } else if (header.alg == RS512) {
-        headerJson[ALG] = "RS512";
-    } else if (header.alg == NONE) {
-        headerJson[ALG] = "none";
-    } else {
-        return prepareError("Unsupported JWS algorithm.");
-    }
-    if (header["typ"] is string) {
-        headerJson[TYP] = header.typ;
-    }
-    if (header["cty"] is string) {
-        headerJson[CTY] = header.cty;
-    }
-    if (header["kid"] is string) {
-        headerJson[KID] = header.kid;
+    JwtSigningAlgorithm? alg = header?.alg;
+    if (alg is JwtSigningAlgorithm) {
+        if (alg == RS256) {
+            headerJson[ALG] = "RS256";
+        } else if (alg == RS384) {
+            headerJson[ALG] = "RS384";
+        } else if (alg == RS512) {
+            headerJson[ALG] = "RS512";
+        } else if (alg == NONE) {
+            headerJson[ALG] = "none";
+        } else {
+            return prepareJwtError("Unsupported JWS algorithm.");
+        }
+        if (header["typ"] is string) {
+            string? typ = header?.typ;
+            if (typ is string) {
+                headerJson[TYP] = typ;
+            }
+        }
+        if (header["cty"] is string) {
+            string? cty = header?.cty;
+            if (cty is string) {
+                headerJson[CTY] = cty;
+            }
+        }
+        if (header["kid"] is string) {
+            string? kid = header?.kid;
+            if (kid is string) {
+                headerJson[KID] = kid;
+            }
+        }
     }
     string headerValInString = headerJson.toString();
-    string encodedPayload = encoding:encodeBase64Url(headerValInString.toByteArray("UTF-8"));
+    string encodedPayload = encoding:encodeBase64Url(headerValInString.toBytes());
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload) returns string|error {
-    json payloadJson = {};
+function buildPayloadString(JwtPayload payload) returns string|JwtError {
+    map<json> payloadJson = {};
     var sub = payload["sub"];
     if (sub is string) {
         payloadJson[SUB] = sub;
@@ -131,10 +162,10 @@ function buildPayloadString(JwtPayload payload) returns string|error {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }
     string payloadInString = payloadJson.toString();
-    return encoding:encodeBase64Url(payloadInString.toByteArray("UTF-8"));
+    return encoding:encodeBase64Url(payloadInString.toBytes());
 }
 
-function addMapToJson(json inJson, map<json> mapToConvert) returns json {
+function addMapToJson(map<json> inJson, map<json> mapToConvert) returns map<json> {
     if (mapToConvert.length() != 0) {
         foreach var key in mapToConvert.keys() {
             inJson[key] = mapToConvert[key];

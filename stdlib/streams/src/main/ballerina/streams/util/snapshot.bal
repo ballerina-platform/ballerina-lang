@@ -21,6 +21,7 @@ import ballerina/log;
 import ballerina/math;
 import ballerina/task;
 import ballerina/time;
+import ballerina/'lang\.int as langint;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
@@ -180,7 +181,7 @@ function writeStateToFile(string persistancePath) returns error? {
     if (!pPath.exists()) {
         error? e = pPath.createDirectory();
     }
-    internal:Path path = pPath.resolve(string.convert(currentTimeMillis));
+    internal:Path path = pPath.resolve(currentTimeMillis.toString());
     if (!path.exists()) {
         error? e = path.createFile();
         if (e is ()) {
@@ -213,7 +214,7 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         int[] timestamps = [];
         if (files is internal:Path[]) {
             foreach internal:Path p in files {
-                int|error t = int.convert(p.getName());
+                int|error t = langint:fromString(p.getName());
                 if (t is int) {
                     timestamps[timestamps.length()] = t;
                 }
@@ -222,7 +223,7 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         IntSort s = new;
         s.sort(timestamps);
         foreach int t in timestamps {
-            internal:Path sf = path.resolve(string.convert(t));
+            internal:Path sf = path.resolve(t.toString());
             snapshotFiles[snapshotFiles.length()] = sf.getPathValue();
         }
     }
@@ -333,9 +334,13 @@ public function restoreState(string key, any reference) {
 # + key - An unique `string` identifier for the snapshotable reference.
 # + return - A `boolean` indicating whether the state for the given key removed successfully.
 public function removeState(string key) returns boolean {
-    boolean snapshotableRemoved = snapshotables.remove(key);
-    boolean stateRemoved = streamsPersistanceState.remove(key);
-    return snapshotableRemoved && stateRemoved;
+    if (snapshotables.hasKey(key) && streamsPersistanceState.hasKey(key)) {
+        var snapshotableRemoved = snapshotables.remove(key);
+        var stateRemoved = streamsPersistanceState.remove(key);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 # Function to register Snapshotables.

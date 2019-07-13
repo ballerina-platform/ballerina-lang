@@ -607,6 +607,7 @@ public class BRunUtil {
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
                 ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
+                jvmArray.elementType = getJVMType(array.elementType);
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -704,6 +705,8 @@ public class BRunUtil {
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
+            case TypeTags.DECIMAL_TAG:
+                return new DecimalValue(((BDecimal) value).value());
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
@@ -875,6 +878,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeString;
             case TypeTags.FLOAT_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.DECIMAL_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeDecimal;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());

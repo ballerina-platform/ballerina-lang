@@ -47,6 +47,7 @@ public enum DiagnosticCode {
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
+    UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
@@ -226,6 +227,13 @@ public enum DiagnosticCode {
     UNDERSCORE_NOT_ALLOWED("underscore.not.allowed"),
     OPERATION_DOES_NOT_SUPPORT_INDEXING("operation.does.not.support.indexing"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("operation.does.not.support.field.access"),
+    OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT("operation.does.not.support.field.access.for.assignment"),
+    OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS("operation.does.not.support.optional.field.access"),
+    OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD(
+            "operation.does.not.support.field.access.for.non.required.field"),
+    OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD(
+            "operation.does.not.support.optional.field.access.for.field"),
+    OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT("operation.does.not.support.index.access.for.assignment"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_TUPLE_INDEX_EXPR("invalid.tuple.index.expr"),
@@ -249,8 +257,10 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
+    INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
     INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
@@ -330,9 +340,6 @@ public enum DiagnosticCode {
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
     CANNOT_FIND_MATCH_ERROR_REASON_CONST("can.not.find.match.error.reason.const"),
 
-    // error type related errors
-    REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
-
     THROW_STMT_NOT_SUPPORTED("throw.stmt.not.supported"),
     TRY_STMT_NOT_SUPPORTED("try.stmt.not.supported"),
 
@@ -341,7 +348,7 @@ public enum DiagnosticCode {
 
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
-    INVALID_ERROR_LIFTING_ON_LHS("invalid.error.lifting.on.lhs"),
+    OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS("optional.field.access.not.required.on.lhs"),
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
@@ -434,8 +441,12 @@ public enum DiagnosticCode {
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("invalid.usage.of.receive.expression"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("invalid.use.of.experimental.feature"),
 
-    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal");
+    INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal"),
 
+    // Type Param related error codes.
+    TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
+
+    ;
     private String value;
 
     DiagnosticCode(String value) {

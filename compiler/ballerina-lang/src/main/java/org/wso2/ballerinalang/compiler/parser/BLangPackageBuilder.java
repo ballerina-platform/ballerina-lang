@@ -1491,7 +1491,6 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
-        invocationNode.safeNavigate = safeNavigate;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -1499,6 +1498,17 @@ public class BLangPackageBuilder {
         }
 
         invocationNode.expr = (BLangExpression) exprNodeStack.pop();
+        invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
+        invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
+        addExpressionNode(invocationNode);
+    }
+
+    void createWorkerLambdaInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        invocationNode.addWS(ws);
+        invocationNode.addWS(invocationWsStack.pop());
+
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
@@ -1517,7 +1527,7 @@ public class BLangPackageBuilder {
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
-                                    FieldKind fieldType, boolean safeNavigate) {
+                                    FieldKind fieldType, boolean optionalFieldAccess) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
@@ -1525,7 +1535,7 @@ public class BLangPackageBuilder {
         fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
-        fieldBasedAccess.safeNavigate = safeNavigate;
+        fieldBasedAccess.optionalFieldAccess = optionalFieldAccess;
         addExpressionNode(fieldBasedAccess);
     }
 
@@ -1714,9 +1724,8 @@ public class BLangPackageBuilder {
         }
 
         addNameReference(pos, null, null, workerLambdaName);
-        createSimpleVariableReference(pos, null);
         startInvocationNode(null);
-        createInvocationNode(pos, null, BLangBuiltInMethod.CALL.toString(), false, false);
+        createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
         markLastInvocationAsAsync(pos, numAnnotations);
         addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
     }
@@ -2557,7 +2566,7 @@ public class BLangPackageBuilder {
 
         compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
         List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.DEFAULT_VERSION.value,
+        addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
                 Names.DOT.value + nameComps.get(nameComps.size() - 1));
     }
 

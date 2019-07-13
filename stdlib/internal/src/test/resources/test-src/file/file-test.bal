@@ -158,7 +158,7 @@ function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:WritableByteChannel byteChannel = check io:openWritableFile(absolutePath);
-    var result = byteChannel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
+    var result = byteChannel.write(TEST_CONTENT.toBytes(), 0);
     return byteChannel.close();
 }
 
@@ -172,6 +172,7 @@ function testReadFile(string pathValue) returns boolean {
         return false;
     } else {
         var [bytes, numberOfBytes] = readResult;
-        return bytes.length() == TEST_CONTENT.toByteArray("UTF-8").length();
+        byte[] testBytes = TEST_CONTENT.toBytes();
+        return bytes.length() == testBytes.length();
     }
 }

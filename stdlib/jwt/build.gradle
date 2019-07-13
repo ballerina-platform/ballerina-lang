@@ -17,13 +17,14 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-log-api')
@@ -33,8 +34,9 @@ dependencies {
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-io')
     implementation project(':ballerina-utils')
+    implementation project(':ballerina-internal')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -44,13 +46,14 @@ dependencies {
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
 
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-config')
-    testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')

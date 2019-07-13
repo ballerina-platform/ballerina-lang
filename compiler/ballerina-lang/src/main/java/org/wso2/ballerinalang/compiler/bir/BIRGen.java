@@ -1210,14 +1210,15 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
         emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
-                keyRegIndex, varRefRegIndex, astMapAccessExpr.except));
+                keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
+                                              astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }
 
     @Override
     public void visit(BLangStructFieldAccessExpr astStructFieldAccessExpr) {
-        generateMappingAccess(astStructFieldAccessExpr, astStructFieldAccessExpr.except);
+        generateMappingAccess(astStructFieldAccessExpr, astStructFieldAccessExpr.optionalFieldAccess);
     }
 
     @Override
@@ -1227,7 +1228,7 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
 
-        generateMappingAccess(astJSONFieldAccessExpr, false);
+        generateMappingAccess(astJSONFieldAccessExpr, astJSONFieldAccessExpr.optionalFieldAccess);
     }
 
     @Override
@@ -1990,7 +1991,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_LOAD;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, tempVarRef, keyRegIndex,
-                    varRefRegIndex, except));
+                    varRefRegIndex, except, astIndexBasedAccessExpr.lhsVar && !astIndexBasedAccessExpr.leafNode));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;

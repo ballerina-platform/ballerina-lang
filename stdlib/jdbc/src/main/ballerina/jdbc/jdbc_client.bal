@@ -24,25 +24,19 @@ public type JdbcClient client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `JdbcClientError` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|JdbcClientError {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
-     //TODO: #16033
     # The select remote function implementation for JDBC Client to select data from tables.
     #
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
-    //# + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `JdbcClientError` will be returned if there
     # is any error
-    //public remote function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
-    //Param... parameters) returns @tainted table<record {}>|error {
-    //    return nativeSelect(self, sqlQuery, recordType, loadToMemory = loadToMemory, ...parameters);
-    //}
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc<record {}>? recordType,
     Param... parameters) returns @tainted table<record {}>|JdbcClientError {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
@@ -78,12 +72,10 @@ public type JdbcClient client object {
     }
 };
 
-//function nativeSelect(Client sqlClient, @sensitive string sqlQuery, typedesc? recordType,
-//   boolean loadToMemory = false, Param... parameters) returns @tainted table<record {}>|error = external;
-function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc? recordType,
+function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record {}>? recordType,
    Param... parameters) returns @tainted table<record {}>|JdbcClientError = external;
 
-function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|JdbcClientError = external;
 
 function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, string[]? keyColumns = (),
