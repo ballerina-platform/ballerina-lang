@@ -336,7 +336,7 @@ public class PathTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getDetails().stringValue(),
-                         "{\"message\":\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
+                         "{message:\"Can't make: " + targetPath + " relative to " + basePath + "\"}");
         } else {
             assertTrue(returns[0] instanceof BString);
             BString relative = (BString) returns[0];
