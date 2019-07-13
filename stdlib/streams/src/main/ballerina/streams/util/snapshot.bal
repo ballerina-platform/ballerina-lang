@@ -276,7 +276,7 @@ function restoreStates() {
             }
         }
     }
-    foreach var [k, v] in streamsPersistanceState {
+    foreach var [k, v] in streamsPersistanceState.entries() {
         boolean loaded = loadedStates[k] ?: false;
         if (!loaded) {
             Snapshotable? s = snapshotables[k];
@@ -291,7 +291,7 @@ function restoreStates() {
 # Function to iterate through all the snapshotables, and persist their states into a file.
 # + return - An `error` if the state cannot be persisted into a file.
 function persistStatesAndPurgeOldSnapshots() returns error? {
-    foreach var [k, v] in snapshotables {
+    foreach var [k, v] in snapshotables.entries() {
         streamsPersistanceState[k] = v.saveState();
     }
     error? e = writeStateToFile(persistanceDirectory);

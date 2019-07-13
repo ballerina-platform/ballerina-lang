@@ -196,7 +196,7 @@ public type UniqueLengthWindow object {
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         map<SnapshottableStreamEvent> uMap = {};
-        foreach var [k, v] in self.uniqueMap {
+        foreach var [k, v] in self.uniqueMap.entries() {
             uMap[k] = toSnapshottableEvent(v);
         }
         return {
@@ -218,7 +218,7 @@ public type UniqueLengthWindow object {
         var uMap = state["uMap"];
         if (uMap is map<SnapshottableStreamEvent>) {
             self.uniqueMap = {};
-            foreach var [k, v] in uMap {
+            foreach var [k, v] in uMap.entries() {
                 self.uniqueMap[k] = toStreamEvent(v);
             }
         }

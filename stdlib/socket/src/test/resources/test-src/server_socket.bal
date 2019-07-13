@@ -144,7 +144,7 @@ service errorServer on new socket:Listener(59155) {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        errorString = <@untainted> string.convert(er.reason());
+        errorString = <@untainted> er.reason();
     }
 }
 
