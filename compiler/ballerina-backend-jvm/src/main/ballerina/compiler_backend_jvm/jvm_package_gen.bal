@@ -516,7 +516,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
                                           modName : {value:"lang.__internal"},
                                           modVersion : {value:""}};
 
-    if (isSameModule(moduleId, annotationsModule)) {
+    if (isSameModule(moduleId, internalModule)) {
         return;
     }
 

@@ -512,6 +512,16 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
         return;
     }
 
+    bir:ImportModule internalModule = {modOrg : {value:"ballerina"},
+                                          modName : {value:"lang.__internal"},
+                                          modVersion : {value:""}};
+
+    if (isSameModule(moduleId, internalModule)) {
+      return;
+    }
+
+    module.importModules[module.importModules.length()] = internalModule;
+
     bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
                                         modName : {value:"utils"},
                                         modVersion : {value:""}};
