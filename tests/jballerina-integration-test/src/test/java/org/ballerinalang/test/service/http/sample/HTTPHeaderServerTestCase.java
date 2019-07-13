@@ -26,7 +26,6 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
