@@ -583,6 +583,10 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     bir:ImportModule langXmlModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.xml"},
                                          modVersion : {value:""}};
+
+    bir:ImportModule langTypedescModule = {modOrg : {value:"ballerina"},
+                                        modName : {value:"lang.typedesc"},
+                                        modVersion : {value:""}};
     module.importModules[module.importModules.length()] = langArrayModule;
     module.importModules[module.importModules.length()] = langDecimalModule;
     module.importModules[module.importModules.length()] = langErrorModule;
@@ -596,6 +600,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     module.importModules[module.importModules.length()] = langTableModule;
     module.importModules[module.importModules.length()] = langValueModule;
     module.importModules[module.importModules.length()] = langXmlModule;
+    module.importModules[module.importModules.length()] = langTypedescModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {

@@ -787,7 +787,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BXMLType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
-        typeFieldName = "typeTypedesc";
+        loadTypedescType(mv, bType);
+        return;
     }  else if (bType is bir:BServiceType) {
         if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
             loadUserDefinedType(mv, bType);
@@ -859,6 +860,22 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;I)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given typedesc type
+# to the top of the stack.
+#
+# + bType - typedesc type to load
+function loadTypedescType(jvm:MethodVisitor mv, bir:BTypeDesc bType) {
+    // Create an new map type
+    mv.visitTypeInsn(NEW, TYPEDESC_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.typeConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given map type
