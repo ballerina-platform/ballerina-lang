@@ -36,7 +36,7 @@ public class WebSubCompilationTest {
     public void setup() {
         negativeCompilationResult =
                 BCompileUtil.compile("test-src/compilation/test_compilation_failure.bal");
-        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 12);
+        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 13);
     }
 
     @Test(description = "Test specifying > 1 SubscriberServiceConfig annotations", enabled = false)
@@ -111,5 +111,11 @@ public class WebSubCompilationTest {
     @Test(description = "Test invalid resource return type")
     public void testInvalidResourceReturnType() {
         BAssertUtil.validateError(negativeCompilationResult, 11, "invalid return type: expected error?", 129, 5);
+    }
+
+    @Test(description = "Test subscriber without SubscriberServiceConfig")
+    public void testNoSubscriberServiceConfig() {
+        BAssertUtil.validateError(negativeCompilationResult, 12, "'SubscriberServiceConfig' annotation is compulsory",
+                                  135, 1);
     }
 }

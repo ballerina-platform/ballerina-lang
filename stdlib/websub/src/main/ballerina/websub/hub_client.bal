@@ -181,7 +181,6 @@ public type Client client object {
                 return webSubError;
             }
         } else {
-            map<anydata> errorDetail = {  };
             error webSubError = error(WEBSUB_ERROR_CODE,
                                         message = "Update availability notification failed for topic [" + topic + "]");
             return webSubError;

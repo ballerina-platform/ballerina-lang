@@ -130,3 +130,9 @@ service {
         return 10;
     }
 };
+
+service websubSubscriberNine =
+service {
+    resource function noSubscriberServiceConfig (websub:Notification notification) {
+    }
+};

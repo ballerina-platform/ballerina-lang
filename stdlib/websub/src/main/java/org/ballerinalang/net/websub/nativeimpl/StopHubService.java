@@ -55,7 +55,6 @@ public class StopHubService extends BlockingNativeCallableUnit {
                 hubInstance.stopHubService();
                 return true;
             } catch (BallerinaWebSubException e) {
-                log.debug(e.getMessage());
                 return false;
             }
         }

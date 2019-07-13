@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -155,15 +156,17 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
             ObjectValue intentVerificationRequest = createIntentVerificationRequest();
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                MapValue<String, String> params = new MapValueImpl<>();
+                MapValue<String, Object> params = new MapValueImpl<>();
                 try {
                     URIUtil.populateQueryParamMap(queryString, params);
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_MODE, params.get(PARAM_HUB_MODE));
-                    intentVerificationRequest.set(VERIFICATION_REQUEST_TOPIC, params.get(PARAM_HUB_TOPIC));
+                    intentVerificationRequest.set(VERIFICATION_REQUEST_MODE,
+                                                  getParamStringValue(params, PARAM_HUB_MODE));
+                    intentVerificationRequest.set(VERIFICATION_REQUEST_TOPIC,
+                                                  getParamStringValue(params, PARAM_HUB_TOPIC));
                     intentVerificationRequest.set(VERIFICATION_REQUEST_CHALLENGE,
-                                                  params.get(PARAM_HUB_CHALLENGE));
+                                                  getParamStringValue(params, PARAM_HUB_CHALLENGE));
                     if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
-                        long leaseSec = Long.parseLong(params.get(PARAM_HUB_LEASE_SECONDS));
+                        long leaseSec = Long.parseLong(getParamStringValue(params, PARAM_HUB_LEASE_SECONDS));
                         intentVerificationRequest.set(VERIFICATION_REQUEST_LEASE_SECONDS, leaseSec);
                     }
                 } catch (UnsupportedEncodingException e) {
@@ -287,7 +290,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         String annotatedTopic = httpCarbonMessage.getProperty(ANNOTATED_TOPIC).toString();
         if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
             String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-            MapValue<String, String> params = new MapValueImpl<>();
+            MapValue<String, Object> params = new MapValueImpl<>();
             try {
                 HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
                 response.waitAndReleaseAllEntities();
@@ -327,5 +330,9 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                                                               + e.getMessage());
             }
         }
+    }
+
+    private String getParamStringValue(MapValue<String, Object> params, String key) {
+        return ((ArrayValue) params.get(key)).get(0).toString();
     }
 }
