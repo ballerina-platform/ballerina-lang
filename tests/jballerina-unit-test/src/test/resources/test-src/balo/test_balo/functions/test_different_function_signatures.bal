@@ -3,41 +3,28 @@ import testorg/foo version v1;
 //------------ Testing a function with all types of parameters ---------
 
 function testInvokeFunctionInOrder1() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", 40, 50, 60);
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", 40, 50, 60);
 }
 
 function testInvokeFunctionInOrder2() returns [int, float, string, int, string, int[]] {
     int[] array = [40, 50, 60];
-    return foo:functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...array);
-}
-
-function testInvokeFunctionInMixOrder1() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", 40, 50, d=30, 60);
-}
-
-function testInvokeFunctionInMixOrder2() returns [int, float, string, int, string, int[]] {
-    int[] array = [40, 50, 60];
-    return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", ...array, d=30);
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", ...array);
 }
 
 function testInvokeFunctionWithoutRestArgs() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, e="Bob", 20.0, c="Alex", d=30);
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob");
 }
 
 function testInvokeFunctionWithoutSomeNamedArgs() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(c="Alex", 10, 20.0);
+    return foo:functionWithAllTypesParams(10, 20.0, c="Alex");
 }
 
 function testInvokeFunctionWithRequiredArgsOnly() returns [int, float, string, int, string, int[]] {
     return foo:functionWithAllTypesParams(10, 20.0);
 }
 
-function testInvokeFunctionWithRequiredAndRestArgs() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, 20.0, 40, 50, 60);
-}
-
 function funcInvocAsRestArgs() returns [int, float, string, int, string, int[]] {
-    return foo:functionWithAllTypesParams(10, 20.0, c="Alex", d=30, e="Bob", ...getIntArray());
+    return foo:functionWithAllTypesParams(10, 20.0, "Alex", 30, "Bob", ...getIntArray());
 }
 
 function getIntArray() returns int[] {
@@ -47,7 +34,7 @@ function getIntArray() returns int[] {
 //------------- Testing a function having required and rest parameters --------
 
 function testInvokeFuncWithoutRestParams() returns [int, float, string, int, string] {
-    return foo:functionWithoutRestParams(10, e="Bob", 20.0, d=30);
+    return foo:functionWithoutRestParams(a=10, e="Bob", b=20.0, d=30);
 }
 
 //------------- Testing a function having only named parameters --------

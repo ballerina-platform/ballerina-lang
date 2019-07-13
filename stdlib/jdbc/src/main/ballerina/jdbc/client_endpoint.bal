@@ -69,7 +69,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.jdbcClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
+        return self.jdbcClient->update(sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.

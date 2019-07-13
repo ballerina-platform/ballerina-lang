@@ -1468,10 +1468,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
-        analyzeExprs(invocationExpr.namedArgs);
         analyzeExprs(invocationExpr.restArgs);
-
-        checkDuplicateNamedArgs(invocationExpr.namedArgs);
 
         // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
@@ -2141,12 +2138,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.requiredParams.forEach(param -> {
             if (!types.isAnydata(param.type)) {
                 this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
-            }
-        });
-
-        funcNode.defaultableParams.forEach(param -> {
-            if (!types.isAnydata(param.var.type)) {
-                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.var.type);
             }
         });
 
