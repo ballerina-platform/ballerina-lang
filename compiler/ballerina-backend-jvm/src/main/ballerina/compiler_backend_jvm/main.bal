@@ -78,7 +78,8 @@ function readMap(string path) returns map<string> {
     var result = untaint rch.readJson();
     var didClose = rch.close();
     if (result is error) {
-        panic result;
+        error e = <error>result;
+        panic e;
     } else {
         var externalMap = map<string>.convert(result);
         if (externalMap is error){
