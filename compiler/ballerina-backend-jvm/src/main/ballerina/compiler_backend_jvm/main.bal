@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
-import ballerina/internal;
+import ballerina/system;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
@@ -31,7 +31,6 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
-internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
 string[] birCacheDirs = [];
 
