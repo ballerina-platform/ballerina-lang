@@ -333,7 +333,9 @@ service redirect1 on serviceEndpoint3 {
     }
     resource function processQP(http:Caller caller, http:Request req) {
         map<string[]> paramsMap = req.getQueryParams();
-        string returnVal = paramsMap.key[0] + ":" + paramsMap.lang[0];
+        string[]? arr1 = paramsMap["key"];
+        string[]? arr2 = paramsMap["lang"];
+        string returnVal = (arr1 is string[] ? arr1[0] : "") + ":" + (arr2 is string[] ? arr2[0] : "");
         checkpanic caller->respond(<@untainted> returnVal);
     }
 }
