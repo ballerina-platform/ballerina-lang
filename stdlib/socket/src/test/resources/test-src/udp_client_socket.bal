@@ -84,7 +84,7 @@ function contentReceiveWithLength() returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns @tainted string|io:IoError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(60);

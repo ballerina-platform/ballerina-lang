@@ -74,15 +74,17 @@ public class IOConstants {
      */
     public static final long VAR_INT_MIN = (0xFFFFFFFFFFFFFL * -1);
 
+    /**
+     * Detail record name in the io:Error.
+     */
     public static final String DETAIL_RECORD_TYPE_NAME = "Detail";
-
 
     /**
      * Specifies the error code for i/o.
      */
     public enum ErrorCode {
 
-        GenericIoError("{ballerina/io}GenericIoError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
+        GenericError("{ballerina/io}GenericError"), ConnectionTimedOut("{ballerina/io}ConnectionTimedOut");
 
         private String errorCode;
 

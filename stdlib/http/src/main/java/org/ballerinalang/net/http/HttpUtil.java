@@ -155,6 +155,8 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
@@ -1604,7 +1606,12 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        listenerConfiguration.setServerHeader(getServerName());
+        if (endpointConfig.getType().getName().equalsIgnoreCase(SERVER_ENDPOINT_CONFIG)) {
+            String serverName = endpointConfig.getStringValue(SERVER_NAME);
+            listenerConfiguration.setServerHeader(serverName != null ? serverName : getServerName());
+        } else {
+            listenerConfiguration.setServerHeader(getServerName());
+        }
 
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);

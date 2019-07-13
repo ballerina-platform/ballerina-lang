@@ -305,20 +305,20 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     boolean isError = false;
-    boolean isJdbcClientError = false;
+    boolean isJdbcError = false;
     boolean isApplicationError = false;
 
     if (x is error) {
         isError = true;
     }
-    if (x is jdbc:JdbcClientError) {
-        isJdbcClientError = true;
+    if (x is jdbc:Error) {
+        isJdbcError = true;
     }
     if (x is jdbc:ApplicationError) {
         isApplicationError = true;
     }
     checkpanic testDB.stop();
-    return [isError, isJdbcClientError, isApplicationError];
+    return [isError, isJdbcError, isApplicationError];
 }
 
 function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
@@ -332,20 +332,20 @@ function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
     boolean isError = false;
-    boolean isJdbcClientError = false;
+    boolean isJdbcError = false;
     boolean isDatabaseError = false;
 
     if (x is error) {
         isError = true;
     }
-    if (x is jdbc:JdbcClientError) {
-        isJdbcClientError = true;
+    if (x is jdbc:Error) {
+        isJdbcError = true;
     }
     if (x is jdbc:DatabaseError) {
         isDatabaseError = true;
     }
     checkpanic testDB.stop();
-    return [isError, isJdbcClientError, isDatabaseError];
+    return [isError, isJdbcError, isDatabaseError];
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
