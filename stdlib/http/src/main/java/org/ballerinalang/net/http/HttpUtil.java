@@ -561,7 +561,7 @@ public class HttpUtil {
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
             cause = createErrorCause(throwable.getMessage(),
-                    IOConstants.ErrorCode.GenericIoError.errorCode(),
+                    IOConstants.ErrorCode.GenericError.errorCode(),
                     IO_PACKAGE,
                     DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
