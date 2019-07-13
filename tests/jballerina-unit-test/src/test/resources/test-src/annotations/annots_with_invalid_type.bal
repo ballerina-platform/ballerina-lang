@@ -14,48 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Foo record {|
-    string s;
-    string t;
-    boolean b = false;
-|};
-
-public type Bar record {|
-    Foo[] f;
-    int i = 10;
-|};
-
-public const annotation Bar v1 on source service, source listener;
-
-string s2 = "s2";
-
-service ser2 = @v1 {
-    f: [
-        { s: "s", t: "t" },
-        { s: s2, t: "t2" }
-    ]
-} service {
-    resource function res() {
-
-    }
-};
-
-type Baz record {
-    string st;
-    Qux q?;
-};
-
-type Qux object {
-
-};
-
-public const annotation Baz v2 on service, source listener;
-
-service ser3 = @v2 {
-    st: "string value"
-} service {
-    resource function res() {
-
-    }
-};
-
+annotation int v1 on type;
