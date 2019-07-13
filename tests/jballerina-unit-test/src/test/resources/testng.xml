@@ -72,11 +72,11 @@
             <!--<package name="org.ballerinalang.test.statements.compoundassignment.*"/>-->
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
-            <!--<package name="org.ballerinalang.test.statements.ifelse.*"/>-->
+            <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
             <!--<package name="org.ballerinalang.test.statements.returnstmt.*"/>-->
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
-            <!--<package name="org.ballerinalang.test.statements.whilestatement.*"/>-->
+            <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.variabledef.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.matchstmt.*"/>-->
@@ -107,7 +107,7 @@
             <package name="org.ballerinalang.test.packaging.*" />
             <!--<package name="org.ballerinalang.test.types.xml.*" />-->
             <!--<package name="org.ballerinalang.test.record.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.constant.*" />-->
+            <package name="org.ballerinalang.test.types.constant.*" />
             <!--<package name="org.ballerinalang.test.types.bytetype.*"/>-->
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typecast.*"/>-->
