@@ -53,7 +53,7 @@ test {
 
     classpath += configurations.birJar
     doFirst {
-        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
+//        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
     }
 }
 
