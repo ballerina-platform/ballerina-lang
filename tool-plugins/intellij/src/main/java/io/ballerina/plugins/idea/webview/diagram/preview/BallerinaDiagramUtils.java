@@ -41,7 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
+import static org.wso2.lsp4intellij.utils.FileUtils.editorToProjectFolderUri;
 
 /**
  * Diagram utilities.
@@ -90,7 +90,7 @@ public class BallerinaDiagramUtils {
             return "";
         }
 
-        return getWebviewContent(editorToURIString(editor), panel, balSdk.getSdkPath());
+        return getWebviewContent(editorToProjectFolderUri(editor), panel, balSdk.getSdkPath());
     }
 
     static Editor getEditorFor(VirtualFile file, Project project) {
