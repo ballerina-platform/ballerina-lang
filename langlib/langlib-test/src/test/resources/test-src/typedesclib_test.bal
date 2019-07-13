@@ -21,5 +21,12 @@ type Person record {
 
 function testRecToJson() returns json|error {
     Person  p = {name: "N", age: 3};
-    return typedesc<json>.constructFrom(p);
+    json|error j = typedesc<json>.constructFrom(p);
+    if (j is json) {
+        string s = j.toJsonString();
+    } else {
+        json k = { i : "1" };
+        string kk = k.toJsonString();
+    }
+    return j;
 }
