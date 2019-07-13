@@ -46,11 +46,9 @@ import static org.ballerinalang.jvm.values.State.YIELD;
  */
 
 public class Strand {
-//    public boolean yield;
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
-//    public boolean blocked;
     public CopyOnWriteArrayList<Strand> blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
@@ -58,14 +56,13 @@ public class Strand {
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
+    public Set<SchedulerItem> dependants;
+    private Lock strandLock;
+
     private Map<String, Object> globalProps;
     public boolean cancel;
     public ObserverContext observerContext;
     private State state;
-    /**
-     * Used to mark the strand has completed.
-     */
-    public boolean completed;
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -74,6 +71,8 @@ public class Strand {
         this.channelDetails = new HashSet<>();
         this.globalProps = new HashMap<>();
         this.state = RUNNABLE;
+        this.dependants = new HashSet<>();
+        this.strandLock = new ReentrantLock();
     }
 
     public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
@@ -227,7 +226,9 @@ public class Strand {
     }
 
     public void setState(State state) {
+        this.lock();
         this.state = state;
+        this.unlock();
     }
 
     public State getState() {
@@ -244,6 +245,14 @@ public class Strand {
 
     public boolean isBlockedOnExtern() {
         return blockedOnExtern;
+    }
+
+    public void lock() {
+        this.strandLock.lock();
+    }
+
+    public void unlock() {
+        this.strandLock.unlock();
     }
 
     /**

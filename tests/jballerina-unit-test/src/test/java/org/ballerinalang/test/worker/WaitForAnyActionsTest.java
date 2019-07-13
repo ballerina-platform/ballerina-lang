@@ -158,7 +158,8 @@ public class WaitForAnyActionsTest {
     public void waitTest16() {
         BValue[] vals = BRunUtil.invoke(result, "waitTest16", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(Arrays.asList("150", "hello foo").contains(vals[0].stringValue()));
+        Assert.assertTrue(Arrays.asList("150", "hello foo", "7", "60", "12", "hello bar").
+                contains(vals[0].stringValue()));
     }
 
     @Test

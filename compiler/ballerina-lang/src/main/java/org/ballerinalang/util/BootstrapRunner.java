@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +57,9 @@ public class BootstrapRunner {
         commands.addAll(Arrays.asList(birCachePaths));
 
         ProcessBuilder balProcess = new ProcessBuilder(commands);
+        Map<String, String> env = balProcess.environment();
+        env.remove("BAL_JAVA_DEBUG");
+        env.remove("JAVA_OPTS");
 
         try {
             Process process = balProcess.start();

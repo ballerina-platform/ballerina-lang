@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,12 +56,6 @@ public class Scheduler {
      * Strands that are ready for execution.
      */
     private BlockingQueue<SchedulerItem> runnableList = new LinkedBlockingDeque<>();
-
-    /**
-     * Scheduler items that are blocked on given strand.
-     * List key is the blocker.
-     */
-    private Map<Strand, Set<SchedulerItem>> blockedList = new ConcurrentHashMap<>();
 
     /**
      * Scheduler items that are blocked but the blocker is not known.
@@ -212,40 +205,40 @@ public class Scheduler {
             switch (item.getState()) {
                 case BLOCK_AND_YIELD:
                     if (item.blockedOn().isEmpty()) {
+                        item.future.strand.lock();
                         if (DEBUG) {
                             debugLog(item + " blocked");
                         }
-                        synchronized (item.future.strand) {
-                            if (unblockedList.remove(item.future.strand)) {
+                        if (unblockedList.remove(item.future.strand)) {
+                            if (DEBUG) {
+                                debugLog(item + " releasing from unblockedList");
+                            }
+                            reschedule(item);
+                            item.future.strand.unlock();
+                            break;
+                        } else {
+                            blockedOnUnknownList.put(item.future.strand, item);
+                        }
+                        item.future.strand.unlock();
+                    } else {
+                        for (int i = 0; i < item.blockedOn().size(); i++) {
+                            Strand blockedOn = item.blockedOn().get(i);
+                            blockedOn.lock();
+                            if (blockedOn.getState().equals(State.DONE)) {
                                 if (DEBUG) {
-                                    debugLog(item + " releasing from unblockedList");
+                                    debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                 }
                                 reschedule(item);
+                                blockedOn.unlock();
+                                break;
                             } else {
-                                blockedOnUnknownList.put(item.future.strand, item);
+                                if (DEBUG) {
+                                    debugLog(item + " blocked on wait for " + blockedOn.hashCode());
+                                }
+                                blockedOn.dependants.add(item);
+                                blockedOn.unlock();
                             }
                         }
-                    } else {
-                        item.blockedOn().forEach(blockedOn -> {
-                            synchronized (blockedOn) {
-                                if (blockedOn.completed) {
-                                    if (DEBUG) {
-                                        debugLog(item + " blocked and freed on " + blockedOn.hashCode());
-                                    }
-                                    reschedule(item);
-                                } else {
-                                    Set<SchedulerItem> blocked = blockedList.get(blockedOn);
-                                    if (blocked == null) {
-                                        blocked = new HashSet<>();
-                                        blockedList.put(blockedOn, blocked);
-                                    }
-                                    if (DEBUG) {
-                                        debugLog(item + " blocked on wait for " + blockedOn.hashCode());
-                                    }
-                                    blocked.add(item);
-                                }
-                            }
-                        });
                     }
                     break;
                 case YIELD:
@@ -255,41 +248,50 @@ public class Scheduler {
                     }
                     break;
                 case RUNNABLE:
-                    synchronized (item.future.strand) {
-                        item.future.result = result;
-                        item.future.isDone = true;
-                        item.future.panic = panic;
-                        // TODO clean, better move it to future value itself
-                        if (item.future.callback != null) {
-                            if (item.future.panic != null) {
-                                item.future.callback.notifyFailure(BallerinaErrors.createError(panic.getMessage()));
-                            } else {
-                                item.future.callback.notifySuccess();
-                            }
+                    item.future.strand.lock();
+                    item.future.result = result;
+                    item.future.isDone = true;
+                    item.future.panic = panic;
+                    // TODO clean, better move it to future value itself
+                    if (item.future.callback != null) {
+                        if (item.future.panic != null) {
+                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic.getMessage()));
+                        } else {
+                            item.future.callback.notifySuccess();
                         }
                     }
+                    item.future.strand.unlock();
 
                     Strand justCompleted = item.future.strand;
-                    assert !justCompleted.completed : "Can't be completed twice";
+                    assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
 
-                    Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
                         debugLog(item + " completed");
                     }
-                    synchronized (justCompleted) {
-                        cleanUp(justCompleted);
-                        justCompleted.completed = true;
-                        blockedOnJustCompleted = blockedList.remove(justCompleted);
-                    }
+                    justCompleted.lock();
+                    cleanUp(justCompleted);
+                    justCompleted.setState(State.DONE);
 
-                    if (blockedOnJustCompleted != null) {
-                        for (SchedulerItem blockedItem : blockedOnJustCompleted) {
+                    for (SchedulerItem blockedItem : justCompleted.dependants) {
+                        if (blockedItem.getState().equals(State.DONE)) {
+                            continue;
+                        }
+                        blockedItem.future.strand.lock();
+                        // need to check this again due to concurrency.
+                        if (blockedItem.getState().equals(State.DONE)) {
+                            blockedItem.future.strand.unlock();
+                            continue;
+                        }
+                        if (blockedItem.blockedOn().contains(justCompleted)) {
                             if (DEBUG) {
                                 debugLog(blockedItem + " freed by completion of " + item);
                             }
+                            blockedItem.blockedOn().clear();
                             reschedule(blockedItem);
                         }
+                        blockedItem.future.strand.unlock();
                     }
+                    justCompleted.unlock();
 
                     int strandsLeft = totalStrands.decrementAndGet();
                     if (strandsLeft == 0) {
@@ -356,14 +358,14 @@ public class Scheduler {
     }
 
     private void reschedule(SchedulerItem item) {
-        synchronized (item) {
-            if (!item.getState().equals(State.RUNNABLE)) {
-                // release if the same strand is waiting for others (wait multiple)
-                release(item.future.strand.blockedOn, item.future.strand);
-                item.setState(State.RUNNABLE);
-                runnableList.add(item);
-            }
+        item.future.strand.lock();
+        if (!item.getState().equals(State.RUNNABLE)) {
+            // release if the same strand is waiting for others (wait multiple)
+            item.future.strand.blockedOn.clear();
+            item.setState(State.RUNNABLE);
+            runnableList.add(item);
         }
+        item.future.strand.unlock();
     }
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {
@@ -375,30 +377,20 @@ public class Scheduler {
 
     public void unblockStrand(Strand strand) {
         SchedulerItem item;
-        synchronized (strand) {
-            if ((item = blockedOnUnknownList.remove(strand)) == null) {
-                unblockedList.add(strand);
-                if (DEBUG) {
-                    debugLog(strand.hashCode() + " not exists in blocked list");
-                }
-                return;
-            }
+        strand.lock();
+        if ((item = blockedOnUnknownList.remove(strand)) == null) {
+            unblockedList.add(strand);
             if (DEBUG) {
-                debugLog(item + " got unblocked due to send");
+                debugLog(strand.hashCode() + " not exists in blocked list");
             }
-            reschedule(item);
+            strand.unlock();
+            return;
         }
-    }
-
-    public void release(List<Strand> blockedOnList, Strand strand) {
-        for (Strand blockedOn : blockedOnList) {
-            synchronized (blockedOn) {
-                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
-                if (blocked != null) {
-                    blocked.removeIf(item -> item.future.strand == strand);
-                }
-            }
+        if (DEBUG) {
+            debugLog(item + " got unblocked due to send");
         }
+        reschedule(item);
+        strand.unlock();
     }
 }
 
