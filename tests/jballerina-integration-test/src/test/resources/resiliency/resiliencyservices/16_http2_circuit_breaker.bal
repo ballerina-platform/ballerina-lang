@@ -36,19 +36,21 @@ service circuitbreaker07 on circuitBreakerEP07 {
         if (cbTrialRequestCount == 3) {
             runtime:sleep(3000);
         }
-        var backendFuture = backendClientEP07->submit("GET", "/hello07", untaint request);
+        var backendFuture = backendClientEP07->submit("GET", "/hello07", request);
         if (backendFuture is http:HttpFuture) {
             var backendRes = backendClientEP07->getResponse(backendFuture);
             if (backendRes is http:Response) {
                 var responseToCaller = caller->respond(backendRes);
                 if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
+                    log:printError("Error sending response", err = <error> responseToCaller);
                 }
             } else {
-                sendCBErrorResponse(caller, backendRes);
+                error err = backendRes;
+                sendCBErrorResponse(caller, err);
             }
         } else {
-            sendCBErrorResponse(caller, backendFuture);
+            error err = backendFuture;
+            sendCBErrorResponse(caller, err);
         }
     }
 }
@@ -72,7 +74,7 @@ service helloService07 on new http:Listener(8095) {
         }
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -84,6 +86,6 @@ function sendCBErrorResponse(http:Caller caller, error e) {
     response.setPayload(errCause);
     var responseToCaller = caller->respond(response);
     if (responseToCaller is error) {
-        log:printError("Error sending response", err = responseToCaller);
+        log:printError("Error sending response", err = <error> responseToCaller);
     }
 }

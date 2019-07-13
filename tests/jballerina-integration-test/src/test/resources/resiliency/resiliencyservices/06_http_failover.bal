@@ -54,15 +54,16 @@ service failoverDemoService05 on failoverEP05 {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -82,7 +83,7 @@ service echo05 on backendEP05 {
         runtime:sleep(30000);
         var responseToCaller = caller->respond("Delayed resource is invoked");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -99,7 +100,7 @@ service mock05 on backendEP05 {
     resource function mockResource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }

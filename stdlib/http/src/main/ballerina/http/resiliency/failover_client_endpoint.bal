@@ -554,9 +554,13 @@ function handleResponseWithErrorCode(Response response, int initialIndex, int no
     return [currentIndex, resultError];
 }
 
-function handleError(error response, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
-                                                                                                returns [int, error?] {
-    error? httpConnectorErr = ();
+function handleError(ClientError err, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
+                                                                                        returns [int, ClientError?] {
+    ClientError? httpConnectorErr = ();
+    // err is the error received instead of a Response. We wrap it to a `ClientError` here.
+    string invalidResponseMessage = "Failover action failed while retrieving response";
+    FailoverActionFailedError actionError = error(FAILOVER_ENDPOINT_ACTION_FAILED,
+                                                    message = invalidResponseMessage, cause = err);
     int currentIndex = index;
     // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
     // endpoint configured in the failover endpoints gave the erroneous response.

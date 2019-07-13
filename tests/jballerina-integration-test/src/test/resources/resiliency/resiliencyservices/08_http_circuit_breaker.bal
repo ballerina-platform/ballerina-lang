@@ -58,16 +58,17 @@ service circuitbreaker01 on circuitBreakerEP01 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            string errCause = <string> backendRes.detail().message;
+            string errCause = <string> err.detail().message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -82,7 +83,7 @@ service healthyService on new http:Listener(8087) {
     resource function sayHello(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Hello World!!!");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }

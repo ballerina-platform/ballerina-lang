@@ -75,15 +75,16 @@ service loadBalancerDemoService on new http:Listener(9313) {
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail().message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -97,15 +98,16 @@ service loadBalancerDemoService on new http:Listener(9313) {
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail().message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -119,15 +121,16 @@ service loadBalancerDemoService on new http:Listener(9313) {
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail().message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -141,15 +144,16 @@ service loadBalancerDemoService on new http:Listener(9313) {
         if (response is http:Response) {
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail().message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -163,7 +167,7 @@ service mock1 on backendEP {
     resource function mock1Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock1 Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -176,7 +180,7 @@ service mock2 on backendEP {
     resource function mock2Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock2 Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -189,7 +193,7 @@ service mock3 on backendEP {
     resource function mock3Resource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock3 Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -203,7 +207,7 @@ service mock4 on backendEP {
         runtime:sleep(5000);
         var responseToCaller = caller->respond("Mock4 Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -217,7 +221,7 @@ service mock5 on backendEP {
         runtime:sleep(5000);
         var responseToCaller = caller->respond("Mock5 Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", err = <error> responseToCaller);
         }
     }
 }
@@ -238,24 +242,22 @@ public type CustomLoadBalancerRule object {
     # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
     # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|error;
-};
-
-public function CustomLoadBalancerRule.getNextClient(http:Client?[] loadBalanceClientsArray)
-                                          returns http:Client|error {
-    http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
-    if (self.index >= loadBalanceClientsArray.length()) {
-        error err = error("Provided index is doesn't match with the targets.");
-        return err;
-    }
-    lock {
-        if (self.index == (loadBalanceClientsArray.length() - 1)) {
-            httpClient = <http:Client>loadBalanceClientsArray[self.index];
-            self.index = 0;
-        } else {
-            httpClient = <http:Client>loadBalanceClientsArray[self.index];
-            self.index += 1;
+    public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|http:ClientError {
+        http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
+        if (self.index >= loadBalanceClientsArray.length()) {
+            http:AllLoadBalanceEndpointsFailedError err = error(http:ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
+                                                        message = "Provided index is doesn't match with the targets.");
+            return err;
         }
+        lock {
+            if (self.index == (loadBalanceClientsArray.length() - 1)) {
+                httpClient = <http:Client>loadBalanceClientsArray[self.index];
+                self.index = 0;
+            } else {
+                httpClient = <http:Client>loadBalanceClientsArray[self.index];
+                self.index += 1;
+            }
+        }
+        return httpClient;
     }
-    return httpClient;
-}
+};
