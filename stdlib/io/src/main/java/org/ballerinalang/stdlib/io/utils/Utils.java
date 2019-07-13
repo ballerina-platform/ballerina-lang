@@ -137,7 +137,7 @@ public class Utils {
         if (isMimeSpecific) {
             return BallerinaErrors.createError(reason, populateMimeErrorRecord(msg));
         }
-        return BallerinaErrors.createError(IOConstants.ErrorCode.GenericIoError.errorCode(), msg);
+        return BallerinaErrors.createError(IOConstants.ErrorCode.GenericError.errorCode(), msg);
     }
 
 

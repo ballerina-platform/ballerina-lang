@@ -17,7 +17,8 @@ public function main (string... args) returns error? {
         if (readOutput is string) {
             testFunction(readOutput, readOutput);
         } else {
-            panic readOutput;
+            error e = <error>readOutput;
+            panic e;
         }
     } else {
         panic intArg;
