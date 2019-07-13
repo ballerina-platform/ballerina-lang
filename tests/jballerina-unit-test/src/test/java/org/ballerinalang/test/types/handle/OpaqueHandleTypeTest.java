@@ -36,6 +36,8 @@ import java.util.UUID;
 
 /**
  * This class contains test cases for the handle type in Ballerina.
+ *
+ * @since 1.0.0
  */
 public class OpaqueHandleTypeTest {
     private CompileResult result;
