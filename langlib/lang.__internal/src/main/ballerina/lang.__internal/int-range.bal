@@ -19,7 +19,7 @@
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
 # + iCurrent - current cursor
-public type IntRange object {
+type IntRange object {
     private int iStart;
     private int iEnd;
     private int iCurrent;

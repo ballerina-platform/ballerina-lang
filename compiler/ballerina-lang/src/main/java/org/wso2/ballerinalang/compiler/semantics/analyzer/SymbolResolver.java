@@ -891,13 +891,13 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void reloadIntRangeType() {
 
-        ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.INT_RANGE);
+        ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+            if ((entry.symbol.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
                 entry = entry.next;
                 continue;
             }
-            symTable.intRangeType = (BObjectType) entry.symbol.type;
+            symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
             symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
                     symTable.intRangeType, InstructionCodes.INT_RANGE);
             symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
