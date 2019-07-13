@@ -2855,24 +2855,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         result = genIExpr;
 
-        if (iExpr.langLibInvocation && TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
-            BType originalInvType = iExpr.type;
-            iExpr.type = ((BInvokableSymbol) iExpr.symbol).retType;
-            BOperatorSymbol conversionSymbol = Symbols
-                    .createCastOperatorSymbol(iExpr.type, originalInvType, symTable.errorType, false, true,
-                                              InstructionCodes.NOP, null, null);
-
-            BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-            conversionExpr.expr = iExpr;
-            conversionExpr.targetType = originalInvType;
-            conversionExpr.conversionSymbol = conversionSymbol;
-            conversionExpr.type = originalInvType;
-            conversionExpr.pos = iExpr.pos;
-
-            this.result = conversionExpr;
-            return;
-        }
-
         // TODO : Remove this if block. Not needed.
         if (iExpr.expr == null) {
             if (iExpr.exprSymbol == null) {
@@ -2882,17 +2864,44 @@ public class Desugar extends BLangNodeVisitor {
             iExpr.expr = rewriteExpr(iExpr.expr);
         }
         switch (iExpr.expr.type.tag) {
-            case TypeTags.OBJECT:
             case TypeTags.RECORD:
+                if (iExpr.langLibInvocation) {
+                    break;
+                }
+            case TypeTags.OBJECT:
                 List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                 argExprs.add(0, iExpr.expr);
-                final BLangAttachedFunctionInvocation attachedFunctionInvocation =
+                BLangAttachedFunctionInvocation attachedFunctionInvocation =
                         new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs,
-                                iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
+                                                            iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
                 attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                 attachedFunctionInvocation.name = iExpr.name;
-                result = attachedFunctionInvocation;
+                result = genIExpr = attachedFunctionInvocation;
                 break;
+        }
+
+        if (iExpr.langLibInvocation || TypeParamAnalyzer.containsTypeParam(((BInvokableSymbol) iExpr.symbol).retType)) {
+            BType originalInvType = genIExpr.type;
+            genIExpr.type = ((BInvokableSymbol) genIExpr.symbol).retType;
+            BLangExpression expr = addConversionExprIfRequired(genIExpr, originalInvType);
+
+            // Prevent adding another type conversion
+            if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                this.result = expr;
+                return;
+            }
+
+            BOperatorSymbol conversionSymbol = Symbols
+                    .createCastOperatorSymbol(genIExpr.type, originalInvType, symTable.errorType, false, true,
+                                              InstructionCodes.NOP, null, null);
+            BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+            conversionExpr.expr = genIExpr;
+            conversionExpr.targetType = originalInvType;
+            conversionExpr.conversionSymbol = conversionSymbol;
+            conversionExpr.type = originalInvType;
+            conversionExpr.pos = genIExpr.pos;
+
+            this.result = conversionExpr;
         }
     }
 
