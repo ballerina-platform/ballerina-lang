@@ -44,15 +44,16 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 var responseError = caller->respond(clientResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             } else {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(clientResponse.reason());
+                error err = clientResponse;
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
@@ -62,10 +63,11 @@ service passthrough on passthroughEP2 {
             } else  {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(clientResponse.reason());
+                error err = clientResponse;
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
@@ -75,10 +77,11 @@ service passthrough on passthroughEP2 {
             } else {
                 http:Response res = new;
                 res.statusCode =500;
-                res.setPayload(clientResponse.reason());
+                error err = clientResponse;
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             }
         }

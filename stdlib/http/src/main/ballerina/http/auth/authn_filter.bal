@@ -110,7 +110,7 @@ function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns b
             response.setTextPayload("Authentication failure");
             var err = caller->respond(response);
             if (err is error) {
-                panic err;
+                panic <error> err;
             }
             return false;
         }
@@ -118,7 +118,7 @@ function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns b
         response.setTextPayload("Authentication failure. " + authenticated.reason());
         var err = caller->respond(response);
         if (err is error) {
-            panic err;
+            panic <error> err;
         }
         return false;
     }

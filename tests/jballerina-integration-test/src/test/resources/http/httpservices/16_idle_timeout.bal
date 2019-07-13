@@ -31,11 +31,11 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         if (result is string) {
             log:printInfo(result);
         } else  {
-            log:printError("Error reading request", err = result);
+            log:printError("Error reading request", err = <error> result);
         }
         var responseError = caller->respond("some");
         if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+            log:printError("Error sending response", err = <error> responseError);
         }
     }
 
@@ -47,7 +47,7 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         runtime:sleep(3000);
         var responseError = caller->respond("some");
         if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+            log:printError("Error sending response", err = <error> responseError);
         }
     }
 }

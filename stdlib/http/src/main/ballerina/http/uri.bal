@@ -19,11 +19,11 @@
 # + url - URL to be encoded
 # + charset - Charactor set that URL to be encoded in
 # + return - The `string` Value of the encoded url or an `error` that occurred during encoding
-public function encode(string url, string charset) returns string|error = external;
+public function encode(string url, string charset) returns string|ClientError = external;
 
 # Decodes the given URL.
 #
 # + url - URL to be decoded
-# + charset - Character set from which the URL is decoded 
+# + charset - Character set from which the URL is decoded
 # + return - The `string` Value of the decoded url or an `error` that occurred during decoding
-public function decode(string url, string charset) returns string|error = external;
+public function decode(string url, string charset) returns string|ClientError = external;

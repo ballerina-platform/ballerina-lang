@@ -108,13 +108,13 @@ public type Listener object {
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
-                            panic hubDecodeResponse;
+                            panic <error> hubDecodeResponse;
                         }
                         var topicDecodeResponse = http:decode(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
-                            panic topicDecodeResponse;
+                            panic <error> topicDecodeResponse;
                         }
                         subscriptionDetails["hub"] = retHub;
                         hub = retHub;

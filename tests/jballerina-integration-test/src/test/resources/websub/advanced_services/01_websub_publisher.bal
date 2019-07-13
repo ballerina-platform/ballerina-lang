@@ -53,7 +53,7 @@ service publisher on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err = <error> err);
         }
     }
 
@@ -64,7 +64,7 @@ service publisher on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req, string subscriber) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
@@ -76,7 +76,7 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
     }
 }
@@ -91,7 +91,7 @@ service publisherTwo on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err = <error> err);
         }
     }
 
@@ -101,7 +101,7 @@ service publisherTwo on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
@@ -113,7 +113,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
     }
 }
@@ -128,7 +128,7 @@ service publisherThree on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err = <error> err);
         }
     }
 
@@ -138,18 +138,18 @@ service publisherThree on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
         checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            log:printError("Error publishing update remotely", err = err);
+            log:printError("Error publishing update remotely", err = <error> err);
         }
 
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
     }
 }

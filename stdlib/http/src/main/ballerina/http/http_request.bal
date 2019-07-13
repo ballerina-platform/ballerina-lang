@@ -183,7 +183,7 @@ public type Request object {
         var result = entity.setContentType(contentType);
         // TODO: Make the type of the result to mime:MimeError once the MimeError is configured correctly.
         if (result is error) {
-            string message = "MimeError occurred while setting content type header of the request";
+            string message = "Error occurred while setting content type header of the request";
             return getGenericClientError(message, result);
         } else {
             return;
@@ -209,7 +209,7 @@ public type Request object {
             var payload = result.getJson();
             // TODO: Make the type of the payload to mime:MimeError once the MimeError is configured correctly.
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the json payload from the request";
+                string message = "Error occurred while retrieving the json payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -227,7 +227,7 @@ public type Request object {
         } else {
             var payload = result.getXml();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the xml payload from the request";
+                string message = "Error occurred while retrieving the xml payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -245,7 +245,7 @@ public type Request object {
         } else {
             var payload = result.getText();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the text payload from the request";
+                string message = "Error occurred while retrieving the text payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -264,7 +264,7 @@ public type Request object {
         } else {
             var payload = result.getByteChannel();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the byte channel from the request";
+                string message = "Error occurred while retrieving the byte channel from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -282,7 +282,7 @@ public type Request object {
         } else {
             var payload = result.getByteArray();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the binary payload from the request";
+                string message = "Error occurred while retrieving the binary payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -298,7 +298,7 @@ public type Request object {
         if (mimeEntity is error) {
             return mimeEntity;
         } else {
-            string message = "MimeError occurred while retrieving form parameters from the request";
+            string message = "Error occurred while retrieving form parameters from the request";
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
                 string errMessage = "Content-Type header is not available";
                 mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
@@ -348,7 +348,7 @@ public type Request object {
         } else {
             var bodyParts = result.getBodyParts();
             if (bodyParts is error) {
-                string message = "MimeError occurred while retrieving body parts from the request";
+                string message = "Error occurred while retrieving body parts from the request";
                 return getGenericClientError(message, bodyParts);
             } else {
                 return bodyParts;

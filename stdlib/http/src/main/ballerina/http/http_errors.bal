@@ -51,7 +51,7 @@ public type AuthenticationError error<AUTHN_FAILED, Detail>;
 public const AUTHZ_FAILED = "{ballerina/http}AuthorizationFailed";
 public type AuthorizationError error<AUTHZ_FAILED, Detail>;
 
-# Outbound request errors
+# Outbound request errors in client
 public const INIT_OUTBOUND_REQUEST_FAILED = "{ballerina/http}InitializingOutboundRequestFailed";
 public type InitializingOutboundRequestError error<INIT_OUTBOUND_REQUEST_FAILED, Detail>;
 
@@ -61,7 +61,7 @@ public type WritingOutboundRequestHeadersError error<WRITING_OUTBOUND_REQUEST_HE
 public const WRITING_OUTBOUND_REQUEST_BODY_FAILED = "{ballerina/http}WritingOutboundRequestBodyFailed";
 public type WritingOutboundRequestBodyError error<WRITING_OUTBOUND_REQUEST_BODY_FAILED, Detail>;
 
-# Inbound response errors
+# Inbound response errors in client
 public const INIT_INBOUND_RESPONSE_FAILED = "{ballerina/http}InitializingInboundResponseFailed";
 public type InitializingInboundResponseError error<INIT_INBOUND_RESPONSE_FAILED, Detail>;
 
@@ -70,6 +70,32 @@ public type ReadingInboundResponseHeadersError error<READING_INBOUND_RESPONSE_HE
 
 public const READING_INBOUND_RESPONSE_BODY_FAILED = "{ballerina/http}ReadingInboundResponseBodyFailed";
 public type ReadingInboundResponseBodyError error<READING_INBOUND_RESPONSE_BODY_FAILED, Detail>;
+
+# Inbound request errors in listener
+public const INIT_INBOUND_REQUEST_FAILED = "{ballerina/http}InitializingInboundRequestFailed";
+public type InitializingInboundRequestError error<INIT_INBOUND_REQUEST_FAILED, Detail>;
+
+public const READING_INBOUND_REQUEST_HEADERS_FAILED = "{ballerina/http}ReadingInboundRequestHeadersFailed";
+public type ReadingInboundRequestHeadersError error<READING_INBOUND_REQUEST_HEADERS_FAILED, Detail>;
+
+public const READING_INBOUND_REQUEST_BODY_FAILED = "{ballerina/http}ReadingInboundRequestBodyFailed";
+public type ReadingInboundRequestBodyError error<READING_INBOUND_REQUEST_BODY_FAILED, Detail>;
+
+# Outbound response errors in listener
+public const INIT_OUTBOUND_RESPONSE_FAILED = "{ballerina/http}InitializingOutboundResponseFailed";
+public type InitializingOutboundResponseError error<INIT_OUTBOUND_RESPONSE_FAILED, Detail>;
+
+public const WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED = "{ballerina/http}WritingOutboundResponseHeadersFailed";
+public type WritingOutboundResponseHeadersError error<WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED, Detail>;
+
+public const WRITING_OUTBOUND_RESPONSE_BODY_FAILED = "{ballerina/http}WritingOutboundResponseBodyFailed";
+public type WritingOutboundResponseBodyError error<WRITING_OUTBOUND_RESPONSE_BODY_FAILED, Detail>;
+
+public const INITIATING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Initializing100ContinueResponseFailed";
+public type Initiating100ContinueResponseError error<INITIATING_100_CONTINUE_RESPONSE_FAILED, Detail>;
+
+public const WRITING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Writing100ContinueResponseFailed";
+public type Writing100ContinueResponseError error<WRITING_100_CONTINUE_RESPONSE_FAILED, Detail>;
 
 # Generic errors (mostly to wrap errors from other modules)
 public const GENERIC_CLIENT_ERROR = "{ballerina/http}GenericClientError";
@@ -92,7 +118,7 @@ public const SSL_ERROR = "{ballerina/http}SslError";
 public type SslError error<SSL_ERROR, Detail>;
 
 # Ballerina Http Union Errors
-public type ResiliencyClientError FailoverAllEndpointsFailedError|FailoverActionFailedError|
+public type ResiliencyError FailoverAllEndpointsFailedError|FailoverActionFailedError|
                             UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
                             IdleTimeoutTriggeredError;
 
@@ -106,11 +132,18 @@ public type OutboundRequestError InitializingOutboundRequestError|WritingOutboun
 public type InboundResponseError InitializingInboundResponseError|ReadingInboundResponseHeadersError|
                             ReadingInboundResponseBodyError;
 
-public type ClientError ResiliencyClientError|ClientAuthError|OutboundRequestError|
+public type InboundRequestError InitializingInboundRequestError|ReadingInboundRequestHeadersError|
+                            ReadingInboundRequestBodyError;
+
+public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
+                            WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
+                            Writing100ContinueResponseError;
+
+public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
                             MaximumWaitTimeExceededError|SslError|GenericClientError;
 
-public type ListenerError GenericListenerError;
+public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;
 
 function getGenericClientError(string message, error cause) returns GenericClientError {
     GenericClientError err = error(GENERIC_CLIENT_ERROR, message = message, cause = cause);

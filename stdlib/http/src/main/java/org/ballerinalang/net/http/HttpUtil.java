@@ -167,9 +167,20 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -545,13 +556,13 @@ public class HttpUtil {
                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
                     IO_PACKAGE,
                     DETAIL_RECORD_TYPE_NAME);
-            return createHttpError("Connection timed out", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
             cause = createErrorCause(throwable.getMessage(),
                     IOConstants.ErrorCode.GenericIoError.errorCode(),
                     IO_PACKAGE,
                     DETAIL_RECORD_TYPE_NAME);
-            return createHttpError("IO error occurred", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else {
             return createHttpError(throwable.getMessage());
         }
@@ -587,6 +598,28 @@ public class HttpUtil {
                 return HttpErrorType.READING_INBOUND_RESPONSE_HEADERS_FAILED;
             case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY:
                 return HttpErrorType.READING_INBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST:
+                return HttpErrorType.INIT_OUTBOUND_REQUEST_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST:
+                return HttpErrorType.INIT_INBOUND_REQUEST_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS:
+                return HttpErrorType.READING_INBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY:
+                return HttpErrorType.READING_INBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE:
+                return HttpErrorType.INIT_OUTBOUND_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.INIT_100_CONTINUE_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.WRITING_100_CONTINUE_RESPONSE_FAILED;
             case PROMISED_STREAM_REJECTED_ERROR:
                 return HttpErrorType.HTTP2_CLIENT_ERROR;
             default:

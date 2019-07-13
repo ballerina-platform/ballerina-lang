@@ -45,7 +45,7 @@ service publisher on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on ordering", err = err);
+            log:printError("Error responding on ordering", err = <error> err);
         }
     }
 
@@ -61,7 +61,7 @@ service publisher on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
 
         if (subscriber != "skip_subscriber_check") {
@@ -91,7 +91,7 @@ service publisher on publisherServiceEP {
             json j = <json> json.convert(details[0]);
             var err = caller->respond(j);
             if (err is error) {
-                log:printError("Error responding on topicInfo request", err = err);
+                log:printError("Error responding on topicInfo request", err = <error> err);
             }
         } else {
             map<string> allTopics = {};
@@ -104,7 +104,7 @@ service publisher on publisherServiceEP {
             json j = <json> json.convert(allTopics);
             var err = caller->respond(j);
             if (err is error) {
-                log:printError("Error responding on topicInfo request", err = err);
+                log:printError("Error responding on topicInfo request", err = <error> err);
             }
         }
     }
@@ -120,7 +120,7 @@ service publisherTwo on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on ordering", err = err);
+            log:printError("Error responding on ordering", err = <error> err);
         }
     }
 
@@ -135,7 +135,7 @@ service publisherTwo on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
     }
 }
@@ -152,7 +152,7 @@ service contentTypePublisher on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err = <error> err);
         }
 
         if (port != "skip_subscriber_check") {

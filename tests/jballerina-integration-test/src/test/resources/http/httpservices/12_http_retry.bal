@@ -49,16 +49,17 @@ service retryDemoService on serviceEndpoint1 {
         if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         } else {
+            error err = backendResponse;
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            string errCause = <string> backendResponse.detail().message;
+            string errCause = <string> err.detail().message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", err = <error> responseToCaller);
             }
         }
     }
@@ -88,7 +89,7 @@ service mockHelloService on serviceEndpoint1 {
             var result = caller->respond(res);
 
             if (result is error) {
-                log:printError("Error sending response from mock service", err = result);
+                log:printError("Error sending response from mock service", err = <error> result);
             }
         } else {
             log:printInfo("Request received from the client to healthy service.");
@@ -121,7 +122,8 @@ service mockHelloService on serviceEndpoint1 {
                     }
                     response.setBodyParts(<@untainted> bodyParts, contentType = <@untainted> req.getContentType());
                 } else {
-                    log:printError(bodyParts.reason());
+                    error err = bodyParts;
+                    log:printError(err.reason());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
                 }
@@ -130,7 +132,7 @@ service mockHelloService on serviceEndpoint1 {
             }
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response from mock service", err = responseToCaller);
+                log:printError("Error sending response from mock service", err = <error> responseToCaller);
             }
         }
     }

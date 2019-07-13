@@ -166,7 +166,7 @@ public type Response object {
             var payload = result.getJson();
             // TODO: Make the type of the payload to mime:MimeError once the MimeError is configured correctly.
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the json payload from the request";
+                string message = "Error occurred while retrieving the json payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -184,7 +184,7 @@ public type Response object {
         } else {
             var payload = result.getXml();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the xml payload from the request";
+                string message = "Error occurred while retrieving the xml payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -202,7 +202,7 @@ public type Response object {
         } else {
             var payload = result.getText();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the text payload from the request";
+                string message = "Error occurred while retrieving the text payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -221,7 +221,7 @@ public type Response object {
         } else {
             var payload = result.getByteChannel();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the byte channel from the request";
+                string message = "Error occurred while retrieving the byte channel from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -239,7 +239,7 @@ public type Response object {
         } else {
             var payload = result.getByteArray();
             if (payload is error) {
-                string message = "MimeError occurred while retrieving the binary payload from the request";
+                string message = "Error occurred while retrieving the binary payload from the request";
                 return getGenericClientError(message, payload);
             } else {
                 return payload;
@@ -259,7 +259,7 @@ public type Response object {
         } else {
             var bodyParts = result.getBodyParts();
             if (bodyParts is error) {
-                string message = "MimeError occurred while retrieving body parts from the request";
+                string message = "Error occurred while retrieving body parts from the request";
                 return getGenericClientError(message, bodyParts);
             } else {
                 return bodyParts;

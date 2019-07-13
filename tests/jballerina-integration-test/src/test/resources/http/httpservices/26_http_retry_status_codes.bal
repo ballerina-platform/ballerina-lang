@@ -43,15 +43,16 @@ service retryStatusService on new http:Listener(9225) {
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             } else {
+                error err = backendResponse;
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
-                errorResponse.setPayload(backendResponse.reason());
+                errorResponse.setPayload(err.reason());
                 var responseError = caller->respond(errorResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             }
         } else if (request.getHeader("x-retry") == "internalError") {
@@ -59,15 +60,16 @@ service retryStatusService on new http:Listener(9225) {
             if (backendResponse is http:Response) {
                 var responseError = caller->respond(backendResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             } else {
+                error err = backendResponse;
                 http:Response errorResponse = new;
                 errorResponse.statusCode = 500;
-                errorResponse.setPayload(backendResponse.reason());
+                errorResponse.setPayload(err.reason());
                 var responseError = caller->respond(errorResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", err = <error> responseError);
                 }
             }
         }
@@ -90,12 +92,12 @@ service mockStatusCodeService on new http:Listener(8080) {
             res.setPayload("Gateway Timed out.");
             var responseError = caller->respond(res);
             if (responseError is error) {
-                log:printError("Error sending response from the service", err = responseError);
+                log:printError("Error sending response from the service", err = <error> responseError);
             }
         } else {
             var responseError = caller->respond("Hello World!!!");
             if (responseError is error) {
-                log:printError("Error sending response from the service", err = responseError);
+                log:printError("Error sending response from the service", err = <error> responseError);
             }
         }
     }
@@ -110,7 +112,7 @@ service mockStatusCodeService on new http:Listener(8080) {
         res.setPayload("Gateway Timed out.");
         var responseError = caller->respond(res);
         if (responseError is error) {
-            log:printError("Error sending response from the service", err = responseError);
+            log:printError("Error sending response from the service", err = <error> responseError);
         }
     }
 }

@@ -34,12 +34,13 @@ service echo4 on echoEP5 {
         if (payload is string) {
             checkpanic caller->respond(<@untainted> payload);
         } else {
+            error err = payload;
             resp.statusCode = 500;
-            resp.setPayload(<@untainted> payload.reason());
-            log:printError("Failed to retrieve payload from request: " + payload.reason());
+            resp.setPayload(<@untainted> err.reason());
+            log:printError("Failed to retrieve payload from request: " + err.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", err = <error> responseError);
             }
         }
     }
