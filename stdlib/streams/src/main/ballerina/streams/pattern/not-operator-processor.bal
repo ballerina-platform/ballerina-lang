@@ -64,7 +64,7 @@ public type NotOperatorProcessor object {
 
                 task:Scheduler? evtScheduler = self.eventScheduler;
                 if (evtScheduler is task:Scheduler) {
-                    checkpanic evtScheduler.attach(self.eventSchedulerService, attachment = self);
+                    checkpanic evtScheduler.attach(self.eventSchedulerService, self);
                     checkpanic evtScheduler.start();
                 }
             }

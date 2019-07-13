@@ -31,7 +31,7 @@ public type Participant2pcClientEP client object {
     Participant2pcClientConfig conf = {};
 
     public function __init(Participant2pcClientConfig c) {
-        http:Client httpEP = new(c.participantURL, config = {
+        http:Client httpEP = new(c.participantURL, {
             timeoutMillis: c.timeoutMillis,
             retryConfig:{
                 count: c.retryConfig.count, interval: c.retryConfig.interval

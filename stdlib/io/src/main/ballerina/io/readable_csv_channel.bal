@@ -27,7 +27,7 @@ public type ReadableCSVChannel object {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
+            self.dc = new ReadableTextRecordChannel(byteChannel, FS_COLON, CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }

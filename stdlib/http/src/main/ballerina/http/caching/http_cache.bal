@@ -132,8 +132,7 @@ public type HttpCache object {
 
 function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
     HttpCache httpCache = new;
-    cache:Cache backingCache = new(expiryTimeMillis = cacheConfig.expiryTimeMillis, capacity = cacheConfig.capacity,
-                                     evictionFactor = cacheConfig.evictionFactor);
+    cache:Cache backingCache = new(cacheConfig.expiryTimeMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
     httpCache.cache = backingCache;
     httpCache.policy = cacheConfig.policy;
     httpCache.isShared = cacheConfig.isShared;

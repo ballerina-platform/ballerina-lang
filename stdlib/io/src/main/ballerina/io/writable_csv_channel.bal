@@ -39,7 +39,7 @@ public type WritableCSVChannel object {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
+            self.dc = new WritableTextRecordChannel(characterChannel, FS_COLON, CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }

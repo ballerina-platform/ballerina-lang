@@ -23,8 +23,8 @@ final string participant2pcCoordinatorBasePath = basePath + "/participant/2pc";
 final string registrationPath = "/register";
 final string registrationPathPattern = "/{transactionBlockId}" + registrationPath;
 
-final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", defaultValue = getHostAddress());
-final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", defaultValue = getAvailablePort());
+final string coordinatorHost = config:getAsString("b7a.transactions.coordinator.host", getHostAddress());
+final int coordinatorPort = config:getAsInt("b7a.transactions.coordinator.port", getAvailablePort());
 
 const string TRANSACTION_CONTEXT_VERSION = "1.0";
 
@@ -51,4 +51,4 @@ const string OUTCOME_HAZARD = "hazard";
 
 public const string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
-listener http:Listener coordinatorListener = new(coordinatorPort, config = { host: coordinatorHost });
+listener http:Listener coordinatorListener = new(coordinatorPort, { host: coordinatorHost });

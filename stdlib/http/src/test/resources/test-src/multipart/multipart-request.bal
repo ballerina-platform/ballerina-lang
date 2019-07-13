@@ -201,7 +201,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
-                return encoding:byteArrayToString(payload, encoding = mime:DEFAULT_CHARSET);
+                return encoding:byteArrayToString(payload, mime:DEFAULT_CHARSET);
             } else {
                 return "Error in getting byte[] payload";
             }

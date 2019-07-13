@@ -505,7 +505,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + return - Access token received or `OAuth2Error` if an error occurred during HTTP client invocation
 function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
                    @tainted CachedToken tokenCache, int clockSkew) returns @tainted (string|OAuth2Error) {
-    http:Client clientEP = new(url, config = clientConfig);
+    http:Client clientEP = new(url, clientConfig);
     var response = clientEP->post(EMPTY_STRING, request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
@@ -513,7 +513,7 @@ function doRequest(string url, http:Request request, http:ClientEndpointConfig c
         });
         return extractAccessTokenFromResponse(response, tokenCache, clockSkew);
     } else {
-        return prepareOAuth2Error("Failed to send request to URL: " + url, err = response);
+        return prepareOAuth2Error("Failed to send request to URL: " + url, response);
     }
 }
 
@@ -555,7 +555,7 @@ function prepareRequest(RequestConfig config) returns http:Request|OAuth2Error {
             return prepareOAuth2Error("Client ID or client secret is not provided for client authentication.");
         }
     }
-    req.setTextPayload(<@untainted> textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    req.setTextPayload(<@untainted> textPayload, mime:APPLICATION_FORM_URLENCODED);
     return req;
 }
 
@@ -576,14 +576,14 @@ function extractAccessTokenFromResponse(http:Response response, @tainted CachedT
             updateTokenCache(payload, tokenCache, clockSkew);
             return payload.access_token.toString();
         } else {
-            return prepareOAuth2Error("Failed to retrieve access token since the response payload is not a JSON.", err = payload);
+            return prepareOAuth2Error("Failed to retrieve access token since the response payload is not a JSON.", payload);
         }
     } else {
         var payload = response.getTextPayload();
         if (payload is string) {
             return prepareOAuth2Error("Received an invalid response. StatusCode: " + response.statusCode + " Payload: " + payload);
         } else {
-            return prepareOAuth2Error("Received an invalid response. StatusCode: " + response.statusCode, err = payload);
+            return prepareOAuth2Error("Received an invalid response. StatusCode: " + response.statusCode, payload);
         }
     }
 }
