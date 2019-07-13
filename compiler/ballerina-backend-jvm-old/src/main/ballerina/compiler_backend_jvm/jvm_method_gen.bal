@@ -325,7 +325,6 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
                     bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
-                    bType is bir:BTypeHandle ||
                     bType is bir:BFiniteType) {
             mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%","_"), 
                     io:sprintf("L%s;", OBJECT));
