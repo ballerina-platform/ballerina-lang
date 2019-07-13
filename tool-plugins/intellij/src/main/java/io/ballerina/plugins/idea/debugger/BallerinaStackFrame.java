@@ -16,11 +16,13 @@
 
 package io.ballerina.plugins.idea.debugger;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ColoredTextContainer;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
@@ -125,9 +127,9 @@ public class BallerinaStackFrame extends XStackFrame {
     @Override
     public void customizePresentation(@NotNull ColoredTextContainer component) {
         super.customizePresentation(component);
-//        component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-//        component.append(myFrame.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-//        component.setIcon(AllIcons.Debugger.Frame);
+        component.append(" at ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        component.append(myFrame.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+        component.setIcon(AllIcons.Debugger.Frame);
     }
 
     /**

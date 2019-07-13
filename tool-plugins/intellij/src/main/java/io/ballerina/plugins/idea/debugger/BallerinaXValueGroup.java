@@ -65,7 +65,7 @@ public class BallerinaXValueGroup extends XValueGroup {
             XValueChildrenList list = new XValueChildrenList();
             for (Variable variable : variables) {
                 // Todo - Fix stack frame name
-                list.add(variable.getName(), new BallerinaXValue(process, "dummy frame name", variable,
+                list.add(variable.getName(), new BallerinaXValue(process, stackFrame.getName(), variable,
                         AllIcons.Nodes.Field));
             }
             node.addChildren(list, true);

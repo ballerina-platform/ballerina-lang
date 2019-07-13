@@ -60,7 +60,7 @@ public class DAPRequestManager {
     private static final int TIMEOUT_STEP_IN = 2000;
     private static final int TIMEOUT_STEP_OUT = 2000;
     private static final int TIMEOUT_RESUME = 2000;
-    private static final int TIMEOUT_DISCONNECT = 5000;
+    private static final int TIMEOUT_DISCONNECT = 1000;
 
     public DAPRequestManager(BallerinaDAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {

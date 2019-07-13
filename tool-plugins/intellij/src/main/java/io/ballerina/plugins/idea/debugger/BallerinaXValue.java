@@ -37,6 +37,7 @@ import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
+import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
 import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
@@ -94,27 +95,29 @@ public class BallerinaXValue extends XNamedValue {
     @NotNull
     private XValuePresentation getPresentation() {
         String value = variable.getValue();
-        // Todo - Enable
-//        if (variable.isString()) {
-//            return new XStringValuePresentation(value);
-//        }
-//        if (variable.getType()) {
-//            return new XNumericValuePresentation(value);
-//        }
-//
-//        if (variable.isBoolean()) {
-//            return new XValuePresentation() {
-//                @Override
-//                public void renderValue(@NotNull XValueTextRenderer renderer) {
-//                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
-//                }
-//            };
-//        }
-//        if (value == null) {
-//            return new XRegularValuePresentation(frameName, "Scope");
-//        }
         String type = variable.getType();
-        String prefix = variable.getType() + " ";
+        String prefix = String.format("%s ", type);
+
+        if (type.equals(BallerinaXValueType.STRING.getValue())) {
+            return new XStringValuePresentation(value);
+        }
+        // Todo - Enable the rest of type-based presentations
+
+        //        if (variable.getType()) {
+        //            return new XNumericValuePresentation(value);
+        //        }
+        //
+        //        if (variable.isBoolean()) {
+        //            return new XValuePresentation() {
+        //                @Override
+        //                public void renderValue(@NotNull XValueTextRenderer renderer) {
+        //                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+        //                }
+        //            };
+        //        }
+        //        if (value == null) {
+        //            return new XRegularValuePresentation(frameName, "Scope");
+        //        }
         return new XRegularValuePresentation(StringUtil.startsWith(value, prefix) ? value.replaceFirst(Pattern.quote
                 (prefix), "") : value, type);
     }
@@ -189,5 +192,20 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computeTypeSourcePosition(@NotNull XNavigatable navigatable) {
         // Todo
+    }
+
+    private enum BallerinaXValueType {
+        STRING("java,lang.String"),
+        BOOLEAN("java.lang.Boolean");
+
+        private String value;
+
+        BallerinaXValueType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }
