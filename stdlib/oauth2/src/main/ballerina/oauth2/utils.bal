@@ -24,9 +24,9 @@ const string WHITE_SPACE = " ";
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
-function prepareOAuth2Error(string message, error? err = ()) returns OAuth2Error {
+function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err = err);
-    OAuth2Error oauth2Error;
+    Error oauth2Error;
     if (err is error) {
         oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);
     } else {
