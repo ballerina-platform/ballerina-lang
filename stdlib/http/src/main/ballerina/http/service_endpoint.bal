@@ -53,7 +53,26 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c);
+    public function init(ServiceEndpointConfiguration c) {
+        self.config = c;
+        var auth = self.config["auth"];
+        if (auth is ListenerAuth) {
+            var authHandlers = auth.authHandlers;
+            if (authHandlers is InboundAuthHandler?[]) {
+                if (authHandlers.length() > 0) {
+                    initListener(self.config);
+                }
+            } else {
+                if (authHandlers[0].length() > 0) {
+                    initListener(self.config);
+                }
+            }
+        }
+        var err = self.initEndpoint();
+        if (err is error) {
+            panic err;
+        }
+    }
 
     public function initEndpoint() returns error? = external;
 
@@ -70,27 +89,6 @@ public type Listener object {
     # Stops the registered service.
     function stop() = external;
 };
-
-public function Listener.init(ServiceEndpointConfiguration c) {
-    self.config = c;
-    var auth = self.config["auth"];
-    if (auth is ListenerAuth) {
-        var authHandlers = auth.authHandlers;
-        if (authHandlers is InboundAuthHandler?[]) {
-            if (authHandlers.length() > 0) {
-                initListener(self.config);
-            }
-        } else {
-            if (authHandlers[0].length() > 0) {
-                initListener(self.config);
-            }
-        }
-    }
-    var err = self.initEndpoint();
-    if (err is error) {
-        panic err;
-    }
-}
 
 function initListener(ServiceEndpointConfiguration config) {
     var secureSocket = config.secureSocket;
@@ -148,7 +146,7 @@ public type RequestLimits record {|
 # + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
@@ -172,7 +170,7 @@ public type ServiceEndpointConfiguration record {|
 # An array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays
 # is used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.
 # + scopes - An array of scopes or an array consisting of arrays of scopes. An array is used to indicate that at least one of the scopes should
-# be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays 
+# be successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays
 # should successfully be authorozed.
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.

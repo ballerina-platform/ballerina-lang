@@ -5,14 +5,13 @@ type TestObject object {
     public function __init (string testString) {
         self.testString = testString;
     }
-    function testFunction (string input) returns string;
+
+    function testFunction (string input) returns string {
+        return input;
+    }
 };
 
-function TestObject.testFunction (string input) returns string {
-    return input;
-}
-
-function secureFunction(@sensitive string secureIn, string insecureIn) {
+function secureFunction(@untainted string secureIn, string insecureIn) {
 
 }
 

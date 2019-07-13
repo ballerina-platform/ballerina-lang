@@ -42,10 +42,9 @@ public class GetUsername extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(SystemUtils.getSystemProperty(PROPERTY_NAME));
     }
 
     public static String getUsername(Strand strand) {
-        return SystemUtils.getProperty(PROPERTY_NAME);
+        return SystemUtils.getSystemProperty(PROPERTY_NAME);
     }
 }

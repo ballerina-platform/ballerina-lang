@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.jvm.types;
 
+import java.util.Objects;
+
 /**
  * {@code BType} represents a type in Ballerina.
  * <p>
@@ -31,11 +33,15 @@ public abstract class BType {
     protected String typeName;
     protected BPackage pkg;
     protected Class<? extends Object> valueClass;
+    private int hashCode;
 
     protected BType(String typeName, BPackage pkg, Class<? extends Object> valueClass) {
         this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;
+        if (pkg != null && typeName != null) {
+            this.hashCode = Objects.hash(pkg, typeName);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -70,6 +76,10 @@ public abstract class BType {
     }
 
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
         if (obj instanceof BType) {
             BType other = (BType) obj;
             boolean namesEqual = this.typeName.equals(other.getName());
@@ -95,7 +105,7 @@ public abstract class BType {
     }
 
     public int hashCode() {
-        return (pkg.getName() + ":" + typeName).hashCode();
+        return hashCode;
     }
 
     public String getName() {

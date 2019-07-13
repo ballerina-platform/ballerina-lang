@@ -5,11 +5,9 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystemAlreadyExistsException;
@@ -95,7 +93,6 @@ public class ZipConverter extends PathConverter {
                 pathList = Files.list(path)
                                 .map(SortablePath::new)
                                 .filter(SortablePath::valid)
-                                .filter(sortablePath -> validBaloPath(pkgName, sortablePath))
                                 .sorted(Comparator.reverseOrder())
                                 .limit(1)
                                 .map(SortablePath::getPath)
@@ -119,42 +116,6 @@ public class ZipConverter extends PathConverter {
             // return an empty stream.
         }
         return Stream.of();
-    }
-
-    /**
-     * Validates the package with compiler version.
-     *
-     * @param pkgName      package name
-     * @param sortablePath sortable path
-     * @return if the package is compatible with the compiler version
-     */
-    private boolean validBaloPath(String pkgName, SortablePath sortablePath) {
-        Path zipPath = resolveIntoArchive(sortablePath.getPath()
-                                                      .resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_EXT));
-        return filterByBaloVersion(zipPath.resolve(ProjectDirConstants.USER_REPO_OBJ_DIRNAME)
-                                          .resolve(pkgName + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
-    }
-
-    /**
-     * Filter by balo version.
-     *
-     * @param path package path
-     * @return if the balo version of the package is compatible with compiler version
-     */
-    private boolean filterByBaloVersion(Path path) {
-        try (InputStream stream = Files.newInputStream(path)) {
-            byte[] data = new byte[ProgramFileConstants.VERSION_BYTE];
-            if (stream.read(data) != -1) {
-                short version = data[data.length - 1];
-                return (version >= ProgramFileConstants.MIN_SUPPORTED_VERSION) &&
-                        (version <= ProgramFileConstants.MAX_SUPPORTED_VERSION);
-            }
-        } catch (IOException ignore) {
-            // An I/O exception can occur when opening the balo file which will return an input stream to read the balo
-            // version. Since this is done during dependency resolution, we don't throw an exception instead we return
-            // false
-        }
-        return false;
     }
 
     /**

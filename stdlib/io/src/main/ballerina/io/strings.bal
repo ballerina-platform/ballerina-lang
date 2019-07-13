@@ -24,36 +24,36 @@ public type StringReader object {
     # + encoding - encoding of the characters of the content
     public function __init(string content, string encoding = "UTF-8") {
         byte[] contentBytes = content.toByteArray(encoding);
-        ReadableByteChannel byteChannel = createReadableChannel(contentBytes);
+        ReadableByteChannel byteChannel = checkpanic createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
     # Reads string as json from reader.
     #
-    # + return - json or an error
-    public function readJson() returns json|error {
+    # + return - json or `IoError` if any error occurred
+    public function readJson() returns @tainted json|IoError {
         return self.charChannel.readJson();
     }
 
     # Reads string as XML from reader
     #
     # + return -
-    public function readXml() returns xml|error? {
+    public function readXml() returns @tainted xml|IoError? {
         return self.charChannel.readXml();
     }
 
     # Reads characters from the given string.
     #
     # + nCharacters - read specific number of characters
-    # + return - string or an error
-    public function readChar(int nCharacters) returns string|error? {
+    # + return - string or `IoError` if any error occurred
+    public function readChar(int nCharacters) returns @tainted string|IoError? {
         return self.charChannel.read(nCharacters);
     }
 
     # Closes reader.
     #
-    # + return - An error if could not close the channel.
-    public function close() returns error? {
+    # + return - An `IoError` if could not close the channel
+    public function close() returns IoError? {
         return self.charChannel.close();
     }
 };

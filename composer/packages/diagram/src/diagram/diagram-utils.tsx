@@ -21,6 +21,9 @@ interface CalcTextLengthOptions {
 }
 
 export class DiagramUtils {
+    public static isDrawable(node: any): boolean {
+        return (components as any)[node.kind] !== undefined;
+    }
 
     public static getComponents(nodeArray: any): React.ReactNode[] {
         // Convert to array

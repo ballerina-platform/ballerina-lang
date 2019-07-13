@@ -393,16 +393,17 @@ public class TupleVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 39, 73);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 39, 83);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Foo', found 'Bar'", 47, 54);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'(BarObj,FooObj)', found 'FooObj'", 47, 59);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'[BarObj,FooObj]', found 'FooObj'", 47, 59);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 47, 67);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'int', found 'Bar'", 55, 87);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Foo', found 'int'", 55, 92);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'BarObj', found 'FooObj'", 55, 97);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'FooObj', found 'BarObj'", 55, 111);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'Bar', found 'Foo'", 55, 120);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'any' in type definition", 91, 40);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'[[string,[int,[boolean,int]]],[float,int]]', " +
+                "found 'any'", 91, 84);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected '((string,(int,(boolean,int))),(float,int))', found 'any'", 101, 84);
+                "incompatible types: expected '[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 101, 84);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 106, 26);
     }

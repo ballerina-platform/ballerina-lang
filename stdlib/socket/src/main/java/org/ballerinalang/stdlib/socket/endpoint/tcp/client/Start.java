@@ -20,14 +20,13 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -71,57 +70,58 @@ public class Start implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        SelectorManager selectorManager;
-        SocketService socketService;
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
+
+    public static Object start(Strand strand, ObjectValue client) {
+        final NonBlockingCallback callback = new NonBlockingCallback(strand);
+        SelectorManager selectorManager = null;
+        ErrorValue error = null;
+        SocketChannel channel = null;
         try {
-            Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            SocketChannel channel = (SocketChannel) clientEndpoint.getNativeData(SOCKET_KEY);
-            BMap<String, BValue> config = (BMap<String, BValue>) clientEndpoint.getNativeData(CLIENT_CONFIG);
-            BInteger port = (BInteger) config.get(SocketConstants.CONFIG_FIELD_PORT);
-            BString host = (BString) config.get(SocketConstants.CONFIG_FIELD_HOST);
-            socketService = (SocketService) clientEndpoint.getNativeData(SOCKET_SERVICE);
-            channel.connect(new InetSocketAddress(host.stringValue(), (int) port.intValue()));
+            channel = (SocketChannel) client.getNativeData(SOCKET_KEY);
+            MapValue<String, Object> config = (MapValue<String, Object>) client.getNativeData(CLIENT_CONFIG);
+            int port = Math.toIntExact(config.getIntValue(SocketConstants.CONFIG_FIELD_PORT));
+            String host = config.getStringValue(SocketConstants.CONFIG_FIELD_HOST);
+            channel.connect(new InetSocketAddress(host, port));
             channel.finishConnect();
             channel.configureBlocking(false);
             selectorManager = SelectorManager.getInstance();
             selectorManager.start();
         } catch (SelectorInitializeException e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to initialize the selector"));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Unable to initialize the selector");
         } catch (CancelledKeyException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the client socket"));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Unable to start the client socket");
         } catch (AlreadyBoundException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Client socket is already bound to a port"));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Client socket is already bound to a port");
         } catch (UnsupportedAddressTypeException e) {
             log.error("Address not supported", e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Provided address not supported"));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Provided address is not supported");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to start the client socket: " + e.getMessage()));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Unable to start the client socket: " + e.getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to start the socket client."));
-            callback.notifySuccess();
-            return;
+            error = SocketUtils.createSocketError("Unable to start the socket client.");
         }
-        if (socketService != null) {
-            selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, context, OP_READ));
+        if (error != null) {
+            try {
+                if (channel != null) {
+                    channel.close();
+                }
+            } catch (IOException e) {
+                log.error("Unable to close the channel during the error report", e);
+            }
+            callback.notifyFailure(error);
+            return null;
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
+        SocketService socketService = (SocketService) client.getNativeData(SOCKET_SERVICE);
+        selectorManager.registerChannel(new ChannelRegisterCallback(socketService, callback, OP_READ));
+        return null;
     }
 }

@@ -43,8 +43,8 @@ public type Listener object {
     public function __stop() returns error? {
         return self.stop();
     }
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.createConsumer(serviceType);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.createConsumer(s);
     }
 
     # The Artemis consumer is represented by the `Service` object.

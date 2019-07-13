@@ -13,13 +13,13 @@ function f1 (string inputData) returns (string) {
     return data;
 }
 
-function f2 (string inputData) returns string {
+function f2 (string inputData) returns @tainted string {
     i -= 1;
     string ex = taintedReturn() + f1(inputData);
     return ex;
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 
 }
 

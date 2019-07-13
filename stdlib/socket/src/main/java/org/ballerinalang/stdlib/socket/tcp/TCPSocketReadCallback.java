@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class TCPSocketReadCallback extends TCPSocketCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         socketService.getResourceLock().release();
         super.notifyFailure(error);
     }

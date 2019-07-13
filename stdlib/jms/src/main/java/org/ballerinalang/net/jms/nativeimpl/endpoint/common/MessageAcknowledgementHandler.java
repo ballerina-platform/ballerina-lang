@@ -19,10 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -37,24 +34,16 @@ public class MessageAcknowledgementHandler {
     private MessageAcknowledgementHandler() {
     }
 
-    public static void handle(Context context) {
-        Struct consumerConnectorObject = BallerinaAdapter.getReceiverObject(context);
-        SessionConnector sessionConnector = BallerinaAdapter.getNativeObject(consumerConnectorObject,
-                                                                             JmsConstants.SESSION_CONNECTOR_OBJECT,
-                                                                             SessionConnector.class,
-                                                                             context);
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> messageBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Message message = BallerinaAdapter.getNativeObject(messageBObject,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
+    public static Object handle(ObjectValue consumerConnectorObject, ObjectValue messageBObject) {
+//        SessionConnector sessionConnector = (SessionConnector) consumerConnectorObject.getNativeData(
+//                JmsConstants.SESSION_CONNECTOR_OBJECT);
+        Message message = (Message) messageBObject.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         try {
-            sessionConnector.handleTransactionBlock(context);
+//            sessionConnector.handleTransactionBlock(context);
             message.acknowledge();
-            context.setReturnValues();
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Message acknowledgement failed.", context, e);
+           return BallerinaAdapter.getError("Message acknowledgement failed.", e);
         }
+        return null;
     }
 }

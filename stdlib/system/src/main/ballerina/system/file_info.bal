@@ -19,43 +19,44 @@ import ballerina/time;
 # FileInfo record contains metadata information of a file.
 # This record is returned by getFileInfo function is os module.
 public type FileInfo object {
-  string name;
-  int size;
-  time:Time modifiedTime;
-  boolean dir;
 
-  public function __init(string name, int size, time:Time modifiedTime, boolean dir) {
-    self.name = name;
-    self.size = size;
-    self.modifiedTime = modifiedTime;
-    self.dir = dir;
-  }
+    string name;
+    int size;
+    time:Time modifiedTime;
+    boolean dir;
 
-  # Returns the filename.
-  #
-  # + return - the filename
-  public function getName() returns string {
-	return self.name;
-  }
+    public function __init(string name, int size, time:Time modifiedTime, boolean dir) {
+        self.name = name;
+        self.size = size;
+        self.modifiedTime = modifiedTime;
+        self.dir = dir;
+    }
 
-  # Returns file size.
-  #
-  # + return - the file size
-  public function getSize() returns int {
-	return self.size;
-  }
+    # Returns the file name.
+    #
+    # + return - the file name
+    public function getName() returns string {
+        return self.name;
+    }
 
-  # Returns last modified time of the file.
-  #
-  # + return - Last modified time of the file.
-  public function getLastModifiedTime() returns time:Time {
-	return self.modifiedTime;
-  }
+    # Returns the file size.
+    #
+    # + return - the file size
+    public function getSize() returns int {
+        return self.size;
+    }
 
-  # Returns whether the file is a directory.
-  #
-  # + return - File is a directory or not.
-  public function isDir() returns boolean {
-	return self.dir;
-  }
+    # Returns last modified time of the file.
+    #
+    # + return - Last modified time of the file.
+    public function getLastModifiedTime() returns time:Time {
+        return self.modifiedTime;
+    }
+
+    # Returns whether the file is a directory.
+    #
+    # + return - File is a directory or not.
+    public function isDir() returns boolean {
+        return self.dir;
+    }
 };

@@ -44,7 +44,7 @@ function testCreateFile(string path) returns string|error {
     return system:createFile(path);
 }
 
-function testCreateDir(string dir, boolean parentDirs) returns error? {
+function testCreateDir(string dir, boolean parentDirs) returns string|error {
     return system:createDir(dir, parentDirs = parentDirs);
 }
 

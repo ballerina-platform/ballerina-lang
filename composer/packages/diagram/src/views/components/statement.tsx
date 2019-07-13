@@ -36,7 +36,7 @@ export const Statement: React.StatelessComponent<{
         let expander;
         let expandedFunction;
 
-        if (viewState.expandContext && !viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && viewState.expandContext.collapsed) {
             const expanderProps = {
                 expandContext: viewState.expandContext,
                 position: viewState.expandContext.expandableNode.position!,
@@ -47,12 +47,12 @@ export const Statement: React.StatelessComponent<{
             expander = <FunctionExpander {...expanderProps}/>;
         }
 
-        if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && !viewState.expandContext.collapsed) {
             if (!viewState.isAction && !viewState.hiddenBlock) {
                 const expandedBBox = {
                     h: viewState.bBox.h,
                     statement: {
-                        text: label,
+                        text: viewState.expandContext.labelText,
                         textWidth: viewState.expandContext.labelWidth,
                         x: viewState.bBox.x + config.statement.padding.left,
                         y: viewState.bBox.y,
@@ -63,8 +63,8 @@ export const Statement: React.StatelessComponent<{
                 };
 
                 const onClose = () => {
-                    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
-                        viewState.expandContext.expandedSubTree = undefined;
+                    if (viewState.expandContext) {
+                        viewState.expandContext.collapsed = true;
                     }
                 };
 
@@ -76,12 +76,13 @@ export const Statement: React.StatelessComponent<{
                 />;
             }
         }
+
         return (
             <g>
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {!viewState.hiddenBlock &&
+                {!viewState.hiddenBlock && !viewState.hidden &&
                     <g className="statement"
                     >
                         {viewState.isAction && !viewState.isReturn

@@ -15,6 +15,6 @@ function unionReturn(string input1) returns string|int {
     return input1;
 }
 
-function secureFunction(@sensitive any secureIn) {
+function secureFunction(@untainted any secureIn) {
 
 }

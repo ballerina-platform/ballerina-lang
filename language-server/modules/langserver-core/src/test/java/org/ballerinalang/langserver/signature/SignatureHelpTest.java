@@ -54,7 +54,7 @@ public class SignatureHelpTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help", enabled = false)
+    @Test(dataProvider = "signature-help-data-provider", description = "Test Signature Help")
     public void test(String config, String source)
             throws WorkspaceDocumentException, IOException, InterruptedException {
 
@@ -91,6 +91,7 @@ public class SignatureHelpTest {
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
                 {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
+                {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"}
         };
     }
 

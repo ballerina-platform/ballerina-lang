@@ -12,13 +12,13 @@ public function main() {
     // Declares the queue, MyQueue1.
     var queueResult1 = newChannel1->queueDeclare(queueConfig = { queueName: "MyQueue1" });
     if (queueResult1 is error) {
-        io:println("An error occurred while creating the queue, MyQueue1");
+        io:println("An error occurred while creating the MyQueue1 queue.");
     }
 
     // Declares the queue, MyQueue2.
     var queueResult2 = newChannel2->queueDeclare(queueConfig = { queueName: "MyQueue2" });
     if (queueResult2 is error) {
-        io:println("An error occurred while creating the queue, MyQueue2");
+        io:println("An error occurred while creating the MyQueue2 queue.");
     }
 
     // Publishing messages to an exchange using a routing key.
@@ -27,7 +27,7 @@ public function main() {
         var sendResult = newChannel1->basicPublish("Hello from Ballerina", "MyQueue1");
         if (sendResult is error) {
             io:println("An error occurred while sending the message to
-                     MyQueue1 using newChannel1");
+                     MyQueue1 using newChannel1.");
         }
     }
 
@@ -37,7 +37,7 @@ public function main() {
         var sendResult = newChannel2->basicPublish("Hello from Ballerina", "MyQueue1");
         if (sendResult is error) {
             io:println("An error occurred while sending the message to
-                    MyQueue1 using newChannel2");
+                    MyQueue1 using newChannel2.");
         }
     }
 
@@ -47,7 +47,7 @@ public function main() {
         var sendResult = newChannel1->basicPublish("Hello from Ballerina", "MyQueue2");
         if (sendResult is error) {
             io:println("An error occurred while sending the message to
-                    MyQueue2 using newChannel1");
+                    MyQueue2 using newChannel1.");
         }
     }
     _ = wait {w1, w2, w3};

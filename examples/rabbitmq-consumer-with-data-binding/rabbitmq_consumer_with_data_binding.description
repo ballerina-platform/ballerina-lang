@@ -1,0 +1,6 @@
+// In this example, the messages are consumed from an
+// existing queue using the Ballerina RabbitMQ message listener.
+// The messages can be accessed using the rabbitmq:Message object and also
+// the second parameter of the resource function.
+// `string`, `json`, `xml`, `byte[]`, `record`, `float` and `int` are
+// supported as parameter types.

@@ -21,6 +21,6 @@ Person person = {
     age: 30
 };
 
-(Employee, Person) pp2 = (employee, person);
+[Employee, Person] pp2 = [employee, person];
 
 int dep2 = dep1;

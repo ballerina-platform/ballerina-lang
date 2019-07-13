@@ -21,11 +21,12 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -46,11 +47,11 @@ public class CreateConnection extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        BMap<String, BValue> connectionConfig = (BMap<String, BValue>) context.getRefArgument(1);
+    }
+
+    public static void createConnection(Strand strand, ObjectValue connectionObjectValue, MapValue<String,
+            Object> connectionConfig) {
         Connection connection = ConnectionUtils.createConnection(connectionConfig);
-        connectionBObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
+        connectionObjectValue.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
     }
 }

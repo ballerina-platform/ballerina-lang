@@ -92,7 +92,7 @@ public type AnnotationAttachment record {|
 |};
 
 public type AnnotationValue record {|
-    map<AnnotationValueEntry> valueEntryMap = {};
+    map<AnnotationValueEntry?[]> valueEntryMap = {};
 |};
 
 public type AnnotationValueEntry record {|
@@ -519,6 +519,7 @@ public type TypeCast record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+    boolean checkType;
 |};
 
 public type IsLike record {|
@@ -611,6 +612,8 @@ public type AsyncCall record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
+    boolean isAsync = true;
     BasicBlock thenBB;
 |};
 

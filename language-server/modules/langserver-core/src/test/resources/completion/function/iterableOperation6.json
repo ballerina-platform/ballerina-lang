@@ -23,13 +23,13 @@
       }
     },
     {
-      "label": "remove(function (any) returns (boolean) func)(int|error)",
+      "label": "remove(function (any) returns (boolean) func)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "insertText": "remove(${1})",

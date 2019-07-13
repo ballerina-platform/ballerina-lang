@@ -22,6 +22,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-config')
+    implementation project(':ballerina-runtime')
     implementation 'org.slf4j:slf4j-api'
     implementation 'info.picocli:picocli'
     implementation 'org.testng:testng'

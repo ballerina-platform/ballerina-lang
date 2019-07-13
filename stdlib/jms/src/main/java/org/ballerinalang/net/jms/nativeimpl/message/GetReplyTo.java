@@ -20,19 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Destination;
@@ -45,46 +41,43 @@ import javax.jms.Topic;
  * Get a float property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "getReplyTo",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = JmsConstants.DESTINATION_OBJ_NAME,
-                                  structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)},
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class GetReplyTo extends AbstractBlockingAction {
+public class GetReplyTo extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
-        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context,
-                                                                           JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.JMS_DESTINATION_STRUCT_NAME);
+    public void execute(Context context) {
+    }
+
+    public static Object getReplyTo(Strand strand, ObjectValue msgObj) {
+        Message message = JmsUtils.getJMSMessage(msgObj);
+
+        ObjectValue destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+                                                                JmsConstants.JMS_DESTINATION_OBJ_NAME);
         try {
             Destination destination = message.getJMSReplyTo();
             if (destination instanceof Queue) {
                 Queue replyTo = (Queue) destination;
-                bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
-                bStruct.put(JmsConstants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
-                bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("queue"));
-                context.setReturnValues(bStruct);
+                destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
+                destObj.set(JmsConstants.DESTINATION_NAME, replyTo.getQueueName());
+                destObj.set(JmsConstants.DESTINATION_TYPE, "queue");
+                return destObj;
             } else if (destination instanceof Topic) {
                 Topic replyTo = (Topic) destination;
-                bStruct.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
-                bStruct.put(JmsConstants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
-                bStruct.put(JmsConstants.DESTINATION_TYPE, new BString("topic"));
-                context.setReturnValues(bStruct);
+                destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, replyTo);
+                destObj.set(JmsConstants.DESTINATION_NAME, replyTo.getTopicName());
+                destObj.set(JmsConstants.DESTINATION_TYPE, "topic");
+                return destObj;
             } else {
-                context.setReturnValues(BLangVMErrors.createError(context, "ReplyTo header has not been set"));
+                return BallerinaAdapter.getError("ReplyTo header has not been set");
             }
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when retrieving replyTo", context, e);
+            return BallerinaAdapter.getError("Error when retrieving replyTo", e);
         }
     }
+
 }

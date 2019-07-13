@@ -213,41 +213,6 @@ public type ResponseCacheControl object {
     }
 };
 
-function Request.parseCacheControlHeader () {
-    // If the request doesn't contain a cache-control header, resort to default cache control settings
-    if (!self.hasHeader(CACHE_CONTROL)) {
-        return;
-    }
-
-    RequestCacheControl reqCC = new;
-    string cacheControl = self.getHeader(CACHE_CONTROL);
-    string[] directives = cacheControl.split(",");
-
-    foreach var directive in directives {
-        directive = directive.trim();
-        if (directive == NO_CACHE) {
-            reqCC.noCache = true;
-        } else if (directive == NO_STORE) {
-            reqCC.noStore = true;
-        } else if (directive == NO_TRANSFORM) {
-            reqCC.noTransform = true;
-        } else if (directive == ONLY_IF_CACHED) {
-            reqCC.onlyIfCached = true;
-        } else if (directive.hasPrefix(MAX_AGE)) {
-            reqCC.maxAge = getExpirationDirectiveValue(directive);
-        } else if (directive == MAX_STALE) {
-            reqCC.maxStale = MAX_STALE_ANY_AGE;
-        } else if (directive.hasPrefix(MAX_STALE)) {
-            reqCC.maxStale = getExpirationDirectiveValue(directive);
-        } else if (directive.hasPrefix(MIN_FRESH)) {
-            reqCC.minFresh = getExpirationDirectiveValue(directive);
-        }
-        // non-standard directives are ignored
-    }
-
-    self.cacheControl = reqCC;
-}
-
 function appendFields (string[] fields) returns string {
     if (fields.length() > 0) {
         return "=\"" + buildCommaSeparatedString(fields) + "\"";

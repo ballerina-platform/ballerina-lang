@@ -165,7 +165,7 @@ sourceOnlyAttachPointIdent
     ;
 
 workerDeclaration
-    :   workerDefinition LEFT_BRACE statement* RIGHT_BRACE
+    :   annotationAttachment* workerDefinition LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 workerDefinition
@@ -458,7 +458,7 @@ restMatchPattern
     ;
 
 simpleMatchPattern
-    :   VAR? Identifier
+    :   VAR? (Identifier | QuotedStringLiteral)
     ;
 
 errorDetailBindingPattern
@@ -677,7 +677,7 @@ invocationArg
     ;
 
 actionInvocation
-    :   START? variableReference RARROW functionInvocation
+    :   (annotationAttachment* START)? variableReference RARROW functionInvocation
     ;
 
 expressionList
@@ -751,15 +751,15 @@ expression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
-    |   START? variableReference                                            # variableReferenceExpression
+    |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT typeName GT expression                                           # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | UNTAINT | TYPEOF) expression    # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression

@@ -15,11 +15,13 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/http;
+import ballerina/jwt;
 
-jwt:JWTAuthProvider jwtAuthProvider08 = new({
+jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
-    audience: ["ballerina.io"],
+    audience: "ballerina.io",
     certificateAlias: "cert",
     trustStore: {
         path: "../../../src/test/resources/auth/testtruststore.p12",
@@ -27,11 +29,11 @@ jwt:JWTAuthProvider jwtAuthProvider08 = new({
     }
 });
 
-http:BearerAuthHeaderAuthnHandler jwtAuthnHandler08 = new(jwtAuthProvider08);
+http:BearerAuthHandler jwtAuthHandler08 = new(jwtAuthProvider08);
 
 listener http:Listener listener08 = new(9099, config = {
     auth: {
-        authnHandlers: [jwtAuthnHandler08]
+        authHandlers: [jwtAuthHandler08]
     },
     secureSocket: {
         keyStore: {

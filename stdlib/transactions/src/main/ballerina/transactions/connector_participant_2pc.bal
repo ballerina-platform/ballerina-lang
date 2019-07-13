@@ -56,11 +56,11 @@ public type Participant2pcClientEP client object {
         } else if (statusCode == http:OK_200) {
             json payload = check res.getJsonPayload();
             PrepareResponse prepareRes = check PrepareResponse.convert(payload);
-            return prepareRes.message;
+            return <@untainted string> prepareRes.message;
         } else {
             error err = error("Prepare failed. Transaction: " + transactionId + ", Participant: " +
                 self.conf.participantURL);
-            return err;
+            return <@untainted error> err;
         }
     }
 
@@ -77,16 +77,16 @@ public type Participant2pcClientEP client object {
         string msg = notifyRes.message;
         int statusCode = res.statusCode;
         if (statusCode == http:OK_200) {
-            return msg;
+            return <@untainted string> msg;
         } else if ((statusCode == http:BAD_REQUEST_400 && msg == NOTIFY_RESULT_NOT_PREPARED_STR) ||
             (statusCode == http:NOT_FOUND_404 && msg == TRANSACTION_UNKNOWN) ||
             (statusCode == http:INTERNAL_SERVER_ERROR_500 && msg == NOTIFY_RESULT_FAILED_EOT_STR)) {
             error participantErr = error(msg);
-            return participantErr;
+            return <@untainted error> participantErr;
         } else { // Some other error state
             error participantErr = error("Notify failed. Transaction: " + transactionId + ", Participant: " +
                 self.conf.participantURL);
-            return participantErr;
+            return <@untainted error> participantErr;
         }
     }
 };

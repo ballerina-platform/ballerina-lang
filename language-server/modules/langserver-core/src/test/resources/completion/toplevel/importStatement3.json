@@ -20,17 +20,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "h2",
+      "label": "jdbc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -139,13 +132,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "encoding",
       "kind": "Module",
       "detail": "Package",
@@ -216,6 +202,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "http",
       "kind": "Module",
       "detail": "Package",
@@ -223,17 +216,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "task",
       "kind": "Module",
       "detail": "Package",
       "insertText": "task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
       "insertTextFormat": "Snippet"
     },
     {
@@ -255,20 +248,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "jms",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "socket",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.observability.metrics.MetricId;
@@ -32,7 +31,6 @@ import java.util.function.ToDoubleFunction;
  *
  * @since 0.980.0
  */
-@JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class DefaultMetricProvider implements MetricProvider {
 
     public DefaultMetricProvider() {

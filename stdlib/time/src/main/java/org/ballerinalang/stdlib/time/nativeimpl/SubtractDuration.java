@@ -20,8 +20,6 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -37,16 +35,6 @@ public class SubtractDuration extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        long years = context.getIntArgument(0);
-        long months = context.getIntArgument(1);
-        long dates = context.getIntArgument(2);
-        long hours = context.getIntArgument(3);
-        long minutes = context.getIntArgument(4);
-        long seconds = context.getIntArgument(5);
-        long milliSeconds = context.getIntArgument(6);
-        context.setReturnValues(
-                subtractDuration(context, timeStruct, years, months, dates, hours, minutes, seconds, milliSeconds));
     }
 
     public static MapValue<String, Object> subtractDuration(Strand strand, MapValue<String, Object> timeRecord,

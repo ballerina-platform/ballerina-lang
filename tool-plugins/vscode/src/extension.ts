@@ -27,6 +27,7 @@ import { activate as activateTraceLogs } from './trace-logs';
 import { activateDebugConfigProvider } from './debugger';
 import { activateTestRunner } from './test-runner';
 import { activate as activateProjectFeatures } from './project';
+import { activate as activateOverview } from './overview';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 
@@ -75,5 +76,6 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures(ballerinaExtInstance);
+        activateOverview(ballerinaExtInstance);
     });
 }

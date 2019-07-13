@@ -181,7 +181,7 @@
       "label": "error",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
       "insertTextFormat": "Snippet"
     },
     {
@@ -300,13 +300,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
@@ -386,10 +379,10 @@
       ]
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "h2",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -403,29 +396,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/h2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/privacy;\n"
+          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },
@@ -760,28 +731,6 @@
       ]
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Package",
@@ -1002,6 +951,28 @@
       ]
     },
     {
+      "label": "ballerina/transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions.balx;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/http",
       "kind": "Module",
       "detail": "Package",
@@ -1024,28 +995,6 @@
       ]
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
@@ -1064,6 +1013,28 @@
             }
           },
           "newText": "import ballerina/task;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/cache.balx;\n"
         }
       ]
     },
@@ -1130,50 +1101,6 @@
             }
           },
           "newText": "import ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/socket",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/socket;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/sql;\n"
         }
       ]
     }

@@ -26,7 +26,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "190",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
       "insertTextFormat": "Snippet"
     },
     {
@@ -421,11 +421,11 @@
       ]
     },
     {
-      "label": "ballerina/h2",
+      "label": "ballerinax/jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "h2",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -439,30 +439,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/h2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "privacy",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/privacy;\n"
+          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },
@@ -1065,29 +1042,6 @@
       ]
     },
     {
-      "label": "ballerina/mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/mysql;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Package",
@@ -1199,29 +1153,6 @@
             }
           },
           "newText": "import ballerina/jms;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/sql",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/sql;\n"
         }
       ]
     }

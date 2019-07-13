@@ -24,7 +24,7 @@
       }
     },
     {
-      "label": "setBody(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] entityBody)",
+      "label": "setBody((string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) entityBody)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -132,13 +132,13 @@
       }
     },
     {
-      "label": "getContentLength()(int|error)",
+      "label": "getContentLength()((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "sortText": "121",
@@ -204,13 +204,13 @@
       }
     },
     {
-      "label": "getJson()(json|error)",
+      "label": "getJson()((json|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \njson|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
         }
       },
       "sortText": "121",
@@ -240,13 +240,13 @@
       }
     },
     {
-      "label": "getXml()(xml|error)",
+      "label": "getXml()((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|error)"
         }
       },
       "sortText": "121",
@@ -276,13 +276,13 @@
       }
     },
     {
-      "label": "getText()(string|error)",
+      "label": "getText()((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
         }
       },
       "sortText": "121",
@@ -312,13 +312,13 @@
       }
     },
     {
-      "label": "getByteArray()(byte[]|error)",
+      "label": "getByteArray()((byte[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nbyte[]|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|error)"
         }
       },
       "sortText": "121",
@@ -348,13 +348,13 @@
       }
     },
     {
-      "label": "getByteChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getByteChannel()((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "sortText": "121",
@@ -366,13 +366,13 @@
       }
     },
     {
-      "label": "getBodyParts()(ballerina/mime:Entity[]|error)",
+      "label": "getBodyParts()((ballerina/mime:Entity[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity[]|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|error)"
         }
       },
       "sortText": "121",
@@ -384,13 +384,13 @@
       }
     },
     {
-      "label": "getBodyPartsAsChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getBodyPartsAsChannel()((ballerina/io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel|error"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
         }
       },
       "sortText": "121",

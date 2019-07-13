@@ -42,10 +42,9 @@ public class GetCurrentDirectory extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        context.setReturnValues(SystemUtils.getSystemProperty(PROPERTY_NAME));
     }
 
     public static String getCurrentDirectory(Strand strand) {
-        return SystemUtils.getProperty(PROPERTY_NAME);
+        return SystemUtils.getSystemProperty(PROPERTY_NAME);
     }
 }

@@ -675,6 +675,12 @@ public class FormattingSourceGen {
                     && node.getAsJsonObject("userDefinedTypeNode").has(FormattingConstants.WS)) {
                 node.getAsJsonObject("userDefinedTypeNode").remove(FormattingConstants.WS);
             }
+
+            if (node.has("anonymousService")
+                    && node.get("anonymousService").getAsBoolean()
+                    && parentKind.equals("CompilationUnit")) {
+                node.addProperty("skip", true);
+            }
         }
 
         if ("Resource".equals(kind)

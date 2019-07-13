@@ -123,6 +123,11 @@ export interface BallerinaServiceListResponse {
 
 export class ExtendedLangClient extends LanguageClient {
 
+    getProjectAST(sourceRoot: string): Thenable<BallerinaASTResponse> {
+        const req = { sourceRoot };
+        return this.sendRequest("ballerinaProject/modules", req);
+    }
+
     getAST(uri: Uri): Thenable<BallerinaASTResponse> {
         const req: GetASTRequest = {
             documentIdentifier: {
@@ -191,7 +196,6 @@ export class ExtendedLangClient extends LanguageClient {
     getDefinitionPosition(params: TextDocumentPositionParams): Thenable<Location> {
         return this.sendRequest("textDocument/definition", params)
         .then((res) => {
-            console.log(res);
             const definitions = res as any;
             if(!(definitions.length > 0)) {
                 return Promise.reject();

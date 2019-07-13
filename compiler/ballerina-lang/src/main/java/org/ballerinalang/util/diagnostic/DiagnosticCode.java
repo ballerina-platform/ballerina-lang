@@ -75,6 +75,7 @@ public enum DiagnosticCode {
     EXTERN_FUNC_ABSTRACT_OBJECT("extern.function.abstract.object"),
     RESOURCE_FUNCTION_CANNOT_BE_EXTERN("resource.function.cannot.be.extern"),
     OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN("object.init.function.cannot.be.extern"),
+    OBJECT_OUTSIDE_METHODS_NOT_ALLOWED("object.outside.methods.not.allowed"),
     GLOBAL_VARIABLE_CYCLIC_DEFINITION("global.variable.cyclic.reference"),
     CANNOT_FIND_ERROR_TYPE("cannot.find.error.constructor.for.type"),
 
@@ -100,6 +101,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_RECORD_TYPE_REFERENCE("incompatible.record.type.reference"),
     REDECLARED_TYPE_REFERENCE("redeclared.type.reference"),
     REDECLARED_FUNCTION_FROM_TYPE_REFERENCE("redeclared.function.from.type.reference"),
+    REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
@@ -263,6 +265,7 @@ public enum DiagnosticCode {
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
     INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
     INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
+    INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
@@ -320,6 +323,7 @@ public enum DiagnosticCode {
     MATCH_STMT_UNMATCHED_PATTERN("match.stmt.unmatched.pattern"),
     MATCH_STMT_PATTERN_ALWAYS_MATCHES("match.stmt.pattern.always.matches"),
     MATCH_STMT_CONTAINS_TWO_DEFAULT_PATTERNS("match.stmt.contains.two.default.patterns"),
+    CANNOT_FIND_MATCH_ERROR_REASON_CONST("can.not.find.match.error.reason.const"),
 
     // error type related errors
     REQUIRE_ERROR_MAPPING_VALUE("require.error.mapping.value"),
@@ -370,12 +374,18 @@ public enum DiagnosticCode {
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
 
     // Taint checking related codes
-    ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
-    TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
+    ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER("tainted.value.passed.to.untainted.parameter"),
+    TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT(
+            "tainted.value.passed.to.untainted.param.in.obj.method"),
     TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE("tainted.value.passed.to.global.variable"),
+    TAINTED_VALUE_PASSED_TO_MODULE_OBJECT("tainted.value.passed.to.module.object"),
+    INVOCATION_TAINT_GLOBAL_OBJECT("method.invocation.taint.global.object"),
     TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE("tainted.value.passed.to.closure.variable"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_WITH_RECURSION("unable.to.perform.taint.checking.with.recursion"),
     UNABLE_TO_PERFORM_TAINT_CHECKING_FOR_BUILTIN_METHOD("unable.to.perform.taint.checking.for.builtin.method"),
+    TAINTED_RETURN_NOT_ANNOTATED_TAINTED("tainted.return.not.annotated.tainted"),
+    TAINTED_PARAM_NOT_ANNOTATED_TAINTED("tainted.param.not.annotated.tainted"),
 
     // Constants related codes.
     ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST("only.simple.literals.can.be.assigned.to.const"),
@@ -401,6 +411,8 @@ public enum DiagnosticCode {
 
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
     INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
+    INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED("invalid.error.reason.argument.to.indirect.error.constructor"),
+    INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON("invalid.indirect.error.constructor.invocation"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("incompatible.stamp.type"),

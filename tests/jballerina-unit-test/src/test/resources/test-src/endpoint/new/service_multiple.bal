@@ -17,7 +17,7 @@ public type ABC object {
 
     *AbstractListener;
 
-    public function __start() {
+    public function __start() returns error? {
         startCount += 1;
     }
 
@@ -25,7 +25,7 @@ public type ABC object {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) {
+    public function __attach(service s, string? name = ()) returns error? {
         attachCount += 1;
     }
 };
@@ -37,7 +37,7 @@ public type PQR object {
     public function __init(string name){
     }
 
-    public function __start() {
+    public function __start() returns error? {
         startCount += 1;
     }
 
@@ -45,7 +45,7 @@ public type PQR object {
         return ();
     }
 
-    public function __attach(service s, string? name = ()) {
+    public function __attach(service s, string? name = ()) returns error? {
         attachCount += 1;
     }
 };

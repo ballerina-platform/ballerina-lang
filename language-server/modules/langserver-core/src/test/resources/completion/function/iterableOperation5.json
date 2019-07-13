@@ -57,13 +57,13 @@
       }
     },
     {
-      "label": "toXML($anonType$builtin$0 options)(xml|error)",
+      "label": "toXML($anonType$builtin$0 options)((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \nxml|error"
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \n(xml|error)"
         }
       },
       "insertText": "toXML(${1})",

@@ -20,9 +20,6 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -35,11 +32,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "toString"
 )
 public class ToString extends AbstractTimeFunction {
+
     @Override
     public void execute(Context context) {
-
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        context.setReturnValues(new BString(getDefaultString(timeStruct)));
     }
 
     public static String toString(Strand strand, MapValue<String, Object> timeRecord) {

@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -45,28 +46,27 @@ public class Rename extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String currentPathValue = context.getStringArgument(0);
-        Path currentPath = Paths.get(currentPathValue);
+    }
 
-        String newPathValue = context.getStringArgument(1);
-        Path newPath = Paths.get(newPathValue);
+    public static Object rename(Strand strand, String oldPath, String newPath) {
+        Path oldFilePath = Paths.get(oldPath);
+        Path newFilePath = Paths.get(newPath);
 
-        if (Files.notExists(currentPath)) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
-                    "File doesn't exist in path " + currentPath.toAbsolutePath()));
-            return;
+        if (Files.notExists(oldFilePath)) {
+            return SystemUtils.getBallerinaError("INVALID_OPERATION",
+                    "File doesn't exist in path " + oldFilePath.toAbsolutePath());
         }
 
         try {
-            Files.move(currentPath.toAbsolutePath(), newPath.toAbsolutePath());
-            context.setReturnValues();
+            Files.move(oldFilePath.toAbsolutePath(), newFilePath.toAbsolutePath());
+            return null;
         } catch (FileAlreadyExistsException e) {
-            context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", "File already exists in the new" +
-                    " path " + newPathValue));
+            return SystemUtils.getBallerinaError("OPERATION_FAILED", "File already exists in the new" +
+                    " path " + newFilePath);
         } catch (IOException e) {
-            context.setReturnValues(SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e));
+            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
         } catch (SecurityException e) {
-            context.setReturnValues(SystemUtils.getBallerinaError("PERMISSION_ERROR", e));
+            return SystemUtils.getBallerinaError("PERMISSION_ERROR", e);
         }
     }
 }

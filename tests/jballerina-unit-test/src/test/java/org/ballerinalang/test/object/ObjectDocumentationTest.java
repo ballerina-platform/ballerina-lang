@@ -93,22 +93,23 @@ public class ObjectDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 16);
-        BAssertUtil.validateWarning(compileResult, 0, "field 'a' already documented", 6, 5);
-        BAssertUtil.validateWarning(compileResult, 1, "no such documentable field 'c'", 8, 5);
-        BAssertUtil.validateWarning(compileResult, 2, "undocumented field 'cd'", 12, 5);
-        BAssertUtil.validateWarning(compileResult, 3, "no such documentable parameter 'testConst'", 19, 5);
-        BAssertUtil.validateWarning(compileResult, 4, "field 'a' already documented", 25, 5);
-        BAssertUtil.validateWarning(compileResult, 5, "no such documentable field 'c'", 27, 5);
-        BAssertUtil.validateWarning(compileResult, 6, "undocumented field 'cdd'", 31, 5);
-        BAssertUtil.validateWarning(compileResult, 7, "parameter 'accessMode' already documented", 39, 5);
-        BAssertUtil.validateWarning(compileResult, 8, "no such documentable parameter 'successfuls'", 40, 5);
-        BAssertUtil.validateWarning(compileResult, 9, "undocumented return parameter", 41, 1);
-        BAssertUtil.validateWarning(compileResult, 10, "field 'url' already documented", 73, 5);
-        BAssertUtil.validateWarning(compileResult, 11, "no such documentable field 'urls'", 74, 5);
-        BAssertUtil.validateWarning(compileResult, 12, "no such documentable parameter 'conn'", 81, 5);
-        BAssertUtil.validateWarning(compileResult, 13, "parameter 'req' already documented", 87, 9);
-        BAssertUtil.validateWarning(compileResult, 14, "no such documentable parameter 'reqest'", 88, 9);
-        BAssertUtil.validateWarning(compileResult, 15, "no such documentable parameter 'testConstd'", 99, 5);
+        int i = 0;
+        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 6, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 8, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cd'", 12, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'testConst'", 19, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'a' already documented", 25, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'c'", 27, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented field 'cdd'", 31, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "undocumented return parameter", 41, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "parameter 'accessMode' already documented", 46, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'successfuls'", 47, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "field 'url' already documented", 71, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable field 'urls'", 72, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'conn'", 79, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "parameter 'req' already documented", 85, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable parameter 'reqest'", 86, 9);
+        BAssertUtil.validateWarning(compileResult, i, "no such documentable parameter 'testConstd'", 97, 5);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {

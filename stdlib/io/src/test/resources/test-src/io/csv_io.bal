@@ -25,35 +25,35 @@ type Employee record {
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
-const string IO_ERROR_CODE = "{ballerina/io}IOError";
+const string IO_ERROR_CODE = "{ballerina/io}IoError";
 
-function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns error? {
+function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(untaint byteChannel, encoding);
+        io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel( <@untainted> byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
     } else {
         return byteChannel;
-    }    
+    }
 }
 
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
-    io:WritableByteChannel byteChannel = untaint io:openWritableFile(filePath);
+    io:WritableByteChannel byteChannel = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
-    var byteChannel = untaint io:openReadableFile(filePath);
+    var byteChannel =  <@untainted> io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
         rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
     } else {
         return byteChannel;
-    }    
+    }
 }
 
-function nextRecord() returns (string[]|error) {
+function nextRecord() returns @tainted string[]|error {
     var result = rch.getNext();
     if (result is string[]) {
         return result;
@@ -78,7 +78,7 @@ function hasNextRecord() returns boolean? {
     return rch.hasNext();
 }
 
-function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns float|error {
+function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float|error {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
@@ -95,5 +95,5 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
         }
     } else {
         return byteChannel;
-    }    
+    }
 }

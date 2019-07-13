@@ -108,7 +108,7 @@
       }
     },
     {
-      "label": "setConfig(string key, string|int|float|boolean value)",
+      "label": "setConfig(string key, (string|int|float|boolean) value)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

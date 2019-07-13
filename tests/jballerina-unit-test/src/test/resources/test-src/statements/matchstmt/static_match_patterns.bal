@@ -122,11 +122,11 @@ function tar1(Foo|map<any>|int f) returns string {
 
 function testTupleStaticMatch() returns string[] {
 
-    (int, string) t1 = (12, "Ballerina");
+    [int, string] t1 = [12, "Ballerina"];
     anydata t2 = t1;
-    (int, string, byte) t3 = (15, "Bal", 100);
-    (int, string) t4 = (15, "Ballerina");
-    (int, string) t5 = (16, "Ballerina");
+    [int, string, byte] t3 = [15, "Bal", 100];
+    [int, string] t4 = [15, "Ballerina"];
+    [int, string] t5 = [16, "Ballerina"];
 
     string[] result = [tar2(t1), tar2(t2), tar2(15), tar2(t3), tar2(t4), tar2(t5)];
 
@@ -136,11 +136,11 @@ function testTupleStaticMatch() returns string[] {
 function tar2(anydata f) returns string {
 
     match f {
-        (15) => return "Value is '(15)'";
-        (12, "Ballerina") => return "Value is '(12, Ballerina)'";
-        (15, "Ballerina", 100) => return "Value is '(15, Ballerina, 100)'";
-        (15, "Ballerina") => return "Value is '(15, Ballerina)'";
-        (15, "Bal", 100) => return "Value is '(15, Bal, 100)'";
+        15 => return "Value is '(15)'";
+        [12, "Ballerina"] => return "Value is '(12, Ballerina)'";
+        [15, "Ballerina", 100] => return "Value is '(15, Ballerina, 100)'";
+        [15, "Ballerina"] => return "Value is '(15, Ballerina)'";
+        [15, "Bal", 100] => return "Value is '(15, Bal, 100)'";
         16 => return "Value is '16'";
     }
 
@@ -149,13 +149,13 @@ function tar2(anydata f) returns string {
 
 type Bar record {
     int x;
-    (string, Foo, string) y;
+    [string, Foo, string] y;
 };
 
 function testRecordAndTupleComplexStaticMatch() returns string[] {
-    (boolean, float) t1 = (true, 12.1);
+    [boolean, float] t1 = [true, 12.1];
     Foo f1 = {x: 12, y: "Ballerina", z: t1};
-    Bar b1 = {x: 15, y: ("John", f1, "Snow"), z: 15.1};
+    Bar b1 = {x: 15, y: ["John", f1, "Snow"], z: 15.1};
 
     string[] result = [tar3(b1)];
 
@@ -164,9 +164,9 @@ function testRecordAndTupleComplexStaticMatch() returns string[] {
 
 function tar3(anydata f) returns string {
     match f {
-        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)}, "Snow", true), z:15.1} => return "Value is 'Incorrect'";
-        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)}, "Snow"), z:15.1} => return "Value is 'Correct'";
-        {x: 15, y: ("John", {x: 12, y: "Ballerina", z: (true, 12.1)}, "Snow")} => return "Value is 'Incorrect'";
+        {x: 15, y: ["John", {x: 12, y: "Ballerina", z: [true, 12.1]}, "Snow", true], z:15.1} => return "Value is 'Incorrect'";
+        {x: 15, y: ["John", {x: 12, y: "Ballerina", z: [true, 12.1]}, "Snow"], z:15.1} => return "Value is 'Correct'";
+        {x: 15, y: ["John", {x: 12, y: "Ballerina", z: [true, 12.1]}, "Snow"]} => return "Value is 'Incorrect'";
         {x: 15} => return "Value is 'Incorrect'";
     }
     return "Value is 'Default'";
@@ -263,18 +263,18 @@ function baz(string | int | boolean a) returns string {
 function testStaticMatchOrPatterns2() returns string[] {
 
     int t1 = 15;
-    (int, string) t2 = (12, "Ballerina");
+    [int, string] t2 = [12, "Ballerina"];
     anydata t3 = t2;
-    (int, string) t4 = (15, "Ballerina");
-    (int, string) t5 = (20, "Ballerina");
-    (int, string) t6 = (20, "Balo");
-    (int, string) t7 = (20, "NothingToMatch");
+    [int, string] t4 = [15, "Ballerina"];
+    [int, string] t5 = [20, "Ballerina"];
+    [int, string] t6 = [20, "Balo"];
+    [int, string] t7 = [20, "NothingToMatch"];
 
-    (int, string, byte) t8 = (15, "Bal", 100);
+    [int, string, byte] t8 = [15, "Bal", 100];
 
-    (int, string, byte, int) t9 = (15, "Bal", 200, 230);
-    (int, string, string, int, string) t10 = (15, "Bal", "Ballerina", 5678, "Test");
-    (int, string, string, int, string) t11 = (15, "Bal", "Ballerina", 5678, "NothingToMatch");
+    [int, string, byte, int] t9 = [15, "Bal", 200, 230];
+    [int, string, string, int, string] t10 = [15, "Bal", "Ballerina", 5678, "Test"];
+    [int, string, string, int, string] t11 = [15, "Bal", "Ballerina", 5678, "NothingToMatch"];
 
     string[] result = [caz1(t1), caz1(t2), caz1(t3), caz1(t4), caz1(t5), caz1(t6), caz1(t7), caz1(t8), caz1(t9), caz1(t10), caz1(t11)];
 
@@ -284,9 +284,9 @@ function testStaticMatchOrPatterns2() returns string[] {
 function caz1(anydata f) returns string {
 
     match f {
-        (15) | (12, "Ballerina") => return "Value is : " + io:sprintf("%s", f);
-        (15, "Ballerina") | (20, "Ballerina") | (20, "Balo") => return "Value is : " + io:sprintf("%s", f);
-        (15, "Bal", 100) | (15, "Bal", 200, 400) | (15, "Bal", "Ballerina", 5678, "Test") => return "Value is : " + io:sprintf("%s", f);
+        15 | [12, "Ballerina"] => return "Value is : " + io:sprintf("%s", f);
+        [15, "Ballerina"] | [20, "Ballerina"] | [20, "Balo"] => return "Value is : " + io:sprintf("%s", f);
+        [15, "Bal", 100] | [15, "Bal", 200, 400] | [15, "Bal", "Ballerina", 5678, "Test"] => return "Value is : " + io:sprintf("%s", f);
     }
 
     return "Default Value is : " + io:sprintf("%s", f);
@@ -294,7 +294,7 @@ function caz1(anydata f) returns string {
 
 type AnotherFoo record {
     int x;
-    (string, Foo, string) y;
+    [string, Foo, string] y;
 };
 
 
@@ -304,10 +304,10 @@ function testStaticMatchOrPatterns3() returns string[] {
     map<any> m1 = {x: 10, y: "B"};
     Foo f2 = {x: 12, y: "Ballerina", z: true};
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ("John", { x: 12, y: "Ballerina" }, "Snow"), z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ("Stark", f1, "Sansa"), z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
     int i1 = 16;
     int i2 = 12;
 
@@ -321,10 +321,10 @@ function caz2(Foo|AnotherFoo|map<any>|int f) returns string {
     match f {
         { x: 10, y: "Ballerina"} | { x: 12, y: "Ballerina", z: true } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
         { x: 12, y: "B" } | {x: 12, y: "Ballerina" } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
-        { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z:15.1 } |
-            { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+        { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z:15.1 } |
+            { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
         16 | 15 | { x: 10, y: "B" } => return "Value is : 4th pattern - " + io:sprintf("%s", f);
-        { x:15, y:("John", { x:12, y:"Ballerina"}, "Snow"), z:15.1 } => return "Value is : 5th pattern - " + io:sprintf("%s", f);
+        { x:15, y:["John", { x:12, y:"Ballerina"}, "Snow"], z:15.1 } => return "Value is : 5th pattern - " + io:sprintf("%s", f);
     }
 
     return "Value is Default pattern - " + io:sprintf("%s", f);
@@ -337,10 +337,10 @@ function testStaticMatchOrPatterns4() returns string[] {
     map<any> m1 = { x: 10, y: "B" };
     Foo f2 = { x: 12, y: "Ballerina", z: true };
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ("John", { x: 12, y: "Ballerina" }, "Snow"), z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ("Stark", f1, "Sansa"), z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
     int i1 = 16;
     int i2 = 12;
     float f = 7.8;
@@ -355,10 +355,10 @@ function caz3(any f) returns string {
     match f {
         { x: 10, y: "Ballerina"} | {x: 12, y: "Ballerina", z: true } => return "Value is : 1st pattern - " + io:sprintf("%s", f);
         { x: 12, y: "B"} | { x: 12, y: "Ballerina" } => return "Value is : 2nd pattern - " + io:sprintf("%s", f);
-        { x: 15, y: ("Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"), z:15.1 } |
-            { x: 40, y: ("Tyrion", { x: 12, y: "Ballerina" }, "Lanister"), z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
+        { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z:15.1 } |
+            { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 } => return "Value is : 3rd pattern - " + io:sprintf("%s", f);
         16 | 15 | { x: 10, y: "B" } => return "Value is : 4th pattern - " + io:sprintf("%s", f);
-        { x:15, y:("John", { x:12, y:"Ballerina" }, "Snow"), z:15.1 } => return "Value is : 5th pattern - " + io:sprintf("%s", f);
+        { x:15, y:["John", { x:12, y:"Ballerina" }, "Snow"], z:15.1 } => return "Value is : 5th pattern - " + io:sprintf("%s", f);
     }
 
     return "Value is Default pattern - " + io:sprintf("%s", f);
@@ -367,9 +367,9 @@ function caz3(any f) returns string {
 function testBracedUnionType() returns string {
     any a = 12;
     match a {
-        (1 | 2) => return "1|2";
+        1 | 2 => return "1|2";
         3 | 4 => return "3|4";
-        (11 | 12) => return "11|12";
+        11 | 12 => return "11|12";
         _ => return "Default";
     }
 }
@@ -398,7 +398,7 @@ function caz4(any a) returns string {
         "Bal" => return "Bal";
         NIL => return "Nil";
         CONST1 => return "Ballerina";
-    _ => return "Default";
+        _ => return "Default";
     }
 }
 

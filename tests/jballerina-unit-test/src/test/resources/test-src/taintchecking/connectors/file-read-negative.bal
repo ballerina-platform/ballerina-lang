@@ -15,11 +15,11 @@ public function main (string... args) {
             (readData, readLen) = data;
             testFunction(readData, readData);
         }
-        io:IOError ioError => return;
+        io:IoError ioError => return;
     }
 }
 
-public function testFunction (@sensitive any sensitiveValue, any anyValue) {
+public function testFunction (@untainted any sensitiveValue, any anyValue) {
 
 }
 

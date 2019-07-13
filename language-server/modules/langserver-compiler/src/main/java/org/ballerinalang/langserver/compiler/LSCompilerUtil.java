@@ -98,41 +98,23 @@ public class LSCompilerUtil {
     /**
      * Prepare the compiler context.
      *
-     * @param packageID         Package Name
-     * @param packageRepository Package Repository
-     * @param sourceRoot        LSDocument for Source Root
+     * @param packageID          Package Name
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         The source root of the project
      * @param preserveWhitespace Preserve Whitespace
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
+     * @param compilerPhase      {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument sourceRoot, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                                      CompilerPhase.TAINT_ANALYZE);
-    }
-
-    /**
-     * Prepare the compiler context.
-     *
-     * @param packageID         Package ID
-     * @param packageRepository Package Repository
-     * @param document        LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
-     * @param compilerPhase {@link CompilerPhase} Compiler Phase
-     * @return {@link CompilerContext}     Compiler context
-     */
-    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument document, boolean preserveWhitespace,
+                                                         String sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
-        CompilerContext context = lsContextManager.getCompilerContext(packageID, document.getSourceRoot(),
-                                                                      documentManager);
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, document.getSourceRoot());
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(EXPERIMENTAL_FEATURES_ENABLED));
 
         if (null == compilerPhase) {
@@ -153,6 +135,48 @@ public class LSCompilerUtil {
             ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
         }
 
+        LangServerFSProjectDirectory projectDirectory =
+                LangServerFSProjectDirectory.getInstance(Paths.get(sourceRoot), documentManager);
+        context.put(SourceDirectory.class, projectDirectory);
+
+        return context;
+    }
+
+    /**
+     * Prepare the compiler context.
+     *
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         The source root of the project
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository,
+                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(null, packageRepository, sourceRoot, preserveWhitespace,
+                documentManager, CompilerPhase.TAINT_ANALYZE);
+    }
+
+
+    /**
+     * Prepare the compiler context. Use this method if you don't have the source root but a LSDocument instance
+     * for a document in the project.
+     *
+     * @param packageID         Package ID
+     * @param packageRepository Package Repository
+     * @param document          LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param compilerPhase {@link CompilerPhase} Compiler Phase
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
+                                                         LSDocument document, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager,
+                                                         CompilerPhase compilerPhase) {
+        CompilerContext context = prepareCompilerContext(packageID, packageRepository, document.getSourceRoot(),
+                                                         preserveWhitespace, documentManager, compilerPhase);
         Path sourceRootPath = document.getSourceRootPath();
         if (isBallerinaProject(document.getSourceRoot(), document.getURIString())) {
             LangServerFSProjectDirectory projectDirectory =
@@ -164,6 +188,24 @@ public class LSCompilerUtil {
             context.put(SourceDirectory.class, programDirectory);
         }
         return context;
+    }
+
+    /**
+     * Prepare the compiler context. Use this method if you don't have the source root but a LSDocument instance
+     * for a document in the project.
+     *
+     * @param packageID         Package Name
+     * @param packageRepository Package Repository
+     * @param sourceRoot        LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
+                                                         LSDocument sourceRoot, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
+                documentManager, CompilerPhase.TAINT_ANALYZE);
     }
 
     /**
@@ -240,6 +282,24 @@ public class LSCompilerUtil {
         return Compiler.getInstance(compilerContext);
     }
 
+     /** Get compiler for the given context.
+     *
+             * @param context               Language server context
+     * @param compilerContext       Compiler context
+     * @param customErrorStrategy   custom error strategy class
+     * @return {@link Compiler}     ballerina compiler
+     */
+    public static Compiler getCompiler(LSContext context, CompilerContext compilerContext,
+                                       Class customErrorStrategy) {
+        context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
+        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
+        if (customErrorStrategy != null) {
+            compilerContext.put(DefaultErrorStrategy.class,
+                    CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        }
+        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
+        return Compiler.getInstance(compilerContext);
+    }
 
     /**
      * Get the source root for the given package.

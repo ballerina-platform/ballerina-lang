@@ -85,7 +85,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -196,13 +196,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-sql</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-h2</artifactId>
+            <artifactId>ballerina-jdbc</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>

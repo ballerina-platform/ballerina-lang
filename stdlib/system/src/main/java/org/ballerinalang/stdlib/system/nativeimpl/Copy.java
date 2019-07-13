@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -56,24 +57,21 @@ public class Copy extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String srcPathValue = context.getStringArgument(0);
-        Path srcPath = Paths.get(srcPathValue);
+    }
 
-        String destPathValue = context.getStringArgument(1);
-        Path destPath = Paths.get(destPathValue);
-        boolean replaceExisting = context.getBooleanArgument(0);
+    public static Object copy(Strand strand, String sourcePath, String destinationPath, boolean replaceExisting) {
+        Path srcPath = Paths.get(sourcePath);
+        Path destPath = Paths.get(destinationPath);
 
         if (Files.notExists(srcPath)) {
-            context.setReturnValues(SystemUtils.getBallerinaError("INVALID_OPERATION",
-                    "File doesn't exist in path " + srcPathValue));
-            return;
+            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + sourcePath);
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));
-            context.setReturnValues();
         } catch (IOException ex) {
-            context.setReturnValues(SystemUtils.getBallerinaError("OPERATION_FAILED", ex));
+            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
         }
+        return null;
     }
 
     static class RecursiveFileCopyVisitor extends SimpleFileVisitor<Path> {

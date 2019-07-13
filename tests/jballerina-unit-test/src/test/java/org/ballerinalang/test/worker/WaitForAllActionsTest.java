@@ -35,6 +35,7 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class WaitForAllActionsTest {
     private CompileResult result;
 

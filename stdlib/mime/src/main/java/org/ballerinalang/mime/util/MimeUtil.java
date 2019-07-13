@@ -21,7 +21,6 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -37,7 +36,6 @@ import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStreamingJSON;
@@ -76,8 +74,6 @@ import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
 import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_MESSAGE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
@@ -91,6 +87,7 @@ import static org.ballerinalang.mime.util.MimeConstants.SIZE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_ATTACHMENT;
 import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
+import static org.ballerinalang.stdlib.io.utils.Utils.populateMimeErrorRecord;
 
 /**
  * Mime utility functions are included in here.
@@ -702,42 +699,13 @@ public class MimeUtil {
     /**
      * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
      *
-     * @param context Represent ballerina context
-     * @param errMsg  Actual error message
-     * @return Ballerina error record
-     */
-    public static BError createError(Context context, String errMsg) {
-        return createError(context, MIME_ERROR_CODE, errMsg);
-    }
-
-    /**
-     * Create mime specific error record.
      *
-     * @param context Represent ballerina context
-     * @param reason  Error code in string form
-     * @param errMsg  Actual error message
-     * @return Ballerina error record
-     */
-    public static BError createError(Context context, String reason, String errMsg) {
-        BMap<String, BValue> mimeErrorRecord = createMimeErrorRecord(context);
-        mimeErrorRecord.put(MIME_ERROR_MESSAGE, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, org.ballerinalang.model.types.BTypes.typeError, reason,
-                                         mimeErrorRecord);
-    }
-
-    private static BMap<String, BValue> createMimeErrorRecord(Context context) {
-        return BLangConnectorSPIUtil.createBStruct(context, MimeConstants.PROTOCOL_PACKAGE_MIME,
-                                                   MimeConstants.MIME_ERROR_RECORD);
-    }
-
-    /**
-     * Create mime specific error record with '{ballerina/mime}MIMEError' as error code.
-     *
+     * @param reason Error reason
      * @param errMsg  Actual error message
      * @return Ballerina error value
      */
-    public static ErrorValue createError(String errMsg) {
-        return BallerinaErrors.createError(MIME_ERROR_CODE, errMsg);
+    public static ErrorValue createError(String reason, String errMsg) {
+        return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
     }
 
     public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {

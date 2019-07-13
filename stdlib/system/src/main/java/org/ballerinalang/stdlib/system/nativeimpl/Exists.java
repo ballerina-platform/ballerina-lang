@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 
@@ -42,8 +42,9 @@ public class Exists extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String inputPath = context.getStringArgument(0);
-        boolean exists = Files.exists(Paths.get(inputPath));
-        context.setReturnValues(new BBoolean(exists));
+    }
+
+    public static boolean exists(Strand strand, String path) {
+        return Files.exists(Paths.get(path));
     }
 }

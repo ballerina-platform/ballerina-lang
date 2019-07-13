@@ -37,6 +37,7 @@ class RenderDiagramAfterLSInit extends React.Component<
     return (
       <EditableDiagram
         docUri={FILE_URI}
+        fitToWidthOrHeight
         langClient={client}
         zoom={1}
         mode={DiagramMode.DEFAULT}

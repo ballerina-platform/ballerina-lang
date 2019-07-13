@@ -50,8 +50,8 @@ function testFieldBasedAccessWithNamespaces() returns [xml, xml, xml, xml] {
 
     xml x4 = x1[ns0:fname];
     xml x5 = x1["{http://test.com}fname"];
-    xml x6 = x1.^"ns0:fname";
-    xml x7 = x1.^"{http://test.com}fname";
+    xml x6 = x1.'ns0\:fname;
+    xml x7 = x1.'\{http\:\/\/test\.com\}fname;
 
     return [x4, x5, x6, x7];
 }

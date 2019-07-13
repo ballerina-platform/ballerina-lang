@@ -21,7 +21,7 @@ import ballerina/log;
 # + session - Session of the topic publisher
 public type TopicPublisher client object {
 
-    public Session? session;
+    public Session session;
 
     # Initialize the TopicPublisher endpoint
     #
@@ -46,7 +46,7 @@ public type TopicPublisher client object {
         }
     }
 
-    public function initTopicPublisher(Session? session, string|Destination dest) = external;
+    public function initTopicPublisher(Session session, string|Destination dest) = external;
 
     # Sends a message to the JMS provider
     #

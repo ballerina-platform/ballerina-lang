@@ -47,11 +47,11 @@ public type ReadableTextRecordChannel object {
 
     # Get next record from the input/output resource.
     #
-    # + return - Set of fields included in the record or an error
-    public function getNext() returns @tainted string[]|error = external;
+    # + return - Set of fields included in the record or `IoError` if any error occurred
+    public function getNext() returns @tainted string[]|IoError = external;
 
     # Closes a given record channel.
     #
-    # + return - An error if the record channel could not be closed properly
-    public function close() returns error? = external;
+    # + return - An `IoError` if the record channel could not be closed properly
+    public function close() returns IoError? = external;
 };

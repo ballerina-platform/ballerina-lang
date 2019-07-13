@@ -183,7 +183,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
             }
         }
     ];
-    WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(oasEditorPanel, langClient, remoteMethods);
 
     oasEditorPanel.iconPath = {
 		light: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design.svg')),

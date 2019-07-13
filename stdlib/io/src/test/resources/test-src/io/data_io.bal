@@ -16,14 +16,14 @@
 
 import ballerina/io;
 
-function testWriteFixedSignedInt(int value, string path, io:ByteOrder byteOrder) {
-    io:WritableByteChannel ch = io:openWritableFile(path);
+function testWriteFixedSignedInt(int value, string path, io:ByteOrder byteOrder) returns io:IoError? {
+    io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = dataChannel.writeInt64(value);
     var closeResult = dataChannel.close();
 }
 
-function testReadFixedSignedInt(string path, io:ByteOrder byteOrder) returns int | error {
+function testReadFixedSignedInt(string path, io:ByteOrder byteOrder) returns @tainted int|error {
     var ch = io:openReadableFile(path);
     if (ch is io:ReadableByteChannel) {
         io:ReadableDataChannel dataChannel = new(ch, bOrder = byteOrder);
@@ -35,14 +35,14 @@ function testReadFixedSignedInt(string path, io:ByteOrder byteOrder) returns int
     }
 }
 
-function testWriteVarInt(int value, string path, io:ByteOrder byteOrder) {
-    io:WritableByteChannel ch = io:openWritableFile(path);
+function testWriteVarInt(int value, string path, io:ByteOrder byteOrder) returns io:IoError? {
+    io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = dataChannel.writeVarInt(value);
     var closeResult = dataChannel.close();
 }
 
-function testReadVarInt(string path, io:ByteOrder byteOrder) returns int | error {
+function testReadVarInt(string path, io:ByteOrder byteOrder) returns @tainted int|io:IoError {
     var ch = io:openReadableFile(path);
     if (ch is io:ReadableByteChannel) {
         io:ReadableDataChannel dataChannel = new(ch, bOrder = byteOrder);
@@ -54,14 +54,14 @@ function testReadVarInt(string path, io:ByteOrder byteOrder) returns int | error
     }
 }
 
-function testWriteFixedFloat(float value, string path, io:ByteOrder byteOrder) {
-    io:WritableByteChannel ch = io:openWritableFile(path);
+function testWriteFixedFloat(float value, string path, io:ByteOrder byteOrder) returns io:IoError? {
+    io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = dataChannel.writeFloat64(value);
     var closeResult = dataChannel.close();
 }
 
-function testReadFixedFloat(string path, io:ByteOrder byteOrder) returns float | error {
+function testReadFixedFloat(string path, io:ByteOrder byteOrder) returns @tainted float|io:IoError {
     var ch = io:openReadableFile(path);
     if (ch is io:ReadableByteChannel) {
         io:ReadableDataChannel dataChannel = new(ch, bOrder = byteOrder);
@@ -73,14 +73,14 @@ function testReadFixedFloat(string path, io:ByteOrder byteOrder) returns float |
     }
 }
 
-function testWriteBool(boolean value, string path, io:ByteOrder byteOrder) {
-    io:WritableByteChannel ch = io:openWritableFile(path);
+function testWriteBool(boolean value, string path, io:ByteOrder byteOrder) returns io:IoError? {
+    io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = dataChannel.writeBool(value);
     var closeResult = dataChannel.close();
 }
 
-function testReadBool(string path, io:ByteOrder byteOrder) returns boolean | error {
+function testReadBool(string path, io:ByteOrder byteOrder) returns @tainted boolean|io:IoError {
     var ch = io:openReadableFile(path);
     if (ch is io:ReadableByteChannel) {
         io:ReadableDataChannel dataChannel = new(ch, bOrder = byteOrder);
@@ -92,15 +92,15 @@ function testReadBool(string path, io:ByteOrder byteOrder) returns boolean | err
     }
 }
 
-function testWriteString(string path, string content, string encoding, io:ByteOrder byteOrder) returns error? {
-    io:WritableByteChannel ch = io:openWritableFile(path);
+function testWriteString(string path, string content, string encoding, io:ByteOrder byteOrder) returns @tainted io:IoError? {
+    io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, bOrder = byteOrder);
     var result = check dataChannel.writeString(content, encoding);
     var closeResult = dataChannel.close();
     return result;
 }
 
-function testReadString(string path, int nBytes, string encoding, io:ByteOrder byteOrder) returns string | error {
+function testReadString(string path, int nBytes, string encoding, io:ByteOrder byteOrder) returns @tainted string|io:IoError {
     var ch = io:openReadableFile(path);
     if (ch is io:ReadableByteChannel) {
         io:ReadableDataChannel dataChannel = new(ch, bOrder = byteOrder);

@@ -1,2 +1,0 @@
-// In this example, a message is sent to an existing queue
-// using the Ballerina RabbitMQ channel.

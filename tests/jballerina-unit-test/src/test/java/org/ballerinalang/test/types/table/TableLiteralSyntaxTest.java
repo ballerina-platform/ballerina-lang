@@ -172,6 +172,46 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(retDecimalArrValue.getRefValue(1).value(), new BigDecimal("22.22"));
     }
 
+    @Test()
+    public void testSelect() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelect");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                        "\"salary\":300.0}]");
+    }
+
+    @Test()
+    public void testSelectCompatibleLambdaInput() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaInput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                        "\"salary\":300.0}]");
+    }
+
+    @Test()
+    public void testSelectCompatibleLambdaOutput() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                        "\"salary\":300.0}]");
+    }
+
+    @Test()
+    public void testSelectCompatibleLambdaInputOutput() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectCompatibleLambdaInputOutput");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(),
+                "[{\"id\":1, \"salary\":100.0}, {\"id\":2, \"salary\":200.0}, {\"id\":3, " +
+                        "\"salary\":300.0}]");
+    }
+
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 18);

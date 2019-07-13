@@ -7,6 +7,7 @@ import { ViewState } from "../../view-model";
 import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { Condition } from "./condition";
+import { HiddenBlock } from "./hidden-block";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -16,6 +17,11 @@ export const If: React.StatelessComponent<{
     model
 }) => {
         const viewState: ViewState = model.viewState;
+
+        if (viewState.hiddenBlock) {
+            return <HiddenBlock model={ model }/>;
+        }
+
         const children = [];
 
         const conditionProps = {

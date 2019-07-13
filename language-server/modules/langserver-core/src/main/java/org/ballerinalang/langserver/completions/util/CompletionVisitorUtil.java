@@ -282,4 +282,23 @@ public class CompletionVisitorUtil {
         
         return false;
     }
+
+    /**
+     * Check whether the cursor is before the invocation node.
+     * Here we consider the completion for complete source as well
+     * 
+     * @param node BLangNode to process
+     * @param context Language server Context
+     * @return {@link Boolean} whether the cursor before node
+     */
+    public static boolean cursorBeforeInvocationNode(BLangNode node, LSContext context) {
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = position.getLine();
+        int cursorCol = position.getCharacter();
+        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
+        int endLine = nodePos.eLine;
+        int endCol = nodePos.eCol;
+        
+        return cursorLine < endLine || (cursorLine == endLine && cursorCol < endCol);
+    }
 }
