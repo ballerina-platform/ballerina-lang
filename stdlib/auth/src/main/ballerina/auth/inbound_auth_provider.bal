@@ -21,6 +21,6 @@ public type InboundAuthProvider abstract object {
     # Authenticate with credential value passed.
     #
     # + credential - Credential value
-    # + return - True if authentication is a success, else false or `error` occurred
-    public function authenticate(string credential) returns boolean|error;
+    # + return - True if authentication is a success, else false or `AuthError` if any error occurred
+    public function authenticate(string credential) returns boolean|AuthError;
 };

@@ -64,7 +64,6 @@ dependencies {
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
-    implementation project(':ballerina-jvm')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 

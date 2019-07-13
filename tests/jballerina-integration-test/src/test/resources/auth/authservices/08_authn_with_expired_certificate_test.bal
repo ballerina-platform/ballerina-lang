@@ -15,7 +15,9 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/http;
+import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
