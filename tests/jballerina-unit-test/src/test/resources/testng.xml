@@ -32,6 +32,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
             </run>
         </groups>
         <packages>
@@ -116,7 +117,7 @@
             <package name="org.ballerinalang.test.annotations"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <package name="org.ballerinalang.test.statements.transaction.*"/>
+            <!-- <package name="org.ballerinalang.test.statements.transaction.*"/> -->
         </packages>
 
         <classes>
