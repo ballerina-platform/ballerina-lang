@@ -2091,9 +2091,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
-        BType actualType = symTable.typeDesc;
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
-        resultType = types.checkType(accessExpr, actualType, expType);
+        resultType = types.checkType(accessExpr, accessExpr.resolvedType, expType);
     }
 
     public void visit(BLangUnaryExpr unaryExpr) {
