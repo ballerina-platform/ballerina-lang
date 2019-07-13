@@ -230,7 +230,7 @@ public class BByteOperationsTest {
         Assert.assertEquals(value.intValue(), 19, "Invalid int value returned.");
     }
 
-    @Test(description = "Test complex expression")
+    @Test(description = "Test complex expression", groups = "brokenOnBootstrappedJVMCodegen")
     public void testByteComplexExpression() {
         BValue[] returns = BRunUtil.invoke(result, "testByteComplexExpression");
         Assert.assertEquals(returns.length, 1);

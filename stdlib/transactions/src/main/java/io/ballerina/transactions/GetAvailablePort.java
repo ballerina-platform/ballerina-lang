@@ -18,10 +18,8 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,13 +36,12 @@ import java.net.ServerSocket;
         functionName = "getAvailablePort",
         returnType = {@ReturnType(type = TypeKind.INT)}
 )
-public class GetAvailablePort extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        ctx.setReturnValues(new BInteger(findFreePort()));
+public class GetAvailablePort {
+    public static long getAvailablePort(Strand strand) {
+        return findFreePort();
     }
 
-    private int findFreePort() {
+    private static int findFreePort() {
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(0);

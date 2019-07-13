@@ -25,7 +25,7 @@ type Employee record {
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
-const string IO_ERROR_CODE = "{ballerina/io}IOError";
+const string IO_ERROR_CODE = "{ballerina/io}IoError";
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);

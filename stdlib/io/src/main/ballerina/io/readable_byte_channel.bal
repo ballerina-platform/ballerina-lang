@@ -26,21 +26,21 @@ public type ReadableByteChannel object {
     # time.
     #
     # + nBytes - Positive integer. Represents the number of bytes which should be read
-    # + return - Content, the number of bytes read or `IOError` if any error occurred
-    public function read(@untainted int nBytes) returns @tainted [byte[], int]|IOError = external;
+    # + return - Content, the number of bytes read or `IoError` if any error occurred
+    public function read(@untainted int nBytes) returns @tainted [byte[], int]|IoError = external;
 
     # Encodes a given ReadableByteChannel with Base64 encoding scheme.
     #
-    # + return - Return an encoded ReadableByteChannel or `IOError` if any error occurred
-    public function base64Encode() returns ReadableByteChannel|IOError = external;
+    # + return - Return an encoded ReadableByteChannel or `IoError` if any error occurred
+    public function base64Encode() returns ReadableByteChannel|IoError = external;
 
     # Decodes a given ReadableByteChannel with Base64 encoding scheme.
     #
-    # + return - Return a decoded ReadableByteChannel or `IOError` if any error occurred
-    public function base64Decode() returns ReadableByteChannel|IOError = external;
+    # + return - Return a decoded ReadableByteChannel or `IoError` if any error occurred
+    public function base64Decode() returns ReadableByteChannel|IoError = external;
 
     # Closes a given ReadableByteChannel.
     #
     # + return - Will return () if there's no error
-    public function close() returns IOError? = external;
+    public function close() returns IoError? = external;
 };
