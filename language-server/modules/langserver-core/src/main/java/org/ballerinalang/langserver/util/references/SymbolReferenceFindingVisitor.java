@@ -256,10 +256,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-//        blockNode.getStatements().forEach(this::acceptNode);
-        blockNode.getStatements().forEach(bLangStatement -> {
-            this.acceptNode(bLangStatement);
-        });
+        blockNode.getStatements().forEach(this::acceptNode);
     }
 
     @Override
