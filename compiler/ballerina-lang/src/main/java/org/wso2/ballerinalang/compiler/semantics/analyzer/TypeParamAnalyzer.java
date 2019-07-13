@@ -556,9 +556,13 @@ public class TypeParamAnalyzer {
         }
         BType reasonType = getMatchingBoundType(expType.reasonType, env, resolvedTypes);
         BType detailType = getMatchingBoundType(expType.detailType, env, resolvedTypes);
-        BErrorTypeSymbol errorTypeSymbol = (BErrorTypeSymbol) symTable.errorType.tsymbol;
-        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
-        errorTypeSymbol.type = errorType;
+        BErrorTypeSymbol typeSymbol = new BErrorTypeSymbol(SymTag.ERROR,
+                symTable.errorType.tsymbol.flags,
+                symTable.errorType.tsymbol.name,
+                symTable.errorType.tsymbol.pkgID,
+                null, null);
+        BErrorType errorType = new BErrorType(typeSymbol, reasonType, detailType);
+        typeSymbol.type = errorType;
         return errorType;
     }
 
