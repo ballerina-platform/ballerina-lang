@@ -172,7 +172,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
     public void testINParametersWithDirectValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -185,7 +185,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
     }
 
-    @Test(groups = CONNECTOR_TEST)
+    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
     public void testINParametersWithDirectVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -436,28 +436,6 @@ public class SQLActionsTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
-    }
-
-    @Test(groups = { CONNECTOR_TEST, "broken" },
-          description = "Test iterating data of a table loaded to memory multiple times")
-    public void testSelectLoadToMemory() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "([{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, "
-                + "{FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}])");
-    }
-
-    @Test(groups = { CONNECTOR_TEST, "broken" },
-          description = "Test iterating data of a table loaded to memory after closing")
-    public void testLoadToMemorySelectAfterTableClose() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "("
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "[{FIRSTNAME:\"Peter\", LASTNAME:\"Stuart\"}, {FIRSTNAME:\"John\", LASTNAME:\"Watson\"}], "
-                + "Trying to perform hasNext operation over a closed table {})");
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test stopping a database client")

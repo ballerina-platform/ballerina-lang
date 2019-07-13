@@ -59,7 +59,6 @@ dependencies {
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-utils')
-    testCompile project(':ballerina-jvm')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 

@@ -46,4 +46,4 @@ public type SubscriberServiceConfiguration record {|
 |};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.
-public annotation<service> SubscriberServiceConfig SubscriberServiceConfiguration;
+public annotation SubscriberServiceConfiguration SubscriberServiceConfig on service;
