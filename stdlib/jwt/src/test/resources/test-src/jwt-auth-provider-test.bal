@@ -31,7 +31,7 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
 }
 
 function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath)
-                                                  returns @tainted (boolean|auth:AuthError) {
+                                                  returns @tainted (boolean|auth:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",

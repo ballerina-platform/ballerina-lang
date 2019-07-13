@@ -47,23 +47,23 @@ public type OutboundOAuth2Provider object {
 
     # Generate token for OAuth2 authentication.
     #
-    # + return - Generated token or `auth:AuthError` if an error occurred
-    public function generateToken() returns @tainted (string|auth:AuthError) {
+    # + return - Generated token or `auth:Error` if an error occurred
+    public function generateToken() returns @tainted (string|auth:Error) {
         var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, false);
         if (authToken is string) {
             return authToken;
         } else {
             // TODO: Remove the below casting when new lang syntax are merged.
             error e = authToken;
-            return auth:prepareAuthError("Failed to generate OAuth2 token.", err = e);
+            return auth:prepareError("Failed to generate OAuth2 token.", err = e);
         }
     }
 
     # Inspect the incoming data and generate the token for OAuth2 authentication.
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `auth:AuthError` occurred when generating token or `()` if nothing to be returned
-    public function inspect(map<anydata> data) returns @tainted (string|auth:AuthError?) {
+    # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
         if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
             var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
             if (authToken is string) {
@@ -71,7 +71,7 @@ public type OutboundOAuth2Provider object {
             } else {
                 // TODO: Remove the below casting when new lang syntax are merged.
                 error e = authToken;
-                return auth:prepareAuthError("Failed to generate OAuth2 token at inspection.", err = e);
+                return auth:prepareError("Failed to generate OAuth2 token at inspection.", err = e);
             }
         }
         return ();

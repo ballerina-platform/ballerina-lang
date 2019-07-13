@@ -37,8 +37,8 @@ public type OutboundJwtAuthProvider object {
 
     # Generate token for JWT authentication.
     #
-    # + return - Generated token or `auth:AuthError` if an error occurred during the JWT issuing or validation
-    public function generateToken() returns string|auth:AuthError {
+    # + return - Generated token or `auth:Error` if an error occurred during the JWT issuing or validation
+    public function generateToken() returns string|auth:Error {
         string authToken = EMPTY_STRING;
         var jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is InferredJwtIssuerConfig) {
@@ -47,7 +47,7 @@ public type OutboundJwtAuthProvider object {
             authToken = runtime:getInvocationContext().authenticationContext.authToken;
         }
         if (authToken == EMPTY_STRING) {
-            return auth:prepareAuthError("JWT was not used during inbound authentication.
+            return auth:prepareError("JWT was not used during inbound authentication.
                                     Provide OutboundJwtAuthProviderConfig to issue new token.");
         }
         return authToken;
@@ -56,8 +56,8 @@ public type OutboundJwtAuthProvider object {
     # Inspect the incoming data and generate the token for JWT authentication.
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `auth:AuthError` occurred when generating token or `()` if nothing to be returned
-    public function inspect(map<anydata> data) returns string|auth:AuthError? {
+    # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
+    public function inspect(map<anydata> data) returns string|auth:Error? {
         return ();
     }
 };
