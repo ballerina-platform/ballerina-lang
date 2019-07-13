@@ -9,7 +9,12 @@ export const visitor: Visitor = {
         let hiddenSet = false;
         let hiddenSetNodes: ASTNode[] = [];
         let resetBlock = false;
+
         node.statements.forEach((stmt) => {
+            if (ASTUtil.isWorker(stmt) || ASTUtil.isWorkerFuture(stmt)) {
+                return;
+            }
+
             const statementViewState = stmt.viewState as StmntViewState;
 
             if (statementViewState.expandContext && statementViewState.expandContext.expandedSubTree
