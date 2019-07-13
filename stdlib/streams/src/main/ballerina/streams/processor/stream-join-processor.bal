@@ -89,17 +89,14 @@ public type StreamJoinProcessor object {
                         // triggered from LHS
                         Window? rWindow = self.rhsWindow;
                         if (rWindow is Window) {
-                            var evtArr = rWindow.getCandidateEvents(event, self.onConditionFunc);
-                            candidateEvents = evtArr;
+                            candidateEvents = rWindow.getCandidateEvents(event, self.onConditionFunc);
                             // with left/full joins, we need to emit an event even there's no candidate events in rhs.
                             if (candidateEvents.length() == 0 && (self.joinType == "LEFTOUTERJOIN"
                                     || self.joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = [event, ()];
                             }
-                        } else {
-                            if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = [event, ()];
-                            }
+                        } else if (self.joinType == "LEFTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                            candidateEvents[0] = [event, ()];
                         }
                         foreach var evtTuple in candidateEvents {
                             joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1]);
@@ -116,10 +113,8 @@ public type StreamJoinProcessor object {
                                     || self.joinType == "FULLOUTERJOIN")) {
                                 candidateEvents[0] = [(), event];
                             }
-                        } else {
-                            if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
-                                candidateEvents[0] = [(), event];
-                            }
+                        } else if (self.joinType == "RIGHTOUTERJOIN" || self.joinType == "FULLOUTERJOIN") {
+                            candidateEvents[0] = [(), event];
                         }
                         foreach var evtTuple in candidateEvents {
                             joinedEvents[i] = self.joinEvents(evtTuple[0], evtTuple[1], lhsTriggered = false);
