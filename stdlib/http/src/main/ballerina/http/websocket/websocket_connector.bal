@@ -25,7 +25,8 @@ type WebSocketConnector object {
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame) returns error? {
+    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame)
+    returns WebSocketError? {
         string text = "";
         if (data is byte) {
             text = string.convert(int.convert(data));
@@ -47,26 +48,26 @@ type WebSocketConnector object {
         return self.externPushText(text, finalFrame);
     }
 
-    function externPushText(string text, boolean finalFrame) returns error? = external;
+    function externPushText(string text, boolean finalFrame) returns WebSocketError? = external;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public function pushBinary(byte[] data, boolean finalFrame) returns error? = external;
+    public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? = external;
 
     # Ping the connection.
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public function ping(byte[] data) returns error? = external;
+    public function ping(byte[] data) returns WebSocketError? = external;
 
     # Send pong message to the connection.
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public function pong(byte[] data) returns error? = external;
+    public function pong(byte[] data) returns WebSocketError? = external;
 
     # Close the connection.
     #
@@ -78,11 +79,11 @@ type WebSocketConnector object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
-    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns error? {
+    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns WebSocketError? {
         if (statusCode is int) {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
-                error err = error("Failed to execute close. Invalid status code: " + statusCode);
+                WebSocketError err = error(message = "Failed to execute close. Invalid status code: " + statusCode);
                 return err;
             }
             return self.externClose(statusCode, reason ?: "", timeoutInSecs);
@@ -91,12 +92,12 @@ type WebSocketConnector object {
         }
     }
 
-    function externClose(int statusCode, string reason, int timeoutInSecs) returns error? = external;
+    function externClose(int statusCode, string reason, int timeoutInSecs) returns WebSocketError? = external;
 
     # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
     # WebSocketListener can be called only in upgrade or onOpen resources.
     #
     # + return - `error` if an error occurs when sending
-    public function ready() returns error? = external;
+    public function ready() returns WebSocketError? = external;
 
 };

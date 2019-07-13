@@ -20,7 +20,6 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -33,6 +32,7 @@ import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
@@ -64,11 +64,11 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
                 .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
         if (webSocketHandshaker == null) {
-            throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
+            throw new WebSocketException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
         }
         if (connectionManager == null) {
-            throw new BallerinaConnectorException("Cannot accept a WebSocket upgrade without WebSocket " +
-                                                          "connection manager");
+            throw new WebSocketException("Cannot accept a WebSocket upgrade without WebSocket " +
+                    "connection manager");
         }
 
         WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
