@@ -85,6 +85,7 @@ public class Names {
     public static final Name DETAIL_CAUSE = new Name("cause");
 
     public static final Name INT_RANGE = new Name("IntRange");
+    public static final Name CREATE_INT_RANGE = new Name("createIntRange");
 
     public CompilerContext context;
 

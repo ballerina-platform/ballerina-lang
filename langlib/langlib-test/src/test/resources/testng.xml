@@ -54,7 +54,6 @@
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachComplexTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTypedBindingPatternsTests"/>
-            <class name="org.ballerinalang.langlib.test.LangLibTest"/>
             <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>-->
             <!--<class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>-->
         </classes>

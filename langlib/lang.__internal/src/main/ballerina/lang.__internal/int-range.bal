@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Integer range expression is represented using `IntRange` object.
+#
+# + iStart - start expression of range expression
+# + iEnd - second expression on range expression
+# + iCurrent - current cursor
 public type IntRange object {
     private int iStart;
     private int iEnd;
@@ -32,16 +37,22 @@ public type IntRange object {
     public function next() returns record {|
         int value;
     |}? {
-        int currentValue = self.iCurrent;
-        self.iCurrent += 1;
+
         if (self.hasNext()) {
-            return {value : self.iCurrent};
+            record {|int value;|} nextVal = {value : self.iCurrent};
+            self.iCurrent += 1;
+            return nextVal;
         }
 
         return ();
     }
 };
 
+# The `createIntRange` function creates a `IntRange` object and returns it. This function is used to replace the binary
+# integer range expression in Desugar phase.
+# + s - The lower bound of the integer range inclusive
+# + e - The upper bound if the integer range inclusive
+# + return - `IntRange` object
 function createIntRange(int s, int e) returns
         abstract object {public function next() returns record {|int value;|}?;} {
     IntRange intRange = new(s, e);
