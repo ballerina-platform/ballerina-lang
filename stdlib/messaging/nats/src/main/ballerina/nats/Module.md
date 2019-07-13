@@ -91,7 +91,7 @@ service demo on subscription {
         io:println("Message content : " + data));
     }
 
-    resource function onError(nats:Message msg, nats:NatsError err) {
+    resource function onError(nats:Message msg, nats:Error err) {
         io:println(err);
     }
 
@@ -116,7 +116,7 @@ service demo on subscription {
         io:println("Message content : " + data));
     }
 
-    resource function onError(nats:StreamingMessage msg, nats:NatsError err) {
+    resource function onError(nats:StreamingMessage msg, nats:Error err) {
         io:println(err);
     }
 

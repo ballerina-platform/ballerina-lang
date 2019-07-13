@@ -69,12 +69,12 @@ public class Constants {
     /**
      * Error code for i/o.
      */
-    public static final String NATS_ERROR_CODE = "{ballerina/nats}NatsError";
+    public static final String NATS_ERROR_CODE = "{ballerina/nats}Error";
 
     /**
      * Represents the NATS error detail record.
      */
-    public static final String NATS_ERROR_DETAIL_RECORD = "NatsErrorData";
+    public static final String NATS_ERROR_DETAIL_RECORD = "Detail";
 
     /**
      * Represents the object which holds the connection.

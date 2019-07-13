@@ -19,7 +19,7 @@ public function main() {
         if (message != ESCAPE) {
             // Produces a message to the specified subject.
             var result = publisher->publish(subject, message);
-            if (result is nats:NatsError) {
+            if (result is nats:Error) {
                 error e = result;
                 log:printError("Error occurred while closing the connection", err = e);
             } else {

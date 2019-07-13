@@ -24,7 +24,7 @@ service firstQueueGroupMember on lis1 {
        io:println("Message Received to first queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -43,7 +43,7 @@ service secondQueueGroupMember on lis2 {
        io:println("Message Received to second queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }
@@ -62,7 +62,7 @@ service thridQueueGroupMember on lis3 {
        io:println("Message Received to third queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }

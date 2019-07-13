@@ -25,7 +25,7 @@ service demoService on lis {
         }
     }
 
-    resource function onError(nats:StreamingMessage message, nats:NatsError errorVal) {
+    resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
         log:printError("Error occurred: ", err = e);
     }

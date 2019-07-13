@@ -29,19 +29,19 @@ public type StreamingProducer client object {
     # + data - data to publish
     # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
     #           message gets successfully published and acknowedged by the NATS server OR
-    #           `nats/NatsError` with `nuid` and `message` fields in case an error occurs in publishing, the timeout
+    #           `nats/Error` with `nuid` and `message` fields in case an error occurs in publishing, the timeout
     #           elapses while waiting for the acknowledgement OR
-    #           `nats/NatsError` only with the `message` field in case an error occurrs even before publishing
+    #           `nats/Error` only with the `message` field in case an error occurrs even before publishing
     #           is completed
-    public remote function publish(@untainted string subject, @untainted ContentType data) returns string | NatsError {
+    public remote function publish(@untainted string subject, @untainted ContentType data) returns string | Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
-            return prepareNatsError("Error in data conversion", err = converted);
+            return prepareError("Error in data conversion", err = converted);
         } else {
             return self.externPublish(subject, converted);
         }
     }
 
-    function externPublish(string subject, string | byte[] data) returns string | NatsError = external;
+    function externPublish(string subject, string | byte[] data) returns string | Error = external;
 
 };
