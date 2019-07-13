@@ -101,5 +101,5 @@ function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns
         return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
     }
     //TODO: Define a proper error
-    return prepareError("Principal is not found");
+    return prepareJwtError("Principal is not found");
 }
