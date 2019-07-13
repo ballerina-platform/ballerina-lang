@@ -50,7 +50,7 @@ public type Select object {
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent>evt;
                 if (event.eventType == RESET) {
-                    foreach var [k, v] in self.aggregatorsCloneMap {
+                    foreach var [k, v] in self.aggregatorsCloneMap.entries() {
                         boolean stateRemoved = removeState(k);
                     }
                     self.aggregatorsCloneMap.removeAll();
