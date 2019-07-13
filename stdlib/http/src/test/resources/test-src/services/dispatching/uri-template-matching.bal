@@ -2,6 +2,7 @@ import ballerina/http;
 import ballerina/'lang\.int as langint;
 import ballerina/'lang\.float as langfloat;
 import ballerina/io;
+import ballerina/internal;
 
 listener http:MockListener testEP = new(9090);
 
@@ -60,9 +61,9 @@ service echo11 on testEP {
         path:"/echo3/{abc}"
     }
     resource function echo9(http:Caller caller, http:Request req, string abc) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
-        json responseJson = {"first":abc, "second":(foo is string ? foo : "go"), "echo9":"echo9"};
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
+        json responseJson = {"first":abc, "second":(foo is string[] ? foo[0] : "go"), "echo9":"echo9"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -74,9 +75,9 @@ service echo11 on testEP {
         path:"/"
     }
     resource function echo10(http:Caller caller, http:Request req) {
-        map<string> params = req.getQueryParams();
-        string? foo = params["foo"];
-        json responseJson = {"third":(foo is string ? foo : "go"), "echo10":"echo10"};
+        map<string[]> params = req.getQueryParams();
+        string[]? foo = params["foo"];
+        json responseJson = {"third":(foo is string[] ? foo[0] : "go"), "echo10":"echo10"};
 
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
@@ -124,7 +125,7 @@ service echo11 on testEP {
     }
     resource function paramNeg(http:Caller caller, http:Request req) {
         map<string[]> params = req.getQueryParams();
-        string[]? bar = params["foo"] ?: "";
+        string[]? bar = params["foo"] ?: [""];
         json responseJson = {"echo125":(bar is string[] ? bar[0] : "")};
 
         http:Response res = new;
@@ -171,7 +172,8 @@ service echo11 on testEP {
     resource function echo15(http:Caller caller, http:Request req) {
         map<string[]> params = req.getQueryParams();
         string[]? barStr = params["foo"];
-        boolean bar = boolean.convert(barStr);
+        string val = barStr is string[] ? barStr[0] : "";
+        boolean bar = internal:toBoolean(val);
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
@@ -185,8 +187,14 @@ service echo11 on testEP {
     }
     resource function sameName(http:Caller caller, http:Request req) {
         map<string[]> params = req.getQueryParams();
-        json responseJson = {"name1":params["foo"][0] , "name2":params["foo"][1], "name3":params["bar"][0],
-                                "name4":params["foo"][2]};
+        string[]? foo = params["foo"];
+        string[]? bar = params["bar"];
+        string name1 = foo is string[] ? foo[0] : "";
+        string name2 = foo is string[] ? foo[1] : "";
+        string name3 = bar is string[] ? bar[0] : "";
+        string name4 = foo is string[] ? foo[2] : "";
+        json responseJson = {"name1":name1 , "name2":name2, "name3":(name3 != "" ? name3 : ()),
+                                "name4":name4};
         http:Response res = new;
         res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
@@ -200,8 +208,12 @@ service echo11 on testEP {
         map<string[]> paramMap = req.getQueryParams();
         string[] valueArray = req.getQueryParamValues(key) ?: ["array not found"];
         string value = req.getQueryParamValue(key) ?: "value not found";
-        json responseJson = {"map":paramMap[key][0] , "array":valueArray[0], "value":value,
-                                "map_":paramMap["foo"][0], "array_":valueArray[1] };
+        string[]? paramVals = paramMap[key];
+        string mapVal = paramVals is string[] ? paramVals[0] : "";
+        string[]? paramVals2 = paramMap["foo"];
+        string mapVal2 = paramVals2 is string[] ? paramVals2[0] : "";
+        json responseJson = {"map":mapVal , "array":valueArray[0], "value":value,
+                                "map_":mapVal2, "array_":valueArray[1] };
         //http:Response res = new;
         //res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(responseJson);

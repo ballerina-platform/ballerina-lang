@@ -39,7 +39,7 @@ auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
 
 http:BasicAuthHandler outboundBasicAuthHandler = new(OutBoundbasicAuthProvider);
 
-websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, config = {
+websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl, {
     auth: { authHandler: outboundBasicAuthHandler }
 });
 
@@ -53,7 +53,7 @@ service publisher on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err);
         }
     }
 
@@ -70,13 +70,13 @@ service publisher on publisherServiceEP {
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
         var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            log:printError("Error publishing update directly", err = err);
+            log:printError("Error publishing update directly", err);
         }
 
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
     }
 }
@@ -91,7 +91,7 @@ service publisherTwo on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err);
         }
     }
 
@@ -107,13 +107,13 @@ service publisherTwo on publisherServiceEP {
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
         var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, <@untainted> <json> payload);
         if (err is error) {
-            log:printError("Error publishing update directly", err = err);
+            log:printError("Error publishing update directly", err);
         }
 
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
     }
 }
@@ -128,7 +128,7 @@ service publisherThree on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on discovery", err = err);
+            log:printError("Error responding on discovery", err);
         }
     }
 
@@ -143,13 +143,13 @@ service publisherThree on publisherServiceEP {
         checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
-            log:printError("Error publishing update remotely", err = err);
+            log:printError("Error publishing update remotely", err);
         }
 
         http:Response response = new;
         err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
     }
 }
@@ -171,15 +171,15 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     websub:WebSubHub internalHub = startWebSubHub();
     var err = internalHub.registerTopic(WEBSUB_PERSISTENCE_TOPIC_ONE);
     if (err is error) {
-        log:printError("Error registering topic", err = err);
+        log:printError("Error registering topic", err);
     }
     err = internalHub.registerTopic(WEBSUB_PERSISTENCE_TOPIC_TWO);
     if (err is error) {
-        log:printError("Error registering topic", err = err);
+        log:printError("Error registering topic", err);
     }
     err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
     if (err is error) {
-        log:printError("Error registering topic", err = err);
+        log:printError("Error registering topic", err);
     }
     return internalHub;
 }

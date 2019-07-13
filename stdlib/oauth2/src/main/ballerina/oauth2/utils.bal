@@ -25,7 +25,7 @@ const string WHITE_SPACE = " ";
 # + err - `error` instance
 # + return - Prepared `JwtError` instance
 function prepareOAuth2Error(string message, error? err = ()) returns OAuth2Error {
-    log:printError(message, err = err);
+    log:printError(message, err);
     OAuth2Error oauth2Error;
     if (err is error) {
         oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);

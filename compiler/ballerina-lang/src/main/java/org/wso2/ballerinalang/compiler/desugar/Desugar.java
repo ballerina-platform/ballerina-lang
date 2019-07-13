@@ -2143,20 +2143,25 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.RECORD:
-                blockNode = desugarForeachToWhile(foreach, collectionSymbol);
+                BLangSimpleVariableDef iteratorVarDef = getIteratorVariableDefinition(foreach, collectionSymbol);
+                blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
+                blockNode.stmts.add(0, dataVariableDefinition);
+                break;
+            case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
+                blockNode = desugarForeachToWhile(foreach, dataVariableDefinition);
                 break;
             default:
                 blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
+                blockNode.stmts.add(0, dataVariableDefinition);
                 break;
         }
 
-        blockNode.stmts.add(0, dataVariableDefinition);
         // Rewrite the block.
         rewrite(blockNode, this.env);
         result = blockNode;
     }
 
-    private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BVarSymbol collectionSymbol) {
+    private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BLangSimpleVariableDef varDef) {
 
         // We desugar the foreach statement to a while loop here.
         //
@@ -2182,13 +2187,12 @@ public class Desugar extends BLangNodeVisitor {
         //     ....
         // }
 
-        // Note - any $iterator$ = $data$.iterate(); -------------------------------------------------------------------
+        // Note - any $iterator$ = $data$.iterator();
+        // -------------------------------------------------------------------
 
         // Note - $data$.iterator();
-        BLangSimpleVariableDef iteratorVariableDefinition =
-                getIteratorVariableDefinition(foreach, collectionSymbol);
 
-        BVarSymbol iteratorSymbol = iteratorVariableDefinition.var.symbol;
+        BVarSymbol iteratorSymbol = varDef.var.symbol;
 
         // Create a new symbol for the $result$.
         BVarSymbol resultSymbol = new BVarSymbol(0, names.fromString("$result$"), this.env.scope.owner.pkgID,
@@ -2230,7 +2234,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
 
         // Add iterator variable to the block.
-        blockNode.addStatement(iteratorVariableDefinition);
+        blockNode.addStatement(varDef);
 
         // Add result variable to the block.
         blockNode.addStatement(resultVariableDefinition);
@@ -3144,8 +3148,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
-            binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
+        if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE || binaryExpr.opKind == OperatorKind.CLOSED_RANGE) {
+            if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
+                binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
+            }
+            result = rewriteExpr(replaceWithIntRange(binaryExpr.pos, binaryExpr.lhsExpr, binaryExpr.rhsExpr));
+            return;
         }
 
         if (binaryExpr.opKind == OperatorKind.AND || binaryExpr.opKind == OperatorKind.OR) {
@@ -3238,6 +3246,15 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
                                                     binaryExpr.rhsExpr.type);
         }
+    }
+
+    private BLangInvocation replaceWithIntRange(DiagnosticPos pos, BLangExpression lhsExpr, BLangExpression rhsExpr) {
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
+                .lookup(Names.CREATE_INT_RANGE).symbol;
+        BLangInvocation createIntRangeInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos, symbol,
+                new ArrayList<>(Lists.of(lhsExpr, rhsExpr)), symResolver);
+        createIntRangeInvocation.type = symTable.intRangeType;
+        return createIntRangeInvocation;
     }
 
     private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {

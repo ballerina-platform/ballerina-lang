@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -128,6 +129,7 @@ public class SymbolTable {
     public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
     public BFiniteType trueType;
+    public BObjectType intRangeType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -452,9 +454,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, decimalType, booleanType, InstructionCodes.DGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, floatType, booleanType, InstructionCodes.DGE);
 
-        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
-        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
-
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
 
@@ -580,7 +579,7 @@ public class SymbolTable {
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
     }
 
-    private void defineBinaryOperator(OperatorKind kind,
+    public void defineBinaryOperator(OperatorKind kind,
                                       BType lhsType,
                                       BType rhsType,
                                       BType retType,

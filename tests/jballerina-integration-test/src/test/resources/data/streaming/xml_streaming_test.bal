@@ -38,7 +38,7 @@ service dataService on dataServiceListener {
             if (xmlConversionRet is xml) {
                 var responseToCaller = caller->respond(untaint xmlConversionRet);
                 if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
+                    log:printError("Error sending response", responseToCaller);
                 }
             } else {
                 panic xmlConversionRet;

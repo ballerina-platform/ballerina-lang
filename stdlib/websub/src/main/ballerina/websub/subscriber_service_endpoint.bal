@@ -64,7 +64,7 @@ public type Listener object {
             };
             serviceConfig = httpServiceConfig;
         }
-        http:Listener httpEndpoint = new(port, config = serviceConfig);
+        http:Listener httpEndpoint = new(port, serviceConfig);
         self.serviceEndpoint = httpEndpoint;
 
         self.initWebSubSubscriberServiceEndpoint();
@@ -210,7 +210,7 @@ public type ExtensionConfig record {|
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
                                             returns @tainted [string, string]|error {
-    http:Client resourceEP = new http:Client(resourceUrl, config = subscriptionClientConfig);
+    http:Client resourceEP = new http:Client(resourceUrl, subscriptionClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", message = request);
     error websubError = error("Dummy");
@@ -238,7 +238,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 # + subscriptionClientConfig - The configuration for subscription client
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, config = subscriptionClientConfig);
+    Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
 
     string topic = <string>subscriptionDetails.topic;
     string callback = <string>subscriptionDetails.callback;

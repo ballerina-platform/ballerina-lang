@@ -257,7 +257,7 @@ public type Response object {
     #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload, contentType = contentType);
+        entity.setJson(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -268,7 +268,7 @@ public type Response object {
     #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload, contentType = contentType);
+        entity.setXml(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -279,7 +279,7 @@ public type Response object {
     #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload, contentType = contentType);
+        entity.setText(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -290,7 +290,7 @@ public type Response object {
     #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteArray(payload, contentType = contentType);
+        entity.setByteArray(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -301,7 +301,7 @@ public type Response object {
     #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBodyParts(bodyParts, contentType = contentType);
+        entity.setBodyParts(bodyParts, contentType);
         self.setEntity(entity);
     }
 
@@ -312,7 +312,7 @@ public type Response object {
     #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath, contentType = contentType);
+        entity.setFileAsEntityBody(filePath, contentType);
         self.setEntity(entity);
     }
 
@@ -323,7 +323,7 @@ public type Response object {
     #                 header value
     public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload, contentType = contentType);
+        entity.setByteChannel(payload, contentType);
         self.setEntity(entity);
     }
 

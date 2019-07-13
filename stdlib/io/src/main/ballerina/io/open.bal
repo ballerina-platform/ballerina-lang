@@ -59,7 +59,7 @@ public function openReadableCsvFile(@untainted string path,
                             @untainted int skipHeaders = 0) returns @tainted ReadableCSVChannel|IOError {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
-    return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
+    return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);
 }
 
 # Retrieves a writable CSV channel from a give file path.
@@ -75,5 +75,5 @@ public function openWritableCsvFile(@untainted string path,
                                     @untainted int skipHeaders = 0) returns @tainted WritableCSVChannel|IOError {
     WritableByteChannel byteChannel = check openWritableFile(path);
     WritableCharacterChannel charChannel = new(byteChannel, charset);
-    return new WritableCSVChannel(charChannel, fs = fieldSeparator);
+    return new WritableCSVChannel(charChannel, fieldSeparator);
 }

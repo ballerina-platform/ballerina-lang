@@ -1003,6 +1003,15 @@ public class Types {
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
                 return;
+            case TypeTags.OBJECT:
+                if (isAssignable(symTable.intRangeType, collectionType)) {
+                    foreachNode.varType = symTable.intType;
+                    BUnionType nextMethodReturnType =
+                            (BUnionType) getResultTypeOfNextInvocation((BObjectType) collectionType);
+                    foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.nillableResultType = nextMethodReturnType;
+                    return;
+                }
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;

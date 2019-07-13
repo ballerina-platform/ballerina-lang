@@ -60,5 +60,5 @@ function testByteArrayToString1(byte[] b) returns string|encoding:EncodingError 
 }
 
 function testByteArrayToString2(byte[] b, string encoding) returns string|encoding:EncodingError {
-    return encoding:byteArrayToString(b, encoding = encoding);
+    return encoding:byteArrayToString(b, encoding);
 }

@@ -131,7 +131,7 @@ function closeCharChannel(any c) {
         e = c.close();
     }
     if (e is error) {
-        log:printError("Couldn't close char channel.", err = e);
+        log:printError("Couldn't close char channel.", e);
     }
 }
 
@@ -255,7 +255,7 @@ function purgeOldSnapshotFiles(string persistancePath) {
             if (p.exists()) {
                 error? e = p.delete();
                 if (e is error) {
-                    log:printError("Couldn't delete snapshot.", err = e);
+                    log:printError("Couldn't delete snapshot.", e);
                 }
             }
             i += 1;
@@ -276,7 +276,7 @@ function restoreStates() {
             }
         }
     }
-    foreach var [k, v] in streamsPersistanceState {
+    foreach var [k, v] in streamsPersistanceState.entries() {
         boolean loaded = loadedStates[k] ?: false;
         if (!loaded) {
             Snapshotable? s = snapshotables[k];
@@ -291,7 +291,7 @@ function restoreStates() {
 # Function to iterate through all the snapshotables, and persist their states into a file.
 # + return - An `error` if the state cannot be persisted into a file.
 function persistStatesAndPurgeOldSnapshots() returns error? {
-    foreach var [k, v] in snapshotables {
+    foreach var [k, v] in snapshotables.entries() {
         streamsPersistanceState[k] = v.saveState();
     }
     error? e = writeStateToFile(persistanceDirectory);
@@ -315,7 +315,7 @@ service persistanceSchedulerService = service {
     resource function onTrigger() {
         error? e = persistStatesAndPurgeOldSnapshots();
         if (e is error) {
-            log:printError("Couldn't persist state and purge old snapshots.", err = e);
+            log:printError("Couldn't persist state and purge old snapshots.", e);
         }
     }
 };
@@ -356,8 +356,8 @@ public function registerSnapshotable(string key, any reference) {
 public function initPersistence() {
     boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled");
     if (enabled) {
-        persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", defaultValue = "snapshots");
-        int interval = config:getAsInt("b7a.streaming.persistence.interval", defaultValue = 30);
+        persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", "snapshots");
+        int interval = config:getAsInt("b7a.streaming.persistence.interval", 30);
         persistanceIntervalInMillis = interval * 1000;
         restoreStates();
         startPersisting();

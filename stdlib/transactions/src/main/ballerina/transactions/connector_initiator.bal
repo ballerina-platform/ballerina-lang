@@ -29,7 +29,7 @@ type InitiatorClientEP client object {
     http:Client httpClient;
 
     function __init(InitiatorClientConfig conf) {
-        http:Client httpEP = new(conf.registerAtURL, config = {
+        http:Client httpEP = new(conf.registerAtURL, {
                 timeoutMillis:conf.timeoutMillis,
                 retryConfig:{
                     count:conf.retryConfig.count,
@@ -47,7 +47,7 @@ type InitiatorClientEP client object {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check json.convert(regReq);
+        json reqPayload = check typedesc<json>.constructFrom(regReq);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
@@ -59,6 +59,6 @@ type InitiatorClientEP client object {
             return err;
         }
         json resPayload = check res.getJsonPayload();
-        return <@untainted RegistrationResponse|error> RegistrationResponse.convert(resPayload);
+        return <@untainted> typedesc<RegistrationResponse>.constructFrom(resPayload);
     }
 };

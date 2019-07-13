@@ -44,6 +44,11 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * This class tests the map lang module functionality.
+ *
+ * @since 1.0
+ */
 public class LangLibMapTest {
 
     private CompileResult compileResult;

@@ -3,7 +3,7 @@ import ballerina/cache;
 cache:Cache cache = new;
 
 function initCache () {
-    cache = new(expiryTimeMillis = 10000, capacity = 10, evictionFactor = 0.1);
+    cache = new(10000, 10, 0.1);
     cache.put("k1", "v1");
     cache.put("k2", "v2");
     cache.put("k3", "v3");

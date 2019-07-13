@@ -139,6 +139,7 @@ public class CompilerDriver {
             symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symResolver.reloadErrorType();
+            symResolver.reloadIntRangeType();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -176,6 +177,8 @@ public class CompilerDriver {
         // Other lang modules requires internal module. Hence loading it.
 
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+
+        symResolver.reloadIntRangeType();
 
         // Now load each module.
         if (langLib.equals(ARRAY)) {
@@ -361,8 +364,12 @@ public class CompilerDriver {
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
 
-        return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(modID)))))).symbol;
+        BLangPackage pkg = taintAnalyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID))));
+        if (dlog.errorCount > 0) {
+            return null;
+        }
+
+        return codegen(desugar(pkg)).symbol;
     }
 
 }

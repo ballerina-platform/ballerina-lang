@@ -33,7 +33,7 @@ public type Client client object {
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
         self.hubUrl = url;
-        self.httpClientEndpoint = new (self.hubUrl, config = config);
+        self.httpClientEndpoint = new (self.hubUrl, config);
         self.followRedirects = config.followRedirects;
     }
 
@@ -311,7 +311,7 @@ function invokeClientConnectorOnRedirection(@untainted string hub, @untainted st
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest,
                               http:OutboundAuthConfig? auth, int remainingRedirects = 0)
              returns @tainted SubscriptionChangeResponse| error {
-    http:Client clientEndpoint = new http:Client(hubUrl, config = { auth: auth });
+    http:Client clientEndpoint = new http:Client(hubUrl, { auth: auth });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -321,7 +321,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest,
                                 http:OutboundAuthConfig? auth, int remainingRedirects = 0)
              returns @tainted SubscriptionChangeResponse|error {
-    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+    http:Client clientEndpoint = new http:Client(hubUrl, {
         auth: auth
     });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);

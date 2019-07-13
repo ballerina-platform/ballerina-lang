@@ -472,7 +472,7 @@ public function startHub(http:Listener hubServiceListener, HubConfiguration? hub
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultValue = hubConfiguration["publicUrl"] ?: "");
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", hubConfiguration["publicUrl"] ?: "");
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
