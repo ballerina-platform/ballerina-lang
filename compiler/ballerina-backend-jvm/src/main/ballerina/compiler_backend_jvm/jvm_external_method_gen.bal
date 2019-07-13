@@ -36,7 +36,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
     int strandParamIndex = indexMap.getIndex(strandVarDcl);
 
     // generate method desc
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, <bir:BType?> birFunc.typeValue?.retType);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
     int selfParamIndex = -1;
@@ -49,7 +49,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
-    ErrorHandlerGenerator errorGen = new(mv, indexMap);
+    ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
     mv.visitCode();
@@ -114,7 +114,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
     while (birFuncParamIndex < birFuncParams.length()) {
         var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
-        genLoadInsn(mv, birFuncParam.typeValue, paramLocalVarIndex);
+        generateVarLoad(mv, birFuncParam, currentPackageName, paramLocalVarIndex);
         birFuncParamIndex += 2;
     }
 
@@ -128,7 +128,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
     } else {
         bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
         returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        genStoreInsn(mv, <bir:BType>retType, returnVarRefIndex);
+        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
@@ -164,9 +164,10 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName,
 
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
     bir:BType? attachedType = birFunc.receiverType;
-    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
-    string jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType = attachedType);
+    string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
+                                        attachedType = attachedType);
 
     return {
         orgName : orgName,

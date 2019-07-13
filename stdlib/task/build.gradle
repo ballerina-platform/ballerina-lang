@@ -46,7 +46,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 

@@ -396,7 +396,7 @@ public type BFutureType record {|
 public type BFiniteType record {|
     Name name = {};
     int flags;
-    (int | string | boolean | float | byte| () | Decimal) [] values;
+    [(int | string | boolean | float | byte| () | Decimal), BType] [] values;
 |};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
@@ -521,6 +521,7 @@ public type TypeCast record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+    BType castType;
     boolean checkType;
 |};
 

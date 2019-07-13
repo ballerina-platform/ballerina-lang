@@ -32,6 +32,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
             </run>
         </groups>
         <packages>
@@ -62,7 +63,7 @@
             <!--<package name="org.ballerinalang.test.types.var.*"/>-->
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.tuples.*"/>-->
+            <package name="org.ballerinalang.test.types.tuples.*"/>
             <!--<package name="org.ballerinalang.test.types.anydata.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.arrays.*"/>-->
             <package name="org.ballerinalang.test.statements.assign.*"/>
@@ -108,7 +109,7 @@
             <!--<package name="org.ballerinalang.test.types.xml.*" />-->
             <!--<package name="org.ballerinalang.test.record.*"/>-->
             <package name="org.ballerinalang.test.types.constant.*" />
-            <!--<package name="org.ballerinalang.test.types.bytetype.*"/>-->
+            <package name="org.ballerinalang.test.types.bytetype.*"/>
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typecast.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
