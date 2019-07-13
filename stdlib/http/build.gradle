@@ -93,7 +93,6 @@ dependencies {
     testCompile project(':ballerina-http')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
-    testCompile project(':ballerina-jvm')
 }
 
 createBalo {

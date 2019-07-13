@@ -83,7 +83,31 @@
         <Class name="org.wso2.ballerinalang.compiler.packaging.converters.URIConverter"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRVariableDcl"/>
+        <Bug pattern="HE_EQUALS_USE_HASHCODE"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunctionParameter"/>
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRGlobalVariableDcl"/>
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.BIRGen"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.BIROptimizer"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRTerminator"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIROperand"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.writer.ConstantPool"/>

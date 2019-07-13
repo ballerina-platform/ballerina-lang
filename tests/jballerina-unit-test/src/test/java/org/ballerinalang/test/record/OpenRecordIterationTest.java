@@ -340,7 +340,8 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(gradesArr.getFloat(2), p);
     }
 
-    @Test(description = "Test case for terminal ops on open records with all int fields")
+    @Test(description = "Test case for terminal ops on open records with all int fields",
+            groups = "brokenOnBootstrappedJVMCodegen")
     public void testTerminalOpsOnAllIntOpenRecord() {
         long[] marks = new long[]{80, 75, 65, 78};
         BValue[] args = new BValue[]
@@ -376,7 +377,8 @@ public class OpenRecordIterationTest {
         Assert.assertNull(grades.get("chemistry"));
     }
 
-    @Test(description = "Test case for terminal ops on open records with all int fields")
+    @Test(description = "Test case for terminal ops on open records with all int fields",
+            groups = "brokenOnBootstrappedJVMCodegen")
     public void testTerminalOpsOnAllIntOpenRecord2() {
         long[] marks = new long[]{80, 75, 0, 78};
         BValue[] args = new BValue[]
@@ -390,7 +392,8 @@ public class OpenRecordIterationTest {
         Assert.assertEquals(((BFloat) returns[4]).floatValue(), stream(marks).average().getAsDouble());
     }
 
-    @Test(description = "Test case for iterable op chains ending with a terminal op")
+    @Test(description = "Test case for iterable op chains ending with a terminal op",
+            groups = "brokenOnBootstrappedJVMCodegen")
     public void testOpChainsWithTerminalOps() {
         long[] grades = new long[]{80, 75, 78};
         BValue[] returns = BRunUtil.invoke(result, "testOpChainsWithTerminalOps",

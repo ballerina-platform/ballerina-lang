@@ -23,44 +23,44 @@ public type ByteArrayReader record {
 
 public type TypeParser object {
     public int TYPE_TAG_INT = 1;
-    public int TYPE_TAG_BYTE = TYPE_TAG_INT + 1;
-    public int TYPE_TAG_FLOAT = TYPE_TAG_BYTE + 1;
-    public int TYPE_TAG_DECIMAL = TYPE_TAG_FLOAT + 1;
-    public int TYPE_TAG_STRING = TYPE_TAG_DECIMAL + 1;
-    public int TYPE_TAG_BOOLEAN = TYPE_TAG_STRING + 1;
+    public int TYPE_TAG_BYTE = 2;
+    public int TYPE_TAG_FLOAT =3;
+    public int TYPE_TAG_DECIMAL =4;
+    public int TYPE_TAG_STRING =5;
+    public int TYPE_TAG_BOOLEAN =6;
     // All the above types are values type
-    public int TYPE_TAG_JSON = TYPE_TAG_BOOLEAN + 1;
-    public int TYPE_TAG_XML = TYPE_TAG_JSON + 1;
-    public int TYPE_TAG_TABLE = TYPE_TAG_XML + 1;
-    public int TYPE_TAG_NIL = TYPE_TAG_TABLE + 1;
-    public int TYPE_TAG_ANYDATA = TYPE_TAG_NIL + 1;
-    public int TYPE_TAG_RECORD = TYPE_TAG_ANYDATA + 1;
-    public int TYPE_TAG_TYPEDESC = TYPE_TAG_RECORD + 1;
-    public int TYPE_TAG_STREAM = TYPE_TAG_TYPEDESC + 1;
-    public int TYPE_TAG_MAP = TYPE_TAG_STREAM + 1;
-    public int TYPE_TAG_INVOKABLE = TYPE_TAG_MAP + 1;
+    public int TYPE_TAG_JSON =7;
+    public int TYPE_TAG_XML =8;
+    public int TYPE_TAG_TABLE =9;
+    public int TYPE_TAG_NIL =10;
+    public int TYPE_TAG_ANYDATA =11;
+    public int TYPE_TAG_RECORD =12;
+    public int TYPE_TAG_TYPEDESC =13;
+    public int TYPE_TAG_STREAM =14;
+    public int TYPE_TAG_MAP =15;
+    public int TYPE_TAG_INVOKABLE =16;
     // All the above types are branded types
-    public int TYPE_TAG_ANY = TYPE_TAG_INVOKABLE + 1;
-    public int TYPE_TAG_ENDPOINT = TYPE_TAG_ANY + 1;
-    public int TYPE_TAG_ARRAY = TYPE_TAG_ENDPOINT + 1;
-    public int TYPE_TAG_UNION = TYPE_TAG_ARRAY + 1;
-    public int TYPE_TAG_PACKAGE = TYPE_TAG_UNION + 1;
-    public int TYPE_TAG_NONE = TYPE_TAG_PACKAGE + 1;
-    public int TYPE_TAG_VOID = TYPE_TAG_NONE + 1;
-    public int TYPE_TAG_XMLNS = TYPE_TAG_VOID + 1;
-    public int TYPE_TAG_ANNOTATION = TYPE_TAG_XMLNS + 1;
-    public int TYPE_TAG_SEMANTIC_ERROR = TYPE_TAG_ANNOTATION + 1;
-    public int TYPE_TAG_ERROR = TYPE_TAG_SEMANTIC_ERROR + 1;
-    public int TYPE_TAG_ITERATOR = TYPE_TAG_ERROR + 1;
-    public int TYPE_TAG_TUPLE = TYPE_TAG_ITERATOR + 1;
-    public int TYPE_TAG_FUTURE = TYPE_TAG_TUPLE + 1;
-    public int TYPE_TAG_INTERMEDIATE_COLLECTION = TYPE_TAG_FUTURE + 1;
-    public int TYPE_TAG_FINITE = TYPE_TAG_INTERMEDIATE_COLLECTION + 1;
-    public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
-    public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
-    public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
-    public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
+    public int TYPE_TAG_ANY =17;
+    public int TYPE_TAG_ENDPOINT =18;
+    public int TYPE_TAG_ARRAY =19;
+    public int TYPE_TAG_UNION =20;
+    public int TYPE_TAG_PACKAGE =21;
+    public int TYPE_TAG_NONE =22;
+    public int TYPE_TAG_VOID =23;
+    public int TYPE_TAG_XMLNS =24;
+    public int TYPE_TAG_ANNOTATION =25;
+    public int TYPE_TAG_SEMANTIC_ERROR =26;
+    public int TYPE_TAG_ERROR =27;
+    public int TYPE_TAG_ITERATOR =28;
+    public int TYPE_TAG_TUPLE =29;
+    public int TYPE_TAG_FUTURE =30;
+    public int TYPE_TAG_INTERMEDIATE_COLLECTION =31;
+    public int TYPE_TAG_FINITE =32;
+    public int TYPE_TAG_OBJECT =33;
+    public int TYPE_TAG_BYTE_ARRAY =34;
+    public int TYPE_TAG_FUNCTION_POINTER =35;
+    public int TYPE_TAG_CHANNEL =36;
+    public int TYPE_TAG_SERVICE =37;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -371,7 +371,7 @@ public type TypeParser object {
         int c = 0;
         while c < size {
             BType valueType = self.parseTypeCpRef();
-            finiteType.values[c] = self.getValue(valueType);
+            finiteType.values[c] = [self.getValue(valueType), valueType];
             c = c + 1;
         }
         return finiteType;

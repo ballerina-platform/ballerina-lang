@@ -1637,7 +1637,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         // 2) For binary expressions followed with wait lhs and rhs are always future types and this is allowed so
-        // return true : wait f1 | f2
+        // return true : wait f1 | f2[orgName + moduleName
         BLangNode parentNode = binaryExpr.parent;
         if (binaryExpr.lhsExpr.type.tag == TypeTags.FUTURE || binaryExpr.rhsExpr.type.tag == TypeTags.FUTURE) {
             if (parentNode == null) {

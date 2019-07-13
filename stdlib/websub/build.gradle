@@ -18,10 +18,17 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(":ballerina-http")
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-lang:annotations')
@@ -32,7 +39,6 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-jdbc')
-    implementation project(":ballerina-launcher")
     implementation 'io.ballerina.messaging:broker-core'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
@@ -61,8 +67,17 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
+    testCompile project(':ballerina-test-utils')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 }
 
+createBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - WebSub'
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
