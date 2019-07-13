@@ -34,6 +34,11 @@ import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * This class tests integer lang module functionality.
+ *
+ * @since 1.0
+ */
 public class LangLibIntTest {
 
     private CompileResult compileResult;
