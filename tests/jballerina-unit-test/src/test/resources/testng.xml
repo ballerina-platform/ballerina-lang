@@ -92,8 +92,8 @@
             <!--<package name="org.ballerinalang.test.expressions.access.*"/>-->
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.checkedexpr.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>-->
+            <package name="org.ballerinalang.test.expressions.checkedexpr.*"/>
+            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
