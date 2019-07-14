@@ -766,6 +766,10 @@ public class TypeChecker extends BLangNodeVisitor {
                                         ? listConstructorExpr.exprs.size() : ((BArrayType) type).size,
                                 ((BArrayType) type).state);
                     } else {
+                        if (type.tag == TypeTags.ARRAY
+                                && types.isAssignable(arrayLiteralType, ((BArrayType) type).eType)) {
+                            arrayLiteralType = ((BArrayType) type).eType;
+                        }
                         actualType = new BArrayType(arrayLiteralType);
                     }
                     listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
