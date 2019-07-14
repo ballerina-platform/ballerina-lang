@@ -40,12 +40,12 @@ service echoServer on server {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error on echo server read", err = <error> result);
+            log:printError("Error on echo server read", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on echo service", err = <error> er);
+        log:printError("Error on echo service", <error> er);
     }
 }
 
@@ -56,19 +56,19 @@ service helloServer on new socket:Listener(59153) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(length = 5);
+        var result = caller->read(5);
         process(result, caller);
-        result = caller->read(length = 4);
+        result = caller->read(4);
         process(result, caller);
-        result = caller->read(length = 6);
+        result = caller->read(6);
         process(result, caller);
         string msg = "Hello Client";
-        byte[] msgByteArray = msg.toByteArray("utf-8");
+        byte[] msgByteArray = msg.toBytes();
         _ = checkpanic caller->write(msgByteArray);
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on hello server", err = <error> er);
+        log:printError("Error on hello server", <error> er);
     }
 }
 
@@ -92,7 +92,7 @@ function process(any|error result, socket:Caller caller) {
             return;
         }
     } else if (result is error) {
-        log:printError("Error while process data", err = <error> result);
+        log:printError("Error while process data", <error> result);
     }
 }
 
@@ -103,7 +103,7 @@ service BlockingReadServer on new socket:Listener(59154) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(length = 18);
+        var result = caller->read(18);
         if (result is [byte[], int]) {
             var [content, length] = result;
             if (length > 0) {
@@ -113,12 +113,12 @@ service BlockingReadServer on new socket:Listener(59154) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error while read data", err = <error> result);
+            log:printError("Error while read data", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on blocking read server", err = <error> er);
+        log:printError("Error on blocking read server", <error> er);
     }
 }
 
@@ -139,14 +139,13 @@ service errorServer on new socket:Listener(59155) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            error resultError = result;
-            log:printError("Error on error server read", err = <error> result);
+            log:printError("Error on error server read", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
         error e = er;
-        errorString = <@untainted> string.convert(e.reason());
+        errorString = <@untainted> e.reason();
     }
 }
 

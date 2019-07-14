@@ -19,7 +19,7 @@ import ballerina/socket;
 
 function echo(string msg) returns string {
     socket:UdpClient socketClient = new;
-    byte[] c1 = msg.toByteArray("utf-8");
+    byte[] c1 = msg.toBytes();
     var sendResult = socketClient->sendTo(c1, { host: "localhost", port: 48826 });
     if (sendResult is int) {
         io:println("Number of bytes written: ", sendResult);
@@ -34,8 +34,9 @@ function echo(string msg) returns string {
         if (str is string) {
             returnStr = <@untainted>str;
         } else {
-            error e = str;
-            io:println(e.detail().message);
+            error err = str;
+            string? errMsg = err.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(<error> result);
@@ -45,7 +46,7 @@ function echo(string msg) returns string {
 }
 
 function contentReceive() returns string {
-    socket:UdpClient socketClient = new(localAddress = { port: 48827 });
+    socket:UdpClient socketClient = new({ port: 48827 });
     string returnStr = "";
     var result = socketClient->receiveFrom();
     if (result is [byte[], int, socket:Address]) {
@@ -54,8 +55,9 @@ function contentReceive() returns string {
         if (str is string) {
             returnStr = <@untainted>str;
         } else {
-            error e = <error>str;
-            io:println(e.detail().message);
+            error err = str;
+            string? errMsg = err.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(<error> result);
@@ -65,17 +67,18 @@ function contentReceive() returns string {
 }
 
 function contentReceiveWithLength() returns string {
-    socket:UdpClient socketClient = new(localAddress = { host: "localhost", port: 48828 });
+    socket:UdpClient socketClient = new({ host: "localhost", port: 48828 });
     string returnStr = "";
-    var result = socketClient->receiveFrom(length = 56);
+    var result = socketClient->receiveFrom(56);
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
             returnStr = <@untainted>str;
         } else {
-            error e = <error>str;
-            io:println(e.detail().message);
+            error err = str;
+            string? errMsg = err.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
         io:println(<error> result);
