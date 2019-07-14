@@ -24,9 +24,7 @@ import ballerina/http;
 # + accessToken - Access token
 # + mdFileContent - Module.md file content of the module
 # + summary - Summary of the module
-# + homePageURL - Website URL of the module
 # + repositoryURL - Source code URL of the module
-# + apiDocURL - API documentation URL of the module
 # + authors - Authors of the module
 # + keywords - Keywords which describes the module
 # + license - License of the module
@@ -36,16 +34,14 @@ import ballerina/http;
 # + msg - Message printed when the module is pushed successfully which includes module info
 # + baloVersion - Balo version of the module
 # + return - Error if occurred, else nil
-function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
-                string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
+function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string repositoryURL,
+                string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
                 string baloVersion) returns error? {
 
     http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
     mime:Entity summaryBodyPart = addStringBodyParts("summary", summary);
-    mime:Entity homePageURLBodyPart = addStringBodyParts("websiteURL", homePageURL);
     mime:Entity repositoryURLBodyPart = addStringBodyParts("repositoryURL", repositoryURL);
-    mime:Entity apiDocURLBodyPart = addStringBodyParts("apiDocURL", apiDocURL);
     mime:Entity authorsBodyPart = addStringBodyParts("authors", authors);
     mime:Entity keywordsBodyPart = addStringBodyParts("keywords", keywords);
     mime:Entity licenseBodyPart = addStringBodyParts("license", license);
@@ -61,8 +57,8 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
         panic contentTypeSetResult;
     }
 
-    mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
-                               apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart, 
+    mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, repositoryURLBodyPart,
+                               authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart,
                                baloVersionBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
@@ -96,16 +92,16 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
 # + return - nil if no error occurred, else error.
 public function main (string... args) returns error? {
     http:Client httpEndpoint;
-    string host = args[13];
-    string strPort = args[14];
+    string host = args[11];
+    string strPort = args[12];
     if (host != "" && strPort != "") {
         var port = int.convert(strPort);
         if (port is int) {
-            http:Client|error result = trap defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
+            http:Client|error result = trap defineEndpointWithProxy(args[7], host, port, args[13], args[14]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],
-                    args[8], args[9], args[10], args[12], args[11], args[17]);
+                return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
+                    args[6], args[7], args[8], args[10], args[9], args[15]);
             } else {
                 return createError("failed to resolve host : " + host + " with port " + port);
             }
@@ -116,8 +112,8 @@ public function main (string... args) returns error? {
         return createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
-        return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8],
-            args[9], args[10], args[12], args[11], args[17]);
+        return pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6],
+            args[7], args[8], args[10], args[9], args[15]);
     }
 }
 
@@ -129,7 +125,7 @@ public function main (string... args) returns error? {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
+function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
     http:Client httpEndpoint = new (url, config = {
         secureSocket:{
             trustStore:{

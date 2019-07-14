@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 configurations.testCompileClasspath {
@@ -65,4 +65,3 @@ createBalo {
 }
 
 description = 'Ballerina - ActiveMQ Artemis'
-

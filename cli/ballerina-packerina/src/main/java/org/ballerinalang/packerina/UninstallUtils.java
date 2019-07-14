@@ -49,7 +49,7 @@ public class UninstallUtils {
         // Get org-name
         int orgNameIndex = fullPkgPath.indexOf("/");
         if (orgNameIndex == -1) {
-            throw LauncherUtils.createLauncherException("no org-name is provided");
+            throw LauncherUtils.createLauncherException("no orgName is provided");
         }
         orgName = fullPkgPath.substring(0, orgNameIndex);
 

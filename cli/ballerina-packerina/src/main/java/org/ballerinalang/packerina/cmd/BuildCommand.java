@@ -42,8 +42,20 @@ import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
  */
 @CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
-    private static final String USER_DIR = "user.dir";
-    private static PrintStream outStream = System.err;
+
+    private Path userDir;
+    private PrintStream errStream;
+
+    public BuildCommand() {
+        userDir = Paths.get(System.getProperty("user.dir"));
+        errStream = System.err;
+    }
+
+    public BuildCommand(Path userDir, PrintStream errStream) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+    }
+
 
     @CommandLine.Option(names = {"-c"}, description = "build a compiled module")
     private boolean buildCompiledPkg;
@@ -57,7 +69,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--lockEnabled"})
     private boolean lockEnabled;
 
-    @CommandLine.Option(names = {"--skiptests"})
+    @CommandLine.Option(names = {"--skip-tests"})
     private boolean skiptests;
 
     @CommandLine.Parameters
@@ -86,22 +98,29 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhiruntime", description = "enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
+        // ToDo: We will temporarily disable old code gen and tests
+        jvmTarget = true;
+        skiptests = true;
+
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
-            outStream.println(commandUsageInfo);
+            errStream.println(commandUsageInfo);
             return;
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(errStream,
+                    "too many arguments.",
+                    "ballerina compile [<module-name>]",
+                    true);
         }
 
         // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        Path sourceRootPath = userDir;
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
@@ -131,7 +150,7 @@ public class BuildCommand implements BLauncherCmd {
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&
                     sourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
-                    !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                    !RepoUtils.isBallerinaProject(sourceRootPath)) {
                 // If there is no output file name provided, then the executable (balx) should be created in the user's
                 // current directory with the same source file name with a balx extension. So if there's no output file
                 // name provided (with flag -o) and the target file name contains the full path (along with its parent
@@ -149,7 +168,7 @@ public class BuildCommand implements BLauncherCmd {
 
             } else if (Files.isDirectory(sourceRootPath)) { // If the source is a module from a project
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
-                if (Files.isDirectory(resolvedFullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                if (Files.isDirectory(resolvedFullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
                     throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
                             "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                             "project and then build the module.");
@@ -191,18 +210,10 @@ public class BuildCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-//            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
-//                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
-//            } else {
-//                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
-//            }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
         }
-        Runtime.getRuntime().exit(0);
     }
 
     /**

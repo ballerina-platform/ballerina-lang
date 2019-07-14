@@ -93,17 +93,17 @@ public class PushUtils {
                                                      "automatically and re-run the 'ballerina push' command");
         }
         Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
-        if (manifest.getName().isEmpty()) {
-            throw createLauncherException("An org-name is required when pushing. This is not specified in " +
+        if (manifest.getProject().getOrgName().isEmpty()) {
+            throw createLauncherException("An orgName is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
         }
 
-        if (manifest.getVersion().isEmpty()) {
+        if (manifest.getProject().getVersion().isEmpty()) {
             throw createLauncherException("A module version is required when pushing. This is not specified " +
                                                      "in Ballerina.toml inside the project");
         }
 
-        String orgName = manifest.getName();
+        String orgName = manifest.getProject().getOrgName();
         // Validate the org-name
         if (!RepoUtils.validateOrg(orgName)) {
             throw createLauncherException("invalid organization name provided \'" + orgName + "\'. Only " +
@@ -121,7 +121,7 @@ public class PushUtils {
                                           "alphanumerics, underscores and periods are allowed in a module name and " +
                                           "the maximum length is 256 characters");
         }
-        String version = manifest.getVersion();
+        String version = manifest.getProject().getVersion();
         String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
@@ -153,12 +153,10 @@ public class PushUtils {
             }
 
             String description = readSummary(mdFileContent);
-            String homepageURL = manifest.getHomepageURL();
-            String repositoryURL = manifest.getRepositoryURL();
-            String apiDocURL = manifest.getDocumentationURL();
-            String authors = String.join(",", manifest.getAuthors());
-            String keywords = String.join(",", manifest.getKeywords());
-            String license = manifest.getLicense();
+            String repositoryURL = manifest.getProject().getRepository();
+            String authors = String.join(",", manifest.getProject().getAuthors());
+            String keywords = String.join(",", manifest.getProject().getKeywords());
+            String license = manifest.getProject().getLicense();
 
             // Push module to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
@@ -166,7 +164,7 @@ public class PushUtils {
             Proxy proxy = settings.getProxy();
             String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
             Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_push/packaging_push.balx",
-                    accessToken, mdFileContent, description, homepageURL, repositoryURL, apiDocURL, authors, keywords,
+                    accessToken, mdFileContent, description, repositoryURL, authors, keywords,
                     license, resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
             if (execute.isPresent()) {
