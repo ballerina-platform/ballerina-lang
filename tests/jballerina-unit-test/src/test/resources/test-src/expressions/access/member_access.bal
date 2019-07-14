@@ -115,16 +115,88 @@ type Employee record {
     int id?;
 };
 
-function testRecordMemberAccess1() returns boolean {
+function testRecordMemberAccessByLiteral() returns boolean {
     string s = "Anne";
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b };
+    Employee e = { name: s, id: i, registered: b, other: 1.0 };
 
     string s2 = e["name"];
     boolean? b2 = e["registered"];
     int? i2 = e["id"];
+    anydata v1 = e["other"];
+
+    return s == s2 && b == b2 && i == i2 && v1 == 1.0;
+}
+
+function testRecordMemberAccessByVariable() returns boolean {
+    string s = "Anne";
+    boolean b = true;
+    int i = 100;
+
+    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+
+    string index = "name";
+    anydata s2 = e[index];
+    index = "registered";
+    anydata b2 = e[index];
+    index = "id";
+    anydata i2 = e[index];
+    index = "other";
+    anydata v1 = e[index];
+
+    return s == s2 && b == b2 && i == i2 && v1 == 1.0;
+}
+
+// TODO Maryam - add by finite
+
+function testRecordMemberAccessForNonExistingKey() returns boolean {
+    Employee e = { name: "Anne", id: 111, registered: true };
+
+    anydata s2 = e["non_existing_key"];
+    string index = "non_existing_key";
+    anydata s4 = e[index];
+
+    return s2 is () && s4 is ();
+}
+
+function testMapMemberAccessByLiteral() returns boolean {
+    string s = "Anne";
+    boolean b = true;
+    int i = 100;
+
+    map<string|int|boolean> e = { name: s, id: i, registered: b };
+
+    string|int|boolean? s2 = e["name"];
+    string|int|boolean? b2 = e["registered"];
+    string|int|boolean? i2 = e["id"];
 
     return s == s2 && b == b2 && i == i2;
+}
+
+function testMapMemberAccessByVariable() returns boolean {
+    string s = "Anne";
+    boolean b = true;
+    int i = 100;
+
+    map<anydata> e = { name: s, id: i, registered: b };
+
+    string index = "name";
+    anydata s2 = e[index];
+    index = "registered";
+    anydata b2 = e[index];
+    index = "id";
+    anydata i2 = e[index];
+
+    return s == s2 && b == b2 && i == i2;
+}
+
+function testMapAccessForNonExistingKey() returns boolean {
+    map<boolean> e = { one: true, two: false };
+    anydata s2 = e["non_existing_key"];
+    string index = "non_existing_key";
+    anydata s4 = e[index];
+
+    return s2 is () && s4 is ();
 }

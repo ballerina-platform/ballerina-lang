@@ -59,7 +59,7 @@ public function elements(xml x) returns xml = external;
 # + x - The xml source
 # + qname - Qualified name of the element
 # + return - All the elements-type items in the given XML sequence, that matches the qualified name
-public function select(string qname) returns xml = external;
+public function select(xml x, string qname) returns xml = external;
 
 # Get the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'.
 # Returns an empty string if the XML is not a singleton.
@@ -86,7 +86,7 @@ public function getTextValue(xml x) returns string = external;
 #
 # + x - The xml source
 # + children - children
-public function setChildren(xml children) = external;
+public function setChildren(xml x, xml children) = external;
 
 # Make a deep copy of an XML.
 #

@@ -198,7 +198,7 @@ function waitTest17() returns int|error {
         }
     }
     () results = wait w1 | w2 | w3;
-    return int.convert(m["x"]);
+    return <int>m["x"];
 }
 
 function waitTest18() returns int {
