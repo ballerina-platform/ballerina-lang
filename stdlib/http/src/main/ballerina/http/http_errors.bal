@@ -122,8 +122,6 @@ public type ResiliencyError FailoverAllEndpointsFailedError|FailoverActionFailed
                             UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
                             IdleTimeoutTriggeredError;
 
-public type SecutiryError AuthenticationError|AuthorizationError;
-
 public type ClientAuthError AuthenticationError|AuthorizationError;
 
 public type OutboundRequestError InitializingOutboundRequestError|WritingOutboundRequestHeadersError|

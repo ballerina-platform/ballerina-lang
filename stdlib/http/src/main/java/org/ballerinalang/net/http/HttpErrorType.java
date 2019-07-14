@@ -31,7 +31,7 @@ public enum HttpErrorType {
     ALL_RETRY_ATTEMPTS_FAILED("AllRetryAttemptsFailed", "{ballerina/http}AllRetryAttemptsFailed"),
     IDLE_TIMEOUT_TRIGGERED("IdleTimeoutTriggeredError", "{ballerina/http}IdleTimeoutTriggeredError"),
 
-    // SecurityError
+    // ClientAuthError
     AUTHN_FAILED("AuthenticationError", "{ballerina/http}AuthenticationFailed"),
     AUTHZ_FAILED("AuthorizationError", "{ballerina/http}AuthorizationFailed"),
 
