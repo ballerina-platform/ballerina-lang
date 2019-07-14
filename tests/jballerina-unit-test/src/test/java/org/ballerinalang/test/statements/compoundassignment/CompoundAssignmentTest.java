@@ -332,7 +332,7 @@ public class CompoundAssignmentTest {
                 "hello<hello xmlns:ns0=\"http://sample.com/wso2/a1\">hi</hello>hahblah");
     }
 
-    @Test(description = "Test compound operator negative cases.")
+    @Test(description = "Test compound operator negative cases.", enabled = false)
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
