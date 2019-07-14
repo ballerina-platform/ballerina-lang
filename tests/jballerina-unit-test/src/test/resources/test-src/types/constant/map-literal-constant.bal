@@ -204,14 +204,14 @@ function testFloatConstKeyReferenceInLocalVar() returns float {
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = dm4["fm4k"];
+    decimal d = dm4["dm4k"];
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = sm4["fm4k"];
+    string s = sm4["sm4k"];
     return s;
 }
 

@@ -1416,8 +1416,6 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        checkConstantAccess(fieldAccessExpr, varRefType);
-
         BType actualType;
 
         if (fieldAccessExpr.optionalFieldAccess) {
@@ -4146,6 +4144,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
+            if (isMapConstIndexAccess(accessExpr)) {
+                if (accessExpr.indexExpr.getKind() == NodeKind.LITERAL ||
+                        !isResolvedConst((BLangSimpleVarRef) accessExpr.expr)) {
+                    return ((BMapType) type).constraint;
+                }
+
+                BType actualType = checkMapConstantAccess(accessExpr);
+
+                if (actualType != symTable.semanticError || accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                    return actualType;
+                }
+            }
+
             BType constraint = ((BMapType) type).constraint;
             return accessExpr.lhsVar ? constraint : addNilForNillableIndexBasedAccess(constraint);
         }
@@ -4501,34 +4512,37 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private void checkConstantAccess(BLangFieldBasedAccess fieldAccessExpr, BType varRefType) {
+    private BType checkMapConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
+        BType varRefType = indexAccessExpr.expr.type;
+
         if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
-            return;
+            return symTable.semanticError;
         }
 
-        // Check constant map literal access.
-        BLangExpression expression = fieldAccessExpr.getExpression();
-        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return;
+        if (indexAccessExpr.indexExpr.getKind() != NodeKind.LITERAL) {
+            return symTable.semanticError;
         }
 
-        BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
-        if ((symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT || varRefType.tag != TypeTags.MAP) {
-            return;
-        }
-
-        BConstantSymbol constantSymbol = (BConstantSymbol) symbol;
-        // if constan't value is null, that means, we are visiting the constant's value expressions,
-        // and the are not yet resolved. Hence skip the key validation. It will be validated during
-        // the constant value resolution.
-        if (constantSymbol.value == null) {
-            return;
-        }
-
+        BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
         Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
-        String key = fieldAccessExpr.field.value;
+        String key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
+
         if (!value.containsKey(key)) {
-            dlog.error(fieldAccessExpr.field.pos, DiagnosticCode.KEY_NOT_FOUND, key, constantSymbol.name);
+            return symTable.semanticError;
         }
+        return value.get(key).type;
+    }
+
+    private boolean isMapConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
+        BLangExpression expression = indexAccessExpr.getExpression();
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        return ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
+    }
+
+    private boolean isResolvedConst(BLangSimpleVarRef simpleVarRef) {
+        return ((BConstantSymbol) simpleVarRef.symbol).value != null;
     }
 }
