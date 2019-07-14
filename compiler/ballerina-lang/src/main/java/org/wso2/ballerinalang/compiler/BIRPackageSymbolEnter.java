@@ -797,7 +797,7 @@ public class BIRPackageSymbolEnter {
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
                     return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
                 case TypeTags.TYPEDESC:
-                    BTypedescType typedescType = new BTypedescType(TypeTags.TYPEDESC, null, symTable.typeDesc.tsymbol);
+                    BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
                     return typedescType;
                 case TypeTags.STREAM:
@@ -825,6 +825,8 @@ public class BIRPackageSymbolEnter {
                 // All the above types are branded types
                 case TypeTags.ANY:
                     return typeParamAnalyzer.getNominalType(symTable.anyType, name, typeFlag);
+                case TypeTags.HANDLE:
+                    return symTable.handleType;
                 case TypeTags.ENDPOINT:
                     // TODO fix
                     break;

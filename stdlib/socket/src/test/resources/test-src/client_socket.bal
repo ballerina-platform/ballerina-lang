@@ -84,7 +84,8 @@ function echo(string msg) returns string {
             if (str is string) {
                 returnStr = <@untainted>str;
             } else {
-                string? errMsg = str.detail()?.message;
+                error err = str;
+                string? errMsg = err.detail()?.message;
                 io:println(errMsg is string ? errMsg : "Error in socket client");
             }
             var closeResult = socketClient->close();

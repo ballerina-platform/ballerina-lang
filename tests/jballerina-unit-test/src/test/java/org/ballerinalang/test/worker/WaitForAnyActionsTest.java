@@ -114,7 +114,7 @@ public class WaitForAnyActionsTest {
         Assert.assertTrue(Arrays.asList("77", "hello foo", "hello bar", "hello xyz").contains(vals[0].stringValue()));
     }
 
-    @Test
+    @Test(enabled = false)
     public void waitTest11() {
         // in this case it returns result of wait f1|f2|f3; where f1 and f2 panics. So the panic also one of
         // possible results here

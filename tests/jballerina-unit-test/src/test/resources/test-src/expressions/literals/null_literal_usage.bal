@@ -31,7 +31,7 @@ function testNullInField() returns string? {
 
 function testNullStringRepresentation() returns string|error {
     json j = null;
-    return string.convert(j);
+    return j.toString();
 }
 
 function testNullStringRepresentation2() returns string {
@@ -41,7 +41,7 @@ function testNullStringRepresentation2() returns string {
 
 function testNullStringRepresentation3() returns string|error {
     json j = {name:"John Doe", age:25, location:null};
-    return string.convert(j);
+    return j.toString();
 }
 
 function testNullStringRepresentation4() returns string {

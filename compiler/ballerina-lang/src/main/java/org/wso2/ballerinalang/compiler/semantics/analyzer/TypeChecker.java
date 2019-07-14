@@ -664,7 +664,7 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 listConstructor.typedescType = new BTupleType(actualTypes);
             }
-            resultType = symTable.typeDesc;
+            resultType = new BTypedescType(listConstructor.typedescType, null);
             return;
         } else if (expTypeTag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) this.expType;
@@ -766,6 +766,10 @@ public class TypeChecker extends BLangNodeVisitor {
                                         ? listConstructorExpr.exprs.size() : ((BArrayType) type).size,
                                 ((BArrayType) type).state);
                     } else {
+                        if (type.tag == TypeTags.ARRAY
+                                && types.isAssignable(arrayLiteralType, ((BArrayType) type).eType)) {
+                            arrayLiteralType = ((BArrayType) type).eType;
+                        }
                         actualType = new BArrayType(arrayLiteralType);
                     }
                     listCompatibleTypes.addAll(getListCompatibleTypes(type, actualType));
@@ -1129,7 +1133,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
-                actualType = new BTypedescType(TypeTags.TYPEDESC, symbol.type, null);
+                actualType = new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 varRefExpr.symbol = symbol;
@@ -2092,7 +2096,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangTypedescExpr accessExpr) {
         accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
-        BType actualType = expType.tag != TypeTags.TYPEDESC ? accessExpr.resolvedType : symTable.typeDesc;
+        int resolveTypeTag = accessExpr.resolvedType.tag;
+        final BType actualType;
+
+        if (resolveTypeTag != TypeTags.TYPEDESC && resolveTypeTag != TypeTags.NONE) {
+            actualType = new BTypedescType(accessExpr.resolvedType, null);
+        } else {
+            actualType = accessExpr.resolvedType;
+        }
         resultType = types.checkType(accessExpr, actualType, expType);
     }
 
@@ -2107,7 +2118,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (OperatorKind.TYPEOF.equals(unaryExpr.operator)) {
             exprType = checkExpr(unaryExpr.expr, env);
             if (exprType != symTable.semanticError) {
-                actualType = symTable.typeDesc;
+                actualType = new BTypedescType(exprType, null);
             }
         } else {
             exprType = OperatorKind.ADD.equals(unaryExpr.operator) ? checkExpr(unaryExpr.expr, env, expType) :
