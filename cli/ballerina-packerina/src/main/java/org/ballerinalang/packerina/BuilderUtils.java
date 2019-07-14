@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -32,15 +33,23 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -111,6 +120,15 @@ public class BuilderUtils {
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
                     targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+
+            // Create executable jar files.
+            if (bLangPackage.symbol.entryPointExists) {
+                outStream.println();
+                outStream.println("Generating Executables");
+                assembleExecutable(bLangPackage, sourceRootPath);
+            } else {
+                throw new BLangCompilerException("package `" + packageName + "` do not have an entry point");
+            }
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
@@ -145,10 +163,12 @@ public class BuilderUtils {
 
         Path target = prepareTargetDirectory(sourceRootPath);
         Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                              .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
+            outStream.println("Generating artifacts");
+            compiler.write(packages);
             for (BLangPackage bLangPackage : packages) {
                 try {
                     //TODO: replace with actual target dir
@@ -162,7 +182,15 @@ public class BuilderUtils {
                     throw new BLangCompilerException("error invoking jballerina backend", e);
                 }
             }
-            compiler.write(packages);
+
+            // Create executable jar files.
+            List<BLangPackage> entryPackages = packages.stream().filter(p -> p.symbol.entryPointExists)
+                    .collect(Collectors.toList());
+            if (!entryPackages.isEmpty()) {
+                outStream.println();
+                outStream.println("Generating executables");
+                entryPackages.forEach(p -> assembleExecutable(p, sourceRootPath));
+            }
             return;
         }
 
@@ -294,6 +322,92 @@ public class BuilderUtils {
             } catch (IOException e) {
                 throw new BLangCompilerException("unable to create target bir cache directory");
             }
+        }
+    }
+
+    public static void assembleExecutable(BLangPackage bLangPackage, Path project) {
+        try {
+            final Path target = project.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            final Path bin = target.resolve(ProjectDirConstants.BIN_DIR_NAME);
+            final Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+            // Check if the package has an entry point.
+            if (bLangPackage.symbol.entryPointExists) {
+                // Create bin directory if it is not there.
+                Files.createDirectories(bin);
+
+                String moduleJarName = bLangPackage.packageID.name.value
+                        + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+                // Copy the jar from cache to bin directory
+                Path uberJar = bin.resolve(moduleJarName);
+                Path moduleJar = jarCache.resolve(moduleJarName);
+                Files.copy(moduleJar, uberJar, StandardCopyOption.REPLACE_EXISTING);
+
+                // Get the fs handle to the jar file
+                URI uberJarUri = URI.create("jar:" + uberJar.toUri().toString());
+                try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+                    Path to = toFs.getRootDirectories().iterator().next();
+
+                    // Iterate through the imports and copy dependencies.
+                    for (BPackageSymbol importz : bLangPackage.symbol.imports) {
+                        Path importJar = jarCache.resolve(importz.pkgID.name.value +
+                                ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+                        if (Files.exists(importJar)) {
+                            URI moduleJarUri = URI.create("jar:" + importJar.toUri().toString());
+                            Path from = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())
+                                    .getRootDirectories().iterator().next();
+                            Files.walkFileTree(from, new Copy(from, to));
+                        }
+                    }
+
+                }
+                // Copy dependency jar
+                // Copy dependency libraries
+
+                // Executable is created at give location.
+                outStream.println(project.relativize(uberJar).toString());
+            }
+            // If no entry point is found we do nothing.
+        } catch (IOException e) {
+            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+        }
+    }
+
+    static class Copy extends SimpleFileVisitor<Path> {
+        private Path fromPath;
+        private Path toPath;
+        private StandardCopyOption copyOption;
+
+
+        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOption = copyOption;
+        }
+
+        public Copy(Path fromPath, Path toPath) {
+            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+
+            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
+            if (!Files.exists(targetPath)) {
+                Files.createDirectory(targetPath);
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+            if (!Files.exists(toFile)) {
+                Files.copy(file, toFile, copyOption);
+            }
+            return FileVisitResult.CONTINUE;
         }
     }
 }

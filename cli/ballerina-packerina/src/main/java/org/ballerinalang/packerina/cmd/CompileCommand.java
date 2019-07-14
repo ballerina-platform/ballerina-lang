@@ -1,9 +1,27 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -86,6 +104,10 @@ public class CompileCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
+        // ToDo: We will temporarily disable old code gen and tests
+        jvmTarget = true;
+        skiptests = true;
+
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(COMPILE_COMMAND);
             errStream.println(commandUsageInfo);
@@ -140,7 +162,8 @@ public class CompileCommand implements BLauncherCmd {
                 targetFileName = pkgName;
             }
 
-            Path resolvedFullPath = sourceRootPath.resolve(sourcePath);
+            Path resolvedFullPath = sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                                  .resolve(sourcePath);
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&
                     sourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
@@ -164,7 +187,7 @@ public class CompileCommand implements BLauncherCmd {
                 // Checks if the source is a module and if its inside a project (with a .ballerina folder)
                 if (Files.isDirectory(resolvedFullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
                     throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
-                            "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                            "a project. Run `ballerina new` from " + sourceRootPath + " to initialize it as a " +
                             "project and then build the module.");
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
@@ -204,13 +227,6 @@ public class CompileCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-//            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
-//                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
-//            } else {
-//                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
-//            }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);

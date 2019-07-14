@@ -1,5 +1,5 @@
+import jo/myimport;
 
-
-public function main() {
-    int x = 9;
+public function main(string... args) {
+    int x = myimport:foo();
 }

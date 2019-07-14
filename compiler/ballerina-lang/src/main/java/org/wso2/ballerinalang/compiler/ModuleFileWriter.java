@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
 public class ModuleFileWriter {
     private static final CompilerContext.Key<ModuleFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
+    private PrintStream outStream = System.out;
 
     private final SourceDirectory sourceDirectory;
     private final Manifest manifest;
@@ -126,6 +128,7 @@ public class ModuleFileWriter {
         try (FileSystem balo = createBaloArchive(baloFile)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
+            outStream.println("Created " + projectDirectory.relativize(baloFile));
         } catch (IOException e) {
             // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);

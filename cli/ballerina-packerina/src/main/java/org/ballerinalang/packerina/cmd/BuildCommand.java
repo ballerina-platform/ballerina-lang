@@ -42,8 +42,20 @@ import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
  */
 @CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
-    private static final String USER_DIR = "user.dir";
-    private static PrintStream outStream = System.err;
+
+    private Path userDir;
+    private PrintStream errStream;
+
+    public BuildCommand() {
+        userDir = Paths.get(System.getProperty("user.dir"));
+        errStream = System.err;
+    }
+
+    public BuildCommand(Path userDir, PrintStream errStream) {
+        this.userDir = userDir;
+        this.errStream = errStream;
+    }
+
 
     @CommandLine.Option(names = {"-c"}, description = "build a compiled module")
     private boolean buildCompiledPkg;
@@ -90,18 +102,25 @@ public class BuildCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
+        // ToDo: We will temporarily disable old code gen and tests
+        jvmTarget = true;
+        skiptests = true;
+
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
-            outStream.println(commandUsageInfo);
+            errStream.println(commandUsageInfo);
             return;
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            CommandUtil.printError(errStream,
+                    "too many arguments.",
+                    "ballerina compile [<module-name>]",
+                    true);
         }
 
         // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        Path sourceRootPath = userDir;
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
@@ -191,18 +210,10 @@ public class BuildCommand implements BLauncherCmd {
             // "ballerina.conf" in the source root path is taken.
             LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
-//            if (jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET))) {
-//                BuilderUtils.compileAndWriteJar(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, dumpBIR);
-//            } else {
-//                BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
-//                        offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag);
-//            }
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
         }
-        Runtime.getRuntime().exit(0);
     }
 
     /**

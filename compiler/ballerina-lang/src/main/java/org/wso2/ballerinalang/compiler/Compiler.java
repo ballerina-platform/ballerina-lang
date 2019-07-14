@@ -109,9 +109,9 @@ public class Compiler {
     }
 
     public void write(List<BLangPackage> packageList) {
-        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
+        /*if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
             outStream.println("Generating executables");
-        }
+        }*/
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(this.moduleFileWriter::write);
         packageList.forEach(this.birFileWriter::write);
