@@ -55,7 +55,7 @@ public class IndexOf extends BlockingNativeCallableUnit {
 
     public static Object indexOf(Strand strand, String value, String subString, long startIndx) {
         int index =  value.indexOf(subString, (int) startIndx);
-        if (index > 0) {
+        if (index >= 0) {
             return index;
         }
 

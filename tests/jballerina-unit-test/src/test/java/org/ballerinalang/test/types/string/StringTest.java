@@ -69,7 +69,8 @@ public class StringTest {
     @Test
     public void testHasPrefix() {
         BValue[] args = {new BString("Expendables"), new BString("Ex")};
-        BRunUtil.invoke(result, "hasPrefix", args);
+        BValue[] results = BRunUtil.invoke(result, "hasPrefix", args);
+        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
     }
 
     @Test
