@@ -32,13 +32,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "transactions",
-        functionName = "cleanupTransactionContext",
-        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
+        functionName = "getAndClearFailure",
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class CleanupTransactionContext {
+public class GetAndClearFailure {
 
-    public static void cleanupTransactionContext(Strand strand, String transactionBlockId) {
-        strand.removeLocalTransactionContext();
+    public static boolean getAndClearFailure(Strand strand) {
+        return strand.getLocalTransactionContext().getAndClearFailure() != null;
     }
 }

@@ -127,7 +127,7 @@ public class TransactionResourceManager {
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
-        transactionLocalContext.beginTransactionBlock(transactionBlockId, 1);
+        transactionLocalContext.beginTransactionBlock(transactionBlockId);
     }
 
     /**
