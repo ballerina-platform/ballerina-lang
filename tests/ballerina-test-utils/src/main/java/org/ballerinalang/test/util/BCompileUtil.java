@@ -165,7 +165,6 @@ public class BCompileUtil {
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
         String funcName = cleanupFunctionName(name);
         try {
-            
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
             Scheduler scheduler = new Scheduler(4, false);
             //TODO fix following method invoke to scheduler.schedule()

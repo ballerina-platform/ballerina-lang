@@ -24,7 +24,7 @@ import ballerina/system;
 # + encoding - Encoding
 # + return - CharacterChannel of the file after writing to the file
 function openForWriting(string filePath, string encoding) returns @tainted io:WritableCharacterChannel {
-    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+    io:WritableByteChannel byteChannel = checkpanic io:openWritableFile(filePath);
     io:WritableCharacterChannel result = new io:WritableCharacterChannel(byteChannel, encoding);
     return result;
 }

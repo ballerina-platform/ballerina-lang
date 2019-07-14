@@ -119,7 +119,10 @@ dependencies {
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
-    birJar  project(path: ':ballerina-cli-utils', configuration: 'cliJars')
+    birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
+    birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
+    birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
+    birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
@@ -158,9 +161,7 @@ def copyBirSpec = {
 
 def copyBirJarSpec = {
     path -> copySpec {
-        from(configurations.birJar) {
-            include '**/*.jar'
-        }
+        from configurations.birJar
         into(path + 'bre/lib')
     }
 }

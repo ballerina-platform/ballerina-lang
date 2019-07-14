@@ -177,7 +177,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                 }
             }
 
-            io:WritableByteChannel wch = io:openWritableFile(<@untainted> destArchivePath);
+            io:WritableByteChannel wch = checkpanic io:openWritableFile(<@untainted> destArchivePath);
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
