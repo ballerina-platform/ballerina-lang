@@ -29,7 +29,7 @@ public enum HttpErrorType {
     ALL_LOAD_BALANCE_ENDPOINTS_FAILED("AllLoadBalanceEndpointsFailedError",
             "{ballerina/http}AllLoadBalanceEndpointsFailed"),
     ALL_RETRY_ATTEMPTS_FAILED("AllRetryAttemptsFailed", "{ballerina/http}AllRetryAttemptsFailed"),
-    IDLE_TIMEOUT_TRIGGERED("IdleTimeoutTriggeredError", "{ballerina/http}IdleTimeoutTriggeredError"),
+    IDLE_TIMEOUT_TRIGGERED("IdleTimeoutError", "{ballerina/http}IdleTimeoutError"),
 
     // ClientAuthError
     AUTHN_FAILED("AuthenticationError", "{ballerina/http}AuthenticationFailed"),

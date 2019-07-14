@@ -588,7 +588,7 @@ public class HttpUtil {
 
     // TODO: Find a better way to get the error type than String matching.
     private static HttpErrorType getErrorType(String errorMessage) {
-        // Every Idle Timeout triggered error is mapped to IdleTimeoutTriggeredError
+        // Every Idle Timeout triggered error is mapped to IdleTimeoutError
         if (errorMessage.contains("Idle timeout triggered")) {
             return HttpErrorType.IDLE_TIMEOUT_TRIGGERED;
         }

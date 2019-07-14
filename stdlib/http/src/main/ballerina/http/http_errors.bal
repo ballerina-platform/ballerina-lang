@@ -41,8 +41,8 @@ public type AllLoadBalanceEndpointsFailedError error<ALL_LOAD_BALANCE_ENDPOINTS_
 public const ALL_RETRY_ATTEMPTS_FAILED = "{ballerina/http}AllRetryAttemptsFailed";
 public type AllRetryAttemptsFailed error<ALL_RETRY_ATTEMPTS_FAILED, Detail>;
 
-public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutTriggeredError";
-public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
+public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutError";
+public type IdleTimeoutError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
 # Security errors
 public const AUTHN_FAILED = "{ballerina/http}AuthenticationFailed";
@@ -120,7 +120,7 @@ public type SslError error<SSL_ERROR, Detail>;
 # Ballerina Http Union Errors
 public type ResiliencyError FailoverAllEndpointsFailedError|FailoverActionFailedError|
                             UpstreamServiceUnavailableError|AllLoadBalanceEndpointsFailedError|AllRetryAttemptsFailed|
-                            IdleTimeoutTriggeredError;
+                            IdleTimeoutError;
 
 public type ClientAuthError AuthenticationError|AuthorizationError;
 
