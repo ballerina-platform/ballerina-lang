@@ -1073,7 +1073,7 @@ public class BRunUtil {
                 bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
-                bvmValue = new BHandleValue(((HandleValue) value).value);
+                bvmValue = new BHandleValue(((HandleValue) value).getValue());
                 break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
