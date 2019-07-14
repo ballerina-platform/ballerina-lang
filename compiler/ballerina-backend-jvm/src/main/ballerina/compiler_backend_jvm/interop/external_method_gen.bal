@@ -53,7 +53,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
 
     // generate method desc
     bir:Function birFunc = extFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
     int selfParamIndex = -1;
