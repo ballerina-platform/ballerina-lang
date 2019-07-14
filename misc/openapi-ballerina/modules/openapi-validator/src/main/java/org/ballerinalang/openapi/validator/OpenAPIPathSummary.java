@@ -35,12 +35,10 @@ class OpenAPIPathSummary {
     private String path;
     private List<String> availableOperations;
     private Map<String, Operation> operations;
-    private Map<String, Schema> components;
 
     OpenAPIPathSummary() {
         this.availableOperations = new ArrayList<>();
         this.operations = new HashMap<>();
-        this.components = new HashMap<>();
         this.path = null;
     }
 
@@ -54,18 +52,6 @@ class OpenAPIPathSummary {
 
     List<String> getAvailableOperations() {
         return availableOperations;
-    }
-
-    void setAvailableOperations(List<String> availableOperations) {
-        this.availableOperations = availableOperations;
-    }
-
-    Map<String, Operation> getOperations() {
-        return operations;
-    }
-
-    void setOperations(Map<String, Operation> operations) {
-        this.operations = operations;
     }
 
     void addOperation(String method, Operation operation) {
@@ -82,10 +68,6 @@ class OpenAPIPathSummary {
             return false;
         }
         return operation.getTags().containsAll(tags);
-    }
-
-    boolean hasMethod(String method) {
-        return this.availableOperations.contains(method);
     }
 
     List<OpenAPIParameter> getParamNamesForOperation(String operation) {

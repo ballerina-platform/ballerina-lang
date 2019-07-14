@@ -47,10 +47,6 @@ class ResourceSummary {
         this.methodsPosition = null;
     }
 
-    Diagnostic.DiagnosticPosition getResourcePosition() {
-        return resourcePosition;
-    }
-
     void setResourcePosition(Diagnostic.DiagnosticPosition position) {
         this.resourcePosition = position;
     }
@@ -65,10 +61,6 @@ class ResourceSummary {
 
     List<String> getMethods() {
         return methods;
-    }
-
-    void setMethods(List<String> methods) {
-        this.methods = methods;
     }
 
     void addMethod(String method) {
@@ -86,10 +78,6 @@ class ResourceSummary {
         return isAvailable;
     }
 
-    boolean isPathAvailable(String path) {
-        return this.path.equals(path);
-    }
-
     Diagnostic.DiagnosticPosition getPathPosition() {
         return pathPosition;
     }
@@ -104,14 +92,6 @@ class ResourceSummary {
 
     void setMethodsPosition(Diagnostic.DiagnosticPosition methodsPosition) {
         this.methodsPosition = methodsPosition;
-    }
-
-    public Map<String, BLangSimpleVariable> getParameters() {
-        return parameters;
-    }
-
-    public boolean isParameterExist(String paramName) {
-        return this.parameters.get(paramName) != null;
     }
 
     public void setParameters(List<? extends SimpleVariableNode> parameters) {
@@ -140,12 +120,12 @@ class ResourceSummary {
         return paramNames;
     }
 
-    public BLangSimpleVariable getParameter(String name) {
-        return this.parameters.get(name);
-    }
-
     public String getBody() {
         return body;
+    }
+
+    public Diagnostic.DiagnosticPosition getResourcePosition() {
+        return resourcePosition;
     }
 
     public void setBody(String body) {

@@ -37,10 +37,6 @@ class OpenAPIComponentSummary {
         return null;
     }
 
-    Components getComponents() {
-        return this.components;
-    }
-
     void setComponents(Components components) {
         this.components = components;
     }
