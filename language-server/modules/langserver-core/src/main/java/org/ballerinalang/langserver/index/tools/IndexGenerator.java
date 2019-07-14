@@ -61,25 +61,26 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", /*"jdbc",*/
-                "encoding", "file", "filepath", "grpc", "http", "internal", "io", /*"jms",*/ "jwt", "ldap",
-                "log", "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
-                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"
-                /*, "websub"*/);
-        CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        packages.forEach(pkg -> {
-            try {
-                PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                        new org.wso2.ballerinalang.compiler.util.Name(pkg),
-                        new org.wso2.ballerinalang.compiler.util.Name(""));
-                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
-                Objects.requireNonNull(bPackageSymbol);
-                bPackageSymbols.add(bPackageSymbol);
-            } catch (Exception e) {
-                logger.error("Cannot Load Package: ballerina/" + pkg);
-                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
-            }
-        });
+//        List<String> packages = new ArrayList<>();
+//                Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", /*"jdbc",*/
+//                "encoding", "file", "filepath", "grpc", "http", "internal", "io", /*"jms",*/ "jwt", "ldap",
+//                "log", "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
+//                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"
+//                /*, "websub"*/);
+//        CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+//        packages.forEach(pkg -> {
+//            try {
+//                PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
+//                        new org.wso2.ballerinalang.compiler.util.Name(pkg),
+//                        new org.wso2.ballerinalang.compiler.util.Name(""));
+//                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
+//                Objects.requireNonNull(bPackageSymbol);
+//                bPackageSymbols.add(bPackageSymbol);
+//            } catch (Exception e) {
+//                logger.error("Cannot Load Package: ballerina/" + pkg);
+//                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
+//            }
+//        });
 
         return bPackageSymbols;
     }

@@ -217,7 +217,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             this.addBLangFunctionSymbol(funcNode);
         }
         funcNode.annAttachments.forEach(this::acceptNode);
-        funcNode.defaultableParams.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);

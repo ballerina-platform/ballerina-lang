@@ -419,10 +419,11 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                && !currentPkgID.name.value.equals(packageID.name.value)) {
-            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
+//        else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+//                && !currentPkgID.name.value.equals(packageID.name.value)) {
+//            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+//        }
 
         boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
         
@@ -1190,11 +1191,11 @@ public class CommonUtil {
             return CommonUtil.getBTypeName(symbol.type, ctx) + " " + symbol.getName();
         } else {
             String defaultStringVal;
-            if (symbol.defaultValue == null || symbol.defaultValue.getValue() == null) {
+//            if (symbol.defaultValue == null || symbol.defaultValue.getValue() == null) {
                 defaultStringVal = "()";
-            } else {
-                defaultStringVal = symbol.defaultValue.getValue().toString();
-            }
+//            } else {
+//                defaultStringVal = symbol.defaultValue.getValue().toString();
+//            }
             return CommonUtil.getBTypeName(symbol.type, ctx) + " " + symbol.getName() + " = " + defaultStringVal;
         }
     }
