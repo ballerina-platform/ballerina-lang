@@ -34,13 +34,13 @@ public enum Snippet {
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
-    DEF_NEW_OBJECT_INITIALIZER(SnippetGenerator.getObjectInitializerSnippet()),
-
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
-    DEF_RESOURCE(SnippetGenerator.getResourceDefinitionSnippet()),
+    DEF_RESOURCE_HTTP(SnippetGenerator.getHttpResourceDefinitionSnippet()),
+
+    DEF_RESOURCE_COMMON(SnippetGenerator.getCommonResourceDefinitionSnippet()),
 
     DEF_RESOURCE_GRPC(SnippetGenerator.getGRPCResourceDefinitionSnippet()),
 
@@ -66,6 +66,13 @@ public enum Snippet {
 
     DEF_ERROR(SnippetGenerator.getErrorDefinitionSnippet()),
 
+    DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
+
+    DEF_ATTACH_FUNCTION(SnippetGenerator.getAttachFunctionSnippet()),
+
+    DEF_START_FUNCTION(SnippetGenerator.getStartFunctionSnippet()),
+
+    DEF_STOP_FUNCTION(SnippetGenerator.getStopFunctionSnippet()),
 
     // Expressions Snippets
     EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
@@ -107,6 +114,8 @@ public enum Snippet {
     KW_CLIENT(SnippetGenerator.getClientKeywordSnippet()),
 
     KW_EXTERNAL(SnippetGenerator.getExternalKeywordSnippet()),
+
+    KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
     // Statement Snippets
     STMT_ABORT(SnippetGenerator.getAbortSnippet()),

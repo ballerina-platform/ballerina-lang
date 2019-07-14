@@ -22,7 +22,7 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 /**
  * Container to hold the OpenAPI parameter details needed for the validator plugin.
  */
-public class OpenAPIParameter {
+class OpenAPIParameter {
     private String name;
     private String paramType;
     private String type;
@@ -35,70 +35,35 @@ public class OpenAPIParameter {
         parameter = null;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
-    public String getParamType() {
-        return paramType;
-    }
-
-    public void setParamType(String paramType) {
+    void setParamType(String paramType) {
         this.paramType = paramType;
     }
 
-    public String getType() {
-        return convertOpenAPITypeToBallerina();
-    }
-
-    public void setType(String type) {
+    void setType(String type) {
         this.type = type;
     }
 
-    public Parameter getParameter() {
+    Parameter getParameter() {
         return parameter;
     }
 
-    public void setParameter(Parameter parameter) {
+    void setParameter(Parameter parameter) {
         this.parameter = parameter;
     }
 
-    String convertOpenAPITypeToBallerina() {
-        String convertedType;
-        switch (this.type) {
-            case "integer":
-                convertedType = "int";
-                break;
-            case "string":
-                convertedType = "string";
-                break;
-            case "boolean":
-                convertedType = "boolean";
-                break;
-            case "array":
-                convertedType = "[]";
-                break;
-            case "object":
-                convertedType = "record";
-                break;
-            case "number":
-                convertedType = "decimal";
-                break;
-            default:
-                convertedType = "";
-        }
-        return convertedType;
-    }
-
-    public boolean isTypeAvailableAsRef() {
+    boolean isTypeAvailableAsRef() {
         return parameter.getSchema().get$ref() != null;
     }
 
-    public String getLocalRef() {
+    String getLocalRef() {
         String componentName = null;
         String ref = parameter.getSchema().get$ref();
         if (ref != null && ref.startsWith("#")) {
@@ -106,5 +71,13 @@ public class OpenAPIParameter {
             componentName = splitRef[splitRef.length - 1];
         }
         return componentName;
+    }
+
+    public String getParamType() {
+        return paramType;
+    }
+
+    public String getType() {
+        return type;
     }
 }

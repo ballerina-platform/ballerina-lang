@@ -20,8 +20,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-    private boolean inDeprecatedTemplate = false;
-
     private boolean inSiddhi = false;
     private boolean inTableSqlQuery = false;
     private boolean inSiddhiInsertQuery = false;
@@ -60,12 +58,12 @@ HexDigit = [0-9a-fA-F]
 HexadecimalFloatingPointLiteral =  {HexIndicator} {HexFloatingPointNumber}
 HexIndicator = 0 [xX]
 
-DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} | {DottedDecimalNumber} {ExponentPart}?
+DecimalFloatingPointNumber = {DecimalNumeral} {ExponentPart} {DecimalFloatSelector}? | {DottedDecimalNumber} {ExponentPart}? {DecimalFloatSelector}?
 ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
-
+DecimalFloatSelector = [dDfF]
 
 HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
@@ -111,17 +109,34 @@ LETTER = [a-zA-Z_] | [^\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uD
 DIGIT = [0-9]
 LETTER_OR_DIGIT = [a-zA-Z0-9_] | [^\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF]
 
-IDENTIFIER = {LETTER} {LETTER_OR_DIGIT}* | {IdentifierLiteral}
-IdentifierLiteral = \^ \" {IdentifierLiteralChar}+ \"
-IdentifierLiteralChar = [^|\"\\\b\f\n\r\t] | {IdentifierLiteralEscapeSequence}
-IdentifierLiteralEscapeSequence = \\ [|\"\\\/] | \\\\ [btnfr] | {UnicodeEscape}
+IDENTIFIER = {UnquotedIdentifier} | {QuotedIdentifier}
+UnquotedIdentifier =  {IdentifierInitialChar} {IdentifierFollowingChar}*
+QuotedIdentifier =  '\'' {QuotedIdentifierChar}+
+QuotedIdentifierChar = {IdentifierFollowingChar} | {QuotedIdentifierEscape} | {StringNumericEscape}
+
+// IdentifierInitialChar :=  AsciiLetter | _ | UnicodeIdentifierChar
+// UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar )
+// AsciiChar := 0x0 .. 0x7F
+// UnicodeNonIdentifierChar := UnicodePrivateUseChar | UnicodePatternWhiteSpaceChar | UnicodePatternSyntaxChar
+// UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
+// UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029
+// UnicodePatternSyntaxChar := character with Unicode property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
+IdentifierInitialChar = [a-zA-Z_]
+    // Negates ( AsciiChar | UnicodeNonIdentifierChar )
+    | [^\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
+
+IdentifierFollowingChar = {IdentifierInitialChar} | {DIGIT}
+
+// QuotedIdentifierEscape := \ ^ ( AsciiLetter | 0x9 | 0xA | 0xD | UnicodePatternWhiteSpaceChar )
+// AsciiLetter := A .. Z | a .. z
+// UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029
+QuotedIdentifierEscape = '\\' ~ ([a-zA-Z]|'\u0009'|'\u000A'|'\u000D'|'\u200E'|'\u200F'|'\u2028'|'\u2029')
+StringNumericEscape = '\\' [|\"\\/] |   '\\\\' [btnfr] | {UnicodeEscape}
 UnicodeEscape = "\\u" {HexDigit} {HexDigit} {HexDigit} {HexDigit}
 
 WHITE_SPACE=\s+
 
 BACKTICK = "`"
-LEFT_BRACE = "{"
-RIGHT_BRACE = "}"
 
 // Todo - Add inspection
 LINE_COMMENT = "/" "/" [^\r\n]*
@@ -130,10 +145,6 @@ XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 
 STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
-
-
-DEPRECATED = "deprecated"
-DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
 
 INTERPOLATION_START = "${"
 
@@ -151,10 +162,12 @@ XML_TAG_OPEN_SLASH = "</"
 XML_TAG_SPECIAL_OPEN = "<?" ({XML_QNAME} {QNAME_SEPARATOR})? {XML_QNAME} {XML_WS} // Todo - Fix
 XML_TAG_OPEN = "<"
 XML_LITERAL_END = "`"
-XML_TEMPLATE_TEXT = {XML_TEXT_SEQUENCE}? {INTERPOLATION_START}
-XML_TEXT_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XML_TEXT_CHAR} {XML_BRACES_SEQUENCE}?)* | {XML_BRACES_SEQUENCE}+
-XML_TEXT_CHAR = [^<&$`{}] | '\\' [`] | {XML_WS} | {XML_ESCAPED_SEQUENCE}
+XML_TEMPLATE_TEXT = {XML_TEXT}? {INTERPOLATION_START}
+XML_TEXT = {XML_TEXT_CHAR}+
+XML_TEXT_CHAR = [^<&$`{] | '\\' [`] | {XML_WS} | {XML_ESCAPED_SEQUENCE} | {XML_DOLLAR_SEQUENCE} | {XML_BRACES_SEQUENCE}
 XML_ESCAPED_SEQUENCE =  \\\\ | \\\$\{ | \\} | \\\{ | &(gt|lt|amp);
+// Todo - verify whether !\$\{ is a proper alternative for lookaheads
+XML_DOLLAR_SEQUENCE =  '\$'+ !\$\{
 XML_BRACES_SEQUENCE = (\{})+ (\{)* (})* | (}\{)+ (\{)* (})* | (\{\{)+ (\{)* (})* | (}})+ (\{)* (})* | (\{})* \{ | } (\{})*
 
 // XML_TAG
@@ -176,7 +189,7 @@ NAME_START_CHAR = [a-zA-Z_] | [\u2070-\u218F] | [\u2C00-\u2FEF] | [\u3001-\uD7FF
 DOUBLE_QUOTE_END = "\""
 XML_DOUBLE_QUOTED_TEMPLATE_STRING = {XML_DOUBLE_QUOTED_STRING_SEQUENCE}? {INTERPOLATION_START}
 XML_DOUBLE_QUOTED_STRING_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)*
-XMLDoubleQuotedStringChar = [^$<\"{}\\] | {XML_ESCAPED_SEQUENCE}
+XMLDoubleQuotedStringChar = [^$<\"{}\\] | {XML_ESCAPED_SEQUENCE} | {XML_DOLLAR_SEQUENCE}
 
 // SINGLE_QUOTED_XML_STRING
 SINGLE_QUOTE_END = "'"
@@ -197,6 +210,7 @@ XML_PI_SPECIAL_SEQUENCE = ">"+ | ">"* "?"+
 XML_COMMENT_END = "-->"
 XML_COMMENT_TEMPLATE_TEXT = {XML_COMMENT_TEXT_FRAGMENT} {INTERPOLATION_START}
 XML_COMMENT_TEXT_FRAGMENT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR} {XML_COMMENT_ALLOWED_SEQUENCE}?)*
+// Todo - verify whether !\$\{ is a proper alternative for lookaheads
 XML_COMMENT_CHAR = [^>\\-] | {XML_BRACES_SEQUENCE} | {XML_ESCAPED_SEQUENCE} | '\\'[`] | !\$\{
 XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
 XML_COMMENT_SPECIAL_SEQUENCE = >+ | >? - [^-]
@@ -241,32 +255,6 @@ PARAMETER_NAME = {IDENTIFIER}
 DESCRIPTION_SEPARATOR = {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
 PARAMETER_DOCUMENTATION_END = [\n]
 
-// TRIPLE_BACKTICK_INLINE_CODE
-TRIPLE_BACK_TICK_INLINE_CODE_END = {BACKTICK} {BACKTICK} {BACKTICK}
-TRIPLE_BACK_TICK_INLINE_CODE = {TRIPLE_BACK_TICK_INLINE_CODE_CHAR}+
-TRIPLE_BACK_TICK_INLINE_CODE_CHAR = [^`] | [`] [^`] | [`] [`] [^`]
-
-// DOUBLE_BACKTICK_INLINE_CODE
-DOUBLE_BACK_TICK_INLINE_CODE_END = {BACKTICK} {BACKTICK}
-DOUBLE_BACK_TICK_INLINE_CODE = {DOUBLE_BACK_TICK_INLINE_CODE_CHAR}+
-DOUBLE_BACK_TICK_INLINE_CODE_CHAR = [^`] | [`] [^`]
-
-// SINGLE_BACKTICK_INLINE_CODE
-SINGLE_BACK_TICK_INLINE_CODE_END = {BACKTICK}
-SINGLE_BACK_TICK_INLINE_CODE = {SINGLE_BACK_TICK_INLINE_CODE_CHAR}+
-SINGLE_BACK_TICK_INLINE_CODE_CHAR = [^`]
-
-// DEPRECATED_TEMPLATE
-DEPRECATED_TEMPLATE_END = {RIGHT_BRACE}
-SB_DEPRECATED_INLINE_CODE_START = {DEPRECATED_BACK_TICK}
-DB_DEPRECATED_INLINE_CODE_START = {DEPRECATED_BACK_TICK} {DEPRECATED_BACK_TICK}
-TB_DEPRECATED_INLINE_CODE_START = {DEPRECATED_BACK_TICK} {DEPRECATED_BACK_TICK} {DEPRECATED_BACK_TICK}
-DEPRECATED_TEMPLATE_TEXT = {DEPRECATED_VALID_CHAR_SEQUENCE}? ({DEPRECATED_TEMPLATE_STRING_CHAR} {DEPRECATED_VALID_CHAR_SEQUENCE}?)+ | {DEPRECATED_VALID_CHAR_SEQUENCE} ({DEPRECATED_TEMPLATE_STRING_CHAR} {DEPRECATED_VALID_CHAR_SEQUENCE}?)*
-DEPRECATED_TEMPLATE_STRING_CHAR = [^`{}\\] | '\\' [{}`] | {WHITE_SPACE} | {DEPRECATED_ESCAPED_SEQUENCE}
-DEPRECATED_BACK_TICK = "`"
-DEPRECATED_ESCAPED_SEQUENCE = '\\\\'
-DEPRECATED_VALID_CHAR_SEQUENCE = '\\' ~'\\'
-
 // STRING_TEMPLATE
 STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
 STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
@@ -286,11 +274,6 @@ DOLLAR = \$
 %state SINGLE_BACKTICKED_MARKDOWN_MODE
 %state DOUBLE_BACKTICKED_MARKDOWN_MODE
 %state TRIPLE_BACKTICKED_MARKDOWN_MODE
-
-%state SINGLE_BACKTICK_INLINE_CODE_MODE
-%state DOUBLE_BACKTICK_INLINE_CODE_MODE
-%state TRIPLE_BACKTICK_INLINE_CODE_MODE
-%state DEPRECATED_TEMPLATE_MODE
 
 %state STRING_TEMPLATE_MODE
 
@@ -323,7 +306,6 @@ DOLLAR = \$
 
     "decimal"                                   { return DECIMAL; }
     "default"                                   { return DEFAULT; }
-    "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
 
     "else"                                      { return ELSE; }
@@ -374,6 +356,7 @@ DOLLAR = \$
     "returns"                                   { return RETURNS; }
 
     "service"                                   { return SERVICE; }
+    "source"                                    { return SOURCE; }
     "start"                                     { return START; }
     "stream"                                    { return STREAM; }
     "string"                                    { return STRING; }
@@ -384,9 +367,8 @@ DOLLAR = \$
     "try"                                       { return TRY; }
     "type"                                      { return TYPE; }
     "typedesc"                                  { return TYPEDESC; }
+    "typeof"                                    { return TYPEOF; }
     "throw"                                     { return THROW; }
-
-    "untaint"                                   { return UNTAINT; }
 
     "wait"                                      { return WAIT; }
     "while"                                     { return WHILE; }
@@ -411,6 +393,8 @@ DOLLAR = \$
     "["                                         { return LEFT_BRACKET; }
     "]"                                         { return RIGHT_BRACKET; }
     "?"                                         { return QUESTION_MARK; }
+    "{|"                                        { return LEFT_CLOSED_RECORD_DELIMITER; }
+    "|}"                                        { return RIGHT_CLOSED_RECORD_DELIMITER; }
 
     "="                                         { return ASSIGN; }
     "+"                                         { return ADD; }
@@ -461,6 +445,8 @@ DOLLAR = \$
     ">>>="                                      { return COMPOUND_LOGICAL_SHIFT; }
 
     "..<"                                       { return HALF_OPEN_RANGE; }
+
+    ".@"                                        { return ANNOTATION_ACCESS; }
 
     "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
@@ -526,7 +512,6 @@ DOLLAR = \$
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
     {MARKDOWN_DOCUMENTATION_LINE_START}         { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }
 
-    {DEPRECATED_TEMPLATE_START}                 { inDeprecatedTemplate = true; yybegin(DEPRECATED_TEMPLATE_MODE); return DEPRECATED_TEMPLATE_START; }
     .                                           { return BAD_CHARACTER; }
 }
 
@@ -541,7 +526,7 @@ DOLLAR = \$
     {XML_TAG_OPEN}                              { yybegin(XML_TAG_MODE); return XML_TAG_OPEN; }
     {XML_LITERAL_END}                           { yybegin(YYINITIAL); return XML_LITERAL_END; }
     {XML_TEMPLATE_TEXT}                         { inXmlMode = true; yybegin(YYINITIAL); return XML_TEMPLATE_TEXT; }
-    {XML_TEXT_SEQUENCE}                         { return XML_TEXT_SEQUENCE; }
+    {XML_TEXT}                         { return XML_TEXT_SEQUENCE; }
     .                                           { return BAD_CHARACTER; }
 }
 
@@ -591,33 +576,6 @@ DOLLAR = \$
     {STRING_TEMPLATE_EXPRESSION_START}          { inStringTemplate = false; inStringTemplateExpression = true; yybegin(YYINITIAL); return STRING_TEMPLATE_EXPRESSION_START; }
     {STRING_TEMPLATE_TEXT}                      { return STRING_TEMPLATE_TEXT; }
     .                                           { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER; }
-}
-
-<SINGLE_BACKTICK_INLINE_CODE_MODE>{
-    {SINGLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return SINGLE_BACK_TICK_INLINE_CODE_END; }
-    {SINGLE_BACK_TICK_INLINE_CODE}              { return SINGLE_BACK_TICK_INLINE_CODE; }
-     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
-}
-
-<DOUBLE_BACKTICK_INLINE_CODE_MODE>{
-    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return DOUBLE_BACK_TICK_INLINE_CODE_END; }
-    {DOUBLE_BACK_TICK_INLINE_CODE}              { return DOUBLE_BACK_TICK_INLINE_CODE; }
-     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
-}
-
-<TRIPLE_BACKTICK_INLINE_CODE_MODE>{
-    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { yybegin(DEPRECATED_TEMPLATE_MODE); return TRIPLE_BACK_TICK_INLINE_CODE_END; }
-    {TRIPLE_BACK_TICK_INLINE_CODE}              { return TRIPLE_BACK_TICK_INLINE_CODE; }
-     .                                          { yybegin(DEPRECATED_TEMPLATE_MODE); return BAD_CHARACTER; }
-}
-
-<DEPRECATED_TEMPLATE_MODE>{
-    {DEPRECATED_TEMPLATE_END}                   { inDeprecatedTemplate = false; yybegin(YYINITIAL); return DEPRECATED_TEMPLATE_END; }
-    {SB_DEPRECATED_INLINE_CODE_START}           { yybegin(SINGLE_BACKTICK_INLINE_CODE_MODE); return SB_DEPRECATED_INLINE_CODE_START; }
-    {DB_DEPRECATED_INLINE_CODE_START}           { yybegin(DOUBLE_BACKTICK_INLINE_CODE_MODE); return DB_DEPRECATED_INLINE_CODE_START; }
-    {TB_DEPRECATED_INLINE_CODE_START}           { yybegin(TRIPLE_BACKTICK_INLINE_CODE_MODE); return TB_DEPRECATED_INLINE_CODE_START; }
-    {DEPRECATED_TEMPLATE_TEXT}                  { return DEPRECATED_TEMPLATE_TEXT; }
-    .                                           { yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
 
 <MARKDOWN_DOCUMENTATION_MODE>{

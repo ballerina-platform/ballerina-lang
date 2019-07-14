@@ -19,9 +19,9 @@ package org.ballerinalang.nativeimpl.jvm.label;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -41,9 +41,12 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
 public class Init extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        BMap<String, BValue> labelObject = (BMap<String, BValue>) context.getRefArgument(0);
+    public static void init(Strand strand, ObjectValue labelObject) {
         Label label = new Label();
         ASMUtil.addNativeDataToObject(label, labelObject);
     }

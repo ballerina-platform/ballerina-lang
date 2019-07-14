@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.index;
 
 import com.google.gson.Gson;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.index.dataholder.BLangPackageContent;
@@ -33,11 +34,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Utilities for DTO manipulation.
@@ -62,10 +63,11 @@ public class DTOUtil {
         List<BObjectTypeSymbol> objects = new ArrayList<>();
         List<BRecordTypeSymbol> records = new ArrayList<>();
         List<BInvokableSymbol> invokableSymbols = new ArrayList<>();
-        List<BTypeSymbol> otherTypes = new ArrayList<>();
+        List<BSymbol> otherTypes = new ArrayList<>();
 
             packageSymbol.scope.entries.entrySet().forEach(entry -> {
             BSymbol symbol = entry.getValue().symbol;
+            Optional<BSymbol> bTypeSymbol;
             if (symbol.kind != null) {
                 switch (symbol.kind) {
                     case OBJECT:
@@ -83,8 +85,8 @@ public class DTOUtil {
                     default:
                         break;
                 }
-            } else if (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol)) {
-                otherTypes.add((BTypeSymbol) symbol);
+            } else if ((bTypeSymbol = FilterUtils.getBTypeEntry(entry.getValue())).isPresent()) {
+                otherTypes.add(bTypeSymbol.get());
             }
         });
 
@@ -115,7 +117,7 @@ public class DTOUtil {
      * @return {@link BFunctionSymbolDTO}     Generated DTO
      */
     public static BFunctionSymbolDTO getFunctionDTO(int pkgId, int objectId, BInvokableSymbol bInvokableSymbol) {
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol);
+        CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol, null);
         boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         boolean isAction = (bInvokableSymbol.flags & Flags.REMOTE) == Flags.REMOTE;
@@ -175,7 +177,7 @@ public class DTOUtil {
      * @param symbol                            BTypeSymbol to generate DAO
      * @return {@link BRecordTypeSymbolDTO}     Generated DTO
      */
-    public static OtherTypeSymbolDTO getOtherTypeSymbolDTO(int pkgId, BTypeSymbol symbol) {
+    public static OtherTypeSymbolDTO getOtherTypeSymbolDTO(int pkgId, BSymbol symbol) {
         CompletionItem completionItem = BTypeCompletionItemBuilder.build(symbol, symbol.getName().getValue());
 
         return new OtherTypeSymbolDTO.OtherTypeSymbolDTOBuilder()

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Types of exchanges supported by the Ballerina RabbitMQ Connector.
 public type ExchangeType "direct"|"fanout"|"topic"|"headers";
 
@@ -37,13 +39,6 @@ public const CLIENT_ACK = "client";
 
 # RabbitMQ Error code.
 public const string RABBITMQ_ERROR_CODE = "{ballerina/RabbitMQ}RabbitMQError";
-
-# RabbitMQ Error record.
-#
-# + message - Error message.
-type RabbitMQError record {|
-    string message;
-|};
 
 # Holds other properties of the message - routing headers etc.
 #
@@ -99,6 +94,7 @@ public type ExchangeConfiguration record {|
 # + shutdownTimeout - Shutdown timeout in milliseconds; zero for infinite; default 10000. If consumers exceed
 #                     this timeout then any remaining queued deliveries (and other Consumer callbacks) will be lost.
 # + heartbeat - The initially requested heartbeat timeout in seconds; zero for none.
+# + secureSocket - Configurations for facilitating secure connections.
 public type ConnectionConfiguration record {|
     string host;
     int port = 5672;
@@ -108,4 +104,18 @@ public type ConnectionConfiguration record {|
     int? handshakeTimeout = ();
     int? shutdownTimeout = ();
     int? heartbeat = ();
+    SecureSocket? secureSocket = ();
+|};
+
+# Provides configurations for facilitating secure connections.
+#
+# + trustStore - Configurations associated with the TrustStore.
+# + keyStore - Configurations associated with the KeyStore.
+# + tlsVersion - TLS version.
+# + verifyHostname - True, if hostname verification should be enabled.
+public type SecureSocket record {|
+    crypto:TrustStore trustStore = {};
+    crypto:KeyStore keyStore = {};
+    string tlsVersion = "TLS";
+    boolean verifyHostname = true;
 |};

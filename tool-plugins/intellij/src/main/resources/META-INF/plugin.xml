@@ -1,8 +1,8 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.991.0</version>
-    <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
+    <version>0.991.1</version>
+    <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
       <a href="https://ballerina.io/">Ballerina</a> is a simple programming language whose syntax and runtime address the hard problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. Ballerina code is compiled into services that include transactions, embedded brokers and gateway runtimes.
@@ -10,9 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Improved performance, stability and reduced plugin size with “Lsp4IntelliJ” language client support.</li>
-        <li>Ballerina language server based code formatting.</li>
-        <li>Minor bug fixes and improvements.</li>
+        <li>Fix highlighting for new xml syntax.</li>
+        <li>Various bug fixes and improvements in Lsp4IntelliJ language client library.</li>
       </ul>
     ]]>
     </change-notes>

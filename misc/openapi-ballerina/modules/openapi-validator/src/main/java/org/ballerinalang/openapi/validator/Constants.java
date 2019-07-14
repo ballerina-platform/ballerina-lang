@@ -22,7 +22,7 @@ package org.ballerinalang.openapi.validator;
  */
 public class Constants {
     static final String PACKAGE = "openapi";
-    static final String ANNOTATION_NAME = "Service";
+    static final String ANNOTATION_NAME = "ServiceInfo";
     static final String CONTRACT = "contract";
     static final String HTTP = "http";
     static final String RESOURCE_CONFIG = "ResourceConfig";

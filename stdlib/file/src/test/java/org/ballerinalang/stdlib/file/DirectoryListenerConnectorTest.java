@@ -44,7 +44,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * Test class for Directory Listener connector.
  */
-@Test(sequential = true)
+@Test()
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
@@ -77,7 +77,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the valid successful usecase.")
+    @Test(description = "Check the valid successful use case.")
     public void testValidLocalFileSystemServerConnectorSyntax() {
         CompileResult compileResult = BCompileUtil.compile(testResourceRoot.resolve("file-system.bal").toString());
         try {
@@ -102,7 +102,7 @@ public class DirectoryListenerConnectorTest {
     }
 
 
-    @Test(description = "Check the negative test for non valid resources.", enabled = false)
+    @Test(description = "Check the negative test for non valid resources.")
     public void testNegativeWithoutResource() {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-without-resource.bal").toString());
@@ -114,7 +114,7 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param count.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource param count.")
     public void testNegativeWithoutInvalidParamCount() {
         try {
             BCompileUtil.compileAndSetup(testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").
@@ -123,12 +123,12 @@ public class DirectoryListenerConnectorTest {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
                     + "file-system-negative-invalid-param-count.bal:25:5:: Invalid resource signature for onCreate in "
-                    + "service fileSystem. The parameter should be a file:FileEvent\n";
+                    + "service fileSystem. The parameter should be a file:FileEvent with no returns.\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource param.");
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param type.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource param type.")
     public void testNegativeWithoutInvalidParamType() {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-param-type.bal").
@@ -145,8 +145,7 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource name.")
     public void testNegativeWithoutInvalidResourceName() {
         try {
-            final CompileResult compileResult = BCompileUtil.compile(testResourceRoot.
-                    resolve("file-system-negative-invalid-resource-name.bal").toString());
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-resource-name.bal").toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "Compilation Failed:\nERROR: .::"

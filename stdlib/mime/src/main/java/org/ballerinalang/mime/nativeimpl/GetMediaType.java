@@ -18,24 +18,18 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.MimeConstants.STRING_INDEX;
 
 /**
  * Construct MediaType struct from Content-Type string.
@@ -48,20 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.STRING_INDEX;
                 type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true)
-public class GetMediaType extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        try {
-            String contentType = context.getStringArgument(STRING_INDEX);
-            BMap<String, BValue> mediaType =
-                    ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
-            context.setReturnValues(mediaType);
-        } catch (Throwable e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
-        }
-    }
+public class GetMediaType {
 
     public static Object getMediaType(Strand strand, String contentType) {
         try {
@@ -69,7 +50,7 @@ public class GetMediaType extends BlockingNativeCallableUnit {
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             return mediaType;
         } catch (Throwable e) {
-            return MimeUtil.createError(e.getMessage());
+            return MimeUtil.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
     }
 }

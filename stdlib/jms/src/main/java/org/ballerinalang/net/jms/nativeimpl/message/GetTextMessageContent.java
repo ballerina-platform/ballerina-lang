@@ -20,15 +20,12 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -43,23 +40,22 @@ import javax.jms.TextMessage;
  * Get text content of the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
         functionName = "getTextMessageContent",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class GetTextMessageContent extends AbstractBlockingAction {
+public class GetTextMessageContent extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetTextMessageContent.class);
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> messageStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
-        Message jmsMessage = JmsUtils.getJMSMessage(messageStruct);
+    public static Object getTextMessageContent(Strand strand, ObjectValue msgObj) {
+
+        Message jmsMessage = JmsUtils.getJMSMessage(msgObj);
 
         String messageContent = null;
 
@@ -70,13 +66,14 @@ public class GetTextMessageContent extends AbstractBlockingAction {
                 log.error("JMSMessage is not a Text message. ");
             }
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when retrieving JMS message content.", context, e);
+           return BallerinaAdapter.getError("Error when retrieving JMS message content.", e);
         }
 
         if (log.isDebugEnabled()) {
             log.debug("Get content from the JMS message");
         }
 
-        context.setReturnValues(new BString(messageContent));
+        return messageContent;
     }
+
 }

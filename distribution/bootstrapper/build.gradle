@@ -40,14 +40,14 @@ dependencies {
     pack1 group: 'org.ballerinalang', name: 'ballerina-packerina', version: '0.992.0-m1'
     pack1 'org.ow2.asm:asm:6.2.1'
 
-    pack2 project(path: ':ballerina-bir', configuration: 'balo')
-    pack2native project(path: ':ballerina-bir', configuration: 'default')
-    pack2 project(path: ':ballerina-jvm', configuration: 'balo')
-    pack2native project(path: ':ballerina-jvm', configuration: 'default')
+    pack2 project(path: ':ballerina-bir-old', configuration: 'balo')
+    pack2native project(path: ':ballerina-bir-old', configuration: 'default')
+    pack2 project(path: ':ballerina-jvm-old', configuration: 'balo')
+    pack2native project(path: ':ballerina-jvm-old', configuration: 'default')
 
-    pack3 project(path: ':ballerina-backend-jvm', configuration: 'balx')
-    pack3 project(path: ':ballerina-backend-jvm', configuration: 'balo')
-    pack3native project(path: ':ballerina-backend-jvm', configuration: 'default')
+    pack3 project(path: ':ballerina-backend-jvm-old', configuration: 'balx')
+    pack3 project(path: ':ballerina-backend-jvm-old', configuration: 'balo')
+    pack3native project(path: ':ballerina-backend-jvm-old', configuration: 'default')
 }
 
 

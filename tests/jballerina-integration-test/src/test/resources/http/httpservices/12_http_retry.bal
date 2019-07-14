@@ -113,13 +113,13 @@ service mockHelloService on serviceEndpoint1 {
                                     var childBlobContent = childPart.getByteArray();
                                 }
                                 io:println(bodyPart.getContentType());
-                                bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                                bodyPart.setBodyParts(<@untainted> childParts, contentType = <@untainted> bodyPart.getContentType());
                             }
                         } else {
                             var bodyPartBlobContent = bodyPart.getByteArray();
                         }
                     }
-                    response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
+                    response.setBodyParts(<@untainted> bodyParts, contentType = <@untainted> req.getContentType());
                 } else {
                     log:printError(bodyParts.reason());
                     response.setPayload("Error in decoding multiparts!");

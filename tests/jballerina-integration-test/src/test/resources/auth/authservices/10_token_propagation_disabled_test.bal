@@ -45,7 +45,7 @@ service passthroughService10 on listener10_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP->get("/nyseStock/stocks", message = <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -60,7 +60,7 @@ service passthroughService10 on listener10_1 {
 
 jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
     issuer: "ballerina",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

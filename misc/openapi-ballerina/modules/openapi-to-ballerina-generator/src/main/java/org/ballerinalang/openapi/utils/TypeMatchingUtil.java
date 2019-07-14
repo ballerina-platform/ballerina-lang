@@ -115,7 +115,7 @@ public class TypeMatchingUtil {
     public static void getTypesFromComposedSchema(ComposedSchema schema, OpenApiSchemaType schemaType) {
 
         if (schema.getAllOf() != null) {
-            for (Schema allOfSchema: schema.getAllOf()) {
+            for (Schema allOfSchema : schema.getAllOf()) {
                 if (allOfSchema.getProperties() != null) {
                     schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
@@ -123,7 +123,7 @@ public class TypeMatchingUtil {
         }
 
         if (schema.getAnyOf() != null) {
-            for (Schema allOfSchema: schema.getAnyOf()) {
+            for (Schema allOfSchema : schema.getAnyOf()) {
                 if (allOfSchema.getProperties() != null) {
                     schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
@@ -131,7 +131,7 @@ public class TypeMatchingUtil {
         }
 
         if (schema.getOneOf() != null) {
-            for (Schema allOfSchema: schema.getOneOf()) {
+            for (Schema allOfSchema : schema.getOneOf()) {
                 if (allOfSchema.getProperties() != null) {
                     schemaType.setSchemaProperties(getSchemaPropertyTypes(allOfSchema.getProperties()));
                 }
@@ -146,7 +146,7 @@ public class TypeMatchingUtil {
         Class schemaParserClass = schemaParser.getClass();
         List<OpenApiPropertyType> propertyTypes = new ArrayList<>();
 
-        for (Object propertyObject: property.entrySet()) {
+        for (Object propertyObject : property.entrySet()) {
             OpenApiPropertyType propertyType = new OpenApiPropertyType();
 
             String propName = (String) ((Map.Entry) propertyObject).getKey();
@@ -176,13 +176,13 @@ public class TypeMatchingUtil {
         if (schema.getType() != null) {
 
             switch (schema.getType()) {
-                case "integer" :
+                case "integer":
                     schemaType.setSchemaType("int");
                     break;
-                case "string" :
+                case "string":
                     schemaType.setSchemaType("string");
                     break;
-                case "array" :
+                case "array":
                     schemaType.setIsArray(true);
                     if (schema instanceof ArraySchema) {
                         final Schema<?> arrayItems = ((ArraySchema) schema).getItems();
@@ -196,7 +196,7 @@ public class TypeMatchingUtil {
                         }
                     }
                     break;
-                default :
+                default:
                     schemaType.setSchemaType(schema.getType());
                     break;
             }
@@ -211,7 +211,6 @@ public class TypeMatchingUtil {
             schemaType.setreference(refArray[refArray.length - 1]);
         }
     }
-
 
 
     public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
@@ -330,7 +329,7 @@ public class TypeMatchingUtil {
                 schemaType.setSchemaType(entry.getKey());
 
                 if (entryValue.getSchema() != null) {
-                     getTypesFromSchema(entryValue.getSchema(), schemaType);
+                    getTypesFromSchema(entryValue.getSchema(), schemaType);
                 }
 
                 contentList.add(schemaType);
@@ -343,16 +342,10 @@ public class TypeMatchingUtil {
     }
 
     public static String delimeterizeUnescapedIdentifires(String identifier) {
-
         //check if identifier starts with a number or contains spaces in between
         if (Character.isDigit(identifier.charAt(0))) {
             identifier = "'" + identifier;
         }
-
-        if (StringUtils.split(identifier).length > 0) {
-            //TODO escape spaces
-        }
-
         return identifier;
     }
 

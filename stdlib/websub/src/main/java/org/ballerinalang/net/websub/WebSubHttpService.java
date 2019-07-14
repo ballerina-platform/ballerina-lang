@@ -18,10 +18,9 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -47,11 +46,11 @@ public class WebSubHttpService extends HttpService {
     private static final Logger logger = LoggerFactory.getLogger(WebSubHttpService.class);
     private String topic;
 
-    private WebSubHttpService(Service service) {
+    private WebSubHttpService(ObjectValue service) {
         super(service);
     }
 
-    private static Annotation getWebSubSubscriberServiceConfigAnnotation(Service service) {
+    private static MapValue getWebSubSubscriberServiceConfigAnnotation(ObjectValue service) {
         return getServiceConfigAnnotation(service, WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     }
 
@@ -61,21 +60,20 @@ public class WebSubHttpService extends HttpService {
      * @param service   the service for which the HTTP representation is built
      * @return  the built HttpService representation
      */
-    static WebSubHttpService buildWebSubSubscriberHttpService(Service service) {
+    static WebSubHttpService buildWebSubSubscriberHttpService(ObjectValue service) {
         WebSubHttpService websubHttpService = new WebSubHttpService(service);
-        Annotation serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
+        MapValue serviceConfigAnnotation = getWebSubSubscriberServiceConfigAnnotation(service);
 
         if (serviceConfigAnnotation == null) {
             logger.debug("ServiceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
         } else {
-            Struct serviceConfig = serviceConfigAnnotation.getValue();
-            websubHttpService.setBasePath(serviceConfig.getStringField(PATH_FIELD));
+            websubHttpService.setBasePath(serviceConfigAnnotation.getStringValue(PATH_FIELD));
         }
 
         List<HttpResource> resources = new ArrayList<>();
-        for (Resource resource : websubHttpService.getBalService().getResources()) {
+        for (AttachedFunction resource : websubHttpService.getBalService().getType().getAttachedFunctions()) {
             HttpResource httpResource = WebSubHttpResource.buildWebSubHttpResource(resource, websubHttpService);
             resources.add(httpResource);
         }

@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/http;
 
-function testCanHandleHttpBearerAuthWithoutHeader() returns boolean {
+function testCanHandleHttpBearerAuthWithoutHeader() returns @tainted boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
@@ -33,7 +33,7 @@ function testCanHandleHttpBearerAuth() returns boolean {
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "Bearer xxxxxx";
     inRequest.setHeader("Authorization", bearerAuthHeaderValue);
-    return handler.canHandle(inRequest);
+    return <@untainted> handler.canHandle(inRequest);
 }
 
 function testHandleHttpBearerAuthFailure() returns boolean|error {
@@ -66,7 +66,7 @@ public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|error {
+    public function authenticate(string credential) returns boolean|auth:AuthError {
         return credential == "aXN1cnU6eHh4";
     }
 };

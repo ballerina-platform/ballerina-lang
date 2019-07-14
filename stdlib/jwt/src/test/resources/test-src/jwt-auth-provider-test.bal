@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/crypto;
 import ballerina/jwt;
 
@@ -21,7 +22,7 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
-        audience: ["ballerina"],
+        audience: "ballerina",
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -29,11 +30,12 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     return jwtAuthProvider;
 }
 
-function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns boolean|error {
+function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath)
+                                                  returns @tainted (boolean|auth:AuthError) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
-        audience: ["ballerina"],
+        audience: "ballerina",
         certificateAlias: "ballerina",
         trustStore: trustStore
     };
@@ -41,7 +43,7 @@ function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustS
     return jwtAuthProvider.authenticate(jwtToken);
 }
 
-function generateJwt(string keyStorePath) returns string|error {
+function generateJwt(string keyStorePath) returns string|jwt:JwtError {
     jwt:JwtHeader header = {
         alg: "RS256",
         typ: "JWT"
@@ -49,7 +51,7 @@ function generateJwt(string keyStorePath) returns string|error {
     jwt:JwtPayload payload = {
         iss: "wso2",
         sub: "John",
-        aud: ["ballerina"],
+        aud: "ballerina",
         exp: 32475251189000
     };
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
@@ -61,12 +63,12 @@ function generateJwt(string keyStorePath) returns string|error {
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, string trustStorePath) returns jwt:JwtPayload|error {
+function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|jwt:JwtError) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig validatorConfig = {
         issuer: "wso2",
         certificateAlias: "ballerina",
-        audience: ["ballerina"],
+        audience: "ballerina",
         clockSkew: 0,
         trustStore: trustStore
     };

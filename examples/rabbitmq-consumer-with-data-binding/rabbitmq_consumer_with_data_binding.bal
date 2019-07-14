@@ -18,7 +18,7 @@ service dataBindingConsumer on channelListener {
     // Gets triggered when a message is received by the queue.
     resource function onMessage(rabbitmq:Message message, string stringMessage) {
         // Retrieves the text content of the message.
-        var messageContent = message.getIntContent();
+        var messageContent = message.getTextContent();
         if (messageContent is string) {
             log:printInfo("The message received: " + messageContent);
         } else {

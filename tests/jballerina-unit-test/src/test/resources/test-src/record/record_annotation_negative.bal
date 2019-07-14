@@ -31,18 +31,6 @@ type Test record {
     int cdd;
 };
 
-# Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
-# Example:
-# ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-#
-# + accessMode - read or write mode
-# + accessMode - read or write mode
-# + successfuls - boolean `true` or `false`
-public function File.open (string accessMode) returns (boolean) {
-    boolean successful = false;
-    return successful;
-}
-
 # Documentation for File object
 #
 # + path - file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
@@ -50,7 +38,17 @@ public type File object {
 
     public string path = "";
 
-    public function open(string accessMode) returns boolean;
+    # Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
+    # Example:
+    # ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
+    #
+    # + accessMode - read or write mode
+    # + accessMode - read or write mode
+    # + successfuls - boolean `true` or `false`
+    public function open (string accessMode) returns (boolean) {
+        boolean successful = false;
+        return successful;
+    }
 };
 
 type Person record {

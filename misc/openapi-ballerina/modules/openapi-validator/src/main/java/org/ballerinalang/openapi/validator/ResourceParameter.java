@@ -33,46 +33,27 @@ public class ResourceParameter {
         parameter = null;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
+    }
+
+    void setType(String type) {
+        this.type = type;
+    }
+
+    BLangSimpleVariable getParameter() {
+        return parameter;
+    }
+
+    void setParameter(BLangSimpleVariable parameter) {
+        this.parameter = parameter;
     }
 
     public String getType() {
         return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public BLangSimpleVariable getParameter() {
-        return parameter;
-    }
-
-    public void setParameter(BLangSimpleVariable parameter) {
-        this.parameter = parameter;
-    }
-
-    String convertBallerinaTypeToOpenAPI() {
-        String convertedType = null;
-        switch (this.type) {
-            case "int":
-                convertedType = "integer";
-                break;
-            case "string":
-                convertedType = "string";
-                break;
-            case "boolean":
-                convertedType = "boolean";
-                break;
-            default:
-                convertedType = "";
-        }
-
-        return convertedType;
     }
 }

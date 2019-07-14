@@ -54,10 +54,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ARRAY_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_BODY;
@@ -92,8 +89,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_BINDING_PATTERN
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR_CONSTRUCTOR_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
@@ -230,15 +225,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_CONVERSION_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNION_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNTAINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION;
@@ -277,7 +269,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                     settings, createSpaceBuilder(settings), new HashMap<>());
             return FormattingModelProvider
                     .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
-        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
+            // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
         } else {
             AbstractBlock rootBlock = new AbstractBlock(element.getNode(), null, null) {
                 @Nullable
@@ -377,7 +369,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(LOCK).spaceIf(true)
-                .around(UNTAINT).spaceIf(true) // Todo
                 .around(START).spaceIf(true)
                 .around(CHECK).spaceIf(true)
 
@@ -426,11 +417,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(RIGHT_BRACKET).spaceIf(false)
                 .around(EQUAL_GT).spaceIf(true)
 
-                // Binding Patterns
-                .betweenInside(LEFT_PARENTHESIS, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .betweenInside(BINDING_PATTERN, RIGHT_PARENTHESIS, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .around(BINDING_PATTERN).spaceIf(true)
-
                 // Record binding pattern
                 .around(ENTRY_BINDING_PATTERN).spaceIf(true)
                 .beforeInside(COMMA, ENTRY_BINDING_PATTERN).spaceIf(false)
@@ -441,11 +427,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(REST_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
                 .betweenInside(ELLIPSIS, IDENTIFIER, REST_BINDING_PATTERN).spaceIf(false) // Todo - Verify
 
-                // Tuple binding pattern
-                .betweenInside(BINDING_PATTERN, COMMA, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .betweenInside(COMMA, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(true)
-
-                // Record destructuring pattern
                 .around(RECORD_REF_BINDING_PATTERN).spaceIf(true)
                 .around(ENTRY_REF_BINDING_PATTERN).spaceIf(true)
                 .beforeInside(COMMA, ENTRY_REF_BINDING_PATTERN).spaceIf(false)
@@ -455,16 +436,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(LEFT_BRACE, REST_REF_BINDING_PATTERN).spaceIf(true)
                 .between(REST_REF_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
                 .betweenInside(ELLIPSIS, VARIABLE_REFERENCE, REST_REF_BINDING_PATTERN).spaceIf(false) // Todo - Verify
-
-                // Tuple destructuring pattern
-                .around(TUPLE_REF_BINDING_PATTERN).spaceIf(true)
-                .between(LEFT_PARENTHESIS, BINDING_REF_PATTERN).spaceIf(false)
-                .between(BINDING_REF_PATTERN, RIGHT_PARENTHESIS).spaceIf(false)
-                .beforeInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
-                .afterInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
-
-                // Error
-                .betweenInside(ERROR, LEFT_PARENTHESIS, ERROR_CONSTRUCTOR_EXPRESSION).spaceIf(false)
 
                 // Ternary Expressions
                 .aroundInside(QUESTION_MARK, TERNARY_EXPRESSION).spaceIf(true)
@@ -673,7 +644,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
-                .betweenInside(BRACED_OR_TUPLE_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 

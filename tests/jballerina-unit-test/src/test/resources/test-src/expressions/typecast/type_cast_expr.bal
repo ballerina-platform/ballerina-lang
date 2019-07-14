@@ -794,3 +794,12 @@ function getString(string s) returns string {
 function getBoolean(boolean b) returns boolean {
     return b;
 }
+
+function testContexuallyExpectedType() returns Employee {
+    Employee e = <@untainted> { name: "Em Zee", id: 1100 };
+    return e;
+}
+
+function testContexuallyExpectedTypeRecContext() returns Employee {
+    return <@untainted> { name: "Em Zee", id: 1100 };
+}

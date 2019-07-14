@@ -20,12 +20,15 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
 
-export function render (context: ExtensionContext, langClient: ExtendedLangClient, sourceRoot: string, retries: number = 1)
+export function render (context: ExtensionContext, langClient: ExtendedLangClient,
+    documentIdentifier: {currentUri: string, sourceRootUri?: string},
+    retries: number = 1)
         : string {       
-   return renderDiagram(context, sourceRoot);
+   return renderDiagram(context, documentIdentifier);
 }
 
-function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
+function renderDiagram(context: ExtensionContext,
+    documentIdentifier: {currentUri: string, sourceRootUri?: string}): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
@@ -73,7 +76,7 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
 
     const scripts = `
         function loadedScript() {
-            let sourceRoot = ${JSON.stringify(sourceRoot)};
+            let documentIdentifier = ${JSON.stringify(documentIdentifier)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -82,7 +85,8 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri: sourceRoot,
+                            docUri: documentIdentifier.currentUri,
+                            sourceRootUri: documentIdentifier.sourceRootUri,
                             width,
                             height,
                             zoom,
@@ -92,6 +96,13 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                     const diagram = ballerinaComposer.renderOverview(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
                         diagram.updateAST();
+                        return Promise.resolve({});
+                    });
+                    webViewRPCHandler.addMethod("selectConstruct", (args) => {
+                        diagram.selectConstruct({
+                            moduleName: args[0],
+                            constructName: args[1],
+                        });
                         return Promise.resolve({});
                     });
                 } catch(e) {

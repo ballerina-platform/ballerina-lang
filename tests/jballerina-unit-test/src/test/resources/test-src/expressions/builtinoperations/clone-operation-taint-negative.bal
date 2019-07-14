@@ -2,7 +2,7 @@ function returnTaintedValue() returns @tainted int {
     return 45;
 }
 
-function testSensitiveArg(@sensitive int intArg) {
+function testSensitiveArg(@untainted int intArg) {
     int c = intArg;
 }
 

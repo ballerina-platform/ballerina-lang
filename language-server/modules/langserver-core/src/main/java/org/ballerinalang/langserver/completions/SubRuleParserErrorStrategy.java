@@ -62,15 +62,22 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
         if (parserRuleContext == null || this.terminate) {
             return;
         }
-        if (parserRuleContext instanceof BallerinaParser.ExpressionContext
+        if (isInvalidExpressionContext(parserRuleContext)
                 || parserRuleContext instanceof BallerinaParser.AnyIdentifierNameContext
                 || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext
                 || parserRuleContext instanceof BallerinaParser.PackageNameContext
-                || parserRuleContext instanceof BallerinaParser.TypeNameContext) {
+                || parserRuleContext instanceof BallerinaParser.TypeNameContext
+                || parserRuleContext instanceof BallerinaParser.PeerWorkerContext) {
             this.fillContext(parserRuleContext.getParent());
         } else {
             this.context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parserRuleContext);
             this.terminate = true;
         }
+    }
+    
+    private boolean isInvalidExpressionContext(ParserRuleContext context) {
+        return !(context instanceof BallerinaParser.WorkerSendSyncExpressionContext)
+                && !(context instanceof BallerinaParser.WorkerReceiveExpressionContext) 
+                && context instanceof BallerinaParser.ExpressionContext;
     }
 }

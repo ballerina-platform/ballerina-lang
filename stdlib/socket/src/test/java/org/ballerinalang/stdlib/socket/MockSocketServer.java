@@ -66,7 +66,9 @@ public class MockSocketServer implements Runnable {
     }
 
     String getReceivedString() {
-        return receivedString;
+        String value = receivedString;
+        receivedString = null;
+        return value;
     }
 
     @Override
