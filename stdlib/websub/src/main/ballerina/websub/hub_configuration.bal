@@ -17,6 +17,7 @@
 import ballerina/config;
 import ballerina/http;
 import ballerina/log;
+import ballerina/internal;
 
 const string BASE_PATH = "/websub";
 const string HUB_PATH = "/hub";
@@ -73,10 +74,10 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
             "SHA1" => return "SHA1";
         }
     } else {
-        if (signaturemethodAsConfig.equalsIgnoreCase(SHA1)) {
+        if (internal:equalsIgnoreCase(signaturemethodAsConfig, SHA1)) {
             return signaturemethodAsConfig;
         }
-        if (!signaturemethodAsConfig.equalsIgnoreCase(SHA256)) {
+        if (!internal:equalsIgnoreCase(signaturemethodAsConfig, SHA256)) {
             log:printWarn("unknown signature method : [" + signaturemethodAsConfig + "], defaulting to SHA256");
         }
     }
@@ -85,16 +86,23 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
 
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
     RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-    boolean remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
-                                     defaultValue = remotePublish.enabled ?: false);
+    boolean remotePublishingEnabled = false;
+    if (remotePublish is RemotePublishConfig) {
+        remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish", remotePublish.enabled);
+    }
+
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
-    if (remotePublishModeAsConfig == "") {
-        hubRemotePublishMode = remotePublish.mode ?: PUBLISH_MODE_DIRECT;
+    if (remotePublishModeAsConfig is ()) {
+        if (remotePublish is RemotePublishConfig) {
+            hubRemotePublishMode = remotePublish.mode;
+        } else {
+            hubRemotePublishMode = PUBLISH_MODE_DIRECT;
+        }
     } else {
-        if (remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_FETCH)) {
+        if (internal:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_FETCH)) {
             hubRemotePublishMode = PUBLISH_MODE_FETCH;
-        } else if (!remotePublishModeAsConfig.equalsIgnoreCase(REMOTE_PUBLISHING_MODE_DIRECT)) {
+        } else if (!internal:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_DIRECT)) {
             log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
         }
     }

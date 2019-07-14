@@ -287,13 +287,11 @@ service testService on new http:Listener(9098) {
                             if (textVal is string) {
                                 value = value + textVal;
                             } else {
-                                string errReason = <string>textVal.reason();
-                                value = value + errReason;
+                                value = value + <string>textVal.reason();
                             }
                         }
                     } else {
-                        string errReason = <string>mediaType.reason();
-                        value = value + errReason;
+                        value = value + <string>mediaType.reason();
                     }
                 }
             } else {
