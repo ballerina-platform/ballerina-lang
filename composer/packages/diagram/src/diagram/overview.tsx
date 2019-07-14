@@ -22,7 +22,7 @@ const modes = [
 export interface OverviewProps extends CommonDiagramProps {
     langClient: IBallerinaLangClient;
     initialSelectedModule?: string;
-    initialSelectedConstruct?: string;
+    initialSelectedConstruct?: ConstructIdentifier;
 }
 export interface OverviewState {
     modules: ProjectAST;
@@ -78,10 +78,13 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
+        const selectedConstruct = this.props.initialSelectedConstruct;
+
         if (sourceRootUri) {
             langClient.getProjectAST({ sourceRoot: sourceRootUri}).then((result) => {
                 this.setState({
                     modules: result.modules,
+                    selectedConstruct,
                 });
             });
         } else {
@@ -91,7 +94,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     modules: {
                         [ast.name]: {
                             compilationUnits: {
-                                [ast.name]:   {
+                                [ast.name]: {
                                     ast,
                                     name: ast.name,
                                     uri: docUri,
@@ -100,6 +103,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                             name: ast.name,
                         }
                     },
+                    selectedConstruct,
                 });
             });
         }

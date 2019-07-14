@@ -19,16 +19,17 @@
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
+import { ConstructIdentifier } from 'src/core';
 
 export function render (context: ExtensionContext, langClient: ExtendedLangClient,
-    documentIdentifier: {currentUri: string, sourceRootUri?: string},
+    options: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier},
     retries: number = 1)
-        : string {       
-   return renderDiagram(context, documentIdentifier);
+        : string {
+   return renderDiagram(context, options);
 }
 
 function renderDiagram(context: ExtensionContext,
-    documentIdentifier: {currentUri: string, sourceRootUri?: string}): string {
+    constructIdentifier: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier}): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
@@ -76,7 +77,7 @@ function renderDiagram(context: ExtensionContext,
 
     const scripts = `
         function loadedScript() {
-            let documentIdentifier = ${JSON.stringify(documentIdentifier)};
+            let constructIdentifier = ${JSON.stringify(constructIdentifier)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -85,8 +86,9 @@ function renderDiagram(context: ExtensionContext,
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri: documentIdentifier.currentUri,
-                            sourceRootUri: documentIdentifier.sourceRootUri,
+                            docUri: constructIdentifier.currentUri,
+                            sourceRootUri: constructIdentifier.sourceRootUri,
+                            initialSelectedConstruct: constructIdentifier.construct,
                             width,
                             height,
                             zoom,
