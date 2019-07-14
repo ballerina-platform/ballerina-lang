@@ -153,7 +153,11 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
             let element = projectTree[key];
             if (key === parentEl.label) {
                 Object.keys(element).map(child => {
-                    elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.Collapsed, {
+                    let collapseMode: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.None;
+                    if (element[child] && Object.keys(element[child]).length > 0) {
+                        collapseMode = vscode.TreeItemCollapsibleState.Collapsed;
+                    }
+                    elementTree.push(new ProjectTreeElement(child, collapseMode, {
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
                         arguments: [key, child]
@@ -161,13 +165,15 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                 });
             } else {
                 let treeObj = this.getTreeForKey(element, parentEl.label);
-                Object.keys(treeObj).map(child => {
-                    elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
-                        command: "ballerina.executeTreeElement",
-                        title: "Execute Tree Command",
-                        arguments: [key, child]
-                    }));
-                });
+                if (Object.keys(treeObj).length !== 0) {
+                    Object.keys(treeObj).map(child => {
+                        elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
+                            command: "ballerina.executeTreeElement",
+                            title: "Execute Tree Command",
+                            arguments: [key, child]
+                        }));
+                    });
+                }
             }
         });
 
@@ -177,7 +183,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
     private getTreeForKey(obj: any, searchKey: string): any {
         let matchedObjTree = {};
         Object.keys(obj).map(key => {
-            if (key === searchKey && obj[searchKey] !== undefined) {
+            if (key === searchKey) {
                 matchedObjTree = obj[searchKey];
             }
         });
