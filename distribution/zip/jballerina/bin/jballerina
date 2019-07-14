@@ -245,5 +245,5 @@ else
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
-        org.ballerinalang.tool.Main "$@"
+        org.ballerinalang.launcher.Main "$@"
 fi
