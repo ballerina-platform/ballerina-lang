@@ -96,7 +96,7 @@ public type HttpCachingClient client object {
             self.httpClient = httpSecureClient;
         } else {
             error clientError = httpSecureClient;
-            panic clientError;
+            panic <error> httpSecureClient;
         }
         self.cache = createHttpCache("http-cache", cacheConfig);
     }
