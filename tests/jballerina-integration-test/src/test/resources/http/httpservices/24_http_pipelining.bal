@@ -77,7 +77,8 @@ service pipelining on new http:Listener(9221, { timeoutMillis: 1000 }) {
 
         var responseError = caller->respond(response);
         if (responseError is error) {
-            log:printError("Pipeline timeout:" + responseError.reason(), responseError);
+            error err = responseError;
+            log:printError("Pipeline timeout:" + err.reason(), err);
         }
     }
 }
@@ -92,7 +93,8 @@ service pipeliningLimit on new http:Listener(9222, { maxPipelinedRequests: 2 }) 
 
         var responseError = caller->respond(response);
         if (responseError is error) {
-            log:printError("Pipeline limit exceeded:" + responseError.reason(), responseError);
+            error err = responseError;
+            log:printError("Pipeline limit exceeded:" + err.reason(), err);
         }
     }
 }
