@@ -52,3 +52,20 @@ function testInvalidFieldOptionalFieldAndMemberAccessType() {
 
     string s1 = a.betas[0]?.s;
 }
+
+public type Gamma object {
+    Delta? delta;
+
+    public function __init(Delta? d) {
+        self.delta = d;
+    }
+};
+
+public type Delta object {
+    string? status = ();
+};
+
+function testInvalidMemberAccessOnNillableObjectField() {
+    Gamma g = new(new);
+    string? s = g.delta["status"];
+}
