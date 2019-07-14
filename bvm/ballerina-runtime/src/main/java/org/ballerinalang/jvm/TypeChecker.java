@@ -1509,7 +1509,7 @@ public class TypeChecker {
             AttachedFunction initializerFunc = type.initializer;
             if (initializerFunc == null) {
                 // No __init function found.
-                return true;
+                return !Flags.isFlagOn(Flags.ABSTRACT, type.flags);
             }
             BFunctionType initFuncType = initializerFunc.type;
             // Todo: check defaultable params of the init func as well
