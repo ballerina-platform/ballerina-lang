@@ -93,7 +93,7 @@ function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns Remo
 
 
     string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
-    if (remotePublishModeAsConfig is ()) {
+    if (remotePublishModeAsConfig == "") {
         if (remotePublish is RemotePublishConfig) {
             hubRemotePublishMode = remotePublish.mode;
         } else {

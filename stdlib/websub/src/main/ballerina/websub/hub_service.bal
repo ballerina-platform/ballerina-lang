@@ -358,10 +358,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function persistTopicRegistrationChange(string mode, string topic) {
-    if (mode == MODE_REGISTER) {
-        hubPersistenceStoreImpl.addTopic(topic);
-    } else {
-        hubPersistenceStoreImpl.removeTopic(topic);
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+        if (mode == MODE_REGISTER) {
+            hubPersistenceStoreImpl.addTopic(topic);
+        } else {
+            hubPersistenceStoreImpl.removeTopic(topic);
+        }
     }
 }
 
@@ -370,10 +372,12 @@ function persistTopicRegistrationChange(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
-    if (mode == MODE_SUBSCRIBE) {
-        hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
-    } else {
-        hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+      if (mode == MODE_SUBSCRIBE) {
+            hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
+        } else {
+            hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+        }
     }
 }
 
@@ -393,7 +397,7 @@ function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
     foreach string topic in topics {
         var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
         if (registerStatus is error) {
-            string errCause = <string> registerStatus.detail().message;
+            string errCause = <string> registerStatus.detail()?.message;
             log:printError("Error registering retrieved topic details: "+ errCause);
         }
     }
@@ -422,7 +426,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);
     http:Request request = new;
 
-    var fetchResponse = topicEp->get("", message = request);
+    var fetchResponse = topicEp->get("", request);
     return fetchResponse;
 }
 
@@ -456,12 +460,12 @@ returns error? {
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
-            if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
-                    subscriptionDetails.secret.toByteArray("UTF-8")));
-            } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
-                    subscriptionDetails.secret.toByteArray("UTF-8")));
+            if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
+            } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
@@ -488,7 +492,7 @@ returns error? {
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
         } else {
-            string errCause = <string> contentDistributionResponse.detail().message;
+            string errCause = <string> contentDistributionResponse.detail()?.message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
@@ -554,5 +558,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return groupString.split(",");
+    return internal:split(groupString, ",");
 }

@@ -17,6 +17,8 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/'lang\.object as lang;
+import ballerina/internal;
+import ballerina/'lang\.int as langint;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -48,7 +50,11 @@ public type Listener object {
     }
 
     public function __stop() returns error? {
-        return self.serviceEndpoint.__stop();
+        http:Listener? sListener = self.serviceEndpoint;
+        if (sListener is http:Listener) {
+            return sListener.__stop();
+        }
+        return ();
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
@@ -84,15 +90,15 @@ public type Listener object {
             }
 
             // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
-            string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
-            boolean subscribeOnStartUp = boolean.convert(strSubscribeOnStartUp);
+            string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
+            boolean subscribeOnStartUp = internal:toBoolean(strSubscribeOnStartUp);
 
             if (subscribeOnStartUp) {
-                string resourceUrl = <string>subscriptionDetails.resourceUrl;
-                string hub = <string>subscriptionDetails.hub;
-                string topic = <string>subscriptionDetails.topic;
+                string resourceUrl = <string>subscriptionDetails["resourceUrl"];
+                string hub = <string>subscriptionDetails["hub"];
+                string topic = <string>subscriptionDetails["topic"];
 
-                var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails.subscriptionClientConfig;
+                var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails["subscriptionClientConfig"];
                 http:ClientEndpointConfig? subscriptionClientConfig =
                                                     clientConfig is http:ClientEndpointConfig ? clientConfig : ();
 
@@ -120,10 +126,10 @@ public type Listener object {
                         subscriptionDetails["hub"] = retHub;
                         hub = retHub;
                         subscriptionDetails["topic"] = retTopic;
-                        string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
+                        string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
-                        string errCause = <string> discoveredDetails.detail().message;
+                        string errCause = <string> discoveredDetails.detail()?.message;
                         log:printError("Error sending out subscription request on start up: " + errCause);
                         continue;
                     }
@@ -212,7 +218,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
                                             returns @tainted [string, string]|error {
     http:Client resourceEP = new http:Client(resourceUrl, subscriptionClientConfig);
     http:Request request = new;
-    var discoveryResponse = resourceEP->get("", message = request);
+    var discoveryResponse = resourceEP->get("", request);
     error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
         var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
@@ -225,7 +231,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
             return topicAndHubs;
         }
     } else {
-        string errCause = <string> discoveryResponse.detail().message;
+        string errCause = <string> discoveryResponse.detail()?.message;
         websubError = error(WEBSUB_ERROR_CODE, message = "Error occurred with WebSub discovery for Resource URL [" +
                                 resourceUrl + "]: " + errCause );
     }
@@ -240,8 +246,8 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
 
-    string topic = <string>subscriptionDetails.topic;
-    string callback = <string>subscriptionDetails.callback;
+    string topic = <string>subscriptionDetails["topic"];
+    string callback = <string>subscriptionDetails["callback"];
 
     if (hub == "" || topic == "" || callback == "") {
         log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
@@ -250,17 +256,17 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
 
     int leaseSeconds = 0;
 
-    string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
-    var convIntLeaseSeconds = int.convert(strLeaseSeconds);
+    string strLeaseSeconds = <string>subscriptionDetails["leaseSeconds"];
+    var convIntLeaseSeconds = langint:fromString(strLeaseSeconds);
     if (convIntLeaseSeconds is int) {
         leaseSeconds = convIntLeaseSeconds;
     } else {
-        string errCause = <string> convIntLeaseSeconds.detail().message;
+        string errCause = <string> convIntLeaseSeconds.detail()?.message;
         log:printError("Error retreiving specified lease seconds value: " + errCause);
         return;
     }
 
-    string secret = <string>subscriptionDetails.secret;
+    string secret = <string>subscriptionDetails["secret"];
 
     SubscriptionChangeRequest subscriptionChangeRequest = { topic:topic, callback:callback };
 
@@ -276,7 +282,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
         log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
                 "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
     } else {
-        string errCause = <string> subscriptionResponse.detail().message;
+        string errCause = <string> subscriptionResponse.detail()?.message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
     }
 }
