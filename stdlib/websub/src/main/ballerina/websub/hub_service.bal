@@ -293,7 +293,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     var decodedCallback = http:decode(callback, "UTF-8");
     string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
 
-    string queryParams = (internal:contains(callbackToCheck, (("?") ? "&" : "?"))
+    string queryParams = (internal:contains(callbackToCheck, ("?")) ? "&" : "?")
         + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
@@ -340,7 +340,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        string errCause = <string> subscriberResponse.detail().message;
+        string errCause = <string> subscriberResponse.detail()?.message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
