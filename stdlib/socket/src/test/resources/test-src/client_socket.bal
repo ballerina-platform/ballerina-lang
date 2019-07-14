@@ -111,7 +111,7 @@ function getString(byte[] content) returns @tainted string|io:Error {
 
 function invalidReadParam() returns @tainted [byte[], int]|error {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
-    return trap socketClient->read(length = 0);
+    return trap socketClient->read(0);
 }
 
 function invalidAddress() returns error? {

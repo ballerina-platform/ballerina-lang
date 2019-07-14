@@ -45,7 +45,7 @@ function echo(string msg) returns string {
 }
 
 function contentReceive() returns string {
-    socket:UdpClient socketClient = new(localAddress = { port: 48827 });
+    socket:UdpClient socketClient = new({ port: 48827 });
     string returnStr = "";
     var result = socketClient->receiveFrom();
     if (result is [byte[], int, socket:Address]) {
@@ -65,9 +65,9 @@ function contentReceive() returns string {
 }
 
 function contentReceiveWithLength() returns string {
-    socket:UdpClient socketClient = new(localAddress = { host: "localhost", port: 48828 });
+    socket:UdpClient socketClient = new({ host: "localhost", port: 48828 });
     string returnStr = "";
-    var result = socketClient->receiveFrom(length = 56);
+    var result = socketClient->receiveFrom(56);
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
         var str = getString(content);
