@@ -794,6 +794,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
             return;
         }
         typeFieldName = "typeAnyService";
+    } else if (bType is bir:BTypeHandle) {
+        typeFieldName = "typeHandle";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -1083,6 +1085,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     }  else if (bType is bir:BXMLType) {
         return io:sprintf("L%s;", XML_VALUE);
+    }  else if (bType is bir:BTypeHandle) {
+        return io:sprintf("L%s;", HANDLE_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
