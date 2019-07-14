@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ServerChannel;

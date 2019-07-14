@@ -30,16 +30,18 @@ import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
-import org.wso2.transport.http.netty.contract.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;

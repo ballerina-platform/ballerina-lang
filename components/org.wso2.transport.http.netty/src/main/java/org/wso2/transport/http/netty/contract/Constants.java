@@ -396,6 +396,8 @@ public final class Constants {
 
     public static final String ERROR_COULD_NOT_RESOLVE_HOST = "Could not resolve host";
 
+    public static final String SSL_CONNECTION_ERROR = "SSL connection failed";
+
     public static final int HTTP_CARBON_MESSAGE_PROPERTIES_MAP_DEFAULT_SIZE = 64;
 
     public static final String INBOUND_REQUEST = "INBOUND_REQUEST";
