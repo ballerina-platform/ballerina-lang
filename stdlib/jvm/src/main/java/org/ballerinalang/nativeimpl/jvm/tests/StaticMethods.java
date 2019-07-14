@@ -22,6 +22,8 @@ import java.util.UUID;
 
 /**
  * This class contains a set of utility static methods required for interoperability testing.
+ *
+ * @since 1.0.0
  */
 public class StaticMethods {
     private StaticMethods() {

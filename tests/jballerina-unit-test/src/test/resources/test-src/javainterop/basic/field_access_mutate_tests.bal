@@ -39,3 +39,4 @@ public function getCreatedAt(handle receiver) returns handle = external;
 @java:FieldSet {name:"uuid",
                 class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"}
 public function setUUID(handle receiver, handle uuid) = external;
+

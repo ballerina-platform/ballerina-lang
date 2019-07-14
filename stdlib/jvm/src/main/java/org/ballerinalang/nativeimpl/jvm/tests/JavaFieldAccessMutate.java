@@ -22,6 +22,8 @@ import java.util.UUID;
 
 /**
  * This class is used for Java interoperability tests.
+ *
+ * @since 1.0.0
  */
 public class JavaFieldAccessMutate {
     // Static fields

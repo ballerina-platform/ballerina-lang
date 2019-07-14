@@ -1,7 +1,5 @@
 import ballerina/java;
 
-
-
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
 }
@@ -49,3 +47,4 @@ public function acceptTwoParamsAndReturnSomething(handle h1, handle h2) returns 
 
 @java:Method {class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods", isStatic:true}
 public function acceptThreeParamsAndReturnSomething(handle h1, handle h2, handle h3) returns handle = external;
+

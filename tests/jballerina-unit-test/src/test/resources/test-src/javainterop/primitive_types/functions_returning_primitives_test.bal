@@ -104,3 +104,4 @@ public function getBFloatJFloat(handle receiver) returns float = external;
 
 @java:Method {name:"doubleValue", class:"java.lang.Double"}
 public function getBFloatJDouble(handle receiver) returns float = external;
+

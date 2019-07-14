@@ -38,5 +38,3 @@ public annotation MethodData Method on function;
 public annotation FieldData FieldGet on function;
 public annotation FieldData FieldSet on function;
 
-
-

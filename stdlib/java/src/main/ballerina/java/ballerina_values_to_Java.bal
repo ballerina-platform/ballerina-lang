@@ -14,5 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 public function toJString(string value) returns handle = external;
