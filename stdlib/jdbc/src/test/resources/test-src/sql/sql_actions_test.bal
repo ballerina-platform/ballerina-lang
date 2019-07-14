@@ -146,7 +146,7 @@ function testGeneratedKeyOnInsert() returns [int, int] {
             registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
     if (x is jdbc:UpdateResult) {
         count = x.updatedRowCount;
-        generatedKey = <int>x.generatedKeys.CUSTOMERID;
+        generatedKey = <int>x.generatedKeys["CUSTOMERID"];
     }
     checkpanic testDB.stop();
     return [count, generatedKey];
@@ -193,7 +193,7 @@ function testGeneratedKeyWithColumn() returns int {
 
     int generatedID = 0;
     if (x is jdbc:UpdateResult) {
-        generatedID = <int>x.generatedKeys.CUSTOMERID;
+        generatedID = <int>x.generatedKeys["CUSTOMERID"];
     }
     checkpanic testDB.stop();
     return generatedID;
@@ -1036,14 +1036,14 @@ function getBatchUpdateCount(int[]|error result) returns int[] {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": <string> tableOrError.detail()["message"] };
     }
     return retVal;
 }
@@ -1051,15 +1051,15 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
 function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
-        var xmlConversionResult = xml.convert(tableOrError);
+        var xmlConversionResult = typedesc<xml>.constructFrom(tableOrError);
         if (xmlConversionResult is xml) {
             retVal = xmlConversionResult;
         } else {
-            string errorXML = <string> xmlConversionResult.detail().message;
+            string errorXML = <string> xmlConversionResult.detail()["message"];
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else {
-        string errorXML = <string> tableOrError.detail().message;
+        string errorXML = <string> tableOrError.detail()["message"];
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;

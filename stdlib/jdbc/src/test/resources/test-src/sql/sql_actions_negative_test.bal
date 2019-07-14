@@ -56,11 +56,11 @@ function testErrorWithSelectData() returns string {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
     if (x is table<record {}>) {
-        var jsonConversionResult = json.convert(x);
+        var jsonConversionResult = typedesc<json>.constructFrom(x);
         if (jsonConversionResult is json) {
             retVal = io:sprintf("%s", jsonConversionResult);
         } else {
-            retVal = <string> jsonConversionResult.detail().message;
+            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
         }
     } else {
         error e = x;
@@ -88,7 +88,7 @@ function testGeneratedKeyOnInsert() returns int|string {
         ret = x.generatedKeys.length();
     } else {
         error e = x;
-        ret = <string> e.detail().message;
+        ret = <string> e.detail()["message"];
     }
 
     checkpanic testDB.stop();
@@ -136,7 +136,7 @@ function testUpdateReslt() returns int|string {
         x.updatedRowCount = 0;
     } else {
         error e = x;
-        ret = <string> e.detail().message;
+        ret = <string> e.detail()["message"];
     }
     return ret;
 }
@@ -178,7 +178,7 @@ function testBatchUpdate() returns string {
         }
     } else {
         error e = x;
-        returnVal = <string> e.detail().message;
+        returnVal = <string> e.detail()["message"];
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -243,7 +243,7 @@ function testInvalidArrayofQueryParameters() returns @tainted string {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
-        var j = json.convert(x);
+        var j = typedesc<json>.constructFrom(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
@@ -252,7 +252,7 @@ function testInvalidArrayofQueryParameters() returns @tainted string {
         }
     } else {
         error e = x;
-        returnData = <string> e.detail().message;
+        returnData = <string> e.detail()["message"];
     }
     checkpanic testDB.stop();
     return returnData;
@@ -274,7 +274,7 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
-        var j = json.convert(x);
+        var j = typedesc<json>.constructFrom(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
@@ -351,14 +351,14 @@ function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": <string> tableOrError.detail()["message"] };
     }
     return retVal;
 }

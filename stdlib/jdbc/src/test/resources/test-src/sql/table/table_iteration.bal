@@ -94,13 +94,12 @@ function testForEachInTable() returns [int, int, float, string] {
     var dt = testDB->select("SELECT * from Person where id = 1", Person);
 
     if (dt is table<Person>) {
-        dt.foreach(function (Person p) {
-                idValue = <@untainted>p.id;
-                ageValue = <@untainted>p.age;
-                salValue = <@untainted>p.salary;
-                nameValue = <@untainted>p.name;
-            }
-        );
+        foreach Person p in dt {
+            idValue = <@untainted>p.id;
+            ageValue = <@untainted>p.age;
+            salValue = <@untainted>p.salary;
+            nameValue = <@untainted>p.name;
+        }
     }
     int id = idValue;
     int age = ageValue;
