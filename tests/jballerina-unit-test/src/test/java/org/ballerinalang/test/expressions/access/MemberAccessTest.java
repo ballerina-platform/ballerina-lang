@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 29);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -73,7 +73,15 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)?'", 86, 19);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)?'", 87, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'string?', found '(int|string)?'", 88, 18);
-        validateError(negativeResult, i, "incompatible types: expected '(int|string)', found '(int|string)?'", 89, 21);
+        validateError(negativeResult, i++, "incompatible types: expected '(int|string)', found '(int|string)?'", 89,
+                      21);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 95, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'map<int>', found 'map<int>?'", 99, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 100, 15);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 101, 15);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 104, 17);
+        validateError(negativeResult, i, "incompatible types: expected 'boolean', found '(string|boolean|int)?'",
+                      105, 18);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -180,6 +188,26 @@ public class MemberAccessTest {
             { "testMapMemberAccessByLiteral" },
             { "testMapMemberAccessByVariable" },
             { "testMapAccessForNonExistingKey" }
+        };
+    }
+
+    @Test(dataProvider = "optionalMappingMemberAccessFunctions")
+    public void testOptionalMappingMemberAccess(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "optionalMappingMemberAccessFunctions")
+    public Object[][] optionalMappingMemberAccessFunctions() {
+        return new Object[][] {
+            { "testMemberAccessOnNillableMap1" },
+            { "testMemberAccessOnNillableMap2" },
+            { "testMemberAccessNilLiftingOnNillableMap1" },
+            { "testMemberAccessNilLiftingOnNillableMap2" },
+            { "testMemberAccessOnNillableRecord1" },
+            { "testMemberAccessOnNillableRecord2" },
+            { "testMemberAccessNilLiftingOnNillableRecord1" },
+            { "testMemberAccessNilLiftingOnNillableRecord2" },
         };
     }
 }

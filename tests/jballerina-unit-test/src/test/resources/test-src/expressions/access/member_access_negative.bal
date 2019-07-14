@@ -88,3 +88,19 @@ function testMapMemberAccessInvalidTypes() {
     string? s2 = e["name"];
     int|string s3 = e[s];
 }
+
+function testMemberAccessOnNillableMappingInvalidType() {
+    map<string>? m = { "one": "1", "two": "2" };
+    string index = "two";
+    string s1 = m["one"];
+    string s2 = m[index];
+
+    map<map<int>>? m2 = { one: { two: 2 } };
+    map<int> in1 = m2["one"];
+    int in2 = m2["one"]["two"];
+    int in3 = m2[index]["three"];
+
+    Employee? e = { name: "Bill" };
+    string s3 = e["name"];
+    boolean s4 = e[index];
+}
