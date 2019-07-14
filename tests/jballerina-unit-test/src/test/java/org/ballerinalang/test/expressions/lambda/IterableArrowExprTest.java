@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.982.0
  */
+@Test(groups = { "brokenOnLangLibChange" })
 public class IterableArrowExprTest {
 
     private CompileResult basic, resultNegative;

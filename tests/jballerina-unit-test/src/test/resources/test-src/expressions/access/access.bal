@@ -92,6 +92,40 @@ function testFieldOptionalFieldAndMemberAccess3() {
     string? s1 = a.betas[0]?.s;
 }
 
+public type Gamma object {
+    Delta? delta;
+
+    public function __init(Delta? d) {
+        self.delta = d;
+    }
+};
+
+public type Delta record {
+    Status status = ();
+};
+
+public type Status PASSED | FAILED | ();
+
+public const PASSED = "passed";
+public const FAILED = "failed";
+public const NONE = ();
+
+function testMemberAccessOnNillableObjectField() returns boolean {
+    string st = "test string";
+    Gamma g1 = new({});
+    Gamma g2 = new({ status: FAILED, oth: st });
+
+    string key1 = "status";
+    string key2 = "oth";
+    return g1.delta["status"] == () && g2.delta["status"] == FAILED && g2.delta[key1] == FAILED &&
+            g2.delta[key2] == st;
+}
+
+function testNilLiftingOnMemberAccessOnNillableObjectField() returns boolean {
+    Gamma g = new(());
+    return g.delta["status"] == ();
+}
+
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         return je.reason() == "{ballerina}JSONOperationError" && je.detail()?.message == "JSON value is not a mapping";

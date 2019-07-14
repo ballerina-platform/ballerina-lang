@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -32,6 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.util.Lists;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
+import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 
 /**
  * Native implementation of lang.map:get(map<Type>, string).
@@ -50,8 +52,8 @@ public class Entries {
     private static int refType = -1;
 
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
-        BTupleType entryType = new BTupleType(Lists.of(BTypes.typeString,
-                                                       ((BMapType) m.getType()).getConstrainedType()));
+        BType newFieldType = getFieldType(m.getType(), "entries()");
+        BTupleType entryType = new BTupleType(Lists.of(BTypes.typeString, newFieldType));
         BMapType entryMapConstraint = new BMapType(entryType);
         MapValue<Object, ArrayValue> entries = new MapValueImpl<>(entryMapConstraint);
 

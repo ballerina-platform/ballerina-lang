@@ -271,6 +271,10 @@ public class TypeParamAnalyzer {
                     findTypeParam(((BMapType) expType).constraint, ((BMapType) actualType).constraint, env,
                             resolvedTypes, result);
                 }
+                if (actualType.tag == TypeTags.RECORD) {
+                    findTypeParamInMapForRecord((BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
+                                                result);
+                }
                 return;
             case TypeTags.TUPLE:
                 if (actualType.tag == TypeTags.TUPLE) {
@@ -350,6 +354,14 @@ public class TypeParamAnalyzer {
             }
             findTypeParam(exField.type, actualFieldType, env, resolvedTypes, result);
         }
+    }
+
+    private void findTypeParamInMapForRecord(BMapType expType, BRecordType actualType, SymbolEnv env,
+                                             HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        BUnionType recFieldType = BUnionType.create(null,
+                                                    new LinkedHashSet<>(actualType.fields.stream().map(f -> f.type)
+                                                                                .collect(Collectors.toList())));
+        findTypeParam(expType.constraint, recFieldType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInInvokableType(BInvokableType expType, BInvokableType actualType, SymbolEnv env,

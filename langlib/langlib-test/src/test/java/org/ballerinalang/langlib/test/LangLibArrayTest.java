@@ -215,4 +215,10 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(3), 20);
         assertEquals(arr.getInt(4), 10);
     }
+
+    @Test
+    public void testForEach() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
+        assertEquals(returns[0].stringValue(), "SunMonTues");
+    }
 }

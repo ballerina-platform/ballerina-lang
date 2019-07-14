@@ -191,3 +191,14 @@ function testIterableOpChain2() returns int {
 
     return totalJediScore;
 }
+
+function testForEach() returns string {
+    string[] days = ["Sun", "Mon", "Tues"];
+    string result = "";
+
+    foreach var day in days {
+        result += day;
+    }
+
+    return result;
+}

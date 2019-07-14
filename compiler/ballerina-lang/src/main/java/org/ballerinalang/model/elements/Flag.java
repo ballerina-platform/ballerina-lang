@@ -118,7 +118,7 @@ public enum Flag {
      */
     TYPE_PARAM,
     /**
-     * Indicates flagged node is a lang library function
+     * Indicates flagged node is a lang library function.
      */
     LANG_LIB
 }

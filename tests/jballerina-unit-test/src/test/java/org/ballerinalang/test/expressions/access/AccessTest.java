@@ -48,11 +48,12 @@ public class AccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'AlphaTwo' does not support field access for " +
                 "non-required field 'betas'", 40, 18);
-        validateError(negativeResult, i, "incompatible types: expected 'string', found 'string?'", 53, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 53, 17);
+        validateError(negativeResult, i, "invalid operation: type 'Delta?' does not support indexing", 70, 17);
     }
 
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
@@ -88,5 +89,17 @@ public class AccessTest {
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testFieldOptionalFieldAndMemberAccess2() {
         BRunUtil.invoke(result, "testFieldOptionalFieldAndMemberAccess3");
+    }
+
+    @Test
+    public void testMemberAccessOnNillableObjectField() {
+        BValue[] returns = BRunUtil.invoke(result, "testMemberAccessOnNillableObjectField");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testNilLiftingOnMemberAccessOnNillableObjectField() {
+        BValue[] returns = BRunUtil.invoke(result, "testNilLiftingOnMemberAccessOnNillableObjectField");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

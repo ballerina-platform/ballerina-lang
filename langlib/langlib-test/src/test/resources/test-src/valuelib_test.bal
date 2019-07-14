@@ -38,3 +38,12 @@ function testFromJsonString() returns map<json|error> {
     result["anInvalid"] = anInvalid.fromJsonString();
     return result;
 }
+
+function testToStringMethod() returns [string, string, string, string] {
+    int a = 4;
+    anydata b = a;
+    any c = b;
+    var d = c.toString();
+    return [a.toString(), b.toString(), c.toString(), d];
+}
+
