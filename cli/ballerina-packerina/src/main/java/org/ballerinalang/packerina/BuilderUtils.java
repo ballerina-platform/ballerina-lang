@@ -108,9 +108,10 @@ public class BuilderUtils {
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                                                     "ballerina.home is not set");
+            String targetDir = Files.isDirectory(Paths.get(targetPath)) ? targetPath : ".";
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                                               targetDirectory, Optional.of(Paths.get(targetPath)), dumpBIR);
+                                               targetDirectory, Optional.of(Paths.get(targetDir)), dumpBIR);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
