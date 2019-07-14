@@ -17,7 +17,7 @@
 import ballerina/crypto;
 
 function testParsingPrivateKeyFromP12(string path, string keyStorePassword, string keyAlias, string keyPassword)
-                                      returns crypto:PrivateKey|error {
+                                      returns crypto:PrivateKey|crypto:Error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
@@ -26,7 +26,7 @@ function testParsingPrivateKeyFromP12(string path, string keyStorePassword, stri
 }
 
 function testParsingPublicKeyFromP12(string path, string keyStorePassword, string keyAlias)
-                                     returns crypto:PublicKey|error {
+                                     returns crypto:PublicKey|crypto:Error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword

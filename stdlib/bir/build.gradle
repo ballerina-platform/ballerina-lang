@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
- 
-apply from: "$rootDir/gradle/baloProject.gradle"
+
+apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 configurations {
     balSource
@@ -28,8 +28,6 @@ configurations.testRuntimeClasspath {
 }
 
 dependencies {
-    balo project(path: ':ballerina-bootstrapper', configuration: 'pack1')
-
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-builtin')
@@ -41,6 +39,14 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
 
+    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    baloCreat project(':lib-creator')
     testCompile project(':ballerina-launcher')
     testCompile 'io.netty:netty-transport'
     testCompile 'org.testng:testng'
@@ -52,3 +58,8 @@ description = 'Ballerina - BIR Model'
 artifacts {
     balSource file("src/main/ballerina/")
 }
+
+createBalo {
+    jvmTarget = 'true'
+}
+

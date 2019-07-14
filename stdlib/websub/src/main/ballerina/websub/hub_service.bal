@@ -145,9 +145,8 @@ service {
             }
         } else {
             if (mode != MODE_PUBLISH) {
-                params = request.getQueryParams();
-                mode = params[HUB_MODE] ?: "";
-                string topicValue = params[HUB_TOPIC] ?: "";
+                mode = request.getQueryParamValue(HUB_MODE) ?: "";
+                string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
                 var decodedTopic = http:decode(topicValue, "UTF-8");
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }
@@ -254,17 +253,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Malformed URL specified as callback" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Subscription request denied for unregistered topic" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
-    error err = error(WEBSUB_ERROR_CODE, errorDetail);
+    error err = error(WEBSUB_ERROR_CODE, message = "Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
@@ -474,8 +472,8 @@ returns error? {
         if (contentDistributionResponse is http:Response) {
             int respStatusCode = contentDistributionResponse.statusCode;
             if (isSuccessStatusCode(respStatusCode)) {
-                log:printDebug("Content delivery to callback[" + callback
-                                + "] successful for topic[" + subscriptionDetails.topic + "]");
+                log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
+                                    + subscriptionDetails.topic + "]");
             } else if (respStatusCode == http:GONE_410) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {

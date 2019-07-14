@@ -35,7 +35,6 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-jvm')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -60,9 +59,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')

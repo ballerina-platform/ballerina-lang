@@ -33,9 +33,9 @@ public type Client client object {
     # + recordType - Array of record types of the returned tables if there is any
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
-    #            `JdbcClientError` will be returned if there is any error
+    #            `Error` will be returned if there is any error
     public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
-                                returns @tainted table<record {}>[]|()|JdbcClientError {
+                                returns @tainted table<record {}>[]|()|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -47,10 +47,10 @@ public type Client client object {
     # + sqlQuery - SQL query to execute
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
-    # + return - A `table` returned by the sql query statement else `JdbcClientError` will be returned if there
+    # + return - A `table` returned by the sql query statement else `Error` will be returned if there
     # is any error
     public remote function select(@untainted string sqlQuery, typedesc? recordType, Param... parameters)
-                                  returns @tainted table<record {}>|JdbcClientError {
+                                  returns @tainted table<record {}>|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -63,9 +63,9 @@ public type Client client object {
     # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `UpdateResult` with the updated row count and key column values,
-    #             else  `JdbcClientError` will be returned if there is any error
+    #             else  `Error` will be returned if there is any error
     public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                                  returns UpdateResult|JdbcClientError {
+                                  returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -102,7 +102,7 @@ public type Client client object {
         return close(self.jdbcClient);
     }
 
-    function handleStoppedClientInvocation() returns JdbcClientError {
+    function handleStoppedClientInvocation() returns Error {
         ApplicationError e = error(message = "Client has been stopped");
         return e;
     }

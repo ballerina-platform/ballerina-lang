@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -44,10 +42,7 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
                 @Argument(name = "contentType", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetByteArray extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class SetByteArray {
 
     public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);

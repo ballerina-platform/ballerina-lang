@@ -19,16 +19,18 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Constant for the auth error code.
-public const OAUTH2_ERROR_CODE = "{ballerina/oauth2}OAuth2Error";
-
-# Log, prepare and return the `error`.
+# Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `error` instance
-function prepareError(string message, error? err = ()) returns error {
+# + return - Prepared `Error` instance
+function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err = err);
-    error preparedError = error(OAUTH2_ERROR_CODE, message = message, reason = err.reason());
-    return preparedError;
+    Error oauth2Error;
+    if (err is error) {
+        oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);
+    } else {
+        oauth2Error = error(OAUTH2_ERROR, message = message);
+    }
+    return oauth2Error;
 }

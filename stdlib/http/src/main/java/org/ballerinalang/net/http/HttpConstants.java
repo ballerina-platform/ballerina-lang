@@ -189,6 +189,7 @@ public class HttpConstants {
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String QUERY_PARAM_MAP = "queryParamMap";
     public static final String TRANSPORT_HANDLE = "transport_handle";
     public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
@@ -297,6 +298,8 @@ public class HttpConstants {
     //Service Endpoint
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;
     public static final String SERVICE_ENDPOINT_CONFIG = "config";
+    public static final String SERVER_NAME = "server";
+    public static final String SERVER_ENDPOINT_CONFIG = "ServiceEndpointConfiguration";
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";

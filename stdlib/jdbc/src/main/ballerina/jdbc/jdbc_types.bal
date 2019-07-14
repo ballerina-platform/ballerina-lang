@@ -227,43 +227,11 @@ public type UpdateResult record {|
 #                            affected is unknown
 #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
 #                            continues to process commands after a command fails
-# + returnedError - The `JdbcClientError` returned from the remote function in case of a failure
+# + returnedError - The `Error` returned from the remote function in case of a failure
 public type BatchUpdateResult record {|
     int[] updatedRowCount;
-    JdbcClientError? returnedError;
+    Error? returnedError;
 |};
 
 # The parameter passed into the operations.
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
-
-public const DATABASE_ERROR_REASON = "{ballerinax/jdbc}DatabaseError";
-
-# Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
-# database resource clean-up and other similar scenarios.
-public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
-
-public const APPLICATION_ERROR_REASON = "{ballerinax/jdbc}ApplicationError";
-
-# Represents the error which is related to Non SQL errors
-public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
-
-# Represents a database or application level error returned from JDBC client remote functions.
-public type JdbcClientError DatabaseError|ApplicationError;
-
-# Represents the properties which are related to SQL database errors
-#
-# + message - Error message
-# + sqlErrorCode - SQL error code
-# + sqlState - SQL state
-public type DatabaseErrorData record {|
-    string message;
-    int sqlErrorCode;
-    string sqlState;
-|};
-
-# Represents the properties which are related to Non SQL errors
-#
-# + message - Error message
-public type ApplicationErrorData record {|
-    string message;
-|};

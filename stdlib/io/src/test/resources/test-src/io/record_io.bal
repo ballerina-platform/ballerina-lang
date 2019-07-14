@@ -31,8 +31,8 @@ function initReadableChannel(string filePath, string encoding, string recordSepa
 }
 
 function initWritableChannel(string filePath, string encoding, string recordSeparator,
-                             string fieldSeparator) {
-    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+                             string fieldSeparator) returns io:Error? {
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
     wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
 }

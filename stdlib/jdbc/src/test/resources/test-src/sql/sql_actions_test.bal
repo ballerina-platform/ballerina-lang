@@ -678,7 +678,7 @@ function testEmptySQLType() returns int {
     return insertCount;
 }
 
-function testBatchUpdate() returns [int[], jdbc:JdbcClientError?] {
+function testBatchUpdate() returns [int[], jdbc:Error?] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
