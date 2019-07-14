@@ -29,7 +29,7 @@ import ballerina/math;
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, message=req);
+    var result = httpEndpoint -> get(querySearched, message=req);
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;
@@ -243,12 +243,7 @@ function getDateCreated(json jsonObj) returns string {
     var timeInMillis = int.convert(jsonTime);
     if (timeInMillis is int) {
         time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
-        var customTimeString = time:format(timeRecord, "yyyy-MM-dd-E");
-        if (customTimeString is string) {
-            return customTimeString;
-        } else {
-            panic customTimeString;
-        }
+        return checkpanic time:format(timeRecord, "yyyy-MM-dd-E");
     } else {
         panic timeInMillis;
     }
@@ -256,7 +251,7 @@ function getDateCreated(json jsonObj) returns string {
 
 # This function invokes the method to search for modules.
 # + args - Arguments passed
-public function main (string... args) {
+public function main(string... args) {
     http:Client httpEndpoint;
     string host = args[2];
     string strPort = args[3];

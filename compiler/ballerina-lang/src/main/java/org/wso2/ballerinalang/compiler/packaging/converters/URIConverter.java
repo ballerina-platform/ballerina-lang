@@ -23,7 +23,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
-import org.ballerinalang.util.EmbeddedExecutorError;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
@@ -119,13 +118,13 @@ public class URIConverter implements Converter<URI> {
                     "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
             String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            Optional<EmbeddedExecutorError> execute = executor.executeFunction("packaging_pull/packaging_pull.balx",
+            Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
                     u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                     supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
             // Check if error has occurred or not.
             if (execute.isPresent()) {
-                String errorMessage = RepoUtils.getInnerErrorMessage(execute.get());
+                String errorMessage = execute.get().getMessage();
                 if (!errorMessage.trim().equals("")) {
                     outStream.println(errorMessage);
                 }

@@ -48,7 +48,7 @@ type BuildLogFormatter object {
 
 # + errMessage - The error message.
 # + return - Newly created error record.
-function createError (string errMessage) returns error {
+function createError(string errMessage) returns error {
     error endpointError = error(logFormatter.formatLog(errMessage));
     return endpointError;
 }
@@ -56,12 +56,11 @@ function createError (string errMessage) returns error {
 # This function pulls a module from ballerina central.
 #
 # + args - Arguments for pulling a module
-# + return - nil if no error occurred, else error.
-public function main(string... args) returns error? {
+public function main(string... args) {
     http:Client httpEndpoint;
-    string url = args[0];
+    string url = <@untainted> args[0];
     string dirPath = args[1];
-    string pkgPath = args[2];
+    string pkgPath = <@untainted> args[2];
     string fileSeparator = args[3];
     string host = args[4];
     string strPort = args[5];
@@ -69,8 +68,8 @@ public function main(string... args) returns error? {
     string proxyPassword = args[7];
     string terminalWidth = args[8];
     string versionRange = args[9];
-    isBuild = untaint boolean.convert(args[10]);
-    boolean nightlyBuild = untaint boolean.convert(args[11]);
+    isBuild = <@untainted> boolean.convert(args[10]);
+    boolean nightlyBuild = <@untainted> boolean.convert(args[11]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -85,13 +84,13 @@ public function main(string... args) returns error? {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
             } else {
-                return createError("failed to resolve host : " + host + " with port " + port);
+                panic createError("failed to resolve host : " + host + " with port " + port);
             }
         } else {
-            return createError("invalid port : " + strPort);
+            panic createError("invalid port : " + strPort);
         }
     } else  if (host != "" || strPort != "") {
-        return createError("both host and port should be provided to enable proxy");
+        panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
@@ -108,9 +107,8 @@ public function main(string... args) returns error? {
 # + fileSeparator - System file separator
 # + terminalWidth - Width of the terminal
 # + nightlyBuild - Release is a nightly build
-# + return - Error if occurred, else nil
 function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
-                     string fileSeparator, string terminalWidth, boolean nightlyBuild) returns error? {
+                     string fileSeparator, string terminalWidth, boolean nightlyBuild) {
     http:Client centralEndpoint = httpEndpoint;
 
     string fullPkgPath = pkgPath;
@@ -119,41 +117,41 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = centralEndpoint -> get(untaint versionRange, message=req);
+    var result = centralEndpoint -> get(<@untainted> versionRange, message=req);
     if (result is http:Response) {
         httpResponse = result;
     } else {
-        return createError("connection to the remote host failed : " + result.reason());
+        panic createError("connection to the remote host failed : " + result.reason());
     }
 
     http:Response res = new;
     string statusCode = string.convert(httpResponse.statusCode);
     if (statusCode.hasPrefix("5")) {
-        return createError("remote registry failed for url :" + url);
+        panic createError("remote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
         if (resp is json) {
             if (statusCode == "404" && isBuild && resp.message.toString().contains("could not find module")) {
                 // To ignore printing the error
-                return createError("");
+                panic createError("");
             } else {
-                return createError(resp.message.toString());
+                panic createError(resp.message.toString());
             }
         } else {
-            return createError("error occurred when pulling the module");
+            panic createError("error occurred when pulling the module");
         }
     } else {
         string contentLengthHeader;
-        int pkgSize = MAX_INT_VALUE;
+        int pkgSize = <@untainted> MAX_INT_VALUE;
 
         if (httpResponse.hasHeader("content-length")) {
             contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = check int.convert(contentLengthHeader);
+            pkgSize = <@untainted> checkpanic int.convert(contentLengthHeader);
         } else {
-            return createError("module size information is missing from remote repository. please retry.");
+            panic createError("module size information is missing from remote repository. please retry.");
         }
 
-        io:ReadableByteChannel sourceChannel = check (httpResponse.getByteChannel());
+        io:ReadableByteChannel sourceChannel = checkpanic (httpResponse.getByteChannel());
 
         string resolvedURI = httpResponse.resolvedRequestedURI;
         if (resolvedURI == "") {
@@ -162,7 +160,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 
         string [] uriParts = resolvedURI.split("/");
         string pkgVersion = uriParts[uriParts.length() - 2];
-        boolean valid = check pkgVersion.matches(VERSION_REGEX);
+        boolean valid = checkpanic pkgVersion.matches(VERSION_REGEX);
 
         if (valid) {
             string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
@@ -175,24 +173,24 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
                 if (pkgArchivePath.exists()) {
-                    return createError("module already exists in the home repository");
+                    panic createError("module already exists in the home repository");
                 }
             }
 
-            io:WritableByteChannel wch = io:openWritableFile(untaint destArchivePath);
+            io:WritableByteChannel wch = checkpanic io:openWritableFile(<@untainted> destArchivePath);
 
             string toAndFrom = " [central.ballerina.io -> home repo]";
             int rightMargin = 3;
-            int width = (check int.convert(terminalWidth)) - rightMargin;
-            check copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
+            int width = (checkpanic int.convert(terminalWidth)) - rightMargin;
+            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
 
             var destChannelClose = wch.close();
             if (destChannelClose is error) {
-                return createError("error occurred while closing the channel: " + destChannelClose.reason());
+                panic createError("error occurred while closing the channel: " + destChannelClose.reason());
             } else {
                 var srcChannelClose = sourceChannel.close();
                 if (srcChannelClose is error) {
-                    return createError("error occurred while closing the channel: " + srcChannelClose.reason());
+                    panic createError("error occurred while closing the channel: " + srcChannelClose.reason());
                 } else {
                     if (nightlyBuild) {
                         // If its a nightly build tag the file as a module from nightly
@@ -200,14 +198,14 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
                         internal:Path metaFilePath = sourcePath.resolve("nightly.build");
                         var createFileResult = metaFilePath.createFile();
                         if (createFileResult is error) {
-                            return createError("Error occurred while creating nightly.build file.");
+                            panic createError("Error occurred while creating nightly.build file.");
                         }
                     }
                     return ();
                 }
             }
         } else {
-            return createError("module version could not be detected");
+            panic createError("module version could not be detected");
         }
     }
 }
@@ -220,7 +218,7 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
+public function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
     http:Client httpEndpointWithProxy = new (url, config = {
         secureSocket:{
             trustStore:{
@@ -233,7 +231,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
         followRedirects: { enabled: true, maxCount: 5 },
         proxy : getProxyConfigurations(hostname, port, username, password)
     });
-    return httpEndpointWithProxy;
+    return <@untainted> httpEndpointWithProxy;
 }
 
 # This function defines an endpoint without proxy configurations.
@@ -252,7 +250,7 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
         },
         followRedirects: { enabled: true, maxCount: 5 }
     });
-    return httpEndpointWithoutProxy;
+    return <@untainted> httpEndpointWithoutProxy;
 }
 
 # This function will read the bytes from the byte channel.
@@ -264,7 +262,7 @@ function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) return
     byte[] bytes;
     int numberOfBytesRead;
     [bytes, numberOfBytesRead] = check (byteChannel.read(numberOfBytes));
-    return [bytes, numberOfBytesRead];
+    return <@untainted>[bytes, numberOfBytesRead];
 }
 
 # This function will write the bytes from the byte channel.
@@ -286,9 +284,8 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 # + fullPkgPath - Full module path
 # + toAndFrom - Pulled module details
 # + width - Width of the terminal
-# + return - Nil if successful, error if read failed
 function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
-              string fullPkgPath, string toAndFrom, int width) returns error? {
+              string fullPkgPath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
     byte[] readContent = [];
@@ -304,12 +301,12 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
     int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     while (!completed) {
-        [readContent, readCount] = check readBytes(src, bytesChunk);
+        [readContent, readCount] = checkpanic readBytes(src, bytesChunk);
         if (readCount <= startVal) {
             completed = true;
         }
         if (dest != ()) {
-            numberOfBytesWritten = check writeBytes(dest, readContent, startVal);
+            numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
         }
         totalCount = totalCount + readCount;
         float percentage = totalCount / pkgSize;
