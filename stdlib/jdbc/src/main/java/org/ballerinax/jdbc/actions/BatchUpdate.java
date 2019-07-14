@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
@@ -44,9 +45,10 @@ public class BatchUpdate extends BlockingNativeCallableUnit {
         //TODO: #16033
     }
 
-    public static Object nativeBatchUpdate(Strand strand, ObjectValue client, String sqlQuery, ArrayValue parameters) {
+    public static MapValue<String, Object> nativeBatchUpdate(Strand strand, ObjectValue client, String sqlQuery,
+                                                             ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters);
-        return batchUpdateStatement.execute();
+        return (MapValue<String, Object>) batchUpdateStatement.execute();
     }
 }

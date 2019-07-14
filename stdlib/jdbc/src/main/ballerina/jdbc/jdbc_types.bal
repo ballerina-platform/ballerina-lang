@@ -99,9 +99,8 @@ public type GlobalPoolConfigContainer object {
      }
 };
 
-// This is an instance of GlobalPoolConfigContainer object type.
-// __init functions of database clients pass poolConfig member of this instance
-// to the extern client creation logic in order to access the internal map
+// This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
+// poolConfig member of this instance to the extern client creation logic in order to access the internal map
 // of connection pools.
 final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
@@ -210,13 +209,28 @@ public type Parameter record {|
     typedesc recordType?;
 |};
 
-# Result represents the output of the `update` remote function.
+# UpdateResult represents the output of the `update` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
 public type UpdateResult record {|
     int updatedRowCount;
     map<anydata> generatedKeys;
+|};
+
+# BatchUpdateResult represents the output of the `batchUpdate` remote function.
+#
+# + updatedRowCount - The updated row count during the sql statement exectuion
+#            A number greater than or equal to zero - indicates that the command was processed successfully
+#                                                     and is an update count giving the number of rows
+#            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+#                            affected is unknown
+#            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
+#                            continues to process commands after a command fails
+# + returnedError - The `JdbcClientError` returned from the remote function in case of a failure
+public type BatchUpdateResult record {|
+    int[] updatedRowCount;
+    JdbcClientError? returnedError;
 |};
 
 # The parameter passed into the operations.

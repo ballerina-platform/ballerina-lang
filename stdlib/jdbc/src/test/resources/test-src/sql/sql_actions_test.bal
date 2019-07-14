@@ -678,7 +678,7 @@ function testEmptySQLType() returns int {
     return insertCount;
 }
 
-function testBatchUpdate() returns int[] {
+function testBatchUpdate() returns [int[], jdbc:JdbcClientError?] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -702,11 +702,10 @@ function testBatchUpdate() returns int[] {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
-    int[] updateCount = getBatchUpdateCount(ret);
     checkpanic testDB.stop();
-    return updateCount;
+    return [ret.updatedRowCount, ret.returnedError];
 }
 
 function testBatchUpdateSingleValParamArray() returns int[] {
@@ -723,10 +722,9 @@ function testBatchUpdateSingleValParamArray() returns int[] {
 
     string[][] arrayofParamArrays = [parameters1, parameters2];
 
-    var ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", ...arrayofParamArrays);
-    int[] updateCount = getBatchUpdateCount(ret);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName) values (?)", ...arrayofParamArrays);
     checkpanic testDB.stop();
-    return updateCount;
+    return ret.updatedRowCount;
 }
 
 type myBatchType string|int|float;
@@ -745,11 +743,10 @@ function testBatchUpdateWithValues() returns int[] {
     //Batch 2
     myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
-    var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-    int[] updateCount = getBatchUpdateCount(ret);
     checkpanic testDB.stop();
-    return updateCount;
+    return ret.updatedRowCount;
 }
 
 function testBatchUpdateWithVariables() returns int[] {
@@ -772,11 +769,10 @@ function testBatchUpdateWithVariables() returns int[] {
     //Batch 2
     myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
-    var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                             creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
-    int[] updateCount = getBatchUpdateCount(ret);
     checkpanic testDB.stop();
-    return updateCount;
+    return ret.updatedRowCount;
 }
 
 function testBatchUpdateWithFailure() returns @tainted [int[], int] {
@@ -823,9 +819,9 @@ function testBatchUpdateWithFailure() returns @tainted [int[], int] {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
-    var ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
         creditLimit, country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
-    int[] updateCount = getBatchUpdateCount(ret);
+    int[] updateCount = ret.updatedRowCount;
     var dt = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
     int count = getTableCountValColumn(dt);
@@ -841,9 +837,9 @@ function testBatchUpdateWithNullParam() returns int[] {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    var ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                      values ('Alex','Smith',20,3400.5,'Colombo')");
-    int[] updateCount = getBatchUpdateCount(ret);
+    int[] updateCount = ret.updatedRowCount;
     checkpanic testDB.stop();
     return updateCount;
 }
@@ -1024,13 +1020,6 @@ function getTableFirstNameColumn(table<record {}>|error result) returns string {
         return firstName;
     }
     return "";
-}
-
-function getBatchUpdateCount(int[]|error result) returns int[] {
-    if (result is int[]) {
-        return result;
-    }
-    return [];
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {

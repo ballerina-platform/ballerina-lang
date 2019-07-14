@@ -263,6 +263,7 @@ public class SQLActionsTest {
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
+        Assert.assertEquals(returns[1], null);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -393,6 +394,7 @@ public class SQLActionsTest {
     @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed batch update")
     public void testErrorWithBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithBatchUpdate");
+        Assert.assertTrue(returns[0].stringValue().contains("array values are -3"));
         Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlErrorCode:"));
         Assert.assertTrue(returns[0].stringValue().contains("sqlState:"));

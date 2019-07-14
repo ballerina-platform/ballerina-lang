@@ -35,7 +35,7 @@ public type Client client object {
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `JdbcClientError` will be returned if there is any error
     public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
-                               returns @tainted table<record {}>[]|()|JdbcClientError {
+                                returns @tainted table<record {}>[]|()|JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -49,8 +49,8 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `JdbcClientError` will be returned if there
     # is any error
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
-                                  Param... parameters) returns @tainted table<record {}>|JdbcClientError {
+    public remote function select(@untainted string sqlQuery, typedesc? recordType, Param... parameters)
+                                  returns @tainted table<record {}>|JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -65,7 +65,7 @@ public type Client client object {
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else  `JdbcClientError` will be returned if there is any error
     public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                               returns UpdateResult|JdbcClientError {
+                                  returns UpdateResult|JdbcClientError {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -77,18 +77,14 @@ public type Client client object {
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
     #                individual update
-    # + return - An `int[]` - The elements in the array returned by the operation may be one of the following  or else
-    #            an `JdbcClientError` will be returned if there is any error.
-    #            A number greater than or equal to zero - indicates that the command was processed successfully
-    #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows
-    #                            affected is unknown
-    #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
-    #                            continues to process commands after a command fails
+    # + return - A `BatchUpdateResult` with the updated row count and returned error. If all the commands in the batch
+    #                has executed successfully, the error will be `nil`. If one or more commands has failed, the
+    #               `returnedError` field will give the correspoing `JdbcClientError` along with the int[] which
+    #                conains updated row count or the status returned from the each command in the batch.
     public remote function batchUpdate(@untainted string sqlQuery, Param?[]... parameters)
-                                    returns int[]|JdbcClientError {
+                                       returns BatchUpdateResult {
         if (!self.clientActive) {
-            return self.handleStoppedClientInvocation();
+            return self.handleStoppedClientInvocationForBatchUpdate();
         }
         return self.jdbcClient->batchUpdate(sqlQuery, ...parameters);
     }
@@ -103,6 +99,13 @@ public type Client client object {
     function handleStoppedClientInvocation() returns JdbcClientError {
         ApplicationError e = error(message = "Client has been stopped");
         return e;
+    }
+
+    function handleStoppedClientInvocationForBatchUpdate() returns BatchUpdateResult {
+        int[] rowCount = [];
+        ApplicationError e = error(message = "Client has been stopped");
+        BatchUpdateResult res = { updatedRowCount: rowCount, returnedError : e};
+        return res;
     }
 };
 

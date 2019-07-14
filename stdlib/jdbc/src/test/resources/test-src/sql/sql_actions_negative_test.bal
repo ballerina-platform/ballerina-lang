@@ -168,18 +168,22 @@ function testBatchUpdate() returns string {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
-    if (x is int[]) {
-        updateCount = x;
-        if (updateCount[0] == -3 && updateCount[1] == -3) {
-            returnVal = "failure";
-        } else {
-            returnVal = "success";
-        }
+
+
+    error? e = x.returnedError;
+    if(e is ())
+    {
+        returnVal = "success";
     } else {
-        error e = x;
         returnVal = <string> e.detail().message;
+    }
+    updateCount = x.updatedRowCount;
+    if (updateCount[0] == -3 && updateCount[1] == -3) {
+        returnVal = "failure";
+    } else {
+        returnVal = "success";
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -213,16 +217,20 @@ function testErrorWithBatchUpdate() returns string {
 
     var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", parameters1, parameters2);
-    if (x is int[]) {
-        updateCount = x;
-        if (updateCount[0] == -3 && updateCount[1] == -3) {
-            returnVal = "failure";
-        } else {
-            returnVal = "success";
-        }
+
+    updateCount = x.updatedRowCount;
+    if (updateCount[0] == -3 && updateCount[1] == -3) {
+        returnVal = "array values are -3 ";
     } else {
-        error e = x;
-        returnVal = io:sprintf("%s", e);
+        returnVal = "success";
+    }
+
+    error? e = x.returnedError;
+    if(e is ())
+    {
+        returnVal = "success";
+    } else {
+        returnVal = returnVal + io:sprintf("%s", e);
     }
     checkpanic testDB.stop();
     return returnVal;
