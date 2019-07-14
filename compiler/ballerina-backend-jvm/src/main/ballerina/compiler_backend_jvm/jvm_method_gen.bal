@@ -21,16 +21,16 @@ function generateMethod(bir:Function birFunc,
                             bir:Package birModule,
                             bir:BType? attachedType = ()) {
     if (isExternFunc(birFunc)) {
-        genMethodForExternalFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genMethodForBallerinaFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, attachedType = attachedType);
     }
 }
 
-function genMethodForBallerinaFunction(bir:Function func,
-                                           jvm:ClassWriter cw,
-                                           bir:Package module,
-                                           bir:BType? attachedType = ()) {
+function genJMethodForBFunc(bir:Function func,
+                           jvm:ClassWriter cw,
+                           bir:Package module,
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
@@ -928,6 +928,7 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
     } else {

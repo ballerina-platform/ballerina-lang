@@ -14,21 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type ExternalFunctionWrapper record {|
+import ballerina/bir;
+import ballerina/jvm;
+
+type OldStyleExternalFunctionWrapper record {|
     * BIRFunctionWrapper;
     string jClassName;
     bir:BType?[] jMethodPramTypes;
     string jMethodVMSig;
 |};
 
-function genMethodForExternalFunction(bir:Function birFunc,
-                                          jvm:ClassWriter cw,
-                                          bir:Package birModule,
-                                          bir:BType? attachedType = ()) {
+type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionWrapper;
+
+function genJMethodForBExternalFunc(bir:Function birFunc,
+                                      jvm:ClassWriter cw,
+                                      bir:Package birModule,
+                                      bir:BType? attachedType = ()) {
+    var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
+
+    if extFuncWrapper is OldStyleExternalFunctionWrapper {
+        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
+    } else {
+        genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
+    }
+}
+
+function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
+                                            jvm:ClassWriter cw,
+                                            bir:Package birModule,
+                                            bir:BType? attachedType = ()) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-    var extFuncWrapper = getExternalFunctionWrapper(currentPackageName,
-                                    birFunc.name.value, attachedType = attachedType);
 
     // Create a local variable for the strand
     BalToJVMIndexMap indexMap = new;
@@ -36,6 +52,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
     int strandParamIndex = indexMap.getIndex(strandVarDcl);
 
     // generate method desc
+    bir:Function birFunc = extFuncWrapper.func;
     string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
@@ -139,10 +156,14 @@ function genMethodForExternalFunction(bir:Function birFunc,
     mv.visitEnd();
 }
 
-function getExternalFunctionWrapper(string currentPackageName,
-                                    string birFuncName,
-                                    bir:BType? attachedType = ()) returns ExternalFunctionWrapper {
+function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
+                                    bir:BType? attachedType = ())
+                                    returns ExternalFunctionWrapper {
+
     string lookupKey;
+    var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+    string birFuncName = birFunc.name.value;
+
     if attachedType is () {
         lookupKey = currentPackageName + birFuncName;
     } else if attachedType is bir:BObjectType  {
@@ -151,17 +172,48 @@ function getExternalFunctionWrapper(string currentPackageName,
         panic error(io:sprintf("Java method generation for the receiver type %s is not supported: ", attachedType));
     }
 
-    if (birFunctionMap.hasKey(lookupKey)) {
-        return <ExternalFunctionWrapper>getBIRFunctionWrapper(birFunctionMap[lookupKey]);
+    var birFuncWrapper = birFunctionMap[lookupKey];
+    if (birFuncWrapper is ExternalFunctionWrapper) {
+        return birFuncWrapper;
     } else {
         panic error("cannot find function definition for : " + lookupKey);
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName,
-                                    string moduleName, string versionValue, string birModuleClassName,
-                                    string jClassName, bir:BType?[] jMethodPramTypes) returns ExternalFunctionWrapper {
+function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName,
+                                       string versionValue,  string  birModuleClassName) returns BIRFunctionWrapper {
+    BIRFunctionWrapper birFuncWrapper;
+    jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
+    if (jInteropValidationReq is ()) {
+        // This is a old-style external Java interop function
+        string pkgName = getPackageName(orgName, moduleName);
+        var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
+        if (jClassName is string) {
+            if isBallerinaBuiltinModule(orgName, moduleName) {
+                birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
+            } else {
+                birFuncWrapper = createOldStyleExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
+                                            birModuleClassName, jClassName);
+            }
+        } else {
+            error err = error("cannot find full qualified class name for extern function : " + pkgName +
+                                                birFunc.name.value);
+            panic err;
+        }
+    } else {
+        birFuncWrapper = createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
+                                versionValue, birModuleClassName);
+    }
 
+    return birFuncWrapper;
+}
+
+function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgName,
+                                    string moduleName, string versionValue, string birModuleClassName,
+                                    string jClassName) returns OldStyleExternalFunctionWrapper {
+
+    bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
+    addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
     bir:BType? attachedType = birFunc.receiverType;
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
