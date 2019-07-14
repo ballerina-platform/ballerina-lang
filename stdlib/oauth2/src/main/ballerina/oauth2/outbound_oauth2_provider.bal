@@ -55,7 +55,7 @@ public type OutboundOAuth2Provider object {
         } else {
             // TODO: Remove the below casting when new lang syntax are merged.
             error e = authToken;
-            return auth:prepareAuthError("Failed to generate OAuth2 token.", err = e);
+            return auth:prepareAuthError("Failed to generate OAuth2 token.", e);
         }
     }
 
@@ -71,7 +71,7 @@ public type OutboundOAuth2Provider object {
             } else {
                 // TODO: Remove the below casting when new lang syntax are merged.
                 error e = authToken;
-                return auth:prepareAuthError("Failed to generate OAuth2 token at inspection.", err = e);
+                return auth:prepareAuthError("Failed to generate OAuth2 token at inspection.", e);
             }
         }
         return ();
