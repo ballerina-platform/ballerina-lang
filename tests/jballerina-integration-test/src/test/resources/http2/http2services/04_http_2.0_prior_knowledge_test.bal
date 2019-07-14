@@ -16,13 +16,13 @@
 
 import ballerina/http;
 
-listener http:Listener ep1 = new(9097, config = { httpVersion: "2.0" });
-listener http:Listener ep2 = new(9098, config = { httpVersion: "2.0" });
+listener http:Listener ep1 = new(9097, { httpVersion: "2.0" });
+listener http:Listener ep2 = new(9098, { httpVersion: "2.0" });
 
-http:Client h2WithPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
+http:Client h2WithPriorKnowledge = new("http://localhost:9098", { httpVersion: "2.0", http2Settings: {
                 http2PriorKnowledge: true }, poolConfig: {} });
 
-http:Client h2WithoutPriorKnowledge = new("http://localhost:9098", config = { httpVersion: "2.0", http2Settings: {
+http:Client h2WithoutPriorKnowledge = new("http://localhost:9098", { httpVersion: "2.0", http2Settings: {
                 http2PriorKnowledge: false }, poolConfig: {} });
 
 @http:ServiceConfig {

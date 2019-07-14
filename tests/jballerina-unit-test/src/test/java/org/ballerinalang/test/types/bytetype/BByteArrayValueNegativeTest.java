@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  */
 public class BByteArrayValueNegativeTest {
 
-    @Test(description = "Test blob value negative")
+    @Test(description = "Test blob value negative", enabled = false)
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 22);

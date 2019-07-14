@@ -302,11 +302,10 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
-public const TYPE_DESC = "typedesc";
-public type BTypeDesc TYPE_DESC;
-
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
+
+const HANDLE_TYPE_NAME = "handle";
 
 public type BServiceType record {|
     BObjectType oType;
@@ -316,6 +315,10 @@ public type BArrayType record {|
     ArrayState state;
     int size;
     BType eType;
+|};
+
+public type BTypeDesc record {|
+    BType typeConstraint;
 |};
 
 public type BMapType record {|
@@ -355,6 +358,11 @@ public type BObjectType record {|
     BAttachedFunction?[] attachedFunctions = [];
     BAttachedFunction? constructor;
 |};
+
+public type BTypeHandle record {
+    HANDLE_TYPE_NAME typeName = HANDLE_TYPE_NAME;
+    string? constraint = ();
+};
 
 public type Self record {|
     BType bType;
@@ -401,7 +409,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";
@@ -511,7 +519,8 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    boolean except = true;
+    boolean optionalFieldAccess = false;
+    boolean fillingRead = false;
 |};
 
 public type TypeCast record {|

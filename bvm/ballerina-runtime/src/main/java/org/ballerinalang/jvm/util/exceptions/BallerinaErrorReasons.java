@@ -34,6 +34,7 @@ public class BallerinaErrorReasons {
 
     public static final String TYPE_CAST_ERROR = BALLERINA_PREFIX.concat("TypeCastError");
     public static final String NUMBER_CONVERSION_ERROR = BALLERINA_PREFIX.concat("NumberConversionError");
+    public static final String NUMBER_PARSING_ERROR = BALLERINA_PREFIX.concat("NumberParsingError");
     public static final String TRANSACTION_ERROR = BALLERINA_PREFIX.concat("TransactionError");
 
     public static final String JSON_OPERATION_ERROR = BALLERINA_PREFIX.concat("JSONOperationError");
@@ -59,4 +60,6 @@ public class BallerinaErrorReasons {
     public static final String STACK_OVERFLOW_ERROR = BALLERINA_PREFIX.concat("StackOverflow");
 
     public static final String FUTURE_CANCELLED = "future is already cancelled";
+
+    public static final String OPERATION_NOT_SUPPORTED = BALLERINA_PREFIX.concat("OperationNotSupported");
 }

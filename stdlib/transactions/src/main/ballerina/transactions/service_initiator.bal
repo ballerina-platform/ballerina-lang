@@ -101,7 +101,7 @@ service InitiatorService on coordinatorListener {
                     i = i + 1;
                 }
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
-                var resPayload = json.convert(regRes);
+                var resPayload = typedesc<json>.constructFrom(regRes);
                 if (resPayload is json) {
                     http:Response res = new;
                     res.statusCode = http:OK_200;
@@ -109,12 +109,13 @@ service InitiatorService on coordinatorListener {
                     var resResult = conn->respond(res);
                     if (resResult is error) {
                         log:printError("Sending response for register request for transaction " + txnId +
-                                " failed", err = resResult);
+                                " failed", resResult);
                     } else {
                         log:printInfo("Registered remote participant: " + participantId + " for transaction: " + txnId);
                     }
                 } else {
-                    panic resPayload;
+                    error resPayloadError = <error>resPayload;
+                    panic resPayloadError;
                 }
             }
         }

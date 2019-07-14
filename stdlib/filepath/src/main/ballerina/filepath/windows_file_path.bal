@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+
 // ReservedNames lists reserved Windows names.
 // https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-file for details.
 string[] WINDOWS_RESERVED_WORDS = ["CON", "PRN", "AUX", "NUL",
@@ -25,7 +27,7 @@ function isWindowsReservedName(string path) returns boolean {
         return false;
     }
     foreach string word in WINDOWS_RESERVED_WORDS {
-        if (word.equalsIgnoreCase(path)) {
+        if (internal:equalsIgnoreCase(word, path)) {
             return true;
         }
     }
@@ -52,7 +54,7 @@ function buildWindowsPath(string... parts) returns string|error {
     if (firstNonEmptyPart.length() == 2) {
         string c0 = check charAt(firstNonEmptyPart, 0);
         string c1 = check charAt(firstNonEmptyPart, 1);
-        if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
+        if (isLetter(c0) && internal:equalsIgnoreCase(c1, ":")) {
             // First element is driver letter without terminating slash.
             i = i + 1;
             while (i < count) {
@@ -159,7 +161,7 @@ function getWindowsRoot(string input) returns [string, int]|error {
             root = "\\";
             offset = 1;
         } else {
-            if (isLetter(c0) && c1.equalsIgnoreCase(":")) {
+            if (isLetter(c0) && internal:equalsIgnoreCase(c1, ":")) {
                 if (input.length() > 2 && isSlash(check charAt(input, 2))) {
                     string c2 = check charAt(input, 2);
                     if (c2 == "\\") {

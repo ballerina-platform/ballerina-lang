@@ -31,7 +31,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
 
 http:BearerAuthHandler jwtAuthHandler08 = new(jwtAuthProvider08);
 
-listener http:Listener listener08 = new(9099, config = {
+listener http:Listener listener08 = new(9099, {
     auth: {
         authHandlers: [jwtAuthHandler08]
     },

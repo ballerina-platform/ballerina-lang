@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.util.BLangConstants;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -68,7 +69,8 @@ public class FPValue<T, R> implements RefValue {
 
     @Override
     public String stringValue() {
-        return null;
+        return Optional.ofNullable(getType()).map(BType::toString).filter(str -> str.startsWith("function")).orElse(
+                "function " + type.toString());
     }
 
     @Override
@@ -83,6 +85,11 @@ public class FPValue<T, R> implements RefValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
         return this;
     }
 

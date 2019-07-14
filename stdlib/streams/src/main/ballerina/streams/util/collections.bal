@@ -119,7 +119,11 @@ public type LinkedList object {
                 Node? next = self.first;
                 self.curr = next;
             }
-            return self.curr.data;
+            Node? val = self.curr;
+            if (val is Node) {
+                return val.data;
+            }
+            return ();
         } else {
             error e = error("couldn't iterate to next node.");
             // TODO : Fix this.
@@ -140,7 +144,11 @@ public type LinkedList object {
                 Node? prev = self.last;
                 self.curr = prev;
             }
-            return self.curr.data;
+            Node? val = self.curr;
+            if (val is Node) {
+                return val.data;
+            }
+            return ();
         } else {
             error e = error("couldn't iterate to previous node.");
             // TODO : Fix this.
@@ -452,7 +460,7 @@ public type LinkedList object {
             var value = self.first;
             if (value is Node) {
                 temp = value;
-                while (temp !== ()) {
+                while (temp is Node) {
                     arr[i] = temp.data;
                     i = i + 1;
                     temp = temp.next;

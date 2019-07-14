@@ -22,7 +22,7 @@ function testParsingPrivateKeyFromP12(string path, string keyStorePassword, stri
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePrivateKey(keyStore = keyStore,  keyAlias = keyAlias, keyPassword = keyPassword);
+    return check crypto:decodePrivateKey(keyStore,  keyAlias, keyPassword);
 }
 
 function testParsingPublicKeyFromP12(string path, string keyStorePassword, string keyAlias)
@@ -31,5 +31,5 @@ function testParsingPublicKeyFromP12(string path, string keyStorePassword, strin
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePublicKey(keyStore = keyStore,  keyAlias = keyAlias);
+    return check crypto:decodePublicKey(keyStore, keyAlias);
 }

@@ -16,6 +16,7 @@
 
 import ballerina/auth;
 import ballerina/log;
+import ballerina/internal;
 
 # Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.
 #
@@ -38,7 +39,7 @@ public type BearerAuthHandler object {
     public function canHandle(Request req) returns @tainted boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
-            return headerValue.hasPrefix(auth:AUTH_SCHEME_BEARER);
+            return internal:hasPrefix(headerValue, auth:AUTH_SCHEME_BEARER);
         }
         return false;
     }
@@ -47,9 +48,10 @@ public type BearerAuthHandler object {
     #
     # + req - The `Request` instance.
     # + return - Returns `true` if authenticated successfully. Else, returns `false` or the `error` in case of an error.
-    public function handle(Request req) returns boolean|error {
+    public function process(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
-        string credential = headerValue.substring(6, headerValue.length()).trim();
+        string credential = headerValue.substring(6, headerValue.length());
+        credential = credential.trim();
         var authProvider = self.authProvider;
         if (authProvider is auth:InboundAuthProvider) {
             return authProvider.authenticate(credential);

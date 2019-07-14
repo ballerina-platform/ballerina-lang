@@ -34,7 +34,7 @@ service clientFailure200 on new http:WebSocketListener(9200) {
     }
 
     resource function onText(http:WebSocketCaller caller, string text) {
-        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, config = {callbackService: ClientService200});
+        http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
              panic returnVal;

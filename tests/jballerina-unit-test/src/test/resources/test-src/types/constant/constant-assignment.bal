@@ -1,9 +1,10 @@
 import ballerina/system;
+import ballerina/'lang\.string as strings;
 
 final string envVar = system:getEnv("env_var");
 final string varFunc = dummyStringFunction();
-final string str = "ballerina is $$$";
-final string varNativeFunc = str.replace("$$$", "awesome");
+final string str = "ballerina is ";
+final string varNativeFunc = strings:concat(str, "awesome");
 final int varIntExpr = 10 + 10 + 10;
 final string varConcat = envVar + varFunc + varNativeFunc;
 

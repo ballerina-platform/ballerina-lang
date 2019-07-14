@@ -46,6 +46,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.KEY_NOT_FOUND_ERROR;
+
 /**
  * Common utility methods used for JSON manipulation.
  * 
@@ -118,18 +121,54 @@ public class JSONUtils {
 
     /**
      * Get an element from a JSON.
-     * 
-     * @param json JSON object to get the element from
+     *
+     * @param json JSON to get the element from
      * @param elementName Name of the element to be retrieved
-     * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or nil
+     * if the object does not have the key.
+     */
+    public static Object getElementOrNil(Object json, String elementName) {
+        return getMappingElement(json, elementName, true);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
+     * not have the key.
      */
     public static Object getElement(Object json, String elementName) {
+        return getMappingElement(json, elementName, false);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON object to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @param returnNilOnMissingKey Whether to return nil on missing key instead of error
+     * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
+     */
+    private static Object getMappingElement(Object json, String elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return null;
+            return BallerinaErrors.createError(JSON_OPERATION_ERROR, "JSON value is not a mapping");
+        }
+
+        MapValueImpl<String, Object> jsonObject = (MapValueImpl<String, Object>) json;
+
+        if (!jsonObject.containsKey(elementName)) {
+            if (returnNilOnMissingKey) {
+                return null;
+            }
+
+            return BallerinaErrors.createError(KEY_NOT_FOUND_ERROR, "Key '" + elementName + "' not found in JSON " +
+                    "mapping");
         }
 
         try {
-            return ((MapValueImpl<String, Object>) json).get(elementName);
+            return jsonObject.get(elementName);
         } catch (BallerinaException e) {
             if (e.getDetail() != null) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
@@ -191,30 +230,6 @@ public class JSONUtils {
 
         BType type = ((RefValue) json).getType();
         return type.getTag() == TypeTags.JSON_TAG || type.getTag() == TypeTags.MAP_TAG;
-    }
-
-    /**
-     * Get an element from a JSON array.
-     * 
-     * @param jsonArray JSON array to get the element from
-     * @param index Index of the element needed
-     * @return Element at the given index, if the provided JSON is an array. Null, otherwise.
-     */
-    public static Object getArrayElement(Object jsonArray, long index) {
-        if (!isJSONArray(jsonArray)) {
-            return null;
-        }
-
-        try {
-            return Lists.get((ArrayValue) jsonArray, index);
-        } catch (ErrorValue e) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR,
-                                                           BallerinaErrors.getErrorMessageFromDetail(
-                                                                   (MapValueImpl<String, Object>) e.getDetails()));
-
-        } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
-        }
     }
 
     /**

@@ -214,7 +214,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = encoding:byteArrayToString(returnResult, encoding = "UTF-8");
+            string name = encoding:byteArrayToString(returnResult, "UTF-8");
             res.setTextPayload(<@untainted string> name);
         }
         checkpanic caller->respond(res);
@@ -351,7 +351,7 @@ service hello on mockEP {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            string name = <@untainted> encoding:byteArrayToString(returnResult, encoding = "UTF-8");
+            string name = <@untainted> encoding:byteArrayToString(returnResult, "UTF-8");
             res.setJsonPayload({ lang: name });
         }
         checkpanic caller->respond(res);
