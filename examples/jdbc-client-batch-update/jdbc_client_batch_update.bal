@@ -66,7 +66,7 @@ public function main() {
         io:println("Batch update operation failed:" + <string> e.detail().message );
     } else {
         io:println("Batch item 1 update count: " + retBatch.updatedRowCount[0]);
-        io:println("Batch item 1 update count: " + retBatch.updatedRowCount[1]);
+        io:println("Batch item 2 update count: " + retBatch.updatedRowCount[1]);
     }
 
     // Check the data in the database.
