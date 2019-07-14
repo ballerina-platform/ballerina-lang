@@ -14,13 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents an error in task library
-#
-# + message - Error message.
-type TaskError record {
-    string message;
-};
-
 # Configurations related to a Timer
 #
 # + interval - Timer interval (in Milliseconds), which triggers the onTrigger() resource.

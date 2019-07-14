@@ -15,12 +15,13 @@
 // under the License.
 
 import ballerina/config;
-import ballerina/internal;
+import ballerina/filepath;
 import ballerina/io;
 import ballerina/log;
 import ballerina/math;
 import ballerina/task;
 import ballerina/time;
+import ballerina/system;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
@@ -59,14 +60,14 @@ function serialize(map<any> data) returns string = external;
 # + rch - A `ReadableCharacterChannel` instance.
 # + numberOfCharacters - A `int` indicating number of chars to read.
 # + return - A `string` of content or an `error`.
-function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns string|error {
+function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns @tainted string|error {
     return rch.read(numberOfCharacters);
 }
 
 # Function to read all characters as a string from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.
 # + return - A `string` of content or an `error`.
-function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error? {
+function readAllCharacters(io:ReadableCharacterChannel rch) returns @tainted string|error? {
     int fixedSize = 128;
     boolean isDone = false;
     string result = "";
@@ -102,7 +103,7 @@ function createReadableCharacterChannel(string filePath, string encoding) return
     io:ReadableCharacterChannel? rch = ();
     io:ReadableByteChannel|error byteChannel = trap io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
     }
     return rch;
 }
@@ -115,7 +116,7 @@ function createWritableCharacterChannel(string filePath, string encoding) return
     io:WritableCharacterChannel? wch = ();
     io:WritableByteChannel|error byteChannel = trap io:openWritableFile(filePath);
     if (byteChannel is io:WritableByteChannel) {
-        wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+        wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
     }
     return wch;
 }
@@ -138,7 +139,7 @@ function closeCharChannel(any c) {
 # + filePath - A `string` path to the file.
 # + encoding - A `string` indicating the encoding type.
 # + return - The `string` content of the file.
-function readFile(string filePath, string encoding) returns string {
+function readFile(string filePath, string encoding) returns @tainted string {
     string content = "";
     io:ReadableCharacterChannel? rch = createReadableCharacterChannel(filePath, encoding);
     if (rch is io:ReadableCharacterChannel) {
@@ -176,15 +177,15 @@ function writeStateToFile(string persistancePath) returns error? {
     string? snapshotFile = ();
     time:Time ct = time:currentTime();
     int currentTimeMillis = ct.time;
-    internal:Path pPath = new(persistancePath);
-    if (!pPath.exists()) {
-        error? e = pPath.createDirectory();
+
+    if (!system:exists(persistancePath)) {
+        string|error e = system:createDir(persistancePath, parentDirs = true);
     }
-    internal:Path path = pPath.resolve(string.convert(currentTimeMillis));
-    if (!path.exists()) {
-        error? e = path.createFile();
-        if (e is ()) {
-            snapshotFile = path.getPathValue();
+    string path = check filepath:build(persistancePath, string.convert(currentTimeMillis));
+    if (!system:exists(path)) {
+        string|error filepath = system:createFile(path);
+        if (filepath is string) {
+            snapshotFile = filepath;
         }
     }
     if (snapshotFile is string) {
@@ -197,7 +198,7 @@ function writeStateToFile(string persistancePath) returns error? {
             return e;
         }
     } else {
-        error e = error("Error while creating snapshot file: " + path.getPathValue());
+        error e = error("Error while creating snapshot file: " + path);
         return e;
     }
 }
@@ -207,12 +208,11 @@ function writeStateToFile(string persistancePath) returns error? {
 # + return - An `array` containing absolute paths of all snapshot files.
 function getSnapshotFiles(string persistancePath) returns string[] {
     string[] snapshotFiles = [];
-    internal:Path path = new(persistancePath);
-    if (path.exists()) {
-        var files = path.list();
+    if (system:exists(persistancePath)) {
+        var files = system:readDir(persistancePath);
         int[] timestamps = [];
-        if (files is internal:Path[]) {
-            foreach internal:Path p in files {
+        if (files is system:FileInfo[]) {
+            foreach system:FileInfo p in files {
                 int|error t = int.convert(p.getName());
                 if (t is int) {
                     timestamps[timestamps.length()] = t;
@@ -222,8 +222,10 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         IntSort s = new;
         s.sort(timestamps);
         foreach int t in timestamps {
-            internal:Path sf = path.resolve(string.convert(t));
-            snapshotFiles[snapshotFiles.length()] = sf.getPathValue();
+            string|error sf = filepath:build(persistancePath, string.convert(t));
+            if (sf is string) {
+                snapshotFiles[snapshotFiles.length()] = sf;
+            }
         }
     }
     return snapshotFiles;
@@ -250,9 +252,8 @@ function purgeOldSnapshotFiles(string persistancePath) {
         int i = 0;
         while (i < (files.length() - revisionsToKeep)) {
             string f = files[i];
-            internal:Path p = new(f);
-            if (p.exists()) {
-                error? e = p.delete();
+            if (system:exists(f)) {
+                error? e = system:remove(f);
                 if (e is error) {
                     log:printError("Couldn't delete snapshot.", err = e);
                 }

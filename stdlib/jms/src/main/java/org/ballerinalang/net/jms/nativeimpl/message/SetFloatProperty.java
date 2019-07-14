@@ -20,14 +20,14 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -37,35 +37,28 @@ import javax.jms.Message;
  * Set a float property in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "setFloatProperty",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = "key", type = TypeKind.STRING),
-                @Argument(name = "value", type = TypeKind.FLOAT)
-        },
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class SetFloatProperty extends AbstractBlockingAction {
+public class SetFloatProperty extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
-        String key = context.getStringArgument(0);
-        double value = context.getFloatArgument(0);
+    public static Object setFloatProperty(Strand strand, ObjectValue msgObj, String key, double value) {
+        Message message = JmsUtils.getJMSMessage(msgObj);
 
         try {
             message.setFloatProperty(key, (float) value);
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when setting float property", context, e);
+            return BallerinaAdapter.getError("Error when setting float property", e);
         }
+        return null;
     }
+
 }

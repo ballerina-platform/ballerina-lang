@@ -1,22 +1,20 @@
-import ballerina/mysql;
+import ballerinax/jdbc;
 
-// The `@sensitive` annotation can be used with parameters of user-defined functions. This allow users to restrict
+// The `@untainted` annotation can be used with parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.
-function userDefinedSecureOperation(@sensitive string secureParameter) {
+function userDefinedSecureOperation(@untainted string secureParameter) {
 
 }
 
 public function main(string... args) {
-   mysql:Client customerDBEP = new ({
-         host: "localhost",
-         port: 3306,
-         name: "testdb",
-         username: "root",
-         password: "root",
-         poolOptions: { maximumPoolSize: 5 }
-      });
+    jdbc:Client customerDBEP = new ({
+        url: "jdbc:mysql://localhost:3306/testdb",
+        username: "root",
+        password: "root",
+        poolOptions: { maximumPoolSize: 5 }
+    });
 
-   // Sensitive parameters of functions built-in to Ballerina are decorated with the `@sensitive` annotation. This
+   // Untainted parameters of functions built-in to Ballerina are decorated with the `@untainted` annotation. This
    // ensures that tainted data cannot pass into the security sensitive parameter.
    //
    // For example, the taint checking mechanism of Ballerina completely prevents SQL injection vulnerabilities by
@@ -27,7 +25,7 @@ public function main(string... args) {
    select("SELECT firstname FROM student WHERE registration_id = " +
          args[0], ());
 
-   // This line results in a compiler error because a user-provided argument is passed to a sensitive parameter.
+   // This line results in a compiler error because a user-provided argument is passed to a untainted parameter.
    userDefinedSecureOperation(args[0]);
    return;
 }

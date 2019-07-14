@@ -39,7 +39,7 @@ public class TaintedStatusPropagationTest {
     public void testReturnNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/returns-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 2, 20);
     }
 
     @Test
@@ -52,12 +52,12 @@ public class TaintedStatusPropagationTest {
     public void testVariableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/variables-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 6);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 10, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 14, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 19, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 25, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 30, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 37, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 10, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 14, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 25, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 30, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 37, 20);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TaintedStatusPropagationTest {
     public void testReceiverNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/receiver-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
     }
 
     @Test
@@ -83,14 +83,14 @@ public class TaintedStatusPropagationTest {
     public void testRecordNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/record-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 8);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 9, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 13, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 17, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 21, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 26, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 31, 20);
-        BAssertUtil.validateError(result, 6, "tainted value passed to sensitive parameter 'secureIn'", 37, 20);
-        BAssertUtil.validateError(result, 7, "tainted value passed to sensitive parameter 'secureIn'", 43, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 9, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 13, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 17, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 26, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 31, 20);
+        BAssertUtil.validateError(result, 6, "tainted value passed to untainted parameter 'secureIn'", 37, 20);
+        BAssertUtil.validateError(result, 7, "tainted value passed to untainted parameter 'secureIn'", 43, 20);
     }
 
     @Test
@@ -103,12 +103,12 @@ public class TaintedStatusPropagationTest {
     public void testArrayNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/array-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 6);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 4, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 13, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 19, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 23, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 28, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 8, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 13, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 23, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 28, 20);
     }
 
     @Test
@@ -121,14 +121,14 @@ public class TaintedStatusPropagationTest {
     public void testJsonNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/json-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 8);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 4, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 16, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 21, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 26, 20);
-        BAssertUtil.validateError(result, 6, "tainted value passed to sensitive parameter 'secureIn'", 32, 20);
-        BAssertUtil.validateError(result, 7, "tainted value passed to sensitive parameter 'secureIn'", 38, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 8, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 12, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 16, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 26, 20);
+        BAssertUtil.validateError(result, 6, "tainted value passed to untainted parameter 'secureIn'", 32, 20);
+        BAssertUtil.validateError(result, 7, "tainted value passed to untainted parameter 'secureIn'", 38, 20);
     }
 
     @Test
@@ -141,14 +141,14 @@ public class TaintedStatusPropagationTest {
     public void testMapNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/map-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 8);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 4, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 16, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 21, 20);
-        BAssertUtil.validateError(result, 5, "tainted value passed to sensitive parameter 'secureIn'", 26, 20);
-        BAssertUtil.validateError(result, 6, "tainted value passed to sensitive parameter 'secureIn'", 32, 20);
-        BAssertUtil.validateError(result, 7, "tainted value passed to sensitive parameter 'secureIn'", 38, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 8, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 12, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 16, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
+        BAssertUtil.validateError(result, 5, "tainted value passed to untainted parameter 'secureIn'", 26, 20);
+        BAssertUtil.validateError(result, 6, "tainted value passed to untainted parameter 'secureIn'", 32, 20);
+        BAssertUtil.validateError(result, 7, "tainted value passed to untainted parameter 'secureIn'", 38, 20);
     }
 
     @Test
@@ -161,11 +161,11 @@ public class TaintedStatusPropagationTest {
     public void testXMLNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/xml-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 5);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 10, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 13, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 14, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 18, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 10, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 13, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 14, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 18, 20);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class TaintedStatusPropagationTest {
     public void testBasicWorkerNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/basic-worker-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 24);
     }
 
     @Test
@@ -191,10 +191,10 @@ public class TaintedStatusPropagationTest {
     public void testIfConditionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/if-condition-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 8, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 16, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 24, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 32, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 8, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 16, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 24, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 32, 20);
     }
 
     @Test
@@ -207,8 +207,8 @@ public class TaintedStatusPropagationTest {
     public void testTernaryExprNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/ternary-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 6, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 6, 20);
     }
 
     @Test
@@ -221,7 +221,7 @@ public class TaintedStatusPropagationTest {
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 28, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 20);
     }
 
     @Test
@@ -234,8 +234,8 @@ public class TaintedStatusPropagationTest {
     public void testTupleReturnNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/tuple-return-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 6, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
     }
 
     @Test
@@ -248,7 +248,7 @@ public class TaintedStatusPropagationTest {
     public void testStringTemplateNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/string-template-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 4, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
     }
 
     @Test
@@ -261,8 +261,8 @@ public class TaintedStatusPropagationTest {
     public void testIterableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 5, 59);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 5, 59);
     }
 
     @Test(groups = { "brokenOnJBallerina" })
@@ -276,7 +276,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 32);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 32);
         BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 12, 38);
     }
 
@@ -290,7 +290,7 @@ public class TaintedStatusPropagationTest {
     public void testForEachNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/foreach-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 24);
     }
 
     @Test
@@ -305,7 +305,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/multiple-invocation-levels-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'normalInput'", 2, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'normalInput'", 2, 20);
     }
 
     @Test
@@ -318,7 +318,7 @@ public class TaintedStatusPropagationTest {
     public void testCastNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/cast-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 4, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 4, 20);
     }
 
     @Test
@@ -332,8 +332,9 @@ public class TaintedStatusPropagationTest {
     public void testChainedInvocationsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/chained-invocations-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 2, 20);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 2, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'rec'", 6, 22);
     }
 
     @Test
@@ -341,7 +342,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/without-user-data-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 7, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
     }
 
     @Test
@@ -353,8 +354,9 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testGlobalVariablesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'globalVariable'", 12, 5);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'pa'", 6, 9);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVariable'", 14, 5);
     }
 
     @Test
@@ -363,21 +365,22 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina" })
     public void testServiceVariablesNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/service-level-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceLevelVariable'", 17, 9);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalLevelVariable'", 18, 9);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceLevelVariable'", 18, 9);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalLevelVariable'", 19, 9);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 20, 13);
     }
 
     @Test
     public void testHttpService() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 14, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 15, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 13, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
     }
 
     @Test
@@ -391,9 +394,9 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/compound-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 9, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 14, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 9, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
     }
 
     @Test
@@ -406,8 +409,8 @@ public class TaintedStatusPropagationTest {
     public void testMatchNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/is-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 10, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 6, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 10, 24);
     }
 
     @Test
@@ -420,7 +423,32 @@ public class TaintedStatusPropagationTest {
     public void testObjectFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/object-functions-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 14, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 14, 20);
+    }
+
+    @Test
+    public void testGlobalObjectFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-object-functions.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
+    public void testGlobalObjectFunctionNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/global-object-functions-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "method invocation taint global object 'G'", 20, 5);
+    }
+
+    @Test
+    public void testTaintedAssignmentToUntaintedObjReference() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/object-tainted-assigment-to-untainted-objref.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0,
+                "tainted value passed to untainted parameter 'secureIn' originating from object method " +
+                        "'test2' invocation", 52, 15);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 56, 20);
     }
 
     @Test
@@ -435,7 +463,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/object-functions-with-constructor-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 21, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 21, 20);
     }
 
     @Test
@@ -449,17 +477,16 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 6, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 11, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 6, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 11, 24);
     }
 
     @Test
     public void testSimpleBlockedWorkerInteractionNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-blocked-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 12, 24);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 24);
     }
 
     @Test (enabled = false)
@@ -474,7 +501,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "simple-worker-interaction-with-tuple-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 13, 24);
     }
 
     @Test
@@ -488,11 +515,11 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "in-out-param-basic-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 5);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 28, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 32, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 36, 20);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 40, 20);
-        BAssertUtil.validateError(result, 4, "tainted value passed to sensitive parameter 'secureIn'", 44, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 28, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 32, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 36, 20);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 40, 20);
+        BAssertUtil.validateError(result, 4, "tainted value passed to untainted parameter 'secureIn'", 44, 20);
     }
 
     @Test(groups = { "brokenOnJBallerina" })
@@ -507,7 +534,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
                 "param-status-with-native-invocations-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'sqlQuery'", 32, 43);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'sqlQuery'", 32, 43);
     }
 
     @Test
@@ -520,10 +547,10 @@ public class TaintedStatusPropagationTest {
     public void testErrorNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/error-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 19, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'secureIn'", 22, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 24, 21);
-        BAssertUtil.validateError(result, 3, "tainted value passed to sensitive parameter 'secureIn'", 25, 21);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 22, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 24, 21);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 25, 21);
     }
 
     @Test
@@ -536,7 +563,7 @@ public class TaintedStatusPropagationTest {
     public void testCallNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/call-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 18, 25);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 18, 25);
     }
 
     @Test

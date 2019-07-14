@@ -796,14 +796,14 @@ public class JSONParser {
                     double doubleValue = Double.parseDouble(str);
                     switch (type) {
                         case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(new Float(doubleValue));
+                            ((ArrayValue) this.currentJsonNode).append(new Double(doubleValue));
                             break;
                         case FIELD:
                             ((MapValueImpl<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
-                                    new Float(doubleValue));
+                                    new Double(doubleValue));
                             break;
                         case VALUE:
-                            currentJsonNode = new Float(doubleValue);
+                            currentJsonNode = new Double(doubleValue);
                             break;
                         default:
                             break;

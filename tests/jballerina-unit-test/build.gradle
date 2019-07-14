@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-
+ 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
@@ -36,6 +36,8 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-jvm')
+    implementation project(':ballerina-bir')
+    implementation project(':ballerina-backend-jvm')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -44,11 +46,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
-    testCompile 'org.testcontainers:testcontainers'
-    testCompile 'org.testcontainers:postgresql'
-    testCompile 'org.testcontainers:mysql'
-    testCompile 'mysql:mysql-connector-java'
-    testCompile 'org.postgresql:postgresql'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
@@ -63,11 +60,9 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ballerina-transactions configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
@@ -86,9 +81,11 @@ dependencies {
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
 //    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-privacy', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'

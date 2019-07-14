@@ -15,11 +15,13 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/http;
+import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
-    audience: ["ballerina.io"],
+    audience: "ballerina.io",
     certificateAlias: "cert",
     trustStore: {
         path: "../../../src/test/resources/auth/testtruststore.p12",

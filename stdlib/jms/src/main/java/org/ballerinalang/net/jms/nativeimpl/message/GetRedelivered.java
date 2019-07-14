@@ -20,15 +20,15 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -38,7 +38,7 @@ import javax.jms.Message;
  * Get redelivered flag of a JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "getRedelivered",
         receiver = @Receiver(type = TypeKind.OBJECT,
@@ -47,21 +47,21 @@ import javax.jms.Message;
         returnType = { @ReturnType(type = TypeKind.BOOLEAN) },
         isPublic = true
 )
-public class GetRedelivered extends AbstractBlockingAction {
+public class GetRedelivered extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
+    public void execute(Context context) {
+    }
 
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
+    public static Object getRedelivered(Strand strand, ObjectValue msgObj) {
+
+        Message message = JmsUtils.getJMSMessage(msgObj);
+
         try {
-            boolean redelivered = message.getJMSRedelivered();
-            context.setReturnValues(new BBoolean(redelivered));
+            return message.getJMSRedelivered();
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when retrieving redelivery flag", context, e);
+            return BallerinaAdapter.getError("Error when retrieving redelivery flag", e);
         }
     }
+
 }

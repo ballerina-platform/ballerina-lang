@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener echoEP1 = new(9094);
+listener http:Listener echoEP1 = new(9094, config = {server: "Mysql"});
 
 @http:ServiceConfig {
     basePath:"/echo"
@@ -32,11 +32,11 @@ service echo1 on echoEP1 {
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-            checkpanic caller->respond(untaint payload);
+            checkpanic caller->respond(<@untainted> payload);
         } else {
             resp.statusCode = 500;
             string errMsg = <string> payload.detail().message;
-            resp.setPayload(untaint errMsg);
+            resp.setPayload(<@untainted> errMsg);
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

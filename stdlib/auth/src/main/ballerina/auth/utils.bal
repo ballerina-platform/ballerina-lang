@@ -17,9 +17,6 @@
 import ballerina/encoding;
 import ballerina/log;
 
-# Constant for the auth error code.
-public const AUTH_ERROR_CODE = "{ballerina/auth}AuthError";
-
 # Constant for empty string.
 const string EMPTY_STRING = "";
 
@@ -50,8 +47,8 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # Extracts the username and password from the credential values.
 #
 # + credential - The credential values.
-# + return - A `string` tuple with the extracted username and password or `error` occurred while extracting credentials
-public function extractUsernameAndPassword(string credential) returns [string, string]|error {
+# + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
+public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = decodedHeaderValue.split(":");
     if (decodedCredentials.length() != 2) {
@@ -61,13 +58,18 @@ public function extractUsernameAndPassword(string credential) returns [string, s
     }
 }
 
-# Log, prepare and return the `error`.
+# Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `error` instance
-function prepareError(string message, error? err = ()) returns error {
+# + return - Prepared `Error` instance
+public function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err = err);
-    error preparedError = error(AUTH_ERROR_CODE, message = message, reason = err.reason());
-    return preparedError;
+    Error authError;
+    if (err is error) {
+        authError = error(AUTH_ERROR, message = message, cause = err);
+    } else {
+        authError = error(AUTH_ERROR, message = message);
+    }
+    return authError;
 }

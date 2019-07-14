@@ -103,6 +103,10 @@ public class BallerinaErrors {
         return createError(BallerinaErrors.NULL_REF_EXCEPTION);
     }
 
+    public static ErrorValue createUsageError(String errorMsg) {
+        return createError("ballerina: " + errorMsg);
+    }
+
     public static ArrayValue generateCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();

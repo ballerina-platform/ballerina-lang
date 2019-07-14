@@ -23,14 +23,14 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+
+import java.io.IOException;
 
 /**
  * Binds a queue to an exchange.
@@ -58,13 +58,13 @@ public class QueueBind extends BlockingNativeCallableUnit {
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
-            ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
+            channel.queueBind(queueName, exchangeName, bindingKey, null);
             if (transactionContext != null) {
                 transactionContext.handleTransactionBlock();
             }
-        } catch (RabbitMQConnectorException exception) {
+        } catch (IOException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
-                    + "I/O exception while binding the queue; " + exception.getDetail());
+                    + "I/O exception while binding the queue; " + exception.getMessage());
         }
         return null;
     }

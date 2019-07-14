@@ -42,11 +42,11 @@ public type WritableTextRecordChannel object {
     # Writes records to a given output resource.
 
     # + textRecord - List of fields to be written
-    # + return - An error if the records could not be written properly
-    public function write(string[] textRecord) returns error? = external;
+    # + return - An `Error` if the records could not be written properly
+    public function write(string[] textRecord) returns Error? = external;
 
     # Closes a given record channel.
 
-    # + return - An error if the record channel could not be closed properly
-    public function close() returns error? = external;
+    # + return - An `Error` if the record channel could not be closed properly
+    public function close() returns Error? = external;
 };

@@ -32,6 +32,6 @@ public function main (string... args) {
     secureFunction(path3, path3);
 }
 
-public function secureFunction (@sensitive string secureIn, string insecureIn) {
+public function secureFunction (@untainted string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

@@ -11,7 +11,7 @@ type TestObject object {
     }
 };
 
-function secureFunction(@sensitive string secureIn, string insecureIn) {
+function secureFunction(@untainted string secureIn, string insecureIn) {
 
 }
 

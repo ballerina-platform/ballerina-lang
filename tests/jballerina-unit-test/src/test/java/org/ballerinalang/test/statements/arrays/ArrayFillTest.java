@@ -203,24 +203,6 @@ public class ArrayFillTest {
     }
 
     @Test
-    public void testRecordArrayFill() {
-        BValue[] args = new BValue[]{new BInteger(index)};
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testRecordArrayFill", args);
-        BValueArray recordArr = (BValueArray) returns[0];
-        String implicitInitValue = getImplicitInitRecordValue((BRecordType) recordArr.elementType).stringValue();
-
-        assertEquals(recordArr.size(), index + 1);
-
-        for (int i = 0; i < index; i++) {
-            assertEquals(recordArr.getBValue(i).stringValue(), implicitInitValue);
-        }
-
-        assertEquals(recordArr.getBValue(index).stringValue(),
-                     "{s:\"foo\", i:10, f:12.34, b:true, d:23.45, n:(), t:[\"Pubudu\", 27], m:{\"1\":1}, x: , bt:5," +
-                             " j:{\"name\":\"Pubudu\"}, ad:10}");
-    }
-
-    @Test
     public void testTableArrayFill() {
         BValue[] args = new BValue[]{new BInteger(index)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testTableArrayFill", args);
@@ -485,7 +467,7 @@ public class ArrayFillTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testTwoDimensionalArrayFill");
         BValueArray resultArray = (BValueArray) returns[0];
         assertEquals(resultArray.size(), 2);
-        assertEquals(resultArray.getRefValue(0).stringValue(), "[0, 0]");
+        assertEquals(resultArray.getRefValue(0).stringValue(), "[]");
         assertEquals(resultArray.getRefValue(1).stringValue(), "[1, 3]");
     }
 
@@ -501,6 +483,15 @@ public class ArrayFillTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithStreams");
         BValueArray resultArray = (BValueArray) returns[0];
         assertEquals(resultArray.size(), 2);
+    }
+
+    @Test
+    public void testRecordTypeWithOptionalFieldsArrayFill() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testRecordTypeWithOptionalFieldsArrayFill");
+        BValueArray resultArray = (BValueArray) returns[0];
+        assertEquals(resultArray.size(), 2);
+        assertEquals(resultArray.getBValue(0).stringValue(), "{j:0}");
+        assertEquals(resultArray.getBValue(1).stringValue(), "{j:2, i:1}");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -557,6 +548,20 @@ public class ArrayFillTest {
                     "without filler values.*")
     public void testIllegalTwoDimensionalArrayInsertion() {
         BRunUtil.invokeFunction(negativeCompileResult, "testIllegalTwoDimensionalArrayInsertion");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testTwoDimensionalSealedArrayFill() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testTwoDimensionalSealedArrayFill");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testRecordTypeWithRequiredFieldsArrayFill() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
     }
 
     private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {

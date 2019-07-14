@@ -38,8 +38,8 @@ public type InboundOAuth2Provider object {
     # Attempts to authenticate with credential.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `error` if an error occurred
-    public function authenticate(string credential) returns boolean|error {
+    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
+    public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
         }
@@ -70,7 +70,7 @@ public type InboundOAuth2Provider object {
                 }
             }
         } else {
-            return response;
+            return auth:prepareError("Failed to call the introspection endpoint.", err = response);
         }
 
         if (authenticated) {

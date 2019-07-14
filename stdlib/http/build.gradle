@@ -82,13 +82,14 @@ dependencies {
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.jvnet.mimepull:mimepull'
+    implementation 'org.bouncycastle:bcprov-jdk15on'
+    implementation 'org.bouncycastle:bcpkix-jdk15on'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-http')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
-    testCompile project(':ballerina-jvm')
 }
 
 createBalo {

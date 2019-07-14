@@ -20,7 +20,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -36,7 +36,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -52,7 +52,7 @@ service Ecommerce on testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -62,14 +62,14 @@ service Ecommerce on testEP {
     }
     resource function productsInfo4 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        string rID = req.getQueryParams().regID;
+        string rID = req.getQueryParamValue("regID") ?: "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T4", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -79,16 +79,16 @@ service Ecommerce on testEP {
     }
     resource function productsInfo6 (http:Caller caller, http:Request req) {
         json responseJson;
-        map<string> params = req.getQueryParams();
-        string prdID = params.prodID;
-        string rID= params.regID;
+        map<string[]> params = req.getQueryParams();
+        string prdID = params.prodID[0];
+        string rID= params.regID[0];
         io:println ("Product ID " + prdID);
         io:println ("Reg ID " + rID);
         responseJson = {"Template":"T6", "ProductID":prdID, "RegID":rID};
         io:println (responseJson.toString ());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -98,14 +98,14 @@ service Ecommerce on testEP {
     }
     resource function productsInfo5 (http:Caller caller, http:Request req, string productId) {
         json responseJson;
-        string rID = req.getQueryParams().regID;
+        string rID = req.getQueryParamValue("regID") ?: "";
         io:println("Product ID " + productId);
         io:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":productId, "RegID":rID};
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 
@@ -235,7 +235,7 @@ service echo113 on testEP {
     resource function productsInfo (http:Caller caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo113": foo};
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 }
@@ -252,7 +252,7 @@ service echo114 on testEP {
     resource function productsInfo (http:Caller caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo114": foo};
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 }

@@ -35,7 +35,7 @@ listener http:Listener listener11_1 = new(9103, config = {
 
 jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
     issuer: "ballerina",
-    audience: ["ballerina"],
+    audience: "ballerina",
     issuerConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
@@ -76,7 +76,7 @@ service passthroughService11 on listener11_1 {
 
 jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
     issuer: "ballerina",
-    audience: ["ballerina"],
+    audience: "ballerina",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

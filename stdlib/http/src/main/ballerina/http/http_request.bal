@@ -57,10 +57,30 @@ public type Request object {
     # + e - The `Entity` to be set to the request
     public function setEntity(mime:Entity e) = external;
 
-    # Gets the query parameters of the request, as a map.
+    # Gets the query parameters of the request as a map consisting of a string array.
     #
-    # + return - String map of query params
-    public function getQueryParams() returns map<string> = external;
+    # + return - String array map of the query params
+    public function getQueryParams() returns map<string[]> = external;
+
+    # Gets the query param value associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns the query param value associated with the given key as a string. If multiple param values are
+    #            present, then the first value is returned. Nil is returned if no key is found.
+    public function getQueryParamValue(@untainted string key) returns @tainted string? {
+        map<string[]> params = self.getQueryParams();
+        return params[key][0];
+    }
+
+    # Gets all the query param values associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns all the query param values associated with the given key as a `string[]`. Nil is returned if no key
+    #            is found.
+    public function getQueryParamValues(@untainted string key) returns @tainted string[]? {
+        map<string[]> params = self.getQueryParams();
+        return params[key];
+    }
 
     # Gets the matrix parameters of the request.
     #
@@ -91,7 +111,7 @@ public type Request object {
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeader(string headerName) returns string {
+    public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
     }
@@ -101,7 +121,7 @@ public type Request object {
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
     #            `hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(string headerName) returns string[] {
+    public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
     }
@@ -142,7 +162,7 @@ public type Request object {
     # Gets all the names of the headers of the request.
     #
     # + return - An array of all the header names
-    public function getHeaderNames() returns string[] {
+    public function getHeaderNames() returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaderNames();
     }
@@ -151,7 +171,7 @@ public type Request object {
     #
     # + return - Returns true if the client expects a `100-continue` response
     public function expects100Continue() returns boolean {
-        return self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false;
+        return <@untainted> (self.hasHeader(EXPECT) ? self.getHeader(EXPECT) == "100-continue" : false);
     }
 
     # Sets the `content-type` header to the request.
@@ -167,7 +187,7 @@ public type Request object {
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
     #
     # + return - Returns the `content-type` header value as a string
-    public function getContentType() returns string {
+    public function getContentType() returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getContentType();
     }
@@ -175,21 +195,21 @@ public type Request object {
     # Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
     #
     # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns json|error {
+    public function getJsonPayload() returns @tainted json|error {
         return self.getEntity()!getJson();
     }
 
     # Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns xml|error {
+    public function getXmlPayload() returns @tainted xml|error {
         return self.getEntity()!getXml();
     }
 
     # Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
     #
     # + return - The `text` payload or `error` in case of errors
-    public function getTextPayload() returns string|error {
+    public function getTextPayload() returns @tainted string|error {
         return self.getEntity()!getText();
     }
 
@@ -197,21 +217,21 @@ public type Request object {
     # `getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns io:ReadableByteChannel|error {
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         return self.getEntity()!getByteChannel();
     }
 
     # Gets the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns byte[]|error {
+    public function getBinaryPayload() returns @tainted byte[]|error {
         return self.getEntity()!getByteArray();
     }
 
     # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
     #
     # + return - The map of form params or `error` in case of errors
-    public function getFormParams() returns map<string>|error {
+    public function getFormParams() returns @tainted map<string>|error {
         var mimeEntity = self.getEntity();
         if (mimeEntity is mime:Entity) {
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {

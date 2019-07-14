@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 service simple7 on new http:Listener(9097) {
 
@@ -24,10 +23,10 @@ service simple7 on new http:Listener(9097) {
             upgradeService: castErrror
         }
     }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
         http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
+        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1[0];
     }
 }
 

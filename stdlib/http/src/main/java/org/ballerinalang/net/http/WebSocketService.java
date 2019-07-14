@@ -88,8 +88,8 @@ public class WebSocketService {
 
     public String getName() {
         if (service != null) {
-            //With JBallerina this is the way to get the key
-            String name = service.getType().getAnnotationKey();
+            // With JBallerina this is the way to get the key
+            String name = HttpUtil.getServiceName(service);
             return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
         }
         return null;

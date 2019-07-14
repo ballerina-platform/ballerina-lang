@@ -19,13 +19,7 @@
 package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -36,8 +30,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemConnectorFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
 import org.wso2.transport.localfilesystem.server.connector.contractimpl.LocalFileSystemConnectorFactoryImpl;
@@ -48,7 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
-import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 
 /**
  * Register file listener service.
@@ -62,73 +53,9 @@ import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
         isPublic = true
 )
 public class Register extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpointConfig = serviceEndpoint
-                .getStructField(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
-        try {
-            final Map<String, Resource> resourceRegistry = getResourceRegistry(service);
-            final String events = String.join(",", resourceRegistry.keySet());
-            final Map<String, String> paramMap = getParamMap(serviceEndpointConfig, events);
-            LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
-            StructureTypeInfo structInfo = getStructInfo(context);
-            LocalFileSystemServerConnector serverConnector = connectorFactory
-                    .createServerConnector(service.getName(), paramMap, new FSListener(resourceRegistry, structInfo));
-            serviceEndpoint.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
-        } catch (LocalFileSystemServerConnectorException e) {
-            context.setReturnValues(BLangVMErrors.createError(context,
-                    "Unable to initialize server connector: " + e.getMessage()));
-            return;
-        }
-        context.setReturnValues();
-    }
-
-    private StructureTypeInfo getStructInfo(Context context) {
-        PackageInfo httpPackageInfo = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
-        return httpPackageInfo.getStructInfo(FILE_SYSTEM_EVENT);
-    }
-
-    private Map<String, String> getParamMap(Struct serviceEndpointConfig, String events) {
-        final String path = serviceEndpointConfig.getStringField(DirectoryListenerConstants.ANNOTATION_PATH);
-        final boolean recursive = serviceEndpointConfig
-                .getBooleanField(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);
-        Map<String, String> paramMap = new HashMap<>(3);
-        if (path != null && !path.isEmpty()) {
-            paramMap.put(Constants.FILE_URI, path);
-        }
-        paramMap.put(Constants.DIRECTORY_WATCH_EVENTS, events);
-        paramMap.put(Constants.DIRECTORY_WATCH_RECURSIVE, String.valueOf(recursive));
-        return paramMap;
-    }
-
-    private Map<String, Resource> getResourceRegistry(Service service) {
-        Map<String, Resource> registry = new HashMap<>(3);
-        for (Resource resource : service.getResources()) {
-            switch (resource.getName()) {
-                case DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE:
-                    registry.put(DirectoryListenerConstants.EVENT_CREATE, resource);
-                    break;
-                case DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE:
-                    registry.put(DirectoryListenerConstants.EVENT_DELETE, resource);
-                    break;
-                case DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY:
-                    registry.put(DirectoryListenerConstants.EVENT_MODIFY, resource);
-                    break;
-                default:
-                    // Do nothing.
-            }
-        }
-        if (registry.size() == 0) {
-            String msg = "At least a single resource required from following: "
-                    + DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE + " ,"
-                    + DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE + " ,"
-                    + DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY + ". " + "Parameter should be of type - "
-                    + "file:" + FILE_SYSTEM_EVENT;
-            throw new BallerinaConnectorException(msg);
-        }
-        return registry;
     }
 
     public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
@@ -140,7 +67,7 @@ public class Register extends BlockingNativeCallableUnit {
             LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
             LocalFileSystemServerConnector serverConnector = connectorFactory
                     .createServerConnector(service.getType().getName(), paramMap,
-                                           new FSListener(service, resourceRegistry));
+                                           new FSListener(strand.scheduler, service, resourceRegistry));
             listener.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.createError("Unable to initialize server connector: " + e.getMessage());

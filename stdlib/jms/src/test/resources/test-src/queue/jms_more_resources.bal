@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jms;
+import ballerinax/jms;
 
 jms:Connection conn = new({
         initialContextFactory: "bmbInitialContextFactory",
