@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -175,6 +176,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -184,6 +186,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
@@ -198,7 +201,7 @@ import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef
  * Propagate tainted status of variables across the program.
  * <p>
  * Evaluate invocations and generate errors if:
- * (*) Tainted value has been passed to a sensitive parameter.
+ * (*) Tainted value has been passed to a untainted parameter.
  * (*) Tainted value has been passed to a global variable.
  *
  * @since 0.965.0
@@ -211,11 +214,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private Names names;
     private SymbolTable symTable;
     private BLangDiagnosticLog dlog;
+    private Types types;
 
     private boolean overridingAnalysis = true;
     private boolean entryPointPreAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
+    private boolean attachedFunctionAnalysis;
 
     private List<BlockedNode> blockedNodeList;
     private List<BlockedNode> blockedEntryPointNodeList;
@@ -227,8 +232,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean topLevelFunctionAllParamsUntaintedAnalysis;
 
     private static final String ANNOTATION_TAINTED = "tainted";
-    private static final String ANNOTATION_UNTAINTED = "untainted";
-    private static final String ANNOTATION_SENSITIVE = "sensitive";
+    public static final String ANNOTATION_UNTAINTED = "untainted";
 
     public static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
 
@@ -255,6 +259,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         names = Names.getInstance(context);
         dlog = BLangDiagnosticLog.getInstance(context);
         symTable = SymbolTable.getInstance(context);
+        types = Types.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -285,8 +290,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         currPkgEnv = pkgEnv;
         env = pkgEnv;
 
+        Map<Boolean, List<TopLevelNode>> topLevelNodeGroups = pkgNode.topLevelNodes.stream()
+                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE));
+
+        // Analyze top level variable nodes.
+        analyzeNode(topLevelNodeGroups.get(true));
+        // Analyze top level nodes other than variable nodes.
+        analyzeNode(topLevelNodeGroups.get(false));
+
+        analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
+        resolveBlockedInvokable(blockedNodeList);
+        resolveBlockedInvokable(blockedEntryPointNodeList);
+
+        if (dlogSet.size() > 0) {
+            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
+                    dlogEntry.paramName.toArray()));
+        }
+        currPkgEnv = prevPkgEnv;
+        pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
+    }
+
+    private void analyzeNode(List<TopLevelNode> topLevelNodes) {
         // Skip all lambda functions and analyzing them as part of the enclosing function.
-        pkgNode.topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
+        topLevelNodes.stream().filter(node -> node.getKind() != NodeKind.FUNCTION
                 || !((BLangFunction) node).flagSet.contains(Flag.LAMBDA))
                 .forEach(node -> {
                     AnalysisState analysisState = new AnalysisState();
@@ -294,16 +320,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     ((BLangNode) node).accept(this);
                     analysisStateStack.pop();
                 });
+    }
 
-        analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
-        resolveBlockedInvokable(blockedNodeList);
-        resolveBlockedInvokable(blockedEntryPointNodeList);
-
-        if (dlogSet.size() > 0) {
-            dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode, dlogEntry.paramName));
+    private void restCurrentTaintPropagationSet() {
+        for (Map.Entry<BSymbol, Boolean> taintStatus : getCurrentAnalysisState().prevSymbolTaintStatus.entrySet()) {
+            // Reset previous taint status.
+            taintStatus.getKey().tainted = taintStatus.getValue();
         }
-        currPkgEnv = prevPkgEnv;
-        pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
     }
 
     @Override
@@ -345,6 +368,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         AnalysisState analysisState = new AnalysisState();
         analysisStateStack.push(analysisState);
 
+        // If this is a attached function and we are not in attachedFunctionAnalysis mode,
+        // go into attachedFunctionAnalysis mode and rerun in attached func mode.
+        if (!attachedFunctionAnalysis && funcNode.flagSet.contains(Flag.ATTACHED)) {
+            analysisStateStack.pop();
+            visitAttachedInvokable(funcNode);
+            return;
+        }
+
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
         funcNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
 
@@ -370,7 +401,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        /* ignored */
+        // Any service that is not created via service definition is considered tainted regardless of taintedness
+        // of listeners.
+        if (serviceNode.isAnonymousServiceValue) {
+            setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
+            setTaintedStatus(serviceNode.serviceTypeDefinition.symbol, TaintedStatus.TAINTED);
+        }
     }
 
     @Override
@@ -432,6 +468,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
+        }
+
+        // Listener can be marked as @untainted to indicate it's listening to a safe endpoint,
+        // When not annotated @untainted, it defaults to tainted.
+        if (varNode.flagSet.contains(Flag.LISTENER)) {
+            if (hasAnnotation(varNode, ANNOTATION_UNTAINTED)) {
+                setTaintedStatus(varNode, TaintedStatus.UNTAINTED);
+            } else {
+                setTaintedStatus(varNode, TaintedStatus.TAINTED);
+            }
+        }
+
+        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE
+                || (varNode.symbol.owner.type != null && varNode.symbol.owner.type.tag == TypeTags.SERVICE)) {
+            if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
+                ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.TAINTED;
+                setTaintedStatus(varNode.symbol, TaintedStatus.TAINTED);
+            } else if (hasAnnotation(varNode, ANNOTATION_UNTAINTED)) {
+                ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.UNTAINTED;
+            }
         }
     }
 
@@ -502,17 +558,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Generate error if a global variable has been assigned with a tainted value.
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
-                if (varRef.symbol != null && varRef.symbol.owner != null
-                        && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
-                        || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE)) {
-                    addTaintError(pos, varRef.symbol.name.value,
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
+                if (isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
+                    if (varRef.symbol.type.tag == TypeTags.OBJECT) {
+                        addTaintError(pos, varRef.symbol.name.value,
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
+                    } else {
+                        addTaintError(pos, varRef.symbol.name.value,
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
+                    }
                     return;
                 } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
                         && !varRef.symbol.tainted) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
+                } else if (varRef.symbol != null && isMarkedUntainted(varRef)
+                        && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
+                    addTaintError(pos, varRef.symbol.name.value,
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
             // TODO: Re-evaluating the full data-set (array) when a change occur.
@@ -546,6 +609,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
         }
+    }
+
+    private boolean isMarkedTainted(BLangVariableReference varRef) {
+        return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
+    }
+
+    private boolean isMarkedUntainted(BLangVariableReference varRef) {
+        return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
+    }
+
+    private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
+        return varRef.symbol != null && varRef.symbol.owner != null
+                && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
+                    || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);
     }
 
     private void updatedVarRefTaintedState(BLangExpression varRef, TaintedStatus taintedState) {
@@ -608,6 +685,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         overridingAnalysis = false;
+        ifNode.expr.accept(this);
+        // return tainted status of if conditional expr does not affect overal taintedness.
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
             ifNode.elseStmt.accept(this);
@@ -1063,7 +1144,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         // If this is an object init using the default constructor, or a stream or channel initialization then skip the
         // taint checking.
-        if (typeInit.type.tag != TypeTags.STREAM && typeInit.type.tag != TypeTags.CHANNEL &&
+        if (typeInit.type.tag != TypeTags.STREAM &&
                 (typeInit.type.tag != TypeTags.OBJECT ||
                          ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null)) {
             typeInit.initInvocation.accept(this);
@@ -1163,6 +1244,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeConversionExpr conversionExpr) {
         // Result of the conversion is tainted if value being converted is tainted.
         conversionExpr.expr.accept(this);
+
+        // If @untainted annotation is attached, we consider resulting value after conversion is untainted
+        if (!conversionExpr.annAttachments.isEmpty()) {
+            getCurrentAnalysisState().taintedStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+        }
     }
 
     @Override
@@ -1348,7 +1434,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        // todo: set correct tainted status of the service by checking variables within service constructor.
+        // Taintedness of a service variable depends on taintedness of listeners attached to this service.
+        // If any listener is tainted then the service variable is tainted.
+
+        boolean anyListenerstainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
+                .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
+                .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+
+        if (anyListenerstainted || serviceConstructorExpr.type.tsymbol.tainted) {
+            // Service type tainted due to listeners being tainted.
+            setTaintedStatus(serviceConstructorExpr.type.tsymbol, TaintedStatus.TAINTED);
+        }
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
     }
 
@@ -1641,6 +1737,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void setTaintedStatus(BSymbol symbol, TaintedStatus taintedStatus) {
         if (taintedStatus != TaintedStatus.IGNORED && symbol != null) {
+            getCurrentAnalysisState().prevSymbolTaintStatus.put(symbol, symbol.tainted);
             if (taintedStatus == TaintedStatus.TAINTED) {
                 symbol.tainted = true;
             } else {
@@ -1655,17 +1752,30 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
             return;
         }
+
+        boolean markParamsTainted = true;
+        if (invNode.getKind() == NodeKind.FUNCTION
+            && ((BLangFunction) invNode).receiver != null) {
+            if (((BLangFunction) invNode).receiver.type.tag == TypeTags.SERVICE) {
+                // When service definition is bound to a untainted listeners, arguments to resource functions
+                // are considered untainted.
+                if (!((BLangFunction) invNode).receiver.type.tsymbol.tainted) {
+                    markParamsTainted = false;
+                }
+            }
+        }
         // Entry point input parameters are all tainted, since they contain user controlled data.
-        // If any value has been marked "sensitive" generate an error.
-        if (isEntryPointParamsInvalid(invNode.requiredParams)) {
+        // If any value has been marked "untainted" generate an error.
+        if (isEntryPointParamsInvalid(invNode.requiredParams, markParamsTainted)) {
             return;
         }
         List<BLangSimpleVariable> defaultableParamsVarList = new ArrayList<>();
         invNode.defaultableParams.forEach(defaultableParam -> defaultableParamsVarList.add(defaultableParam.var));
-        if (isEntryPointParamsInvalid(defaultableParamsVarList)) {
+        if (isEntryPointParamsInvalid(defaultableParamsVarList, markParamsTainted)) {
             return;
         }
-        if (invNode.restParam != null && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam))) {
+        if (invNode.restParam != null
+                && isEntryPointParamsInvalid(Collections.singletonList(invNode.restParam), markParamsTainted)) {
             return;
         }
         // Perform end point analysis.
@@ -1676,16 +1786,25 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean isBlocked = processBlockedNode(invNode);
         if (!isBlocked) {
             // Display errors only if scan of was fully complete, so that errors will not get duplicated.
-            this.dlogSet.addAll(getCurrentAnalysisState().taintErrorSet);
+            for (TaintRecord.TaintError taintError : getCurrentAnalysisState().taintErrorSet) {
+                if (taintError.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
+                    dlogSet.add(new TaintRecord.TaintError(taintError.pos, taintError.paramName,
+                            DiagnosticCode.INVOCATION_TAINT_GLOBAL_OBJECT));
+                } else {
+                    dlogSet.add(taintError);
+                }
+            }
         }
     }
 
-    private boolean isEntryPointParamsInvalid(List<BLangSimpleVariable> params) {
+    private boolean isEntryPointParamsInvalid(List<BLangSimpleVariable> params, boolean markParamsTainted) {
         if (params != null) {
             for (BLangSimpleVariable param : params) {
-                param.symbol.tainted = true;
-                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
-                    this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE,
+                if (markParamsTainted) {
+                    setTaintedStatus(param.symbol, TaintedStatus.TAINTED);
+                }
+                if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
+                    this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
                     return true;
                 }
@@ -1711,6 +1830,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 attachNativeFunctionTaintTable(invNode);
                 return false;
             }
+
             Map<Integer, TaintRecord> taintTable = new HashMap<>();
 
             // Check the tainted status of return values when no parameter is tainted.
@@ -1748,8 +1868,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                     BLangSimpleVariable param = getParam(invNode, paramIndex, requiredParamCount,
                             defaultableParamCount);
-                    // If parameter is sensitive, it's invalid to have a case where tainted status of parameter is true.
-                    if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
+                    // If parameter is untainted, it's invalid to have a case where tainted status of parameter is true.
+                    if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                         continue;
                     }
                     // Set each parameter "tainted", then analyze the body to observe the outcome of the function.
@@ -1762,8 +1882,26 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             invNode.symbol.taintTable = taintTable;
+            validateReturnAndParameterTaintedAnnotations(invNode, taintTable);
+            restCurrentTaintPropagationSet();
         }
         return false;
+    }
+
+    private void visitAttachedInvokable(BLangFunction invNode) {
+        List<BLangSimpleVariable> prevRequiredParam = invNode.requiredParams;
+        if (invNode.symbol.receiverSymbol != null) {
+            BLangSimpleVariable self = invNode.receiver;
+            List<BLangSimpleVariable> requiredParamsWithSelf = Lists.of(self);
+            requiredParamsWithSelf.addAll(prevRequiredParam);
+            invNode.requiredParams = requiredParamsWithSelf;
+        }
+
+        attachedFunctionAnalysis = true;
+        visit(invNode);
+        attachedFunctionAnalysis = false;
+
+        invNode.requiredParams = prevRequiredParam;
     }
 
     private void analyzeAllParamsUntaintedReturnTaintedStatus(Map<Integer, TaintRecord> taintTable,
@@ -1775,8 +1913,54 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             topLevelFunctionAllParamsUntaintedAnalysis = true;
         }
         analyzeReturnTaintedStatus(taintTable, invokableNode, symbolEnv, ALL_UNTAINTED_TABLE_ENTRY_INDEX, 0, 0);
+
         if (currTopLevelFunction == invokableNode) {
             topLevelFunctionAllParamsUntaintedAnalysis = false;
+        }
+    }
+
+    // Validate the taintedness of return and parameter values when no tainted value is passed into the function.
+    // In this case:
+    // 1. If function returns a tainted value it must annotate return as @tainted.
+    // 2. If function taints a passed in argument, it must annotate respective parameter @tainted.
+    // 3. Function must not return a values who's taintedness is unknown.
+    private void validateReturnAndParameterTaintedAnnotations(
+            BLangInvokableNode invokableNode,
+            Map<Integer, TaintRecord> taintedStatusBasedOnAnnotations) {
+
+        if (this.analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
+                || this.analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
+            return;
+        }
+
+        TaintRecord taintRecord = taintedStatusBasedOnAnnotations.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
+        if (taintRecord.returnTaintedStatus == TaintedStatus.TAINTED
+                && !hasAnnotation(invokableNode.returnTypeAnnAttachments, ANNOTATION_TAINTED)
+                && !invokableNode.flagSet.contains(Flag.LAMBDA)) {
+            dlog.error(invokableNode.returnTypeNode.pos, DiagnosticCode.TAINTED_RETURN_NOT_ANNOTATED_TAINTED,
+                    invokableNode.name.getValue());
+            stopAnalysis = true;
+        }
+
+        int requiredParamCount = invokableNode.requiredParams.size();
+        int defaultableParamCount = invokableNode.defaultableParams.size();
+        int totalParamCount = requiredParamCount + defaultableParamCount + (invokableNode.restParam == null ? 0 : 1);
+
+        for (int i = 0; i < totalParamCount; i++) {
+            TaintedStatus taintedStatus = taintRecord.parameterTaintedStatusList.get(i);
+            if (taintedStatus == TaintedStatus.TAINTED) {
+                BLangSimpleVariable param = getParam(invokableNode, i, requiredParamCount, defaultableParamCount);
+                // Although we consider self as a parameter, we can not mark it as @tainted, hence skip error for it.
+                if (i == 0 && (invokableNode.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED) {
+                    // skip 0th param (self) for object methods.
+                    continue;
+                }
+                if (!hasAnnotation(param, ANNOTATION_TAINTED)) {
+                    dlog.error(param.pos, DiagnosticCode.TAINTED_PARAM_NOT_ANNOTATED_TAINTED, param.name,
+                            invokableNode.name);
+                    stopAnalysis = true;
+                }
+            }
         }
     }
 
@@ -1791,23 +1975,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             resetTaintedStatusOfVariables(Collections.singletonList(invokableNode.restParam));
         }
         // Mark the given parameter "tainted".
+        boolean prevParamTaintedState = false;
         if (paramIndex != ALL_UNTAINTED_TABLE_ENTRY_INDEX) {
-            if (paramIndex < requiredParamCount) {
-                invokableNode.requiredParams.get(paramIndex).symbol.tainted = true;
-            } else if (paramIndex < requiredParamCount + defaultableParamCount) {
-                invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol.tainted = true;
-            } else {
-                if (invokableNode.restParam != null) {
-                    invokableNode.restParam.symbol.tainted = true;
-                }
-            }
+            prevParamTaintedState = markNthParamSymbolTainted(invokableNode, paramIndex, requiredParamCount,
+                    defaultableParamCount);
         }
         analyzeReturnTaintedStatus(invokableNode, symbolEnv);
         if (getCurrentAnalysisState().taintErrorSet.size() > 0) {
-            // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
+            // When invocation returns an error (due to passing a tainted argument to a untainted parameter) add current
             // error to the table for future reference. However, if taint-error is raised when analyzing all-parameters
             // are untainted, the code of the function is wrong (and passes a tainted value generated within the
-            // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
+            // function body to a untainted parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
             if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX
                     && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)
@@ -1838,11 +2016,50 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             taintTable.put(paramIndex, new TaintRecord(getCurrentAnalysisState().returnTaintedStatus,
                     getCurrentAnalysisState().parameterTaintedStatus));
         }
+        if (paramIndex != ALL_UNTAINTED_TABLE_ENTRY_INDEX) {
+            restoreNthParamSymbolTaintedness(invokableNode, paramIndex, requiredParamCount, defaultableParamCount,
+                    prevParamTaintedState);
+        }
+    }
+
+    private boolean markNthParamSymbolTainted(BLangInvokableNode invokableNode, int paramIndex, int requiredParamCount,
+                                           int defaultableParamCount) {
+        return changeNthParamSymbolTo(invokableNode, paramIndex, requiredParamCount, defaultableParamCount, true);
+    }
+
+    private void restoreNthParamSymbolTaintedness(BLangInvokableNode invokableNode, int paramIndex,
+                                                     int requiredParamCount, int defaultableParamCount,
+                                                     boolean prevTaintedStatet) {
+        changeNthParamSymbolTo(invokableNode, paramIndex, requiredParamCount, defaultableParamCount,
+                prevTaintedStatet);
+    }
+
+    private boolean changeNthParamSymbolTo(BLangInvokableNode invokableNode, int paramIndex, int requiredParamCount,
+                                        int defaultableParamCount, boolean toTaintedState) {
+        if (paramIndex < requiredParamCount) {
+            boolean prevState = invokableNode.requiredParams.get(paramIndex).symbol.tainted;
+            setTaintedStatus(invokableNode.requiredParams.get(paramIndex).symbol,
+                    toTaintedState ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+            return prevState;
+        } else if (paramIndex < requiredParamCount + defaultableParamCount) {
+            boolean prevState = invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol.tainted;
+            setTaintedStatus(invokableNode.defaultableParams.get(paramIndex - requiredParamCount).var.symbol,
+                    toTaintedState ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+            return prevState;
+        } else {
+            if (invokableNode.restParam != null) {
+                boolean prevState = invokableNode.restParam.symbol.tainted;
+                setTaintedStatus(invokableNode.restParam.symbol,
+                        toTaintedState ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                return prevState;
+            }
+        }
+        return false;
     }
 
     private void resetTaintedStatusOfVariables(List<BLangSimpleVariable> params) {
         if (params != null) {
-            params.forEach(param -> param.symbol.tainted = false);
+            params.forEach(param -> setTaintedStatus(param.symbol, TaintedStatus.UNTAINTED));
         }
     }
 
@@ -1893,8 +2110,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
                 BLangSimpleVariable param = getParam(invokableNode, paramIndex, requiredParamCount,
                         defaultableParamCount);
-                // If parameter is sensitive, test for this parameter being tainted is invalid.
-                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
+                // If parameter is untainted, test for this parameter being tainted is invalid.
+                if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                     continue;
                 }
                 taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, paramTaintedStatusList));
@@ -1951,7 +2168,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangSimpleVariable param = getParam(function, paramIndex, requiredParamCount, defaultableParamCount);
                 if (taintRecord == null) {
                     addTaintError(argExpr.pos, param.name.value,
-                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                            DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                     addTaintError(taintRecord.taintError);
                 }
@@ -1964,6 +2181,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void addTaintError(DiagnosticPos diagnosticPos, String paramName, DiagnosticCode diagnosticCode) {
         TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, diagnosticCode);
+        getCurrentAnalysisState().taintErrorSet.add(taintError);
+        if (!entryPointAnalysis) {
+            stopAnalysis = true;
+        }
+    }
+
+    private void addTaintError(DiagnosticPos diagnosticPos, String paramName, String paramName2,
+                               DiagnosticCode diagnosticCode) {
+        TaintRecord.TaintError taintError = new TaintRecord.TaintError(diagnosticPos, paramName, paramName2,
+                diagnosticCode);
         getCurrentAnalysisState().taintErrorSet.add(taintError);
         if (!entryPointAnalysis) {
             stopAnalysis = true;
@@ -2024,19 +2251,25 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private void updateParameterTaintedStatuses(List<BLangSimpleVariable> paramList, int startIndex) {
         if (getCurrentAnalysisState().parameterTaintedStatus.size() <= startIndex) {
             // If list do not have the tainted state of current parameter list already, add new entries to the list.
-            paramList.forEach(param -> {
+            for (BLangSimpleVariable param : paramList) {
                 TaintedStatus taintedStateBasedOnAnnotations = getTaintedStatusBasedOnAnnotations(param.annAttachments);
                 if (taintedStateBasedOnAnnotations == TaintedStatus.IGNORED) {
                     // If annotations are not use, use the analyzed status.
-                    getCurrentAnalysisState().parameterTaintedStatus.add(param.symbol.tainted ?
-                            TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                    if (types.isValueType(param.type)) {
+                        // As we can't push values out of a value typed parameter, function body can't taint
+                        // value typed parameter.
+                        getCurrentAnalysisState().parameterTaintedStatus.add(TaintedStatus.UNTAINTED);
+                    } else {
+                        getCurrentAnalysisState().parameterTaintedStatus.add(param.symbol.tainted ?
+                                TaintedStatus.TAINTED : TaintedStatus.UNTAINTED);
+                    }
                 } else {
                     // If parameter has "tainted" or "untainted" annotation, argument should be updated according to the
                     // annotated status regardless of the analyzed status. This is useful if someone need to explicitly
                     // mark any argument that is set as a parameter "tainted" or "untainted".
                     getCurrentAnalysisState().parameterTaintedStatus.add(taintedStateBasedOnAnnotations);
                 }
-            });
+            }
         } else {
             // If list already contains tainted state of current parameter list, update the existing list. This can
             // happen, when there are multiple returns within the same function.
@@ -2044,8 +2277,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangVariable param = paramList.get(paramIndex);
                 TaintedStatus taintedStateBasedOnAnnotations = getTaintedStatusBasedOnAnnotations(param.annAttachments);
                 if (taintedStateBasedOnAnnotations == TaintedStatus.TAINTED || param.symbol.tainted) {
-                    getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
-                            TaintedStatus.TAINTED);
+                    if (types.isValueType(param.type)) {
+                        // As we can't push values out of a value typed parameter, function body can't taint
+                        // value typed parameter.
+                        getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
+                                TaintedStatus.UNTAINTED);
+                    } else {
+                        getCurrentAnalysisState().parameterTaintedStatus.set(startIndex + paramIndex,
+                                TaintedStatus.TAINTED);
+                    }
                 }
                 // Ignore if param is untainted. Where there are multiple return statements in a function, it is
                 // required to get the combined tainted status of parameters. This condition is skipped to make sure we
@@ -2074,7 +2314,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (allParamsUntaintedRecord != null) {
             if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
                 // This can occur when there is a error regardless of tainted status of parameters.
-                // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
+                // Example: Tainted value returned by function is passed to another functions's untainted parameter.
                 addTaintError(allParamsUntaintedRecord.taintError);
             } else {
                 returnTaintedStatus = allParamsUntaintedRecord.returnTaintedStatus;
@@ -2094,14 +2334,39 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int namedArgsCount = invocationExpr.namedArgs.size();
             int restArgsCount = invocationExpr.restArgs.size();
 
-            for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
-                BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(argIndex, invocationExpr, argExpr,
+            List<TaintedStatus> paramIndexVsSelfTaintedStatusList = null;
+            // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
+            // Hence add the receiver to required arg count.
+            if (isTaintAnalyzableAttachedFunction(invocationExpr)) {
+                BVarSymbol receiverSymbol = getMethodReceiverSymbol(invocationExpr.expr);
+
+                returnTaintedStatus = analyzeAllArgsUntaintedReceiverTaintedness(
+                        invocationExpr, taintTable, returnTaintedStatus, receiverSymbol);
+
+                if (stopAnalysis) {
+                    return;
+                }
+
+                // What happens to self (oth param) when each param (excluding 0th) is tainted.
+                paramIndexVsSelfTaintedStatusList = deriveSelfTaintedStatusForEachParam(
+                        taintTable, requiredArgsCount, namedArgsCount, restArgsCount);
+
+                invokableSymbol.taintTable = duplicateTaintTableSkippingReceiverEntry(taintTable);
+                argTaintedStatusList.remove(0); // remove self params tainted status from list.
+            }
+
+            for (int reqArgIndex = 0; reqArgIndex < requiredArgsCount; reqArgIndex++) {
+                BLangExpression argExpr = invocationExpr.requiredArgs.get(reqArgIndex);
+                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(reqArgIndex, invocationExpr, argExpr,
                         argTaintedStatusList);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;
+                }
+
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, reqArgIndex);
                 }
                 if (stopAnalysis) {
                     break;
@@ -2128,6 +2393,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                         returnTaintedStatus = TaintedStatus.TAINTED;
                     }
+                    if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                        updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, paramIndex);
+                    }
                     if (stopAnalysis) {
                         break;
                     }
@@ -2144,12 +2412,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;
                 }
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    updateSelfTaintedStatusToTainted(invocationExpr, paramIndexVsSelfTaintedStatusList, paramIndex);
+                }
                 if (stopAnalysis) {
                     break;
                 }
             }
             updateArgTaintedStatus(invocationExpr, argTaintedStatusList);
-
+            invokableSymbol.taintTable = taintTable; // restore taint table.
         }
         // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result should also be
         // tainted.
@@ -2163,6 +2434,147 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
+    }
+
+    private TaintedStatus analyzeAllArgsUntaintedReceiverTaintedness(BLangInvocation invocationExpr,
+                                                                     Map<Integer, TaintRecord> taintTable,
+                                                                     TaintedStatus returnTaintedStatus,
+                                                                     BVarSymbol receiverSymbol) {
+        TaintRecord receiverTaintRecord = taintTable.get(0);
+        if (receiverSymbol != null) {
+            // receiverSymbol == null for method invocations on literals "str".substring()
+            returnTaintedStatus = checkTaintErrorsInObjectMethods(invocationExpr,
+                    returnTaintedStatus, receiverSymbol, receiverTaintRecord);
+        }
+
+        TaintRecord allUntaintedEntry = taintTable.get(-1); // when everything is untainted
+        if (allUntaintedEntry != null
+                && allUntaintedEntry.parameterTaintedStatusList != null
+                && allUntaintedEntry.parameterTaintedStatusList.get(0) == TaintedStatus.TAINTED) {
+            // Method invocation taint self even when non of the inputs args are tainted.
+            visitAssignment(invocationExpr.expr, TaintedStatus.TAINTED, invocationExpr.pos);
+        }
+
+        if (receiverTaintRecord != null && receiverTaintRecord.parameterTaintedStatusList != null) {
+            List<TaintedStatus> actualArgTaintStatus = receiverTaintRecord.parameterTaintedStatusList
+                    .subList(1, receiverTaintRecord.parameterTaintedStatusList.size());
+            updateArgTaintedStatus(invocationExpr, actualArgTaintStatus);
+        }
+        return returnTaintedStatus;
+    }
+
+    private List<TaintedStatus> deriveSelfTaintedStatusForEachParam(Map<Integer, TaintRecord> taintTable,
+                                                                    int requiredArgsCount,
+                                                                    int namedArgsCount,
+                                                                    int restArgsCount) {
+        List<TaintedStatus> paramIndexVsSelfTaintedStatusList;
+        paramIndexVsSelfTaintedStatusList = new ArrayList<>();
+        for (int i = 0; i < requiredArgsCount + namedArgsCount + restArgsCount; i++) {
+            TaintRecord taintRecord = taintTable.get(i);
+            if (taintRecord == null) {
+                // No record in the taint table, this is a untainted param.
+                paramIndexVsSelfTaintedStatusList.add(TaintedStatus.UNTAINTED);
+                continue;
+            }
+
+            if (taintRecord.parameterTaintedStatusList != null) {
+                paramIndexVsSelfTaintedStatusList.add(taintRecord.parameterTaintedStatusList.get(0));
+            } else {
+                paramIndexVsSelfTaintedStatusList.add(TaintedStatus.TAINTED);
+            }
+        }
+        return paramIndexVsSelfTaintedStatusList;
+    }
+
+    private TaintedStatus checkTaintErrorsInObjectMethods(BLangInvocation invocationExpr,
+                                                          TaintedStatus returnTaintedStatus,
+                                                          BVarSymbol receiverSymbol,
+                                                          TaintRecord receiverTaintRecord) {
+        if (receiverSymbol.tainted) {
+            if (receiverTaintRecord == null) {
+                // This scenario indicate that passing a tainted value to the receiver causes tainted value to be
+                // passed to a untainted parameter somewhere inside the function.
+                addTaintError(invocationExpr.pos, receiverSymbol.name.value,
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
+                return returnTaintedStatus;
+            }
+
+            // does this taint other params and return?
+            if (receiverTaintRecord.returnTaintedStatus == TaintedStatus.TAINTED) {
+                returnTaintedStatus = TaintedStatus.TAINTED;
+            }
+            if (receiverTaintRecord.taintError != null && !receiverTaintRecord.taintError.isEmpty()) {
+                for (TaintRecord.TaintError error : receiverTaintRecord.taintError) {
+                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
+                        addTaintError(receiverTaintRecord.taintError);
+                    } else if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
+                        addTaintError(invocationExpr.pos,
+                                getMethodReceiverSymbol(invocationExpr).name.value, error.diagnosticCode);
+                    } else {
+                        // Indicate that at this point receiver/self being tainted cause tainted value
+                        // (via receiver/self) passing to a untainted parameter down the call.
+                        addTaintError(invocationExpr.pos, error.paramName.get(0), invocationExpr.name.value,
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER_ORIGINATING_AT);
+                    }
+                }
+            }
+        }
+        return returnTaintedStatus;
+    }
+
+    private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr) {
+        if (invocationExpr.builtinMethodInvocation) {
+            return false;
+        }
+
+        return (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED && invocationExpr.expr != null;
+    }
+
+    private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,
+                                                  List<TaintedStatus> paramVsSelfTaintedStatus, int reqArgIndex) {
+        if (paramVsSelfTaintedStatus != null
+                && paramVsSelfTaintedStatus.get(reqArgIndex) == TaintedStatus.TAINTED) {
+            visitAssignment(invocationExpr.expr, TaintedStatus.TAINTED, invocationExpr.pos);
+        }
+    }
+
+    private BVarSymbol getMethodReceiverSymbol(BLangExpression expr) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                return (BVarSymbol) ((BLangSimpleVarRef) expr).symbol;
+            case FIELD_BASED_ACCESS_EXPR:
+                return getMethodReceiverSymbol(((BLangFieldBasedAccess) expr).expr);
+            case INDEX_BASED_ACCESS_EXPR:
+                return getMethodReceiverSymbol(((BLangIndexBasedAccess) expr).expr);
+            case INVOCATION:
+                return (BVarSymbol) ((BLangInvocation) expr).symbol;
+            default:
+                return null;
+        }
+    }
+
+    private Map<Integer, TaintRecord> duplicateTaintTableSkippingReceiverEntry(Map<Integer, TaintRecord> taintTable) {
+        Map<Integer, TaintRecord> taintTableWithoutReceiver = new HashMap<>();
+        if (taintTable.containsKey(-1)) {
+            taintTableWithoutReceiver.put(-1, skipTaintRecSelfParam(taintTable.get(-1)));
+        }
+        for (Map.Entry<Integer, TaintRecord> entry : taintTable.entrySet()) {
+            if (entry.getKey() > 0) {
+                taintTableWithoutReceiver.put(entry.getKey() - 1, skipTaintRecSelfParam(entry.getValue()));
+            }
+        }
+        return taintTableWithoutReceiver;
+    }
+
+    private TaintRecord skipTaintRecSelfParam(TaintRecord taintRecord) {
+        if (taintRecord.parameterTaintedStatusList == null) {
+            return taintRecord;
+        }
+        TaintRecord newRec = new TaintRecord(taintRecord.taintError);
+        newRec.returnTaintedStatus = taintRecord.returnTaintedStatus;
+        newRec.parameterTaintedStatusList =
+                taintRecord.parameterTaintedStatusList.subList(1, taintRecord.parameterTaintedStatusList.size());
+        return newRec;
     }
 
     private void updateArgTaintedStatus(BLangInvocation invocationExpr, List<TaintedStatus> argTaintedStatusList) {
@@ -2229,6 +2641,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) varRefExpr).pkgSymbol.tag != SymTag.XMLNS)) {
             visitAssignment(varRefExpr, varTaintedStatus, varRefExpr.pos);
+        } else if (varRefExpr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            visitAssignment(((BLangTypeConversionExpr) varRefExpr).expr, varTaintedStatus, varRefExpr.pos);
         }
     }
 
@@ -2256,20 +2670,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     defaultableParamCount);
 
             if (taintRecord == null) {
-                // This is when current parameter is "sensitive". Therefore, providing a tainted value to a sensitive
+                // This is when current parameter is "untainted". Therefore, providing a tainted value to a untainted
                 // parameter is invalid and should return a compiler error.
                 DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                 addTaintError(argPos, paramSymbol.name.value,
-                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
-                // This is when current parameter is derived to be sensitive.
+                // This is when current parameter is derived to be untainted.
                 taintRecord.taintError.forEach(error -> {
                     if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
                         addTaintError(taintRecord.taintError);
                     } else {
                         DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                         addTaintError(argPos, paramSymbol.name.value,
-                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER);
+                                DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                     }
                 });
             } else {
@@ -2428,5 +2842,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         private BlockedNode blockedNode;
 
         private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
+        private Map<BSymbol, Boolean> prevSymbolTaintStatus = new HashMap<>();
     }
 }

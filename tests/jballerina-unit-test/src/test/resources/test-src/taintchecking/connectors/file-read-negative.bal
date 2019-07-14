@@ -19,7 +19,7 @@ public function main (string... args) {
     }
 }
 
-public function testFunction (@sensitive any sensitiveValue, any anyValue) {
+public function testFunction (@untainted any sensitiveValue, any anyValue) {
 
 }
 

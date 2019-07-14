@@ -59,14 +59,14 @@ function serialize(map<any> data) returns string = external;
 # + rch - A `ReadableCharacterChannel` instance.
 # + numberOfCharacters - A `int` indicating number of chars to read.
 # + return - A `string` of content or an `error`.
-function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns string|error {
+function readCharacters(io:ReadableCharacterChannel rch, int numberOfCharacters) returns @tainted string|error {
     return rch.read(numberOfCharacters);
 }
 
 # Function to read all characters as a string from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.
 # + return - A `string` of content or an `error`.
-function readAllCharacters(io:ReadableCharacterChannel rch) returns string|error? {
+function readAllCharacters(io:ReadableCharacterChannel rch) returns @tainted string|error? {
     int fixedSize = 128;
     boolean isDone = false;
     string result = "";
@@ -102,7 +102,7 @@ function createReadableCharacterChannel(string filePath, string encoding) return
     io:ReadableCharacterChannel? rch = ();
     io:ReadableByteChannel|error byteChannel = trap io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = untaint new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
     }
     return rch;
 }
@@ -115,7 +115,7 @@ function createWritableCharacterChannel(string filePath, string encoding) return
     io:WritableCharacterChannel? wch = ();
     io:WritableByteChannel|error byteChannel = trap io:openWritableFile(filePath);
     if (byteChannel is io:WritableByteChannel) {
-        wch = untaint new io:WritableCharacterChannel(byteChannel, encoding);
+        wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
     }
     return wch;
 }
@@ -138,7 +138,7 @@ function closeCharChannel(any c) {
 # + filePath - A `string` path to the file.
 # + encoding - A `string` indicating the encoding type.
 # + return - The `string` content of the file.
-function readFile(string filePath, string encoding) returns string {
+function readFile(string filePath, string encoding) returns @tainted string {
     string content = "";
     io:ReadableCharacterChannel? rch = createReadableCharacterChannel(filePath, encoding);
     if (rch is io:ReadableCharacterChannel) {

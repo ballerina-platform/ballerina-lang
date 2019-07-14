@@ -380,8 +380,8 @@ public class Util {
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8), "Ballerina binary file part");
     }
 
-    public static void verifyMimeError(BValue returnValue, String errMsg) {
-        Assert.assertEquals(((BError) returnValue).getReason(), MimeConstants.MIME_ERROR_CODE);
+    public static void verifyMimeError(BValue returnValue, String errMsg, String expectedErrorCode) {
+        Assert.assertEquals(((BError) returnValue).getReason(), expectedErrorCode);
         Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
                                     .stringValue(), errMsg);
     }

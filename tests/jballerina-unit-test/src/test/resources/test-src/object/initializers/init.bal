@@ -25,13 +25,10 @@ public type employee object {
         self.name = name;
     }
 
-    public function getAge();
-
+    public function getAge() {
+        self.age = 12;
+    }
 };
-
-public function employee.getAge() {
-    self.age = 12;
-}
 
 // object with non-public initializer
 public type student object {
@@ -42,10 +39,7 @@ public type student object {
     function __init() {
     }
 
-    public function getAge();
-
+    public function getAge() {
+        self.age = 20;
+    }
 };
-
-public function student.getAge() {
-    self.age = 20;
-}

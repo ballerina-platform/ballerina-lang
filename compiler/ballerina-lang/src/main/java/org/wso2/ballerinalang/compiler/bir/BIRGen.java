@@ -189,10 +189,12 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
+    private BIROptimizer birOptimizer;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -208,6 +210,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.birOptimizer = BIROptimizer.getInstance(context);
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
@@ -257,6 +260,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
 
+        this.birOptimizer.optimizePackage(birPkg);
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
 
@@ -437,24 +441,38 @@ public class BIRGen extends BLangNodeVisitor {
         //  2) BLangRecordLiteral
         // In this implementation, we support only the BLangRecordLiteral expressions
         //   which have only key:BLangLiteral key/value pairs
+        //   or key:BLangArrayLiteral with only BLangLiteral expressions
         // ------------------------------------------------------
         if (astAnnotAttach.expr == null) {
             return;
         }
 
-        Map<String, BIRAnnotationValueEntry> annotValueEntryMap = new HashMap<>();
+        Map<String, List<BIRAnnotationValueEntry>> annotValueEntryMap = new HashMap<>();
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) astAnnotAttach.expr;
         for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (NodeKind.LITERAL != keyValuePair.valueExpr.getKind()) {
+            List<BIRAnnotationValueEntry> entryValueList = new ArrayList<>();
+
+            if (NodeKind.LITERAL == keyValuePair.valueExpr.getKind()) {
+                BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
+                entryValueList.add(new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type));
+            } else if (NodeKind.ARRAY_LITERAL_EXPR == keyValuePair.valueExpr.getKind()) {
+                BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) keyValuePair.valueExpr;
+                arrayLiteral.exprs.forEach(expr -> {
+                    if (NodeKind.LITERAL != expr.getKind()) {
+                        return;
+                    }
+                    BLangLiteral exprLiteral = (BLangLiteral) expr;
+                    entryValueList.add(new BIRAnnotationValueEntry(exprLiteral.value, expr.type));
+                });
+            } else {
                 return;
             }
-            BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
-            BIRAnnotationValueEntry entryValue = new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type);
+
 
             // The keyexpr is also  a string literal
             BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
             String entryKey = (String) keyLiteral.value;
-            annotValueEntryMap.put(entryKey, entryValue);
+            annotValueEntryMap.put(entryKey, entryValueList);
         }
 
         Name annotTagRef = this.names.fromIdNode(astAnnotAttach.annotationName);
@@ -1083,7 +1101,8 @@ public class BIRGen extends BLangNodeVisitor {
         astTypeConversionExpr.expr.accept(this);
         BIROperand rhsOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp));
+        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp, toVarRef.variableDcl.type,
+                astTypeConversionExpr.checkTypes));
         this.env.targetOperand = toVarRef;
     }
 
@@ -1638,7 +1657,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         xmlAttributeAccessExpr.expr.accept(this);
         BIROperand xmlVarOp = this.env.targetOperand;
-        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp));
+        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
+                true));
         this.env.targetOperand = toVarRef;
     }
 

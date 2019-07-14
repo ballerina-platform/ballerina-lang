@@ -1,12 +1,12 @@
 import ballerina/mime;
 
-function testAddHeader (string headerName, string headerValue, string headerNameToBeUsedForRetrieval) returns string {
+function testAddHeader (string headerName, string headerValue, string headerNameToBeUsedForRetrieval) returns @tainted string {
     mime:Entity entity = new;
     entity.addHeader(headerName, headerValue);
     return entity.getHeader(headerNameToBeUsedForRetrieval);
 }
 
-function testAddingMultipleHeaders () returns [string, string , string ] {
+function testAddingMultipleHeaders () returns @tainted [string, string , string ] {
     mime:Entity entity = new;
     entity.addHeader("header1", "value1");
     entity.addHeader("header2", "value2");
@@ -14,7 +14,7 @@ function testAddingMultipleHeaders () returns [string, string , string ] {
     return [entity.getHeader("header1"), entity.getHeader("header2"), entity.getHeader("header3")];
 }
 
-function testAddingMultipleValuesToSameHeader () returns [string[], string ] {
+function testAddingMultipleValuesToSameHeader () returns @tainted [string[], string ] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -24,13 +24,13 @@ function testAddingMultipleValuesToSameHeader () returns [string[], string ] {
     return [entity.getHeaders("header1"), entity.getHeader("header2")];
 }
 
-function testSetHeader () returns [string[], string ] {
+function testSetHeader () returns @tainted [string[], string] {
     mime:Entity entity = new;
     entity.setHeader("HeADEr2", "totally different value");
     return [entity.getHeaders("header1"), entity.getHeader("header2")];
 }
 
-function testSetHeaderAfterAddHeader () returns [string[], string ] {
+function testSetHeaderAfterAddHeader () returns @tainted [string[], string] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -42,7 +42,7 @@ function testSetHeaderAfterAddHeader () returns [string[], string ] {
 }
 
 
-function testAddHeaderAfterSetHeader () returns [string[], string ] {
+function testAddHeaderAfterSetHeader () returns @tainted [string[], string] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -53,7 +53,7 @@ function testAddHeaderAfterSetHeader () returns [string[], string ] {
     return [entity.getHeaders("header2"), entity.getHeader("header2")];
 }
 
-function testRemoveHeader () returns [string[], string] {
+function testRemoveHeader () returns @tainted [string[], string] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -66,13 +66,13 @@ function testRemoveHeader () returns [string[], string] {
     return [entity.getHeaders("header1"), entity.getHeader("header2")];
 }
 
-function testNonExistenceHeader () returns string {
+function testNonExistenceHeader () returns @tainted string {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     return entity.getHeader("header");
 }
 
-function testGetHeaderNames () returns (string[]) {
+function testGetHeaderNames () returns @tainted string[] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -84,7 +84,7 @@ function testGetHeaderNames () returns (string[]) {
     return entity.getHeaderNames();
 }
 
-function testManipulateHeaders () returns (string[]) {
+function testManipulateHeaders () returns @tainted string[] {
     mime:Entity entity = new;
     entity.addHeader("heAder1", "value1");
     entity.addHeader("header1", "value2");
@@ -95,7 +95,7 @@ function testManipulateHeaders () returns (string[]) {
     entity.addHeader("HEADER3", "testVal");
     string[] headerNames = entity.getHeaderNames();
     foreach var header in headerNames {
-        entity.removeHeader(untaint header);
+        entity.removeHeader(<@untainted string> header);
     }
 
     return entity.getHeaderNames();
@@ -113,7 +113,7 @@ function testHasHeaderForNonExistenceHeader() returns boolean{
     return entity.hasHeader("header2");
 }
 
-function testHeaderWithNewEntity() returns [boolean, string[]] {
+function testHeaderWithNewEntity() returns @tainted [boolean, string[]] {
     mime:Entity entity = new;
     return [entity.hasHeader("header2"), entity.getHeaderNames()];
 }

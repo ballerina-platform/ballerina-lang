@@ -577,12 +577,10 @@ type F object {
     public int b;
     string c;
 
-    function __init();
+    function __init() {
+        self.a = 1;
+    }
 };
-
-function F.__init() {
-    self.a = 1;
-}
 
 public function testDataFlow_13(){
     object { public string s; } o = new;

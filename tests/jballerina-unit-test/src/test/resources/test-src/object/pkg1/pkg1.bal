@@ -4,22 +4,15 @@ public type Employee object {
     private string name = "";
     string email = "";
 
-    public function getName() returns (string);
+    public function getName() returns string {
+        return self.name;
+    }
 
-    private function getAge() returns (int);
+    private function getAge() returns int {
+        return self.age;
+    }
 
-    function getEmail() returns (string);
+    function getEmail() returns string {
+        return self.email;
+    }
 };
-
-
-public function Employee.getName() returns (string) {
-    return self.name;
-}
-
-private function Employee.getAge() returns (int) {
-    return self.age;
-}
-
-function Employee.getEmail() returns (string) {
-    return self.email;
-}

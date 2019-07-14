@@ -20,15 +20,12 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
@@ -46,56 +43,47 @@ import javax.jms.Session;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "createSubscriber",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_SUBSCRIBER_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {@Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
-                @Argument(name = "messageSelector", type = TypeKind.STRING),
-                @Argument(name = "destination", type = TypeKind.OBJECT)
-        },
-        isPublic = true
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_LISTENER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CreateSubscriber extends AbstractBlockingAction {
+public class CreateSubscriber extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> topicSubscriberBObject = (BMap<String, BValue>) context.getRefArgument(0);
+    public void execute(Context context) {
+    }
 
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        String messageSelector = context.getStringArgument(0);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-        BValue arg = context.getRefArgument(2);
+    public static void createSubscriber(Strand strand, ObjectValue topicListenerObj, ObjectValue sessionObj,
+                                        String messageSelector, Object dest) {
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
         String topicPattern = null;
-        BMap<String, BValue> destinationBObject = null;
-        if (arg instanceof BString) {
-            topicPattern = arg.stringValue();
+        ObjectValue destinationBObject = null;
+        if (dest instanceof String) {
+            topicPattern = (String) dest;
         } else {
-            destinationBObject = (BMap<String, BValue>) arg;
+            destinationBObject = (ObjectValue) dest;
         }
-        Destination destinationObject = JmsUtils.getDestination(context, destinationBObject);
+        Destination destinationObject = JmsUtils.getDestination(destinationBObject);
 
         if (JmsUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {
-            throw new BallerinaException("Topic pattern and destination cannot be null at the same time", context);
+            throw new BallerinaException("Topic pattern and destination cannot be null at the same time");
         }
 
         try {
             Destination topic = destinationObject != null ? destinationObject :
                     JmsUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createConsumer(topic, messageSelector);
-            @SuppressWarnings(JmsConstants.UNCHECKED)
-            BMap<String, BValue> consumerConnectorBObject =
-                    (BMap<String, BValue>) topicSubscriberBObject.get(JmsConstants.CONSUMER_ACTIONS);
+
+            ObjectValue consumerConnectorBObject = topicListenerObj.getObjectValue(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
             consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                    new SessionConnector(session));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error while creating Qeueu consumer", context, e);
+            BallerinaAdapter.throwBallerinaException("Error while creating Qeueu consumer", e);
         }
 
     }
+
 }

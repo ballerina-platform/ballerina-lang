@@ -6,7 +6,8 @@ function workerReturnTest() returns int{
 	    int x = 50;
 	    return x + 1;
     }
-    return (wait wx) + 1;
+    int res = wait wx;
+    return res + 1;
 }
 
 int updateMultiple = 0;
@@ -52,7 +53,8 @@ public function workerSendToWorker() returns int {
       return j;
     }
 
-    return (wait w2) + 1;
+    int res = wait w2;
+    return res + 1;
 }
 
 function workerSendToDefault() returns int{
@@ -71,8 +73,8 @@ function workerSendFromDefault() returns int{
     }
     int x = 50;
     x -> w1;
-
-    return (wait w1) + 1;
+    int res = wait w1;
+    return res + 1;
 }
 
 public function receiveWithTrap() returns error|int {

@@ -12,25 +12,24 @@ public function main (string... args) {
     .foreach(function (record{} k) { globalVar = k;});
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 
 }
+
+string[] types0 = [ "street_number" ];
+string[] types1 = [ "postal_code_suffix" ];
 
 map<record{}[]> data = {
     "address_components": [
         {
             long_name: "1823",
             short_name: "1823",
-            types: <string[]> [
-                "street_number"
-            ]
+            types: types0
         },
         {
             long_name: "CMW",
             short_name: "CMW",
-            types: <string[]> [
-                "postal_code_suffix"
-            ]
+            types: types1
         }
     ]
 };

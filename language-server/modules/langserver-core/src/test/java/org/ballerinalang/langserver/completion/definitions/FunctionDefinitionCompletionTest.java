@@ -55,7 +55,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
                 // Enable the following later
-//                {"functionPointerAsParameter.json", "function"},
+                {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
                 {"matchStatementSuggestions4.json", "function"},
@@ -110,10 +110,10 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinInvocationArgs3.json", "function"},
                 {"completionWithinInvocationArgs4.json", "function"},
                 {"completionWithinInvocationArgs5.json", "function"},
-//                {"completionWithinInvocationArgs6.json", "function"}, //TODO: Fix this
-//                {"completionWithinInvocationArgs7.json", "function"}, //TODO: Fix this
+                {"completionWithinInvocationArgs6.json", "function"},
+                {"completionWithinInvocationArgs7.json", "function"},
                 {"completionWithinInvocationArgs8.json", "function"},
-//                {"completionWithinInvocationArgs9.json", "function"}, //TODO: Fix this
+                {"completionWithinInvocationArgs9.json", "function"},
                 {"completionWithinInvocationArgs10.json", "function"},
                 {"completionWithinInvocationArgs11.json", "function"},
                 {"chainCompletion1.json", "function"},
@@ -131,6 +131,11 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"newObjectCompletion3.json", "function"},
                 {"delimiterBasedCompletionForCompleteSource1.json", "function"},
                 {"delimiterBasedCompletionForCompleteSource2.json", "function"},
+                {"functionParamAnnotationBodyCompletion1.json", "function"},
+                {"functionParamAnnotationBodyCompletion2.json", "function"},
+                {"functionParamAnnotationBodyCompletion3.json", "function"},
+                {"functionParamAnnotationBodyCompletion4.json", "function"},
+                {"completionWithTupleVariableDef.json", "function"},
         };
     }
 }

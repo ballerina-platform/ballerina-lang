@@ -4,12 +4,12 @@ public function main(string... args) {
 }
 
 function testFunctionWithDefaultableParamsOnly(string defaultableInput1 = "x",
-                                               @sensitive string defaultableInput2 = "y") {
+                                               @untainted string defaultableInput2 = "y") {
 
 }
 
 
 function testFunctionRequiredParamAndDefaultableParams(string requiredParam, string defaultableInput1 = "x",
-                                                       @sensitive string defaultableInput2 = "y") {
+                                                       @untainted string defaultableInput2 = "y") {
 
 }

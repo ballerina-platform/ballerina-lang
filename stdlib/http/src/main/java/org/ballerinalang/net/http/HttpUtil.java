@@ -379,7 +379,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -398,7 +398,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
         }
         return responseFuture;
@@ -415,7 +415,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -1302,17 +1302,19 @@ public class HttpUtil {
             }
         }
         if (protocols != null) {
-            List<Object> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayValue(ENABLED_PROTOCOLS).getValues());
-            if (sslEnabledProtocolsValueList.size() > 0) {
-                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Object::toString)
-                        .collect(Collectors.joining(",", "", ""));
-                Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                clientParams.add(clientProtocols);
-            }
-            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
-            if (StringUtils.isNotBlank(sslProtocol)) {
-                sslConfiguration.setSSLProtocol(sslProtocol);
+            Object[] protocolConfig = protocols.getArrayValue(ENABLED_PROTOCOLS).getValues();
+            if (protocolConfig != null) {
+                List<Object> sslEnabledProtocolsValueList = Arrays.asList(protocolConfig);
+                if (sslEnabledProtocolsValueList.size() > 0) {
+                    String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Object::toString)
+                            .collect(Collectors.joining(",", "", ""));
+                    Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                    clientParams.add(clientProtocols);
+                }
+                String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
+                if (StringUtils.isNotBlank(sslProtocol)) {
+                    sslConfiguration.setSSLProtocol(sslProtocol);
+                }
             }
         }
 
@@ -1340,13 +1342,15 @@ public class HttpUtil {
 
         sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
 
-        List<Object> ciphersValueList = Arrays.asList(
-                secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getValues());
-        if (ciphersValueList.size() > 0) {
-            String ciphers = ciphersValueList.stream().map(Object::toString)
-                    .collect(Collectors.joining(",", "", ""));
-            Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
-            clientParams.add(clientCiphers);
+        Object[] cipherConfigs = secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getValues();
+        if (cipherConfigs != null) {
+            List<Object> ciphersValueList = Arrays.asList(cipherConfigs);
+            if (ciphersValueList.size() > 0) {
+                String ciphers = ciphersValueList.stream().map(Object::toString)
+                        .collect(Collectors.joining(",", "", ""));
+                Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
         }
         String enableSessionCreation = String.valueOf(secureSocket
                 .getBooleanValue(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));

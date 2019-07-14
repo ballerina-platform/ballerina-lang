@@ -18,22 +18,16 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set the entity body with JSON data.
@@ -47,16 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
                 type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetJson extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BValue jsonContent = context.getNullableRefArgument(SECOND_PARAMETER_INDEX);
-        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        EntityBodyHandler.addMessageDataSource(entityStruct, jsonContent);
-        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-        context.setReturnValues();
-    }
+public class SetJson {
 
     public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, jsonContent);

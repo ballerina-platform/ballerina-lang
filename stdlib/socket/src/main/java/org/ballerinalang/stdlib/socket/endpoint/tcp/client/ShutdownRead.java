@@ -20,9 +20,9 @@ package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
@@ -55,24 +55,23 @@ public class ShutdownRead extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(0);
-        final SocketChannel socketChannel = (SocketChannel) clientEndpoint.getNativeData(SocketConstants.SOCKET_KEY);
+    }
+
+    public static Object shutdownRead(Strand strand, ObjectValue client) {
+        final SocketChannel socketChannel = (SocketChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
         try {
             // SocketChannel can be null if something happen during the onAccept. Hence the null check.
             if (socketChannel != null) {
                 socketChannel.shutdownInput();
             }
         } catch (ClosedChannelException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Socket already closed"));
-            return;
+            return SocketUtils.createSocketError("Socket is already closed");
         } catch (IOException e) {
             log.error("Unable to shutdown the read", e);
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to shutdown the write"));
-            return;
+            return SocketUtils.createSocketError("Unable to shutdown the write");
         } catch (NotYetConnectedException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Socket not yet connected"));
-            return;
+            return SocketUtils.createSocketError("Socket is not yet connected");
         }
-        context.setReturnValues();
+        return null;
     }
 }

@@ -55,8 +55,8 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
-  public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return findChildByClass(BallerinaEmptyTupleLiteral.class);
+  public BallerinaNilLiteral getNilLiteral() {
+    return findChildByClass(BallerinaNilLiteral.class);
   }
 
   @Override

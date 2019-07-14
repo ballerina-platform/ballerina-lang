@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/jms;
 import ballerina/log;
 
 // This initializes a JMS connection with the provider. This example uses
@@ -19,7 +19,7 @@ jms:Session jmsSession = new(conn, {
 
 // Initializes a durable topic subscriber using the created session.
 listener jms:DurableTopicListener subscriberEndpoint = new(jmsSession,
-    "BallerinaTopic", "sub1");
+    "MyTopic", "sub1");
 
 // Binds the created consumer to the listener service.
 service jmsListener on subscriberEndpoint {

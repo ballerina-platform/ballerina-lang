@@ -25,8 +25,7 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for jms.
@@ -35,44 +34,46 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
  */
 public class JmsConstants {
 
-    public static final String BALLERINA = BALLERINA_BUILTIN_PKG_PREFIX;
+    public static final String BLOCK_SEPARATOR = ":";
+
+    public static final String BALLERINAX = "ballerinax";
+    public static final String VERSION = "0.0.0";
     public static final String JMS = "jms";
-    public static final String PROTOCOL_PACKAGE_JMS = BALLERINA_PACKAGE_PREFIX + JMS;
+    public static final String JMS_VERSION = JMS + BLOCK_SEPARATOR + VERSION;
+    public static final String PROTOCOL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + JMS;
+    public static final String PROTOCOL_PACKAGE_JMS_WITH_VERSION = BALLERINAX + ORG_NAME_SEPARATOR + JMS_VERSION;
 
     // Others
     private static final String COLON = ":";
     public static final String COUNTDOWN_LATCH = "countdown-latch";
 
     // The object types
-    public static final String QUEUE_RECEIVER_OBJ_NAME = "QueueListener";
+    public static final String QUEUE_LISTENER = "QueueListener";
     public static final String QUEUE_RECEIVER_CALLER_OBJ_NAME = "QueueReceiverCaller";
     public static final String MESSAGE_OBJ_NAME = "Message";
-    public static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_JMS + COLON + MESSAGE_OBJ_NAME;
-    public static final String QUEUE_RECEIVER_CALLER_FULL_NAME = PROTOCOL_PACKAGE_JMS + COLON +
+    public static final String MESSAGE_OBJ_FULL_NAME = PROTOCOL_PACKAGE_JMS_WITH_VERSION + COLON + MESSAGE_OBJ_NAME;
+    public static final String QUEUE_RECEIVER_CALLER_FULL_NAME = PROTOCOL_PACKAGE_JMS_WITH_VERSION + COLON +
             QUEUE_RECEIVER_CALLER_OBJ_NAME;
-    public static final String TOPIC_SUBSCRIBER_OBJ_NAME = "TopicListener";
+    public static final String TOPIC_LISTENER_OBJ_NAME = "TopicListener";
     public static final String TOPIC_SUBSCRIBER_CALLER_OBJ_NAME = "TopicSubscriberCaller";
     public static final String TOPIC_SUBSCRIBER_CALLER_FULL_NAME =
-            PROTOCOL_PACKAGE_JMS + COLON + TOPIC_SUBSCRIBER_CALLER_OBJ_NAME;
+            PROTOCOL_PACKAGE_JMS_WITH_VERSION + COLON + TOPIC_SUBSCRIBER_CALLER_OBJ_NAME;
     public static final String CONNECTION_OBJ_NAME = "Connection";
     public static final String SESSION_OBJ_NAME = "Session";
     public static final String QUEUE_SENDER_OBJ_NAME = "QueueSender";
-    public static final String DESTINATION_OBJ_NAME = "Destination";
     public static final String DURABLE_TOPIC_SUBSCRIBER_CALLER_OBJ_NAME = "DurableTopicSubscriberCaller";
     public static final String DURABLE_TOPIC_SUBSCRIBER = "DurableTopicListener";
     public static final String TOPIC_PUBLISHER_OBJ_NAME = "TopicPublisher";
-    public static final String ERROR_OBJ_NAME = "Error";
+    public static final String JMS_DESTINATION_OBJ_NAME = "Destination";
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
 
     // Error fields
     public static final String JMS_ERROR_RECORD = "JMSError";
-    public static final String JMS_ERROR_CODE = "{ballerina/jms}JMSError";
+    public static final String JMS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_JMS + "}JMSError";
+    public static final String ERROR_MESSAGE_FIELD = "message";
 
-    // Common fields
-    public static final String B_OBJECT_FIELD_PRODUCER_ACTIONS = "producerActions";
-    public static final String B_OBJECT_FIELD_CONFIG = "config";
 
     // Method fields
     public static final String METHOD_FIELD_ACTIONS = "actions";
@@ -83,12 +84,6 @@ public class JmsConstants {
 
     // Session fields
     public static final String SESSION_CONFIG = "config";
-
-    // Queue Sender fields
-    public static final String QUEUE_SENDER_FIELD_QUEUE_NAME = "queueName";
-
-    // Topic publisher fields
-    public static final String TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN = "topicPattern";
 
     // Consumer fields
     public static final String CONSUMER_ACTIONS = "consumerActions";
@@ -108,7 +103,6 @@ public class JmsConstants {
     // Used to keep the session wrapper
     public static final String SESSION_CONNECTOR_OBJECT = "jms_session_connector_object";
 
-    public static final String BALLERINA_PACKAGE_JMS = "ballerina/jms";
     public static final String CONFIG_FILE_PATH = "configFilePath";
 
     public static final String PROPERTIES_MAP = "properties";
@@ -151,6 +145,7 @@ public class JmsConstants {
     public static final String NON_DAEMON_THREAD_RUNNING = "non-daemon-thread-running.";
     public static final String ARTEMIS_ICF = "artemis";
 
+    // Warning suppression
 
     private static Map<String, String> mappingParameters;
 
@@ -174,8 +169,6 @@ public class JmsConstants {
     }
 
     public static final Map<String, String> MAPPING_PARAMETERS = Collections.unmodifiableMap(mappingParameters);
-
-    public static final String JMS_DESTINATION_STRUCT_NAME = "Destination";
 
     /**
      * Acknowledge Modes.

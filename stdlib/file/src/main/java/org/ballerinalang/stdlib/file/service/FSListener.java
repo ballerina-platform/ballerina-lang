@@ -18,16 +18,11 @@
 
 package org.ballerinalang.stdlib.file.service;
 
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -46,57 +41,27 @@ import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE;
 public class FSListener implements LocalFileSystemListener {
 
     private static final Logger log = LoggerFactory.getLogger(FSListener.class);
-    private ObjectValue service = null;
+    private Scheduler scheduler;
+    private ObjectValue service;
     private Map<String, AttachedFunction> attachedFunctionRegistry;
 
-    private Map<String, Resource> resourceRegistry;
-    private StructureTypeInfo structInfo = null;
-
-    public FSListener(Map<String, Resource> resourceRegistry, StructureTypeInfo structInfo) {
-        this.resourceRegistry = resourceRegistry;
-        this.structInfo = structInfo;
-    }
-
-    public FSListener(ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
+    public FSListener(Scheduler scheduler, ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
+        this.scheduler = scheduler;
         this.service = service;
         this.attachedFunctionRegistry = resourceRegistry;
     }
 
     @Override
     public void onMessage(LocalFileSystemEvent fileEvent) {
-        //TODO remove following condition once bvm values are removed. This is temp fix to handle both types
-        if (this.structInfo != null) {
-            BValue[] parameters = getSignatureParameters(fileEvent);
-            Resource resource = getResource(fileEvent.getEvent());
-            if (resource != null) {
-                Executor.submit(resource, new DirectoryListenerCallback(), null, null, parameters);
-            } else {
-                log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
-                        .getFileName());
-            }
+        Object[] parameters = getJvmSignatureParameters(fileEvent);
+        AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
+        if (resource != null) {
+            org.ballerinalang.jvm.values.connector.Executor
+                    .submit(scheduler, service, resource.getName(), new DirectoryCallback(), null, parameters);
         } else {
-            Object[] parameters = getJvmSignatureParameters(fileEvent);
-            AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
-            if (resource != null) {
-                org.ballerinalang.jvm.values.connector.Executor.submit(service, resource.getName(),
-                                                                       new DirectoryCallback(), null,
-                                                                       parameters);
-            } else {
-                log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
-                        .getFileName());
-            }
+            log.warn("FileEvent received for unregistered resource: [" + fileEvent.getEvent() + "] " + fileEvent
+                    .getFileName());
         }
-    }
-
-    private BValue[] getSignatureParameters(LocalFileSystemEvent fileEvent) {
-        BMap<String, BValue> eventStruct = new BMap<>(this.structInfo.getType());
-        eventStruct.put(FILE_EVENT_NAME, new BString(fileEvent.getFileName()));
-        eventStruct.put(FILE_EVENT_OPERATION, new BString(fileEvent.getEvent()));
-        return new BValue[] { eventStruct };
-    }
-
-    private Resource getResource(String event) {
-        return resourceRegistry.get(event);
     }
 
     private Object[] getJvmSignatureParameters(LocalFileSystemEvent fileEvent) {

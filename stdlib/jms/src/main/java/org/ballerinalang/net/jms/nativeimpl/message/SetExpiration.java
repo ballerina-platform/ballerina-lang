@@ -20,14 +20,14 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -37,33 +37,27 @@ import javax.jms.Message;
  * Set expiration in the JMS Message.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "setExpiration",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = JmsConstants.MESSAGE_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = "value", type = TypeKind.INT)
-        },
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class SetExpiration extends AbstractBlockingAction {
+public class SetExpiration extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-
-        Struct messageStruct = BallerinaAdapter.getReceiverObject(context);
-        Message message = BallerinaAdapter.getNativeObject(messageStruct,
-                                                           JmsConstants.JMS_MESSAGE_OBJECT,
-                                                           Message.class,
-                                                           context);
-        long value = context.getIntArgument(0);
-
-        try {
-            message.setJMSExpiration(value);
-        } catch (JMSException e) {
-            BallerinaAdapter.returnError("Error when setting expiration", context, e);
-        }
+    public void execute(Context context) {
     }
+
+    public static Object setExpiration(Strand strand, ObjectValue msgObj, long time) {
+        Message message = JmsUtils.getJMSMessage(msgObj);
+        try {
+            message.setJMSExpiration(time);
+        } catch (JMSException e) {
+            return BallerinaAdapter.getError("Error when setting expiration", e);
+        }
+        return null;
+    }
+
 }

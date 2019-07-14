@@ -24,6 +24,9 @@
  import org.ballerinalang.jvm.types.TypeTags;
  import org.ballerinalang.jvm.values.ArrayValue;
 
+ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
+ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
+
  /**
   * Util methods required for jBallerina runtime.
   *
@@ -67,6 +70,31 @@
                  break;
              default:
                  array.append((Object) value);
+         }
+     }
+
+     /**
+      * Check a given int value is within ballerina byte value range.
+      * @param intValue integer value
+      * @return true if within byte value range
+      */
+     public static boolean isByteLiteral(int intValue) {
+         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
+     }
+
+     /**
+      * Keep a function parameter info, required for argument parsing.
+      */
+     public static class ParamInfo {
+         String name;
+         boolean hasDefaultable;
+         BType type;
+         int index = -1;
+
+         public ParamInfo(boolean hasDefaultable, String name, BType type) {
+             this.name = name;
+             this.hasDefaultable = hasDefaultable;
+             this.type = type;
          }
      }
  }

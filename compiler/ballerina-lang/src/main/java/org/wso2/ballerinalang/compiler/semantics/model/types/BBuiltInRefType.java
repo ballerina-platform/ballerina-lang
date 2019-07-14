@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.CHANNEL;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.FUTURE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
@@ -50,7 +49,6 @@ public class BBuiltInRefType extends BType implements ReferenceType {
             case STREAM:
             case MAP:
             case FUTURE:
-            case CHANNEL:
                 return TypeDescriptor.SIG_REFTYPE + getKind().typeName() + ";";
             case ANY:
                 return TypeDescriptor.SIG_ANY;
@@ -85,8 +83,6 @@ public class BBuiltInRefType extends BType implements ReferenceType {
                 return TypeKind.MAP;
             case FUTURE:
                 return TypeKind.FUTURE;
-            case CHANNEL:
-                return TypeKind.CHANNEL;
             default:
                 return TypeKind.OTHER;
         }

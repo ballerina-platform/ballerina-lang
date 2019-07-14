@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.values.BMap;
@@ -35,6 +36,7 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -59,6 +61,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -131,18 +134,32 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceFilePath) {
         if (jBallerinaTestsEnabled()) {
-            return compileOnJBallerina(sourceFilePath);
+            return compileOnJBallerina(sourceFilePath, false);
         }
         return compile(sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
-    private static void runInit(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
+    // This is a temp fix until service test are fix
+    public static CompileResult compile(boolean temp, String sourceFilePath) {
+        return compileOnJBallerina(sourceFilePath, temp);
+    }
+
+    private static void runInit(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader, boolean temp) {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        runOnSchedule(initClazz, bLangPackage.initFunction.name);
-        runOnSchedule(initClazz, bLangPackage.startFunction.name);
+        if (temp) {
+            final Scheduler scheduler = new Scheduler(4, false);
+            runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
+            runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
+            scheduler.immortal = true;
+            new Thread(scheduler::start).start();
+
+        } else {
+            runOnSchedule(initClazz, bLangPackage.initFunction.name);
+            runOnSchedule(initClazz, bLangPackage.startFunction.name);
+        }
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
@@ -166,6 +183,42 @@ public class BCompileUtil {
             }
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         } catch (Exception e) {
+            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+        }
+    }
+
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            Scheduler scheduler = scheduler1;
+            //TODO fix following method invoke to scheduler.schedule()
+            Function<Object[], Object> func = objects -> {
+                try {
+                    return method.invoke(null, objects[0]);
+                } catch (InvocationTargetException e) {
+                    throw (RuntimeException) e.getTargetException();
+                } catch (IllegalAccessException e) {
+                    throw new BallerinaException("Method has private access", e);
+                }
+            };
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            scheduler.start();
+            final Throwable t = out.panic;
+            if (t != null) {
+                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                }
+                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                }
+                if (t instanceof ErrorValue) {
+                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
+                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
+                }
+                throw (RuntimeException) t;
+            }
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
     }
@@ -244,7 +297,7 @@ public class BCompileUtil {
             effectiveSource = pkgId.getName().getValue();
 
             if (jBallerinaTestsEnabled()) {
-                return compileOnJBallerina(rootPath.toString(), effectiveSource);
+                return compileOnJBallerina(rootPath.toString(), effectiveSource, false);
             }
 
             return compile(rootPath.toString(), effectiveSource, CompilerPhase.CODE_GEN);
@@ -601,15 +654,16 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName);
+        return compileOnJBallerina(context, sourceRoot, packageName, false);
     }
 
-    public static CompileResult compileOnJBallerina(String sourceRoot, String packageName) {
+    public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp);
     }
 
-    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName) {
+    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+            boolean temp) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -632,7 +686,7 @@ public class BCompileUtil {
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
-            runInit(bLangPackage, cl);
+            runInit(bLangPackage, cl, temp);
 
             return compileResult;
 
@@ -641,7 +695,7 @@ public class BCompileUtil {
         }
     }
 
-    public static void runMain(CompileResult compileResult, String[] args) {
+    public static void runMain(CompileResult compileResult, String[] args) throws Throwable {
         String initClassName = BFileUtil.getQualifiedClassName(((BLangPackage)
                 compileResult.getAST()).packageID.orgName.value,
                 ((BLangPackage) compileResult.getAST()).packageID.name.value, MODULE_INIT_CLASS_NAME);
@@ -650,16 +704,21 @@ public class BCompileUtil {
         try {
             mainMethod = initClazz.getDeclaredMethod("main", String[].class);
             mainMethod.invoke(null, (Object) args);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof ErrorValue) {
+                throw e.getTargetException();
+            }
+            throw new RuntimeException("Main method invocation failed", e);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
 
     }
 
-    private static CompileResult compileOnJBallerina(String sourceFilePath) {
+    private static CompileResult compileOnJBallerina(String sourceFilePath, boolean temp) {
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
-        return compileOnJBallerina(sourceRoot.toString(), packageName);
+        return compileOnJBallerina(sourceRoot.toString(), packageName, temp);
     }
 }

@@ -18,22 +18,15 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
@@ -48,16 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
                 type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetText extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        String textContent = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        String contentType = context.getStringArgument(SECOND_PARAMETER_INDEX);
-        EntityBodyHandler.addMessageDataSource(entityStruct, new BString(textContent));
-        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-        context.setReturnValues();
-    }
+public class SetText {
 
     public static void setText(Strand strand, ObjectValue entityObj, String textContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, textContent);

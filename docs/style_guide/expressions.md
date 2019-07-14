@@ -4,8 +4,7 @@
 
 * Do not keep spaces between the function name and opening parentheses `(`.
   
-* If it is unable to keep the function invocation in a single line due to it exceeding the max line length,
-  split each argument on to its own block-indented line.
+* If it is unable to keep the function invocation in a single line due to it exceeding the max line length, split each argument to its own block-indented line.
     
     Example,
     ```ballerina
@@ -24,14 +23,14 @@
   ```ballerina
   Person p = {};
   ```
-* In a record literal, fields can be arranged on a single line.
-  Then, add space after the comma and leave no spaces between braces and fields.
+* In a record literal, arrange the fields in a single line.
+  Then, add a space after the comma and leave no spaces between the braces and fields.
       
   Example,
   ```ballerina  
   Person p = {name: "john", age: 20};
   ``` 
-* Do not keep any spaces between the key and the colon and also Keep only one space between the colon and the value.
+* Do not keep any spaces between the key and the colon. Also, Keep only one space between the colon and the value.
   
   Example,
   ```ballerina
@@ -39,17 +38,16 @@
       name: "john", // in this field Key is the "name" and value is "john".
   };
   ```
-* You can define the fields in new lines if so make sure all the fields are in a separate line and they
-  are block indented.
+* You can define the fields in new lines. If so, make sure all the fields are in a separate line and they are block indented.
 
-  Dos
+  **Do's**
   ```ballerina
   Person p = {
       name: "john",
       age: 20
   };
   ``` 
-  Don'ts
+  **Don'ts**
   ```ballerina
   Person p = {name: "john",
       age: 20};
@@ -92,8 +90,7 @@
   ```ballerina
   (string, int) tuple = ("john", 20);
   ```
-* If a tuple exceeds the maximum line length limit, move the whole tuple to a new line
-  and indent with four spaces from the start position of the statement or definition.
+* If a tuple exceeds the maximum line length limit, move the whole tuple to a new line and indent with four spaces from the starting position of the statement or definition.
   
   Example,
   ```ballerina
@@ -104,14 +101,13 @@
 ## Array literals
 
 * Place simple arrays in a single line.
-* Do not keep any spaces between the opening bracket and value and the closing bracket.
+* Do not keep any spaces between the opening bracket, value, and the closing bracket.
   
     Example,
     ```ballerina
     string[] names = ["john", "doe", "jane", "doe"];
     ```
-* If an array cannot be placed on a single line due to it exceeding the max line length,
-  split each value in the array to its own block-indented line.
+* If an array cannot be placed on a single line due to it exceeding the max line length, split each value in the array to its own block-indented line.
     
     Example,
     ```ballerina
@@ -135,12 +131,12 @@
   ```
 * Avoid line breaks in type casting.
   
-  Dos
+  **Do's**
   ```ballerina
   <string>
   ```
   
-  Don'ts
+  **Don'ts**
   ```ballerina
   <
       string
@@ -148,7 +144,7 @@
   ```
 ## Table literal
 
-* Follow [record literals](#record-literals) formatting when formatting table block.
+* Follow [record literals](#record-literals) formatting when formatting a table block.
   
   Example,
   ```ballerina

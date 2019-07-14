@@ -20,32 +20,33 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgementHandler;
 
 /**
  * {@code Send} is the send action implementation of the JMS Connector.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX,
                    packageName = JmsConstants.JMS,
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   args = {@Argument(name = "message", type = TypeKind.OBJECT,
-                                     structType = JmsConstants.MESSAGE_OBJ_NAME)},
-                   isPublic = true
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class Acknowledge extends AbstractBlockingAction {
+public class Acknowledge extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        MessageAcknowledgementHandler.handle(context);
+    public void execute(Context context) {
     }
+
+    public static Object acknowledge(Strand strand, ObjectValue topicSubscriber, ObjectValue msgObj) {
+        return MessageAcknowledgementHandler.handle(topicSubscriber, msgObj);
+    }
+
 }

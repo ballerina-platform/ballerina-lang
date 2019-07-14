@@ -44,10 +44,10 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
             {"serviceBodyCompletion4.json", "service"},
             {"serviceBodyCompletion5.json", "service"},
             {"serviceBodyCompletion6.json", "service"},
+            {"serviceBodyCompletion7.json", "service"},
             {"serviceVariableAndFieldsCompletion1.json", "service"},
             {"httpServiceBodyResourceCompletion.json", "service"},
             {"websocketServiceBodyResourceCompletion.json", "service"},
-                // Enable later with the web sub module introduced
 //            {"websubServiceBodyResourceCompletion.json", "service"},
             {"grpcServiceBodyResourceCompletion.json", "service"},
             {"serviceDefinitionContextSuggestion1.json", "service"},

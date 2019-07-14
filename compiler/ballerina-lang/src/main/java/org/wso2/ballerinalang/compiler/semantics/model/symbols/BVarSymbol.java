@@ -47,6 +47,11 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
      */
     public RegIndex varIndex;
 
+    /**
+     * This indicate the indicated (by programmer) taintedness of a variable.
+     */
+    public TaintabilityAllowance taintabilityAllowance = TaintabilityAllowance.IGNORED;
+
     public BVarSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
         super(VARIABLE, flags, name, pkgID, type, owner);
     }
@@ -54,5 +59,12 @@ public class BVarSymbol extends BSymbol implements VariableSymbol {
     @Override
     public Object getConstValue() {
         return null;
+    }
+
+    /**
+     * Indicate the allowed taintedness marked for a given variable.
+     */
+    public enum TaintabilityAllowance {
+        TAINTED, UNTAINTED, IGNORED
     }
 }

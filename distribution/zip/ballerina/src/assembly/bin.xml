@@ -107,7 +107,6 @@
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-filepath:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
-                <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
@@ -118,11 +117,9 @@
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
-                <include>org.ballerinalang:ballerina-mysql:jar</include>
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
                 <include>org.ballerinalang:ballerina-runtime-api:jar</include>
-                <include>org.ballerinalang:ballerina-sql:jar</include>
                 <include>org.ballerinalang:ballerina-streams:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
                 <include>org.ballerinalang:ballerina-task:jar</include>
@@ -130,7 +127,7 @@
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
-                <include>org.ballerinalang:ballerina-privacy:jar</include>
+                <include>org.ballerinalang:ballerina-xslt:jar</include>
                 <include>org.ballerinalang:ballerina-nats:jar</include>
                 <include>org.ballerinalang:ballerina-jwt:jar</include>
                 <include>org.ballerinalang:ballerina-ldap:jar</include>
@@ -143,7 +140,6 @@
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
 
-                <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
@@ -182,6 +178,8 @@
                 <include>org.quartz-scheduler:quartz</include>
                 <include>org.quartz-scheduler:quartz-jobs</include>
                 <include>org.jvnet.mimepull:mimepull</include>
+                <include>org.bouncycastle:bcprov-jdk15on</include>
+                <include>org.bouncycastle:bcpkix-jdk15on</include>
                 <include>com.h2database:h2</include>
                 <include>io.ballerina.messaging:broker-core</include>
                 <include>io.ballerina.messaging:broker-common</include>

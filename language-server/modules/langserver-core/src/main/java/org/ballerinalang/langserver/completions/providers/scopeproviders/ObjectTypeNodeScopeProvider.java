@@ -18,19 +18,24 @@
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
@@ -46,7 +51,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -79,10 +83,17 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             return completionItems;
         }
 
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         List<CommonToken> lhsDefaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
 
         if (this.isAnnotationAttachmentContext(context)) {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(context);
+        }
+        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+            return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
         if (!lhsDefaultTokens.isEmpty() && lhsDefaultTokens.get(0).getType() == BallerinaParser.MUL) {
@@ -95,15 +106,21 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             fillTypes(context, completionItems);
             completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(context));
             completionItems.add(Snippet.DEF_FUNCTION.get().build(context));
-            completionItems.add(Snippet.DEF_NEW_OBJECT_INITIALIZER.get().build(context));
+            completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_START_FUNCTION.get().build(context));
+            completionItems.add(Snippet.DEF_STOP_FUNCTION.get().build(context));
+            completionItems.add(Snippet.KW_PUBLIC.get().build(context));
         }
+
+        ItemSorters.get(DefaultItemSorter.class).sortItems(context, completionItems);
 
         return completionItems;
     }
 
     private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
         List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
-                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
+                .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
