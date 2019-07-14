@@ -49,7 +49,7 @@ public type JdbcClient client object {
     # + return - A `UpdateResult` with the updated row count and key column values,
     #            else `Error` will be returned if there is any error
     public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                               returns UpdateResult|Error {
+                                  returns UpdateResult|Error {
         return nativeUpdate(self, sqlQuery, keyColumns, ...parameters);
     }
 
@@ -58,17 +58,19 @@ public type JdbcClient client object {
     # + sqlQuery - SQL statement to execute
     # + parameters - Variable number of parameter arrays each representing the set of parameters of belonging to each
     #                individual update
-    # + return - An `int[]` - The elements in the array returned by the operation may be one of the following  or else
-    #            an `Error` will be returned if there is any error.
-    #            A number greater than or equal to zero - indicates that the command was processed successfully
-    #                                                     and is an update count giving the number of rows
-    #            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
-    #                            is unknown
-    #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
-    #                            continues to process commands after a command fails
-    public remote function batchUpdate(@untainted string sqlQuery, Param?[]... parameters)
-                                    returns int[]|Error {
-        return nativeBatchUpdate(self, sqlQuery, ...parameters);
+    # + rollbackAllInFailure - If one of the commands in a batch update fails to execute properly, the JDBC driver
+    #           may or may not continue to process the remaining commands in the batch.  But this property can be
+    #           used to override this behavior.  If it is sets to true, if there is a failure in few commands and
+    #           JDBC driver continued with the remaining commands, the successfully executed commands in the batch
+    #           also will get rollback.
+    # + return - A `BatchUpdateResult` with the updated row count and returned error. If all the commands in the batch
+    #                has executed successfully, the error will be `nil`. If one or more commands has failed, the
+    #               `returnedError` field will give the correspoing `JdbcClientError` along with the int[] which
+    #                conains updated row count or the status returned from the each command in the batch.
+    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
+                                       Param?[]... parameters)
+                                       returns BatchUpdateResult {
+        return nativeBatchUpdate(self, sqlQuery, rollbackAllInFailure, ...parameters);
     }
 };
 
@@ -78,11 +80,12 @@ function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc
 function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|Error = external;
 
-function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, string[]? keyColumns = (),
-                             Param... parameters) returns UpdateResult|Error = external;
+function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
+    returns UpdateResult|Error = external;
 
-function nativeBatchUpdate(JdbcClient sqlClient, @untainted string sqlQuery, Param?[]... parameters)
-    returns int[]|Error = external;
+function nativeBatchUpdate(JdbcClient sqlClient, @untainted string sqlQuery, boolean rollbackAllInFailure,
+    Param?[]... parameters)
+    returns BatchUpdateResult = external;
 
 function createClient(ClientEndpointConfig config, PoolOptions globalPoolOptions) returns JdbcClient = external;
 

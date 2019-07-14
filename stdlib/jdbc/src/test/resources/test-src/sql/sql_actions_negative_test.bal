@@ -155,7 +155,7 @@ function testUpdateReslt() returns int|string {
     return ret;
 }
 
-function testBatchUpdate() returns string {
+function testBatchUpdate() returns [string, int, int] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -181,24 +181,30 @@ function testBatchUpdate() returns string {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
-    if (x is int[]) {
-        updateCount = x;
-        if (updateCount[0] == -3 && updateCount[1] == -3) {
-            returnVal = "failure";
-        } else {
-            returnVal = "success";
-        }
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)",false, parameters1, parameters2);
+
+    int batch1Status = 0;
+    int batch2Status = 0;
+    error? e = x.returnedError;
+    if (e is ()) {
+        returnVal = returnVal + "success";
     } else {
-        error e = x;
-        returnVal = <string> e.detail()["message"];
+        returnVal = returnVal + <string> e.detail()["message"];
+    }
+    updateCount = x.updatedRowCount;
+    if (updateCount[0] == -3 && updateCount[1] == -3) {
+        returnVal = returnVal + "failure";
+        batch1Status = updateCount[0];
+        batch2Status = updateCount[1];
+    } else {
+        returnVal = returnVal + "success";
     }
     checkpanic testDB.stop();
-    return returnVal;
+    return [returnVal, batch1Status, batch2Status];
 }
 
-function testErrorWithBatchUpdate() returns @tainted [string, boolean, boolean, boolean] {
+function testErrorWithBatchUpdate() returns @tainted [string, string, boolean, boolean, boolean] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -222,14 +228,26 @@ function testErrorWithBatchUpdate() returns @tainted [string, boolean, boolean, 
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+                                     values (?,?,?,?,?)", false, parameters1, parameters2);
+
+    string returnVal = "";
+    int[] updateCount = x.updatedRowCount;
+    if (updateCount[0] == -3 && updateCount[1] == -3) {
+        returnVal = "array values are -3 ";
+    } else {
+        returnVal = "success";
+    }
+
     string reason = "";
     boolean isMessageExist = false;
     boolean isSqlErrorCodeExist = false;
     boolean isSqlStateExist = false;
-    if (x is jdbc:Error) {
-        error e = x;
+
+    error? e = x.returnedError;
+    if (e is ()) {
+        returnVal = "success";
+    } else {
         reason = e.reason();
         if (e.detail()["message"] is string) {
             isMessageExist = true;
@@ -243,7 +261,7 @@ function testErrorWithBatchUpdate() returns @tainted [string, boolean, boolean, 
     }
 
     checkpanic testDB.stop();
-    return [reason, isMessageExist, isSqlErrorCodeExist, isSqlStateExist];
+    return [returnVal, reason, isMessageExist, isSqlErrorCodeExist, isSqlStateExist];
 }
 
 function testInvalidArrayofQueryParameters() returns @tainted string {
