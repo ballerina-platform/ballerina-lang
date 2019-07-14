@@ -48,12 +48,15 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final SQLDatasource datasource;
     private final String query;
     private final ArrayValue parameters;
+    private final boolean rollbackAllInFailure;
 
-    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters) {
+    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
+                                boolean rollbackAllInFailure, ArrayValue parameters) {
         this.client = client;
         this.datasource = datasource;
         this.query = query;
         this.parameters = parameters;
+        this.rollbackAllInFailure = rollbackAllInFailure;
     }
 
     @Override
@@ -94,13 +97,12 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // the batch which come after the command that failed.
             // We could have rolled back the connection to keep a consistent behavior in Ballerina regardless of
             // the driver. But, in Ballerina, we've decided to honor whatever the behavior of the driver and
-            // avoid rolling back the connection, because a Ballerina developer might have a requirement to
-            // ignore a few failed commands in the batch and let the rest of the commands run if driver allows it.
+            // decide it based on the user input of `rollbackAllInFailure` property, because a Ballerina developer
+            // might have a requirement to ignore a few failed commands in the batch and let the rest of the commands
+            // run if driver allows it.
             updatedCount = e.getUpdateCounts();
-            return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(updatedCount, paramArrayCount), null);
-        } catch (SQLException e) {
             if (conn != null) {
-                if (!isInTransaction) {
+                if (!isInTransaction && rollbackAllInFailure) {
                     try {
                         conn.rollback();
                     } catch (SQLException ex) {
@@ -108,30 +110,19 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     }
                 }
             }
+            return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(updatedCount, paramArrayCount),
+                    SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
+        } catch (SQLException e) {
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (DatabaseException e) {
-            if (!isInTransaction) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
-                }
-            }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (ApplicationException e) {
-            if (!isInTransaction) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
-                }
-            }
             // handleErrorOnTransaction(context);
             // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),

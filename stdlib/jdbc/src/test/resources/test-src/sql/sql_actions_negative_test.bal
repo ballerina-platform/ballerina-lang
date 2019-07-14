@@ -142,7 +142,7 @@ function testUpdateReslt() returns int|string {
     return ret;
 }
 
-function testBatchUpdate() returns string {
+function testBatchUpdate() returns [string, int, int] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -169,24 +169,27 @@ function testBatchUpdate() returns string {
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
+                                     values (?,?,?,?,?)",false, parameters1, parameters2);
 
-
+    int batch1Status = 0;
+    int batch2Status = 0;
     error? e = x.returnedError;
     if(e is ())
     {
-        returnVal = "success";
+        returnVal = returnVal + "success";
     } else {
-        returnVal = <string> e.detail().message;
+        returnVal = returnVal + <string> e.detail().message;
     }
     updateCount = x.updatedRowCount;
     if (updateCount[0] == -3 && updateCount[1] == -3) {
-        returnVal = "failure";
+        returnVal = returnVal + "failure";
+        batch1Status = updateCount[0];
+        batch2Status = updateCount[1];
     } else {
-        returnVal = "success";
+        returnVal = returnVal + "success";
     }
     checkpanic testDB.stop();
-    return returnVal;
+    return [returnVal, batch1Status, batch2Status];
 }
 
 function testErrorWithBatchUpdate() returns string {
@@ -216,7 +219,7 @@ function testErrorWithBatchUpdate() returns string {
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", parameters1, parameters2);
+                                     values (?,?,?,?,?)", false, parameters1, parameters2);
 
     updateCount = x.updatedRowCount;
     if (updateCount[0] == -3 && updateCount[1] == -3) {

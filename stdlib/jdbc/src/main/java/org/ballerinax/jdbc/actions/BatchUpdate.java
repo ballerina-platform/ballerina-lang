@@ -46,9 +46,10 @@ public class BatchUpdate extends BlockingNativeCallableUnit {
     }
 
     public static MapValue<String, Object> nativeBatchUpdate(Strand strand, ObjectValue client, String sqlQuery,
-                                                             ArrayValue parameters) {
+                                                             boolean rollbackAllInFailure, ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters);
+        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, rollbackAllInFailure,
+                parameters);
         return (MapValue<String, Object>) batchUpdateStatement.execute();
     }
 }

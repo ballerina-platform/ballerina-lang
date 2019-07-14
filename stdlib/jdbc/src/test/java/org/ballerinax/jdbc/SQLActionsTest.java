@@ -389,6 +389,8 @@ public class SQLActionsTest {
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -3);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), -3);
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed batch update")
