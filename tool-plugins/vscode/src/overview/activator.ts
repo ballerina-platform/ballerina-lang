@@ -64,11 +64,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			if (!window.activeTextEditor) {
 				return;
 			}
-			const currentUri = window.activeTextEditor.document.fileName;
-			const sourceRoot = getSourceRoot(currentUri, path.parse(currentUri).root);
+			const currentFilePath = window.activeTextEditor.document.fileName;
+			const sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
 
-			if (!sourceRoot) {
-				return;
+			const options : {
+				currentUri: string,
+				sourceRootUri?: string,
+			} = {
+				currentUri: Uri.file(currentFilePath).toString(),
+			};
+
+			if (sourceRoot) {
+				options.sourceRootUri = Uri.file(sourceRoot).toString();
 			}
 
 			const didChangeDisposable = workspace.onDidChangeTextDocument(
@@ -89,7 +96,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             }
 
 			rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
-			const html = render(context, langClient, Uri.file(sourceRoot).toString());
+			const html = render(context, langClient, options);
 			if (overviewPanel && html) {
 				overviewPanel.webview.html = html;
 			}
