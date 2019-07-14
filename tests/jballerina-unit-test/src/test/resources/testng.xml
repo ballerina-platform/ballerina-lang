@@ -111,6 +111,7 @@
             <!--<package name="org.ballerinalang.test.record.*"/>-->
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <!--<package name="org.ballerinalang.test.types.handle.*"/>-->
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typecast.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
@@ -118,7 +119,7 @@
             <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
             <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
-            <!--<package name="org.ballerinalang.test.statements.transaction.*"/>-->
+            <!--<package name="org.ballerinalang.test.statements.transaction.*"/> -->
         </packages>
 
         <classes>
@@ -139,7 +140,16 @@
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
             <!--<class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>-->
-            <class name="org.ballerinalang.test.expressions.binaryoperations.IntegerRangeOperatorTest"/>
+            <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
+                <methods>
+                    <exclude name="testAsyncNonNativeBasic6" />
+                    <exclude name="testAsyncNonNativeBasic7" />
+                    <exclude name="testAsyncNonNativeBasic8" />
+                    <exclude name="testAsyncNonNativeBasic9" />
+                    <exclude name="testAsyncNonNativeBasic10" />
+                    <exclude name="testAsyncNonNativeBasic11" />
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

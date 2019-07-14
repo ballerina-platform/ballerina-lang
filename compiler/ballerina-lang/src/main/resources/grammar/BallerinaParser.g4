@@ -218,6 +218,7 @@ fieldDescriptor
 simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
+    |   TYPE_HANDLE
     |   valueTypeName
     |   referenceTypeName
     |   nilLiteral
