@@ -21,7 +21,9 @@ package org.ballerinalang.stdlib.socket.tcp;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.stdlib.socket.SocketConstants;
 
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -30,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CLIENT;
+import static org.ballerinalang.stdlib.socket.SocketConstants.ErrorCode.GenericError;
 import static org.ballerinalang.stdlib.socket.SocketConstants.ID;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_ADDRESS;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LOCAL_PORT;
@@ -46,10 +49,33 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
  */
 public class SocketUtils {
 
-    private static final String SOCKET_ERROR_CODE = "{ballerina/socket}SocketError";
+    private static final String PACKAGE_SOCKET = "ballerina/socket";
+    private static final String DETAIL_RECORD_TYPE_NAME = "Detail";
 
+    /**
+     * Create Generic socket error with given error message.
+     *
+     * @param errMsg the error message
+     * @return ErrorValue instance which contains the error details
+     */
     public static ErrorValue createSocketError(String errMsg) {
-        return BallerinaErrors.createError(SOCKET_ERROR_CODE, errMsg);
+        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(errMsg, null));
+    }
+
+    /**
+     * Create socket error with given error code and message.
+     *
+     * @param code   the error code which cause for this error
+     * @param errMsg the error message
+     * @return ErrorValue instance which contains the error details
+     */
+    public static ErrorValue createSocketError(SocketConstants.ErrorCode code, String errMsg) {
+        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errMsg, null));
+    }
+
+    private static MapValue<String, Object> createDetailRecord(Object... values) {
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(PACKAGE_SOCKET, DETAIL_RECORD_TYPE_NAME);
+        return BallerinaValues.createRecord(detail, values);
     }
 
     /**

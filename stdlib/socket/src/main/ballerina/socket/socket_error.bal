@@ -14,9 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# SocketError will return in a socket related error situation.
-#
-# + message - the cause for the error
-public type SocketError record {|
-    string message = "";
-|};
+type Detail record {
+    string message?;
+    error cause?;
+    (anydata|error)...;
+};
+
+public const READ_TIMED_OUT = "{ballerina/socket}ReadTimedOut";
+public type ReadTimedOutError error<READ_TIMED_OUT, Detail>;
+
+public const GENERIC_ERROR = "{ballerina/socket}GenericError";
+public type GenericError error<GENERIC_ERROR, Detail>;
+
+public type Error GenericError|ReadTimedOutError;

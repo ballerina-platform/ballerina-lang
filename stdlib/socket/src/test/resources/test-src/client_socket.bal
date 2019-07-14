@@ -24,11 +24,12 @@ function oneWayWrite(string msg) {
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
     } else {
-        panic writeResult;
+        panic <error> writeResult;
     }
     var closeResult = socketClient->close();
     if (closeResult is error) {
-        string? errMsg = closeResult.detail()?.message;
+        error closeResultError = closeResult;
+        string? errMsg = closeResultError.detail()?.message;
         io:println(errMsg is string ? errMsg : "Error in socket client close");
     } else {
         io:println("Client connection closed successfully.");
@@ -42,11 +43,11 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
     } else {
-        panic writeResult;
+        panic <error> writeResult;
     }
     var shutdownResult = socketClient->shutdownWrite();
     if (shutdownResult is error) {
-        panic shutdownResult;
+        panic <error> shutdownResult;
     }
     msgByteArray = secondMsg.toBytes();
     writeResult = socketClient->write(msgByteArray);
@@ -55,7 +56,8 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     } else {
         var closeResult = socketClient->close();
         if (closeResult is error) {
-            string? errMsg = closeResult.detail()?.message;
+            error closeResultError = closeResult;
+            string? errMsg = closeResultError.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
         } else {
             io:println("Client connection closed successfully.");
@@ -73,8 +75,9 @@ function echo(string msg) returns string {
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
     } else {
-        io:println("echo panic", writeResult);
-        panic writeResult;
+        error writeResultError = writeResult;
+        io:println("echo panic", writeResultError);
+        panic writeResultError;
     }
     var result = socketClient->read();
     if (result is [byte[], int]) {
@@ -90,7 +93,8 @@ function echo(string msg) returns string {
             }
             var closeResult = socketClient->close();
             if (closeResult is error) {
-                string? errMsg = closeResult.detail()?.message;
+                error closeResultError = closeResult;
+                string? errMsg = closeResultError.detail()?.message;
                 io:println(errMsg is string ? errMsg : "Error in socket client");
             } else {
                 io:println("Client connection closed successfully.");
@@ -99,7 +103,7 @@ function echo(string msg) returns string {
             io:println("Client close: ", socketClient.remotePort);
         }
     } else {
-        io:println(result);
+        io:println(<error> result);
     }
     return returnStr;
 }
