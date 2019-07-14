@@ -180,7 +180,7 @@ function writeStateToFile(string persistancePath) returns error? {
     int currentTimeMillis = ct.time;
 
     if (!system:exists(persistancePath)) {
-        string|error e = system:createDir(persistancePath, parentDirs = true);
+        string|error e = system:createDir(persistancePath, true);
     }
     string path = check filepath:build(persistancePath, currentTimeMillis.toString());
     if (!system:exists(path)) {
