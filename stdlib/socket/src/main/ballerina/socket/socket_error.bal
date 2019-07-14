@@ -17,7 +17,6 @@
 type Detail record {
     string message?;
     error cause?;
-    (anydata|error)...;
 };
 
 public const READ_TIMED_OUT = "{ballerina/socket}ReadTimedOut";
