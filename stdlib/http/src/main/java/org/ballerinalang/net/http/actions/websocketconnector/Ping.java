@@ -30,7 +30,8 @@ import org.ballerinalang.net.http.WebSocketUtil;
 
 import java.nio.ByteBuffer;
 
-import static org.ballerinalang.net.http.WebSocketUtil.getError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.ConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -57,7 +58,7 @@ public class Ping {
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(null, e.getMessage()));
+            callback.setReturnValues(createWebSocketError(ConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

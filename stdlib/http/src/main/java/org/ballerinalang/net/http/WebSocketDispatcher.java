@@ -54,7 +54,6 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
-import static org.ballerinalang.net.http.WebSocketUtil.getError;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -328,7 +327,7 @@ public class WebSocketDispatcher {
         if (errMsg == null) {
             errMsg = "Unexpected internal error";
         }
-        bValues[2] = getError(null, errMsg);
+        bValues[2] = WebSocketUtil.createWebSocketError(errMsg);
         bValues[3] = true;
         //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {

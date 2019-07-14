@@ -28,7 +28,8 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 
-import static org.ballerinalang.net.http.WebSocketUtil.getError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.ConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -58,12 +59,12 @@ public class Ready {
                 callback.setReturnValues(null);
             } else {
                 //TODO remove this call back
-                callback.setReturnValues(getError(null, "Already started reading frames"));
+                callback.setReturnValues(WebSocketUtil.createWebSocketError("Already started reading frames"));
             }
             callback.notifySuccess();
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(null, e.getMessage()));
+            callback.setReturnValues(createWebSocketError(ConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

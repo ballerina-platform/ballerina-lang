@@ -29,7 +29,8 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
-import static org.ballerinalang.net.http.WebSocketUtil.getError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.InvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code CancelWebSocketUpgrade} is the action to cancel a WebSocket upgrade.
@@ -52,31 +53,24 @@ public class CancelWebSocketUpgrade {
                                                 String reason) {
         //TODO : NonBlockingCallback is used to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
-
-        try {
-            WebSocketHandshaker webSocketHandshaker =
-                    (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
-            if (webSocketHandshaker == null) {
-                throw new WebSocketException("Not a WebSocket upgrade request. Cannot cancel the request");
-            }
-            ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason);
-            future.addListener((ChannelFutureListener) channelFuture -> {
-                Throwable cause = future.cause();
-                if (!future.isSuccess() && cause != null) {
-                    callback.setReturnValues(getError(null, cause.getMessage()));
-                } else {
-                    callback.setReturnValues(null);
-                }
-                if (channelFuture.channel().isOpen()) {
-                    channelFuture.channel().close();
-                }
-                callback.notifySuccess();
-            });
-        } catch (Exception e) {
-            //Return this error.
-            callback.setReturnValues(getError(null, e.getMessage()));
-            callback.notifySuccess();
+        WebSocketHandshaker webSocketHandshaker =
+                (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        if (webSocketHandshaker == null) {
+            throw new WebSocketException("Not a WebSocket upgrade request. Cannot cancel the request");
         }
+        ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason);
+        future.addListener((ChannelFutureListener) channelFuture -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                callback.setReturnValues(createWebSocketError(InvalidHandshakeError, cause.getMessage()));
+            } else {
+                callback.setReturnValues(null);
+            }
+            if (channelFuture.channel().isOpen()) {
+                channelFuture.channel().close();
+            }
+            callback.notifySuccess();
+        });
         return null;
     }
 

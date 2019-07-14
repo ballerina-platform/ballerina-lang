@@ -35,7 +35,8 @@ public type InvalidContinuationFrameError error<INVALID_CONTINUATION_FRAME_ERROR
 public const GENERIC_ERROR = "{ballerina/http}GenericError";
 public type GenericError error<GENERIC_ERROR, Detail>;
 
-public type WebSocketError ConnectionClosureError|InvalidHandshakeError|PayloadTooBigError|ProtocolError|ConnectionError|InvalidContinuationFrameError|GenericError;
+public type WebSocketError ConnectionClosureError|InvalidHandshakeError|PayloadTooBigError|ProtocolError|
+ConnectionError|InvalidContinuationFrameError|GenericError;
 
 public type Detail record {
     string message;

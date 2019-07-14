@@ -31,7 +31,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.net.http.WebSocketUtil.getError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.ConnectionClosureError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.ConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -66,7 +68,7 @@ public class Close {
             });
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(null, e.getMessage()));
+            callback.setReturnValues(createWebSocketError(ConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
@@ -88,9 +90,9 @@ public class Close {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.setReturnValues(getError(null, cause.getMessage()));
+                strand.setReturnValues(createWebSocketError(ConnectionClosureError, cause.getMessage()));
                 //TODO remove this call back
-                callback.setReturnValues(getError(null, cause.getMessage()));
+                callback.setReturnValues(createWebSocketError(ConnectionClosureError, cause.getMessage()));
             } else {
                 strand.setReturnValues(null);
                 //TODO remove this call back
@@ -112,12 +114,13 @@ public class Close {
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
                     //TODO remove this call back
-                    callback.setReturnValues(getError(null, errMsg));
+                    callback.setReturnValues(createWebSocketError(ConnectionClosureError, errMsg));
                 }
             }
         } catch (InterruptedException err) {
             //TODO remove this call back
-            callback.setReturnValues(getError(null, "Connection interrupted while closing the connection"));
+            callback.setReturnValues(createWebSocketError(ConnectionClosureError,
+                    "Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();
         }
     }
