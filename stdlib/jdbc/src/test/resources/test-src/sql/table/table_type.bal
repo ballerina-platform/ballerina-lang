@@ -560,12 +560,15 @@ function testArrayDataInsertAndPrint() returns [int, int, int, int, int, int] {
     int updatedCount = -1;
     if (updateRet is jdbc:UpdateResult) {
         updatedCount = updateRet.updatedRowCount;
+    } else {
+       error e = updateRet;
+       io:println(<string> e.detail().message);
     }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
     if (dtRet is table<ResultMap>) {
         while (dtRet.hasNext()) {
-            var rs =dtRet.getNext();
+            var rs = dtRet.getNext();
             if (rs is ResultMap) {
                 io:println(rs.INT_ARRAY);
                 intArrLen = rs.INT_ARRAY.length();
