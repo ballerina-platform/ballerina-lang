@@ -437,7 +437,7 @@ function genMethodForBallerinaFunction(bir:Function func,
                 endLabel = labelGen.getLabel(funcName + localVar.meta.endBBID + "beforeTerm");
             }
             mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue), 
-                startLabel, endLabel, k);
+                startLabel, endLabel, indexMap.getIndex(localVar));
         }
         k = k + 1;
     }
