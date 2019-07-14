@@ -22,6 +22,7 @@ import ballerina/math;
 import ballerina/task;
 import ballerina/time;
 import ballerina/system;
+import ballerina/'lang\.int as langint;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
@@ -131,7 +132,7 @@ function closeCharChannel(any c) {
         e = c.close();
     }
     if (e is error) {
-        log:printError("Couldn't close char channel.", err = e);
+        log:printError("Couldn't close char channel.", e);
     }
 }
 
@@ -181,7 +182,7 @@ function writeStateToFile(string persistancePath) returns error? {
     if (!system:exists(persistancePath)) {
         string|error e = system:createDir(persistancePath, parentDirs = true);
     }
-    string path = check filepath:build(persistancePath, string.convert(currentTimeMillis));
+    string path = check filepath:build(persistancePath, currentTimeMillis.toString());
     if (!system:exists(path)) {
         string|error filepath = system:createFile(path);
         if (filepath is string) {
@@ -213,7 +214,7 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         int[] timestamps = [];
         if (files is system:FileInfo[]) {
             foreach system:FileInfo p in files {
-                int|error t = int.convert(p.getName());
+                int|error t = langint:fromString(p.getName());
                 if (t is int) {
                     timestamps[timestamps.length()] = t;
                 }
@@ -222,7 +223,7 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         IntSort s = new;
         s.sort(timestamps);
         foreach int t in timestamps {
-            string|error sf = filepath:build(persistancePath, string.convert(t));
+            string|error sf = filepath:build(persistancePath, t.toString());
             if (sf is string) {
                 snapshotFiles[snapshotFiles.length()] = sf;
             }
@@ -255,7 +256,7 @@ function purgeOldSnapshotFiles(string persistancePath) {
             if (system:exists(f)) {
                 error? e = system:remove(f);
                 if (e is error) {
-                    log:printError("Couldn't delete snapshot.", err = e);
+                    log:printError("Couldn't delete snapshot.", e);
                 }
             }
             i += 1;
@@ -276,7 +277,7 @@ function restoreStates() {
             }
         }
     }
-    foreach var [k, v] in streamsPersistanceState {
+    foreach var [k, v] in streamsPersistanceState.entries() {
         boolean loaded = loadedStates[k] ?: false;
         if (!loaded) {
             Snapshotable? s = snapshotables[k];
@@ -291,7 +292,7 @@ function restoreStates() {
 # Function to iterate through all the snapshotables, and persist their states into a file.
 # + return - An `error` if the state cannot be persisted into a file.
 function persistStatesAndPurgeOldSnapshots() returns error? {
-    foreach var [k, v] in snapshotables {
+    foreach var [k, v] in snapshotables.entries() {
         streamsPersistanceState[k] = v.saveState();
     }
     error? e = writeStateToFile(persistanceDirectory);
@@ -315,7 +316,7 @@ service persistanceSchedulerService = service {
     resource function onTrigger() {
         error? e = persistStatesAndPurgeOldSnapshots();
         if (e is error) {
-            log:printError("Couldn't persist state and purge old snapshots.", err = e);
+            log:printError("Couldn't persist state and purge old snapshots.", e);
         }
     }
 };
@@ -334,9 +335,13 @@ public function restoreState(string key, any reference) {
 # + key - An unique `string` identifier for the snapshotable reference.
 # + return - A `boolean` indicating whether the state for the given key removed successfully.
 public function removeState(string key) returns boolean {
-    boolean snapshotableRemoved = snapshotables.remove(key);
-    boolean stateRemoved = streamsPersistanceState.remove(key);
-    return snapshotableRemoved && stateRemoved;
+    if (snapshotables.hasKey(key) && streamsPersistanceState.hasKey(key)) {
+        var snapshotableRemoved = snapshotables.remove(key);
+        var stateRemoved = streamsPersistanceState.remove(key);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 # Function to register Snapshotables.
@@ -352,8 +357,8 @@ public function registerSnapshotable(string key, any reference) {
 public function initPersistence() {
     boolean enabled = config:getAsBoolean("b7a.streaming.persistence.enabled");
     if (enabled) {
-        persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", defaultValue = "snapshots");
-        int interval = config:getAsInt("b7a.streaming.persistence.interval", defaultValue = 30);
+        persistanceDirectory = config:getAsString("b7a.streaming.persistence.directory", "snapshots");
+        int interval = config:getAsInt("b7a.streaming.persistence.interval", 30);
         persistanceIntervalInMillis = interval * 1000;
         restoreStates();
         startPersisting();

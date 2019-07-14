@@ -69,7 +69,8 @@ public type Request object {
     #            present, then the first value is returned. Nil is returned if no key is found.
     public function getQueryParamValue(@untainted string key) returns @tainted string? {
         map<string[]> params = self.getQueryParams();
-        return params[key][0];
+        var result = params[key];
+        return result is () ? () : result[0];
     }
 
     # Gets all the query param values associated with the given key.
@@ -196,21 +197,36 @@ public type Request object {
     #
     # + return - The `json` payload or `error` in case of errors
     public function getJsonPayload() returns @tainted json|error {
-        return self.getEntity()!getJson();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getJson();
+        } else {
+            return entity;
+        }
     }
 
     # Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
     #
     # + return - The `xml` payload or `error` in case of errors
     public function getXmlPayload() returns @tainted xml|error {
-        return self.getEntity()!getXml();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getXml();
+        } else {
+            return entity;
+        }
     }
 
     # Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
     #
     # + return - The `text` payload or `error` in case of errors
     public function getTextPayload() returns @tainted string|error {
-        return self.getEntity()!getText();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getText();
+        } else {
+            return entity;
+        }
     }
 
     # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
@@ -218,14 +234,24 @@ public type Request object {
     #
     # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
-        return self.getEntity()!getByteChannel();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getByteChannel();
+        } else {
+            return entity;
+        }
     }
 
     # Gets the request payload as a `byte[]`.
     #
     # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns @tainted byte[]|error {
-        return self.getEntity()!getByteArray();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getByteArray();
+        } else {
+            return entity;
+        }
     }
 
     # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
@@ -239,7 +265,7 @@ public type Request object {
                 error typeError = error(mime:HEADER_UNAVAILABLE, message = errorMessage);
                 return typeError;
             }
-            if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
+            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 error typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return typeError;
@@ -247,27 +273,34 @@ public type Request object {
         } else {
             return mimeEntity;
         }
-        var formData = self.getEntity()!getText();
+        var entity = self.getEntity();
         map<string> parameters = {};
-        if (formData is string) {
-            if (formData != "") {
-                string[] entries = formData.split("&");
-                int entryIndex = 0;
-                while (entryIndex < entries.length()) {
-                    int index = entries[entryIndex].indexOf("=");
-                    if (index != -1) {
-                        string name = entries[entryIndex].substring(0, index).trim();
-                        int size = entries[entryIndex].length();
-                        string value = entries[entryIndex].substring(index + 1, size).trim();
-                        if (value != "") {
-                            parameters[name] = value;
+        if (entity is mime:Entity) {
+            string|error formData = entity.getText();
+            if (formData is string) {
+                if (formData != "") {
+                    string[] entries = internal:split(formData, "&");
+                    int entryIndex = 0;
+                    while (entryIndex < entries.length()) {
+                        int? index = entries[entryIndex].indexOf("=");
+                        if (index is int && index != -1) {
+                            string name = entries[entryIndex].substring(0, index);
+                            name = name.trim();
+                            int size = entries[entryIndex].length();
+                            string value = entries[entryIndex].substring(index + 1, size);
+                            value = value.trim();
+                            if (value != "") {
+                                parameters[name] = value;
+                            }
                         }
+                        entryIndex = entryIndex + 1;
                     }
-                    entryIndex = entryIndex + 1;
                 }
+            } else {
+                return formData;
             }
         } else {
-            return formData;
+            return entity;
         }
         return parameters;
     }
@@ -278,7 +311,12 @@ public type Request object {
     # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
     #            constructing the body parts from the request
     public function getBodyParts() returns mime:Entity[]|error {
-        return self.getEntity()!getBodyParts();
+        mime:Entity|error entity = self.getEntity();
+        if (entity is mime:Entity) {
+            return entity.getBodyParts();
+        } else {
+            return entity;
+        }
     }
 
     # Sets a `json` as the payload.
@@ -288,7 +326,7 @@ public type Request object {
     #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload, contentType = contentType);
+        entity.setJson(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -299,7 +337,7 @@ public type Request object {
     #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload, contentType = contentType);
+        entity.setXml(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -310,7 +348,7 @@ public type Request object {
     #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload, contentType = contentType);
+        entity.setText(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -321,7 +359,7 @@ public type Request object {
     #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteArray(payload, contentType = contentType);
+        entity.setByteArray(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -332,7 +370,7 @@ public type Request object {
     #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBodyParts(bodyParts, contentType = contentType);
+        entity.setBodyParts(bodyParts, contentType);
         self.setEntity(entity);
     }
 
@@ -343,7 +381,7 @@ public type Request object {
     #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath, contentType = contentType);
+        entity.setFileAsEntityBody(filePath, contentType);
         self.setEntity(entity);
     }
 
@@ -354,7 +392,7 @@ public type Request object {
     #                 header value
     public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload, contentType = contentType);
+        entity.setByteChannel(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -387,7 +425,7 @@ public type Request object {
 
         RequestCacheControl reqCC = new;
         string cacheControl = self.getHeader(CACHE_CONTROL);
-        string[] directives = cacheControl.split(",");
+        string[] directives = internal:split(cacheControl, ",");
 
         foreach var directive in directives {
             directive = directive.trim();
@@ -399,13 +437,13 @@ public type Request object {
                 reqCC.noTransform = true;
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
-            } else if (directive.hasPrefix(MAX_AGE)) {
+            } else if (internal:hasPrefix(directive, MAX_AGE)) {
                 reqCC.maxAge = getExpirationDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
-            } else if (directive.hasPrefix(MAX_STALE)) {
+            } else if (internal:hasPrefix(directive, MAX_STALE)) {
                 reqCC.maxStale = getExpirationDirectiveValue(directive);
-            } else if (directive.hasPrefix(MIN_FRESH)) {
+            } else if (internal:hasPrefix(directive, MIN_FRESH)) {
                 reqCC.minFresh = getExpirationDirectiveValue(directive);
             }
             // non-standard directives are ignored

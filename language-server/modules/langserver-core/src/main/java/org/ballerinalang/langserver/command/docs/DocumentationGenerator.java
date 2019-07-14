@@ -206,10 +206,6 @@ public class DocumentationGenerator {
         if (bLangFunction.getRestParameters() != null) {
             params.add((BLangVariable) bLangFunction.getRestParameters());
         }
-        params.addAll(bLangFunction.getDefaultableParameters()
-                              .stream()
-                              .map(bLangVariableDef -> bLangVariableDef.var)
-                              .collect(Collectors.toList()));
         params.sort(new FunctionArgsComparator());
 
         params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) param, offset)));

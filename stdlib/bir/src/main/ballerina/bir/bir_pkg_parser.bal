@@ -237,15 +237,11 @@ public type PackageParser object {
         int requiredParamCount = self.reader.readInt32();
         int i = 0;
         while (i < requiredParamCount) {
+            // ignore name
+            _ = self.reader.readInt32();
+            // ignore flags
             _ = self.reader.readInt32();
             i += 1;
-        }
-
-        int defaultableParamCount = self.reader.readInt32();
-        int j = 0;
-        while (j < defaultableParamCount) {
-            _ = self.reader.readInt32();
-            j += 1;
         }
     }
 
@@ -379,7 +375,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (sig.lastIndexOf("(N)") == (sig.length() - 3)) {
+        if (internal:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
             returnType = "()";
         }
         return {
@@ -461,7 +457,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        error err = error("unsupported literal value type in annotation attachment value", err = {"type":bType});
+        record{| anydata|error...; |} detailMap = { 'type : bType };
+        error err = error("unsupported literal value type in annotation attachment value", err = detailMap);
         panic err;
     }
     return value;

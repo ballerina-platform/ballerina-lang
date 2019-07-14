@@ -161,10 +161,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
         }
-
-        if (funcNode.defaultableParams != null) {
-            funcNode.defaultableParams.forEach(this::acceptNode);
-        }
     }
 
     @Override

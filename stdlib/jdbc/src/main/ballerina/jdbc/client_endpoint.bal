@@ -34,7 +34,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `Error` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
                                returns @tainted table<record {}>[]|()|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
@@ -49,7 +49,7 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `Error` will be returned if there
     # is any error
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                   Param... parameters) returns @tainted table<record {}>|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
@@ -69,7 +69,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.jdbcClient->update(sqlQuery, keyColumns = keyColumns, ...parameters);
+        return self.jdbcClient->update(sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.

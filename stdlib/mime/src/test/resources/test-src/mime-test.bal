@@ -133,19 +133,19 @@ function testGetJsonMultipleTimes(json jsonContent) returns @tainted json {
     if (returnContent1 is json) {
         content1 = returnContent1;
     } else {
-        log:printError("error in returnContent1", err = returnContent1);
+        log:printError("error in returnContent1", returnContent1);
     }
 
     if (returnContent2 is json) {
         content2 = returnContent2;
     } else {
-        log:printError("error in returnContent2", err = returnContent2);
+        log:printError("error in returnContent2", returnContent2);
     }
 
     if (returnContent3 is json) {
         content3 = returnContent3;
     } else {
-        log:printError("error in returnContent3", err = returnContent3);
+        log:printError("error in returnContent3", returnContent3);
     }
 
     json returnContent = { concatContent: [content1, content2, content3] };
@@ -211,19 +211,19 @@ function testGetTextMultipleTimes(string textContent) returns @tainted string {
     if (returnContent1 is string) {
         content1 = returnContent1;
     } else {
-        log:printError("error in returnContent1", err = returnContent1);
+        log:printError("error in returnContent1", returnContent1);
     }
 
     if (returnContent2 is string) {
         content2 = returnContent2;
     } else {
-        log:printError("error in returnContent2", err = returnContent2);
+        log:printError("error in returnContent2", returnContent2);
     }
 
     if (returnContent3 is string) {
         content3 = returnContent3;
     } else {
-        log:printError("error in returnContent3", err = returnContent3);
+        log:printError("error in returnContent3", returnContent3);
     }
 
     string returnContent = content1 + content2 + content3;
@@ -250,19 +250,19 @@ function testGetByteArrayMultipleTimes(byte[] blobContent) returns @tainted [byt
     if (returnContent1 is byte[]) {
         content1 = returnContent1;
     } else {
-        log:printError("error in returnContent1", err = returnContent1);
+        log:printError("error in returnContent1", returnContent1);
     }
 
     if (returnContent2 is byte[]) {
         content2 = returnContent2;
     } else {
-        log:printError("error in returnContent2", err = returnContent2);
+        log:printError("error in returnContent2", returnContent2);
     }
 
     if (returnContent3 is byte[]) {
         content3 = returnContent3;
     } else {
-        log:printError("error in returnContent3", err = returnContent3);
+        log:printError("error in returnContent3", returnContent3);
     }
 
     return [content1, content2, content3];

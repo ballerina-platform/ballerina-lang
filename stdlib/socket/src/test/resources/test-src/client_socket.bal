@@ -19,7 +19,7 @@ import ballerina/socket;
 
 function oneWayWrite(string msg) {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
-    byte[] msgByteArray = msg.toByteArray("utf-8");
+    byte[] msgByteArray = msg.toBytes();
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
@@ -28,7 +28,8 @@ function oneWayWrite(string msg) {
     }
     var closeResult = socketClient->close();
     if (closeResult is error) {
-        io:println(closeResult.detail().message);
+        string? errMsg = closeResult.detail()?.message;
+        io:println(errMsg is string ? errMsg : "Error in socket client close");
     } else {
         io:println("Client connection closed successfully.");
     }
@@ -36,7 +37,7 @@ function oneWayWrite(string msg) {
 
 function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
-    byte[] msgByteArray = firstMsg.toByteArray("utf-8");
+    byte[] msgByteArray = firstMsg.toBytes();
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
@@ -47,14 +48,15 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
     if (shutdownResult is error) {
         panic shutdownResult;
     }
-    msgByteArray = secondMsg.toByteArray("utf-8");
+    msgByteArray = secondMsg.toBytes();
     writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
     } else {
         var closeResult = socketClient->close();
         if (closeResult is error) {
-            io:println(closeResult.detail().message);
+            string? errMsg = closeResult.detail()?.message;
+            io:println(errMsg is string ? errMsg : "Error in socket client");
         } else {
             io:println("Client connection closed successfully.");
         }
@@ -66,7 +68,7 @@ function shutdownWrite(string firstMsg, string secondMsg) returns error? {
 function echo(string msg) returns string {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
     string returnStr = "";
-    byte[] msgByteArray = msg.toByteArray("utf-8");
+    byte[] msgByteArray = msg.toBytes();
     var writeResult = socketClient->write(msgByteArray);
     if (writeResult is int) {
         io:println("Number of bytes written: ", writeResult);
@@ -82,12 +84,13 @@ function echo(string msg) returns string {
             if (str is string) {
                 returnStr = <@untainted>str;
             } else {
-                error e = <error>str;
-                io:println(e.detail().message);
+                string? errMsg = str.detail()?.message;
+                io:println(errMsg is string ? errMsg : "Error in socket client");
             }
             var closeResult = socketClient->close();
             if (closeResult is error) {
-                io:println(closeResult.detail().message);
+                string? errMsg = closeResult.detail()?.message;
+                io:println(errMsg is string ? errMsg : "Error in socket client");
             } else {
                 io:println("Client connection closed successfully.");
             }

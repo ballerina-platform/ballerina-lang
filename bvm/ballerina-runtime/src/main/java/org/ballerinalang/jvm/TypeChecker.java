@@ -445,9 +445,23 @@ public class TypeChecker {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.MAP_TAG) {
+        if (sourceType.getTag() != TypeTags.MAP_TAG && sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return false;
         }
+
+        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recType = (BRecordType) sourceType;
+            List<BType> types = new ArrayList<>();
+            for (BField f : recType.getFields().values()) {
+                types.add(f.type);
+            }
+            if (!recType.sealed) {
+                types.add(recType.restFieldType);
+            }
+            BUnionType fieldType = new BUnionType(types);
+            return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
+        }
+
         return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
     }

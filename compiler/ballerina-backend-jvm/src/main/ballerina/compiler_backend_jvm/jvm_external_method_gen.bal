@@ -36,7 +36,7 @@ function genMethodForExternalFunction(bir:Function birFunc,
     int strandParamIndex = indexMap.getIndex(strandVarDcl);
 
     // generate method desc
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, <bir:BType?> birFunc.typeValue?.retType);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
     int selfParamIndex = -1;
@@ -164,9 +164,10 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName,
 
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
     bir:BType? attachedType = birFunc.receiverType;
-    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
-    string jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType = attachedType);
+    string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
+                                        attachedType = attachedType);
 
     return {
         orgName : orgName,

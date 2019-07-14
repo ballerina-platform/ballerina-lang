@@ -1,7 +1,7 @@
 public function main(string... args) {
     testFunctionWithRestParamsOnly("static", args[0]);
     testFunctionWithRequiredParamAndRestParams("static", "static", args[0]);
-    testFunctionWithRequiredDefaultableAndRestParams("static", "optionalStatic", args[0]);
+    testFunctionWithRequiredDefaultableAndRestParams("static", "optionalStatic", "x", args[0]);
 }
 
 function testFunctionWithRestParamsOnly(@untainted string... restParams) {

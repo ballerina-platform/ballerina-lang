@@ -58,7 +58,8 @@ public type TableJoinProcessor object {
                 StreamEvent event = <StreamEvent> evt;
                 [StreamEvent?, StreamEvent?][] candidateEvents = [];
                 int i = 0;
-                foreach var m in self.tableQuery.call(event) {
+                function (StreamEvent s) returns map<anydata>[] tQuery = self.tableQuery;
+                foreach var m in tQuery(event) {
                     StreamEvent resultEvent = new([self.tableName, m], "CURRENT", time:currentTime().time);
                     candidateEvents[i] = [event, resultEvent];
                     i += 1;
@@ -82,7 +83,8 @@ public type TableJoinProcessor object {
                 }
             }
         }
-        self.nextProcessor.call(outputEvents);
+        function (StreamEvent?[]) nProcessor = self.nextProcessor;
+        nProcessor(outputEvents);
     }
 
     # Set the properties required for joining.
@@ -100,7 +102,7 @@ public type TableJoinProcessor object {
         if (lhsEvent is StreamEvent) {
             joined = lhsEvent.copy();
 
-            if (rhsEvent is StreamEvent) {
+            if (rhsEvent is StreamEvent && joined is StreamEvent) {
                 joined.addData(rhsEvent.data);
             }
         }

@@ -24,7 +24,7 @@ public type ChannelReader object {
 
     public function __init(io:ReadableByteChannel byteChannel) {
         self.byteChannel = byteChannel;
-        self.dataChannel = new (byteChannel, bOrder = "BE");
+        self.dataChannel = new (byteChannel, "BE");
     }
 
     public function readBoolean() returns boolean {
@@ -35,7 +35,7 @@ public type ChannelReader object {
 
     public function readInt8() returns int {
         var [byteValue, _mustBe1] = check self.byteChannel.read(1);
-        return <@untainted> int.convert(byteValue[0]);
+        return <@untainted int> byteValue[0];
     }
 
     public function readInt32() returns int {
@@ -62,7 +62,7 @@ public type ChannelReader object {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
             var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
-            return encoding:byteArrayToString(strBytes, encoding = "utf-8");
+            return encoding:byteArrayToString(strBytes, "utf-8");
         } else {
             return "";
         }
@@ -88,10 +88,10 @@ function bytesToInt(byte[] b) returns int {
     int octave1 = 8;
     int octave2 = 16;
     int octave3 = 24;
-    int b0 = int.convert(b[0]);
-    int b1 = int.convert(b[1]);
-    int b2 = int.convert(b[2]);
-    int b3 = int.convert(b[3]);
+    int b0 = <int> b[0];
+    int b1 = <int> b[1];
+    int b2 = <int> b[2];
+    int b3 = <int> b[3];
     return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
 }
 

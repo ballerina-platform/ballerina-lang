@@ -4,7 +4,7 @@ string msgVal = "";
 listener jms:QueueListener queueConsumer5 = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616"
-}, queueName = "testMbSimpleQueueReceiverProducer");
+}, "testMbSimpleQueueReceiverProducer");
 
 // Bind the created consumer to the listener service.
 service jmsListener5 on queueConsumer5 {

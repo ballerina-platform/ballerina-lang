@@ -44,7 +44,10 @@ public type OutboundJwtAuthProvider object {
         if (jwtIssuerConfig is InferredJwtIssuerConfig) {
             authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
         } else {
-            authToken = runtime:getInvocationContext().authenticationContext.authToken;
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                authToken = authContext.authToken;
+            }
         }
         if (authToken == EMPTY_STRING) {
             return auth:prepareError("JWT was not used during inbound authentication.
@@ -83,15 +86,20 @@ public type InferredJwtIssuerConfig record {|
 # + return - Auth token or `Error` if an error occurred during the JWT issuing or validation
 function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-    JwtPayload payload = {
-        sub: runtime:getInvocationContext().principal.username,
-        iss: jwtIssuerConfig.issuer,
-        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
-        iat: time:currentTime().time / 1000,
-        nbf: time:currentTime().time / 1000,
-        jti: system:uuid(),
-        aud: jwtIssuerConfig.audience
-    };
-    // TODO: cache the token per-user per-client and reuse it
-    return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        JwtPayload payload = {
+            sub: principal.username,
+            iss: jwtIssuerConfig.issuer,
+            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+            iat: time:currentTime().time / 1000,
+            nbf: time:currentTime().time / 1000,
+            jti: system:uuid(),
+            aud: jwtIssuerConfig.audience
+        };
+         // TODO: cache the token per-user per-client and reuse it
+        return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
+    }
+    //TODO: Define a proper error
+    return prepareJwtError("Principal is not found");
 }

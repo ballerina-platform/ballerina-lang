@@ -16,11 +16,14 @@
 
 // ========================== Basics ==========================
 
+import ballerina/'lang\.error as errors;
+import ballerina/'lang\.string as strings;
+
 function testValueTypeInUnion() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
-        return "int: " + string.convert(y);
+        return "int: " + y.toString();
     } else {
         return "string";
     }
@@ -84,7 +87,7 @@ function testTypeGuardInElse_1() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
-        return "int: " + string.convert(y);
+        return "int: " + y.toString();
     } else {
         return "string";
     }
@@ -94,15 +97,15 @@ function testTypeGuardInElse_2() returns string {
     int|string|float|boolean x = true;
     if (x is int) {
         int y = x;
-        return "int: " + string.convert(y);
+        return "int: " + y.toString();
     } else if (x is string) {
         return "string: " + x;
     } else if (x is float) {
         float y = x;
-        return "float: " + string.convert(y);
+        return "float: " + y.toString();
     } else {
         boolean b = x;
-        return "boolean: " + string.convert(b);
+        return "boolean: " + b.toString();
     }
 }
 
@@ -114,25 +117,25 @@ function testTypeGuardInElse_3() returns string {
             return "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            return "y is float: " + string.convert(i);
+            return "y is float: " + i.toString();
         } else {
             return "x is int|string";
         }
     } else if (x is float) {
         float f = x;
-        return "float: " + string.convert(f);
+        return "float: " + f.toString();
     } else {
         if (y is int) {
             int i = y;
-            return "x is boolean and y is int: " + string.convert(i);
+            return "x is boolean and y is int: " + i.toString();
         } else if (y is string) {
             return "x is boolean and y is string: " + y;
         } else if (y is float) {
             float f = y;
-            return "x is boolean and y is float: " + string.convert(f);
+            return "x is boolean and y is float: " + f.toString();
         } else {
             boolean b = y;
-            return "x is boolean and y is boolean: " + string.convert(b);
+            return "x is boolean and y is boolean: " + b.toString();
         }
     }
 }
@@ -146,25 +149,25 @@ function testTypeGuardInElse_4() returns string {
             val += "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            val += "y is float: " + string.convert(i);
+            val += "y is float: " + i.toString();
         } else {
             val += "x is int|string";
         }
     } else if (x is float) {
         float f = x;
-        val += "float: " + string.convert(f);
+        val += "float: " + f.toString();
     } else {
         if (y is int) {
             int i = y;
-            val += "x is boolean and y is int: " + string.convert(i);
+            val += "x is boolean and y is int: " + i.toString();
         } else if (y is string) {
             val += "x is boolean and y is string: " + y;
         } else if (y is float) {
             float f = y;
-            val += "x is boolean and y is float: " + string.convert(f);
+            val += "x is boolean and y is float: " + f.toString();
         } else {
             boolean b = y;
-            val += "x is boolean and y is boolean: " + string.convert(b);
+            val += "x is boolean and y is boolean: " + b.toString();
         }
     }
 
@@ -174,25 +177,25 @@ function testTypeGuardInElse_4() returns string {
             val += "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            val += "y is float: " + string.convert(i);
+            val += "y is float: " + i.toString();
         } else {
             val += "x is int|string";
         }
     } else if (x is float) {
         float f = x;
-        val += "float: " + string.convert(f);
+        val += "float: " + f.toString();
     } else {
         if (y is int) {
             int i = y;
-            val += "x is boolean and y is int: " + string.convert(i);
+            val += "x is boolean and y is int: " + i.toString();
         } else if (y is string) {
             val += "x is boolean and y is string: " + y;
         } else if (y is float) {
             float f = y;
-            val += "x is boolean and y is float: " + string.convert(f);
+            val += "x is boolean and y is float: " + f.toString();
         } else {
             boolean b = y;
-            val += "x is boolean and y is boolean: " + string.convert(b);
+            val += "x is boolean and y is boolean: " + b.toString();
         }
     }
 
@@ -206,13 +209,13 @@ function testTypeGuardInElse_5() returns string {
             return "x is string: " + x;
         } else {
             int i = x;
-            return "x is int: " + string.convert(i);
+            return "x is int: " + i.toString();
         }
     } else if (x is float) {
         float f = x;
-        return "float: " + string.convert(f);
+        return "float: " + f.toString();
     } else {
-        return "x is boolean: " + string.convert(x);
+        return "x is boolean: " + x.toString();
     }
 }
 
@@ -287,7 +290,7 @@ function testUpdatingGuardedVar_1() returns string {
         return "some other type";
     }
 
-    return string.convert(value);
+    return value.toString();
 }
 
 function testUpdatingGuardedVar_2() returns string {
@@ -303,7 +306,7 @@ function testUpdatingGuardedVar_2() returns string {
         }
     }
 
-    return string.convert(value);
+    return value.toString();
 }
 
 function getUpdatedString(string s) returns string {
@@ -322,7 +325,7 @@ function testFuncPtrTypeInferenceInElseGuard() returns [boolean, int] {
     if (f is ()) {
         return [false, fPtrFlag];
     } else {
-        return [f.call(), fPtrFlag];
+        return [f(), fPtrFlag];
     }
 }
 
@@ -388,7 +391,6 @@ function testTypeGuardsWithRecords_1() returns string {
 function testTypeGuardsWithRecords_2() returns string {
     Student s = {name:"John", age:20, gpa:3.5};
     Person|Student|string x = s;
-
     if (x is Student) {
         Student y = x;
         return "student: " + y.name;
@@ -440,7 +442,7 @@ function testTypeNarrowingWithClosures() returns string {
                         return -1;
                     }
                 };
-        return "int: "+ y.call();
+        return "int: "+ y();
     }
 }
 
@@ -533,7 +535,7 @@ error e2 = error("e2");
 error? errorW1 = e1;
 error? errorW2 = e2;
 
-function testTypeGuardForGlobalVars() returns [string, string?] {
+function testTypeGuardForGlobalVarsUsingLocalAssignment() returns [string, string?] {
     string w1ErrMsg = "";
     string? w2ErrMsg = "";
     if (errorW1 is error) {
@@ -543,7 +545,10 @@ function testTypeGuardForGlobalVars() returns [string, string?] {
         }
     }
     if (errorW2 is error) {
-        w2ErrMsg = errorW2.reason();
+        error? e4 = errorW2;
+        if (e4 is error) {
+            w2ErrMsg = e4.reason();
+        }
     }
     return [w1ErrMsg, w2ErrMsg];
 }
@@ -749,7 +754,7 @@ function testFiniteTypeAsFiniteTypeWithIntersectionNegative() returns boolean {
 
 function testTypeNarrowingForIntersectingDirectUnion_1() returns boolean {
     string s = "hello world";
-    string|typedesc st = s;
+    string|typedesc<any> st = s;
     if (st is string|boolean) {
         string s2 = st;
         return s2 == s;
@@ -770,7 +775,7 @@ function testTypeNarrowingForIntersectingDirectUnion_2() returns boolean {
 
 function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
     string s = "hello world";
-    string|typedesc st = s;
+    string|typedesc<any> st = s;
     if (st is json|xml) {
         string s2 = st;
         return s2 == s;

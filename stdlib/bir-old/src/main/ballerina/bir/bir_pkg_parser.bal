@@ -236,15 +236,11 @@ public type PackageParser object {
         int requiredParamCount = self.reader.readInt32();
         int i = 0;
         while (i < requiredParamCount) {
+            // ignore name
+            _ = self.reader.readInt32();
+            // ignore flags
             _ = self.reader.readInt32();
             i += 1;
-        }
-
-        int defaultableParamCount = self.reader.readInt32();
-        int j = 0;
-        while (j < defaultableParamCount) {
-            _ = self.reader.readInt32();
-            j += 1;
         }
     }
 
