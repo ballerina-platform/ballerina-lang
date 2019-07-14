@@ -42,9 +42,8 @@ import java.util.Set;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangVariableReference implements InvocationNode {
+public class BLangInvocation extends BLangAccessExpression implements InvocationNode {
 
-    public BLangExpression expr;
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
     public List<BLangExpression> argExprs = new ArrayList<>();

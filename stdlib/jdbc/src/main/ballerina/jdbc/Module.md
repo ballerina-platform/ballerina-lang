@@ -239,13 +239,14 @@ jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 6 };
 jdbc:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
-var retBatch = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", parameters1, parameters2);
-if (retBatch is int[]) {
-    io:println("Batch item 1 update count: " + retBatch[0]);
-    io:println("Batch item 2 update count: " + retBatch[1]);
+jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", false,
+                                                        parameters1, parameters2);
+error? e = ret.returnedError;
+if (e is error) {
+    io:println("Error occurred:" + <string> e.detail().message );
 } else {
-    error err = retBatch;
-    io:println("Batch update operation failed: " + <string>err.detail().message);
+    io:println("Batch item 1 update count: " + ret.updatedRowCount[0]);
+    io:println("Batch item 2 update count: " + ret.updatedRowCount[1]);
 }
 ```
 

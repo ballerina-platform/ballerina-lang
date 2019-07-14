@@ -166,7 +166,7 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     private MapValue<String, Object> createFrozenUpdateResultRecord(int count, MapValue<String, Object> generatedKeys) {
         MapValue<String, Object> updateResultRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.SQL_UPDATE_RESULT);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_UPDATE_RESULT);
         MapValue<String, Object> populatedUpdateResultRecord = BallerinaValues
                 .createRecord(updateResultRecord, count, generatedKeys);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));
