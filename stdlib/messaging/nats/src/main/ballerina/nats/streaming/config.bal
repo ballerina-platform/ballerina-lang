@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 # Configuration related to a streaming connection.
 #
 # + ackTimeout - Timeout in seconds to wait for an acknowledgement for the corresponding subscription.

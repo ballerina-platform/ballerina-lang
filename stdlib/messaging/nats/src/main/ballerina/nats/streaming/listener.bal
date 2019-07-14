@@ -22,7 +22,7 @@ public type StreamingListener object {
 
     private Connection connection;
     private string clusterId;
-    private string clientId;
+    private string? clientId;
     private StreamingConfig? streamingConfig;
 
     # Creates a new StreamingListener.
@@ -32,20 +32,20 @@ public type StreamingListener object {
     # + clientId - A unique identifier representing the client. The `clientId` should be unique across subscriptions. Therefore,
     #              multilpe subscription services cannot be bound to a single listener.
     # + streamingConfig - The configuration related to the NATS streaming connectivity.
-    public function __init(Connection connection, string clientId, string clusterId,
+    public function __init(Connection connection, string? clientId = (), string clusterId = "test-cluster",
     StreamingConfig? streamingConfig = ()) {
         self.connection = connection;
         self.clusterId = clusterId;
         self.clientId = clientId;
         self.streamingConfig = streamingConfig;
+        createStreamingConnection(self, connection, clusterId, clientId, streamingConfig);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        self.subscribe(s, self.connection, self.clusterId, self.clientId, self.streamingConfig);
+        self.subscribe(s, self.connection);
     }
 
-    function subscribe(service serviceType, Connection conn, string clusterId, string clientId,
-    StreamingConfig? streamingConfig) = external;
+    function subscribe(service serviceType, Connection conn) = external;
 
     public function __start() returns error? {
         //ignore : since connection can be re-used between multiple listeners

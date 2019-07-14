@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ContentType byte[] | boolean | string | int | float | decimal | xml | json | record {};
+public type Content byte[] | boolean | string | int | float | decimal | xml | json | record {};
 
-public function convertData(ContentType data) returns string | byte[] | error {
+public function convertData(Content data) returns string | byte[] | error {
     string | byte[] | error converted;
     if (data is boolean) {
         converted = string.convert(data);

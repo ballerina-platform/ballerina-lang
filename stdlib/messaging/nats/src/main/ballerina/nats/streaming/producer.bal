@@ -16,12 +16,10 @@
 
 public type StreamingProducer client object {
 
-    public function __init(Connection conn, string clientId, string clusterId, StreamingConfig? streamingConfig = ()) {
-        self.createStreamingConnection(conn, clusterId, clientId, streamingConfig);
+    public function __init(Connection conn, string? clientId = (), string clusterId = "test-cluster",
+    StreamingConfig? streamingConfig = ()) {
+        createStreamingConnection(self, conn, clusterId, clientId, streamingConfig);
     }
-
-    function createStreamingConnection(Connection conn, string clusterId, string clientId,
-    StreamingConfig? streamingConfig) = external;
 
     # Publishes data to a given subject.
     #
@@ -33,7 +31,7 @@ public type StreamingProducer client object {
     #           elapses while waiting for the acknowledgement OR
     #           `nats/Error` only with the `message` field in case an error occurrs even before publishing
     #           is completed
-    public remote function publish(@untainted string subject, @untainted ContentType data) returns string | Error {
+    public remote function publish(string subject, @untainted Content data) returns string | Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
@@ -45,3 +43,6 @@ public type StreamingProducer client object {
     function externPublish(string subject, string | byte[] data) returns string | Error = external;
 
 };
+
+function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection conn,
+string clusterId, string? clientId, StreamingConfig? streamingConfig) = external;

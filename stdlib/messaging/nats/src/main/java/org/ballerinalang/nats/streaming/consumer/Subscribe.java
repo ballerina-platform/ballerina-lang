@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.bre.Context;
@@ -26,6 +25,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -34,14 +34,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Remote function implementation for subscribing to a NATS subject.
@@ -75,15 +72,12 @@ public class Subscribe implements NativeCallableUnit {
     }
 
     public static void subscribe(Strand strand, ObjectValue streamingListener, ObjectValue service,
-            ObjectValue connection, String clientId, String clusterId, Object streamingConfig) {
-        Connection natsConnection = (Connection) connection.getNativeData(Constants.NATS_CONNECTION);
-        BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
-                new BallerinaNatsStreamingConnectionFactory(
-                natsConnection, clusterId, clientId, (MapValue<String, Object>) streamingConfig);
+            ObjectValue connection) {
+        StreamingConnection streamingConnection = (StreamingConnection) streamingListener
+                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         MapValue<String, Object> annotation = (MapValue<String, Object>) service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         try {
-            StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
             StreamingListener messageHandler = new StreamingListener(service, strand.scheduler);
             assertNull(annotation, "Streaming configuration annotation not present.");
             String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD);
@@ -91,7 +85,6 @@ public class Subscribe implements NativeCallableUnit {
             String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD);
             SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
             streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
-            ((AtomicInteger) connection.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
 
             List<ObjectValue> serviceList = (List<ObjectValue>) connection.getNativeData(Constants.SERVICE_LIST);
             serviceList.add(service);
@@ -124,17 +117,6 @@ public class Subscribe implements NativeCallableUnit {
         BType type = TypeChecker.getType(startPosition);
         int startPositionType = type.getTag();
         switch (startPositionType) {
-        case TypeTags.RECORD_TYPE_TAG:
-            MapValue<String, Object> timeDeltaRecord = (MapValue<String, Object>) startPosition;
-            long duration = timeDeltaRecord.getIntValue("timeDelta");
-            BallerinaTimeUnit ballerinaTimeUnit = BallerinaTimeUnit.valueOf(timeDeltaRecord.getStringValue("timeUnit"));
-            TimeUnit timeUnit = retrieveTimeUnit(ballerinaTimeUnit);
-            builder.startAtTimeDelta(duration, timeUnit);
-            break;
-        case TypeTags.INT_TAG:
-            long sequenceNumber = (Long) startPosition;
-            builder.startAtSequence(sequenceNumber);
-            break;
         case TypeTags.STRING_TAG:
             BallerinaStartPosition startPositionValue = BallerinaStartPosition.valueOf((String) startPosition);
             if (startPositionValue.equals(BallerinaStartPosition.LAST_RECEIVED)) {
@@ -145,29 +127,18 @@ public class Subscribe implements NativeCallableUnit {
             // The else scenario is when the Start Position is "NEW_ONLY". There is no option to set this
             // to the builder since this is the default.
             break;
+        case TypeTags.TUPLE_TAG:
+            ArrayValue tupleValue = (ArrayValue) startPosition;
+            String startPositionKind = (String) tupleValue.getRefValue(0);
+            long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
+            if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {
+                builder.startAtTimeDelta(Duration.ofSeconds(timeOrSequenceNo));
+            } else {
+                builder.startAtSequence(timeOrSequenceNo);
+            }
+            break;
         default:
             throw new AssertionError("Invalid type for start position value " + startPositionType);
-        }
-    }
-
-    private static TimeUnit retrieveTimeUnit(BallerinaTimeUnit ballerinaTimeUnit) {
-        switch (ballerinaTimeUnit) {
-        case NANOSECONDS:
-            return TimeUnit.NANOSECONDS;
-        case MICROSECONDS:
-            return TimeUnit.MICROSECONDS;
-        case MILLISECONDS:
-            return TimeUnit.MILLISECONDS;
-        case SECONDS:
-            return TimeUnit.SECONDS;
-        case MINUTES:
-            return TimeUnit.MINUTES;
-        case HOURS:
-            return TimeUnit.HOURS;
-        case DAYS:
-            return TimeUnit.DAYS;
-        default:
-            throw new AssertionError("Invalid time unit type: " + ballerinaTimeUnit);
         }
     }
 
@@ -178,17 +149,10 @@ public class Subscribe implements NativeCallableUnit {
     }
 
     /**
-     * Enum representing the constant values of the Ballerina level TimeUnit type.
-     */
-    private enum BallerinaTimeUnit {
-        DAYS, HOURS, MINUTES, SECONDS, MILLISECONDS, MICROSECONDS, NANOSECONDS;
-    }
-
-    /**
      * Enum representing the constant values of the Ballerina level StartPosition type.
      */
     private enum BallerinaStartPosition {
-        NEW_ONLY, LAST_RECEIVED, FIRST;
+        NEW_ONLY, LAST_RECEIVED, FIRST, TIME_DELTA_START, SEQUENCE_NUMBER;
     }
 
 }

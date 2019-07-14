@@ -38,7 +38,7 @@ public type Producer client object {
     # + replyTo - Subject for the receiver to reply to. This is an optional parameter, which will be set only if a reply is needed.
     # + data - Data to publish.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
-    public remote function publish(@untainted string subject, @untainted ContentType data, @untainted string? replyTo = ()) returns Error? {
+    public remote function publish(@untainted string subject, @untainted Content data, @untainted string? replyTo = ()) returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
@@ -55,7 +55,7 @@ public type Producer client object {
     # + data - Data to publish.
     # + duration - The time to wait for a response measured in milliseconds.
     # + return -  The response message or an error.
-    public remote function request(@untainted string subject, @untainted ContentType data, int? duration = ()) returns Message|Error {
+    public remote function request(@untainted string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
@@ -64,7 +64,7 @@ public type Producer client object {
         }
     }
 
-    function externRequest(string subject, ContentType data, int? duration = ()) returns Message|Error = external;
+    function externRequest(string subject, Content data, int? duration = ()) returns Message|Error = external;
 
     # Close a given connection.
     #
