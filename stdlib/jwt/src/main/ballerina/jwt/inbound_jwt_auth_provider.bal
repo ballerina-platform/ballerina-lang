@@ -70,7 +70,7 @@ public type InboundJwtAuthProvider object {
         } else {
             // TODO: Remove the below casting when new lang syntax are merged.
             error e = validationResult;
-            return auth:prepareAuthError("JWT validation failed.", err = e);
+            return auth:prepareAuthError("JWT validation failed.", e);
         }
     }
 };
