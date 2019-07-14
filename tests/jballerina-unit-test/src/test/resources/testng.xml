@@ -113,7 +113,7 @@
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typecast.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
+            <package name="org.ballerinalang.test.expressions.literals.*"/>
             <!--<package name="org.ballerinalang.test.expressions.varref.*"/>-->
             <!--<package name="org.ballerinalang.test.annotations"/>-->
             <!--<package name="org.ballerinalang.test.worker.*"/>-->
