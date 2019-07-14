@@ -21,7 +21,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ThreeState;
@@ -36,14 +35,14 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
+import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
+import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
 import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -96,30 +95,27 @@ public class BallerinaXValue extends XNamedValue {
     private XValuePresentation getPresentation() {
         String value = variable.getValue();
         String type = variable.getType();
-        String prefix = String.format("%s ", type);
 
         if (type.equals(BallerinaXValueType.STRING.getValue())) {
             return new XStringValuePresentation(value);
         }
-        // Todo - Enable the rest of type-based presentations
 
-        //        if (variable.getType()) {
-        //            return new XNumericValuePresentation(value);
-        //        }
-        //
-        //        if (variable.isBoolean()) {
-        //            return new XValuePresentation() {
-        //                @Override
-        //                public void renderValue(@NotNull XValueTextRenderer renderer) {
-        //                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
-        //                }
-        //            };
-        //        }
-        //        if (value == null) {
-        //            return new XRegularValuePresentation(frameName, "Scope");
-        //        }
-        return new XRegularValuePresentation(StringUtil.startsWith(value, prefix) ? value.replaceFirst(Pattern.quote
-                (prefix), "") : value, type);
+        if (type.equals(BallerinaXValueType.INT.getValue())
+                || type.equals(BallerinaXValueType.FLOAT.getValue())
+                || type.equals(BallerinaXValueType.DECIMAL.getValue())) {
+            return new XNumericValuePresentation(value);
+        }
+
+        if (type.equals(BallerinaXValueType.BOOLEAN.getValue())) {
+            return new XValuePresentation() {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+                }
+            };
+        }
+
+        return new XRegularValuePresentation(value, type);
     }
 
     @Nullable
@@ -194,9 +190,13 @@ public class BallerinaXValue extends XNamedValue {
         // Todo
     }
 
+    // Todo - Add the rest of the bal types
     private enum BallerinaXValueType {
-        STRING("java,lang.String"),
-        BOOLEAN("java.lang.Boolean");
+        STRING("String"),
+        BOOLEAN("Boolean"),
+        INT("Int"),
+        FLOAT("Float"),
+        DECIMAL("Decimal");
 
         private String value;
 

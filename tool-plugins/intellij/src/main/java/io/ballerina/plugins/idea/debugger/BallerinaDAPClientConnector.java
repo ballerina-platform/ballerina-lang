@@ -158,13 +158,15 @@ public class BallerinaDAPClientConnector {
         }
     }
 
-    void disconnectFromServer() {
-        DisconnectArguments disconnectArgs = new DisconnectArguments();
-        disconnectArgs.setTerminateDebuggee(false);
+    void disconnectFromServer() throws Exception {
         try {
+            DisconnectArguments disconnectArgs = new DisconnectArguments();
+            disconnectArgs.setTerminateDebuggee(false);
             requestManager.disconnect(disconnectArgs);
+            stop();
         } catch (Exception e) {
             LOG.warn("Disconnecting from the debug adapter failed", e);
+            throw e;
         }
     }
 

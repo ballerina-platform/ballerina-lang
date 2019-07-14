@@ -252,35 +252,28 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
     }
 
+    // Todo - Evaluate the previous logic (suspend context based) and reuse if this impl interrupts other processes.
     @Override
     public void stop() {
         // If we don't call this using the executeOnPooledThread(), the UI will hang until the debug server is stopped.
-        ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            XDebugSession session = getSession();
-            if (!isRemoteDebugMode) {
-                XSuspendContext suspendContext = session.getSuspendContext();
-                if (suspendContext != null) {
-                    XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-                    if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                        Long workerID = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
-                                .getMyWorkerID();
-                        if (workerID > 0) {
-                            dapClientConnector.disconnectFromServer();
-                        }
+        if (isConnected) {
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                try {
+                    dapClientConnector.disconnectFromServer();
+                    getSession().getConsoleView().print("Disconnected Successfully from the debug server.\n",
+                            ConsoleViewContentType.SYSTEM_OUTPUT);
+                } catch (Exception e) {
+                    getSession().getConsoleView().print("Disconnected Exceptionally from the debug server.\n",
+                            ConsoleViewContentType.SYSTEM_OUTPUT);
+                } finally {
+                    XDebugSession session = getSession();
+                    if (session != null) {
+                        session.stop();
                     }
-                } else {
-                    session.stop();
-                    return;
+                    isConnected = false;
                 }
-            } else {
-                dapClientConnector.disconnectFromServer();
-                session.stop();
-                getSession().getConsoleView().print("Disconnected from the debug server.\n",
-                        ConsoleViewContentType.SYSTEM_OUTPUT);
-            }
-            isConnected = false;
-            dapClientConnector.stop();
-        });
+            });
+        }
     }
 
     @Nullable
