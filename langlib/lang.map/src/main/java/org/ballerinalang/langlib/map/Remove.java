@@ -34,6 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
+
 /**
  * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
@@ -57,6 +59,7 @@ public class Remove extends BlockingNativeCallableUnit {
     }
 
     public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
+        checkIsMapOnlyOperation(m.getType(), "remove()");
         if (m.containsKey(k)) {
             try {
                 return m.remove(k);
