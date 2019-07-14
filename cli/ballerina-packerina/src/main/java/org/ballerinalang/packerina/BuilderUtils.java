@@ -110,7 +110,7 @@ public class BuilderUtils {
                                                     "ballerina.home is not set");
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                                               targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                                               targetDirectory, Optional.of(Paths.get(targetPath)), dumpBIR);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
         }
