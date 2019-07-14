@@ -682,7 +682,7 @@ public class Types {
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().anyMatch(field -> !isAssignable(field.type, mapType.constraint)) ||
+        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
                 isAssignable(recordType.restFieldType, mapType.constraint);
     }
 
