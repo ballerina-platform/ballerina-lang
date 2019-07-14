@@ -212,12 +212,20 @@ public class SQLDatasourceUtils {
         return getSQLDatabaseError(messagePrefix + sqlErrorMessage, vendorCode, sqlState);
     }
 
+    public static ErrorValue getSQLDatabaseError(SQLException exception) {
+        return getSQLDatabaseError(exception, "");
+    }
+
     public static ErrorValue getSQLDatabaseError(DatabaseException exception, String messagePrefix) {
         String message = exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
         int vendorCode = exception.getSqlErrorCode();
         String sqlState = exception.getSqlState();
         String sqlErrorMessage = exception.getSqlErrorMessage();
         return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
+    }
+
+    public static ErrorValue getSQLDatabaseError(DatabaseException exception) {
+        return getSQLDatabaseError(exception, "");
     }
 
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
@@ -236,6 +244,10 @@ public class SQLDatasourceUtils {
             detailedErrorMessage += exception.getDetailedErrorMessage();
         }
         return getSQLApplicationError(detailedErrorMessage);
+    }
+
+    public static ErrorValue getSQLApplicationError(ApplicationException exception) {
+        return getSQLApplicationError(exception, "");
     }
 
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {

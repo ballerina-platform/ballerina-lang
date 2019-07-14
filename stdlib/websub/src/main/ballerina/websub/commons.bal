@@ -21,6 +21,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/reflect;
+import ballerina/internal;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
@@ -177,7 +178,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, service serviceType) returns @tainted error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType).secret ?: "";
+    SubscriberServiceConfiguration? subscriberConfig = retrieveSubscriberServiceAnnotations(serviceType);
+    string secret = subscriberConfig?.secret ?: "";
     // Build the data source before responding to the content delivery requests automatically
     var payload = request.getTextPayload();
 
@@ -199,7 +201,7 @@ function processWebSubNotification(http:Request request, service serviceType) re
     if (payload is string) {
         return validateSignature(xHubSignature, payload, secret);
     } else {
-        string errCause = <string> payload.detail().message;
+        string errCause = <string> payload.detail()?.message;
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Error extracting notification payload as string " +
                                             "for signature validation: " + errCause);
         return webSubError;
@@ -213,23 +215,23 @@ function processWebSubNotification(http:Request request, service serviceType) re
 # + secret - The secret used when subscribing
 # + return - `error` if an error occurs validating the signature or the signature is invalid
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
-    string[] splitSignature = xHubSignature.split("=");
+    string[] splitSignature = internal:split(xHubSignature, "=");
     string method = splitSignature[0];
-    string signature = xHubSignature.replace(method + "=", "");
+    string signature = internal:replace(xHubSignature, method + "=", "");
     string generatedSignature = "";
 
-    if (method.equalsIgnoreCase(SHA1)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
-            secret.toByteArray("UTF-8")));
-    } else if (method.equalsIgnoreCase(SHA256)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
-            secret.toByteArray("UTF-8")));
+    if (internal:equalsIgnoreCase(method, SHA1)) {
+        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
+            secret.toBytes()));
+    } else if (internal:equalsIgnoreCase(method, SHA256)) {
+        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
+            secret.toBytes()));
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;
     }
 
-    if (!signature.equalsIgnoreCase(generatedSignature)) {
+    if (!internal:equalsIgnoreCase(signature, generatedSignature)) {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Signature validation failed: Invalid Signature!");
         return webSubError;
     }
@@ -362,21 +364,21 @@ public function extractTopicAndHubUrls(http:Response response) returns @tainted 
     string topic = "";
     string[] linkHeaderConstituents = [];
     if (linkHeaders.length() == 1) {
-        linkHeaderConstituents = linkHeaders[0].split(",");
+        linkHeaderConstituents = internal:split(linkHeaders[0], ",");
     } else {
         linkHeaderConstituents = linkHeaders;
     }
 
     foreach var link in linkHeaderConstituents {
-        string[] linkConstituents = link.split(";");
+        string[] linkConstituents = internal:split(link, ";");
         if (linkConstituents[1] != "") {
             string url = linkConstituents[0].trim();
-            url = url.replace("<", "");
-            url = url.replace(">", "");
-            if (linkConstituents[1].contains("rel=\"hub\"")) {
+            url = internal:replace(url, "<", "");
+            url = internal:replace(url, ">", "");
+            if (internal:contains(linkConstituents[1], "rel=\"hub\"")) {
                 hubs[hubIndex] = url;
                 hubIndex += 1;
-            } else if (linkConstituents[1].contains("rel=\"self\"")) {
+            } else if (internal:contains(linkConstituents[1], "rel=\"self\"")) {
                 if (topic != "") {
                     error websubError = error(WEBSUB_ERROR_CODE, message = "Link Header contains > 1 self URLs");
                     return websubError;
@@ -463,18 +465,20 @@ public type RemotePublishConfig record {|
 #            already started up hub
 public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
                                                                     returns WebSubHub|HubStartedUpError {
-    hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                      defaultValue = hubConfiguration.leaseSeconds ?: DEFAULT_LEASE_SECONDS_VALUE);
-    hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
-    remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
-    hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                    defaultValue = hubConfiguration.topicRegistrationRequired ?: true);
+    if(hubConfiguration is HubConfiguration) {
+        hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
+                                          hubConfiguration.leaseSeconds);
+        hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
+        remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
+        hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
+                                        hubConfiguration.topicRegistrationRequired);
 
-    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
-    // configs in the native code
-    hubPublicUrl = config:getAsString("b7a.websub.hub.url", defaultValue = hubConfiguration["publicUrl"] ?: "");
-    hubClientConfig = hubConfiguration["clientConfig"];
-    hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+        // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
+        // configs in the native code
+        hubPublicUrl = config:getAsString("b7a.websub.hub.url", hubConfiguration["publicUrl"] ?: "");
+        hubClientConfig = hubConfiguration["clientConfig"];
+        hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+    }
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
         hubPersistenceEnabled = true;
     }
@@ -612,7 +616,7 @@ public type SubscriptionDetails record {|
 |};
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
-    any annotData = reflect:getServiceAnnotations(serviceType, moduleName = WEBSUB_MODULE_NAME,
+    any annotData = reflect:getServiceAnnotations(serviceType, WEBSUB_MODULE_NAME,
                                              ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
     return <SubscriberServiceConfiguration?> annotData;
 }

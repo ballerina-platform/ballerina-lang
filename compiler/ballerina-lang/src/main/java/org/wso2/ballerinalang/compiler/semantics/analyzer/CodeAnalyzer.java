@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -157,7 +156,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -1465,30 +1463,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
-
-        if (indexAccessExpr.indexExpr.type.tag == TypeTags.SEMANTIC_ERROR) {
-            return;
-        }
-
-        NodeKind nodeKind = indexAccessExpr.indexExpr.getKind();
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY &&
-                (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL)) {
-            BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
-            BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
-            Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
-            if (bArrayType.state == BArrayState.CLOSED_SEALED && (bArrayType.size <= indexVal)) {
-                dlog.error(indexExpr.pos, DiagnosticCode.ARRAY_INDEX_OUT_OF_RANGE, indexVal, bArrayType.size);
-            }
-        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
-        analyzeExprs(invocationExpr.namedArgs);
         analyzeExprs(invocationExpr.restArgs);
-
-        checkDuplicateNamedArgs(invocationExpr.namedArgs);
 
         // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
@@ -2158,12 +2138,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         funcNode.requiredParams.forEach(param -> {
             if (!types.isAnydata(param.type)) {
                 this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
-            }
-        });
-
-        funcNode.defaultableParams.forEach(param -> {
-            if (!types.isAnydata(param.var.type)) {
-                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.var.type);
             }
         });
 

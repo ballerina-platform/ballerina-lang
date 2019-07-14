@@ -22,8 +22,6 @@ package org.ballerinalang.messaging.artemis.externimpl.producer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -57,11 +55,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 )
         }
 )
-public class Send extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Send {
 
     public static Object externSend(Strand strand, ObjectValue producerObj, ObjectValue data) {
         try {
@@ -81,4 +75,6 @@ public class Send extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Send() {
+    }
 }

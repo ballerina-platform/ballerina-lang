@@ -1615,7 +1615,6 @@ public class CommonUtil {
             if (parent instanceof BLangFunction) {
                 BLangFunction bLangFunction = (BLangFunction) parent;
                 bLangFunction.requiredParams.forEach(var -> strings.add(var.name.value));
-                bLangFunction.defaultableParams.forEach(def -> strings.add(def.var.name.value));
             }
             parent = parent.parent;
         }

@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener echoEP1 = new(9094);
+listener http:Listener echoEP1 = new(9094, config = {server: "Mysql"});
 
 @http:ServiceConfig {
     basePath:"/echo"
@@ -35,12 +35,12 @@ service echo1 on echoEP1 {
             checkpanic caller->respond(<@untainted> payload);
         } else {
             resp.statusCode = 500;
-            string errMsg = <string> payload.detail().message;
-            resp.setPayload(<@untainted> errMsg);
+            string? errMsg = payload.detail()?.message;
+            resp.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         }
     }

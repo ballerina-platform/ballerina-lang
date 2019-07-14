@@ -34,10 +34,10 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDataIterator;
 import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.table.BCursorTable;
@@ -155,7 +155,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         BStructureType tableConstraint = structType;
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
-                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue(),
+                    new BPackage(Names.BUILTIN_ORG.getValue(), Names.LANG.value + Names.DOT.value + Names.ANNOTATIONS,
                             Names.DEFAULT_VERSION.getValue()), 0, false);
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
@@ -406,7 +406,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw SQLDatasourceUtils.getSQLDatabaseError(e, "error in cleaning sql resources: ");
         }
     }
 
@@ -427,7 +427,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw SQLDatasourceUtils.getSQLDatabaseError(e, "error in cleaning sql resources: ");
+
         }
     }
 
@@ -1246,8 +1247,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 Object timeVal = (((MapValue<String, Object>) value).get(Constants.STRUCT_TIME_FIELD));
                 long time = (Long) timeVal;
                 val = new Time(time);
-            } else if (value instanceof Integer) {
-                val = new Time((Integer) value);
+            } else if (value instanceof Long) {
+                val = new Time((Long) value);
             } else if (value instanceof String) {
                 val = convertToTime((String) value);
             }
@@ -1563,7 +1564,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             arrayLength = ((ArrayValue) value).size();
             arrayData = new BigDecimal[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((ArrayValue) value).getDecimal(i);
+                arrayData[i] = ((DecimalValue) ((ArrayValue) value).getRefValue(i)).value();
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DECIMAL };
         case TypeTags.STRING_TAG:

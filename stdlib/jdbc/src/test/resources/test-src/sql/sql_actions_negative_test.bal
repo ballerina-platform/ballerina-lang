@@ -52,24 +52,23 @@ function testErrorWithSelectData() returns string {
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-    json retVal;
+    string retVal;
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
     if (x is table<record {}>) {
-        var jsonConversionResult = json.convert(x);
+        var jsonConversionResult = typedesc<json>.constructFrom(x);
         if (jsonConversionResult is json) {
-            retVal = jsonConversionResult;
+            retVal = io:sprintf("%s", jsonConversionResult);
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
         }
     } else {
         error e = x;
-        retVal = { "Error": io:sprintf("%s", e) };
+        retVal = io:sprintf("%s", e);
     }
-    string returnData = io:sprintf("%s", retVal);
 
     checkpanic testDB.stop();
-    return returnData;
+    return retVal;
 }
 
 function testGeneratedKeyOnInsert() returns int|string {
@@ -89,7 +88,7 @@ function testGeneratedKeyOnInsert() returns int|string {
         ret = x.generatedKeys.length();
     } else {
         error e = x;
-        ret = <string> e.detail().message;
+        ret = <string> e.detail()["message"];
     }
 
     checkpanic testDB.stop();
@@ -137,7 +136,7 @@ function testUpdateReslt() returns int|string {
         x.updatedRowCount = 0;
     } else {
         error e = x;
-        ret = <string> e.detail().message;
+        ret = <string> e.detail()["message"];
     }
     return ret;
 }
@@ -179,7 +178,7 @@ function testBatchUpdate() returns string {
         }
     } else {
         error e = x;
-        returnVal = <string> e.detail().message;
+        returnVal = <string> e.detail()["message"];
     }
     checkpanic testDB.stop();
     return returnVal;
@@ -244,7 +243,7 @@ function testInvalidArrayofQueryParameters() returns @tainted string {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
-        var j = json.convert(x);
+        var j = typedesc<json>.constructFrom(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
@@ -253,7 +252,7 @@ function testInvalidArrayofQueryParameters() returns @tainted string {
         }
     } else {
         error e = x;
-        returnData = <string> e.detail().message;
+        returnData = <string> e.detail()["message"];
     }
     checkpanic testDB.stop();
     return returnData;
@@ -275,7 +274,7 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     if (x is table<record {}>) {
-        var j = json.convert(x);
+        var j = typedesc<json>.constructFrom(x);
         if (j is json) {
             returnData = io:sprintf("%s", j);
         } else {
@@ -306,20 +305,20 @@ function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
     boolean isError = false;
-    boolean isJdbcClientError = false;
+    boolean isJdbcError = false;
     boolean isApplicationError = false;
 
     if (x is error) {
         isError = true;
     }
-    if (x is jdbc:JdbcClientError) {
-        isJdbcClientError = true;
+    if (x is jdbc:Error) {
+        isJdbcError = true;
     }
     if (x is jdbc:ApplicationError) {
         isApplicationError = true;
     }
     checkpanic testDB.stop();
-    return [isError, isJdbcClientError, isApplicationError];
+    return [isError, isJdbcError, isApplicationError];
 }
 
 function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
@@ -333,33 +332,33 @@ function testCheckDatabaseErrorType() returns [boolean, boolean, boolean] {
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
     boolean isError = false;
-    boolean isJdbcClientError = false;
+    boolean isJdbcError = false;
     boolean isDatabaseError = false;
 
     if (x is error) {
         isError = true;
     }
-    if (x is jdbc:JdbcClientError) {
-        isJdbcClientError = true;
+    if (x is jdbc:Error) {
+        isJdbcError = true;
     }
     if (x is jdbc:DatabaseError) {
         isDatabaseError = true;
     }
     checkpanic testDB.stop();
-    return [isError, isJdbcClientError, isDatabaseError];
+    return [isError, isJdbcError, isDatabaseError];
 }
 
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": <string> tableOrError.detail()["message"] };
     }
     return retVal;
 }

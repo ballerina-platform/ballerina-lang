@@ -88,6 +88,7 @@ public class WebSocketDispatcher {
             }
             HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
+            msg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
         } catch (BallerinaConnectorException | URITemplateException e) {
@@ -171,7 +172,7 @@ public class WebSocketDispatcher {
                     //Cannot reach here because of compiler plugin validation.
                     throw new BallerinaConnectorException("Invalid resource signature.");
             }
-        } catch (BallerinaException ex) {
+        } catch (Exception ex) {
             webSocketConnection.terminateConnection(1003, ex.getMessage());
             log.error("Data binding failed. Hence connection terminated. ", ex);
         }

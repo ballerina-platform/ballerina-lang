@@ -44,7 +44,7 @@ http:ServiceEndpointConfiguration mutualSslServiceConf = {
     }
 };
 
-listener http:Listener echo15 = new(9116, config = mutualSslServiceConf);
+listener http:Listener echo15 = new(9116, mutualSslServiceConf);
 
 @http:ServiceConfig {
      basePath: "/echo"

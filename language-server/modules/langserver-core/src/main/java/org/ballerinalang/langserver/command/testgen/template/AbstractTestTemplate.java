@@ -19,14 +19,11 @@ package org.ballerinalang.langserver.command.testgen.template;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 
 import java.util.ArrayList;
@@ -35,8 +32,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.isRecordValueExists;
 
 /**
  * This class provides shared functionalities across Ballerina Test Templates.
@@ -143,16 +138,16 @@ public abstract class AbstractTestTemplate implements TestTemplate {
      * @return True if secure service, False otherwise
      */
     protected boolean isSecureService(BLangTypeInit init) {
-        for (BLangExpression expression : init.initInvocation.namedArgs) {
-            if (expression instanceof BLangNamedArgsExpression) {
-                BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
-                if (namedArgsExpression.name.value.equals("config") &&
-                        namedArgsExpression.expr instanceof BLangRecordLiteral) {
-                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET,
-                                               (BLangRecordLiteral) namedArgsExpression.expr);
-                }
-            }
-        }
+//        for (BLangExpression expression : init.initInvocation.namedArgs) {
+//            if (expression instanceof BLangNamedArgsExpression) {
+//                BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
+//                if (namedArgsExpression.name.value.equals("config") &&
+//                        namedArgsExpression.expr instanceof BLangRecordLiteral) {
+//                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET,
+//                                               (BLangRecordLiteral) namedArgsExpression.expr);
+//                }
+//            }
+//        }
         return false;
     }
 

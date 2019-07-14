@@ -20,17 +20,17 @@ import ballerina/log;
 
 final string ACCEPT_ENCODING = "accept-encoding";
 
-listener http:Listener passthroughEP2 = new(9091);
+listener http:Listener passthroughEP2 = new(9091, config = {server: "Mysql"});
 
-http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", config = {
+http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_AUTO
 });
 
-http:Client acceptEncodingEnableEP = new("http://localhost:9091/hello", config = {
+http:Client acceptEncodingEnableEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_ALWAYS
 });
 
-http:Client acceptEncodingDisableEP = new("http://localhost:9091/hello", config = {
+http:Client acceptEncodingDisableEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_NEVER
 });
 
@@ -44,7 +44,7 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 var responseError = caller->respond(clientResponse);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             } else {
                 http:Response res = new;
@@ -52,7 +52,7 @@ service passthrough on passthroughEP2 {
                 res.setPayload(clientResponse.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
@@ -65,7 +65,7 @@ service passthrough on passthroughEP2 {
                 res.setPayload(clientResponse.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
@@ -78,7 +78,7 @@ service passthrough on passthroughEP2 {
                 res.setPayload(clientResponse.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             }
         }

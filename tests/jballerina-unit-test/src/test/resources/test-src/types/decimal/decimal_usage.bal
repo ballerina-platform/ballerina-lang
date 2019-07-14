@@ -28,7 +28,7 @@ function testDecimalMap() returns [map<decimal>, int, string[], decimal] {
     map<decimal> dMap = {element0: 12.45, element1: 34.3, element2: 2314.31};
     int length = dMap.length();
     string[] keys = dMap.keys();
-    decimal element0 = dMap.element0;
+    decimal element0 = dMap.get("element0");
     return [dMap, length, keys, element0];
 }
 
@@ -57,7 +57,7 @@ type Student object {
     decimal weight = 65.65;
     decimal height = 0.0;
 
-    function __init(string name = "Bob", int age = 25, decimal weight, decimal height) {
+    function __init(decimal weight, decimal height, string name = "Bob", int age = 25) {
         self.name = name;
         self.age = age;
         self.weight = weight;

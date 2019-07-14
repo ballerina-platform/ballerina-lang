@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -259,7 +260,7 @@ public class JSONParser {
             }
 
             Object parentNode = this.nodesStack.pop();
-            if (TypeChecker.getType(parentNode).getTag() == TypeTags.JSON_TAG) {
+            if (TypeChecker.getType(parentNode).getTag() == TypeTags.MAP_TAG) {
                 ((MapValueImpl<String, Object>) parentNode).put(fieldNames.pop(), currentJsonNode);
                 currentJsonNode = parentNode;
                 return FIELD_END_STATE;
@@ -273,7 +274,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new MapValueImpl<String, Object>(BTypes.typeJSON);
+            currentJsonNode = new MapValueImpl<String, Object>(new BMapType(BTypes.typeJSON));
             return FIRST_FIELD_READY_STATE;
         }
 

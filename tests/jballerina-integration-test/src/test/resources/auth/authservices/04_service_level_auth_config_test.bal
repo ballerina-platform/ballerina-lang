@@ -20,7 +20,7 @@ import ballerina/http;
 auth:InboundBasicAuthProvider basicAuthProvider04 = new(());
 http:BasicAuthHandler basicAuthHandler04 = new(basicAuthProvider04);
 
-listener http:Listener listener04 = new(9095, config = {
+listener http:Listener listener04 = new(9095, {
     auth: {
         authHandlers: [basicAuthHandler04]
     },

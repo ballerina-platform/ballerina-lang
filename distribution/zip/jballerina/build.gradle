@@ -118,9 +118,7 @@ dependencies {
     dist 'io.netty:netty-transport-native-epoll:4.1.34.Final'
     dist 'io.netty:netty-transport-native-kqueue:4.1.34.Final'
 
-
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -156,8 +154,25 @@ dependencies {
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
+    // Lang libs
+    distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
-    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
     balSource project(path: ':ballerina-config-api', configuration: 'balSource')
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
@@ -193,8 +208,25 @@ dependencies {
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
 
+    // Lang Libs
+    balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:future', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:object', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:stream', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:string', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:table', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:typedesc', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:value', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
+
     dist project(':ballerina-auth')
-    dist project(':ballerina-builtin')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
@@ -242,6 +274,24 @@ dependencies {
     dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
+
+    // Lang libs
+    dist project(':ballerina-lang:internal')
+    dist project(':ballerina-lang:annotations')
+    dist project(':ballerina-lang:array')
+    dist project(':ballerina-lang:decimal')
+    dist project(':ballerina-lang:error')
+    dist project(':ballerina-lang:floatingpoint')
+    dist project(':ballerina-lang:future')
+    dist project(':ballerina-lang:integer')
+    dist project(':ballerina-lang:map')
+    dist project(':ballerina-lang:object')
+    dist project(':ballerina-lang:stream')
+    dist project(':ballerina-lang:string')
+    dist project(':ballerina-lang:table')
+    dist project(':ballerina-lang:typedesc')
+    dist project(':ballerina-lang:value')
+    dist project(':ballerina-lang:xml')
 
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 

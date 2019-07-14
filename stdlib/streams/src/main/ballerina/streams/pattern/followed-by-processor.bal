@@ -67,7 +67,8 @@ public type FollowedByProcessor object {
                 AbstractPatternProcessor? rProcessor = self.rhsProcessor;
                 if (rProcessor is AbstractPatternProcessor) {
                     // foreach partial state, copy event data and process in rhsProcessor.
-                    string[] evtIds = self.partialStates.keys().clone();
+                    string[] originalEventIds = self.partialStates.keys();
+                    string[] evtIds = <string[]>originalEventIds.clone();
                     foreach string id in evtIds {
                         StreamEvent partialEvt = <StreamEvent>self.partialStates[id];
                         partialEvt.addData(event.cloneData());
@@ -141,8 +142,8 @@ public type FollowedByProcessor object {
         } else {
             // promoted from rhs means, it's a complete state.
             // so, remove the its respective partial event.
-            boolean removed = self.partialStates.remove(stateEvent.getEventId());
-            if (removed) {
+            if (self.partialStates.hasKey(stateEvent.getEventId())) {
+                var removed = self.partialStates.remove(stateEvent.getEventId());
                 self.stateEvents.addLast(stateEvent);
             }
         }
@@ -167,7 +168,7 @@ public type FollowedByProcessor object {
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching partial states from this processor.
-        boolean removed = self.partialStates.remove(streamEvent.getEventId());
+        var removed = self.partialStates.remove(streamEvent.getEventId());
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
         while (self.stateEvents.hasNext()) {
@@ -190,7 +191,10 @@ public type FollowedByProcessor object {
     # + processor - lhs processor
     public function setLHSProcessor(AbstractPatternProcessor processor) {
         self.lhsProcessor = processor;
-        self.lhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? patternProcessor = self.lhsProcessor;
+        if (patternProcessor is AbstractPatternProcessor) {
+            patternProcessor.setPreviousProcessor(self);
+        }
     }
 
     # Sets a link to the rhs `AbstractOperatorProcessor`.
@@ -198,7 +202,10 @@ public type FollowedByProcessor object {
     # + processor - rhs processor
     public function setRHSProcessor(AbstractPatternProcessor processor) {
         self.rhsProcessor = processor;
-        self.rhsProcessor.setPreviousProcessor(self);
+        AbstractPatternProcessor? patternProcessor = self.rhsProcessor;
+        if (patternProcessor is AbstractPatternProcessor) {
+            patternProcessor.setPreviousProcessor(self);
+        }
     }
 
     # Returns the alias of the current processor.

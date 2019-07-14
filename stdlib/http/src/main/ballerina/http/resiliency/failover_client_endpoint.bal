@@ -399,8 +399,11 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 function populateGenericFailoverActionError (error?[] failoverActionErr, error httpActionErr, int index)
            returns (error) {
     failoverActionErr[index] = httpActionErr;
-    string lastErrorMsg = <string> httpActionErr.detail().message;
-    string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
+    string? lastErrorMsg = httpActionErr.detail()?.message;
+    string failoverMessage = "All the failover endpoints failed.";
+    if (lastErrorMsg is string) {
+        failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
+    }
     error actionError = error(HTTP_ERROR_CODE, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;
 }
@@ -491,7 +494,7 @@ function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failo
 
     foreach var target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
-        clientEp = new(target.url, config = epConfig);
+        clientEp = new(target.url, epConfig);
         httpClients[i] = clientEp;
         i += 1;
     }

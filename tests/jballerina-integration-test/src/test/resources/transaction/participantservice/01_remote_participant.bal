@@ -49,7 +49,7 @@ service hello on new http:Listener(8889) {
 
         var resp = caller->respond(res);
         if (resp is error) {
-            log:printError("Error sending response", err = resp);
+            log:printError("Error sending response", resp);
         }
     }
 
@@ -70,7 +70,7 @@ service hello on new http:Listener(8889) {
 
         var resp = caller->respond(res);
         if (resp is error) {
-            log:printError("Error sending response", err = resp);
+            log:printError("Error sending response", resp);
         }
         return;
     }
@@ -130,7 +130,7 @@ service hello on new http:Listener(8889) {
         res.setPayload(s);
         var resp = caller->respond(res);
         if (resp is error) {
-            log:printError("Error sending response", err = resp);
+            log:printError("Error sending response", resp);
         }
     }
 }
@@ -371,7 +371,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -386,7 +386,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -402,7 +402,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -419,7 +419,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -436,7 +436,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -449,7 +449,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -464,7 +464,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -479,7 +479,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
@@ -494,7 +494,7 @@ service initiatorService on new http:Listener(8888) {
         res.setPayload(untaint result);
         var r = caller->respond(res);
         if (r is error) {
-            log:printError("Error sending response: " + result, err = r);
+            log:printError("Error sending response: " + result, r);
         }
     }
 
