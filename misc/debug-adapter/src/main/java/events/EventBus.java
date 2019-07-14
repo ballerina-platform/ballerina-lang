@@ -151,49 +151,49 @@ public class EventBus {
         String balType;
         switch (variable.signature()) {
             case "J":
-                balType = "BTypeInt";
+                balType = "Int";
                 break;
             case "I":
-                balType = "BTypeByte";
+                balType = "Byte";
                 break;
             case "D":
-                balType = "BTypeFloat";
+                balType = "Float";
                 break;
             case "Z":
-                balType = "BTypeBoolean";
+                balType = "Boolean";
                 break;
             case "Ljava/lang/String;":
-                balType = "BTypeString";
+                balType = "String";
                 break;
             case "Lorg/ballerinalang/jvm/values/DecimalValue;":
-                balType = "BTypeDecimal";
+                balType = "Decimal";
                 break;
             case "Lorg/ballerinalang/jvm/values/MapValue;":
-                balType = "BMapType";
+                balType = "Map";
                 break;
             case "Lorg/ballerinalang/jvm/values/TableValue;":
-                balType = "BTableType";
+                balType = "Table";
                 break;
             case "Lorg/ballerinalang/jvm/values/StreamValue;":
-                balType = "BStreamType";
+                balType = "Stream";
                 break;
             case "Lorg/ballerinalang/jvm/values/ArrayValue;":
-                balType = "BArrayType";
+                balType = "Array";
                 break;
             case "Ljava/lang/Object;":
-                balType = "BObjectType";
+                balType = "Object";
                 break;
             case "Lorg/ballerinalang/jvm/values/ErrorValue;":
-                balType = "BErrorType";
+                balType = "Error";
                 break;
             case "Lorg/ballerinalang/jvm/values/FutureValue;":
-                balType = "BFutureType";
+                balType = "Future";
                 break;
             case "Lorg/ballerinalang/jvm/values/FPValue;":
-                balType = "BInvokableType";
+                balType = "Invokable";
                 break;
             case "Lorg/ballerinalang/jvm/values/TypedescValue;":
-                balType = "BTypeDesc";
+                balType = "Desc";
                 break;
             default:
                 balType = "Object";
