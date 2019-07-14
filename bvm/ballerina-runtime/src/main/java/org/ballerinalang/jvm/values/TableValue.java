@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
@@ -27,7 +28,6 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -80,13 +80,13 @@ public class TableValue implements RefValue, CollectionValue {
                       BStructureType constraintType, ArrayValue params) {
         this.tableProvider = TableProvider.getInstance();
         if (!fromTable.isInMemoryTable()) {
-            throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
-                                         "Table query over a cursor table not supported");
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "Table query over a cursor table not supported");
         }
         if (joinTable != null) {
             if (!joinTable.isInMemoryTable()) {
-                throw new BallerinaException(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
-                                             "Table query over a cursor table not supported");
+                throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                        "Table query over a cursor table not supported");
             }
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
                                                        constraintType, params);
@@ -161,7 +161,8 @@ public class TableValue implements RefValue, CollectionValue {
 
     public boolean hasNext() {
         if (tableClosed) {
-            throw new BallerinaException("Trying to perform hasNext operation over a closed table");
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "Trying to perform hasNext operation over a closed table");
         }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
@@ -178,8 +179,8 @@ public class TableValue implements RefValue, CollectionValue {
 
     public void moveToNext() {
         if (tableClosed) {
-            throw new BallerinaException(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
-                                         "Trying to perform an operation over a closed table");
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
+                    "Trying to perform an operation over a closed table");
         }
         if (isIteratorGenerationConditionMet()) {
             generateIterator();
@@ -236,8 +237,9 @@ public class TableValue implements RefValue, CollectionValue {
 
     public void addData(MapValueImpl<String, Object> data) {
         if (data.getType() != this.constraintType) {
-            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
-                                         + " cannot be added to a table with type:" + this.constraintType.getName());
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "incompatible types: record of type:" + data.getType().getName()
+                            + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
         reset();
@@ -296,7 +298,8 @@ public class TableValue implements RefValue, CollectionValue {
     @Override
     public Object copy(Map<Object, Object> refs) {
         if (tableClosed) {
-            throw new BallerinaException("Trying to invoke clone built-in method over a closed table");
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "Trying to invoke clone built-in method over a closed table");
         }
 
         if (isFrozen()) {
