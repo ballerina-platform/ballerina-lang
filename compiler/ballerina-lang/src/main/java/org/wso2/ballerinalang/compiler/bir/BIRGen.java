@@ -189,12 +189,14 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
+    private BIROptimizer birOptimizer;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BLangBlockStmt currentBlock;
     private Map<BLangBlockStmt, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -210,6 +212,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
+        this.birOptimizer = BIROptimizer.getInstance(context);
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
@@ -259,6 +262,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
 
+        this.birOptimizer.optimizePackage(birPkg);
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
     }
 
@@ -1110,7 +1114,7 @@ public class BIRGen extends BLangNodeVisitor {
         astTypeConversionExpr.expr.accept(this);
         BIROperand rhsOp = this.env.targetOperand;
 
-        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp,
+        emit(new BIRNonTerminator.TypeCast(astTypeConversionExpr.pos, toVarRef, rhsOp, toVarRef.variableDcl.type,
                 astTypeConversionExpr.checkTypes));
         this.env.targetOperand = toVarRef;
     }
@@ -1666,7 +1670,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         xmlAttributeAccessExpr.expr.accept(this);
         BIROperand xmlVarOp = this.env.targetOperand;
-        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, true));
+        emit(new BIRNonTerminator.TypeCast(xmlAttributeAccessExpr.pos, toVarRef, xmlVarOp, symTable.mapStringType,
+                true));
         this.env.targetOperand = toVarRef;
     }
 

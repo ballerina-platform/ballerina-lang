@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="tutorials.xsl"?>
+<samples>
+    <xsltstuff>
+        <name>XSLT</name>
+        <url>https://www.abc.com</url>
+    </xsltstuff>
+    <xsltstuff>
+        <name>HTML</name>
+        <url>https://www.xyz.com</url>
+    </xsltstuff>
+</samples>

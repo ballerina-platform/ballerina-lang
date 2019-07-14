@@ -43,6 +43,7 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
@@ -312,8 +313,15 @@ public class TypeChecker {
             return false;
         }
 
-        if (isSimpleBasicType(getType(lhsValue)) && isSimpleBasicType(getType(rhsValue))) {
+        BType lhsType = getType(lhsValue);
+        BType rhsType = getType(rhsValue);
+
+        if (isSimpleBasicType(lhsType) && isSimpleBasicType(rhsType)) {
             return isEqual(lhsValue, rhsValue);
+        }
+
+        if (isHandleType(lhsType) && isHandleType(rhsType)) {
+            return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
@@ -367,6 +375,10 @@ public class TypeChecker {
                 }
                 return sourceType.getTag() == targetType.getTag();
             case TypeTags.INT_TAG:
+                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    return ((BFiniteType) sourceType).valueSpace.stream()
+                            .allMatch(bValue -> checkIsType(bValue, targetType));
+                }
                 return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
@@ -400,6 +412,8 @@ public class TypeChecker {
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType);
+            case TypeTags.HANDLE_TAG:
+                return sourceType.getTag() == TypeTags.HANDLE_TAG;
             default:
                 return false;
         }
@@ -1190,6 +1204,10 @@ public class TypeChecker {
         return type.getTag() < TypeTags.JSON_TAG;
     }
 
+    private static boolean isHandleType(BType type) {
+        return type.getTag() == TypeTags.HANDLE_TAG;
+    }
+
     /**
      * Deep value equality check for anydata.
      *
@@ -1369,6 +1387,19 @@ public class TypeChecker {
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
         }
+    }
+
+    /**
+     * Check the reference equality of handle values.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isHandleValueRefEqual(Object lhsValue, Object rhsValue) {
+        HandleValue lhsHandle = (HandleValue) lhsValue;
+        HandleValue rhsHandle = (HandleValue) rhsValue;
+        return lhsHandle.value == rhsHandle.value;
     }
 
     /**

@@ -73,7 +73,7 @@ public type PackageParser object {
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
-            _ = self.reader.readByteArray(untaint constValueLength);
+            _ = self.reader.readByteArray(<@untainted> constValueLength);
 
             GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT, 
                                       name:{value:name}, 
@@ -112,7 +112,8 @@ public type PackageParser object {
             funcs[i] = self.parseFunction(typeDefs);
             i += 1;
         }
-        return funcs;
+        // TODO: dhananjaya please remove
+        return <@untainted> funcs;
     }
     private function parseInvokableType() returns BInvokableType {
         var functionType = self.reader.readTypeCpRef();
@@ -123,7 +124,7 @@ public type PackageParser object {
         panic err;
     }
 
-    public function parseFunction(TypeDef?[] typeDefs) returns Function {
+    public function parseFunction(TypeDef?[] typeDefs) returns @untainted Function {
         map<VariableDcl> localVarMap = {};
         FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
@@ -150,12 +151,12 @@ public type PackageParser object {
         }
 
         int taintLength = self.reader.readInt64();
-        _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
+        _ = self.reader.readByteArray(<@untainted> taintLength); // read and ignore taint table
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
-            _ = self.reader.readByteArray(untaint bodyLength);
-            return {
+            _ = self.reader.readByteArray(<@untainted> bodyLength);
+            return <@untainted Function> {
                 pos: pos,
                 name: { value: name },
                 flags: flags,
@@ -197,6 +198,7 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             count += 1;
         }
+
         count = 0;
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
@@ -226,7 +228,7 @@ public type PackageParser object {
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         ChannelDetail[] workerChannels = getWorkerChannels(self.reader);
 
-        return {
+        return <@untainted Function> {
             pos: pos,
             name: { value: name },
             flags: flags,
@@ -277,7 +279,7 @@ public type PackageParser object {
 
         self.skipAnnotations();
 
-        return { importModules : importModules,
+        return <@untainted Package> { importModules : importModules,
                     typeDefs : typeDefs, 
                     globalVars : globalVars, 
                     functions : funcs,
@@ -472,7 +474,7 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        error err = error("unsupported literal value type in annotation attachment value", {"type":bType});
+        error err = error("unsupported literal value type in annotation attachment value", err = {"type":bType});
         panic err;
     }
     return value;
