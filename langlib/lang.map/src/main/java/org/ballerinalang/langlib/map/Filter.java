@@ -19,13 +19,20 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.langlib.map.util.MapLibUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.map:filter(map<Type>, function).
@@ -41,7 +48,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Filter {
 
     public static MapValue filter(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
-        MapValue newMap = new MapValueImpl(m.getType());
+        BType mapType = m.getType();
+        BType newMapType;
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+                newMapType = mapType;
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                BType newConstraint = MapLibUtils.getCommonTypeForRecordField((BRecordType) mapType);
+                newMapType = new BMapType(newConstraint);
+                break;
+            default:
+                throw createOpNotSupportedError(mapType, "filter()");
+        }
+        MapValue newMap = new MapValueImpl(newMapType);
 
         m.forEach((key, value) -> {
             if (func.apply(new Object[]{strand, value, true})) {
