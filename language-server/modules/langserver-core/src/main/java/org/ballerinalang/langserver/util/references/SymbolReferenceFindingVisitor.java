@@ -152,9 +152,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         }
         this.topLevelNodes = compUnit.getTopLevelNodes();
         List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
-            if (topLevelNode instanceof BLangFunction && ((BLangFunction) topLevelNode).flagSet.contains(Flag.WORKER)) {
-                workerLambdas.add((BLangFunction) topLevelNode);
-                return false;
+            if (topLevelNode instanceof BLangFunction) {
+                if (((BLangFunction) topLevelNode).flagSet.contains(Flag.WORKER)) {
+                    workerLambdas.add((BLangFunction) topLevelNode);
+                    return false;
+                }
+                return !((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA);
             }
             return true;
         }).collect(Collectors.toList());
@@ -611,7 +614,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        this.acceptNode(bLangLambdaFunction.function.body);
+        BLangFunction funcNode = bLangLambdaFunction.function;
+        funcNode.annAttachments.forEach(this::acceptNode);
+        funcNode.defaultableParams.forEach(this::acceptNode);
+        funcNode.requiredParams.forEach(this::acceptNode);
+        funcNode.externalAnnAttachments.forEach(this::acceptNode);
+        funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
+        this.acceptNode(funcNode.returnTypeNode);
+        this.acceptNode(funcNode.body);
     }
 
     @Override
