@@ -401,7 +401,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                         + this.getTypeLengthWithWS(variable.typeNode, false);
             }
             int eCol = sCol + this.tokenName.length();
-            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sCol, eCol);
+            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.sLine, sCol, eCol);
             this.addSymbol(variable, variable.symbol, true, pos);
         } else {
             // In the foreach's variable definition node, type becomes null and will be handled by the acceptNode
