@@ -101,7 +101,7 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(getError(null ,"Unable to complete handshake:" +
+                    callback.notifyFailure(getError(null , "Unable to complete handshake:" +
                             throwable.getMessage()));
                 } else {
                     throw new WebSocketException("Unable to complete handshake", throwable);
