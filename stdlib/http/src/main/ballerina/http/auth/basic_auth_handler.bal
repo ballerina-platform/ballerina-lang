@@ -63,8 +63,8 @@ public type BasicAuthHandler object {
     # Prepares the request with the Basic Auth header.
     #
     # + req - The`Request` instance.
-    # + return - Returns the updated `Request` instance or the`error` in case of an error.
-    public function prepare(Request req) returns Request|error {
+    # + return - Returns the updated `Request` instance or the`ClientError` in case of an error.
+    public function prepare(Request req) returns Request|ClientError {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             string token = check authProvider.generateToken();

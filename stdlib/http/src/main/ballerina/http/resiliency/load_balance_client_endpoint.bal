@@ -226,7 +226,7 @@ function performLoadBalanceExecuteAction(LoadBalanceClient lb, string path, Requ
     if (connectorAction != HTTP_NONE) {
         return performLoadBalanceAction(lb, path, request, connectorAction);
     } else {
-        string message = "Load balancer client not supported for connector action: " + httpVerb;
+        string message = "Load balancer client not supported for http method: " + httpVerb;
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
         return err;
     }

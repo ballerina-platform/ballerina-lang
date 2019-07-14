@@ -239,7 +239,7 @@ public type FailoverClient client object {
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `error` if the invocation fails
+    # + return - An HTTP response message, or an `ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Client foClient = getLastSuceededClientEP(self);
         return foClient->getResponse(httpFuture);
@@ -256,7 +256,7 @@ public type FailoverClient client object {
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `error` if the invocation fails
+    # + return - An HTTP Push Promise message, or an `ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         string message = "Failover client not supported for getNextPromise action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
@@ -266,7 +266,7 @@ public type FailoverClient client object {
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
+    # + return - A promised HTTP `Response` message, or an `ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         string message = "Failover client not supported for getPromisedResponse action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
