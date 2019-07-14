@@ -53,7 +53,7 @@
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <!--<package name="org.ballerinalang.test.main.function.*"/>-->
-            <!--<package name="org.ballerinalang.test.types.decimaltype.*"/>-->
+            <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <!--<package name="org.ballerinalang.test.types.any.*"/>-->
             <!--<package name="org.ballerinalang.test.error.*"/>-->
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
@@ -66,7 +66,7 @@
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
             <package name="org.ballerinalang.test.types.tuples.*"/>
             <!--<package name="org.ballerinalang.test.types.anydata.*"/>-->
-            <!--<package name="org.ballerinalang.test.statements.arrays.*"/>-->
+            <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <!--<package name="org.ballerinalang.test.statements.block.*"/>-->
             <package name="org.ballerinalang.test.statements.breakstatement.*"/>
@@ -76,7 +76,7 @@
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
             <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
-            <!--<package name="org.ballerinalang.test.statements.returnstmt.*"/>-->
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
@@ -116,7 +116,7 @@
             <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.varref.*"/>-->
             <!--<package name="org.ballerinalang.test.annotations"/>-->
-            <!--<package name="org.ballerinalang.test.worker.*"/>-->
+            <package name="org.ballerinalang.test.worker.*"/>
             <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.transaction.*"/>-->
         </packages>

@@ -1508,8 +1508,8 @@ public class TypeChecker {
         } else {
             AttachedFunction initializerFunc = type.initializer;
             if (initializerFunc == null) {
-                // No __init function found.
-                return true;
+                // abstract objects doesn't have a filler value.
+                return false;
             }
             BFunctionType initFuncType = initializerFunc.type;
             // Todo: check defaultable params of the init func as well
