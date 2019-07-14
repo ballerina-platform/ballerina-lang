@@ -35,8 +35,8 @@ service echo1 on echoEP1 {
             checkpanic caller->respond(<@untainted> payload);
         } else {
             resp.statusCode = 500;
-            string errMsg = <string> payload.detail().message;
-            resp.setPayload(<@untainted> errMsg);
+            string? errMsg = payload.detail()?.message;
+            resp.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

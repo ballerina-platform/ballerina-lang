@@ -34,7 +34,7 @@ public type Client client object {
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
         self.hubUrl = url;
         self.httpClientEndpoint = new (self.hubUrl, config);
-        self.followRedirects = config.followRedirects;
+        self.followRedirects = config?.followRedirects;
     }
 
     # Sends a subscription request to a WebSub Hub.
@@ -86,7 +86,7 @@ public type Client client object {
                 return webSubError;
             }
         } else {
-            string errCause = <string> registrationResponse.detail().message;
+            string errCause = <string> registrationResponse.detail()?.message;
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic registration request: " + errCause);
             return webSubError;
         }
@@ -108,7 +108,7 @@ public type Client client object {
                 return webSubError;
             }
         } else {
-            string errCause = <string> unregistrationResponse.detail().message;
+            string errCause = <string> unregistrationResponse.detail()?.message;
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic unregistration request: " + errCause);
             return webSubError;
         }
@@ -134,7 +134,7 @@ public type Client client object {
         }
 
         if (headers is map<string>) {
-            foreach var [key, value] in headers {
+            foreach var [key, value] in headers.entries() {
                 request.setHeader(key, value);
             }
         }
@@ -166,7 +166,7 @@ public type Client client object {
         string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
         if (headers is map<string>) {
-            foreach var [key, value] in headers {
+            foreach var [key, value] in headers.entries() {
                 request.setHeader(key, value);
             }
         }
@@ -249,7 +249,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
 
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
-        string errCause = <string> response.detail().message;
+        string errCause = <string> response.detail()?.message;
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred for request: Mode[" + mode
                                         + "] at Hub[" + hub + "] - " + errCause );
         return webSubError;
@@ -272,7 +272,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
             } else {
-                string errCause = <string> responsePayload.detail().message;
+                string errCause = <string> responsePayload.detail()?.message;
                 errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
             }
             error webSubError = error(WEBSUB_ERROR_CODE, message = errorMessage);

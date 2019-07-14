@@ -22,6 +22,8 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/system;
 import ballerina/time;
+import ballerina/'lang\.int as langint;
+import ballerina/internal;
 
 map<PendingSubscriptionChangeRequest> pendingRequests = {};
 
@@ -75,7 +77,7 @@ service {
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
                 response.statusCode = http:BAD_REQUEST_400;
-                string errorMessage = <string> validationStatus.detail().message;
+                string errorMessage = <string> validationStatus.detail()?.message;
                 response.setTextPayload(errorMessage);
             } else {
                 validSubscriptionChangeRequest = true;
@@ -105,7 +107,7 @@ service {
 
             var registerStatus = registerTopicAtHub(topic);
             if (registerStatus is error) {
-                string errorMessage = <string> registerStatus.detail().message;
+                string errorMessage = <string> registerStatus.detail()?.message;
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload(errorMessage);
                 log:printWarn("Topic registration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -131,7 +133,7 @@ service {
 
             var unregisterStatus = unregisterTopicAtHub(topic);
             if (unregisterStatus is error) {
-                string errorMessage = <string> unregisterStatus.detail().message;
+                string errorMessage = <string> unregisterStatus.detail()?.message;
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload(errorMessage);
                 log:printWarn("Topic unregistration unsuccessful at Hub for Topic[" + topic + "]: " + errorMessage);
@@ -167,7 +169,7 @@ service {
                             var fetchedPayload = fetchResponse.getTextPayload();
                             stringPayload = fetchedPayload is string ? fetchedPayload : "";
                         } else {
-                            string errorCause = <string> fetchResponse.detail().message;
+                            string errorCause = <string> fetchResponse.detail()?.message;
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
                             log:printError(errorMessage);
@@ -193,7 +195,7 @@ service {
                         WebSubContent notification = { payload:binaryPayload, contentType:contentType };
                         publishStatus = publishToInternalHub(topic, notification);
                     } else {
-                        string errorCause = <string> binaryPayload.detail().message;
+                        string errorCause = <string> binaryPayload.detail()?.message;
                         string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
@@ -207,7 +209,7 @@ service {
                     }
 
                     if (publishStatus is error) {
-                        string errorCause = <string> publishStatus.detail().message;
+                        string errorCause = <string> publishStatus.detail()?.message;
                         string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
                         response.setTextPayload(<@untainted string> errorMessage);
                         log:printError(errorMessage);
@@ -252,7 +254,7 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
     if (topic != "" && callback != "") {
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
-        if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
+        if (!internal:hasPrefix(callback, "http://") && !internal:hasPrefix(callback, "https://")) {
             error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
             return err;
         }
@@ -275,7 +277,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     http:Client callbackEp = new http:Client(callback, hubClientConfig);
     string mode = params[HUB_MODE] ?: "";
     string strLeaseSeconds = params[HUB_LEASE_SECONDS] ?: "";
-    var result = int.convert(strLeaseSeconds);
+    var result = langint:fromString(strLeaseSeconds);
     int leaseSeconds = result is error ? 0 : result;
 
     //measured from the time the verification request was made from the hub to the subscriber from the recommendation
@@ -291,7 +293,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     var decodedCallback = http:decode(callback, "UTF-8");
     string callbackToCheck = decodedCallback is error ? callback : decodedCallback;
 
-    string queryParams = (callbackToCheck.contains("?") ? "&" : "?")
+    string queryParams = (internal:contains(callbackToCheck, ("?")) ? "&" : "?")
         + HUB_MODE + "=" + mode
         + "&" + HUB_TOPIC + "=" + topic
         + "&" + HUB_CHALLENGE + "=" + challenge;
@@ -300,7 +302,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(<@untainted string> queryParams, message = request);
+    var subscriberResponse = callbackEp->get(<@untainted string> queryParams, request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
@@ -317,7 +319,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     if (!isTopicRegistered(topic)) {
                         var registerStatus = registerTopicAtHub(topic);
                         if (registerStatus is error) {
-                            string errCause = <string> registerStatus.detail().message;
+                            string errCause = <string> registerStatus.detail()?.message;
                             log:printError("Error registering topic for subscription: " + errCause);
                         }
                     }
@@ -333,12 +335,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                         + callback + "]");
             }
         } else {
-            string errCause = <string> respStringPayload.detail().message;
+            string errCause = <string> respStringPayload.detail()?.message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        string errCause = <string> subscriberResponse.detail().message;
+        string errCause = <string> subscriberResponse.detail()?.message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
@@ -356,10 +358,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function persistTopicRegistrationChange(string mode, string topic) {
-    if (mode == MODE_REGISTER) {
-        hubPersistenceStoreImpl.addTopic(topic);
-    } else {
-        hubPersistenceStoreImpl.removeTopic(topic);
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+        if (mode == MODE_REGISTER) {
+            hubPersistenceStoreImpl.addTopic(topic);
+        } else {
+            hubPersistenceStoreImpl.removeTopic(topic);
+        }
     }
 }
 
@@ -368,10 +372,12 @@ function persistTopicRegistrationChange(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
-    if (mode == MODE_SUBSCRIBE) {
-        hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
-    } else {
-        hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+      if (mode == MODE_SUBSCRIBE) {
+            hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
+        } else {
+            hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+        }
     }
 }
 
@@ -391,7 +397,7 @@ function addTopicRegistrationsOnStartup(HubPersistenceStore persistenceStore) {
     foreach string topic in topics {
         var registerStatus = registerTopicAtHub(topic, loadingOnStartUp = true);
         if (registerStatus is error) {
-            string errCause = <string> registerStatus.detail().message;
+            string errCause = <string> registerStatus.detail()?.message;
             log:printError("Error registering retrieved topic details: "+ errCause);
         }
     }
@@ -420,7 +426,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);
     http:Request request = new;
 
-    var fetchResponse = topicEp->get("", message = request);
+    var fetchResponse = topicEp->get("", request);
     return fetchResponse;
 }
 
@@ -454,12 +460,12 @@ returns error? {
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
-            if (SHA1.equalsIgnoreCase(hubSignatureMethod)) { //not recommended
-                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toByteArray("UTF-8"),
-                    subscriptionDetails.secret.toByteArray("UTF-8")));
-            } else if (SHA256.equalsIgnoreCase(hubSignatureMethod)) {
-                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toByteArray("UTF-8"),
-                    subscriptionDetails.secret.toByteArray("UTF-8")));
+            if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
+            } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);
@@ -486,7 +492,7 @@ returns error? {
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
         } else {
-            string errCause = <string> contentDistributionResponse.detail().message;
+            string errCause = <string> contentDistributionResponse.detail()?.message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }
@@ -552,5 +558,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return groupString.split(",");
+    return internal:split(groupString, ",");
 }
