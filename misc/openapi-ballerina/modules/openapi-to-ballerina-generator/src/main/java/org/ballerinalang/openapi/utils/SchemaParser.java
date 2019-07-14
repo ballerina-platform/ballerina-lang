@@ -23,7 +23,7 @@ public class SchemaParser {
     }
 
     public void parseObjectSchema(Object string,  OpenApiPropertyType openApiPropertyType) {
-        //TODO Implement object scehema 
+        //TODO Implement object scehema
     }
 
     public void parseArraySchema(Object array, OpenApiPropertyType openApiPropertyType) {

@@ -45,7 +45,7 @@ class OpenApiParameterList extends React.Component<OpenApiParameterListProps, an
                 <Table.Body>
                     {parameterList.map((param: Swagger.ParameterObject, index: number) => {
                         return (
-                            <Table.Row>
+                            <Table.Row key={param.name}>
                                 <Table.Cell className="parameter-name-cell">
                                     <div className="parameter__name required">
                                         {param.name}

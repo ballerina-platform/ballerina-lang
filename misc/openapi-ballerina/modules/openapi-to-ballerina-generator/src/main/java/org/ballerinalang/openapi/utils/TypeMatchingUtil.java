@@ -84,7 +84,7 @@ public class TypeMatchingUtil {
             final Schema schemaValue = schema.getValue();
             final String schemaName = schema.getKey();
 
-            schemaType.setSchemaName(StringUtils.capitalize(schemaName));
+            schemaType.setSchemaName(delimeterizeUnescapedIdentifires(StringUtils.capitalize(schemaName)));
 
             if (schemaValue instanceof ObjectSchema) {
                 if (schemaValue.getProperties() != null) {
@@ -161,7 +161,7 @@ public class TypeMatchingUtil {
                     | NoSuchMethodException | InstantiationException e) {
                 outStream.println(e.getLocalizedMessage());
             }
-            propertyType.setPropertyName(propName);
+            propertyType.setPropertyName(delimeterizeUnescapedIdentifires(propName));
             propertyTypes.add(propertyType);
         }
 
@@ -340,6 +340,20 @@ public class TypeMatchingUtil {
         }
 
         return requestBodyType;
+    }
+
+    public static String delimeterizeUnescapedIdentifires(String identifier) {
+
+        //check if identifier starts with a number or contains spaces in between
+        if (Character.isDigit(identifier.charAt(0))) {
+            identifier = "'" + identifier;
+        }
+
+        if (StringUtils.split(identifier).length > 0) {
+            //TODO escape spaces
+        }
+
+        return identifier;
     }
 
 }
