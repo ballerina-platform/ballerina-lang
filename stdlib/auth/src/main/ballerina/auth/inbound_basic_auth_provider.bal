@@ -42,8 +42,8 @@ public type InboundBasicAuthProvider object {
     # Attempts to authenticate with credentials.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `AuthError` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|AuthError {
+    # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|Error {
         if (credential == EMPTY_STRING) {
             return false;
         }

@@ -42,8 +42,8 @@ public type InboundLdapAuthProvider object {
     # Authenticate with username and password.
     #
     # + credential - Credential value
-    # + return - `true` if authentication is successful, otherwise `false` or `auth:AuthError` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|auth:AuthError {
+    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
         }
