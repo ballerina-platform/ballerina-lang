@@ -97,7 +97,7 @@
             <!--<package name="org.ballerinalang.test.expressions.ternary.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.typeof.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.stamp.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.invocations.*"/>-->
+            <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <!--<package name="org.ballerinalang.test.expressions.lambda.*"/>-->
             <!--<package name="org.ballerinalang.test.object.*" />-->
             <!--<package name="org.ballerinalang.test.dataflow.analysis.*" />-->
