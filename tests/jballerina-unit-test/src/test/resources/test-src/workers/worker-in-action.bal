@@ -39,7 +39,7 @@ public type Client object {
         self.abcClient = new;
     }
 
-    public function register(typedesc serviceType) {
+    public function register(typedesc<any> serviceType) {
     }
 
     public function start() {

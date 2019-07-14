@@ -48,8 +48,8 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
                 crypto:KeyStore keyStore = config.keyStore;
                 string keyAlias = config.keyAlias;
                 string keyPassword = config.keyPassword;
-                var privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = keyAlias,
-                                                         keyPassword = keyPassword);
+                var privateKey = crypto:decodePrivateKey(keyStore, keyAlias,
+                                                         keyPassword);
                 if (privateKey is crypto:PrivateKey) {
                     if (alg == RS256) {
                         var signature = crypto:signRsaSha256(jwtAssertion.toBytes(), privateKey);

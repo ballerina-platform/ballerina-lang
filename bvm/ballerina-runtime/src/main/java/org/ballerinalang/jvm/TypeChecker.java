@@ -445,9 +445,23 @@ public class TypeChecker {
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.MAP_TAG) {
+        if (sourceType.getTag() != TypeTags.MAP_TAG && sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return false;
         }
+
+        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recType = (BRecordType) sourceType;
+            List<BType> types = new ArrayList<>();
+            for (BField f : recType.getFields().values()) {
+                types.add(f.type);
+            }
+            if (!recType.sealed) {
+                types.add(recType.restFieldType);
+            }
+            BUnionType fieldType = new BUnionType(types);
+            return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
+        }
+
         return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                 unresolvedTypes);
     }
@@ -1494,8 +1508,8 @@ public class TypeChecker {
         } else {
             AttachedFunction initializerFunc = type.initializer;
             if (initializerFunc == null) {
-                // No __init function found.
-                return true;
+                // abstract objects doesn't have a filler value.
+                return false;
             }
             BFunctionType initFuncType = initializerFunc.type;
             // Todo: check defaultable params of the init func as well

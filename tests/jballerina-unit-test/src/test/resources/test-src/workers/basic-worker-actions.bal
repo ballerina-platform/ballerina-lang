@@ -94,7 +94,7 @@ function forkWithWaitForAny() returns int | error {
 
     () results = wait w1 | w2 | w3;
     io:println(results);
-    return int.convert(m["x"]);
+    return <int>m["x"];
 }
 
 function workerReturnTest() returns int {

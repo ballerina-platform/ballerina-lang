@@ -652,6 +652,14 @@ public class Types {
             return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
+        if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
+            BType mapConstraint = ((BMapType) target).constraint;
+            BRecordType srcRec = (BRecordType) source;
+            boolean hasIncompatibleType = srcRec.fields
+                    .stream().anyMatch(field -> !isAssignable(field.type, mapConstraint));
+            return !hasIncompatibleType && isAssignable(srcRec.restFieldType, mapConstraint);
+        }
+
         if ((source.tag == TypeTags.OBJECT || source.tag == TypeTags.RECORD)
                 && (target.tag == TypeTags.OBJECT || target.tag == TypeTags.RECORD)) {
             return checkStructEquivalency(source, target, unresolvedTypes);
@@ -674,7 +682,7 @@ public class Types {
     }
 
     private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().anyMatch(field -> !isAssignable(field.type, mapType.constraint)) ||
+        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
                 isAssignable(recordType.restFieldType, mapType.constraint);
     }
 

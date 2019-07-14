@@ -41,12 +41,10 @@ import org.wso2.ballerinalang.compiler.util.BArrayState;
 public class ArrayTest {
 
     private CompileResult compileResult;
-    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/array-test.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/arrays/array-negative.bal");
     }
 
     @Test
@@ -112,7 +110,7 @@ public class ArrayTest {
     public void testArrayStringRepresentationWithANilElement() {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testArrayWithNilElement");
         String str = returnVals[0].stringValue();
-        Assert.assertEquals(str, "[\"abc\", \"d\", (), \"s\"]");
+        Assert.assertEquals(str, "abc d () s");
     }
     
     @Test
@@ -176,15 +174,14 @@ public class ArrayTest {
     public void testArraysOfCyclicDependentTypes() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(arr.stringValue(), "[{b:{b1:\"\"}}, {b:{b1:\"\"}}, {b:{b1:\"\"}}, {b:{b1:\"B1\"}, " +
-                "a1:\"A1\"}]");
+        Assert.assertEquals(arr.stringValue(), "[{b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}, a1:\"A1\"}]");
     }
 
     @Test
     public void testArraysOfCyclicDependentTypes2() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes2");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(arr.stringValue(), "[{b1:\"\"}, {b1:\"\"}, {b1:\"\"}, {b1:\"B1\"}]");
+        Assert.assertEquals(arr.stringValue(), "[{b1:\"B1\"}, {b1:\"B1\"}, {b1:\"B1\"}, {b1:\"B1\"}]");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*error: " +
@@ -197,12 +194,5 @@ public class ArrayTest {
             "\\{ballerina}StackOverflow \\{\"message\":\"stack overflow\"}.*")
     public void testArraysOfCyclicDependentTypes4() {
         BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes4");
-    }
-
-    @Test(description = "Test arrays with errors")
-    public void testConnectorNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegative, 0, "function invocation on type 'int[]' is not supported", 3, 18);
-        BAssertUtil.validateError(resultNegative, 1, "function invocation on type 'string[]' is not supported", 8, 21);
     }
 }

@@ -185,7 +185,7 @@ function checkMapRefEqualityPositive() returns boolean {
     m1["three"] = 3.0;
     m2 = m1;
 
-    m3.last = "last";
+    m3["last"] = "last";
     m3["a"] = "a";
     m4 = m3;
 
@@ -198,16 +198,16 @@ function checkMapRefEqualityNegative() returns boolean {
 
     boolean equals = m1 === m2 || !(m1 !== m2);
 
-    m1.one = "hi";
-    m2.one = "hi";
+    m1["one"] = "hi";
+    m2["one"] = "hi";
 
     equals = equals && m1 === m2 || !(m1 !== m2);
 
     map<int> m3 = {};
     map<int> m4 = {};
 
-    m3.one = 1;
-    m4.one = 1;
+    m3["one"] = 1;
+    m4["one"] = 1;
 
     return equals || m3 === m4 || !(m4 !== m3);
 }
