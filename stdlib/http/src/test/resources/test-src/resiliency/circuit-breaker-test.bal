@@ -32,7 +32,7 @@ const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-thresho
 function testTypicalScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -54,7 +54,7 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
             http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
             tempClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -72,7 +72,7 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
 function testTrialRunFailure() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -95,7 +95,7 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
             http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
             tempClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -113,7 +113,7 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
 function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -135,7 +135,7 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
             http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
             tempClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -149,7 +149,7 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
 function testForceOpenScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -174,7 +174,7 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
         }
         http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
         tempClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -188,7 +188,7 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
 function testForceCloseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -214,7 +214,7 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
         }
         http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
         tempClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -228,7 +228,7 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
 function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -251,7 +251,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
         http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
         tempClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -265,7 +265,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
 function testRequestVolumeThresholdFailureResponseScenario() returns [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
@@ -288,7 +288,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns [http:Respo
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
         http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
         tempClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -542,7 +542,7 @@ http:Request {
 
 listener http:MockListener mockEP = new(9090);
 
-http:Client clientEP = new("http://localhost:8080", config = {
+http:Client clientEP = new("http://localhost:8080", {
     circuitBreaker: {
         rollingWindow: {
             timeWindowMillis: 10000,

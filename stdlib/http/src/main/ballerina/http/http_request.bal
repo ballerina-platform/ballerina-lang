@@ -69,7 +69,8 @@ public type Request object {
     #            present, then the first value is returned. Nil is returned if no key is found.
     public function getQueryParamValue(@untainted string key) returns @tainted string? {
         map<string[]> params = self.getQueryParams();
-        return params[key][0];
+        var result = params[key];
+        return result is () ? () : result[0];
     }
 
     # Gets all the query param values associated with the given key.
@@ -181,8 +182,7 @@ public type Request object {
     public function setContentType(string contentType) returns error? {
         mime:Entity entity = self.getEntityWithoutBody();
         var result = entity.setContentType(contentType);
-        // TODO: Make the type of the result to mime:MimeError once the MimeError is configured correctly.
-        if (result is error) {
+        if (result is mime:Error) {
             string message = "Error occurred while setting content type header of the request";
             return getGenericClientError(message, result);
         } else {
@@ -207,8 +207,7 @@ public type Request object {
             return result;
         } else {
             var payload = result.getJson();
-            // TODO: Make the type of the payload to mime:MimeError once the MimeError is configured correctly.
-            if (payload is error) {
+            if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the json payload from the request";
                 return getGenericClientError(message, payload);
             } else {
@@ -226,7 +225,7 @@ public type Request object {
             return result;
         } else {
             var payload = result.getXml();
-            if (payload is error) {
+            if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the xml payload from the request";
                 return getGenericClientError(message, payload);
             } else {
@@ -244,7 +243,7 @@ public type Request object {
             return result;
         } else {
             var payload = result.getText();
-            if (payload is error) {
+            if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the text payload from the request";
                 return getGenericClientError(message, payload);
             } else {
@@ -263,7 +262,7 @@ public type Request object {
             return result;
         } else {
             var payload = result.getByteChannel();
-            if (payload is error) {
+            if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the byte channel from the request";
                 return getGenericClientError(message, payload);
             } else {
@@ -281,7 +280,7 @@ public type Request object {
             return result;
         } else {
             var payload = result.getByteArray();
-            if (payload is error) {
+            if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the binary payload from the request";
                 return getGenericClientError(message, payload);
             } else {
@@ -304,7 +303,7 @@ public type Request object {
                 mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
                 return getGenericClientError(message, typeError);
             }
-            if (!mime:APPLICATION_FORM_URLENCODED.equalsIgnoreCase(mimeEntity.getHeader(mime:CONTENT_TYPE))) {
+            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return getGenericClientError(message, typeError);
@@ -315,14 +314,16 @@ public type Request object {
                 return getGenericClientError(message, formData);
             } else {
                 if (formData != "") {
-                    string[] entries = formData.split("&");
+                    string[] entries = internal:split(formData, "&");
                     int entryIndex = 0;
                     while (entryIndex < entries.length()) {
-                        int index = entries[entryIndex].indexOf("=");
-                        if (index != -1) {
-                            string name = entries[entryIndex].substring(0, index).trim();
+                        int? index = entries[entryIndex].indexOf("=");
+                        if (index is int && index != -1) {
+                            string name = entries[entryIndex].substring(0, index);
+                            name = name.trim();
                             int size = entries[entryIndex].length();
-                            string value = entries[entryIndex].substring(index + 1, size).trim();
+                            string value = entries[entryIndex].substring(index + 1, size);
+                            value = value.trim();
                             if (value != "") {
                                 parameters[name] = value;
                             }
@@ -343,11 +344,10 @@ public type Request object {
     public function getBodyParts() returns mime:Entity[]|ClientError {
         var result = self.getEntity();
         if (result is ClientError) {
-            // TODO: Confirm whether this is actually a ClientError or not.
             return result;
         } else {
             var bodyParts = result.getBodyParts();
-            if (bodyParts is error) {
+            if (bodyParts is mime:Error) {
                 string message = "Error occurred while retrieving body parts from the request";
                 return getGenericClientError(message, bodyParts);
             } else {
@@ -363,7 +363,7 @@ public type Request object {
     #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload, contentType = contentType);
+        entity.setJson(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -374,7 +374,7 @@ public type Request object {
     #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload, contentType = contentType);
+        entity.setXml(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -385,7 +385,7 @@ public type Request object {
     #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload, contentType = contentType);
+        entity.setText(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -396,7 +396,7 @@ public type Request object {
     #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteArray(payload, contentType = contentType);
+        entity.setByteArray(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -407,7 +407,7 @@ public type Request object {
     #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBodyParts(bodyParts, contentType = contentType);
+        entity.setBodyParts(bodyParts, contentType);
         self.setEntity(entity);
     }
 
@@ -418,7 +418,7 @@ public type Request object {
     #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath, contentType = contentType);
+        entity.setFileAsEntityBody(filePath, contentType);
         self.setEntity(entity);
     }
 
@@ -429,7 +429,7 @@ public type Request object {
     #                 header value
     public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload, contentType = contentType);
+        entity.setByteChannel(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -462,7 +462,7 @@ public type Request object {
 
         RequestCacheControl reqCC = new;
         string cacheControl = self.getHeader(CACHE_CONTROL);
-        string[] directives = cacheControl.split(",");
+        string[] directives = internal:split(cacheControl, ",");
 
         foreach var directive in directives {
             directive = directive.trim();
@@ -474,13 +474,13 @@ public type Request object {
                 reqCC.noTransform = true;
             } else if (directive == ONLY_IF_CACHED) {
                 reqCC.onlyIfCached = true;
-            } else if (directive.hasPrefix(MAX_AGE)) {
+            } else if (internal:hasPrefix(directive, MAX_AGE)) {
                 reqCC.maxAge = getExpirationDirectiveValue(directive);
             } else if (directive == MAX_STALE) {
                 reqCC.maxStale = MAX_STALE_ANY_AGE;
-            } else if (directive.hasPrefix(MAX_STALE)) {
+            } else if (internal:hasPrefix(directive, MAX_STALE)) {
                 reqCC.maxStale = getExpirationDirectiveValue(directive);
-            } else if (directive.hasPrefix(MIN_FRESH)) {
+            } else if (internal:hasPrefix(directive, MIN_FRESH)) {
                 reqCC.minFresh = getExpirationDirectiveValue(directive);
             }
             // non-standard directives are ignored

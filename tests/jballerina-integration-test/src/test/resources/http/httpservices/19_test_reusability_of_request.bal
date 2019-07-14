@@ -36,7 +36,7 @@ service testService_1 on testEP {
         string firstVal = "";
         string secondVal = "";
 
-        var firstResponse = clientEP1 -> get("", message = clientReq);
+        var firstResponse = clientEP1 -> get("", clientReq);
         if (firstResponse is http:Response) {
             var result = <@untainted> firstResponse.getTextPayload();
             if (result is string) {
@@ -50,7 +50,7 @@ service testService_1 on testEP {
             firstVal = err.reason();
         }
 
-        var secondResponse = clientEP1 -> get("", message = clientReq);
+        var secondResponse = clientEP1 -> get("", clientReq);
         if (secondResponse is http:Response) {
             var result = <@untainted> secondResponse.getTextPayload();
             if (result is string) {
@@ -80,7 +80,7 @@ service testService_1 on testEP {
         string firstVal = "";
         string secondVal = "";
 
-        var firstResponse = clientEP1 -> get("", message = clientReq);
+        var firstResponse = clientEP1 -> get("", clientReq);
         if (firstResponse is http:Response) {
             var result = <@untainted> firstResponse.getTextPayload();
             if (result is string) {
@@ -94,7 +94,7 @@ service testService_1 on testEP {
             firstVal = err.reason();
         }
 
-        var secondResponse = clientEP1 -> get("", message = clientReq);
+        var secondResponse = clientEP1 -> get("", clientReq);
         if (secondResponse is http:Response) {
             var result = <@untainted> secondResponse.getTextPayload();
             if (result is string) {
@@ -127,10 +127,10 @@ service testService_1 on testEP {
         var entity = clientReq.getEntity();
         if (entity is mime:Entity) {
             newRequest.setEntity(entity);
-            var firstResponse = clientEP1 -> get("", message = clientReq);
+            var firstResponse = clientEP1 -> get("", clientReq);
             if (firstResponse is http:Response) {
                 newRequest.setHeader("test2", "value2");
-                var secondResponse = clientEP1 -> get("", message = newRequest);
+                var secondResponse = clientEP1 -> get("", newRequest);
                 if (secondResponse is http:Response) {
                     var result1 = <@untainted> firstResponse.getTextPayload();
                     if (result1 is string) {
@@ -149,15 +149,15 @@ service testService_1 on testEP {
                     }
                 } else {
                     error err = secondResponse;
-                    log:printError(err.reason(), err = err);
+                    log:printError(err.reason(), err);
                 }
             } else {
                 error err = firstResponse;
-                log:printError(err.reason(), err = err);
+                log:printError(err.reason(), err);
             }
         } else {
             error err = entity;
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         }
         testResponse.setTextPayload(firstVal + secondVal);
         checkpanic caller->respond(testResponse);
@@ -213,7 +213,7 @@ service testService_1 on testEP {
         http:Request clientReq = new;
         var byteChannel = clientRequest.getByteChannel();
         if (byteChannel is io:ReadableByteChannel) {
-            clientReq.setByteChannel(byteChannel, contentType = "text/plain");
+            clientReq.setByteChannel(byteChannel, "text/plain");
             var firstResponse = clientEP1 -> post("/consumeChannel", clientReq);
             if (firstResponse is http:Response) {
                 var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
@@ -229,7 +229,7 @@ service testService_1 on testEP {
                     }
                 } else {
                     error err = secondResponse;
-                    secondVal = <string> err.detail().message;
+                    secondVal = <string> err.detail().["message"];
                 }
 
                 var result2 = firstResponse.getTextPayload();
@@ -244,11 +244,11 @@ service testService_1 on testEP {
                 checkpanic caller->respond(testResponse);
             } else {
                 error err = firstResponse;
-                log:printError(err.reason(), err = err);
+                log:printError(err.reason(), err);
             }
         } else {
             error err = byteChannel;
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         }
     }
 }
@@ -287,7 +287,7 @@ service testService_2 on testEP {
             response.setPayload(<@untainted> stringPayload);
         } else  {
             error err = stringPayload;
-            string errMsg = <string> err.detail().message;
+            string errMsg = <string> err.detail()["message"];
             response.setPayload(<@untainted> errMsg);
         }
         checkpanic caller->respond(response);

@@ -121,7 +121,6 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         List<String> params = new ArrayList<>();
         signature.append(CommonKeys.OPEN_PARENTHESES_KEY);
         func.getParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
-        func.getDefaultableParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
         signature.append(String.join(",", params)).append(")");
 
         return signature.toString();

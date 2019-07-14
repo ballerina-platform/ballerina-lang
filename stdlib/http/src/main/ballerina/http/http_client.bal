@@ -201,6 +201,6 @@ public type HttpTimeoutError record {|
 |};
 
 function createClient(string url, ClientEndpointConfig config) returns HttpClient|ClientError {
-    HttpClient simpleClient = new(url, config = config);
+    HttpClient simpleClient = new(url, config);
     return simpleClient;
 }

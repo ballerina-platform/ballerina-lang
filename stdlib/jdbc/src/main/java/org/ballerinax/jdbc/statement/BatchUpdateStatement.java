@@ -17,6 +17,7 @@
  */
 package org.ballerinax.jdbc.statement;
 
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.SQLDatasource;
@@ -43,7 +44,9 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final String query;
     private final ArrayValue parameters;
 
-    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters) {
+    public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
+                                ArrayValue parameters, Strand strand) {
+        super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
@@ -59,10 +62,10 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         PreparedStatement stmt = null;
         int[] updatedCount;
         int paramArrayCount = 0;
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "execute batch update failed";
         try {
-            conn = getDatabaseConnection(client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (parameters != null) {
@@ -103,7 +106,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     }
                 }
             }
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": ");
         } catch (DatabaseException e) {
@@ -114,7 +117,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     errorMessagePrefix += ", failed to rollback any changes happened in-between";
                 }
             }
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": ");
         } catch (ApplicationException e) {
@@ -125,7 +128,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     errorMessagePrefix += ", failed to rollback any changes happened in-between";
                 }
             }
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, e.getMessage());
             return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix + ": ");
         } finally {

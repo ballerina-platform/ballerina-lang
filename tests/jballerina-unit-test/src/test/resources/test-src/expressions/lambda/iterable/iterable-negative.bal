@@ -3,7 +3,7 @@ string word = "";
 
 function test1(){
     int x = 0;
-    x.foreach(function (int i) { count = count + i;}); // Iterating on invalid type
+    x.forEach(function (int i) { count = count + i;}); // Iterating on invalid type
     string y = "foo";
     y.map(function (string s) returns (int) { return s.length();}); // Iterating on invalid type
 }
@@ -11,11 +11,11 @@ function test1(){
 function test2(){
     string[] y = ["1", "a"];
 
-    y.count(); // Not assigning the return value.
+    y.length(); // Not assigning the return value.
 
     y.filter(function (int i, string x) returns boolean { // Too many arguments to lambda.
         return true;})
-     .foreach(function (string x) { word = x;}).count();
+     .forEach(function (string x) { word = x;});
 }
 
 function test3(){
@@ -43,7 +43,7 @@ function test4() {
 function test5(){
     string[] s = ["1", "a"];
     int x;
-    x = s.foreach(function (string s) {word = word + s;});
+    x = s.forEach(function (string s) {word = word + s;});
 
     var [z, y] = s.map(function ([int, string] tuple) returns [int, string] { var [i, v] = tuple;
                            return [i * 2, v + v];

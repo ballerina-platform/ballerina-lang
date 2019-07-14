@@ -27,7 +27,7 @@ service testService16 on new http:Listener(9118) {
         path: "/"
     }
     resource function getPayload(http:Caller caller, http:Request request) {
-        var res = clientEP19->get("/payloadTest", message = ());
+        var res = clientEP19->get("/payloadTest", ());
         if (res is http:Response) {
             //First get the payload as a byte array, then take it as an xml
             var binaryPayload = res.getBinaryPayload();

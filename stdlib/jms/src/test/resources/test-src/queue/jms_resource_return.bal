@@ -21,7 +21,7 @@ listener jms:QueueListener consumerEndpoint = new({
         providerUrl: "amqp://admin:admin@carbon/carbon"
             + "?brokerlist='tcp://localhost:5672'",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, queueName = "MyQueue");
+    }, "MyQueue");
 
 service jmsConsumer on consumerEndpoint {
     resource function xyz(jms:QueueReceiverCaller consumer, jms:Message message) returns string {

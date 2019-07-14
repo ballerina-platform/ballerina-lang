@@ -39,7 +39,8 @@ service echo on echoEP {
                 checkpanic caller->accepted();
             } else {
                 io:println("Write error!!!");
-                string errMsg = <string>writeResult.detail().message;
+                error writeError = writeResult;
+                string errMsg = <string>writeError.detail().message;
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
@@ -78,12 +79,13 @@ service ClientService = service {
                 if (str is string) {
                     io:println(<@untainted>str);
                 } else {
-                    error e = <error>str;
+                    error e = str;
                     io:println(e.detail().message);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
-                    io:println(closeResult.detail().message);
+                    error closeResultError = closeResult;
+                    io:println(closeResultError.detail().message);
                 } else {
                     io:println("Client connection closed successfully.");
                 }
@@ -91,12 +93,13 @@ service ClientService = service {
                 io:println("Client close: ", caller.remotePort);
             }
         } else {
-            io:println(result);
+            io:println(<error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        error e = er;
+        io:println(e.detail().message);
     }
 };
 

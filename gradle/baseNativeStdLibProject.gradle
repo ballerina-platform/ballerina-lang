@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+
+dependencies {
+    // lang lib dependencies
+    implementation project(':ballerina-lang:annotations')
+    implementation project(':ballerina-lang:array')
+    implementation project(':ballerina-lang:decimal')
+    implementation project(':ballerina-lang:error')
+    implementation project(':ballerina-lang:floatingpoint')
+    implementation project(':ballerina-lang:future')
+    implementation project(':ballerina-lang:integer')
+    implementation project(':ballerina-lang:map')
+    implementation project(':ballerina-lang:object')
+    implementation project(':ballerina-lang:stream')
+    implementation project(':ballerina-lang:string')
+    implementation project(':ballerina-lang:table')
+    implementation project(':ballerina-lang:typedesc')
+    implementation project(':ballerina-lang:value')
+    implementation project(':ballerina-lang:xml')
+    implementation project(':ballerina-utils')
+    implementation project(':ballerina-lang:internal')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+}

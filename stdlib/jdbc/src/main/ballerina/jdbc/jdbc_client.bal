@@ -24,7 +24,7 @@ public type JdbcClient client object {
     # + parameters - The parameters to be passed to the procedure/function call. The number of parameters is variable
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `Error` will be returned if there is any error
-    public remote function call(@untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|Error {
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
@@ -36,7 +36,7 @@ public type JdbcClient client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `Error` will be returned if there
     # is any error
-    public remote function select(@untainted string sqlQuery, typedesc? recordType,
+    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
     Param... parameters) returns @tainted table<record {}>|Error {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
@@ -50,7 +50,7 @@ public type JdbcClient client object {
     #            else `Error` will be returned if there is any error
     public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
                                returns UpdateResult|Error {
-        return nativeUpdate(self, sqlQuery, keyColumns = keyColumns, ...parameters);
+        return nativeUpdate(self, sqlQuery, keyColumns, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.
@@ -72,10 +72,10 @@ public type JdbcClient client object {
     }
 };
 
-function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc? recordType,
+function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>? recordType,
    Param... parameters) returns @tainted table<record {}>|Error = external;
 
-function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc[]? recordType, Param... parameters)
+function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|Error = external;
 
 function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, string[]? keyColumns = (),

@@ -46,7 +46,7 @@ service scheduleTimer on timer {
 
 function cleanupTransactions() returns error? {
     worker w1 {
-        foreach var [key, twopcTxn] in participatedTransactions {
+        foreach var twopcTxn in participatedTransactions {
             string participatedTxnId = getParticipatedTransactionId(twopcTxn.transactionId,
                 twopcTxn.transactionBlockId);
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
@@ -82,7 +82,7 @@ function cleanupTransactions() returns error? {
         }
     }
     worker w2 returns () {
-        foreach var [key, twopcTxn] in initiatedTransactions {
+        foreach var twopcTxn in initiatedTransactions {
             if (time:currentTime().time - twopcTxn.createdTime >= 120000) {
                 if (twopcTxn.state != TXN_STATE_ABORTED) {
                     // Commit the transaction since prepare hasn't been received
@@ -93,7 +93,7 @@ function cleanupTransactions() returns error? {
                         removeInitiatedTransaction(twopcTxn.transactionId);
                     } else {
                         log:printError("Auto-commit of participated transaction: " +
-                        twopcTxn.transactionId + " failed", err = result);
+                        twopcTxn.transactionId + " failed", result);
                     }
                 }
             }
@@ -156,18 +156,18 @@ function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = json.convert(requestError);
+    var resPayload = typedesc<json>.constructFrom(requestError);
     if (resPayload is json) {
         res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);
-        if (resResult is http:ListenerError) {
-            error err = resResult;
-            log:printError("Could not send Bad Request error response to caller", err = err);
+        if (resResult is error) {
+            log:printError("Could not send Bad Request error response to caller", resResult);
         } else {
             return;
         }
     } else {
-        panic resPayload;
+        error payloadError = <error> resPayload;
+        panic payloadError;
     }
 }
 
@@ -259,16 +259,16 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
 }
 
 function removeParticipatedTransaction(string participatedTxnId) {
-    boolean removed = participatedTransactions.remove(participatedTxnId);
-    if (!removed) {
+    var removed = trap participatedTransactions.remove(participatedTxnId);
+    if (removed is error) {
         error err = error("Removing participated transaction: " + participatedTxnId + " failed");
         panic err;
     }
 }
 
 function removeInitiatedTransaction(string transactionId) {
-    boolean removed = initiatedTransactions.remove(transactionId);
-    if (!removed) {
+    var removed = trap initiatedTransactions.remove(transactionId);
+    if (removed is error) {
         error err = error("Removing initiated transaction: " + transactionId + " failed");
         panic err;
     }
@@ -336,7 +336,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
     var result = initiatorEP->register(transactionId, transactionBlockId, participantProtocols);
     if (result is error) {
         string msg = "Cannot register with coordinator for transaction: " + transactionId;
-        log:printError(msg, err = result);
+        log:printError(msg, result);
         // TODO : Fix me.
         //map data = { cause: err };
         error err = error(msg);

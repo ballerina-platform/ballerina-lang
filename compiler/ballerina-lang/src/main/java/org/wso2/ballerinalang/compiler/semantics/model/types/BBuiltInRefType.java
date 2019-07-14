@@ -29,6 +29,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STREAM;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TABLE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEDESC;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML;
 
 /**
@@ -83,6 +84,8 @@ public class BBuiltInRefType extends BType implements ReferenceType {
                 return TypeKind.MAP;
             case FUTURE:
                 return TypeKind.FUTURE;
+            case TYPEDESC:
+                return TypeKind.TYPEDESC;
             default:
                 return TypeKind.OTHER;
         }

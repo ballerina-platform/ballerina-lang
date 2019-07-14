@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-http:Client clientEP2 = new ("http://localhost:9097", config = { cache: { enabled: false }});
+http:Client clientEP2 = new ("http://localhost:9097", { cache: { enabled: false }});
 
 @http:ServiceConfig {
     basePath: "/test1"
@@ -62,7 +62,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> textValue);
                     } else {
                         error err = textValue;
-                        checkpanic caller->respond(<@untainted> err.reason());
+                        checkpanic caller->respond(<@untainted string> err.reason());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
@@ -70,7 +70,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> xmlValue);
                     } else {
                         error err = xmlValue;
-                        checkpanic caller->respond(<@untainted> err.reason());
+                        checkpanic caller->respond(<@untainted string> err.reason());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
@@ -78,7 +78,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> jsonValue);
                     } else {
                         error err = jsonValue;
-                        checkpanic caller->respond(<@untainted> err.reason());
+                        checkpanic caller->respond(<@untainted string> err.reason());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
@@ -86,7 +86,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> blobValue);
                     } else {
                         error err = blobValue;
-                        checkpanic caller->respond(<@untainted> err.reason());
+                        checkpanic caller->respond(<@untainted string> err.reason());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
@@ -94,7 +94,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> bodyParts);
                     } else {
                         error err = bodyParts;
-                        checkpanic caller->respond(<@untainted> err.reason());
+                        checkpanic caller->respond(<@untainted> string err.reason());
                     }
                 }
             } else {
@@ -170,11 +170,12 @@ service testService on new http:Listener(9098) {
                 value = returnValue;
             } else {
                 error err = returnValue;
-                value = <string> err.detail().message;
+                string? errMsg = <string>err.detail()?.message;
+                value = errMsg is string ? errMsg : "Error in parsing text payload";
             }
         } else  {
             error err = clientResponse;
-            value = err.reason();
+            value = <string>err.reason();
         }
 
         checkpanic caller->respond(<@untainted> value);
@@ -228,7 +229,7 @@ service testService on new http:Listener(9098) {
     resource function testPostWithBinaryData(http:Caller caller, http:Request req) {
         string value = "";
         string textVal = "Sample Text";
-        byte[] binaryValue = textVal.toByteArray("UTF-8");
+        byte[] binaryValue = textVal.toBytes();
         var textResponse = clientEP2->post("/test1/directPayload", binaryValue);
         if (textResponse is http:Response) {
             var result = textResponse.getTextPayload();
@@ -305,12 +306,12 @@ service testService on new http:Listener(9098) {
                                 value = value + textVal;
                             } else {
                                 error err = textVal;
-                                value = value + err.reason();
+                                value = value + <string>err.reason();
                             }
                         }
                     } else {
                         error err = mediaType;
-                        value = value + err.reason();
+                        value = value + <string>err.reason();
                     }
                 }
             } else {

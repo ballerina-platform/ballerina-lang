@@ -50,10 +50,10 @@ public type Select object {
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent>evt;
                 if (event.eventType == RESET) {
-                    foreach var [k, v] in self.aggregatorsCloneMap {
+                    foreach var [k, v] in self.aggregatorsCloneMap.entries() {
                         boolean stateRemoved = removeState(k);
                     }
-                    self.aggregatorsCloneMap.clear();
+                    self.aggregatorsCloneMap.removeAll();
                 }
 
                 string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
@@ -73,7 +73,8 @@ public type Select object {
                     }
                     self.aggregatorsCloneMap[groupbyKey] = aggregatorsClone;
                 }
-                map<anydata> x = self.selectFunc.call(event, aggregatorsClone);
+                function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> sFunc = self.selectFunc;
+                map<anydata> x = sFunc(event, aggregatorsClone);
                 StreamEvent e = new([<@untainted> OUTPUT, x], event.eventType, event.timestamp);
                 groupedEvents[groupbyKey] = e;
             }
@@ -84,13 +85,15 @@ public type Select object {
         } else {
             foreach var evt in streamEvents {
                 StreamEvent event = <StreamEvent>evt;
-                StreamEvent e = new([<@untainted> OUTPUT, self.selectFunc.call(event, self.aggregatorArr)], event.eventType,
+                function (StreamEvent o, Aggregator[] aggregatorArr1) returns map<anydata> sFunc = self.selectFunc;
+                StreamEvent e = new([<@untainted> OUTPUT, sFunc(event, self.aggregatorArr)], event.eventType,
                     event.timestamp);
                 outputStreamEvents[outputStreamEvents.length()] = e;
             }
         }
         if (outputStreamEvents.length() > 0) {
-            self.nextProcessorPointer.call(outputStreamEvents);
+        function (StreamEvent?[]) processorPointer = self.nextProcessorPointer;
+            processorPointer(outputStreamEvents);
         }
     }
 
@@ -104,7 +107,7 @@ public type Select object {
         if (groupbyFunctionArray is (function (StreamEvent o) returns anydata)?[]) {
             foreach var func in groupbyFunctionArray {
                 if (func is (function (StreamEvent o) returns anydata)) {
-                    key += string.convert(func.call(e));
+                    key += func(e).toString();
                     key += ",";
                 }
             }

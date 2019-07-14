@@ -28,8 +28,7 @@ service hello1 on new http:MockListener(9090) {
         string abc = check f1();
         var result = caller->respond(res);
         if (result is error) {
-            error err = result;
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", result);
         }
         return ();
     }

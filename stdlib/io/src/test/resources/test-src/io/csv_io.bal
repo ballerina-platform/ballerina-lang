@@ -31,7 +31,7 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel( <@untainted> byteChannel, encoding);
-        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+        rch = new io:ReadableCSVChannel(charChannel, fieldSeparator);
     } else {
         return byteChannel;
     }
@@ -40,49 +40,63 @@ function initReadableCsvChannel(string filePath, string encoding, io:Separator f
 function initWritableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) {
     io:WritableByteChannel byteChannel = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = new io:WritableCSVChannel(charChannel, fs = fieldSeparator);
+    wch = new io:WritableCSVChannel(charChannel, fieldSeparator);
 }
 
 function initOpenCsvChannel(string filePath, string encoding, io:Separator fieldSeparator, int nHeaders = 0) returns error? {
     var byteChannel =  <@untainted> io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        rch = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = nHeaders);
+        rch = new io:ReadableCSVChannel(charChannel, fieldSeparator, nHeaders);
     } else {
         return byteChannel;
     }
 }
 
 function nextRecord() returns @tainted string[]|error {
-    var result = rch.getNext();
-    if (result is string[]) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
-        return e;
+    var cha = rch;
+    if(cha is io:ReadableCSVChannel){
+        var result = cha.getNext();
+        if (result is string[]) {
+            return result;
+        } else if(result is error) {
+            return result;
+        }
     }
+    error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
+    return e;
 }
 
 function writeRecord(string[] fields) {
-    var result = wch.write(fields);
+    var cha = wch;
+    if(cha is io:WritableCSVChannel){
+        var result = cha.write(fields);
+    }
 }
 
 function close() {
-    checkpanic rch.close();
-    checkpanic wch.close();
+    var rcha = rch;
+    var wcha = wch;
+    if(rcha is io:ReadableCSVChannel) {
+        checkpanic rcha.close();
+    }
+    if(wcha is io:WritableCSVChannel) {
+        checkpanic wcha.close();
+    }
 }
 
 function hasNextRecord() returns boolean? {
-    return rch.hasNext();
+    var rcha = rch;
+    if(rcha is io:ReadableCSVChannel) {
+        return rcha.hasNext();
+    }
 }
 
 function getTable(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted float|error {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fs = fieldSeparator);
+        io:ReadableCSVChannel csv = new io:ReadableCSVChannel(charChannel, fieldSeparator);
         float total = 0.0;
         var tableResult = csv.getTable(Employee);
         if (tableResult is table<Employee>) {

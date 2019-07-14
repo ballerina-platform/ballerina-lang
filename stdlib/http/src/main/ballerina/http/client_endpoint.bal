@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/io;
+import ballerina/internal;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////
@@ -346,13 +347,13 @@ public type OutboundAuthConfig record {|
 function initialize(string serviceUrl, ClientEndpointConfig config) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
-    if (url.hasSuffix("/")) {
+    if (internal:hasSuffix(url, "/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
     }
     var cbConfig = config.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
-        if (url.hasSuffix("/")) {
+        if (internal:hasSuffix(url, "/")) {
             int lastIndex = url.length() - 1;
             url = url.substring(0, lastIndex);
         }

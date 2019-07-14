@@ -36,8 +36,8 @@ service echo1 on echoEP1 {
         } else {
             error err = payload;
             resp.statusCode = 500;
-            string errMsg = <string> err.detail().message;
-            resp.setPayload(<@untainted> errMsg);
+            string? errMsg = <string> err.detail()?.message;
+            resp.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
             log:printError("Failed to retrieve payload from request: " + err.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {

@@ -291,7 +291,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
         error err = error("Unexpected nil");
         panic err;
     }
-    string lastErrorMessage = <string> actError.detail().message;
+    string lastErrorMessage = <string> actError.detail()?.message;
     string message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     AllLoadBalanceEndpointsFailedError err = error(ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
                                                     message = message,
@@ -366,7 +366,7 @@ function createLoadBalanceHttpClientArray(LoadBalanceClientEndpointConfiguration
     int i = 0;
     foreach var target in loadBalanceClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromLoalBalanceEPConfig(loadBalanceClientConfig, target);
-        cl =  new(target.url , config = epConfig);
+        cl =  new(target.url , epConfig);
         httpClients[i] = cl;
         i += 1;
     }

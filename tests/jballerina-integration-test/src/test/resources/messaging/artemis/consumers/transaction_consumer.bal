@@ -32,7 +32,7 @@ public function transactionSimpleConsumerReceive(artemis:Consumer consumer) retu
 
 public function createConsumer() returns artemis:Consumer|error {
     artemis:Connection connection = new("tcp://localhost:61616");
-    artemis:Session sess = new(connection, config = {autoCommitAcks: false});
+    artemis:Session sess = new(connection, {autoCommitAcks: false});
     artemis:Listener lis = new artemis:Listener(sess);
     return lis.createAndGetConsumer({queueName: "example2"});
 }

@@ -39,8 +39,10 @@ service echo on testEP {
         body: "person"
     }
     resource function body3(http:Caller caller, http:Request req, json person) {
-        json name = <@untainted json> person.name;
-        json team = <@untainted json> person.team;
+        json|error val1 = person.name;
+        json|error val2 = person.team;
+        json name = val1 is json ? val1 : ();
+        json team = val2 is json ? val2 : ();
         checkpanic caller->respond({ Key: name, Team: team });
     }
 
@@ -59,7 +61,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body5(http:Caller caller, http:Request req, byte[] person) {
-        string name = <@untainted> encoding:byteArrayToString(person, encoding = "UTF-8");
+        string name = <@untainted> encoding:byteArrayToString(person, "UTF-8");
         checkpanic caller->respond({ Key: name });
     }
 
@@ -86,7 +88,7 @@ service echo on testEP {
         body: "persons"
     }
     resource function body8(http:Caller caller, http:Request req, Person[] persons) {
-        var jsonPayload = json.convert(persons);
+        var jsonPayload = typedesc<json>.constructFrom(persons);
         if (jsonPayload is json) {
             checkpanic caller->respond(<@untainted json> jsonPayload);
         } else {

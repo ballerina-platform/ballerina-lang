@@ -71,17 +71,18 @@ service Participant2pcService on coordinatorListener {
             }
         }
 
-        var jsonResponse = json.convert(prepareRes);
+        var jsonResponse = typedesc<json>.constructFrom(prepareRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
             if (resResult is error) {
                 error err = resResult;
                 log:printError("Sending response for prepare request for transaction " +
-                transactionId + " failed", err = err);
+                transactionId + " failed", resResult);
             }
         } else {
-            panic jsonResponse;
+            error er = <error>jsonResponse;
+            panic er;
         }
     }
 
@@ -142,17 +143,18 @@ service Participant2pcService on coordinatorListener {
             removeParticipatedTransaction(participatedTxnId);
         }
 
-        var jsonResponse = json.convert(notifyRes);
+        var jsonResponse = typedesc<json>.constructFrom(notifyRes);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
             if (resResult is http:ListenerError) {
                 error err = resResult;
                 log:printError("Sending response for notify request for transaction " + transactionId +
-                        " failed", err = err);
+                        " failed", resResult);
             }
         } else {
-            panic jsonResponse;
+            error e = <error> jsonResponse;
+            panic e;
         }
     }
 }

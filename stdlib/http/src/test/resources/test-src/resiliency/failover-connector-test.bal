@@ -37,7 +37,7 @@ function testSuccessScenario () returns @tainted http:Response | error {
 
     while (counter < 2) {
         http:Request request = new;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             clientResponse = serviceResponse;
         } else {
@@ -63,7 +63,7 @@ function testFailureScenario () returns @tainted http:Response | error {
     backendClientEP.failoverInferredConfig.failoverClientsArray = httpClients;
     while (counter < 1) {
         http:Request request = new;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             counter = counter + 1;
             response = serviceResponse;
