@@ -24,11 +24,12 @@ export interface CommonDiagramProps {
     mode: DiagramMode;
     langClient: IBallerinaLangClient;
     maxInvocationDepth?: number;
+    sourceRootUri?: string;
+    docUri: string;
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
-    docUri: string;
     setPanZoomComp?: (comp: PanZoom | undefined) => void;
 }
 
@@ -102,7 +103,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         if (this.panZoomComp) {
             this.panZoomComp.dispose();
         }
-        this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+        this.panZoomComp = panzoom(this.panZoomRootRef.current,  {
+            beforeWheel: (e) => {
+                // allow wheel-zoom only if ctrl is down.
+                return !e.ctrlKey;
+            },
             smoothScroll: false,
         });
         if (this.props.setPanZoomComp) {

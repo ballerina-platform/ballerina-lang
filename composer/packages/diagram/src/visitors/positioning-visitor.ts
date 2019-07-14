@@ -187,12 +187,12 @@ class PositioningVisitor implements Visitor {
         node.statements.forEach((element) => {
             const elViewState: StmntViewState = element.viewState;
 
-            if (elViewState.hidden) {
+            if (ASTUtil.isWorker(element)) {
+                height += config.statement.height;
                 return;
             }
 
-            if (ASTUtil.isWorker(element)) {
-                height += config.statement.height;
+            if (elViewState.hidden) {
                 return;
             }
 
