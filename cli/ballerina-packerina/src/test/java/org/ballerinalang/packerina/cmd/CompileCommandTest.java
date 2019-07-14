@@ -151,7 +151,7 @@ public class CompileCommandTest extends CommandTest {
                         Balo balo = new Toml().read(baloTomlContent).to(Balo.class);
 
                         Assert.assertTrue(module.module_version.equals("0.1.0"));
-                        Assert.assertTrue(balo.balo_version.equals("1.0"));
+                        Assert.assertEquals(balo.balo_version, 1.0);
 
                         Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                         Assert.assertTrue(Files.exists(srcDir));

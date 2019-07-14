@@ -32,12 +32,12 @@ public class Module {
     public String module_organization;
     public String module_name;
     public String module_version;
-    public String module_licenses;
+    public List<String> module_licenses;
     public List<String> module_authors;
     public String module_source_repository;
     public List<String> module_keywords;
     public String ballerina_version;
-    private String module_platform;
+    private String platform;
     public String language_specification_version = ProgramFileConstants.IMPLEMENTATION_VERSION;
     public String implementation_name = "jBallerina";
     public String implementation_version = "1.0.0";
@@ -75,11 +75,11 @@ public class Module {
         this.module_version = module_version;
     }
 
-    public String getModule_licenses() {
+    public List<String> getModule_licenses() {
         return module_licenses;
     }
 
-    public void setModule_licenses(String module_licenses) {
+    public void setModule_licenses(List<String> module_licenses) {
         this.module_licenses = module_licenses;
     }
 
@@ -147,11 +147,11 @@ public class Module {
         this.implementation_vendor = implementation_vendor;
     }
     
-    public void setModule_platform(String module_platform) {
-        this.module_platform = module_platform;
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
     
-    public String getModule_platform() {
-        return module_platform;
+    public String getPlatform() {
+        return platform;
     }
 }

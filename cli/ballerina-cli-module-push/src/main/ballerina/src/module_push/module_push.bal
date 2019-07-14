@@ -38,7 +38,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
     } else {
         string statusCode = string.convert(response.statusCode);
         if (statusCode.hasPrefix("5")) {
-            panic createError("remote registry failed for url :" + url);
+            panic createError("error occured in remote registry. url: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {

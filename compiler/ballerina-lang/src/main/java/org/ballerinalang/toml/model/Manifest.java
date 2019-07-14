@@ -112,7 +112,7 @@ public class Manifest {
     public static class Project {
         private String orgName = "";
         private String version = "";
-        private String license = "";
+        private List<String> license = new LinkedList<>();
         private List<String> authors = new LinkedList<>();
         private String repository = "";
         private List<String> keywords = new LinkedList<>();
@@ -133,11 +133,11 @@ public class Manifest {
             this.version = version;
         }
 
-        public String getLicense() {
+        public List<String> getLicense() {
             return license;
         }
 
-        public void setLicense(String license) {
+        public void setLicense(List<String> license) {
             this.license = license;
         }
 

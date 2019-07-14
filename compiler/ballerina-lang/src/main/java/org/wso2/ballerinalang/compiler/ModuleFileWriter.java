@@ -304,7 +304,7 @@ public class ModuleFileWriter {
         moduleObj.setModule_keywords(manifest.getProject().getKeywords());
         moduleObj.setModule_source_repository(manifest.getProject().getRepository());
         moduleObj.setModule_licenses(manifest.getProject().getLicense());
-        moduleObj.setModule_platform(manifest.getTargetPlatform());
+        moduleObj.setPlatform(manifest.getTargetPlatform());
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes());
