@@ -1323,17 +1323,13 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
     int defaultableIndex = 0;
     foreach var attachment in annotAttachments {
         if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == DEFAULTABLE_ARGS_ANOT_NAME) {
-            map<bir:AnnotationValueEntry?[]>? entryMap = attachment.annotValues[0].valueEntryMap;
-            if (entryMap is map<bir:AnnotationValueEntry?[]>) {
-                var entries = entryMap[DEFAULTABLE_ARGS_ANOT_FIELD];
-                if (entries is bir:AnnotationValueEntry?[]) {
-                    foreach var entry in entries {
-                        if (entry is bir:AnnotationValueEntry) {
-                            defaultableNames[defaultableIndex] = <string>entry.value;
-                            defaultableIndex += 1;
-                        }
-                    }
-                }  
+            var annotRecValue = <bir:AnnotationRecordValue>attachment.annotValues[0];
+            var annotFieldMap = annotRecValue.annotValueMap;
+            var annotArrayValue = <bir:AnnotationArrayValue>annotFieldMap[DEFAULTABLE_ARGS_ANOT_FIELD];
+            foreach var entryOptional in annotArrayValue.annotValueArray {
+                var argValue = <bir:AnnotationLiteralValue>entryOptional;
+                defaultableNames[defaultableIndex] = <string>argValue.literalValue;
+                defaultableIndex += 1;
             }
             break;
         }
