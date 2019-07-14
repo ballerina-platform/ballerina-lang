@@ -25,8 +25,6 @@ package org.wso2.ballerinalang.compiler.util;
 public class ProjectDirConstants {
 
 
-
-
     private ProjectDirConstants() {
     }
 
@@ -44,6 +42,7 @@ public class ProjectDirConstants {
     public static final String DOT_BALLERINA_REPO_DIR_NAME = "repo";
 
     public static final String SOURCE_DIR_NAME = "src";
+    public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_BALO_DIRECTORY = "balo";
 
