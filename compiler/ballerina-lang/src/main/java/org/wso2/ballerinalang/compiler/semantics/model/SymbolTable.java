@@ -208,7 +208,7 @@ public class SymbolTable {
                 rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
         defineType(semanticError, semanticErrSymbol);
 
-        this.typeDesc = new BTypedescType(TypeTags.TYPEDESC, this.anyType, null);
+        this.typeDesc = new BTypedescType(this.anyType, null);
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
 
 
