@@ -58,7 +58,13 @@ import java.util.function.Predicate;
 public class ConstructFrom {
 
     public static Object constructFrom(Strand strand, TypedescValue t, Object v) {
-        return convert(strand, ((BTypedescType) t.getDescribingType()).getConstraint(), v);
+        BType describingType = t.getDescribingType();
+        // typedesc<json>.constructFrom like usage
+        if (describingType.getTag() == org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG) {
+            return convert(strand, ((BTypedescType) t.getDescribingType()).getConstraint(), v);
+        }
+        // json.constructFrom like usage
+        return convert(strand, describingType, v);
     }
 
     public static Object convert(Strand strand, BType convertType, Object inputValue) {
