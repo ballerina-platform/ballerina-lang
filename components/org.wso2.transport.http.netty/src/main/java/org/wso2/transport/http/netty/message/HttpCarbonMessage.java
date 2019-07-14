@@ -499,7 +499,7 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Can be used to detect if a request is expecting 100 continue
+     * Can be used to detect if a request is expecting 100 continue.
      *
      * @return true if the request is expecting 100 continue
      */

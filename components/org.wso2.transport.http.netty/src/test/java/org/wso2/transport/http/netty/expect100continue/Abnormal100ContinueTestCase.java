@@ -60,7 +60,7 @@ public class Abnormal100ContinueTestCase {
     }
 
     @Test
-    public void testConnectionReuseForMain() {
+    public void testAbnormal100continueResponse() {
         try {
             CountDownLatch waitForResponseLatch = new CountDownLatch(1);
             DefaultHttpConnectorListener responseListener = sendRequestAsync(waitForResponseLatch, httpClientConnector);

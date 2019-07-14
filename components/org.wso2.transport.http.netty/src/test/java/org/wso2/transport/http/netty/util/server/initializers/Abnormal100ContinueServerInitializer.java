@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -66,7 +66,6 @@ public class Abnormal100ContinueServerInitializer extends HttpServerInitializer 
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
             if (stringContent != null) {
                 ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
                 if (msg instanceof HttpRequest) {
