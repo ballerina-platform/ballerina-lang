@@ -43,8 +43,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import java.util.Arrays;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.GenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_CODE;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
 
@@ -101,7 +101,7 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(getError("Unable to complete handshake:" +
+                    callback.notifyFailure(getError(null ,"Unable to complete handshake:" +
                             throwable.getMessage()));
                 } else {
                     throw new WebSocketException("Unable to complete handshake", throwable);
@@ -159,7 +159,7 @@ public class WebSocketUtil {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 //TODO Temp fix to get return values. Remove
-                callback.setReturnValues(getError(cause.getMessage()));
+                callback.setReturnValues(getError(null, cause.getMessage()));
 
             } else {
                 //TODO Temp fix to get return values. Remove
@@ -229,14 +229,35 @@ public class WebSocketUtil {
                 .toArray(String[]::new);
     }
 
-    public static ErrorValue getError(String errorMessage) {
-        return BallerinaErrors.createError(WEBSOCKET_ERROR_CODE, populateWebSocketErrorRecord(errorMessage));
+    /**
+     * Create Generic webSocket error with given error message.
+     *
+     * @param errMsg the error message
+     * @return ErrorValue instance which contains the error details
+     */
+    public static ErrorValue createSocketError(String errMsg) {
+        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(errMsg, null));
     }
 
-    public static MapValue<String, Object> populateWebSocketErrorRecord(String detailedErrorMessage) {
-        MapValue<String, Object> errorDetailRecord = BallerinaValues
-                .createRecordValue(FULL_PACKAGE_HTTP, WEBSOCKET_ERROR_DETAILS);
-        return BallerinaValues.createRecord(errorDetailRecord, detailedErrorMessage);
+    /**
+     * Create webSocket error with given error code and message.
+     *
+     * @param code   the error code which cause for this error
+     * @param errMsg the error message
+     * @return ErrorValue instance which contains the error details
+     */
+    public static ErrorValue createSocketError(WebSocketConstants.ErrorCode code, String errMsg) {
+        return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errMsg, null));
+    }
+
+    private static MapValue<String, Object> createDetailRecord(Object... values) {
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(FULL_PACKAGE_HTTP, WEBSOCKET_ERROR_DETAILS);
+        return BallerinaValues.createRecord(detail, values);
+    }
+
+    public static ErrorValue getError(WebSocketConstants.ErrorCode code, String msg) {
+        ErrorValue webSocketError = code == null ? createSocketError(msg) : createSocketError(code, msg);
+        return webSocketError;
     }
 
     private WebSocketUtil() {

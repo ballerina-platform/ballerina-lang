@@ -327,7 +327,7 @@ public class WebSocketDispatcher {
         if (errMsg == null) {
             errMsg = "Unexpected internal error";
         }
-        bValues[2] = getError(errMsg);
+        bValues[2] = getError(null, errMsg);
         bValues[3] = true;
         //TODO Uncomment following once service.start() API is available
         CallableUnitCallback onErrorCallback = new CallableUnitCallback() {

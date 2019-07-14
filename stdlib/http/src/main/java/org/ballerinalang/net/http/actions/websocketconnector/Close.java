@@ -73,7 +73,7 @@ public class Close implements NativeCallableUnit {
             });
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(e.getMessage()));
+            callback.setReturnValues(getError(null, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
@@ -95,9 +95,9 @@ public class Close implements NativeCallableUnit {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.setReturnValues(getError(cause.getMessage()));
+                strand.setReturnValues(getError(null, cause.getMessage()));
                 //TODO remove this call back
-                callback.setReturnValues(getError(cause.getMessage()));
+                callback.setReturnValues(getError(null, cause.getMessage()));
             } else {
                 strand.setReturnValues(null);
                 //TODO remove this call back
@@ -119,12 +119,12 @@ public class Close implements NativeCallableUnit {
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
                     //TODO remove this call back
-                    callback.setReturnValues(getError(errMsg));
+                    callback.setReturnValues(getError(null, errMsg));
                 }
             }
         } catch (InterruptedException err) {
             //TODO remove this call back
-            callback.setReturnValues(getError("Connection interrupted while closing the connection"));
+            callback.setReturnValues(getError(null, "Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();
         }
     }

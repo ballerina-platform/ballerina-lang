@@ -69,7 +69,7 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             future.addListener((ChannelFutureListener) channelFuture -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
-                    callback.setReturnValues(getError(cause.getMessage()));
+                    callback.setReturnValues(getError(null, cause.getMessage()));
                 } else {
                     callback.setReturnValues(null);
                 }
@@ -80,7 +80,7 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             });
         } catch (Exception e) {
             //Return this error.
-            callback.setReturnValues(getError(e.getMessage()));
+            callback.setReturnValues(getError(null, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

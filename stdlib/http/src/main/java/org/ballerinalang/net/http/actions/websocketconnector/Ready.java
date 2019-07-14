@@ -65,12 +65,12 @@ public class Ready implements NativeCallableUnit {
                 callback.setReturnValues(null);
             } else {
                 //TODO remove this call back
-                callback.setReturnValues(getError("Already started reading frames"));
+                callback.setReturnValues(getError(null, "Already started reading frames"));
             }
             callback.notifySuccess();
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(e.getMessage()));
+            callback.setReturnValues(getError(null, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

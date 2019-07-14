@@ -61,7 +61,7 @@ public class PushText implements NativeCallableUnit {
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(getError(e.getMessage()));
+            callback.setReturnValues(getError(null, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

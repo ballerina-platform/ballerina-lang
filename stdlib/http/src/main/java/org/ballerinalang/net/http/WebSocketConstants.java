@@ -96,4 +96,28 @@ public class WebSocketConstants {
 
     private WebSocketConstants() {
     }
+
+    /**
+     * Specifies the error code for webSocket module.
+     */
+    public enum ErrorCode {
+
+        ConnectionClosureError("{ballerina/http}ConnectionClosureError"),
+        InvalidHandshakeError("{ballerina/http}InvalidHandshakeError"),
+        PayloadTooBigError("{ballerina/http}PayloadTooBigError"),
+        ProtocolError("{ballerina/http}ProtocolError"),
+        ConnectionError("{ballerina/http}ConnectionError"),
+        InvalidContinuationFrameError("{ballerina/http}InvalidContinuationFrameError"),
+        GenericError("{ballerina/http}GenericError");
+
+        private String errorCode;
+
+        ErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String errorCode() {
+            return errorCode;
+        }
+    }
 }
