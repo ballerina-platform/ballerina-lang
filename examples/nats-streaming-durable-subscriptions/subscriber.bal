@@ -7,7 +7,7 @@ import ballerina/nats;
 nats:Connection conn = new("localhost:4222");
 
 // Initializes the NATS Streaming listener.
-listener nats:StreamingListener lis = new(conn, "test-cluster", "c0");
+listener nats:StreamingListener lis = new(conn);
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 @nats:StreamingSubscriptionConfig {

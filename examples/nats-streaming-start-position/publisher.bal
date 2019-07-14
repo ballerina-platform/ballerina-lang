@@ -12,13 +12,13 @@ public function main() {
 
     nats:Connection conn = new("localhost:4222");
 
-    nats:StreamingProducer publisher = new(conn, "p0", "test-cluster");
+    nats:StreamingProducer publisher = new(conn);
 
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
             // Produces a message to the specified subject.
-            var result = publisher->publish(subject, message);
+            var result = publisher->publish(subject, <@untainted> message);
             if (result is nats:Error) {
                 error e = result;
                 log:printError("Error occurred while closing the connection", err = e);

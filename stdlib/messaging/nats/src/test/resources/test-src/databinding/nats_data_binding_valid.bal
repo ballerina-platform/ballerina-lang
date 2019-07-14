@@ -25,20 +25,12 @@ type Entry record {
 
 nats:Connection conn = new("localhost:4222");
 
-listener nats:StreamingListener lisBytes = new(conn, "test-cluster", "bytes");
-listener nats:StreamingListener lisString = new(conn, "test-cluster", "strings");
-listener nats:StreamingListener lisInt = new(conn, "test-cluster", "ints");
-listener nats:StreamingListener lisFloat = new(conn, "test-cluster", "floats");
-listener nats:StreamingListener lisBoolean = new(conn, "test-cluster", "booleans");
-listener nats:StreamingListener lisDecimal = new(conn, "test-cluster", "decimals");
-listener nats:StreamingListener lisXml = new(conn, "test-cluster", "xmls");
-listener nats:StreamingListener lisJson = new(conn, "test-cluster", "jsons");
-listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records");
+listener nats:StreamingListener lis = new(conn);
 
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingByteConsumerService on lisBytes {
+ service dataBindingByteConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, byte[] data) {
          io:println("Received Message - service: " + encoding:byteArrayToString(data));
      }
@@ -51,7 +43,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingIntConsumerService on lisInt {
+ service dataBindingIntConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, int data) {
          io:println("Received Message - service: " + data);
      }
@@ -64,7 +56,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingFloatConsumerService on lisFloat {
+ service dataBindingFloatConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, float data) {
          io:println("Received Message - service: " + data);
      }
@@ -77,7 +69,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingBooleanConsumerService on lisBoolean {
+ service dataBindingBooleanConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, boolean data) {
          io:println("Received Message - service: " + data);
      }
@@ -90,7 +82,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingDecimalConsumerService on lisDecimal {
+ service dataBindingDecimalConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, decimal data) {
          io:println("Received Message - service: " + data);
      }
@@ -103,7 +95,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingXmlConsumerService on lisXml {
+ service dataBindingXmlConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, xml data) {
          io:println("Received Message - service: " + string.convert(data));
      }
@@ -116,7 +108,7 @@ listener nats:StreamingListener lisRecord = new(conn, "test-cluster", "records")
 @nats:StreamingSubscriptionConfig {
     subject: "demo"
 }
-service dataBindingJsonConsumerService on lisJson {
+service dataBindingJsonConsumerService on lis {
      resource function onMessage(nats:StreamingMessage message, json data) {
         io:println("Received Message - service");
     }
@@ -129,7 +121,7 @@ service dataBindingJsonConsumerService on lisJson {
  @nats:StreamingSubscriptionConfig {
      subject: "demo"
  }
- service dataBindingRecordConsumerService on lisRecord {
+ service dataBindingRecordConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, Entry data) {
           json | error val = json.convert(data);
           if (val is json) {
