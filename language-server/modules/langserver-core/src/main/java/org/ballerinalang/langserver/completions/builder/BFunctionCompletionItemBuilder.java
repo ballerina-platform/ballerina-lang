@@ -238,8 +238,8 @@ public final class BFunctionCompletionItemBuilder {
             tSymbol = (paramType instanceof BArrayType) ?
                     ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
             List<Name> nameComps = tSymbol.pkgID.nameComps;
-            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
+            if (//tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue()) ||
+                    tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
                 typeName = tSymbol.getName().getValue();
             } else {
                 typeName = CommonUtil.getLastItem(nameComps).getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
