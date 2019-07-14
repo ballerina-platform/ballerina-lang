@@ -47,7 +47,7 @@ public type BearerAuthHandler object {
     #
     # + req - The `Request` instance.
     # + return - Returns `true` if authenticated successfully. Else, returns `false` or the `error` in case of an error.
-    public function handle(Request req) returns boolean|error {
+    public function process(Request req) returns boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(6, headerValue.length()).trim();
         var authProvider = self.authProvider;

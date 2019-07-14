@@ -59,6 +59,7 @@ public class TypeTags {
     public static final int BYTE_ARRAY_TAG = OBJECT_TYPE_TAG + 1;
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
     public static final int CHANNEL_TAG = FUNCTION_POINTER_TAG + 1;
+    public static final int HANDLE_TAG = FUNCTION_POINTER_TAG + 1;
 
     public static final int SERVICE_TAG = OBJECT_TYPE_TAG;
 }

@@ -252,6 +252,8 @@ function getTargetClass(bir:BType sourceType, bir:BType targetType) returns stri
         targetTypeClass = FUNCTION_POINTER;
     } else if (targetType is bir:BFutureType) {
         targetTypeClass = FUTURE_VALUE;
+    } else if (targetType is bir:BTypeHandle) {
+        targetTypeClass = HANDLE_VALUE;
     } else {
         return;
     }

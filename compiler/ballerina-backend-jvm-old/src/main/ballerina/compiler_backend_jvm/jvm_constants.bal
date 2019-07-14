@@ -224,6 +224,7 @@ const string XML_VALUE = "org/ballerinalang/jvm/values/XMLValue";
 const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
+const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 
 const string OBJECT = "java/lang/Object";
