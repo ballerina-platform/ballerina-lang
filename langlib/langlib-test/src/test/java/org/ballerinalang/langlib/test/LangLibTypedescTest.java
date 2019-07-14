@@ -47,4 +47,11 @@ public class LangLibTypedescTest {
         Assert.assertEquals(returns[0].getType().toString(), "map<json>");
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"N\", \"age\":3}");
     }
+
+    @Test
+    public void testRecToJsonOnJsonDotConstructFrom() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testRecToJsonDirect");
+        Assert.assertEquals(returns[0].getType().toString(), "map<json>");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"N\", \"age\":3}");
+    }
 }

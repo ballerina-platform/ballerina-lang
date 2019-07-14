@@ -24,3 +24,9 @@ function testRecToJson() returns json|error {
     json|error j = typedesc<json>.constructFrom(p);
     return j;
 }
+
+function testRecToJsonDirect() returns json|error {
+    Person  p = {name: "N", age: 3};
+    json|error j = json.constructFrom(p);
+    return j;
+}

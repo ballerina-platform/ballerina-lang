@@ -2977,11 +2977,27 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.langLibInvocation = true;
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
-        iExpr.argExprs.add(0, iExpr.expr);
+        addLangLibExpressionArg(iExpr);
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
         return true;
+    }
+
+    private void addLangLibExpressionArg(BLangInvocation iExpr) {
+        if (iExpr.symbol.owner.pkgID.orgName.value.equals("ballerina")
+            && iExpr.symbol.owner.pkgID.name.value.equals("lang.typedesc")
+            && iExpr.expr.type.tag != TypeTags.TYPEDESC) {
+            BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+            BTypedescType bTypedescType = new BTypedescType(TypeTags.TYPEDESC, iExpr.expr.type, null);
+            typedescExpr.resolvedType = bTypedescType;
+            typedescExpr.type = bTypedescType;
+            typedescExpr.typeChecked = true;
+            // skip setting typedescExpr.typeNode
+            iExpr.argExprs.add(0, typedescExpr);
+            return;
+        }
+        iExpr.argExprs.add(0, iExpr.expr);
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
