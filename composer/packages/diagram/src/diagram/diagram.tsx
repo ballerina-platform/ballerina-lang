@@ -15,6 +15,7 @@ import { visitor as positioningVisitor } from "../visitors/positioning-visitor";
 import { visitor as sizingVisitor } from "../visitors/sizing-visitor";
 import { DiagramContext, DiagramMode, IDiagramContext } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
+import { ConstructIdentifier } from "./overview";
 
 export interface CommonDiagramProps {
     height?: number;
@@ -25,6 +26,7 @@ export interface CommonDiagramProps {
     langClient: IBallerinaLangClient;
     maxInvocationDepth?: number;
     sourceRootUri?: string;
+    initialSelectedConstruct?: ConstructIdentifier;
     docUri: string;
 }
 export interface DiagramProps extends CommonDiagramProps {

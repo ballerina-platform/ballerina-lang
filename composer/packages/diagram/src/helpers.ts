@@ -30,6 +30,7 @@ export const renderOverview = (args: EditableDiagramArgs) => {
     const overviewProps = {
         docUri: args.editorProps.docUri,
         fitToWidthOrHeight: true,
+        initialSelectedConstruct: args.editorProps.initialSelectedConstruct,
         langClient: args.editorProps.langClient,
         mode: DiagramMode.DEFAULT,
         sourceRootUri: args.editorProps.sourceRootUri,
