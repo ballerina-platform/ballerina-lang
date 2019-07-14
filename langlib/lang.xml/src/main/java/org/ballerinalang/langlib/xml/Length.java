@@ -16,30 +16,29 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.string;
+package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Extern function lang.string:iterator(string).
+ * Native implementation of lang.xml:length(xml).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "iterator",
-        args = {@Argument(name = "str", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+        orgName = "ballerina", packageName = "lang.xml", functionName = "length",
+        args = {@Argument(name = "x", type = TypeKind.XML)},
+        returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class GetIterator {
+public class Length {
 
-    public static ObjectValue iterator(Strand strand, String str) {
-        throw BallerinaErrors.createError("Function 'iterator()' is not implemented");
+    public static long length(Strand strand, XMLValue<?> xml) {
+        return xml.size();
     }
 }

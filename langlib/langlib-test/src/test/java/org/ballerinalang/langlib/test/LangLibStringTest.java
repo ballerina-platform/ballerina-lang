@@ -21,14 +21,17 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -76,8 +79,53 @@ public class LangLibStringTest {
     }
 
     @Test
+    public void testFromBytes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromBytes");
+        assertEquals(returns[0].stringValue(), "Hello Ballerina!");
+    }
+
+    @Test
+    public void testJoin() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJoin");
+        assertEquals(returns[0].stringValue(), "Sunday, Monday, Tuesday");
+    }
+
+    @Test
     public void testStartsWith() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStartsWith");
         assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "SubStringsForEndsWith")
+    public void testEndsWith(BString str, boolean expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEndsWith", new BValue[]{str});
+        assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+    }
+
+    @Test(dataProvider = "SubStringsForIndexOf")
+    public void testIndexOf(BString substr, Object expected) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf", new BValue[]{substr});
+
+        if (expected == null) {
+            assertNull(returns[0]);
+        } else {
+            assertEquals(((BInteger) returns[0]).intValue(), (long) expected, "For substring: " + substr);
+        }
+    }
+
+    @DataProvider(name = "SubStringsForIndexOf")
+    public Object[][] getSubStrings() {
+        return new Object[][]{
+                {new BString("Ballerina"), 6L},
+                {new BString("Invalid"), null},
+        };
+    }
+
+    @DataProvider(name = "SubStringsForEndsWith")
+    public Object[][] getSubStringsForMatching() {
+        return new Object[][]{
+                {new BString("Ballerina!"), true},
+                {new BString("Invalid"), false},
+        };
     }
 }
