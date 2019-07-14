@@ -15,18 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.websub;
+package org.ballerinalang.net.websub.broker;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.buffer.UnpooledHeapByteBuf;
+import org.ballerinalang.model.values.BValue;
 
 /**
- * Represents a Runtime Exception that could be thrown when performing WebSub actions.
+ * Implementation of {@link io.netty.buffer.ByteBuf}, to hold a {@link BValue}, to use with the internal broker core
+ * used in Ballerina.
  *
- * @since 0.970.2
+ * @since 0.973.0
  */
-public class BallerinaWebSubException extends BallerinaException {
+public class BallerinaBrokerByteBuf extends UnpooledHeapByteBuf {
 
-    public BallerinaWebSubException(String message) {
-        super(message);
+    private final Object value;
+
+    public BallerinaBrokerByteBuf(Object value) {
+        super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
+        this.value = value;
+    }
+
+    public Object getValue() {
+        return value;
     }
 }

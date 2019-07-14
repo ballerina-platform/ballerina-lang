@@ -70,16 +70,16 @@ function genMethodForBallerinaFunction(bir:Function func,
         generateInitFunctionInvocation(module, mv);
         generateUserDefinedTypes(mv);
 
-        if (!"".equalsIgnoreCase(currentPackageName)) {
-            mv.visitTypeInsn(NEW, typeOwnerClass);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
-            mv.visitVarInsn(ASTORE, 1);
-            mv.visitLdcInsn(cleanupPackageName(currentPackageName));
-            mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
-                                    io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
-        }
+        string alteredPackageName = currentPackageName == "" ? "." : currentPackageName;
+
+        mv.visitTypeInsn(NEW, typeOwnerClass);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+        mv.visitVarInsn(ASTORE, 1);
+        mv.visitLdcInsn(cleanupPackageName(alteredPackageName));
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
+                                io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
     }
 
     // generate method body

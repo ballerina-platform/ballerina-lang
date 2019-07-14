@@ -106,7 +106,7 @@ public class ConstantInTypeDefinitionTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
     }
 
-    @Test (groups = "brokenOnBootstrappedJVMCodegen")
+    @Test
     public void testByteTypeWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns[0]);
