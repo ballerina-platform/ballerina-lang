@@ -6,14 +6,6 @@ function arrayLengthAccessNullArrayCase(int x, int y) returns (int) {
     return length;
 }
 
-
-function arrayLengthAccessTestJSONArrayNegativeNullCase(int x, int y) returns (int) {
-    json arr = ();
-    int length;
-    length = (arr.length());
-    return length;
-}
-
 function arrayLengthAccessNullMapCase(int x, int y) returns (int) {
     map<any> m = {};
     int length;
