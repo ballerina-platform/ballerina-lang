@@ -70,7 +70,7 @@ public type InboundOAuth2Provider object {
                 }
             }
         } else {
-            return auth:prepareAuthError("Failed to call the introspection endpoint.", err = <error>response);
+            return auth:prepareError("Failed to call the introspection endpoint.", err = <error>response);
         }
 
         if (authenticated) {
