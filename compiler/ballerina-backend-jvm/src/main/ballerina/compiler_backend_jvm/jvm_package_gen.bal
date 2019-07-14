@@ -29,7 +29,7 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<[bir:AsyncCall|bir:FPLoad, string]> lambdas = {};
+map<bir:AsyncCall|bir:FPLoad> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
@@ -176,7 +176,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
         // generate lambdas created during generating methods
         foreach var [name, call] in lambdas.entries() {
-            generateLambdaMethod(call[0], cw, call[1], name);
+            generateLambdaMethod(call, cw, name);
         }
         // clear the lambdas
         lambdas = {};
@@ -255,8 +255,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
         var cacheDir = findCacheDirFor(modId);
         var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
         var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
-        internal:Path mappingPath = new(mappingFile);
-        if (mappingPath.exists()) {
+        if (system:exists(mappingFile)) {
             var externalMap = readMap(mappingFile);
             foreach var [key,val] in externalMap.entries() {
                 externalMapCache[key] = val;
@@ -269,8 +268,8 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
 
 function findCacheDirFor(bir:ModuleID modId) returns string {
     foreach var birCacheDir in birCacheDirs {
-        internal:Path birPath = new(calculateBirCachePath(birCacheDir, modId, ".bir"));
-        if (birPath.exists()) {
+        string birPath = calculateBirCachePath(birCacheDir, modId, ".bir");
+        if (system:exists(birPath)) {
             return birCacheDir;
         }
     }
@@ -342,7 +341,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<[bir:AsyncCall|bir:FPLoad, string]> lambdaCalls) returns map<JavaClass> {
+                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;

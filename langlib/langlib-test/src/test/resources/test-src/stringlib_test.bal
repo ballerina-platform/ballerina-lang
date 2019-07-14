@@ -16,8 +16,9 @@
 
 import ballerina/'lang\.string as strings;
 
+string str = "Hello Ballerina!";
+
 function testToLower() returns string {
-    string str = "Hello Ballerina!";
     return str.toLowerAscii();
 }
 
@@ -26,7 +27,7 @@ function testLength() returns int {
 }
 
 function testSubString() returns string {
-    return "Hello Ballerina!".substring(6, 9);
+    return str.substring(6, 9);
 }
 
 //function testIterator() returns string[] {
@@ -50,9 +51,27 @@ function testSubString() returns string {
 //}
 
 function testStartsWith() returns boolean {
-    return strings:startsWith("Hello Ballerina!", "Hello");
+    return strings:startsWith(str, "Hello");
 }
 
 function testConcat() returns string {
     return strings:concat("Hello ", "from ", "Ballerina");
+}
+
+function testIndexOf(string substr) returns int? {
+    return str.indexOf(substr);
+}
+
+function testEndsWith(string substr) returns boolean {
+    return str.endsWith(substr);
+}
+
+function testFromBytes() returns string|error {
+    byte[] bytes = [72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33];
+    return strings:fromBytes(bytes);
+}
+
+function testJoin() returns string {
+    string[] days = ["Sunday", "Monday", "Tuesday"];
+    return strings:'join(", ", ...days);
 }

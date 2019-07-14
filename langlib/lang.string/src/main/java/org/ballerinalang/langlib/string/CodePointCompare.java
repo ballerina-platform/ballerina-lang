@@ -18,7 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,6 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CodePointCompare {
 
     public static int codePointCompare(Strand strand, String str1, String str2) {
-        return 0;
+        throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+                                          "codePointCompare() function not supported");
     }
 }

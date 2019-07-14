@@ -65,7 +65,7 @@ function testInvalidOutOfRangeTupleMemberAccessByLiteral() {
     _ = ia[5];
 }
 
-function testRecordMemberAccessInvalidTypes1() {
+function testRecordMemberAccessInvalidTypes() {
     string s = "Anne";
     int i = 100;
 
@@ -75,4 +75,16 @@ function testRecordMemberAccessInvalidTypes1() {
     int id = e["id"];
     string s2 = e["names"];
     string s3 = e[s];
+}
+
+function testMapMemberAccessInvalidTypes() {
+    string s = "Anne";
+    int i = 100;
+
+    map<int|string> e = { name: s, id: i };
+
+    string name = e["name"];
+    int id = e["id"];
+    string? s2 = e["name"];
+    int|string s3 = e[s];
 }

@@ -111,6 +111,12 @@ public class BasicAsyncOperationsTest {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+    
+    @Test
+    public void testAsyncObjectAttachedFunctions() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncObjectAttachedFunctions");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
 
     @Test (description = "Test negative issues with future")
     public void testAsyncNegative() {

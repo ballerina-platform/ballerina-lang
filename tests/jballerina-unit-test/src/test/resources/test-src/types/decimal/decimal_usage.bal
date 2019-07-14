@@ -28,7 +28,7 @@ function testDecimalMap() returns [map<decimal>, int, string[], decimal] {
     map<decimal> dMap = {element0: 12.45, element1: 34.3, element2: 2314.31};
     int length = dMap.length();
     string[] keys = dMap.keys();
-    decimal element0 = dMap.element0;
+    decimal element0 = dMap.get("element0");
     return [dMap, length, keys, element0];
 }
 

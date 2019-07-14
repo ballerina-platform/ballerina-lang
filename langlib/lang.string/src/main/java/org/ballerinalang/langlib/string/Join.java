@@ -19,10 +19,13 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.StringJoiner;
 
 /**
  * Extern function lang.string:join(string, string...).
@@ -37,7 +40,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Join {
 
-    public static String join(Strand strand, String separator, String[] strs) {
-        return "";
+    public static String join(Strand strand, String separator, ArrayValue strs) {
+        StringJoiner stringJoiner = new StringJoiner(separator);
+        int size = strs.size();
+        for (int i = 0; i < size; i++) {
+            stringJoiner.add(strs.getString(i));
+        }
+        return stringJoiner.toString();
     }
 }
