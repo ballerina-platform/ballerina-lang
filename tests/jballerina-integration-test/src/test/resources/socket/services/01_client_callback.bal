@@ -40,21 +40,21 @@ service echo on echoEP {
             } else {
                 io:println("Write error!!!");
                 error writeError = writeResult;
-                string errMsg = <string>writeError.detail().message;
+                string errMsg = <string>writeError.detail()["message"];
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
                 if (responseError is error) {
-                    io:println("Error sending response: ", responseError.detail().message);
+                    io:println("Error sending response: ", responseError.detail()["message"]);
                 }
             }
         } else {
-            string errMsg = <string>payload.detail().message;
+            string errMsg = <string>payload.detail()["message"];
             resp.statusCode = 500;
             resp.setPayload(<@untainted> errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                io:println("Error sending response: ", responseError.detail().message);
+                io:println("Error sending response: ", responseError.detail()["message"]);
             }
         }
     }
@@ -77,12 +77,12 @@ service ClientService = service {
                     io:println(<@untainted>str);
                 } else {
                     error e = str;
-                    io:println(e.detail().message);
+                    io:println(e.detail()["message"]);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
                     error closeResultError = closeResult;
-                    io:println(closeResultError.detail().message);
+                    io:println(closeResultError.detail()["message"]);
                 } else {
                     io:println("Client connection closed successfully.");
                 }
@@ -96,7 +96,7 @@ service ClientService = service {
 
     resource function onError(socket:Caller caller, error er) {
         error e = er;
-        io:println(e.detail().message);
+        io:println(e.detail()["message"]);
     }
 };
 
