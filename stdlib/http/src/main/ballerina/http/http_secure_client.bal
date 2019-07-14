@@ -38,8 +38,7 @@ public type HttpSecureClient client object {
         if (simpleClient is HttpClient) {
             self.httpClient = simpleClient;
         } else {
-            error clientError = simpleClient;
-            panic clientError;
+            panic <error> simpleClient;
         }
     }
 
