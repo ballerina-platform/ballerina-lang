@@ -25,7 +25,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
@@ -47,28 +47,28 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 /**
- * Provides the scopes of a given user.
+ * Provides the groups of a given user.
  *
  * @since 0.983.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "getLdapScopes")
-public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
+        functionName = "getGroups", isPublic = true)
+public class GetGroups extends BlockingNativeCallableUnit {
 
-    private static final Log LOG = LogFactory.getLog(GetLdapScopesOfUser.class);
+    private static final Log LOG = LogFactory.getLog(GetGroups.class);
 
     @Override
     public void execute(Context context) {
 
     }
 
-    public static ArrayValue getScopes(Strand strand, ObjectValue authStore, String userName) {
+    public static ArrayValue getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
         try {
-            LdapUtils.setServiceName((String) authStore.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
-            DirContext ldapConnectionContext = (DirContext) authStore.getNativeData(
+            LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
+            DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
                     LdapConstants.LDAP_CONNECTION_CONTEXT);
-            CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) authStore.getNativeData(
+            CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(
                     LdapConstants.LDAP_CONFIGURATION);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
@@ -92,7 +92,7 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
                                                     DirContext ldapConnectionContext)
                                              throws UserStoreException, NamingException {
         if (userName == null) {
-            throw new BallerinaException("userName value is null.");
+            throw new BallerinaException("UserName value is null.");
         }
 
         SearchControls searchCtls = new SearchControls();
@@ -104,7 +104,7 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
         String nameInSpace = getNameInSpaceForUserName(userName, ldapAuthConfig, ldapConnectionContext);
 
         if (membershipProperty == null || membershipProperty.length() < 1) {
-            throw new BallerinaException("membershipAttribute not set in configuration");
+            throw new BallerinaException("MembershipAttribute not set in configuration");
         }
 
         String membershipValue;
@@ -122,7 +122,7 @@ public class GetLdapScopesOfUser extends BlockingNativeCallableUnit {
         }
 
         searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue + "))";
-        String returnedAtts[] = {roleNameProperty};
+        String[] returnedAtts = {roleNameProperty};
         searchCtls.setReturningAttributes(returnedAtts);
 
         if (LOG.isDebugEnabled()) {

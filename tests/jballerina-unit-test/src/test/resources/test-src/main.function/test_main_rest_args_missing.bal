@@ -13,11 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/io;
 
-type Detail record {
-    string message;
-    error cause?;
-};
-
-public const AUTH_ERROR = "{ballerina/auth}AuthError";
-public type Error error<AUTH_ERROR, Detail>;
+public function main(string... args) {
+  io:print("main invoked");
+}

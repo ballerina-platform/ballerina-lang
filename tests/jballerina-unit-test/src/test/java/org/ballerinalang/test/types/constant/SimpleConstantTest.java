@@ -220,7 +220,7 @@ public class SimpleConstantTest {
     }
 
     // Note - Byte without type cannot be specified.
-    @Test (groups = "brokenOnBootstrappedJVMCodegen")
+    @Test
     public void testByteWithType() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testByteWithType");
         Assert.assertNotNull(returns[0]);

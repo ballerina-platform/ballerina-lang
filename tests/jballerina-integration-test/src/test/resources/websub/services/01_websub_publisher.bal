@@ -231,9 +231,11 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     string errorMessage = "unknown content type";
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
-            return {"action":"publish","mode":"internal-hub"};
+            json j = {"action":"publish","mode":"internal-hub"};
+            return j;
         }
-        return {"action":"publish","mode":"remote-hub"};
+        json k = {"action":"publish","mode":"remote-hub"};
+        return k;
     } else if (contentType == "string") {
         if (mode == "internal") {
             return "Text update for internal Hub";

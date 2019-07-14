@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
@@ -443,7 +442,7 @@ public class CallStatement extends AbstractSQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+            throw SQLDatasourceUtils.getSQLDatabaseError(e, "error in cleaning sql resources: ");
         }
     }
 }
