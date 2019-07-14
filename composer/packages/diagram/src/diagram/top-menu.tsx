@@ -45,8 +45,8 @@ export const TopMenu = (props: TopMenuProps) => {
         <div>{
             !openedState ?
             <div>
-                <div className="menu-icon">
-                    <Icon onClick={handleOpened} className="fw fw-search" />
+                <div onClick={handleOpened} className="menu-icon">
+                    <Icon className="fw fw-search" />
                 </div>
             </div> :
             <Grid className="menu-container">
@@ -64,7 +64,7 @@ export const TopMenu = (props: TopMenuProps) => {
                             </Dropdown.Menu>
                         </Dropdown>
                         <Icon onClick={handleZoomIn} className="fw fw-add" />
-                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit" />
+                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen" />
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
                         <Icon onClick={handleReset} className="fw fw-refresh" />
