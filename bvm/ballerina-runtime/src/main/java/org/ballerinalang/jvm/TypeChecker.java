@@ -1413,7 +1413,7 @@ public class TypeChecker {
     private static boolean isHandleValueRefEqual(Object lhsValue, Object rhsValue) {
         HandleValue lhsHandle = (HandleValue) lhsValue;
         HandleValue rhsHandle = (HandleValue) rhsValue;
-        return lhsHandle.value == rhsHandle.value;
+        return lhsHandle.getValue() == rhsHandle.getValue();
     }
 
     /**
