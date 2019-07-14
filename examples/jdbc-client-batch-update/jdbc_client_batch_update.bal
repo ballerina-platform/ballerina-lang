@@ -59,14 +59,14 @@ public function main() {
     // A batch of data can be inserted using the `batchUpdate` remote function.
     // The number of inserted rows for each insert in the batch is returned as
     // an array.
-    var retBatch = testDB->batchUpdate("INSERT INTO student
-                    (age,name) VALUES (?,?)", ...dataBatch);
-    if (retBatch is int[]) {
-        io:println("Batch 1 update counts: " + retBatch[0]);
-        io:println("Batch 2 update counts: " + retBatch[1]);
+    jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student
+                    (age,name) VALUES (?,?)", false, ...dataBatch);
+    error? e = retBatch.returnedError;
+    if (e is error) {
+        io:println("Batch update operation failed:" + <string> e.detail().message );
     } else {
-        error err = retBatch;
-        io:println("Batch update operation failed: " + <string>err.detail().message);
+        io:println("Batch item 1 update count: " + retBatch.updatedRowCount[0]);
+        io:println("Batch item 1 update count: " + retBatch.updatedRowCount[1]);
     }
 
     // Check the data in the database.

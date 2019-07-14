@@ -60,7 +60,7 @@ public type JdbcClient client object {
     #                individual update
     # + rollbackAllInFailure - If one of the commands in a batch update fails to execute properly, the JDBC driver
     #           may or may not continue to process the remaining commands in the batch.  But this property can be
-    #           used to override this behaviour.  If it is sets to true, if there is a failure in few commands and
+    #           used to override this behavior.  If it is sets to true, if there is a failure in few commands and
     #           JDBC driver continued with the remaining commands, the successfully executed commands in the batch
     #           also will get rollback.
     # + return - A `BatchUpdateResult` with the updated row count and returned error. If all the commands in the batch
