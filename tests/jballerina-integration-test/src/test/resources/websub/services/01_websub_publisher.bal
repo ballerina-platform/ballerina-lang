@@ -231,9 +231,11 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     string errorMessage = "unknown content type";
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
-            return {"action":"publish","mode":"internal-hub"};
+            json j = {"action":"publish","mode":"internal-hub"};
+            return j;
         }
-        return {"action":"publish","mode":"remote-hub"};
+        json k = {"action":"publish","mode":"remote-hub"};
+        return k;
     } else if (contentType == "string") {
         if (mode == "internal") {
             return "Text update for internal Hub";
@@ -247,7 +249,7 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
+    error e = error(websub:WEBSUB_ERROR_CODE, message = errorMessage);
     panic e;
 }
 

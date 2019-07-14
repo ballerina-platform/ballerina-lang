@@ -297,7 +297,8 @@ function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, stri
         if (returnValue is string) {
             return returnValue;
         } else {
-            return returnValue.reason();
+            error e = <error>returnValue;
+            return e.reason();
         }
     } else {
         return result.reason();
