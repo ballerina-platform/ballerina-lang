@@ -91,6 +91,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         addCpAndWriteString(errorEntry.trapBB.id.value);
         errorEntry.errorOp.accept(this);
+        addCpAndWriteString(errorEntry.targetBB.id.value);
     }
 
     // Terminating instructions

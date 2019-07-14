@@ -366,6 +366,11 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public String toString() {
+            return id.value;
+        }
     }
 
     /**
@@ -426,10 +431,13 @@ public abstract class BIRNode {
 
         public BIROperand errorOp;
 
-        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
+        public BIRBasicBlock targetBB;
+
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(null);
             this.trapBB = trapBB;
             this.errorOp = errorOp;
+            this.targetBB = targetBB;
         }
 
         @Override

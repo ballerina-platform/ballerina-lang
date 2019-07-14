@@ -130,7 +130,8 @@
             <class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />
             <class name="org.ballerinalang.test.lock.LocksInMainTest">
                 <methods>
-                    <include name="simpleLock"/>
+                    <exclude name="testBreakInsideLock"></exclude>
+                    <exclude name="testNextInsideLock"></exclude>
                 </methods>
             </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
