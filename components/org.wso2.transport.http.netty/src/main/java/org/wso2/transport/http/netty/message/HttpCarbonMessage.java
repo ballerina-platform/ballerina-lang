@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -495,6 +496,15 @@ public class HttpCarbonMessage {
 
     public boolean isPipeliningEnabled() {
         return pipeliningEnabled;
+    }
+
+    /**
+     * Can be used to detect if a request is expecting 100 continue
+     *
+     * @return true if the request is expecting 100 continue
+     */
+    public boolean is100ContinueExpected() {
+        return HttpUtil.is100ContinueExpected(httpMessage);
     }
 
     public void setPipeliningEnabled(boolean pipeliningEnabled) {
