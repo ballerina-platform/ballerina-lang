@@ -100,14 +100,6 @@ function testForEachInTable() returns [int, int, float, string] {
             salValue = <@untainted>p.salary;
             nameValue = <@untainted>p.name;
         }
-        // TODO: need to completely remove after enabling all the tests.
-        //dt.foreach(function (Person p) {
-        //        idValue = <@untainted>p.id;
-        //        ageValue = <@untainted>p.age;
-        //        salValue = <@untainted>p.salary;
-        //        nameValue = <@untainted>p.name;
-        //    }
-        //);
     }
     int id = idValue;
     int age = ageValue;
