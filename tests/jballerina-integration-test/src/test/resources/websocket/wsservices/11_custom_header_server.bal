@@ -25,7 +25,8 @@ service simpleProxy3 = @http:WebSocketServiceConfig {} service {
         if (text == "custom-headers") {
             var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
             if (returnVal is error) {
-                 panic returnVal;
+                error returnValError = returnVal;
+                panic returnValError;
             }
         }
     }

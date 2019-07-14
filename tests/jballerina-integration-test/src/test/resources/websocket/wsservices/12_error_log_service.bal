@@ -30,7 +30,8 @@ service errorService on new http:WebSocketListener(9094) {
         log:printError(string `text received: ${text}`);
         var returnVal = ep->pushText(text);
         if (returnVal is error) {
-             panic returnVal;
+             error returnValError = returnVal;
+             panic returnValError;
         }
     }
 

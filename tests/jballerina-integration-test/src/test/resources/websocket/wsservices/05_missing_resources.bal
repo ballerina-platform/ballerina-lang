@@ -23,7 +23,8 @@ service onlyOnBinary on new http:WebSocketListener(9086) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushBinary(data);
         if (returnVal is error) {
-           panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }
@@ -32,7 +33,8 @@ service onlyOnText on new http:WebSocketListener(9087) {
     resource function onText(http:WebSocketCaller caller, string data) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }

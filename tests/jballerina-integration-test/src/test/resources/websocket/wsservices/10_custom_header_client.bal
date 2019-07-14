@@ -32,7 +32,8 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 
@@ -42,14 +43,16 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(text + ":X-some-header");
             if (returnVal is error) {
-                 panic returnVal;
+                error returnValError = returnVal;
+                panic returnValError;
             }
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
             if (returnVal is error) {
-                 panic returnVal;
+                error returnValError = returnVal;
+                panic returnValError;
             }
         }
     }
@@ -61,7 +64,8 @@ service clientCallbackService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 };

@@ -29,7 +29,8 @@ service clientFailure200 on new http:WebSocketListener(9200) {
              REMOTE_BACKEND_URL200);
         var returnVal = wsEp->pushText("Client worked");
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 
@@ -37,7 +38,8 @@ service clientFailure200 on new http:WebSocketListener(9200) {
         http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, config = {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 

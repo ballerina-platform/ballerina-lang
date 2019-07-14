@@ -23,7 +23,8 @@ service onTextString on new http:WebSocketListener(9080) {
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }
@@ -33,7 +34,8 @@ service onTextJSON on new http:WebSocketListener(9081) {
 resource function onText(http:WebSocketCaller caller, json data) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }
@@ -43,7 +45,8 @@ service onTextXML on new http:WebSocketListener(9082) {
     resource function onText(http:WebSocketCaller caller, xml data) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }
@@ -57,11 +60,13 @@ service onTextRecord on new http:WebSocketListener(9083) {
     resource function onText(http:WebSocketCaller caller, Person data) {
         var personData = json.convert(data);
         if (personData is error) {
-             panic personData;
+            error personDataError = personData;
+            panic personDataError;
         } else {
              var returnVal = caller->pushText(personData);
              if (returnVal is error) {
-                  panic returnVal;
+                error returnValError = returnVal;
+                panic returnValError;
              }
         }
     }
@@ -72,7 +77,8 @@ service onTextByteArray on new http:WebSocketListener(9084){
     resource function onText(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushText(data);
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 }
