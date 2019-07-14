@@ -19,6 +19,7 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 import ballerina/system;
+import ballerina/internal;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
