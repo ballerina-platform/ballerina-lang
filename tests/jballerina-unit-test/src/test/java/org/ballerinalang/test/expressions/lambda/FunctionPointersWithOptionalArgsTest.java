@@ -74,7 +74,8 @@ public class FunctionPointersWithOptionalArgsTest {
     public void testInvokingFuncPointerWithRestArgs() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-optional-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "too many arguments in call to 'call()'", 7, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int[]', found 'int'", 7, 23);
+        BAssertUtil.validateError(result, 1, "too many arguments in call to 'func()'", 7, 12);
     }
 
     @Test

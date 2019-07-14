@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-http:Client clientEP2 = new ("http://localhost:9097", config = { cache: { enabled: false }});
+http:Client clientEP2 = new ("http://localhost:9097", { cache: { enabled: false }});
 
 @http:ServiceConfig {
     basePath: "/test1"
@@ -60,35 +60,35 @@ service backEndService on new http:Listener(9097) {
                     if (textValue is string) {
                         checkpanic caller->respond(<@untainted> textValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> textValue.reason());
+                        checkpanic caller->respond(<@untainted string> textValue.reason());
                     }
                 } else if (mime:APPLICATION_XML == baseType) {
                     var xmlValue = req.getXmlPayload();
                     if (xmlValue is xml) {
                         checkpanic caller->respond(<@untainted> xmlValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> xmlValue.reason());
+                        checkpanic caller->respond(<@untainted string> xmlValue.reason());
                     }
                 } else if (mime:APPLICATION_JSON == baseType) {
                     var jsonValue = req.getJsonPayload();
                     if (jsonValue is json) {
                         checkpanic caller->respond(<@untainted> jsonValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> jsonValue.reason());
+                        checkpanic caller->respond(<@untainted string> jsonValue.reason());
                     }
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     var blobValue = req.getBinaryPayload();
                     if (blobValue is byte[]) {
                         checkpanic caller->respond(<@untainted> blobValue);
                     } else {
-                        checkpanic caller->respond(<@untainted> blobValue.reason());
+                        checkpanic caller->respond(<@untainted string> blobValue.reason());
                     }
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     var bodyParts = req.getBodyParts();
                     if (bodyParts is mime:Entity[]) {
                     checkpanic caller->respond(<@untainted> bodyParts);
                     } else {
-                    checkpanic caller->respond(<@untainted> bodyParts.reason());
+                    checkpanic caller->respond(<@untainted string> bodyParts.reason());
                     }
                 }
             } else {
@@ -160,10 +160,12 @@ service testService on new http:Listener(9098) {
             if (returnValue is string) {
                 value = returnValue;
             } else {
-                value = <string> returnValue.detail().message;
+                error err = returnValue;
+                string? errMsg = <string>err.detail()?.message;
+                value = errMsg is string ? errMsg : "Error in parsing text payload";
             }
         } else  {
-            value = clientResponse.reason();
+            value = <string>clientResponse.reason();
         }
 
         checkpanic caller->respond(<@untainted> value);
@@ -214,7 +216,7 @@ service testService on new http:Listener(9098) {
     resource function testPostWithBinaryData(http:Caller caller, http:Request req) {
         string value = "";
         string textVal = "Sample Text";
-        byte[] binaryValue = textVal.toByteArray("UTF-8");
+        byte[] binaryValue = textVal.toBytes();
         var textResponse = clientEP2->post("/test1/directPayload", binaryValue);
         if (textResponse is http:Response) {
             var result = textResponse.getTextPayload();
@@ -285,11 +287,11 @@ service testService on new http:Listener(9098) {
                             if (textVal is string) {
                                 value = value + textVal;
                             } else {
-                                value = value + textVal.reason();
+                                value = value + <string>textVal.reason();
                             }
                         }
                     } else {
-                        value = value + mediaType.reason();
+                        value = value + <string>mediaType.reason();
                     }
                 }
             } else {

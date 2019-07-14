@@ -43,29 +43,27 @@ public class UtilsTest {
         // Get Path error with reason and throwable.
         ErrorValue error1 = Utils.getPathError(reason, exp);
         Assert.assertEquals(error1.getReason(), ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error1.getDetails().toString(),
-                            "{\"message\":\"Invalid path format: /User/ballerina/path\\test\"}");
+        Assert.assertEquals(error1.getDetails().toString(), "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without reason.
         ErrorValue error2 = Utils.getPathError(null, exp);
         Assert.assertEquals(error2.getReason(), ERROR_REASON_PREFIX + UNKNOWN_REASON);
-        Assert.assertEquals(error2.getDetails().toString(),
-                            "{\"message\":\"Invalid path format: /User/ballerina/path\\test\"}");
+        Assert.assertEquals(error2.getDetails().toString(), "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without throwable.
         ErrorValue error3 = Utils.getPathError(reason, (Throwable) null);
         Assert.assertEquals(error3.getReason(), ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error3.getDetails().toString(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error3.getDetails().toString(), "message=Unknown Error");
 
         // Get Path error without both reason and throwable.
         ErrorValue error4 = Utils.getPathError(null, (Throwable) null);
         Assert.assertEquals(error4.getReason(), ERROR_REASON_PREFIX + UNKNOWN_REASON);
-        Assert.assertEquals(error4.getDetails().toString(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error4.getDetails().toString(), "message=" + UNKNOWN_MESSAGE);
 
         // Get Path error without throwable message.
         Exception exp2 = new Exception();
         ErrorValue error5 = Utils.getPathError(reason, exp2);
         Assert.assertEquals(error5.getReason(), ERROR_REASON_PREFIX + reason);
-        Assert.assertEquals(error5.getDetails().toString(), "{\"message\":\"" + UNKNOWN_MESSAGE + "\"}");
+        Assert.assertEquals(error5.getDetails().toString(), "message=" + UNKNOWN_MESSAGE);
     }
 }

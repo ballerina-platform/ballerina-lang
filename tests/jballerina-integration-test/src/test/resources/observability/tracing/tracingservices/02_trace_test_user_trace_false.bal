@@ -55,7 +55,7 @@ service echoService1 on new http:Listener(9091) {
 }
 
 function callNextResource1() returns (http:Response | error) {
-    http:Client httpEndpoint = new("http://localhost:9091/echoService", config = {});
+    http:Client httpEndpoint = new("http://localhost:9091/echoService", {});
     int spanId = check observe:startSpan("uSpanTwo");
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
     checkpanic observe:finishSpan(spanId);

@@ -112,11 +112,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Map<String, BLangConstantValue> mapConstVal = new HashMap<>();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recorLiteral.keyValuePairs) {
             NodeKind nodeKind = keyValuePair.key.expr.getKind();
-            if (nodeKind != NodeKind.LITERAL && nodeKind != NodeKind.NUMERIC_LITERAL) {
+
+            String key;
+            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+                key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
+            } else if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                key = ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value;
+            } else {
                 continue;
             }
 
-            String key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
             BLangConstantValue value = visitExpr(keyValuePair.valueExpr);
             mapConstVal.put(key, value);
         }

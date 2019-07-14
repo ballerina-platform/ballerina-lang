@@ -160,6 +160,8 @@ LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
 
+OPTIONAL_FIELD_ACCESS   : '?.' ;
+
 // Delimiters
 LEFT_CLOSED_RECORD_DELIMITER     : '{|' ;
 RIGHT_CLOSED_RECORD_DELIMITER    : '|}' ;

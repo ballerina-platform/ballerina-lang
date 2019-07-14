@@ -45,7 +45,7 @@ dependencies {
     // Standard libs
     implementation project(':ballerina-auth')
     implementation project(':ballerina-bir')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
@@ -93,7 +93,7 @@ dependencies {
     implementation 'commons-io:commons-io'
     
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')

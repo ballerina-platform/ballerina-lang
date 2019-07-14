@@ -24,7 +24,7 @@ final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 service on new http:WebSocketListener(9099) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", config = { callbackService:
+        http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
             clientCallbackService9, readyOnConnect: false });
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;

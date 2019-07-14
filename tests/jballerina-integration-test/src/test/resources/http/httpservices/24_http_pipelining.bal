@@ -46,12 +46,12 @@ service pipeliningTest on new http:Listener(9220) {
 
         var result = caller->respond(<@untainted> response);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 }
 
-service pipelining on new http:Listener(9221, config = { timeoutMillis: 1000 }) {
+service pipelining on new http:Listener(9221, { timeoutMillis: 1000 }) {
 
     resource function testTimeout(http:Caller caller, http:Request req) {
         http:Response response = new;
@@ -77,12 +77,12 @@ service pipelining on new http:Listener(9221, config = { timeoutMillis: 1000 }) 
 
         var responseError = caller->respond(response);
         if (responseError is error) {
-            log:printError("Pipeline timeout:" + responseError.reason(), err = responseError);
+            log:printError("Pipeline timeout:" + responseError.reason(), responseError);
         }
     }
 }
 
-service pipeliningLimit on new http:Listener(9222, config = { maxPipelinedRequests: 2 }) {
+service pipeliningLimit on new http:Listener(9222, { maxPipelinedRequests: 2 }) {
 
     resource function testMaxRequestLimit(http:Caller caller, http:Request req) {
         http:Response response = new;
@@ -92,7 +92,7 @@ service pipeliningLimit on new http:Listener(9222, config = { maxPipelinedReques
 
         var responseError = caller->respond(response);
         if (responseError is error) {
-            log:printError("Pipeline limit exceeded:" + responseError.reason(), err = responseError);
+            log:printError("Pipeline limit exceeded:" + responseError.reason(), responseError);
         }
     }
 }

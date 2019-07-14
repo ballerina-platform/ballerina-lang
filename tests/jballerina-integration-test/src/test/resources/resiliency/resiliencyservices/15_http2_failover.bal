@@ -1,9 +1,9 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener failoverEP06 = new(9314, config = { httpVersion: "2.0" });
+listener http:Listener failoverEP06 = new(9314, { httpVersion: "2.0" });
 
-listener http:Listener backendEP06 = new(8094, config = { httpVersion: "2.0" });
+listener http:Listener backendEP06 = new(8094, { httpVersion: "2.0" });
 
 http:FailoverClient foBackendEP06 = new({
     timeoutMillis: 5000,
@@ -55,7 +55,7 @@ service delay06 on backendEP06 {
         runtime:sleep(5000);
         var responseToCaller = caller->respond("Delayed resource is invoked");
         if (responseToCaller is error) {
-            log:printError("Error sending response from delay service", err = responseToCaller);
+            log:printError("Error sending response from delay service", responseToCaller);
         }
     }
 }
@@ -75,7 +75,7 @@ service error06 on backendEP06 {
         response.setPayload("Response from error Service with error status code.");
         var responseToCaller = caller->respond(response);
         if (responseToCaller is error) {
-            log:printError("Error sending response from error service", err = responseToCaller);
+            log:printError("Error sending response from error service", responseToCaller);
         }
     }
 }
@@ -92,14 +92,14 @@ service mock06 on backendEP06 {
     resource function mockResource(http:Caller caller, http:Request req) {
         var responseToCaller = caller->respond("Mock Resource is Invoked.");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }
 
 function handleResponseToCaller(error? responseToCaller) {
     if (responseToCaller is error) {
-        log:printError("Error sending response from failover service.", err = responseToCaller);
+        log:printError("Error sending response from failover service.", responseToCaller);
     }
 }
 

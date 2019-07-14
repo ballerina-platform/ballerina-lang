@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 description = 'Ballerina - File'
 
@@ -40,18 +41,21 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-lang:object')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-runtime-api')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')

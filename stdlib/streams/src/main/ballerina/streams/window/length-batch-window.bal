@@ -82,7 +82,7 @@ public type LengthBatchWindow object {
             self.currentEventQueue.addLast(clonedStreamEvent);
             self.count += 1;
             if (self.count == self.length) {
-                if (self.currentEventQueue.getFirst() != ()) {
+                if (!(self.currentEventQueue.getFirst() is ())) {
                     if (!(self.resetEvent is ())) {
                         outputStreamEventChunk.addLast(self.resetEvent);
                         self.resetEvent = ();
@@ -95,7 +95,7 @@ public type LengthBatchWindow object {
                 }
                 self.currentEventQueue.clear();
                 self.count = 0;
-                if (outputStreamEventChunk.getFirst() != ()) {
+                if (!(outputStreamEventChunk.getFirst() is ())) {
                     streamEventChunks.addLast(outputStreamEventChunk);
                 }
             }
@@ -118,7 +118,7 @@ public type LengthBatchWindow object {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(events);
+                nextProcessFuncPointer(events);
             }
         }
     }
@@ -144,7 +144,7 @@ public type LengthBatchWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }

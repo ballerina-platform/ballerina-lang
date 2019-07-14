@@ -56,4 +56,10 @@ public class HandleValue implements RefValue {
     public Object copy(Map<Object, Object> refs) {
         return null;
     }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+
+        return this;
+    }
 }

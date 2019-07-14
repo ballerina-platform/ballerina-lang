@@ -219,7 +219,6 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
-    |   TYPE_DESC
     |   valueTypeName
     |   referenceTypeName
     |   nilLiteral
@@ -250,6 +249,7 @@ builtInReferenceTypeName
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
     |   TYPE_STREAM LT typeName GT
+    |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
     |   functionTypeName
@@ -648,7 +648,7 @@ variableReference
     ;
 
 field
-    :   (DOT | NOT) (Identifier | MUL)
+    :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
     ;
 
 index
@@ -847,7 +847,7 @@ parameterList
     ;
 
 parameter
-    :   annotationAttachment* typeName Identifier
+    :   annotationAttachment* PUBLIC? typeName Identifier
     ;
 
 defaultableParameter

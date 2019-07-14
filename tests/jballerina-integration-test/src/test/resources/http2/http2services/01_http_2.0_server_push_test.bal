@@ -3,7 +3,7 @@ import ballerina/http;
 
 listener http:Listener frontendEP = new(9090);
 
-http:Client backendClientEP = new("http://localhost:7090", config = { httpVersion: "2.0" });
+http:Client backendClientEP = new("http://localhost:7090", { httpVersion: "2.0" });
 
 @http:ServiceConfig {
     basePath: "/frontend"
@@ -131,7 +131,7 @@ service frontendHttpService on frontendEP {
     }
 }
 
-listener http:Listener backendEP = new(7090, config = { httpVersion: "2.0" });
+listener http:Listener backendEP = new(7090, { httpVersion: "2.0" });
 
 @http:ServiceConfig {
     basePath: "/backend"

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerina/'lang\.object as lang;
 
 # The Queue Receiver endpoint.
 #
@@ -24,7 +25,7 @@ import ballerina/log;
 # + identifier - Unique identifier for the reciever.
 public type QueueListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public QueueReceiverCaller consumerActions = new;
     public Session session;
@@ -136,7 +137,11 @@ public type QueueReceiverCaller client object {
             log:printInfo("Message receiver is not properly initialized for queue " + destination.destinationName);
         }
         var result = self->receive(timeoutInMilliSeconds = timeoutInMilliSeconds);
-        self.queueListener.closeQueueReceiver(self);
+        if (queueListener is QueueListener) {
+            queueListener.closeQueueReceiver(self);
+        } else {
+            log:printInfo("Could not close the queue receiver");
+        }
         return result;
     }
 };

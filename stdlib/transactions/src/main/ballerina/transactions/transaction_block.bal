@@ -58,7 +58,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             transactionId = txnContext.transactionId;
             setTransactionContext(txnContext);
         }
-        trxResult = trap trxFunc.call();
+        trxResult = trap trxFunc();
         if (trxResult is int) {
             // If transaction result == 0, means it is successful.
             if (trxResult == 0) { 
@@ -90,7 +90,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
             if (rollbackResult is error) {
                 log:printDebug(rollbackResult.reason());
             }
-            retryResult = trap retryFunc.call();
+            retryResult = trap retryFunc();
             if (retryResult is error) {
                 log:printDebug(retryResult.reason());
             }
@@ -99,7 +99,7 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         }
     }
     if (isTrxSuccess) {
-        committedResult = trap committedFunc.call();
+        committedResult = trap committedFunc();
         if (committedResult is error) {
             log:printDebug(committedResult.reason());
         }
@@ -129,7 +129,7 @@ function beginLocalParticipant(string transactionBlockId, function () returns an
                                any|error|() {
     TransactionContext? txnContext = registerLocalParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
-        return <any|error|()>trxFunc.call();
+        return <any|error|()>trxFunc();
     } else {
         TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
@@ -162,7 +162,7 @@ function beginRemoteParticipant(string transactionBlockId, function () returns a
                                 any|error|() {
     TransactionContext? txnContext = registerRemoteParticipant(transactionBlockId, committedFunc, abortedFunc);
     if (txnContext is ()) {
-        return trxFunc.call();
+        return trxFunc();
     } else {
         TransactionContext|error returnContext = beginTransaction(txnContext.transactionId, transactionBlockId,
             txnContext.registerAtURL, txnContext.coordinationType);
@@ -186,7 +186,7 @@ function handleAbortTransaction(string transactionId, string transactionBlockId,
                                 function () abortedFunc) {
     var result = trap abortTransaction(transactionId, transactionBlockId);
     notifyResourceManagerOnAbort(transactionBlockId);
-    var abortResult = trap abortedFunc.call();
+    var abortResult = trap abortedFunc();
     if (result is error) {
         panic result;
     }
@@ -305,7 +305,7 @@ function isInitiator(string transactionId, string transactionBlockId) returns bo
 # + trxFunc - Participant logic.
 # + return - Return value of the participant.
 function transactionParticipantWrapper(function () returns any|error trxFunc) returns ParticipantFunctionResult {
-    return {data : trxFunc.call()};
+    return {data : trxFunc()};
 }
 
 

@@ -13,12 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/'lang\.object as lang;
 
 # Mock server endpoint which does not open a listening port.
 public type MockListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private int port = 0;
     private ServiceEndpointConfiguration config = {};

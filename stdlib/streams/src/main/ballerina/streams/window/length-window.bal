@@ -86,7 +86,7 @@ public type LengthWindow object {
 
         any nextProcessFuncPointer = self.nextProcessPointer;
         if (nextProcessFuncPointer is function (StreamEvent?[])) {
-            nextProcessFuncPointer.call(outputEvents);
+            nextProcessFuncPointer(outputEvents);
         }
     }
 
@@ -111,7 +111,7 @@ public type LengthWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }

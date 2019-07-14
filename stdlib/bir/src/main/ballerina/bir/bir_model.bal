@@ -302,9 +302,6 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
-public const TYPE_DESC = "typedesc";
-public type BTypeDesc TYPE_DESC;
-
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
@@ -318,6 +315,10 @@ public type BArrayType record {|
     ArrayState state;
     int size;
     BType eType;
+|};
+
+public type BTypeDesc record {|
+    BType typeConstraint;
 |};
 
 public type BMapType record {|
@@ -518,7 +519,8 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    boolean except = true;
+    boolean optionalFieldAccess = false;
+    boolean fillingRead = false;
 |};
 
 public type TypeCast record {|

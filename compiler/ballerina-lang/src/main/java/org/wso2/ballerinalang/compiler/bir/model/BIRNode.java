@@ -167,10 +167,12 @@ public abstract class BIRNode {
      */
     public static class BIRParameter extends BIRNode {
         public Name name;
+        public int flags;
 
-        public BIRParameter(DiagnosticPos pos, Name name) {
+        public BIRParameter(DiagnosticPos pos, Name name, int flags) {
             super(pos);
             this.name = name;
+            this.flags = flags;
         }
 
         @Override
@@ -258,11 +260,6 @@ public abstract class BIRNode {
         public List<BIRParameter> requiredParams;
 
         /**
-         * List of defaultable parameters.
-         */
-        public List<BIRParameter> defaultParams;
-
-        /**
          * Type of the receiver. This is an optional field.
          */
         public BType receiverType;
@@ -329,7 +326,6 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.parameters = new LinkedHashMap<>();
             this.requiredParams = new ArrayList<>();
-            this.defaultParams = new ArrayList<>();
             this.receiverType = receiverType;
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
