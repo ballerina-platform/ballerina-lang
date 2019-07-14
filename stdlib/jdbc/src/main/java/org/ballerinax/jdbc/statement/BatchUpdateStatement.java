@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -51,7 +52,8 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final boolean rollbackAllInFailure;
 
     public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                                boolean rollbackAllInFailure, ArrayValue parameters) {
+                                ArrayValue parameters, boolean rollbackAllInFailure, Strand strand) {
+        super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
@@ -72,10 +74,10 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             paramArrayCount = parameters.size();
         }
 
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "execute batch update failed";
         try {
-            conn = getDatabaseConnection(client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = conn.prepareStatement(query);
             conn.setAutoCommit(false);
             if (paramArrayCount == 0) {
@@ -110,20 +112,21 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                     }
                 }
             }
+            handleErrorOnTransaction(this.strand);
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(updatedCount, paramArrayCount),
                     SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (SQLException e) {
-            // handleErrorOnTransaction(context);
-            // checkAndObserveSQLError(context, e.getMessage());
+             handleErrorOnTransaction(this.strand);
+             //checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (DatabaseException e) {
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (ApplicationException e) {
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix + ": "));

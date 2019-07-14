@@ -45,30 +45,35 @@ function testSelectData() returns string {
     return returnData;
 }
 
-function testErrorWithSelectData() returns string {
+function testErrorWithSelectData() returns @tainted [string, boolean, boolean, boolean] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
             password: "",
             poolOptions: { maximumPoolSize: 1 }
         });
-    string retVal;
     var x = testDB->select("SELECT Name from Customers where registrationID = 1", ());
 
-    if (x is table<record {}>) {
-        var jsonConversionResult = typedesc<json>.constructFrom(x);
-        if (jsonConversionResult is json) {
-            retVal = io:sprintf("%s", jsonConversionResult);
-        } else {
-            retVal =  <string> jsonConversionResult.detail()["message"];
-        }
-    } else {
+    string reason = "";
+    boolean isMessageExist = false;
+    boolean isSqlErrorCodeExist = false;
+    boolean isSqlStateExist = false;
+    if (x is jdbc:Error) {
         error e = x;
-        retVal = io:sprintf("%s", e);
+        reason = e.reason();
+        if (e.detail()["message"] is string) {
+            isMessageExist = true;
+        }
+        if (e.detail()["sqlErrorCode"] is int) {
+            isSqlErrorCodeExist = true;
+        }
+        if (e.detail()["sqlState"] is string) {
+            isSqlStateExist = true;
+        }
     }
 
     checkpanic testDB.stop();
-    return retVal;
+    return [reason, isMessageExist, isSqlErrorCodeExist, isSqlStateExist];
 }
 
 function testGeneratedKeyOnInsert() returns int|string {
@@ -95,7 +100,7 @@ function testGeneratedKeyOnInsert() returns int|string {
     return ret;
 }
 
-function testGeneratedKeyOnInsertError() returns int|string {
+function testGeneratedKeyOnInsertError() returns @tainted [string, boolean, boolean, boolean] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TestDBH2",
             username: "SA",
@@ -103,20 +108,29 @@ function testGeneratedKeyOnInsertError() returns int|string {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    int|string ret = "";
-
     var x = testDB->update("insert into Customers (name,lastName,
                              registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')");
 
-    if (x is jdbc:UpdateResult) {
-        ret = x.generatedKeys.length();
-    } else {
+    string reason = "";
+    boolean isMessageExist = false;
+    boolean isSqlErrorCodeExist = false;
+    boolean isSqlStateExist = false;
+    if (x is jdbc:Error) {
         error e = x;
-        ret = io:sprintf("%s", e);
+        reason = e.reason();
+        if (e.detail()["message"] is string) {
+            isMessageExist = true;
+        }
+        if (e.detail()["sqlErrorCode"] is int) {
+            isSqlErrorCodeExist = true;
+        }
+        if (e.detail()["sqlState"] is string) {
+            isSqlStateExist = true;
+        }
     }
 
     checkpanic testDB.stop();
-    return ret;
+    return [reason, isMessageExist, isSqlErrorCodeExist, isSqlStateExist];
 }
 
 function testUpdateReslt() returns int|string {
@@ -190,7 +204,7 @@ function testBatchUpdate() returns [string, int, int] {
     return [returnVal, batch1Status, batch2Status];
 }
 
-function testErrorWithBatchUpdate() returns string {
+function testErrorWithBatchUpdate() returns @tainted [string, string, boolean, boolean, boolean] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -198,8 +212,6 @@ function testErrorWithBatchUpdate() returns string {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    int[] updateCount = [];
-    string returnVal = "";
     //Batch 1
     jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
     jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
@@ -216,24 +228,40 @@ function testErrorWithBatchUpdate() returns string {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    var x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
                                      values (?,?,?,?,?)", false, parameters1, parameters2);
 
-    updateCount = x.updatedRowCount;
+    string returnVal = "";
+    int[] updateCount = x.updatedRowCount;
     if (updateCount[0] == -3 && updateCount[1] == -3) {
         returnVal = "array values are -3 ";
     } else {
         returnVal = "success";
     }
 
+    string reason = "";
+    boolean isMessageExist = false;
+    boolean isSqlErrorCodeExist = false;
+    boolean isSqlStateExist = false;
+
     error? e = x.returnedError;
     if (e is ()) {
         returnVal = "success";
     } else {
-        returnVal = returnVal + io:sprintf("%s", e);
+        reason = e.reason();
+        if (e.detail()["message"] is string) {
+            isMessageExist = true;
+        }
+        if (e.detail()["sqlErrorCode"] is int) {
+            isSqlErrorCodeExist = true;
+        }
+        if (e.detail()["sqlState"] is string) {
+            isSqlStateExist = true;
+        }
     }
+
     checkpanic testDB.stop();
-    return returnVal;
+    return [returnVal, reason, isMessageExist, isSqlErrorCodeExist, isSqlStateExist];
 }
 
 function testInvalidArrayofQueryParameters() returns @tainted string {
@@ -267,7 +295,7 @@ function testInvalidArrayofQueryParameters() returns @tainted string {
     return returnData;
 }
 
-function testErrorWithInvalidArrayofQueryParameters() returns string {
+function testErrorWithInvalidArrayofQueryParameters() returns @tainted [string, boolean, string] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -275,27 +303,27 @@ function testErrorWithInvalidArrayofQueryParameters() returns string {
             poolOptions: { maximumPoolSize: 1 }
         });
 
-    string returnData = "";
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<book>The Lost World2</book>`;
     xml[] xmlDataArray = [x1, x2];
     jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: xmlDataArray };
     var x = testDB->select("SELECT FirstName from Customers where registrationID in (?)", (), para0);
 
-    if (x is table<record {}>) {
-        var j = typedesc<json>.constructFrom(x);
-        if (j is json) {
-            returnData = io:sprintf("%s", j);
-        } else {
-            error e = j;
-            returnData = e.reason();
-        }
-    } else {
+    string reason = "";
+    string message = "";
+    boolean isMessageExist = false;
+    if (x is jdbc:Error) {
         error e = x;
-        returnData = io:sprintf("%s", e);
+        reason = e.reason();
+        var msg = e.detail()["message"];
+        if (msg is string) {
+            isMessageExist = true;
+            message = <string>msg;
+        }
     }
+
     checkpanic testDB.stop();
-    return returnData;
+    return [reason, isMessageExist, message];
 }
 
 function testCheckApplicationErrorType() returns [boolean, boolean, boolean] {
