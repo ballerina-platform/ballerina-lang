@@ -24,11 +24,12 @@ export interface CommonDiagramProps {
     mode: DiagramMode;
     langClient: IBallerinaLangClient;
     maxInvocationDepth?: number;
+    sourceRootUri?: string;
+    docUri: string;
 }
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
-    docUri: string;
     setPanZoomComp?: (comp: PanZoom | undefined) => void;
 }
 
