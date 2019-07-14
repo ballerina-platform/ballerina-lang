@@ -326,7 +326,7 @@ class OpenApiInlineEdit extends React.Component<OpenApiInlineEditProps, OpenApiI
                 break;
         }
 
-        this.props.onValueChange(model);
+        // this.props.onValueChange(model);
     }
 
     private isContactObj(arg: any): arg is Swagger.ContactObject {
