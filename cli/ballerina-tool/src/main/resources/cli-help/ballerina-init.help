@@ -1,0 +1,21 @@
+NAME
+    Ballerina init - Initializes a Ballerina project
+
+SYNOPSIS
+    ballerina init 
+
+DESCRIPTION
+     Ballerina init creates an initial project structure for you to 
+     get started with a Ballerina project. 
+
+     The created set of artifacts includes a Ballerina.toml and Ballerina
+     project directory structure. You can use Ballerina.toml to manage
+     the organization setting and version for the project.
+     
+     To initiate a project with a clean start, you can use the 
+     `ballerina new` command.
+
+EXAMPLES
+     Initialize a project 
+     $ ballerina init
+
