@@ -41,10 +41,12 @@ service echoServer on server {
                     if (str is string) {
                         io:println(<@untainted> str);
                     } else {
-                        io:println("Error: ", str.detail().message);
+                        error e = <error>str;
+                        io:println("Error: ", e.detail().message);
                     }
                 } else {
-                    io:println("Error: ", byteChannel.detail().message);
+                    error byteError = <error>byteChannel;
+                    io:println("Error: ", byteError.detail().message);
                 }
             } else {
                 io:println("Client close: ", caller.remotePort);

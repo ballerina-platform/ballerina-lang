@@ -56,11 +56,11 @@ service helloServer on new socket:Listener(59153) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(length = 5);
+        var result = caller->read(5);
         process(result, caller);
-        result = caller->read(length = 4);
+        result = caller->read(4);
         process(result, caller);
-        result = caller->read(length = 6);
+        result = caller->read(6);
         process(result, caller);
         string msg = "Hello Client";
         byte[] msgByteArray = msg.toBytes();
@@ -76,7 +76,7 @@ function getTotalLength() returns int {
     return totalLength;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(50);
@@ -103,7 +103,7 @@ service BlockingReadServer on new socket:Listener(59154) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(length = 18);
+        var result = caller->read(18);
         if (result is [byte[], int]) {
             var [content, length] = result;
             if (length > 0) {

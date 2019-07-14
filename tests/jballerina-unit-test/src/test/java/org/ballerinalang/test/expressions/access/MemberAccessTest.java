@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 18);
+        Assert.assertEquals(negativeResult.getErrorCount(), 22);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -70,6 +70,10 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "undefined field 'names' in 'Employee'", 76, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|boolean|int)?'", 77
                 , 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)?'", 86, 19);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)?'", 87, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'string?', found '(int|string)?'", 88, 18);
+        validateError(negativeResult, i, "incompatible types: expected '(int|string)', found '(int|string)?'", 89, 21);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -158,8 +162,24 @@ public class MemberAccessTest {
     @DataProvider(name = "recordMemberAccessFunctions")
     public Object[][] recordMemberAccessFunctions() {
         return new Object[][] {
-            { "testRecordMemberAccess1" }
+            { "testRecordMemberAccessByLiteral" },
+            { "testRecordMemberAccessByVariable" },
+            { "testRecordMemberAccessForNonExistingKey" }
         };
     }
 
+    @Test(dataProvider = "mapMemberAccessFunctions")
+    public void testMapMemberAccess(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "mapMemberAccessFunctions")
+    public Object[][] mapMemberAccessFunctions() {
+        return new Object[][] {
+            { "testMapMemberAccessByLiteral" },
+            { "testMapMemberAccessByVariable" },
+            { "testMapAccessForNonExistingKey" }
+        };
+    }
 }

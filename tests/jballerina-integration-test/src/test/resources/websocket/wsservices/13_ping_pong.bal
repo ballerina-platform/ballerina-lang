@@ -20,6 +20,33 @@ import ballerina/log;
 final string strData2 = "data";
 final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 
+service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
+
+    resource function onText(http:WebSocketClient wsEp, string text) {
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
+        var returnVal = serverEp->pushText(text);
+        if (returnVal is error) {
+             panic returnVal;
+        }
+    }
+
+    resource function onPing(http:WebSocketClient wsEp, byte[] localData) {
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
+        var returnVal = serverEp->pushText("ping-from-remote-server-received");
+        if (returnVal is error) {
+             panic returnVal;
+        }
+    }
+
+    resource function onPong(http:WebSocketClient wsEp, byte[] localData) {
+        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
+        var returnVal = serverEp->pushText("pong-from-remote-server-received");
+        if (returnVal is error) {
+             panic returnVal;
+        }
+    }
+};
+
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
@@ -94,29 +121,3 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
 
 }
 
-service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
-
-    resource function onText(http:WebSocketClient wsEp, string text) {
-        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
-        var returnVal = serverEp->pushText(text);
-        if (returnVal is error) {
-             panic returnVal;
-        }
-    }
-
-    resource function onPing(http:WebSocketClient wsEp, byte[] localData) {
-        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
-        var returnVal = serverEp->pushText("ping-from-remote-server-received");
-        if (returnVal is error) {
-             panic returnVal;
-        }
-    }
-
-    resource function onPong(http:WebSocketClient wsEp, byte[] localData) {
-        http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
-        var returnVal = serverEp->pushText("pong-from-remote-server-received");
-        if (returnVal is error) {
-             panic returnVal;
-        }
-    }
-};

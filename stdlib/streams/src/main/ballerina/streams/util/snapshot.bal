@@ -15,12 +15,13 @@
 // under the License.
 
 import ballerina/config;
-import ballerina/internal;
+import ballerina/filepath;
 import ballerina/io;
 import ballerina/log;
 import ballerina/math;
 import ballerina/task;
 import ballerina/time;
+import ballerina/system;
 import ballerina/'lang\.int as langint;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
@@ -177,15 +178,15 @@ function writeStateToFile(string persistancePath) returns error? {
     string? snapshotFile = ();
     time:Time ct = time:currentTime();
     int currentTimeMillis = ct.time;
-    internal:Path pPath = new(persistancePath);
-    if (!pPath.exists()) {
-        error? e = pPath.createDirectory();
+
+    if (!system:exists(persistancePath)) {
+        string|error e = system:createDir(persistancePath, true);
     }
-    internal:Path path = pPath.resolve(currentTimeMillis.toString());
-    if (!path.exists()) {
-        error? e = path.createFile();
-        if (e is ()) {
-            snapshotFile = path.getPathValue();
+    string path = check filepath:build(persistancePath, currentTimeMillis.toString());
+    if (!system:exists(path)) {
+        string|error filepath = system:createFile(path);
+        if (filepath is string) {
+            snapshotFile = filepath;
         }
     }
     if (snapshotFile is string) {
@@ -198,7 +199,7 @@ function writeStateToFile(string persistancePath) returns error? {
             return e;
         }
     } else {
-        error e = error("Error while creating snapshot file: " + path.getPathValue());
+        error e = error("Error while creating snapshot file: " + path);
         return e;
     }
 }
@@ -208,12 +209,11 @@ function writeStateToFile(string persistancePath) returns error? {
 # + return - An `array` containing absolute paths of all snapshot files.
 function getSnapshotFiles(string persistancePath) returns string[] {
     string[] snapshotFiles = [];
-    internal:Path path = new(persistancePath);
-    if (path.exists()) {
-        var files = path.list();
+    if (system:exists(persistancePath)) {
+        var files = system:readDir(persistancePath);
         int[] timestamps = [];
-        if (files is internal:Path[]) {
-            foreach internal:Path p in files {
+        if (files is system:FileInfo[]) {
+            foreach system:FileInfo p in files {
                 int|error t = langint:fromString(p.getName());
                 if (t is int) {
                     timestamps[timestamps.length()] = t;
@@ -223,8 +223,10 @@ function getSnapshotFiles(string persistancePath) returns string[] {
         IntSort s = new;
         s.sort(timestamps);
         foreach int t in timestamps {
-            internal:Path sf = path.resolve(t.toString());
-            snapshotFiles[snapshotFiles.length()] = sf.getPathValue();
+            string|error sf = filepath:build(persistancePath, t.toString());
+            if (sf is string) {
+                snapshotFiles[snapshotFiles.length()] = sf;
+            }
         }
     }
     return snapshotFiles;
@@ -251,9 +253,8 @@ function purgeOldSnapshotFiles(string persistancePath) {
         int i = 0;
         while (i < (files.length() - revisionsToKeep)) {
             string f = files[i];
-            internal:Path p = new(f);
-            if (p.exists()) {
-                error? e = p.delete();
+            if (system:exists(f)) {
+                error? e = system:remove(f);
                 if (e is error) {
                     log:printError("Couldn't delete snapshot.", e);
                 }
