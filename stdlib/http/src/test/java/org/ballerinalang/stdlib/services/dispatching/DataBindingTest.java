@@ -19,7 +19,9 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -224,9 +226,9 @@ public class DataBindingTest {
                 .generateHTTPMessage("/echo/body3", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNull(((BMap<String, BValue>) bJson).get("Key"), "Key variable not set properly.");
-        Assert.assertNull(((BMap<String, BValue>) bJson).get("Team"), "Team variable not set properly.");
+        Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNull(((MapValue<String, Object>) bJson).get("Key"), "Key variable not set properly.");
+        Assert.assertNull(((MapValue<String, Object>) bJson).get("Team"), "Team variable not set properly.");
     }
 
     //TODO following two test cases doesn't throw error anymore. json to struct conversion doesn't do field validation.
