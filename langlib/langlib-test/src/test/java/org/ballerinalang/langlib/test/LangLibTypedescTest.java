@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -46,5 +47,15 @@ public class LangLibTypedescTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testRecToJson");
         Assert.assertEquals(returns[0].getType().toString(), "map<json>");
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"N\", \"age\":3}");
+    }
+
+    @Test
+    public void jsonConstructFromRecTest2() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testOnTypeName");
+        BValueArray array = (BValueArray) returns[0];
+        Assert.assertEquals(array.getRefValue(0).getType().toString(), "Person");
+        Assert.assertEquals(array.getRefValue(0).stringValue(), "{name:\"tom\", age:2}");
+        Assert.assertEquals(array.getRefValue(1).getType().toString(), "map<json>");
+        Assert.assertEquals(array.getRefValue(1).stringValue(), "{\"name\":\"bob\", \"age\":4}");
     }
 }

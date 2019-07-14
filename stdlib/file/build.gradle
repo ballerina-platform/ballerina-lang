@@ -41,6 +41,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-system')
     implementation project(':ballerina-lang:object')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 

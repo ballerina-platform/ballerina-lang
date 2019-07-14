@@ -82,9 +82,10 @@ function echo(string msg) returns string {
         if (length > 0) {
             var str = getString(content);
             if (str is string) {
-                returnStr = <@untainted> str;
+                returnStr = <@untainted>str;
             } else {
-                string? errMsg = str.detail()?.message;
+                error err = str;
+                string? errMsg = err.detail()?.message;
                 io:println(errMsg is string ? errMsg : "Error in socket client");
             }
             var closeResult = socketClient->close();
@@ -103,7 +104,7 @@ function echo(string msg) returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(50);
@@ -111,7 +112,7 @@ function getString(byte[] content) returns @tainted string|io:IOError {
 
 function invalidReadParam() returns @tainted [byte[], int]|error {
     socket:Client socketClient = new({ host: "localhost", port: 47826 });
-    return trap socketClient->read(length = 0);
+    return trap socketClient->read(0);
 }
 
 function invalidAddress() returns error? {

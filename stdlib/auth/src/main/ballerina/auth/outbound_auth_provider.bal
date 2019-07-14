@@ -20,12 +20,12 @@ public type OutboundAuthProvider abstract object {
 
     # Generates a token for the outbound request.
     #
-    # + return - The String token or the `AuthError` occurred when generating the token.
-    public function generateToken() returns string|AuthError;
+    # + return - The String token or the `Error` occurred when generating the token.
+    public function generateToken() returns string|Error;
 
     # Inspects the incoming data and generates the token as needed.
     #
     # + data - Map of the data, which is extracted from the HTTP response.
-    # + return - The String token, the `AuthError` occurred when generating the token, or `()` if nothing is to be returned.
-    public function inspect(map<anydata> data) returns string|AuthError?;
+    # + return - The String token, the `Error` occurred when generating the token, or `()` if nothing is to be returned.
+    public function inspect(map<anydata> data) returns string|Error?;
 };

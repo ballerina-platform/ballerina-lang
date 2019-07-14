@@ -17,6 +17,17 @@
 import ballerina/http;
 import ballerina/io;
 
+
+service upgradeService = @http:WebSocketServiceConfig {} service {
+
+    resource function onOpen(http:WebSocketCaller caller) {
+        var returnVal = caller->pushText("Handshake check");
+        if (returnVal is error) {
+             panic returnVal;
+        }
+    }
+};
+
 service UpgradeWithoutHandshake on new http:Listener(9079) {
 
     @http:ResourceConfig {
@@ -28,13 +39,3 @@ service UpgradeWithoutHandshake on new http:Listener(9079) {
         io:println("Simply log something");
     }
 }
-
-service upgradeService = @http:WebSocketServiceConfig {} service {
-
-    resource function onOpen(http:WebSocketCaller caller) {
-        var returnVal = caller->pushText("Handshake check");
-        if (returnVal is error) {
-             panic returnVal;
-        }
-    }
-};

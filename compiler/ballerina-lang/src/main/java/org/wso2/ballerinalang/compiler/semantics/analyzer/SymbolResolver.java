@@ -1092,7 +1092,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
-            constrainedType = new BTypedescType(TypeTags.TYPEDESC, constraintType, null);
+            constrainedType = new BTypedescType(constraintType, null);
         } else {
             return;
         }
