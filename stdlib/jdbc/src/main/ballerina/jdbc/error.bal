@@ -39,7 +39,6 @@ public type DatabaseErrorData record {|
     int sqlErrorCode;
     string sqlState;
     error cause?;
-    (anydata|error)...;
 |};
 
 # Represents the properties which are related to Non SQL errors
@@ -49,5 +48,4 @@ public type DatabaseErrorData record {|
 public type ApplicationErrorData record {|
     string message?;
     error cause?;
-    (anydata|error)...;
 |};
