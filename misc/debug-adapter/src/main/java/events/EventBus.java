@@ -23,6 +23,7 @@ import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
+import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
@@ -38,7 +39,6 @@ import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
-import org.eclipse.lsp4j.debug.TerminatedEventArguments;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
@@ -109,7 +109,7 @@ public class EventBus {
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
             try {
-                List<StackFrame> frames  = threadReference.frames();
+                List<StackFrame> frames = threadReference.frames();
                 org.eclipse.lsp4j.debug.StackFrame[] stackFrames =
                         new org.eclipse.lsp4j.debug.StackFrame[frames.size()];
                 frames.stream().map(stackFrame -> {
@@ -123,28 +123,23 @@ public class EventBus {
                     }
                     dapStackFrame.setId((long) frameId);
 
-                        dapStackFrame.setSource(source);
-                        dapStackFrame.setLine((long) stackFrame.location().lineNumber());
-                        dapStackFrame.setName(stackFrame.location().method().name());
-                        try {
-                            List<LocalVariable> localVariables = stackFrame.visibleVariables();
-                            Variable[] dapVariables = new Variable[localVariables.size()];
-                            stackFrame.getValues(stackFrame.visibleVariables()).
-                                    entrySet().stream().map(localVariableValueEntry -> {
-                                LocalVariable localVariable = localVariableValueEntry.getKey();
-                                Variable dapVariable = new Variable();
-                                dapVariable.setName(localVariable.name());
-                                dapVariable.setType(localVariable.typeName());
-                                String value = localVariableValueEntry.getValue()
-                                                == null ? "" : localVariableValueEntry.getValue().toString();
-                                dapVariable.setValue(value);
-                                return dapVariable;
-                            }).collect(Collectors.toList()).toArray(dapVariables);
-                            variablesMap.put((long) frameId, dapVariables);
-                        } catch (AbsentInformationException e) {
-                        }
+                    dapStackFrame.setSource(source);
+                    dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+                    dapStackFrame.setName(stackFrame.location().method().name());
+                    try {
+                        List<LocalVariable> localVariables = stackFrame.visibleVariables();
+                        Variable[] dapVariables = new Variable[localVariables.size()];
+                        stackFrame.getValues(stackFrame.visibleVariables()).
+                                entrySet().stream().map(localVariableValueEntry -> {
+                            LocalVariable localVariable = localVariableValueEntry.getKey();
+                            return getDapVariable(localVariable, localVariableValueEntry.getValue());
+                        }).collect(Collectors.toList()).toArray(dapVariables);
+                        variablesMap.put((long) frameId, dapVariables);
+                    } catch (AbsentInformationException e) {
+                    }
                     return dapStackFrame;
-                }).collect(Collectors.toList()).toArray(stackFrames);
+                }).collect(Collectors.toList())
+                        .toArray(stackFrames);
                 stackframesMap.put(threadReference.uniqueID(), stackFrames);
             } catch (IncompatibleThreadStateException e) {
             }
@@ -152,12 +147,73 @@ public class EventBus {
 
     }
 
+    private Variable getDapVariable(LocalVariable variable, Value value) {
+        String balType;
+        switch (variable.signature()) {
+            case "J":
+                balType = "BTypeInt";
+                break;
+            case "I":
+                balType = "BTypeByte";
+                break;
+            case "D":
+                balType = "BTypeFloat";
+                break;
+            case "Z":
+                balType = "BTypeBoolean";
+                break;
+            case "Ljava/lang/String;":
+                balType = "BTypeString";
+                break;
+            case "Lorg/ballerinalang/jvm/values/DecimalValue;":
+                balType = "BTypeDecimal";
+                break;
+            case "Lorg/ballerinalang/jvm/values/MapValue;":
+                balType = "BMapType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/TableValue;":
+                balType = "BTableType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/StreamValue;":
+                balType = "BStreamType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/ArrayValue;":
+                balType = "BArrayType";
+                break;
+            case "Ljava/lang/Object;":
+                balType = "BObjectType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/ErrorValue;":
+                balType = "BErrorType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/FutureValue;":
+                balType = "BFutureType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/FPValue;":
+                balType = "BInvokableType";
+                break;
+            case "Lorg/ballerinalang/jvm/values/TypedescValue;":
+                balType = "BTypeDesc";
+                break;
+            default:
+                balType = "Object";
+                break;
+        }
+
+        Variable dapVariable = new Variable();
+        dapVariable.setName(variable.name());
+        dapVariable.setType(balType);
+        String stringValue = value == null ? "" : value.toString();
+        dapVariable.setValue(stringValue);
+        return dapVariable;
+    }
+
     public void startListening(String sourceRoot, String packageName) {
         this.sourceRoot = sourceRoot;
         this.packageName = packageName;
         CompletableFuture.runAsync(() -> {
-                    try {
-                        while (true) {
+                    while (true) {
+                        try {
                             EventSet eventSet = getDebuggee().eventQueue().remove();
                             EventIterator eventIterator = eventSet.eventIterator();
 
@@ -206,21 +262,18 @@ public class EventBus {
                                     stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
                                     stoppedEventArguments.setAllThreadsStopped(true);
                                     client.stopped(stoppedEventArguments);
-                                } else if (event instanceof VMDisconnectEvent || event instanceof VMDeathEvent
+                                } else if (event instanceof VMDisconnectEvent
+                                        || event instanceof VMDeathEvent
                                         || event instanceof VMDisconnectedException) {
                                     ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
                                     exitedEventArguments.setExitCode((long) 0);
                                     client.exited(exitedEventArguments);
-                                }
-                                else {
+                                } else {
                                     eventSet.resume();
                                 }
                             }
+                        } catch (InterruptedException e) {
                         }
-                    } catch (VMDisconnectedException e) {
-                        TerminatedEventArguments terminatedEventArguments = new TerminatedEventArguments();
-                        client.terminated(terminatedEventArguments);
-                    } catch (Exception e) {
                     }
                 }
         );
