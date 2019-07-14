@@ -1016,6 +1016,7 @@ public class Types {
                     foreachNode.nillableResultType = nextMethodReturnType;
                     return;
                 }
+                // fallthrough
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
