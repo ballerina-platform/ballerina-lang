@@ -568,7 +568,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     }
                     return;
                 } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
-                        && !varRef.symbol.tainted) {
+                        && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
@@ -609,6 +609,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
         }
+    }
+    
+    private boolean notInSameScope(BLangVariableReference varRefExpr, SymbolEnv env) {
+        return !varRefExpr.symbol.owner.equals(env.scope.owner);
     }
 
     private boolean isMarkedTainted(BLangVariableReference varRef) {
