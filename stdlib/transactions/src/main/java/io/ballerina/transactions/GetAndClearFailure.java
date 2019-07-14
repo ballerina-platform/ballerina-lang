@@ -20,7 +20,6 @@ package io.ballerina.transactions;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -32,13 +31,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "transactions",
-        functionName = "cleanupTransactionContext",
-        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
+        functionName = "getAndClearFailure",
         returnType =  {@ReturnType(type = TypeKind.VOID)}
 )
-public class CleanupTransactionContext {
+public class GetAndClearFailure {
 
-    public static void cleanupTransactionContext(Strand strand, String transactionBlockId) {
-        strand.removeLocalTransactionContext();
+    public static boolean getAndClearFailure(Strand strand) {
+        return strand.getLocalTransactionContext().getAndClearFailure() != null;
     }
 }

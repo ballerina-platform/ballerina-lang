@@ -46,7 +46,7 @@ public class BatchUpdate extends BlockingNativeCallableUnit {
 
     public static Object nativeBatchUpdate(Strand strand, ObjectValue client, String sqlQuery, ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters);
+        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters, strand);
         return batchUpdateStatement.execute();
     }
 }
