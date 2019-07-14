@@ -1,16 +1,18 @@
-function testMapElementIncrement()  returns (int|error){
-    map<any> namesMap = {fname:1};
-    namesMap.fname += 1;
+import ballerina/'lang\.int as ints;
+
+function testMapElementIncrement()  returns int|error {
+    map<any> namesMap = { fname: 1 };
+    namesMap["fname"] += 1;
     int x;
-    x = check int.convert(namesMap.fname);
+    x = check trap <int> namesMap["fname"];
     return x;
 }
 
-function testMapElementDecrement() returns (int|error){
+function testMapElementDecrement() returns int|error {
     map<any> namesMap = {fname:1};
-    namesMap.fname -= 1;
+    namesMap["fname"] -= 1;
     int x;
-    x = check int.convert(namesMap.fname);
+    x = check trap <int> namesMap["fname"];
     return x;
 }
 
@@ -42,7 +44,7 @@ function testStringVarRefDecrement() returns (string){
 
 function testMultiReturnWithCompound() returns (int){
     int x = 4;
-    x += int.convert("NotAInteger");
+    x += ints:fromString("NotAInteger");
     return x;
 }
 
@@ -119,10 +121,10 @@ function testCompoundAssignmentLogicalShift() returns (int){
     return x;
 }
 
-type Company record {
-   int count = 0;
-   int count2 = 0;
-};
+type Company record {|
+   int count?;
+   int...;
+|};
 
 function testCompoundAssignmentAdditionStructElementRecursive() returns int? {
     Company ibm = {};

@@ -358,11 +358,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function persistTopicRegistrationChange(string mode, string topic) {
-    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+    HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
+    if (hubStoreImpl is HubPersistenceStore) {
         if (mode == MODE_REGISTER) {
-            hubPersistenceStoreImpl.addTopic(topic);
+            hubStoreImpl.addTopic(topic);
         } else {
-            hubPersistenceStoreImpl.removeTopic(topic);
+            hubStoreImpl.removeTopic(topic);
         }
     }
 }
@@ -372,11 +373,12 @@ function persistTopicRegistrationChange(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
-    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+    HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
+    if (hubStoreImpl is HubPersistenceStore) {
       if (mode == MODE_SUBSCRIBE) {
-            hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
+            hubStoreImpl.addSubscription(subscriptionDetails);
         } else {
-            hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+            hubStoreImpl.removeSubscription(subscriptionDetails);
         }
     }
 }
