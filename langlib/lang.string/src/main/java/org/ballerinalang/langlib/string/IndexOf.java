@@ -21,6 +21,9 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
@@ -54,6 +57,11 @@ public class IndexOf extends BlockingNativeCallableUnit {
 
     public static Object indexOf(Strand strand, String value, String subString, long startIndx) {
         StringUtils.checkForNull(value, subString);
-        return value.indexOf(subString);
+        if (startIndx > Integer.MAX_VALUE) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
+        }
+        long index = value.indexOf(subString, (int) startIndx);
+        return index >= 0 ? index : null;
     }
 }

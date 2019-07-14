@@ -18,12 +18,15 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.nio.charset.Charset;
 
 /**
  * Extern function lang.string:fromBytes(byte[]).
@@ -39,6 +42,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class FromBytes {
 
     public static Object fromBytes(Strand strand, ArrayValue bytes) {
-        return null;
+        try {
+            return new String(bytes.getBytes(), Charset.forName("UTF-8"));
+        } catch (Exception e) {
+            return BallerinaErrors.createError("FailedToDecodeBytes", e.getMessage());
+        }
     }
 }
