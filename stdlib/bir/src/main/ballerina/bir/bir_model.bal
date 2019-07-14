@@ -91,13 +91,19 @@ public type AnnotationAttachment record {|
     AnnotationValue?[] annotValues = [];
 |};
 
-public type AnnotationValue record {|
-    map<AnnotationValueEntry?[]> valueEntryMap = {};
+public type AnnotationValue AnnotationLiteralValue | AnnotationRecordValue | AnnotationArrayValue;
+
+public type AnnotationLiteralValue record {|
+    BType literalType;
+    anydata literalValue;
 |};
 
-public type AnnotationValueEntry record {|
-    BType literalType;
-    anydata value;
+public type AnnotationRecordValue record {|
+    map<AnnotationValue> annotValueMap = {};
+|};
+
+public type AnnotationArrayValue record {|
+    AnnotationValue?[]  annotValueArray = [];
 |};
 
 public const BINARY_ADD = "ADD";
