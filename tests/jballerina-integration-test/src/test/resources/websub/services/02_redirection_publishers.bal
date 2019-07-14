@@ -38,7 +38,7 @@ service redirected on publisherServiceEPTwo {
         websub:addWebSubLinkHeader(res, ["http://localhost:8081/hub/one"], WEBSUB_TOPIC_FIVE);
         var err = caller->respond(res);
         if (err is error) {
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", err);
         }
     }
 
@@ -47,7 +47,7 @@ service redirected on publisherServiceEPTwo {
         websub:addWebSubLinkHeader(res, ["http://localhost:8081/hub/two"], WEBSUB_TOPIC_SIX);
         var err = caller->respond(res);
         if (err is error) {
-            log:printError("Error sending response", err = err);
+            log:printError("Error sending response", err);
         }
     }
 }

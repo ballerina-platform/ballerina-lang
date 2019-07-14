@@ -2,7 +2,7 @@ type Department object {
     public string dptName = "";
     public Person[] employees = [];
 
-    function __init (string dptName = "", Person[] employees) {
+    function __init (Person[] employees, string dptName = "") {
         self.dptName = dptName;
         self.employees = employees;
     }
@@ -121,12 +121,12 @@ function testGetNonInitAttribute () returns string {
     Person emp1 = new ();
     Person emp2 = new ();
     Person[] emps = [emp1, emp2];
-    Department dpt = new (dptName = "HR", emps);
+    Department dpt = new (emps, dptName = "HR");
     return dpt["employees"][0]["family"]["children"][0];
 }
 
 function testGetNonInitArrayAttribute () returns (string) {
-    Department dpt = new (dptName = "HR", []);
+    Department dpt = new ([], dptName = "HR");
     return dpt["employees"][0]["family"]["children"][0];
 }
 

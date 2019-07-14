@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -890,6 +889,24 @@ public class SymbolResolver extends BLangNodeVisitor {
         throw new IllegalStateException("built-in error not found ?");
     }
 
+    public void reloadIntRangeType() {
+
+        ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
+            symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
+                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+            symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
+                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+            return;
+        }
+        throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
     // visit type nodes
 
     public void visit(BLangValueType valueTypeNode) {
@@ -1076,15 +1093,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(TypeTags.TYPEDESC, constraintType, null);
-        } else if (type.tag == TypeTags.CHANNEL) {
-            // only the simpleTypes, json and xml are allowed as channel data type.
-            if (constraintType.tag > TypeTags.XML || constraintType.tag == TypeTags.TYPEDESC) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            constrainedType = new BChannelType(TypeTags.CHANNEL, constraintType, null);
+        } else {
+            return;
         }
+
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner);

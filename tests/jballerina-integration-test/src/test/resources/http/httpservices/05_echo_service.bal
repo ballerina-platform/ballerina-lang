@@ -40,7 +40,7 @@ service echo1 on echoEP1 {
             log:printError("Failed to retrieve payload from request: " + payload.reason());
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         }
     }

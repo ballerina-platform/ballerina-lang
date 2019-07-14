@@ -15,6 +15,7 @@
 // under the License.
 import ballerina/system;
 import ballerina/internal;
+import ballerina/'lang\.int as langint;
 
 # The `StreamEvent` object is a wrapper around the actual data being received to the input stream. If a record is
 # receive to a input stream, that record is converted to a map of anydata values and set that map to a field called
@@ -51,7 +52,7 @@ public type StreamEvent object {
             self.toData(self.dataMap);
         } else if (eventData is [string, map<anydata>]) {
             self.streamName = eventData[0];
-            foreach var [k, v] in eventData[1] {
+            foreach var [k, v] in eventData[1].entries() {
                 self.data[eventData[0] + DELIMITER + k] = v;
             }
             self.toDataMap(self.data);
@@ -77,7 +78,7 @@ public type StreamEvent object {
     #
     # + eventData - map of anydata values to be added to field `data`.
     public function addData(map<anydata> eventData) {
-        foreach var [k, v] in eventData {
+        foreach var [k, v] in eventData.entries() {
             self.data[k] = v;
         }
         self.toDataMap(eventData);
@@ -92,7 +93,8 @@ public type StreamEvent object {
         self.data[k] = val;
         // add to dataMap
         self.dataMap[self.getStreamName()] = self.dataMap[self.getStreamName()] ?: [];
-        map<anydata> dataMap = self.dataMap[self.getStreamName()][0] ?: {};
+        map<anydata>[]? values = self.dataMap[self.getStreamName()];
+        map<anydata> dataMap = values is map<anydata>[] ? values[0] : {};
         self.dataMap[self.getStreamName()][0] = dataMap;
         dataMap[key] = val;
     }
@@ -108,18 +110,19 @@ public type StreamEvent object {
         int index = 0;
         map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
         if (aliasSplit.length() > 1) {
-            string indexStr = aliasSplit[1].replaceAll("]", "").trim();
+            string replacedString = internal:replaceAll(aliasSplit[1], "]", "");
+            string indexStr = replacedString.trim();
             if (internal:contains(indexStr, "last")) {
                 int lastIndex = dArray.length();
                 if (internal:contains(indexStr, "-")) {
                     string[] vals = internal:split(indexStr, "-");
                     string subCount = vals[1].trim();
-                    index = lastIndex - checkpanic int.convert(subCount);
+                    index = lastIndex - checkpanic langint:fromString(subCount);
                 } else {
                     index = lastIndex;
                 }
             } else {
-                index = checkpanic int.convert(indexStr);
+                index = checkpanic langint:fromString(indexStr);
             }
         }
         return dArray[index][attrib];
@@ -159,9 +162,9 @@ public type StreamEvent object {
     #
     # + dataMap - map containg event attribute values.
     public function toData(map<map<anydata>[]> dataMap) {
-        foreach var [key, val] in dataMap {
+        foreach var [key, val] in dataMap.entries() {
             map<anydata> data = (val.length() > 0) ? val[0] : {};
-            foreach var [k, v] in data {
+            foreach var [k, v] in data.entries() {
                 self.data[key + DELIMITER + k] = v;
             }
         }
@@ -171,7 +174,7 @@ public type StreamEvent object {
     #
     # + data - map containg event attribute values.
     public function toDataMap(map<anydata> data) {
-        foreach var [k, v] in data {
+        foreach var [k, v] in data.entries() {
             string[] key = internal:split(k, "\\.");
             if (key.length() == 2) {
                 map<anydata>[] dataMapArray = self.dataMap[key[0]] ?: [];

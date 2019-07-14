@@ -795,7 +795,11 @@ type InstructionGenerator object {
     function generateCastIns(bir:TypeCast typeCastIns) {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
-        generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+        if (typeCastIns.checkType) {
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+        } else {
+            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
+        }
         self.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
 
@@ -848,7 +852,7 @@ type InstructionGenerator object {
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
-            isVoid = returnType.retType is bir:BTypeNil;
+            isVoid = returnType?.retType is bir:BTypeNil;
         } else {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
@@ -870,7 +874,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = [inst, methodClass];
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
@@ -1085,7 +1089,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
@@ -1097,6 +1101,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         mv.visitVarInsn(LLOAD, valueIndex);
     } else if (bType is bir:BTypeByte) {
         mv.visitVarInsn(ILOAD, valueIndex);
+        mv.visitInsn(I2B);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
     } else if (bType is bir:BTypeFloat) {
         mv.visitVarInsn(DLOAD, valueIndex);
     } else if (bType is bir:BTypeBoolean) {
@@ -1140,7 +1146,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);

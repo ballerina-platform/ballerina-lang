@@ -50,7 +50,9 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType = contentType);
         } else {
-            outResponse.setPayload(<@untainted string> <string>bodyParts.detail().message);
+            error err = bodyParts;
+            string? errMsg = <string> err.detail()?.message;
+            outResponse.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing body parts");
         }
         checkpanic caller->respond(outResponse);
     }

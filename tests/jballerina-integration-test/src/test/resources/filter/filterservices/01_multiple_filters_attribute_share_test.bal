@@ -80,7 +80,7 @@ public type Filter2 object {
 
 Filter2 filter2 = new;
 
-listener http:Listener echoEP = new(9090, config = { filters: [filter1, filter2] });
+listener http:Listener echoEP = new(9090, { filters: [filter1, filter2] });
 
 @http:ServiceConfig {
     basePath: "/echo"

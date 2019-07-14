@@ -23,6 +23,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -30,8 +31,14 @@ import org.testng.annotations.Test;
  */
 public class AbstractObjectTest {
 
-    CompileResult anonAbstractObjects = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
-    CompileResult abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
+    private CompileResult anonAbstractObjects;
+    private CompileResult abstractObjects;
+
+    @BeforeClass
+    public void setup() {
+        anonAbstractObjects = BCompileUtil.compile("test-src/object/abstract_anon_object.bal");
+        abstractObjects = BCompileUtil.compile("test-src/object/abstract_object.bal");
+    }
 
     @Test
     public void testAbstractObjectNegative() {

@@ -26,15 +26,15 @@ function initReadableChannel(string filePath, string encoding, string recordSepa
         return byteChannel;
     } else {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
+        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
     }
 }
 
 function initWritableChannel(string filePath, string encoding, string recordSeparator,
-                             string fieldSeparator) {
-    io:WritableByteChannel byteChannel = io:openWritableFile(filePath);
+                             string fieldSeparator) returns io:IOError? {
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
+    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
 }
 
 

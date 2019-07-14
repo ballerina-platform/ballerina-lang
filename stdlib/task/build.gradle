@@ -44,9 +44,8 @@ dependencies {
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
-    testCompile project(':ballerina-test-utils')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 }
 

@@ -16,8 +16,15 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations.testRuntimeClasspath {
     resolutionStrategy {
         preferProjectModules()
     }
@@ -50,6 +57,7 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-log-api')
@@ -62,8 +70,10 @@ dependencies {
     implementation project(':ballerina-encoding')
 }
 
-createBalo {
-    jvmTarget = 'true'
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
 description = 'Ballerina - Transactions Implementation'
@@ -74,8 +84,4 @@ createBalo {
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
-}
-
-createBirJar {
-   onlyIf { false }
 }

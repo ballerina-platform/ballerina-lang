@@ -344,12 +344,12 @@ function populateMultipartRequest(Request inRequest) returns Request|error {
                     // invoking the endpoint to create a message datasource.
                     var childBlobContent = childPart.getByteArray();
                 }
-                bodyPart.setBodyParts(childParts, contentType = <@untainted> bodyPart.getContentType());
+                bodyPart.setBodyParts(childParts, <@untainted> bodyPart.getContentType());
             } else {
                 var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
-        inRequest.setBodyParts(bodyParts, contentType = <@untainted> inRequest.getContentType());
+        inRequest.setBodyParts(bodyParts, <@untainted> inRequest.getContentType());
     }
     return inRequest;
 }

@@ -344,7 +344,7 @@ public class HttpFiltersDesugar {
 
         BLangInvocation.BLangAttachedFunctionInvocation filterRequestInvocation =
                 new BLangInvocation.BLangAttachedFunctionInvocation(
-                        resourceNode.pos, requiredArgs, new ArrayList<>(), new ArrayList<>(),
+                        resourceNode.pos, requiredArgs, new ArrayList<>(),
                         getFilterRequestFuncSymbol(filterType), symTable.booleanType, filterRef, false);
         filterRequestInvocation.desugared = true;
 

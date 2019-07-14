@@ -45,7 +45,7 @@ service publisher on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on ordering", err = err);
+            log:printError("Error responding on ordering", err);
         }
     }
 
@@ -61,7 +61,7 @@ service publisher on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
 
         if (subscriber != "skip_subscriber_check") {
@@ -74,12 +74,12 @@ service publisher on publisherServiceEP {
         if (mode == "internal") {
             err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {
-                log:printError("Error publishing update directly", err = err);
+                log:printError("Error publishing update directly", err);
             }
         } else {
             err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {
-                log:printError("Error publishing update remotely", err = err);
+                log:printError("Error publishing update remotely", err);
             }
         }
     }
@@ -91,7 +91,7 @@ service publisher on publisherServiceEP {
             json j = <json> json.convert(details[0]);
             var err = caller->respond(j);
             if (err is error) {
-                log:printError("Error responding on topicInfo request", err = err);
+                log:printError("Error responding on topicInfo request", err);
             }
         } else {
             map<string> allTopics = {};
@@ -104,7 +104,7 @@ service publisher on publisherServiceEP {
             json j = <json> json.convert(allTopics);
             var err = caller->respond(j);
             if (err is error) {
-                log:printError("Error responding on topicInfo request", err = err);
+                log:printError("Error responding on topicInfo request", err);
             }
         }
     }
@@ -120,7 +120,7 @@ service publisherTwo on publisherServiceEP {
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
         var err = caller->accepted(message = response);
         if (err is error) {
-            log:printError("Error responding on ordering", err = err);
+            log:printError("Error responding on ordering", err);
         }
     }
 
@@ -135,7 +135,7 @@ service publisherTwo on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
     }
 }
@@ -152,7 +152,7 @@ service contentTypePublisher on publisherServiceEP {
 
         var err = caller->accepted();
         if (err is error) {
-            log:printError("Error responding on notify request", err = err);
+            log:printError("Error responding on notify request", err);
         }
 
         if (port != "skip_subscriber_check") {
@@ -163,12 +163,12 @@ service contentTypePublisher on publisherServiceEP {
         if (mode == "internal") {
             err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {
-                log:printError("Error publishing update directly", err = err);
+                log:printError("Error publishing update directly", err);
             }
         } else {
             err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
             if (err is error) {
-                log:printError("Error publishing update remotely", err = err);
+                log:printError("Error publishing update remotely", err);
             }
         }
     }
@@ -178,7 +178,7 @@ function checkSubscrberAvailabilityAndPublishDirectly(string topic, string subsc
     checkSubscriberAvailability(topic, subscriber);
     var err = webSubHub.publishUpdate(topic, payload);
     if (err is error) {
-        log:printError("Error publishing update directly", err = err);
+        log:printError("Error publishing update directly", err);
     }
 }
 
@@ -186,23 +186,23 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     websub:WebSubHub internalHub = startWebSubHub();
     var err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
     if (err is error) {
-        log:printError("Error registering topic directly", err = err);
+        log:printError("Error registering topic directly", err);
     }
     err = internalHub.registerTopic(WEBSUB_TOPIC_THREE);
     if (err is error) {
-        log:printError("Error registering topic directly", err = err);
+        log:printError("Error registering topic directly", err);
     }
     err = internalHub.registerTopic(WEBSUB_TOPIC_FOUR);
     if (err is error) {
-        log:printError("Error registering topic directly", err = err);
+        log:printError("Error registering topic directly", err);
     }
     err = internalHub.registerTopic(WEBSUB_TOPIC_FIVE);
     if (err is error) {
-        log:printError("Error registering topic directly", err = err);
+        log:printError("Error registering topic directly", err);
     }
     err = internalHub.registerTopic(WEBSUB_TOPIC_SIX);
     if (err is error) {
-        log:printError("Error registering topic directly", err = err);
+        log:printError("Error registering topic directly", err);
     }
     return internalHub;
 }
@@ -222,7 +222,7 @@ function remoteRegisterTopic()  {
     }
     var err = websubHubClientEP->registerTopic(WEBSUB_TOPIC_TWO);
     if (err is error) {
-        log:printError("Error registering topic remotely", err = err);
+        log:printError("Error registering topic remotely", err);
     }
     remoteTopicRegistered = true;
 }
@@ -247,7 +247,7 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = error(websub:WEBSUB_ERROR_CODE, { message : errorMessage });
+    error e = error(websub:WEBSUB_ERROR_CODE, message = errorMessage);
     panic e;
 }
 

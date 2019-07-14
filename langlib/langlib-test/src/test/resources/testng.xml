@@ -39,6 +39,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
             <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
             <class name="org.ballerinalang.langlib.test.LangLibMapTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibTypedescTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>

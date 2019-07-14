@@ -57,10 +57,31 @@ public type Request object {
     # + e - The `Entity` to be set to the request
     public function setEntity(mime:Entity e) = external;
 
-    # Gets the query parameters of the request, as a map.
+    # Gets the query parameters of the request as a map consisting of a string array.
     #
-    # + return - String map of query params
-    public function getQueryParams() returns map<string> = external;
+    # + return - String array map of the query params
+    public function getQueryParams() returns map<string[]> = external;
+
+    # Gets the query param value associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns the query param value associated with the given key as a string. If multiple param values are
+    #            present, then the first value is returned. Nil is returned if no key is found.
+    public function getQueryParamValue(@untainted string key) returns @tainted string? {
+        map<string[]> params = self.getQueryParams();
+        var result = params[key];
+        return result is () ? () : result[0];
+    }
+
+    # Gets all the query param values associated with the given key.
+    #
+    # + key - Represents the query param key
+    # + return - Returns all the query param values associated with the given key as a `string[]`. Nil is returned if no key
+    #            is found.
+    public function getQueryParamValues(@untainted string key) returns @tainted string[]? {
+        map<string[]> params = self.getQueryParams();
+        return params[key];
+    }
 
     # Gets the matrix parameters of the request.
     #
@@ -305,7 +326,7 @@ public type Request object {
     #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload, contentType = contentType);
+        entity.setJson(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -316,7 +337,7 @@ public type Request object {
     #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload, contentType = contentType);
+        entity.setXml(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -327,7 +348,7 @@ public type Request object {
     #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload, contentType = contentType);
+        entity.setText(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -338,7 +359,7 @@ public type Request object {
     #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteArray(payload, contentType = contentType);
+        entity.setByteArray(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -349,7 +370,7 @@ public type Request object {
     #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBodyParts(bodyParts, contentType = contentType);
+        entity.setBodyParts(bodyParts, contentType);
         self.setEntity(entity);
     }
 
@@ -360,7 +381,7 @@ public type Request object {
     #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath, contentType = contentType);
+        entity.setFileAsEntityBody(filePath, contentType);
         self.setEntity(entity);
     }
 
@@ -371,7 +392,7 @@ public type Request object {
     #                 header value
     public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload, contentType = contentType);
+        entity.setByteChannel(payload, contentType);
         self.setEntity(entity);
     }
 

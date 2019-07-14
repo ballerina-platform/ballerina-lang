@@ -50,6 +50,8 @@ function testInvalidErrorTypeInFunc() {
 type MyError error<string, map<MyError>>;
 
 function testSelfReferencingErrorConstructor() {
-    error e3 = error(e3.reason(), err = e3);
-    MyError e4 = error("reason", err = e4);
+    error e3 = error(e3.reason(), e3);
+    MyError e4 = error("reason", e4);
+    UserDefErrorOne ue1 = UserDefErrorOne();
+    MyError me1 = MyError();
 }

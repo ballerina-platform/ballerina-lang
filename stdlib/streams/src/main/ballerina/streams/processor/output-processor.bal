@@ -37,7 +37,7 @@ public type OutputProcess object {
             StreamEvent event = <StreamEvent> ev;
             if (event.eventType == "CURRENT") {
                 map<anydata> outputData = {};
-                foreach var [k, v] in event.data {
+                foreach var [k, v] in event.data.entries() {
                     string[] s = internal:split(k, "\\.");
                     if (internal:equalsIgnoreCase(OUTPUT, s[0])) {
                         outputData[s[1]] = v;
@@ -47,7 +47,8 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        self.outputFunc.call(events);
+        function (map<anydata>[]) outFunction = self.outputFunc;
+        outFunction(events);
     }
 };
 

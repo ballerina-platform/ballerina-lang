@@ -126,6 +126,7 @@ import java.util.stream.Stream;
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 
 /**
  * @since 0.94
@@ -292,10 +293,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_TYPE, type);
             }
 
-            if (annotationNode.flagSet.contains(Flag.CONSTANT)) {
-                if (!types.isAllowedConstantType(type.tag == TypeTags.ARRAY ? ((BArrayType) type).eType : type)) {
-                    dlog.error(annotTypeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, type);
-                }
+            if (annotationNode.flagSet.contains(Flag.CONSTANT) && !types.isAnydata(type)) {
+                dlog.error(annotTypeNode.pos, DiagnosticCode.ANNOTATION_INVALID_CONST_TYPE, type);
             }
         }
 
@@ -798,13 +797,20 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void validateAttachedFunction(BLangFunction funcNode, Name objName) {
         SymbolEnv invokableEnv = SymbolEnv.createDummyEnv(funcNode, funcNode.symbol.scope, env);
-        List<BType> paramTypes = funcNode.requiredParams.stream()
-                .peek(varNode -> varNode.type = symResolver.resolveTypeNode(varNode.typeNode, invokableEnv))
-                .map(varNode -> varNode.type)
-                .collect(Collectors.toList());
 
-        funcNode.defaultableParams.forEach(p -> paramTypes.add(symResolver
-                .resolveTypeNode(p.var.typeNode, invokableEnv)));
+        boolean foundDefaultableParam = false;
+        List<BType> paramTypes = new ArrayList<>();
+        for (BLangSimpleVariable varNode : funcNode.requiredParams) {
+            varNode.type = symResolver.resolveTypeNode(varNode.typeNode, invokableEnv);
+            if (varNode.expr != null) {
+                foundDefaultableParam = true;
+            }
+            if (varNode.expr == null && foundDefaultableParam) {
+                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+            }
+            BType type = varNode.type;
+            paramTypes.add(type);
+        }
 
         if (!funcNode.desugaredReturnType) {
             symResolver.resolveTypeNode(funcNode.returnTypeNode, invokableEnv);
@@ -840,8 +846,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         //        }
 
         if (typesMissMatch(paramTypes, sourceType.paramTypes)
-                || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)
-                || namesMissMatchDef(funcNode.defaultableParams, funcNode.symbol.defaultableParams)) {
+                || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)) {
             dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
             return;
         }
@@ -906,10 +911,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             visitObjectAttachedFunctionParam(varNode, invokableEnv);
         });
 
-        invokableNode.defaultableParams.forEach(varDefNode -> {
-            visitObjectAttachedFunctionParam(varDefNode.var, invokableEnv);
-        });
-
         if (invokableNode.returnTypeNode != null) {
             invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
         }
@@ -936,10 +937,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             variable.symbol = (BVarSymbol) varSymbol;
         }
-        if (variable.expr == null) {
-            return;
+        if (variable.expr != null) {
+            variable.symbol.defaultableParam = true;
         }
-        variable.symbol.defaultExpression = variable.expr;
     }
 
     @Override
@@ -1372,34 +1372,38 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
-        List<BVarSymbol> paramSymbols =
-                invokableNode.requiredParams.stream()
-                        .peek(varNode -> defineNode(varNode, invokableEnv))
-                        .map(varNode -> varNode.symbol)
-                        .collect(Collectors.toList());
+        boolean foundDefaultableParam = false;
+        List<BVarSymbol> paramSymbols = new ArrayList<>();
 
-        List<BVarSymbol> namedParamSymbols =
-                invokableNode.defaultableParams.stream()
-                        .peek(varDefNode -> defineNode(varDefNode.var, invokableEnv))
-                        .map(varDefNode -> {
-                            BVarSymbol varSymbol = varDefNode.var.symbol;
-                            varSymbol.defaultExpression = varDefNode.var.expr;
-                            return varSymbol;
-                        })
-                        .collect(Collectors.toList());
+        for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
+            defineNode(varNode, invokableEnv);
+            if (varNode.expr != null) {
+                foundDefaultableParam = true;
+            }
+            if (varNode.expr == null && foundDefaultableParam) {
+                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+            }
+            BVarSymbol symbol = varNode.symbol;
+            if (varNode.flagSet.contains(Flag.PUBLIC)) {
+                symbol.flags |= Flags.PUBLIC;
+            }
+            if (varNode.expr != null) {
+                symbol.flags |= Flags.OPTIONAL;
+                symbol.defaultableParam = true;
+            }
+            paramSymbols.add(symbol);
+        }
 
         if (!invokableNode.desugaredReturnType) {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
         invokableSymbol.params = paramSymbols;
         invokableSymbol.retType = invokableNode.returnTypeNode.type;
-        invokableSymbol.defaultableParams = namedParamSymbols;
 
         // Create function type
         List<BType> paramTypes = paramSymbols.stream()
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
-        namedParamSymbols.forEach(paramSymbol -> paramTypes.add(paramSymbol.type));
 
         if (invokableNode.restParam != null) {
             defineNode(invokableNode.restParam, invokableEnv);
@@ -1814,7 +1818,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create and define the parameters and receiver. This should be done after defining the function symbol.
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(null, funcSymbol.scope, objEnv);
         funcSymbol.params.forEach(param -> defineSymbol(typeRef.pos, param, funcEnv));
-        funcSymbol.defaultableParams.forEach(param -> defineSymbol(typeRef.pos, param, funcEnv));
         if (funcSymbol.restParam != null) {
             defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
         }
@@ -1840,13 +1843,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BVarSymbol> params = referencedFuncSym.params;
         for (int i = 0; i < params.size(); i++) {
             if (!params.get(i).name.value.equals(attachedFuncSym.params.get(i).name.value)) {
-                return false;
-            }
-        }
-
-        List<BVarSymbol> defParams = referencedFuncSym.defaultableParams;
-        for (int i = 0; i < defParams.size(); i++) {
-            if (!defParams.get(i).name.value.equals(attachedFuncSym.defaultableParams.get(i).name.value)) {
                 return false;
             }
         }
@@ -1878,8 +1874,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .append(funcSymbol.name.value.split("\\.")[1]);
 
         funcSymbol.params.forEach(param -> paramListBuilder.add(param.type.toString() + " " + param.name.value));
-        funcSymbol.defaultableParams.forEach(
-                param -> paramListBuilder.add(param.type.toString() + " " + param.name.value));
 
         if (funcSymbol.restParam != null) {
             paramListBuilder.add(((BArrayType) funcSymbol.restParam.type).eType.toString() + "... " +

@@ -103,7 +103,7 @@ public type UniqueLengthWindow object {
                 StreamEvent eventClonedForMap = clonedEvent.copy();
 
                 anydata valueOrNil = eventClonedForMap.data[self.uniqueKey];
-                string str = string.convert(valueOrNil);
+                string str = valueOrNil.toString();
                 StreamEvent? oldEvent;
                 if (self.uniqueMap[str] is StreamEvent) {
                     oldEvent = self.uniqueMap[str];
@@ -152,7 +152,7 @@ public type UniqueLengthWindow object {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(events);
+                nextProcessFuncPointer(events);
             }
         }
     }
@@ -178,7 +178,7 @@ public type UniqueLengthWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if(conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }
@@ -196,7 +196,7 @@ public type UniqueLengthWindow object {
     public function saveState() returns map<any> {
         SnapshottableStreamEvent?[] expiredEventsList = toSnapshottableEvents(self.expiredEventChunk.asArray());
         map<SnapshottableStreamEvent> uMap = {};
-        foreach var [k, v] in self.uniqueMap {
+        foreach var [k, v] in self.uniqueMap.entries() {
             uMap[k] = toSnapshottableEvent(v);
         }
         return {
@@ -218,7 +218,7 @@ public type UniqueLengthWindow object {
         var uMap = state["uMap"];
         if (uMap is map<SnapshottableStreamEvent>) {
             self.uniqueMap = {};
-            foreach var [k, v] in uMap {
+            foreach var [k, v] in uMap.entries() {
                 self.uniqueMap[k] = toStreamEvent(v);
             }
         }

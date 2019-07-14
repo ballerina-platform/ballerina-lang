@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:Listener helloWorldEP = new (9090);
+listener http:Listener helloWorldEP = new (19090);
 
 any globalLevelVariable = "";
 service sample on helloWorldEP {
@@ -8,8 +8,7 @@ service sample on helloWorldEP {
     @tainted any taintedServiceVar = "";
 
     resource function params (http:Caller caller, http:Request req) {
-        map<any> paramsMap = req.getQueryParams();
-        var bar = paramsMap.bar;
+        var bar = req.getQueryParamValue("bar");
         self.taintedServiceVar = bar;
 
         self.serviceLevelVariable = "static";

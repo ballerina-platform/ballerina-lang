@@ -27,13 +27,13 @@ function createSourceAndTargetDirs(string pathValue) returns boolean {
     internal:Path sourcePath = parentPath.resolve("source");
     var createDirResult = sourcePath.createDirectory();
     if (createDirResult is error) {
-        log:printError("Error occurred while creating source directory.", err = createDirResult);
+        log:printError("Error occurred while creating source directory.", createDirResult);
         return false;
     } else {
         internal:Path targetPath = parentPath.resolve("target");
         var targetCreDirResult = targetPath.createDirectory();
         if (targetCreDirResult is error) {
-            log:printError("Error occurred while creating target directory.", err = targetCreDirResult);
+            log:printError("Error occurred while creating target directory.", targetCreDirResult);
             return false;
         } else {
             return sourcePath.exists() && targetPath.exists();
@@ -46,19 +46,19 @@ function createFolderStructure(string sourcePathValue) returns boolean {
     internal:Path parentPath = sourcePath.resolve("parent");
     var parentCreDirResult = parentPath.createDirectory();
     if (parentCreDirResult is error) {
-        log:printError("Error occurred while creating parent directory.", err = parentCreDirResult);
+        log:printError("Error occurred while creating parent directory.", parentCreDirResult);
         return false;
     } else {
         internal:Path childPath = parentPath.resolve("child");
         var childCreDirResult = childPath.createDirectory();
         if (childCreDirResult is error) {
-            log:printError("Error occurred while creating child directory.", err = childCreDirResult);
+            log:printError("Error occurred while creating child directory.", childCreDirResult);
             return false;
         } else {
             internal:Path xmlFilePath = childPath.resolve("sample.xml");
             var createFileResult = xmlFilePath.createFile();
             if (createFileResult is error) {
-                log:printError("Error occurred while creating sample.xml file.", err = createFileResult);
+                log:printError("Error occurred while creating sample.xml file.", createFileResult);
                 return false;
             } else {
                 return parentPath.exists() && childPath.exists() && xmlFilePath.exists();
@@ -112,14 +112,14 @@ function testCopyToFunction(string sourceStr, string target) returns @tainted bo
     internal:Path targetPath = new(target);
     var result = sourcePath.copyTo(targetPath);
     if (result is error) {
-        log:printError("Error occurred while creating target directory.", err = result);
+        log:printError("Error occurred while creating target directory.", result);
         return false;
     } else {
         var contentResult = testFolderContent(targetPath.getPathValue());
         if (contentResult is boolean) {
             return contentResult;
         } else {
-            log:printError("Error occurred getting folder content.", err = contentResult);
+            log:printError("Error occurred getting folder content.", contentResult);
             return false;
         }
     }
@@ -129,7 +129,7 @@ function testFolderDelete(string path) returns boolean {
     internal:Path pathToDelete = new(path);
     var deleteResult = pathToDelete.delete();
     if (deleteResult is error) {
-        log:printError("Error occurred while deleting directory: " + path, err = deleteResult);
+        log:printError("Error occurred while deleting directory: " + path, deleteResult);
         return false;
     } else {
         return !pathToDelete.exists();
@@ -141,14 +141,14 @@ function testMoveToFunction(string sourceStr, string target) returns @tainted bo
     internal:Path targetPath = new(target);
     var moveResult = sourcePath.moveTo(targetPath);
     if (moveResult is error) {
-        log:printError("Error occurred while creating target directory.", err = moveResult);
+        log:printError("Error occurred while creating target directory.", moveResult);
         return false;
     } else {
         var contentResult = testFolderContent(targetPath.getPathValue());
         if (contentResult is boolean) {
             return contentResult;
         } else {
-            log:printError("Error occurred getting folder content.", err = contentResult);
+            log:printError("Error occurred getting folder content.", contentResult);
             return false;
         }
     }
@@ -157,7 +157,7 @@ function testMoveToFunction(string sourceStr, string target) returns @tainted bo
 function testWriteFile(string pathValue) returns @tainted error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
-    io:WritableByteChannel byteChannel = io:openWritableFile(absolutePath);
+    io:WritableByteChannel byteChannel = check io:openWritableFile(absolutePath);
     var result = byteChannel.write(TEST_CONTENT.toBytes(), 0);
     return byteChannel.close();
 }
@@ -166,8 +166,9 @@ function testReadFile(string pathValue) returns @tainted boolean {
     io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(pathValue);
     var readResult = byteChannel.read(100);
     checkpanic byteChannel.close();
-    if (readResult is error) {
-        log:printError("Error occurred while reading content: " + pathValue, err = readResult);
+    if (readResult is io:IOError) {
+        error? temp = readResult;
+        log:printError("Error occurred while reading content: " + pathValue, temp);
         return false;
     } else {
         var [bytes, numberOfBytes] = readResult;

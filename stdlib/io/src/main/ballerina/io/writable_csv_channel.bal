@@ -39,7 +39,7 @@ public type WritableCSVChannel object {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new WritableTextRecordChannel(characterChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
+            self.dc = new WritableTextRecordChannel(characterChannel, FS_COLON, CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "CSV");
         }
@@ -48,8 +48,8 @@ public type WritableCSVChannel object {
     # Writes record to a given CSV file.
 
     # + csvRecord - A record to be written to the channel
-    # + return - Returns an error if the record could not be written properly
-    public function write(string[] csvRecord) returns error? {
+    # + return - Returns an `IOError` if the record could not be written properly
+    public function write(string[] csvRecord) returns IOError? {
         if(self.dc is WritableTextRecordChannel){
             var result = <WritableTextRecordChannel> self.dc;
             return result.write(csvRecord);
@@ -59,8 +59,8 @@ public type WritableCSVChannel object {
 
     # Closes a given CSVChannel.
 
-    # + return - if an error is encountered
-    public function close() returns error? {
+    # + return - Nil or `IOError` if any error occurred
+    public function close() returns IOError? {
         if(self.dc is WritableTextRecordChannel){
             var result = <WritableTextRecordChannel> self.dc;
             return result.close();

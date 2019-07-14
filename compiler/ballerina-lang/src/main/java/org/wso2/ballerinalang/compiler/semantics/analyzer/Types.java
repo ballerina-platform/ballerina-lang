@@ -737,6 +737,10 @@ public class Types {
                 return isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
             }
 
+            if (target.tag == TypeTags.UNION) {
+                return isAssignable(source, target);
+            }
+
             // Then lhs type should 'any' type
             return target.tag == TypeTags.ANY;
 
@@ -1003,6 +1007,15 @@ public class Types {
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
                 return;
+            case TypeTags.OBJECT:
+                if (isAssignable(symTable.intRangeType, collectionType)) {
+                    foreachNode.varType = symTable.intType;
+                    BUnionType nextMethodReturnType =
+                            (BUnionType) getResultTypeOfNextInvocation((BObjectType) collectionType);
+                    foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.nillableResultType = nextMethodReturnType;
+                    return;
+                }
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;

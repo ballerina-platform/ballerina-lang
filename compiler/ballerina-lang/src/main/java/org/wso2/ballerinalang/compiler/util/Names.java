@@ -52,9 +52,8 @@ public class Names {
     public static final Name XML = new Name("xml");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
-    public static final Name TRANSACTION_ORG = new Name("ballerina");
+    public static final Name RUNTIME_PACKAGE = new Name("runtime");
     public static final Name STREAMS_ORG = new Name("ballerina");
-    public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
@@ -83,6 +82,14 @@ public class Names {
 
     public static final Name DETAIL_MESSAGE = new Name("message");
     public static final Name DETAIL_CAUSE = new Name("cause");
+
+    // Names related to transactions.
+    public static final Name TRANSACTION_PACKAGE = new Name("transactions");
+    public static final Name TRANSACTION_ORG = new Name("ballerina");
+    public static final Name TRX_INITIATOR_BEGIN_FUNCTION = new Name("beginTransactionInitiator");
+    public static final Name TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION = new Name("beginLocalParticipant");
+    public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
+    public static final Name CREATE_INT_RANGE = new Name("createIntRange");
 
     public CompilerContext context;
 

@@ -239,7 +239,7 @@ public type ExternalTimeBatchWindow object {
                     }
                     foreach var event in streamEvent{
                     }
-                    nextProcessFuncPointer.call(streamEvent);
+                    nextProcessFuncPointer(streamEvent);
                 }
             }
         }
@@ -266,7 +266,7 @@ public type ExternalTimeBatchWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }

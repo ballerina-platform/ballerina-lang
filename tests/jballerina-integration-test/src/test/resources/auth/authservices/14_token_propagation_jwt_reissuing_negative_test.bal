@@ -28,7 +28,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider14_1 = new({
 });
 http:BearerAuthHandler jwtAuthHandler14_1 = new(jwtAuthProvider14_1);
 
-listener http:Listener listener14_1 = new(9109, config = {
+listener http:Listener listener14_1 = new(9109, {
     auth: {
         authHandlers: [jwtAuthHandler14_1]
     },
@@ -54,7 +54,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider14_2 = new({
 });
 http:BearerAuthHandler jwtAuthHandler14_2 = new(jwtAuthProvider14_2);
 
-http:Client nyseEP14 = new("https://localhost:9110", config = {
+http:Client nyseEP14 = new("https://localhost:9110", {
     auth: {
         authHandler: jwtAuthHandler14_2
     }
@@ -68,7 +68,7 @@ service passthroughService14 on listener14_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP14->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP14->get("/nyseStock/stocks", message = <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -92,7 +92,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider14_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler14_3 = new(jwtAuthProvider14_3);
 
-listener http:Listener listener14_2 = new(9110, config = {
+listener http:Listener listener14_2 = new(9110, {
         auth: {
             authHandlers: [jwtAuthHandler14_3]
         },

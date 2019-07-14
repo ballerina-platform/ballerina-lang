@@ -22,7 +22,7 @@ import ballerina/jwt;
 auth:InboundBasicAuthProvider basicAuthProvider10 = new(());
 http:BasicAuthHandler basicAuthHandler10 = new(basicAuthProvider10);
 
-listener http:Listener listener10_1 = new(9101, config = {
+listener http:Listener listener10_1 = new(9101, {
     auth: {
         authHandlers: [basicAuthHandler10]
     },
@@ -45,7 +45,7 @@ service passthroughService10 on listener10_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP->get("/nyseStock/stocks", message = untaint clientRequest);
+        var response = nyseEP->get("/nyseStock/stocks", message = <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -70,7 +70,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
 
 http:BearerAuthHandler jwtAuthHandler10 = new(jwtAuthProvider10);
 
-listener http:Listener listener10_2 = new(9102, config = {
+listener http:Listener listener10_2 = new(9102, {
     auth: {
         authHandlers: [jwtAuthHandler10]
     },

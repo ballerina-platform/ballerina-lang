@@ -118,7 +118,13 @@ service echo on echoEP {
             json responseJson = {"Name":(name is string ? name : "") , "Team":(team is string ? team : "")};
             res.setJsonPayload(<@untainted json> responseJson);
         } else {
-            string? errMsg = <string> params.detail()?.message;
+            //string? errMsg = <string> params.detail()?.message;
+            //res.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing form params");
+
+            //TODO:Error cannot be accessed directly due to a bug. Once it is fixed remove the following code block
+            //and use the above commented code snippet
+            error err = params;
+            string? errMsg = <string> err.detail()?.message;
             res.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing form params");
         }
         checkpanic caller->respond(res);

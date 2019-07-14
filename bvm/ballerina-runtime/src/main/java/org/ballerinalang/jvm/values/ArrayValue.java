@@ -141,7 +141,6 @@ public class ArrayValue implements RefValue, CollectionValue {
             setArrayElementType(type);
         } else if (type.getTag() == TypeTags.STRING_TAG) {
             stringValues = (String[]) newArrayInstance(String.class);
-            Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
             setArrayElementType(type);
         } else {
             this.arrayType = type;
@@ -165,7 +164,6 @@ public class ArrayValue implements RefValue, CollectionValue {
                 unionType.getMemberTypes().forEach(this::initArrayValues);
             } else {
                 refValues = (Object[]) newArrayInstance(Object.class);
-                Arrays.fill(refValues, type.getEmptyValue());
             }
         }
     }
@@ -180,7 +178,6 @@ public class ArrayValue implements RefValue, CollectionValue {
                 break;
             case TypeTags.STRING_TAG:
                 stringValues = (String[]) newArrayInstance(String.class);
-                Arrays.fill(stringValues, BLangConstants.STRING_EMPTY_VALUE);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 booleanValues = (boolean[]) newArrayInstance(Boolean.TYPE);
@@ -193,7 +190,6 @@ public class ArrayValue implements RefValue, CollectionValue {
                 break;
             default:
                 refValues = (Object[]) newArrayInstance(Object.class);
-                Arrays.fill(refValues, elementType.getZeroValue());
         }
     }
 
@@ -212,7 +208,6 @@ public class ArrayValue implements RefValue, CollectionValue {
             initArrayValues(this.elementType);
         } else {
             refValues = (Object[]) newArrayInstance(Object.class);
-            Arrays.fill(refValues, type.getEmptyValue());
         }
     }
 
@@ -693,6 +688,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         return Arrays.copyOf(stringValues, size);
     }
 
+    public long[] getLongArray() {
+        return Arrays.copyOf(intValues, size);
+    }
+
     @Override
     public void serialize(OutputStream outputStream) {
         if (elementType.getTag() == TypeTags.BYTE_TAG) {
@@ -727,16 +726,34 @@ public class ArrayValue implements RefValue, CollectionValue {
                     break;
                 case TypeTags.STRING_TAG:
                     stringValues = Arrays.copyOf(stringValues, newLength);
-                    Arrays.fill(stringValues, size, stringValues.length - 1, BLangConstants.STRING_EMPTY_VALUE);
                     break;
                 default:
                     refValues = Arrays.copyOf(refValues, newLength);
-                    Arrays.fill(refValues, size, refValues.length - 1, elementType.getZeroValue());
                     break;
             }
         } else {
             refValues = Arrays.copyOf(refValues, newLength);
         }
+    }
+
+    private void fillValues(int index) {
+        if (index <= size) {
+            return;
+        }
+
+        int typeTag = elementType.getTag();
+
+        if (typeTag == TypeTags.STRING_TAG) {
+            Arrays.fill(stringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
+            return;
+        }
+
+        if (typeTag == TypeTags.INT_TAG || typeTag == TypeTags.BYTE_TAG || typeTag == TypeTags.FLOAT_TAG ||
+                typeTag == TypeTags.BOOLEAN_TAG) {
+            return;
+        }
+
+        Arrays.fill(refValues, size, index, elementType.getZeroValue());
     }
 
     public BType getArrayType() {
@@ -826,6 +843,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         rangeCheck(index, size);
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
         resetSize(intIndex);
     }
 

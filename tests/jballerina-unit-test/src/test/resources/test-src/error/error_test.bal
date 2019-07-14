@@ -175,7 +175,7 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 //
 //function testCustomErrorWithMappingOfSelf() returns boolean {
 //    MyError e1 = error(ERROR_REASON_ONE);
-//    MyError e2 = error(ERROR_REASON_TWO, err = e1);
+//    MyError e2 = error(ERROR_REASON_TWO, e1);
 //
 //    boolean errOneInitSuccesful = e1.reason() == ERROR_REASON_ONE && e1.detail().length() == 0;
 //    boolean errTwoInitSuccesful = e2.reason() == ERROR_REASON_TWO && e2.detail().length() == 1 &&
@@ -222,4 +222,10 @@ public function errorReasonSubType() returns [error, error, error, error] {
     UserDefErrorTwoB er_aALit = error("ErrNo-1");
     UserDefErrorTwoB er_aBLit = error("ErrorNo-2");
     return [er_rA, er_rB, er_aALit, er_aBLit];
+}
+
+function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorTwoA, error, error] {
+    var e0 = UserDefErrorTwoA(detail1="arg");
+    UserDefErrorTwoA e1 = UserDefErrorTwoA(detail1="arg");
+    return [e0, e1, e0, e1];
 }

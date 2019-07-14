@@ -43,8 +43,8 @@ public type InboundBasicAuthProvider object {
     # Attempts to authenticate with credentials.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|error {
+    # + return - `true` if authentication is successful, otherwise `false` or `AuthError` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|AuthError {
         if (credential == EMPTY_STRING) {
             return false;
         }
@@ -122,7 +122,7 @@ function readPassword(string username) returns string {
 }
 
 function getConfigAuthValue(string instanceId, string property) returns string {
-    return config:getAsString(instanceId + "." + property, defaultValue = "");
+    return config:getAsString(instanceId + "." + property, "");
 }
 
 # Construct an array of groups from the comma separed group string passed.

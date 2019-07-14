@@ -33,14 +33,14 @@ public type InboundOAuth2Provider object {
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config["tokenTypeHint"];
-        self.introspectionClient = new(config.url, config = config.clientConfig);
+        self.introspectionClient = new(config.url, config.clientConfig);
     }
 
     # Attempts to authenticate with credential.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `error` if an error occurred
-    public function authenticate(string credential) returns boolean|error {
+    # + return - `true` if authentication is successful, otherwise `false` or `auth:AuthError` if an error occurred
+    public function authenticate(string credential) returns boolean|auth:AuthError {
         if (credential == "") {
             return false;
         }
@@ -56,7 +56,7 @@ public type InboundOAuth2Provider object {
         if (tokenTypeHint is string) {
             textPayload += "&token_type_hint=" + tokenTypeHint;
         }
-        req.setTextPayload(textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+        req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
         var response = self.introspectionClient->post("", req);
         if (response is http:Response) {
             json payload = check response.getJsonPayload();
@@ -71,7 +71,7 @@ public type InboundOAuth2Provider object {
                 }
             }
         } else {
-            return response;
+            return auth:prepareAuthError("Failed to call the introspection endpoint.", err = response);
         }
 
         if (authenticated) {

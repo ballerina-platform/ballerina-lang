@@ -66,7 +66,7 @@ public type BufferReader object {
         if (!self.isEof && self.bufferSize == self.capacity) {
             var storeResult = self.storeCharacter();
             if (storeResult is error) {
-                log:printError("error occurred while processing chars ", err = storeResult);
+                log:printError("error occurred while processing chars ", storeResult);
             }
         }
         self.readPointer = (self.readPointer + 1) % self.capacity;

@@ -45,9 +45,7 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-http')
     implementation project(':ballerina-encoding')
-    implementation project(':ballerina-h2')
-    implementation project(':ballerina-mysql')
-    implementation project(':ballerina-sql')
+    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-transactions')
@@ -63,7 +61,6 @@ dependencies {
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
-    implementation project(':ballerina-jvm')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -76,9 +73,7 @@ dependencies {
     balRuntime project(':ballerina-runtime')
 
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     // baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
@@ -128,19 +123,18 @@ dependencies {
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    ballerina project(path: ':ballerina', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
     from configurations.balRuntime
-    into "$buildDir/bre/lib"
+    into '$buildDir/bre/lib'
 }
 
 test {
     // make sure ballerina zip is built before test run
-    dependsOn = [":ballerina:build", ":jballerina-tools:build"]
-    systemProperty "enableJBallerinaTests", "true"
+    dependsOn ':jballerina-tools:build'
+    systemProperty 'enableJBallerinaTests', 'true'
     
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"

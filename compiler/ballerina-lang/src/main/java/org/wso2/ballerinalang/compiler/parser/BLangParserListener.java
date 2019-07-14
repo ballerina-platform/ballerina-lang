@@ -101,7 +101,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                      getCurrentPos(ctx.Identifier()), false,
-                                     ctx.annotationAttachment().size());
+                                     ctx.annotationAttachment().size(), ctx.PUBLIC() != null);
     }
 
     /**
@@ -641,7 +641,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerName = ctx.workerDefinition().Identifier().getText();
         }
         boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
-        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail);
+        int numAnnotations = ctx.annotationAttachment().size();
+        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail, numAnnotations);
     }
 
     /**
@@ -2277,8 +2278,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null);
+        int numAnnotations = ctx.annotationAttachment().size();
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null,
+                numAnnotations);
     }
 
     @Override
@@ -3409,7 +3411,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         if (ctx.START() != null) {
-            this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx));
+            int numAnnotations = ctx.annotationAttachment().size();
+            this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx), numAnnotations);
         }
     }
 
@@ -3530,8 +3533,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ExperimentalFeatures.STREAMS.value.equals(typeName) ||
-                ExperimentalFeatures.CHANNEL.value.equals(typeName)) {
+        if (ExperimentalFeatures.STREAMS.value.equals(typeName)) {
             dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, typeName);
         }
     }
@@ -3546,7 +3548,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private enum ExperimentalFeatures {
         STREAMS("stream"),
-        CHANNEL("channel"),
         TABLE_QUERIES("table queries"),
         STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),

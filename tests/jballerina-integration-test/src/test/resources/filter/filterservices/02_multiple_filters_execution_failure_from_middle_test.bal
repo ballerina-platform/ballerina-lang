@@ -69,7 +69,7 @@ public type Filter05 object {
 
 Filter05 filter05 = new;
 
-listener http:Listener echoEP01 = new(9091, config = { filters: [filter03, filter04, filter05] });
+listener http:Listener echoEP01 = new(9091, { filters: [filter03, filter04, filter05] });
 
 @http:ServiceConfig {
     basePath: "/echo"
