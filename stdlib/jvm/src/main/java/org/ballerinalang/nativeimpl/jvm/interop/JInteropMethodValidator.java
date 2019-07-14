@@ -49,13 +49,10 @@ public class JInteropMethodValidator {
             // Find the most specific Java method or constructor for the given request
             JMethod jMethod = resolveJMethod(jMethodRequest);
             // Return the matched Java method or constructor details back to the Ballerina land.
-
             return createJMethodBValue(jMethod);
-
         } catch (JInteropException e) {
             return JInterop.createErrorBValue(e.getReason(), e.getMessage());
         }
-        // Any other exceptions will cause a panic.
     }
 
     private static void validateBExternalFunction(JMethodRequest jMethodRequest) {

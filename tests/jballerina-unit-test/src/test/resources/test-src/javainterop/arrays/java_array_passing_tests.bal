@@ -26,3 +26,4 @@ public function sortJavaStringArray(handle arrayValue) = external;
 
 @java:Method {name:"split", class: "java/lang/String", isStatic:false}
 public function splitString(handle receiver, handle regex) returns handle = external;
+

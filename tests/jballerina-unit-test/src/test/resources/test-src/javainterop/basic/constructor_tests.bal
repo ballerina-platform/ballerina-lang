@@ -22,3 +22,4 @@ public function newClassWithOneParamConstructor(handle h) returns handle = exter
 
 @java:Constructor {class:"org/ballerinalang/nativeimpl/jvm/tests/ClassWithTwoParamConstructor"}
 public function newClassWithTwoParamConstructor(handle h1, handle h2) returns handle = external;
+

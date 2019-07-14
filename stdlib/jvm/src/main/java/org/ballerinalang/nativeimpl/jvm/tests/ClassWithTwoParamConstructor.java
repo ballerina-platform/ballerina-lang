@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 /**
  * This class is used for Java interoperability tests.
+ *
+ * @since 1.0.0
  */
 public class ClassWithTwoParamConstructor {
     private String str;

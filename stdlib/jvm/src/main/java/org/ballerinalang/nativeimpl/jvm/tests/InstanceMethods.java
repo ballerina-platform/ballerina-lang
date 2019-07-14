@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
+ *
+ * @since 1.0.0
  */
 public class InstanceMethods {
 

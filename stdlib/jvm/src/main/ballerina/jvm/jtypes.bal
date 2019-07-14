@@ -46,7 +46,6 @@ public function getJTypeFromTypeName(string typeName) returns JType {
     } else {
         return <RefType> {
             typeName: typeName
-            // TODO Fill other fields such as isInterface, isArray etc.
         };
     }
 }

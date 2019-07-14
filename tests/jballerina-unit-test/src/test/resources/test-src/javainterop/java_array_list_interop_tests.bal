@@ -16,3 +16,4 @@ public function addElement(handle receiver, handle e) = external;
 
 @java:Method {class: "java.util.ArrayList", name:"toString"}
 public function toString(handle receiver) returns handle = external;
+
