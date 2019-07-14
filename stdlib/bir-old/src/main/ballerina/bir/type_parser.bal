@@ -59,8 +59,6 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
-    public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
     public int TYPE_TAG_HANDLE = TYPE_TAG_FUNCTION_POINTER + 1;
 
     public int TYPE_TAG_SELF = 50;

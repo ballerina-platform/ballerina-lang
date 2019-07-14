@@ -59,9 +59,7 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT =33;
     public int TYPE_TAG_BYTE_ARRAY =34;
     public int TYPE_TAG_FUNCTION_POINTER =35;
-    public int TYPE_TAG_CHANNEL =36;
-    public int TYPE_TAG_SERVICE =37;
-    public int TYPE_TAG_HANDLE =38;
+    public int TYPE_TAG_HANDLE = 36;
 
     public int TYPE_TAG_SELF = 50;
 

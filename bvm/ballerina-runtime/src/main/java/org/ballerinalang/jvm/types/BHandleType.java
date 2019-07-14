@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.values.RefValue;
 /**
  * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
  *
- * @since 0.995.0
+ * @since 1.0.0
  */
 public class BHandleType extends BType {
 
