@@ -21,16 +21,16 @@ function generateMethod(bir:Function birFunc,
                             bir:Package birModule,
                             bir:BType? attachedType = ()) {
     if (isExternFunc(birFunc)) {
-        genMethodForExternalFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genMethodForBallerinaFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, attachedType = attachedType);
     }
 }
 
-function genMethodForBallerinaFunction(bir:Function func,
-                                           jvm:ClassWriter cw,
-                                           bir:Package module,
-                                           bir:BType? attachedType = ()) {
+function genJMethodForBFunc(bir:Function func,
+                           jvm:ClassWriter cw,
+                           bir:Package module,
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
@@ -928,6 +928,7 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
     } else {
@@ -1323,17 +1324,13 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
     int defaultableIndex = 0;
     foreach var attachment in annotAttachments {
         if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == DEFAULTABLE_ARGS_ANOT_NAME) {
-            map<bir:AnnotationValueEntry?[]>? entryMap = attachment.annotValues[0].valueEntryMap;
-            if (entryMap is map<bir:AnnotationValueEntry?[]>) {
-                var entries = entryMap[DEFAULTABLE_ARGS_ANOT_FIELD];
-                if (entries is bir:AnnotationValueEntry?[]) {
-                    foreach var entry in entries {
-                        if (entry is bir:AnnotationValueEntry) {
-                            defaultableNames[defaultableIndex] = <string>entry.value;
-                            defaultableIndex += 1;
-                        }
-                    }
-                }  
+            var annotRecValue = <bir:AnnotationRecordValue>attachment.annotValues[0];
+            var annotFieldMap = annotRecValue.annotValueMap;
+            var annotArrayValue = <bir:AnnotationArrayValue>annotFieldMap[DEFAULTABLE_ARGS_ANOT_FIELD];
+            foreach var entryOptional in annotArrayValue.annotValueArray {
+                var argValue = <bir:AnnotationLiteralValue>entryOptional;
+                defaultableNames[defaultableIndex] = <string>argValue.literalValue;
+                defaultableIndex += 1;
             }
             break;
         }

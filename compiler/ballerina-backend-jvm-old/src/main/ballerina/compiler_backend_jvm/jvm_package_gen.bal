@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jvm;
+
 type BIRFunctionWrapper record {
     string orgName;
     string moduleName;
@@ -400,22 +402,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             }
 
             BIRFunctionWrapper birFuncWrapper;
-            if (isExternFunc(getFunction(birFunc))) { // if this function is an extern
-                var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFuncName);
-                if (jClassName is string) {
-                    if isBallerinaBuiltinModule(orgName, moduleName) {
-                        birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
-                    } else {
-                        bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
-                        addDefaultableBooleanVarsToSignature(birFunc);
-                        birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
-                                                    birModuleClassName, jClassName, jMethodPramTypes);
-                    }
-                } else {
-                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                        birFuncName);
-                    panic err;
-                }
+            if (isExternFunc(getFunction(birFunc))) {
+                birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName,
+                                                    versionValue, birModuleClassName);
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc);
                 birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
@@ -453,11 +442,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 
                 var jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (jClassName is string) {
-                    bir:BType?[] jMethodPramTypes = currentFunc.typeValue.paramTypes.clone();
-                    addDefaultableBooleanVarsToSignature(currentFunc);
-                    birFunctionMap[pkgName + lookupKey] = createExternalFunctionWrapper(currentFunc, orgName,
-                                                               moduleName, versionValue, jClassName, jClassName,
-                                                               jMethodPramTypes);
+                    birFunctionMap[pkgName + lookupKey] = createOldStyleExternalFunctionWrapper(currentFunc, orgName,
+                                                               moduleName, versionValue, jClassName, jClassName);
                 } else {
                     error err = error("native function not available: " + pkgName + lookupKey);
                     panic err;

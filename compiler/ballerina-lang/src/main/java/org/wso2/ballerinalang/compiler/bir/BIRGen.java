@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValueEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -374,7 +373,7 @@ public class BIRGen extends BLangNodeVisitor {
             i++;
         }
 
-        // Populate annotation attachments in BIRFunction node
+        // Populate annotation attachments on external in BIRFunction node
         populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
 
         birFunc.argsCount = astFunc.requiredParams.size() + astFunc.defaultableParams.size()
@@ -441,44 +440,83 @@ public class BIRGen extends BLangNodeVisitor {
         //  2) BLangRecordLiteral
         // In this implementation, we support only the BLangRecordLiteral expressions
         //   which have only key:BLangLiteral key/value pairs
-        //   or key:BLangArrayLiteral with only BLangLiteral expressions
         // ------------------------------------------------------
+        BIRAnnotationValue annotationValue;
         if (astAnnotAttach.expr == null) {
-            return;
-        }
-
-        Map<String, List<BIRAnnotationValueEntry>> annotValueEntryMap = new HashMap<>();
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) astAnnotAttach.expr;
-        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            List<BIRAnnotationValueEntry> entryValueList = new ArrayList<>();
-
-            if (NodeKind.LITERAL == keyValuePair.valueExpr.getKind()) {
-                BLangLiteral valueLiteral = (BLangLiteral) keyValuePair.valueExpr;
-                entryValueList.add(new BIRAnnotationValueEntry(valueLiteral.value, valueLiteral.type));
-            } else if (NodeKind.ARRAY_LITERAL_EXPR == keyValuePair.valueExpr.getKind()) {
-                BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) keyValuePair.valueExpr;
-                arrayLiteral.exprs.forEach(expr -> {
-                    if (NodeKind.LITERAL != expr.getKind()) {
-                        return;
-                    }
-                    BLangLiteral exprLiteral = (BLangLiteral) expr;
-                    entryValueList.add(new BIRAnnotationValueEntry(exprLiteral.value, expr.type));
-                });
-            } else {
+            annotationValue = new BIRNode.BIRAnnotationLiteralValue(symTable.booleanType, true);
+        } else {
+            if (!isCompileTimeAnnotationValue(astAnnotAttach.expr)) {
                 return;
             }
-
-
-            // The keyexpr is also  a string literal
-            BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
-            String entryKey = (String) keyLiteral.value;
-            annotValueEntryMap.put(entryKey, entryValueList);
+            annotationValue = createAnnotationValue(astAnnotAttach.expr);
         }
 
         Name annotTagRef = this.names.fromIdNode(astAnnotAttach.annotationName);
         BIRAnnotationAttachment annotAttachment = new BIRAnnotationAttachment(astAnnotAttach.pos, annotTagRef);
-        annotAttachment.annotValues.add(new BIRAnnotationValue(annotValueEntryMap));
+        annotAttachment.packageID = astAnnotAttach.annotationSymbol.pkgID;
+        annotAttachment.annotValues.add(annotationValue);
         this.env.enclAnnotAttachments.add(annotAttachment);
+    }
+
+    private boolean isCompileTimeAnnotationValue(BLangExpression expr) {
+        // TODO Compile time literal constants
+        if (expr.getKind() == NodeKind.LITERAL) {
+            return true;
+        } else if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
+            for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+                if (!isCompileTimeAnnotationValue(keyValuePair.valueExpr)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
+            BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) expr;
+            for (BLangExpression bLangExpr : arrayLiteral.exprs) {
+                if (!isCompileTimeAnnotationValue(bLangExpr)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private BIRAnnotationValue createAnnotationValue(BLangExpression expr) {
+        // TODO Compile time literal constants
+        if (expr.getKind() == NodeKind.LITERAL) {
+            return createAnnotationLiteralValue((BLangLiteral) expr);
+        } else if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            return createAnnotationRecordValue((BLangRecordLiteral) expr);
+        } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
+            return createAnnotationArrayValue((BLangArrayLiteral) expr);
+        }
+
+        // This following line will not be executed
+        throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
+    }
+
+    private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangRecordLiteral recordLiteral) {
+        Map<String, BIRAnnotationValue> annotValueEntryMap = new HashMap<>();
+        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+            BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
+            String entryKey = (String) keyLiteral.value;
+            BIRAnnotationValue annotationValue = createAnnotationValue(keyValuePair.valueExpr);
+            annotValueEntryMap.put(entryKey, annotationValue);
+        }
+        return new BIRNode.BIRAnnotationRecordValue(recordLiteral.type, annotValueEntryMap);
+    }
+
+    private BIRNode.BIRAnnotationArrayValue createAnnotationArrayValue(BLangArrayLiteral arrayLiteral) {
+        BIRAnnotationValue[] annotValues = new BIRAnnotationValue[arrayLiteral.exprs.size()];
+        for (int exprIndex = 0; exprIndex < arrayLiteral.exprs.size(); exprIndex++) {
+            annotValues[exprIndex] = createAnnotationValue(arrayLiteral.exprs.get(exprIndex));
+        }
+        return new BIRNode.BIRAnnotationArrayValue(arrayLiteral.type, annotValues);
+    }
+
+    private BIRNode.BIRAnnotationLiteralValue createAnnotationLiteralValue(BLangLiteral literalValue) {
+        return new BIRNode.BIRAnnotationLiteralValue(literalValue.type, literalValue.value);
     }
 
     private TaintTable populateTaintTable(Map<Integer, TaintRecord> taintRecords) {
