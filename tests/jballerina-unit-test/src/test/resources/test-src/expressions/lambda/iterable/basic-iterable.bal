@@ -23,7 +23,7 @@ function testInt2() returns [int, int, int, int] {
                     return i >= 0;
                 }).length();
     int max = ints:max(0, ...fa.filter(filterIntNegative));
-    int min = ints:min(0, ...fa.filter(filterIntNegative));
+    int min = ints:min(fa.filter(filterIntNegative)[0], ...fa.filter(filterIntNegative));
     int sum = ints:sum(...fa.filter(filterIntNegative));
     return [count, max, min, sum];
 }
@@ -81,7 +81,7 @@ function testBasicArray2(string[] values) returns string {
     output = "";
 
     index = 0;
-    values.map(function (string s) returns string {
+    values.'map(function (string s) returns string {
                     var value = index.toString() + s;
                     index += 1;
                     return value;
@@ -91,34 +91,35 @@ function testBasicArray2(string[] values) returns string {
              });
     return output.trim();
 }
-
-function testBasicMap1() returns [int, string[]] {
-    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-    int count = m.length();
-    string[] values = m.'map(function ([string, string] value) returns string {
-                                var [k, v] = value;
-                                return k.toLowerAscii();
-                            })
-                      .filter(function (string v) returns boolean {
-                                  if (v == "a" || v == "e") {
-                                      return true;
-                                  }
-                                  return false; });
-    return [count, values];
-}
-
-function testBasicMap2() returns string[] {
-    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-    string[] values = m.'map(mapToTuple)
-                      .filter(function ([string, string] v) returns boolean {
-                                  var [k, t] = v;
-                                  if (k == "a" || k == "e") {
-                                      return true;
-                                  }
-                                  return false; })
-                      .'map(concatString);
-    return values;
-}
+// Commenting out due to lack of map to string langlib function
+//function testBasicMap1() returns [int, string[]] {
+//    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
+//    int count = m.length();
+//    string[] values = m.entries().'map(function ([string, string] value) returns string {
+//                                var [k, v] = value;
+//                                return k.toLowerAscii();
+//                            })
+//                      .filter(function (string v) returns boolean {
+//                                  if (v == "a" || v == "e") {
+//                                      return true;
+//                                  }
+//                                  return false; });
+//    return [count, values];
+//}
+//
+//function testBasicMap2() returns string[] {
+//    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
+//    string[] values = m.entries()
+//                      .'map(mapToTuple)
+//                      .filter(function ([string, string] v) returns boolean {
+//                                  var [k, t] = v;
+//                                  if (k == "a" || k == "e") {
+//                                      return true;
+//                                  }
+//                                  return false; })
+//                      .'map(concatString);
+//    return values;
+//}
 
 function mapToTuple([string, string] tuple) returns [string, string] {
     var [key, value] = tuple;
@@ -130,29 +131,29 @@ function concatString([string, string] v) returns string {
     return v1 + v2;
 }
 
-function xmlTest() returns [int, int, map<any>] {
-    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
-        <p:name>bob</p:name>
-        <p:address>
-            <p:city>NY</p:city>
-            <q:country>US</q:country>
-        </p:address>
-        <q:ID>1131313</q:ID>
-    </p:person>`;
-    int nodeCount = xdata.*.length();
-    int elementCount = xdata.*.elements().length();
-
-    index = -1;
-    map<xml> m = xdata.*.elements()[1].*.elements()
-                 .'map(function (xml|string x) returns [string, xml] {
-                            index += 1;
-                            if x is xml {
-                                return [string.convert(index), x];
-                            }
-                            return ["", xml ` `];
-                      });
-    return [nodeCount, elementCount, m];
-}
+//function xmlTest() returns [int, int, map<any>] {
+//    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+//        <p:name>bob</p:name>
+//        <p:address>
+//            <p:city>NY</p:city>
+//            <q:country>US</q:country>
+//        </p:address>
+//        <q:ID>1131313</q:ID>
+//    </p:person>`;
+//    int nodeCount = xdata.*.length();
+//    int elementCount = xdata.*.elements().length();
+//
+//    index = -1;
+//    map<xml> m = xdata.*.elements()[1].*.elements()
+//                 .'map(function (xml|string x) returns [string, xml] {
+//                            index += 1;
+//                            if x is xml {
+//                                return [string.convert(index), x];
+//                            }
+//                            return ["", xml ` `];
+//                      });
+//    return [nodeCount, elementCount, m];
+//}
 
 type person record {
     string name;
@@ -204,7 +205,7 @@ function testInExpression() returns [string, int] {
 
 function testInFunctionInvocation() returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
-    return doubleInt(m.filter(function ([string, string] value) returns boolean {
+    return doubleInt(m.entries().filter(function ([string, string] value) returns boolean {
                                   var [k, v] = value;
                                   int i = v.length();
                                   return i == 3;})
@@ -217,7 +218,7 @@ function doubleInt(int i) returns int {
 
 function testInStatement() returns int {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
-    if (5 > m.filter(function ([string, string] value) returns boolean {
+    if (5 > m.entries().filter(function ([string, string] value) returns boolean {
                          var [k, v] = value;
                          return v.length() == 3;})
             .length()) {
@@ -226,7 +227,7 @@ function testInStatement() returns int {
     return 0;
 }
 
-function testIterableOutputPrint() returns [any, any, any, any, any] {
+function testIterableOutputPrint() returns [any, any, any, any] {
     map<string> m = {a:"abc", b:"cd", c:"pqr"};
     any count = m.length();
     foo(count);
@@ -234,39 +235,36 @@ function testIterableOutputPrint() returns [any, any, any, any, any] {
 
     int[] a = [-5, 2, 4, 5, 7, -8, -3, 2];
 
-    foo(a.average());
-    any b = a.average();
-    foo(b);
-
-    foo(a.min());
-    any c = a.min();
+    foo(a[0].min(...a));
+    any c = a[0].min(...a);
     foo(c);
 
-    foo(a.max());
-    any d = a.max();
+    foo(a[0].max(...a));
+    any d = a[0].max(...a);
     foo(d);
 
-    foo(a.sum());
-    any e = a.sum();
+    foo(ints:sum(...a));
+    any e = ints:sum(...a);
     foo(e);
 
-    return [count, b, c, d, e];
+    return [count, c, d, e];
 }
 
 function foo(any a) {
     //do nothing
 }
 
-function testIterableReturnLambda() returns (function (int) returns boolean)?[] {
-
-    map<string> words = { a: "ant", b: "bear", c: "tiger"};
-
-    (function (int) returns boolean)?[] lambdas = words.'map(function ([string, string] input) returns
-        (function (int) returns boolean) {
-        return function (int param) returns boolean {
-            return true;
-        };
-    });
-
-    return lambdas;
-}
+// Commenting out due to missing map to list support
+//function testIterableReturnLambda() returns (function (int) returns boolean)?[] {
+//
+//    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+//
+//    (function (int) returns boolean)?[] lambdas = words.entries().'map(function ([string, string] input) returns
+//        (function (int) returns boolean) {
+//        return function (int param) returns boolean {
+//            return true;
+//        };
+//    });
+//
+//    return lambdas;
+//}
