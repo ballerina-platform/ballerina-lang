@@ -18,6 +18,7 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -70,7 +71,8 @@ public class CallStatement extends AbstractSQLStatement {
     private final ArrayValue structTypes;
 
     public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue structTypes,
-                         ArrayValue parameters) {
+                         ArrayValue parameters, Strand strand) {
+        super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
@@ -86,14 +88,14 @@ public class CallStatement extends AbstractSQLStatement {
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "execute stored procedure failed: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
-            conn = getDatabaseConnection(client, datasource, false);
+            conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
-            boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
+            boolean refCursorOutParamsPresent = isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = false;
             TableResourceManager rm = null;
             boolean requiredToReturnTables = structTypes != null && structTypes.size() > 0;
@@ -121,17 +123,17 @@ public class CallStatement extends AbstractSQLStatement {
             }
         } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (DatabaseException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
-            // handleErrorOnTransaction(context);
+            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
         }

@@ -17,8 +17,8 @@
 */
 package org.ballerinax.jdbc;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
