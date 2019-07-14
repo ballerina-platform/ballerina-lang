@@ -892,7 +892,7 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e3 = a1;
         error e4 = a2;
 
-        map<anydata> m = <map<anydata>> e4.detail();
+        map<anydata|error> m = <map<anydata|error>> e4.detail();
         return e3.reason() == reason && e4.reason() == reason && m == detail;
     }
     return false;
