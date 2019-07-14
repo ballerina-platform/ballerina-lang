@@ -43,8 +43,8 @@ public class RepoUtils {
     private static final String USER_HOME = "user.home";
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
-    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
+    private static final String PRODUCTION_URL = "https://api.central.ballerina.io";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 

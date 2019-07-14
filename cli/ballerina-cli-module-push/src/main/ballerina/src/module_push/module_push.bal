@@ -22,96 +22,68 @@ import ballerina/http;
 #
 # + definedEndpoint - Endpoint defined with the proxy configurations
 # + accessToken - Access token
-# + mdFileContent - Module.md file content of the module
-# + summary - Summary of the module
-# + repositoryURL - Source code URL of the module
-# + authors - Authors of the module
-# + keywords - Keywords which describes the module
-# + license - License of the module
 # + url - URL to be invoked to push the module
-# + dirPath - Directory path where the archived module resides
-# + ballerinaVersion - Ballerina version the module is built
-# + msg - Message printed when the module is pushed successfully which includes module info
-# + baloVersion - Balo version of the module
-function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string repositoryURL,
-                string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg,
-                string baloVersion) {
-
+# + baloPath - Path to balo file
+# + outputLog - Message printed when the module is pushed successfully which includes module info
+function pushPackage (http:Client definedEndpoint, string accessToken, string url, string baloPath, string outputLog) {
     http:Client httpEndpoint = definedEndpoint;
-    mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
-    mime:Entity summaryBodyPart = addStringBodyParts("summary", summary);
-    mime:Entity repositoryURLBodyPart = addStringBodyParts("repositoryURL", repositoryURL);
-    mime:Entity authorsBodyPart = addStringBodyParts("authors", authors);
-    mime:Entity keywordsBodyPart = addStringBodyParts("keywords", keywords);
-    mime:Entity licenseBodyPart = addStringBodyParts("license", license);
-    mime:Entity ballerinaVersionBodyPart = addStringBodyParts("ballerinaVersion", ballerinaVersion);
-    mime:Entity baloVersionBodyPart = addStringBodyParts("baloVersion", baloVersion);
-
-    // Artifact
-    mime:Entity filePart = new;
-    filePart.setContentDisposition(getContentDispositionForFormData("artifact"));
-    filePart.setFileAsEntityBody(dirPath);
-    var contentTypeSetResult = filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
-    if (contentTypeSetResult is error)  {
-        panic contentTypeSetResult;
-    }
-
-    mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, repositoryURLBodyPart,
-                               authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart,
-                               baloVersionBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
+    req.setFileAsPayload(baloPath, contentType = mime:APPLICATION_OCTET_STREAM);
+    http:Response|error response = httpEndpoint->post("", req);
 
-    var result = httpEndpoint -> post("", req);
-    http:Response httpResponse = new;
-    if (result is http:Response) {
-        httpResponse = result;
+    if (response is error) {
+        io:println(response);
+        panic createError("connection to the remote host failed : " + <string>response.detail().msg);
     } else {
-        panic createError("connection to the remote host failed : " + result.reason());
-    }
-    string statusCode = string.convert(httpResponse.statusCode);
-    if (statusCode.hasPrefix("5")) {
-        panic createError("remote registry failed for url :" + url);
-    } else if (statusCode != "200") {
-        var jsonResponse = httpResponse.getJsonPayload();
-        if (jsonResponse is json) {
-            string message = jsonResponse.message.toString();
-            panic createError(message);
+        string statusCode = string.convert(response.statusCode);
+        if (statusCode.hasPrefix("5")) {
+            panic createError("remote registry failed for url :" + url);
+        } else if (statusCode != "200") {
+            json|error jsonResponse = response.getJsonPayload();
+            if (jsonResponse is error) {
+                panic createError("invalid response json");
+            } else {
+                string message = jsonResponse.message.toString();
+                panic createError(message);
+            }
         } else {
-            panic createError("invalid response json");
+            io:println(outputLog);
         }
-    } else {
-        io:println(msg);
     }
 }
 
 # This function will invoke the method to push the module.
-# + args - Arguments passed
-public function main (string... args) {
+#
+# + args - Arguments passed.
+public function main(string... args) {
     http:Client httpEndpoint;
-    string host = args[11];
-    string strPort = args[12];
-    if (host != "" && strPort != "") {
-        var port = int.convert(strPort);
-        if (port is int) {
-            http:Client|error result = trap defineEndpointWithProxy(args[7], host, port, args[13], args[14]);
+    string urlWithModulePath = args[0];
+    string proxyHost = args[1];
+    string proxyPortAsString = args[2];
+    string proxyUsername = args[3];
+    string proxyPassword = args[4];
+    string accessToken = args[5];
+    string pathToBalo = args[6];
+    string outputLog = args[7];
+    if (proxyHost != "" && proxyPortAsString != "") {
+        int|error proxyPort = int.convert(proxyPortAsString);
+        if (proxyPort is int) {
+            http:Client|error result = trap defineEndpointWithProxy(urlWithModulePath, proxyHost, proxyPort, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-                pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5],
-                    args[6], args[7], args[8], args[10], args[9], args[15]);
+                pushPackage(httpEndpoint, accessToken, urlWithModulePath, pathToBalo, outputLog);
             } else {
-                panic createError("failed to resolve host : " + host + " with port " + port);
+                panic createError("failed to resolve host : " + proxyHost + " with port " + proxyPortAsString);
             }
         } else {
-            panic createError("invalid port : " + strPort);
+            panic createError("invalid port : " + proxyPortAsString);
         }
-    } else  if (host != "" || strPort != "") {
+    } else  if (proxyHost != "" || proxyPortAsString != "") {
         panic createError("both host and port should be provided to enable proxy");
     } else {
-        httpEndpoint = defineEndpointWithoutProxy(args[9]);
-        return <@untainted> pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6],
-            args[7], args[8], args[10], args[9], args[15]);
+        httpEndpoint = defineEndpointWithoutProxy(urlWithModulePath);
+        return <@untainted> pushPackage(httpEndpoint, accessToken, urlWithModulePath, pathToBalo, outputLog);
     }
 }
 
@@ -123,8 +95,8 @@ public function main (string... args) {
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
-    http:Client httpEndpoint = new (url, config = {
+function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client {
+    http:Client httpEndpoint = new(url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -133,7 +105,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
             verifyHostname: false,
             shareSession: true
         },
-            proxy : getProxyConfigurations(hostname, port, username, password)
+        proxy : getProxyConfigurations(hostname, port, username, password)
     });
     return httpEndpoint;
 }
@@ -143,7 +115,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpoint = new (url, config = {
+    http:Client httpEndpoint = new(url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -156,28 +128,28 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
     return httpEndpoint;
 }
 
-# This function will get the content disposition of the form data sent.
+# Get the byte array of a file.
 #
-# + partName - Multipart name
-# + return - `ContentDisposition` of the multipart
-function getContentDispositionForFormData(string partName) returns (mime:ContentDisposition){
-    mime:ContentDisposition contentDisposition = new;
-    contentDisposition.name =  partName;
-    contentDisposition.disposition = "form-data";
-    return contentDisposition;
-}
+# + filePath - The path of the file
+# + return - The byte array or error when reading
+function getByteArrayOfFile(string filePath) returns byte[]|error {
+    io:ReadableByteChannel|error src = io:openReadableFile(filePath);
+    if (src is error) {
+        panic createError("error reading balo file. path: " + filePath);
+    } else {
+        int readCount = 1;
+        byte[] readContent;
 
-# This function will add string part information in multiparts.
-#
-# + key - Name of the multipart
-# + value - String value to be included in the multipart
-# + return - `Entity` with the part information.
-function addStringBodyParts (string key, string value) returns (mime:Entity) {
-    mime:Entity stringBodyPart = new;
-    stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
-    stringBodyPart.setText(value);
-    checkpanic stringBodyPart.setContentType(mime:TEXT_PLAIN);
-    return stringBodyPart;
+        while (readCount > 0) {
+            [byte[], int]|error result = src.read(1024);
+            if (result is error) {
+                panic createError("error reading bytes of balo file. path: " + filePath);
+            } else {
+                [readContent, readCount] = result;
+            }
+        }
+        return <@untainted> readContent;
+    }
 }
 
 # This function sets the proxy configurations for the endpoint.
@@ -188,7 +160,12 @@ function addStringBodyParts (string key, string value) returns (mime:Entity) {
 # + password - Password of the proxy
 # + return - Proxy configurations for the endpoint
 function getProxyConfigurations(string hostName, int port, string username, string password) returns http:ProxyConfig {
-    http:ProxyConfig proxy = { host : hostName, port : port , userName: username, password : password };
+    http:ProxyConfig proxy = {
+        host: hostName,
+        port: port,
+        userName: username,
+        password: password
+    };
     return proxy;
 }
 

@@ -36,14 +36,13 @@ public class Module {
     public List<String> module_authors;
     public String module_source_repository;
     public List<String> module_keywords;
-
-    // todo set the valid ballerina version
     public String ballerina_version;
+    private String module_platform;
     public String language_specification_version = ProgramFileConstants.IMPLEMENTATION_VERSION;
     public String implementation_name = "jBallerina";
     public String implementation_version = "1.0.0";
     public String implementation_vendor = "WSO2";
-
+    
     public String getManifest_version() {
         return manifest_version;
     }
@@ -146,5 +145,13 @@ public class Module {
 
     public void setImplementation_vendor(String implementation_vendor) {
         this.implementation_vendor = implementation_vendor;
+    }
+    
+    public void setModule_platform(String module_platform) {
+        this.module_platform = module_platform;
+    }
+    
+    public String getModule_platform() {
+        return module_platform;
     }
 }

@@ -54,8 +54,8 @@ public class PushCommand implements BLauncherCmd {
             description = "path to the directory containing source files and modules")
     private String sourceRoot;
 
-    @CommandLine.Option(names = {"--no-build"}, description = "skip building before pushing")
-    private boolean noBuild;
+    @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
+    private boolean skipSourceCheck;
 
     @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
     private boolean experimentalFlag;
@@ -74,16 +74,14 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            boolean allModulesPushedSuccessfully = PushUtils.pushAllPackages(sourceRoot, repositoryHome, noBuild,
-                    experimentalFlag);
+            boolean allModulesPushedSuccessfully = PushUtils.pushAllPackages(sourceRoot);
             if (!allModulesPushedSuccessfully) {
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(1);
             }
         } else if (argList.size() == 1) {
             String packageName = argList.get(0);
-            boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRoot, repositoryHome, noBuild,
-                    experimentalFlag);
+            boolean modulePushedSuccessfully = PushUtils.pushPackages(packageName, sourceRoot);
             if (!modulePushedSuccessfully) {
                 // Exit status, zero for OK, non-zero for error
                 Runtime.getRuntime().exit(1);
