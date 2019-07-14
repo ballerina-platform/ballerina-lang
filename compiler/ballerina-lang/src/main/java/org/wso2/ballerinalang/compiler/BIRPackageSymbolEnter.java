@@ -825,6 +825,8 @@ public class BIRPackageSymbolEnter {
                 // All the above types are branded types
                 case TypeTags.ANY:
                     return typeParamAnalyzer.getNominalType(symTable.anyType, name, typeFlag);
+                case TypeTags.HANDLE:
+                    return symTable.handleType;
                 case TypeTags.ENDPOINT:
                     // TODO fix
                     break;
