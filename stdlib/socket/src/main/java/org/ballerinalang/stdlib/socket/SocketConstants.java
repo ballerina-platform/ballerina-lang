@@ -60,7 +60,7 @@ public class SocketConstants {
      */
     public enum ErrorCode {
 
-        GenericError("{ballerina/socket}GenericError"), ReadTimedOutError("{ballerina/socket}ReadTimedOu");
+        GenericError("{ballerina/socket}GenericError"), ReadTimedOutError("{ballerina/socket}ReadTimedOut");
 
         private String errorCode;
 

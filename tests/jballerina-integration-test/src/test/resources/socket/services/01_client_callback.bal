@@ -90,8 +90,7 @@ service ClientService = service {
                 io:println("Client close: ", caller.remotePort);
             }
         } else {
-            error resultError = result;
-            io:println(resultError);
+            io:println(<error> result);
         }
     }
 

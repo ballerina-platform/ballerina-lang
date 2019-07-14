@@ -41,7 +41,6 @@ service timeoutServer on new socket:Listener(61599, config = {readTimeout: 20000
     }
 
     resource function onError(socket:Caller caller, error er) {
-        error e = er;
-        log:printError("Error on timeout server", err = e);
+        log:printError("Error on timeout server", err = <error> er);
     }
 }
