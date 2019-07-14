@@ -27,6 +27,9 @@ type XMLIterator object {
     |}? = external;
 };
 
+# Returns number of XML items in `x`.
+public function length(xml x) returns int = external;
+
 # Returns an iterator over the xml items of `x`
 public function iterator(xml x) returns abstract object {
     public function next() returns record {|
