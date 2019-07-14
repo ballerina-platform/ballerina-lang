@@ -19,7 +19,6 @@ package org.ballerinalang.test.types.string;
 
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -84,7 +83,7 @@ public class StringTest {
     public void testIndexOf() {
         BValue[] args = {new BString("Lion in the town"), new BString("in")};
         BValue[] results = BRunUtil.invoke(result, "indexOf", args);
-        Assert.assertEquals(((BByte) results[0]).intValue(), 5);
+        Assert.assertEquals(((BInteger) results[0]).intValue(), 5);
     }
 
     @Test

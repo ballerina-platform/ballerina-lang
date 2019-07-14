@@ -38,6 +38,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.970.0
  */
+@Test(groups = { "brokenOnLangLibChange" })
 public class SafeNavigationTest {
 
     private CompileResult result;
