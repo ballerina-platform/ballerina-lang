@@ -20,8 +20,8 @@
 # + queueName - The name of the queue group to which the subscription belongs 
 # + durableName - If set, this will survive client restarts
 # + maxInFlight - The number of messages the cluster will have inflight without an ACK
-# + ackWait - The time the cluster will wait for an ACK for a given message (in Seconds)
-# + subscriptionTimeout - The time (in Seconds) the subscription will wait if a network failure occurs during the creation of it.
+# + ackWaitInSeconds - The time the cluster will wait for an ACK for a given message (in Seconds)
+# + subscriptionTimeoutInSeconds - The time (in Seconds) the subscription will wait if a network failure occurs during the creation of it.
 # + manualAck - Do manual ACKs
 # + startPosition - The position to start receiving messages 
 public type StreamingSubscriptionConfigData record {|
@@ -29,8 +29,8 @@ public type StreamingSubscriptionConfigData record {|
    string queueName?;
    string durableName?;
    int maxInFlight = 1024;
-   int ackWait = 30;
-   int subscriptionTimeout = 2;
+   int ackWaitInSeconds = 30;
+   int subscriptionTimeoutInSeconds = 2;
    boolean manualAck = false;
    StartPosition startPosition = NEW_ONLY;
 |};

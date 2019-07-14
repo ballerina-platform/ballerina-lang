@@ -56,8 +56,8 @@ public class Subscribe implements NativeCallableUnit {
     private static final String QUEUE_NAME_ANNOTATION_FIELD = "queueName";
     private static final String DURABLE_NAME_ANNOTATION_FIELD = "durableName";
     private static final String MAX_IN_FLIGHT_ANNOTATION_FIELD = "maxInFlight";
-    private static final String ACK_WAIT_ANNOTATION_FIELD = "ackWait";
-    private static final String SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = "subscriptionTimeout";
+    private static final String ACK_WAIT_ANNOTATION_FIELD = "ackWaitInSeconds";
+    private static final String SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = "subscriptionTimeoutInSeconds";
     private static final String MANUAL_ACK_ANNOTATION_FIELD = "manualAck";
     private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
 
