@@ -294,7 +294,7 @@ public class HttpUtil {
      * Populate entity with the relevant body content.
      *
      * @param messageObj Represent ballerina request/response
-     * @param entityObj  Represent an entity
+     * @param entityObj     Represent an entity
      * @param request    boolean representing whether the message is a request or a response
      * @param streaming  boolean representing whether the entity requires byte channel or message as native data
      */
@@ -307,7 +307,7 @@ public class HttpUtil {
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && !streaming) {
             MultipartDecoder.parseBody(entityObj, contentType,
-                    new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
+                                       new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
             long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
@@ -514,7 +514,7 @@ public class HttpUtil {
     /**
      * Get error struct.
      *
-     * @param errMsg Error message
+     * @param errMsg  Error message
      * @return Error struct
      */
     public static ErrorValue getError(String errMsg) {
@@ -546,33 +546,28 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(Throwable throwable) {
-        return createHttpError(throwable.getMessage());
-    }
-
-    public static ErrorValue createHttpError(EndpointTimeOutException e) {
-        return createHttpError(e.getMessage(), HttpErrorType.IDLE_TIMEOUT_TRIGGERED);
-    }
-
-    public static ErrorValue createHttpError(SslException e) {
-        return createHttpError(e.getMessage(), HttpErrorType.SSL_ERROR);
-    }
-
-    public static ErrorValue createHttpError(PromiseRejectedException e) {
-        return createHttpError(e.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
-    }
-
-    public static ErrorValue createHttpError(ConnectionTimedOutException e) {
-        ErrorValue cause = createErrorCause(e.getMessage(), IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                IO_PACKAGE,
-                DETAIL_RECORD_TYPE_NAME);
-        return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
-    }
-
-    public static ErrorValue createHttpError(ClientConnectorException e) {
-        ErrorValue cause = createErrorCause(e.getMessage(), IOConstants.ErrorCode.GenericError.errorCode(),
-                IO_PACKAGE,
-                DETAIL_RECORD_TYPE_NAME);
-        return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        ErrorValue cause;
+        if (throwable instanceof EndpointTimeOutException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.IDLE_TIMEOUT_TRIGGERED);
+        } else if (throwable instanceof SslException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.SSL_ERROR);
+        } else if (throwable instanceof PromiseRejectedException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
+        } else if (throwable instanceof ConnectionTimedOutException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else if (throwable instanceof ClientConnectorException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.GenericError.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else {
+            return createHttpError(throwable.getMessage());
+        }
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
@@ -680,9 +675,8 @@ public class HttpUtil {
 
     /**
      * Populates the push promise struct from native {@code Http2PushPromise}.
-     *
-     * @param pushPromiseStruct the push promise struct
-     * @param pushPromise       the native Http2PushPromise
+     *  @param pushPromiseStruct the push promise struct
+     * @param pushPromise the native Http2PushPromise
      */
     public static void populatePushPromiseStruct(ObjectValue pushPromiseStruct,
                                                  Http2PushPromise pushPromise) {
@@ -726,9 +720,9 @@ public class HttpUtil {
 
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
             MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
-                    MUTUAL_SSL_HANDSHAKE_RECORD);
+                                                                         MUTUAL_SSL_HANDSHAKE_RECORD);
             mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                    inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+                                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
             inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
         }
 
@@ -742,7 +736,7 @@ public class HttpUtil {
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
             ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
-                    REQUEST_CACHE_CONTROL);
+                                                                               REQUEST_CACHE_CONTROL);
             RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
             inboundRequest.set(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
@@ -767,7 +761,7 @@ public class HttpUtil {
                 HttpConstants.RESOURCE_ARGS);
         if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
             inboundRequestObj.set(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
-                    resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO));
+                                  resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO));
         }
     }
 
@@ -786,7 +780,6 @@ public class HttpUtil {
 
     /**
      * Populates the HTTP caller with connection information.
-     *
      * @param httpCaller   Represents the HTTP caller
      * @param inboundMsg   Represents the carbon message
      * @param httpResource Represents the Http Resource
@@ -795,7 +788,7 @@ public class HttpUtil {
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
         MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
-                HttpConstants.REMOTE);
+                                                                            HttpConstants.REMOTE);
         MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
@@ -824,11 +817,10 @@ public class HttpUtil {
 
     /**
      * Populate inbound response with headers and entity.
-     *
-     * @param inboundResponse    Ballerina struct to represent response
-     * @param entity             Entity of the response
-     * @param mediaType          Content type of the response
-     * @param inboundResponseMsg Represent carbon message.
+     * @param inboundResponse  Ballerina struct to represent response
+     * @param entity    Entity of the response
+     * @param mediaType Content type of the response
+     * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
@@ -958,7 +950,7 @@ public class HttpUtil {
     /**
      * Check the existence of entity. Set new entity of not present.
      *
-     * @param value request/response struct.
+     * @param value  request/response struct.
      */
     public static void checkEntityAvailability(ObjectValue value) {
         ObjectValue entity = (ObjectValue) value.get(isRequest(value) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
@@ -982,7 +974,7 @@ public class HttpUtil {
     /**
      * Check the existence of the message entity data source.
      *
-     * @param value request/response struct.
+     * @param value  request/response struct.
      * @return true if the message entity data source is available else false.
      */
     public static boolean isEntityDataSourceAvailable(ObjectValue value) {
@@ -1171,7 +1163,7 @@ public class HttpUtil {
 
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
         return (MapValue) resource.getAnnotation(transactionPackagePath,
-                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
+                                                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }
 
     private static int getIntValue(long val) {
@@ -1216,7 +1208,7 @@ public class HttpUtil {
         String boundaryString;
         String boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
         boundaryString = boundaryValue != null ? boundaryValue : HttpUtil.addBoundaryParameter(transportMessage,
-                contentType);
+                                                                                               contentType);
         return boundaryString;
     }
 
@@ -1280,7 +1272,7 @@ public class HttpUtil {
      */
     public static ObjectValue createResponseStruct(HttpCarbonMessage httpCarbonMessage) {
         ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                HttpConstants.RESPONSE);
+                                                                    HttpConstants.RESPONSE);
         ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
         ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
@@ -1364,7 +1356,7 @@ public class HttpUtil {
         long maxActiveStreamsPerConnection = poolRecord.get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
                 maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
-                        CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
+                                                                CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
     }
 
     private static int validateConfig(long value, String configName) {
@@ -1372,7 +1364,7 @@ public class HttpUtil {
             return Math.toIntExact(value);
         } catch (ArithmeticException e) {
             log.warn("The value set for the configuration needs to be less than {}. The " + configName +
-                    "value is set to {}", Integer.MAX_VALUE);
+                             "value is set to {}", Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
     }
@@ -1380,8 +1372,8 @@ public class HttpUtil {
     /**
      * Populates SSL configuration instance with secure socket configuration.
      *
-     * @param sslConfiguration ssl configuration instance.
-     * @param secureSocket     secure socket configuration.
+     * @param sslConfiguration  ssl configuration instance.
+     * @param secureSocket    secure socket configuration.
      */
     public static void populateSSLConfiguration(SslConfiguration sslConfiguration, MapValue secureSocket) {
         MapValue trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
@@ -1560,7 +1552,7 @@ public class HttpUtil {
     /**
      * Check the availability of an annotation.
      *
-     * @param configAnnotation Represent the annotation
+     * @param configAnnotation      Represent the annotation
      * @return True if the annotation and the annotation value are available
      */
     public static boolean checkConfigAnnotationAvailability(MapValue configAnnotation) {
@@ -1570,9 +1562,9 @@ public class HttpUtil {
     /**
      * Returns Listener configuration instance populated with endpoint config.
      *
-     * @param port           listener port.
-     * @param endpointConfig listener endpoint configuration.
-     * @return transport listener configuration instance.
+     * @param port              listener port.
+     * @param endpointConfig    listener endpoint configuration.
+     * @return                  transport listener configuration instance.
      */
     public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
         String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
@@ -1633,7 +1625,7 @@ public class HttpUtil {
     }
 
     private static void setRequestSizeValidationConfig(MapValue requestLimits,
-                                                       ListenerConfiguration listenerConfiguration) {
+                                                     ListenerConfiguration listenerConfiguration) {
         long maxUriLength = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
         long maxHeaderSize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
         long maxEntityBodySize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
