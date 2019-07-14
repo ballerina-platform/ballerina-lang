@@ -174,7 +174,6 @@ function testBatchUpdate() returns [string, int, int] {
     int batch2Status = 0;
     error? e = x.returnedError;
     if (e is ()) {
-    {
         returnVal = returnVal + "success";
     } else {
         returnVal = returnVal + <string> e.detail().message;
