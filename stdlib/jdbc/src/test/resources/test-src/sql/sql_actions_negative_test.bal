@@ -173,7 +173,7 @@ function testBatchUpdate() returns [string, int, int] {
     int batch1Status = 0;
     int batch2Status = 0;
     error? e = x.returnedError;
-    if(e is ())
+    if (e is ()) {
     {
         returnVal = returnVal + "success";
     } else {
