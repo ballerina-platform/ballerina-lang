@@ -32,7 +32,7 @@ function echo(string msg) returns string {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
             string? errMsg = str.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
@@ -52,7 +52,7 @@ function contentReceive() returns string {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
             string? errMsg = str.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
@@ -72,7 +72,7 @@ function contentReceiveWithLength() returns string {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
             string? errMsg = str.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
@@ -84,7 +84,7 @@ function contentReceiveWithLength() returns string {
     return returnStr;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(60);

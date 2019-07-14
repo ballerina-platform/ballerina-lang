@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
+import ballerina/system;
 import ballerina/internal;
 
 public type JarFile record {|
@@ -31,7 +32,6 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
-internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
 string[] birCacheDirs = [];
 
@@ -76,14 +76,16 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
 function readMap(string path) returns map<string> {
     var rbc = io:openReadableFile(path);
     if (rbc is error) {
-        panic rbc;
+        error openError = <error>rbc;
+        panic openError;
     } else {
         io:ReadableCharacterChannel rch = new(rbc, "UTF8");
 
         var result = <@untainted> rch.readJson();
         var didClose = rch.close();
         if (result is error) {
-            panic result;
+            error e = <error>result;
+            panic e;
         } else {
             map<string> externalMap = {};
             map<json> jsonMapResult = <map<json>> result;

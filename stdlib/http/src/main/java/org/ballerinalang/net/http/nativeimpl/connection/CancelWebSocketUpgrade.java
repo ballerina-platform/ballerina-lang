@@ -18,13 +18,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,10 +45,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class CancelWebSocketUpgrade implements NativeCallableUnit {
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
+public class CancelWebSocketUpgrade {
 
     public static Object cancelWebSocketUpgrade(Strand strand, ObjectValue connectionObj, long statusCode,
                                                 String reason) {
@@ -85,8 +79,6 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private CancelWebSocketUpgrade() {
     }
 }

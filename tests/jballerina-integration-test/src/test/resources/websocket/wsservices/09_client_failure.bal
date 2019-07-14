@@ -27,7 +27,7 @@ service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp;
-        globalServerCaller = untaint wsEp;
+        globalServerCaller = <@untainted> wsEp;
         wsClientEp = new(REMOTE_BACKEND_URL1, { callbackService: errorHandlingService });
     }
 }

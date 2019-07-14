@@ -286,6 +286,8 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Long) {
+                paramTypes[i] = Long.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());

@@ -36,7 +36,7 @@ public type Session client object {
     # Closes the connection and release all its resources
     #
     # + return - `error` if an error occurs closing the connection or nil
-    public remote function close() returns error? = external;
+    public remote function close() returns ArtemisError? = external;
 };
 
 # Configurations related to a Artemis Session.
