@@ -303,10 +303,10 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     console.println("error: Error auto-responding to intent verification request: Mode, Topic "
                                             + "and/or challenge not specified");
                 }
-                String mode = params.getStringValue(PARAM_HUB_MODE);
+                String mode = getParamStringValue(params, PARAM_HUB_MODE);
                 if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
-                        && annotatedTopic.equals(params.getStringValue(PARAM_HUB_TOPIC))) {
-                    String challenge = params.getStringValue(PARAM_HUB_CHALLENGE);
+                        && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC))) {
+                    String challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
                             challenge.getBytes(StandardCharsets.UTF_8))));
                     response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
@@ -314,13 +314,13 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                     String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
                             + "], Topic [" + annotatedTopic + "]";
                     if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
-                        intentVerificationMessage = intentVerificationMessage.concat(", Lease Seconds [" + params.get(
-                                PARAM_HUB_LEASE_SECONDS) + "]");
+                        intentVerificationMessage = intentVerificationMessage.concat(
+                                ", Lease Seconds [" + getParamStringValue(params, PARAM_HUB_LEASE_SECONDS) + "]");
                     }
                     console.println(intentVerificationMessage);
                 } else {
                     console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
-                                            + params.getStringValue(PARAM_HUB_TOPIC) + "]");
+                                            + getParamStringValue(params, PARAM_HUB_TOPIC) + "]");
                     response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                 }

@@ -38,8 +38,8 @@ public type InboundOAuth2Provider object {
     # Attempts to authenticate with credential.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `auth:AuthError` if an error occurred
-    public function authenticate(string credential) returns boolean|auth:AuthError {
+    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
+    public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
         }

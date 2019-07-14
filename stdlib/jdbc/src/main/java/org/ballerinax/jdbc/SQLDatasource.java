@@ -20,7 +20,8 @@ package org.ballerinax.jdbc;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
+import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -53,12 +54,16 @@ public class SQLDatasource {
         databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
-        xaConn = isXADataSource();
+        try {
+            xaConn = isXADataSource();
+        } catch (PanickingDatabaseException e) {
+            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+        }
         try (Connection con = getSQLConnection()) {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
-                    e);
+            throw SQLDatasourceUtils
+                    .getSQLDatabaseError(e, "error in get connection: " + Constants.CONNECTOR_NAME + ": ");
         }
         return this;
     }
@@ -99,12 +104,12 @@ public class SQLDatasource {
         return this.xaConn;
     }
 
-    public XADataSource getXADataSource() {
+    public XADataSource getXADataSource() throws PanickingDatabaseException {
         XADataSource xaDataSource;
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new BallerinaException("error in get distributed data source");
+            throw new PanickingDatabaseException("error in get distributed data source", e);
         }
         return xaDataSource;
     }
@@ -215,7 +220,7 @@ public class SQLDatasource {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
                         config.addDataSourceProperty(key, value);
                     } else {
-                        throw new BallerinaException("Unsupported type for the db option: " + key);
+                        throw SQLDatasourceUtils.getSQLApplicationError("Unsupported type for the db option: " + key);
                     }
                 });
             }
@@ -226,11 +231,12 @@ public class SQLDatasource {
             if (t.getCause() != null) {
                 message += ":" + t.getCause().getMessage();
             }
-            throw new BallerinaException(message);
+            throw SQLDatasourceUtils.getSQLApplicationError(message);
         }
     }
 
-    private String getXADatasourceClassName(String dbType, String url, String userName, String password) {
+    private String getXADatasourceClassName(String dbType, String url, String userName, String password)
+            throws PanickingApplicationException, PanickingDatabaseException {
         String xaDataSource = null;
         switch (dbType) {
         case Constants.DBTypes.MYSQL:
@@ -243,8 +249,7 @@ public class SQLDatasource {
                     xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
                 }
             } catch (SQLException e) {
-                throw new BallerinaException(
-                        "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+                throw new PanickingDatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
             }
             break;
         case Constants.DBTypes.SQLSERVER:
@@ -280,16 +285,16 @@ public class SQLDatasource {
             xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
             break;
         default:
-            throw new BallerinaException("unknown database type used for xa connection : " + dbType);
+            throw new PanickingApplicationException("unknown database type used for xa connection : " + dbType);
         }
         return xaDataSource;
     }
 
-    private boolean isXADataSource() {
+    private boolean isXADataSource() throws PanickingDatabaseException {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
-            throw new BallerinaException("error in check distributed data source: " + e.getCause().getMessage());
+            throw new PanickingDatabaseException("error in check distributed data source: ", e);
         }
     }
 
