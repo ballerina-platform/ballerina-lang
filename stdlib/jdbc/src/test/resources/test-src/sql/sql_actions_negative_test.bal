@@ -227,7 +227,7 @@ function testErrorWithBatchUpdate() returns string {
     }
 
     error? e = x.returnedError;
-    if(e is ())
+    if (e is ()) {
     {
         returnVal = "success";
     } else {
