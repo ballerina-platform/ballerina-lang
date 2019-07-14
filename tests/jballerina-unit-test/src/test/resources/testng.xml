@@ -76,7 +76,7 @@
             <package name="org.ballerinalang.test.statements.expressionstmt.*"/>
             <package name="org.ballerinalang.test.statements.ifelse.*"/>
             <package name="org.ballerinalang.test.statements.packageimport.*"/>
-            <!--<package name="org.ballerinalang.test.statements.returnstmt.*"/>-->
+            <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
@@ -116,7 +116,7 @@
             <!--<package name="org.ballerinalang.test.expressions.literals.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.varref.*"/>-->
             <!--<package name="org.ballerinalang.test.annotations"/>-->
-            <!--<package name="org.ballerinalang.test.worker.*"/>-->
+            <package name="org.ballerinalang.test.worker.*"/>
             <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.transaction.*"/>-->
         </packages>
