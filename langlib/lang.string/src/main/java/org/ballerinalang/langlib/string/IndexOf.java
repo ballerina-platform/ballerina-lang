@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "indexOf",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "substring", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
 public class IndexOf extends BlockingNativeCallableUnit {
