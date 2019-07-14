@@ -53,9 +53,10 @@ service retryDemoService on serviceEndpoint1 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendResponse;
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            string? errCause = backendResponse.detail()?.message;
+            string? errCause = err.detail()?.message;
             response.setPayload(errCause is string ? errCause : "Internal server error");
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
@@ -122,7 +123,8 @@ service mockHelloService on serviceEndpoint1 {
                     }
                     response.setBodyParts(<@untainted> bodyParts, <@untainted> req.getContentType());
                 } else {
-                    log:printError(bodyParts.reason());
+                    error err = bodyParts;
+                    log:printError(err.reason());
                     response.setPayload("Error in decoding multiparts!");
                     response.statusCode = 500;
                 }

@@ -76,6 +76,7 @@ service Participant2pcService on coordinatorListener {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
             if (resResult is error) {
+                error err = resResult;
                 log:printError("Sending response for prepare request for transaction " +
                 transactionId + " failed", resResult);
             }
@@ -146,7 +147,8 @@ service Participant2pcService on coordinatorListener {
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
-            if (resResult is error) {
+            if (resResult is http:ListenerError) {
+                error err = resResult;
                 log:printError("Sending response for notify request for transaction " + transactionId +
                         " failed", resResult);
             }

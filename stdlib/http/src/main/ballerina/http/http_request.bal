@@ -91,8 +91,8 @@ public type Request object {
 
     # Gets the `Entity` associated with the request.
     #
-    # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|error = external;
+    # + return - The `Entity` of the request. An `http:ClientError` is returned, if entity construction fails
+    public function getEntity() returns mime:Entity|ClientError = external;
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
     function getEntityWithoutBody() returns mime:Entity = external;
@@ -181,8 +181,13 @@ public type Request object {
     # + return - Nil if successful, error in case of invalid content-type
     public function setContentType(string contentType) returns error? {
         mime:Entity entity = self.getEntityWithoutBody();
-        check entity.setContentType(contentType);
-        return;
+        var result = entity.setContentType(contentType);
+        if (result is mime:Error) {
+            string message = "Error occurred while setting content type header of the request";
+            return getGenericClientError(message, result);
+        } else {
+            return;
+        }
     }
 
     # Gets the type of the payload of the request (i.e: the `content-type` header value).
@@ -193,91 +198,121 @@ public type Request object {
         return entity.getContentType();
     }
 
-    # Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
+    # Extracts `json` payload from the request. If the content type is not JSON, an `http:ClientError` is returned.
     #
-    # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns @tainted json|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getJson();
+    # + return - The `json` payload or `http:ClientError` in case of errors
+    public function getJsonPayload() returns @tainted json|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
         } else {
-            return entity;
+            var payload = result.getJson();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the json payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
         }
     }
 
-    # Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
+    # Extracts `xml` payload from the request. If the content type is not XML, an `http:ClientError` is returned.
     #
-    # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns @tainted xml|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getXml();
+    # + return - The `xml` payload or `http:ClientError` in case of errors
+    public function getXmlPayload() returns @tainted xml|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
         } else {
-            return entity;
+            var payload = result.getXml();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the xml payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
         }
     }
 
-    # Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
+    # Extracts `text` payload from the request. If the content type is not of type text, an `http:ClientError` is returned.
     #
-    # + return - The `text` payload or `error` in case of errors
-    public function getTextPayload() returns @tainted string|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getText();
+    # + return - The `text` payload or `http:ClientError` in case of errors
+    public function getTextPayload() returns @tainted string|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
         } else {
-            return entity;
+            var payload = result.getText();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the text payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
         }
     }
 
     # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
-    # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getByteChannel();
+    # + return - A byte channel from which the message payload can be read or `http:ClientError` in case of errors
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
         } else {
-            return entity;
+            var payload = result.getByteChannel();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the byte channel from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
         }
     }
 
     # Gets the request payload as a `byte[]`.
     #
-    # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns @tainted byte[]|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getByteArray();
+    # + return - The byte[] representation of the message payload or `http:ClientError` in case of errors
+    public function getBinaryPayload() returns @tainted byte[]|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
         } else {
-            return entity;
+            var payload = result.getByteArray();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the binary payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
         }
     }
 
     # Gets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.
     #
-    # + return - The map of form params or `error` in case of errors
-    public function getFormParams() returns @tainted map<string>|error {
+    # + return - The map of form params or `http:ClientError` in case of errors
+    public function getFormParams() returns @tainted map<string>|ClientError {
         var mimeEntity = self.getEntity();
-        if (mimeEntity is mime:Entity) {
+        if (mimeEntity is error) {
+            return mimeEntity;
+        } else {
+            string message = "Error occurred while retrieving form parameters from the request";
             if (!mimeEntity.hasHeader(mime:CONTENT_TYPE)) {
-                string errorMessage = "Content type header is not available";
-                error typeError = error(mime:HEADER_UNAVAILABLE, message = errorMessage);
-                return typeError;
+                string errMessage = "Content-Type header is not available";
+                mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
+                return getGenericClientError(message, typeError);
             }
             if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
-                error typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
-                return typeError;
+                mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
+                return getGenericClientError(message, typeError);
             }
-        } else {
-            return mimeEntity;
-        }
-        var entity = self.getEntity();
-        map<string> parameters = {};
-        if (entity is mime:Entity) {
-            string|error formData = entity.getText();
-            if (formData is string) {
+            var formData = mimeEntity.getText();
+            map<string> parameters = {};
+            if (formData is error) {
+                return getGenericClientError(message, formData);
+            } else {
                 if (formData != "") {
                     string[] entries = internal:split(formData, "&");
                     int entryIndex = 0;
@@ -296,26 +331,28 @@ public type Request object {
                         entryIndex = entryIndex + 1;
                     }
                 }
-            } else {
-                return formData;
             }
-        } else {
-            return entity;
+            return parameters;
         }
-        return parameters;
     }
 
     # Extracts body parts from the request. If the content type is not a composite media type, an error
     # is returned.
 
-    # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
+    # + return - Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in
     #            constructing the body parts from the request
-    public function getBodyParts() returns mime:Entity[]|error {
-        mime:Entity|error entity = self.getEntity();
-        if (entity is mime:Entity) {
-            return entity.getBodyParts();
+    public function getBodyParts() returns mime:Entity[]|ClientError {
+        var result = self.getEntity();
+        if (result is ClientError) {
+            return result;
         } else {
-            return entity;
+            var bodyParts = result.getBodyParts();
+            if (bodyParts is mime:Error) {
+                string message = "Error occurred while retrieving body parts from the request";
+                return getGenericClientError(message, bodyParts);
+            } else {
+                return bodyParts;
+            }
         }
     }
 

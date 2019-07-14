@@ -57,9 +57,10 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", responseError);
             }
         } else {
+            error err = result;
             res.statusCode = 500;
-            res.setPayload(<@untainted> result.reason());
-            log:printError("Failed to retrieve payload from request: " + result.reason());
+            res.setPayload(<@untainted> err.reason());
+            log:printError("Failed to retrieve payload from request: " + err.reason());
             var responseError = caller->respond(res);
             if (responseError is error) {
                 log:printError("Error sending response", responseError);
@@ -122,7 +123,8 @@ service backend on new http:Listener(9224) {
         if (payload is string) {
             response.setTextPayload(<@untainted> payload);
         } else {
-            response.setTextPayload(<@untainted> payload.reason());
+            error err = payload;
+            response.setTextPayload(<@untainted> err.reason());
         }
         var responseError = caller->respond(response);
         if (responseError is error) {

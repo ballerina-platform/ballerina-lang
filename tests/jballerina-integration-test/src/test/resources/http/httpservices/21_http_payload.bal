@@ -37,13 +37,16 @@ service testService16 on new http:Listener(9118) {
                     xml descendants = payload.selectDescendants("title");
                     checkpanic caller->respond(<@untainted> descendants.getTextValue());
                 } else {
-                    checkpanic caller->respond(<@untainted> payload.reason());
+                    error err = payload;
+                    checkpanic caller->respond(<@untainted> err.reason());
                 }
             } else {
-                checkpanic caller->respond(<@untainted> binaryPayload.reason());
+                error err = binaryPayload;
+                checkpanic caller->respond(<@untainted> err.reason());
             }
         } else {
-            checkpanic caller->respond(<@untainted> res.reason());
+            error err = res;
+            checkpanic caller->respond(<@untainted> err.reason());
         }
     }
 }
