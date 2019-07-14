@@ -20,12 +20,12 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
@@ -33,20 +33,19 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
  * Close the message consumer object.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
+        orgName = JmsConstants.BALLERINAX,
         packageName = JmsConstants.JMS,
         functionName = "closeSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
-                          structType = "DurableTopicSubscriberActions")
-        },
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CloseSubscriber extends AbstractBlockingAction {
+public class CloseSubscriber extends BlockingNativeCallableUnit {
     @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        CloseConsumerHandler.handle(context);
+    public void execute(Context context) {
     }
+
+    public static Object closeSubscriber(Strand strand, ObjectValue durableSubscriber) {
+        return CloseConsumerHandler.handle(durableSubscriber);
+    }
+
 }

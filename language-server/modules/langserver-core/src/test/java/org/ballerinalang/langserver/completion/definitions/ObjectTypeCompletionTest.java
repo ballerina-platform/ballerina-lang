@@ -40,6 +40,7 @@ public class ObjectTypeCompletionTest extends CompletionTest {
                 {"objectTest2.json", "object"},
                 {"objectTest3.json", "object"},
                 {"objectTest4.json", "object"},
+                {"objectTest5.json", "object"},
         };
     }
 }

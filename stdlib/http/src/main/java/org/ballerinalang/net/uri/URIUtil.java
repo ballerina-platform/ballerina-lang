@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BMap;
@@ -29,8 +30,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utilities related to URI processing.
@@ -71,20 +75,29 @@ public class URIUtil {
         }
     }
 
-    public static void populateQueryParamMap(String queryParamString, MapValue<String, String> queryParamsMap)
+    @SuppressWarnings("unchecked")
+    public static void populateQueryParamMap(String queryParamString, MapValue<String, Object> queryParamsMap)
             throws UnsupportedEncodingException {
+        Map<String, List<String>> tempParamMap = new HashMap<>();
         String[] queryParamVals = queryParamString.split("&");
         for (String queryParam : queryParamVals) {
             int index = queryParam.indexOf('=');
-            if (index != -1) {
-                String queryParamName = queryParam.substring(0, index).trim();
-                String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
-                if (queryParamValue.matches("")) {
-                    queryParamsMap.put(queryParamName, "");
-                    continue;
-                }
-                queryParamsMap.put(queryParamName, queryParamValue);
+            if (index == -1) {
+                continue;
             }
+            String queryParamName = queryParam.substring(0, index).trim();
+            String queryParamValue = URLDecoder.decode(queryParam.substring(index + 1).trim(), "UTF-8");
+            List<String> values = Arrays.stream(queryParamValue.split(",")).distinct().collect(Collectors.toList());
+            if (tempParamMap.containsKey(queryParamName)) {
+                tempParamMap.get(queryParamName).addAll(values);
+            } else {
+                tempParamMap.put(queryParamName, values);
+            }
+        }
+
+        for (Map.Entry entry : tempParamMap.entrySet()) {
+            List<String> entryValue = (List<String>) entry.getValue();
+            queryParamsMap.put(entry.getKey().toString(), new ArrayValue(entryValue.toArray(new String[0])));
         }
     }
 

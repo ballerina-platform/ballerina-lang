@@ -30,30 +30,22 @@ public type person1 object {
 
     public function __init () {}
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 
-    function getSSN () returns string;
+    function getSSN () returns string {
+        return self.ssn;
+    }
 
-    function setSSN (string s);
+    function setSSN (string s) {
+        self.ssn = s;
+    }
 };
-
-public function person1.getName () returns string {
-    return self.name;
-}
-
-public function person1.getAge () returns int {
-    return self.age;
-}
-
-function person1.getSSN () returns string {
-    return self.ssn;
-}
-
-function person1.setSSN (string s) {
-    self.ssn = s;
-}
 
 public type employee1 object {
     public int age = 0;
@@ -69,37 +61,26 @@ public type employee1 object {
         self.name = name;
     }
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 
-    function getSSN () returns string;
+    function getSSN () returns string {
+        return self.ssn + ":employee";
+    }
 
-    function setSSN (string s);
+    function setSSN (string s) {
+        self.ssn = s;
+    }
 
-    public function getEmployeeId () returns int;
+    public function getEmployeeId () returns int {
+        return self.employeeId;
+    }
 };
-
-public function employee1.getName () returns string {
-    return self.name;
-}
-
-public function employee1.getAge () returns int {
-    return self.age;
-}
-
-function employee1.getSSN () returns string {
-    return self.ssn + ":employee";
-}
-
-function employee1.setSSN (string s) {
-    self.ssn = s;
-}
-
-public function employee1.getEmployeeId () returns int {
-    return self.employeeId;
-}
-
 
 function testObjectEquivalenceWhenFieldsHaveModuleVisibility() returns string {
     employee1 e = new (14, "rat");
@@ -118,30 +99,22 @@ public type person2 object {
     public string ssn = "";
     public int id = 0;
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 
-    public function getSSN () returns string;
+    public function getSSN () returns string {
+        return self.ssn;
+    }
 
-    public function setSSN (string s);
+    public function setSSN (string s) {
+        self.ssn = s;
+    }
 };
-
-public function person2.getName () returns string {
-    return self.name;
-}
-
-public function person2.getAge () returns int {
-    return self.age;
-}
-
-public function person2.getSSN () returns string {
-    return self.ssn;
-}
-
-public function person2.setSSN (string s) {
-    self.ssn = s;
-}
 
 public type employee2 object {
     public int age = 0;
@@ -152,36 +125,26 @@ public type employee2 object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 
-    public function getSSN () returns string;
+    public function getSSN () returns string {
+        return self.ssn + ":employee";
+    }
 
-    public function setSSN (string s);
+    public function setSSN (string s) {
+        self.ssn = s;
+    }
 
-    public function getEmployeeId () returns int;
+    public function getEmployeeId () returns int {
+        return self.employeeId;
+    }
 };
-
-public function employee2.getName () returns string {
-    return self.name;
-}
-
-public function employee2.getAge () returns int {
-    return self.age;
-}
-
-public function employee2.getSSN () returns string {
-    return self.ssn + ":employee";
-}
-
-public function employee2.setSSN (string s) {
-    self.ssn = s;
-}
-
-public function employee2.getEmployeeId () returns int {
-    return self.employeeId;
-}
 
 function testObjectEquivalenceWhenFieldsHavePublicVisibility() returns string {
     employee2 e = new;
@@ -214,36 +177,26 @@ public type employee3 object {
     public int id = 0;
     public int employeeId = 123456;
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 
-    public function getSSN () returns string;
+    public function getSSN () returns string {
+        return self.ssn + ":employee";
+    }
 
-    public function setSSN (string s);
+    public function setSSN (string s) {
+        self.ssn = s;
+    }
 
-    public function getEmployeeId () returns int;
+    public function getEmployeeId () returns int {
+        return self.employeeId;
+    }
 };
-
-public function employee3.getName () returns string {
-    return self.name;
-}
-
-public function employee3.getAge () returns int {
-    return self.age;
-}
-
-public function employee3.getSSN () returns string {
-    return self.ssn + ":employee";
-}
-
-public function employee3.setSSN (string s) {
-    self.ssn = s;
-}
-
-public function employee3.getEmployeeId () returns int {
-    return self.employeeId;
-}
 
 function testEqOfPublicObjects() returns string {
     employee3 e = new;
@@ -275,36 +228,28 @@ type userA object {
     public string name = "";
     public string address = "";
 
-    function getName () returns string;
+    function getName () returns string {
+        return self.name;
+    }
 
-    function getAge () returns int;
+    function getAge () returns int {
+        return self.age;
+    }
 };
-
-function userA.getName () returns string {
-    return self.name;
-}
-
-function userA.getAge () returns int {
-    return self.age;
-}
 
 type userB object {
     public int age = 0;
     public string name = "";
     public string address = "";
 
-    function getName () returns string;
+    function getName () returns string {
+        return self.name;
+    }
 
-    function getAge () returns int;
+    function getAge () returns int {
+        return self.age;
+    }
 };
-
-function userB.getName () returns string {
-    return self.name;
-}
-
-function userB.getAge () returns int {
-    return self.age;
-}
 
 type userFoo object {
     public int age = 0;
@@ -312,18 +257,14 @@ type userFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    function getName () returns string;
+    function getName () returns string {
+        return self.name;
+    }
 
-    function getAge () returns int;
+    function getAge () returns int {
+        return self.age;
+    }
 };
-
-function userFoo.getName () returns string {
-    return self.name;
-}
-
-function userFoo.getAge () returns int {
-    return self.age;
-}
 
 
 function testNonPublicTypedescEq() returns string|error {
@@ -346,18 +287,14 @@ public type userPA object {
     public string address = "";
     public string zipcode = "";
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 };
-
-public function userPA.getName () returns string {
-    return self.name;
-}
-
-public function userPA.getAge () returns int {
-    return self.age;
-}
 
 public type userPB object {
     public int age = 0;
@@ -365,18 +302,14 @@ public type userPB object {
     public string address = "";
     public string zipcode = "";
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 };
-
-public function userPB.getName () returns string {
-    return self.name;
-}
-
-public function userPB.getAge () returns int {
-    return self.age;
-}
 
 public type userPFoo object {
     public int age = 0;
@@ -384,18 +317,14 @@ public type userPFoo object {
     public string address = "";
     public string zipcode = "23468";
 
-    public function getName () returns string;
+    public function getName () returns string {
+        return self.name;
+    }
 
-    public function getAge () returns int;
+    public function getAge () returns int {
+        return self.age;
+    }
 };
-
-public function userPFoo.getName () returns string {
-    return self.name;
-}
-
-public function userPFoo.getAge () returns int {
-    return self.age;
-}
 
 
 function testEqOfPublicObjectsInSamePackage () returns string {
@@ -434,41 +363,33 @@ type personC object {
     public string name = "";
     public addressStruct address = new;
 
-    function setContact(addressStruct ad);
+    function setContact(addressStruct ad){
+        self.address = ad;
+    }
 
-    function getAddress() returns string;
+    function getAddress() returns string{
+        return self.address.toString();
+    }
 };
-
-function personC.setContact(addressStruct ad){
-    self.address = ad;
-}
-
-function personC.getAddress() returns string{
-    return self.address.toString();
-}
 
 type addressStruct object {
     public int no = 0;
     public string city = "";
 
-    function toString() returns string;
+    function toString() returns string {
+        return self.no + self.city;
+    }
 };
-
-function addressStruct.toString() returns string {
-    return self.no + self.city;
-}
 
 type officeAddressStruct object {
     public int no = 0;
     public string city = "";
     public string department = "";
 
-    function toString() returns string;
+    function toString() returns string{
+        return self.department + self.no + self.city;
+    }
 };
-
-function officeAddressStruct.toString() returns string{
-    return self.department + self.no + self.city;
-}
 
 function testObjectEquivalencyWithArguments() returns [string, string, string] {
     personC p = new;

@@ -18,6 +18,8 @@
  */
 package org.ballerinalang.model.tree;
 
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+
 import java.util.List;
 
 /**
@@ -31,6 +33,8 @@ public interface ErrorVariableNode extends VariableNode, AnnotatableNode, Docume
     VariableNode getReason();
 
     List<? extends ErrorDetailEntry> getDetail();
+
+    BLangSimpleVariable getRestDetail();
 
     /**
      * Interface for error detail entry.

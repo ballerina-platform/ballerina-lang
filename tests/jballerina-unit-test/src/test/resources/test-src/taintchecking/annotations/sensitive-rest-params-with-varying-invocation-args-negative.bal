@@ -4,15 +4,15 @@ public function main(string... args) {
     testFunctionWithRequiredDefaultableAndRestParams("static", "optionalStatic", args[0]);
 }
 
-function testFunctionWithRestParamsOnly(@sensitive string... restParams) {
+function testFunctionWithRestParamsOnly(@untainted string... restParams) {
 
 }
 
-function testFunctionWithRequiredParamAndRestParams(string requiredParam, @sensitive string... restParams) {
+function testFunctionWithRequiredParamAndRestParams(string requiredParam, @untainted string... restParams) {
 
 }
 
 function testFunctionWithRequiredDefaultableAndRestParams(string requiredValue, string? optionalValue,
-string defaultableValue = "x", @sensitive string... restParams) {
+string defaultableValue = "x", @untainted string... restParams) {
 
 }

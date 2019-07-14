@@ -28,7 +28,7 @@ type PrivatePerson object {
         self.age = age;
         self.name = name;
     }
-    public function getPrivatePersonName() returns string;
+    public function getPrivatePersonName() returns string { return self.name; }
 };
 
 public function newPrivatePerson() returns (PrivatePerson) {
@@ -41,8 +41,4 @@ public function privatePersonAsParam(PrivatePerson p) returns (string){
 
 public function privatePersonAsParamAndReturn(PrivatePerson p) returns (PrivatePerson) {
     return p;
-}
-
-public function PrivatePerson.getPrivatePersonName() returns (string) {
-    return self.name;
 }

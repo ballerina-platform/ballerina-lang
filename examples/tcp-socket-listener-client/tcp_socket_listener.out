@@ -8,4 +8,4 @@ $ ballerina run tcp_socket_listener.bal
 
 2019-02-18 11:24:32,429 INFO  [] - Client connected: 504372137
 2019-02-18 11:24:32,467 INFO  [] - Number of bytes written: 20
-2019-02-18 11:24:32,487 INFO  [] - Client leaved: 504372137
+2019-02-18 11:24:32,487 INFO  [] - Client left: 504372137

@@ -382,7 +382,7 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
-    string[] headerNames = untaint request.getHeaderNames();
+    string[] headerNames = <@untainted string[]> request.getHeaderNames();
     foreach var headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
         foreach var headerValue in headerValues {

@@ -152,6 +152,12 @@
                 <include>com.fasterxml.jackson.core:jackson-core</include>
                 <include>com.fasterxml.jackson.core:jackson-annotations</include>
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
+                <include>com.hpe.kraal:kraal</include>
+                <include>org.jetbrains.kotlin:kotlin-stdlib</include>
+                <include>org.ow2.asm:asm</include>
+                <include>org.ow2.asm:asm-analysis</include>
+                <include>org.ow2.asm:asm-tree</include>
+                <include>org.ow2.asm:asm-util</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

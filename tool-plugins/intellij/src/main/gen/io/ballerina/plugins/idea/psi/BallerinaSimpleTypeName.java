@@ -30,7 +30,7 @@ public interface BallerinaSimpleTypeName extends BallerinaTypeName {
   BallerinaAnyTypeName getAnyTypeName();
 
   @Nullable
-  BallerinaEmptyTupleLiteral getEmptyTupleLiteral();
+  BallerinaNilLiteral getNilLiteral();
 
   @Nullable
   BallerinaReferenceTypeName getReferenceTypeName();

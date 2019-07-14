@@ -51,7 +51,7 @@ task createBirJar(type: Exec) {
     onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
-        def mapPath = ""
+        def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
             mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
         }

@@ -32,10 +32,12 @@ import java.util.List;
  * @since 0.995.0
  */
 @SupportedResourceParamTypes(
-        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
-                                                                 name = JmsConstants.TOPIC_SUBSCRIBER_OBJ_NAME),
+        expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS_VERSION,
+                                                                 name = JmsConstants.TOPIC_LISTENER_OBJ_NAME,
+                                                                 orgName = JmsConstants.BALLERINAX),
         paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
-                                                        name = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME)})
+                                                        name = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
+                                                        orgName = JmsConstants.BALLERINAX)})
 public class JmsTopicSubscriberServiceCompilerPlugin extends JmsServiceCompilerPlugin {
 
     @Override

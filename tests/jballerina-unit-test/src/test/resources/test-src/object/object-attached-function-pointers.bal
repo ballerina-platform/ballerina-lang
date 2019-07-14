@@ -5,20 +5,27 @@ type Person object {
     private int year = 5;
     private string month = "february";
 
-    function attachedFn1(int a, float b) returns (int) {
+    function attachedFn1(int a, float b) returns int {
         return 7 + a + <int>b;
     }
 
-    function attachedFn2() returns (function (int, float) returns (int)) {
+    function attachedFn2() returns (function (int, float) returns int) {
         var foo = function (int a, float b) returns (int) {
             return 7 + a + <int>b;
         };
         return foo;
     }
 
-    function attachedFn3(int a, float b) returns (int);
+    function attachedFn3(int a, float b) returns int {
+        return a + <int>b;
+    }
 
-    function attachedFn4() returns (function (int, float) returns (int));
+    function attachedFn4() returns (function (int, float) returns (int)) {
+        var foo = function (int a, float b) returns (int) {
+            return 7 + a + <int>b;
+        };
+        return foo;
+    }
 
     function attachedFn5(int a, float b) returns (function (float) returns ((function (boolean) returns (int)))) {
         var fooOut = function (float f) returns (function (boolean) returns (int)) {
@@ -30,7 +37,7 @@ type Person object {
         return fooOut;
     }
 
-    function attachedFn6(int a, float b) returns (int) {
+    function attachedFn6(int a, float b) returns int {
         function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
         return a + <int>b + foo.call(43, 10.2);
     }
@@ -40,18 +47,6 @@ type Person object {
         return a + <int>b + foo.call(43, 10.2);
     }
 };
-
-
-function Person.attachedFn3(int a, float b) returns (int) {
-    return a + <int>b;
-}
-
-function Person.attachedFn4() returns (function (int, float) returns (int)) {
-    var foo = function (int a, float b) returns (int) {
-        return 7 + a + <int>b;
-    };
-    return foo;
-}
 
 function test1() returns (int) {
     Person p = new;

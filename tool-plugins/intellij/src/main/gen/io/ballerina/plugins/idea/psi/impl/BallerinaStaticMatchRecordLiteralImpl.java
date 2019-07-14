@@ -26,7 +26,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStaticMatchRecordLiteralImpl extends BallerinaStaticMatchLiteralsImpl implements BallerinaStaticMatchRecordLiteral {
+public class BallerinaStaticMatchRecordLiteralImpl extends BallerinaStaticMatchLiteralImpl implements BallerinaStaticMatchRecordLiteral {
 
   public BallerinaStaticMatchRecordLiteralImpl(@NotNull ASTNode node) {
     super(node);

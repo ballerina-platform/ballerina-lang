@@ -30,11 +30,11 @@ public class TaskConstants {
     public static final String ORGANIZATION_NAME = BALLERINA_BUILTIN_PKG_PREFIX;
     public static final String PACKAGE_NAME = "task";
     public static final String OBJECT_NAME_LISTENER = "Listener";
-    public static final String PACKAGE_STRUCK_NAME = BALLERINA_PACKAGE_PREFIX + PACKAGE_NAME;
+    public static final String TASK_PACKAGE_NAME = BALLERINA_PACKAGE_PREFIX + PACKAGE_NAME;
 
     // Record types used
     public static final String RECORD_TIMER_CONFIGURATION = "TimerConfiguration";
-    public static final String RECORD_APPOINTMENT_DATA = "AppointmentData";
+    static final String RECORD_APPOINTMENT_DATA = "AppointmentData";
 
     // Member names used in records
     public static final String MEMBER_LISTENER_CONFIGURATION = "listenerConfiguration";
@@ -54,22 +54,18 @@ public class TaskConstants {
     public static final String FIELD_DELAY = "initialDelay";
 
     // Fields used in AppointmentData
-    public static final String FIELD_SECONDS = "seconds";
-    public static final String FIELD_MINUTES = "minutes";
-    public static final String FIELD_HOURS = "hours";
-    public static final String FIELD_DAYS_OF_MONTH = "daysOfMonth";
-    public static final String FIELD_MONTHS = "months";
-    public static final String FIELD_DAYS_OF_WEEK = "daysOfWeek";
-    public static final String FIELD_YEAR = "year";
+    static final String FIELD_SECONDS = "seconds";
+    static final String FIELD_MINUTES = "minutes";
+    static final String FIELD_HOURS = "hours";
+    static final String FIELD_DAYS_OF_MONTH = "daysOfMonth";
+    static final String FIELD_MONTHS = "months";
+    static final String FIELD_DAYS_OF_WEEK = "daysOfWeek";
+    static final String FIELD_YEAR = "year";
 
     // Fields related to TaskError record
-    public static final String TASK_ERROR_CODE = "{ballerina/task}TaskError";
-    public static final String TASK_ERROR_RECORD = "TaskError";
-    public static final String TASK_ERROR_MESSAGE = "message";
-
-    // Indexes for different fields in the context.
-    public static final int REF_ARG_INDEX_TASK_RECORD = 0;
-    public static final int REF_ARG_INDEX_TASK_SERVICE = 2;
+    public static final String SCHEDULER_ERROR_REASON = "{ballerina/task}SchedulerError";
+    static final String LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
+    static final String DETAIL_RECORD_NAME = "Detail";
 
     // Fields used in Appointment job map
     public static final String TASK_OBJECT = "ballerina.task";

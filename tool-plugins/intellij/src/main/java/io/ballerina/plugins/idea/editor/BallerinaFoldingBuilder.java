@@ -30,9 +30,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
 import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
+import io.ballerina.plugins.idea.psi.BallerinaExclusiveRecordTypeDescriptor;
+import io.ballerina.plugins.idea.psi.BallerinaFieldDescriptor;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
+import io.ballerina.plugins.idea.psi.BallerinaInclusiveRecordTypeDescriptor;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
@@ -55,12 +58,13 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
 
     @Override
     protected void buildLanguageFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root,
-            @NotNull Document document, boolean quick) {
+                                            @NotNull Document document, boolean quick) {
         if (!(root instanceof BallerinaFile)) {
             return;
         }
         buildImportFoldingRegion(descriptors, root);
         buildObjectFoldingRegions(descriptors, root);
+        buildRecordFoldingRegions(descriptors, root);
         buildFunctionFoldRegions(descriptors, root);
         buildServiceFoldRegions(descriptors, root);
         buildWorkerFoldingRegions(descriptors, root);
@@ -74,7 +78,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaImportDeclaration.class);
         if (!importDeclarationNodes.isEmpty()) {
             BallerinaImportDeclaration[] importDeclarationNodesArray = importDeclarationNodes
-                    .toArray(new BallerinaImportDeclaration[importDeclarationNodes.size()]);
+                    .toArray(new BallerinaImportDeclaration[0]);
             BallerinaImportDeclaration firstImport = importDeclarationNodesArray[0];
             BallerinaImportDeclaration lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
 
@@ -99,6 +103,41 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             // Add folding descriptor.
             addFoldingDescriptor(descriptors, objectDefinition, objectBody, true);
+        }
+    }
+
+    private void buildRecordFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+
+        // Add folding regions for inclusive records.
+        Collection<BallerinaInclusiveRecordTypeDescriptor> inclusiveDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaInclusiveRecordTypeDescriptor.class);
+        for (BallerinaInclusiveRecordTypeDescriptor recordDefinition : inclusiveDefinitions) {
+            BallerinaFieldDescriptor firstField = PsiTreeUtil.getChildOfType(recordDefinition,
+                    BallerinaFieldDescriptor.class);
+            // Retrieves the index of the left left brace of the record.
+            if (firstField != null) {
+                PsiElement leftBrace = getPreviousElement(firstField);
+                int startOffset = leftBrace.getTextRange().getStartOffset();
+                int endOffset = recordDefinition.getTextRange().getEndOffset();
+                // Add the new folding descriptor.
+                descriptors.add(new NamedFoldingDescriptor(recordDefinition, startOffset, endOffset, null, "{...}"));
+            }
+        }
+
+        // Add folding regions for exclusive records.
+        Collection<BallerinaExclusiveRecordTypeDescriptor> exclusiveDefinitions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaExclusiveRecordTypeDescriptor.class);
+        for (BallerinaExclusiveRecordTypeDescriptor recordDefinition : exclusiveDefinitions) {
+            BallerinaFieldDescriptor firstField = PsiTreeUtil.getChildOfType(recordDefinition,
+                    BallerinaFieldDescriptor.class);
+            // Retrieves the index of the left left brace of the record.
+            if (firstField != null) {
+                PsiElement leftBrace = getPreviousElement(firstField);
+                int startOffset = leftBrace.getTextRange().getStartOffset();
+                int endOffset = recordDefinition.getTextRange().getEndOffset();
+                // Add the new folding descriptor.
+                descriptors.add(new NamedFoldingDescriptor(recordDefinition, startOffset, endOffset, null, "{...}"));
+            }
         }
     }
 
@@ -175,7 +214,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     }
 
     private void buildDocumentationFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
-            @NotNull PsiElement root) {
+                                                  @NotNull PsiElement root) {
         // Get all documentation nodes.
         Collection<BallerinaDocumentationString> docStrings = PsiTreeUtil.findChildrenOfType(root,
                 BallerinaDocumentationString.class);
@@ -206,7 +245,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     }
 
     private void buildMultiCommentFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
-            @NotNull PsiElement root) {
+                                                 @NotNull PsiElement root) {
 
         Collection<PsiComment> comments = PsiTreeUtil.findChildrenOfType(root, PsiComment.class);
 
@@ -218,11 +257,11 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             }
             PsiElement lastElement = getNextElement(comment);
             // Prevents folding single line comments.
-            if (lastElement == null || !(lastElement instanceof PsiComment)) {
+            if (!(lastElement instanceof PsiComment)) {
                 continue;
             }
             PsiElement nextSibling = getNextElement(lastElement);
-            while (nextSibling != null && nextSibling instanceof PsiComment) {
+            while (nextSibling instanceof PsiComment) {
                 lastElement = nextSibling;
                 nextSibling = getNextElement(lastElement);
             }
@@ -236,13 +275,13 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     }
 
     private void addFoldingDescriptor(@NotNull List<FoldingDescriptor> descriptors, PsiElement node,
-            PsiElement bodyNode, boolean includePrevious) {
+                                      PsiElement bodyNode, boolean includePrevious) {
 
         PsiElement startNode = bodyNode;
         if (includePrevious) {
             PsiElement prevSibling = bodyNode.getPrevSibling();
             // Sometimes the body node might start with a comment node.
-            while (prevSibling != null && (prevSibling instanceof PsiComment || prevSibling instanceof PsiWhiteSpace)) {
+            while ((prevSibling instanceof PsiComment || prevSibling instanceof PsiWhiteSpace)) {
                 prevSibling = prevSibling.getPrevSibling();
             }
             startNode = prevSibling;
@@ -269,7 +308,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
 
     private PsiElement getPreviousElement(PsiElement element) {
         PsiElement prev = element.getPrevSibling();
-        while (prev != null && prev instanceof PsiWhiteSpace) {
+        while (prev instanceof PsiWhiteSpace) {
             prev = prev.getPrevSibling();
         }
         return prev;
@@ -277,7 +316,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
 
     private PsiElement getNextElement(PsiElement element) {
         PsiElement next = element.getNextSibling();
-        while (next != null && next instanceof PsiWhiteSpace) {
+        while (next instanceof PsiWhiteSpace) {
             next = next.getNextSibling();
         }
         return next;

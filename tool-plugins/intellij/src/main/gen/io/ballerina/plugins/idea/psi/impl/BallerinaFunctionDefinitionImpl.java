@@ -62,32 +62,20 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
+  public BallerinaExternalFunctionBody getExternalFunctionBody() {
+    return findChildByClass(BallerinaExternalFunctionBody.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaTypeName getTypeName() {
     return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getDot() {
     return findChildByType(DOT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getExternal() {
-    return findChildByType(EXTERNAL);
   }
 
   @Override

@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public final class BLangPackageContent {
     
     private List<BRecordTypeSymbol> recordTypeSymbols = new ArrayList<>();
 
-    private List<BTypeSymbol> otherTypeSymbols = new ArrayList<>();
+    private List<BSymbol> otherTypeSymbols = new ArrayList<>();
 
     private List<BObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public final class BLangPackageContent {
 
 
     private BLangPackageContent(BPackageSymbolDTO packageSymbolDTO, List<BRecordTypeSymbol> recordTypeSymbols,
-                               List<BTypeSymbol> otherTypeSymbols, List<BObjectTypeSymbol> objectTypeSymbols,
+                               List<BSymbol> otherTypeSymbols, List<BObjectTypeSymbol> objectTypeSymbols,
                                List<BInvokableSymbol> bInvokableSymbols) {
         this.packageSymbolDTO = packageSymbolDTO;
         this.recordTypeSymbols = recordTypeSymbols;
@@ -62,7 +62,7 @@ public final class BLangPackageContent {
         return recordTypeSymbols;
     }
 
-    public List<BTypeSymbol> getOtherTypeSymbols() {
+    public List<BSymbol> getOtherTypeSymbols() {
         return otherTypeSymbols;
     }
 
@@ -83,7 +83,7 @@ public final class BLangPackageContent {
 
         private List<BRecordTypeSymbol> recordTypeSymbols = new ArrayList<>();
 
-        private List<BTypeSymbol> otherTypeSymbols = new ArrayList<>();
+        private List<BSymbol> otherTypeSymbols = new ArrayList<>();
 
         private List<BObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
 
@@ -99,7 +99,7 @@ public final class BLangPackageContent {
             return this;
         }
 
-        public BLangPackageContentBuilder setOtherTypeSymbols(List<BTypeSymbol> otherTypeSymbols) {
+        public BLangPackageContentBuilder setOtherTypeSymbols(List<BSymbol> otherTypeSymbols) {
             this.otherTypeSymbols = otherTypeSymbols;
             return this;
         }

@@ -31,7 +31,7 @@ service headQuoteService on serviceEndpoint4 {
         string method = req.method;
         http:Request clientRequest = new;
 
-        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(<@untainted> method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -71,7 +71,7 @@ service headQuoteService on serviceEndpoint4 {
     }
     resource function commonResource (http:Caller caller, http:Request req, string method) {
         http:Request clientRequest = new;
-        var response = endPoint -> execute(untaint method, "/getQuote/stocks", clientRequest);
+        var response = endPoint -> execute(<@untainted> method, "/getQuote/stocks", clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -143,7 +143,7 @@ service quoteService2 on serviceEndpoint4 {
     }
     resource function employee (http:Caller caller, http:Request req, json person) {
         http:Response res = new;
-        res.setJsonPayload(untaint person);
+        res.setJsonPayload(<@untainted> person);
         checkpanic caller->respond(res);
     }
 }

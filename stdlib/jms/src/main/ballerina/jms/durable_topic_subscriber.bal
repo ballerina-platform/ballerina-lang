@@ -25,7 +25,7 @@ public type DurableTopicListener object {
     *AbstractListener;
 
     public DurableTopicSubscriberCaller consumerActions = new;
-    public Session? session;
+    public Session session;
 
     # Initializes the DurableTopicListener endpoint.
     #
@@ -59,12 +59,12 @@ public type DurableTopicListener object {
     # + name - The name of the service.
     # + return - Returns nil or an error upon failure to register the listener.
     public function __attach(service s, string? name = ()) returns error? {
-        return self.registerListener(s, self.consumerActions, name);
+        return self.registerListener(s);
     }
 
-    function registerListener(service serviceType, DurableTopicSubscriberCaller actions, string? name) returns error? = external;
+    function registerListener(service serviceType) returns error? = external;
 
-    function createSubscriber(Session? session, string topicPattern, string identifier, string messageSelector)
+    function createSubscriber(Session session, string topicPattern, string identifier, string messageSelector)
         returns error? = external;
 
     # Starts the endpoint. The function is ignored by the subscriber endpoint.
@@ -86,13 +86,13 @@ public type DurableTopicListener object {
     #
     # + return - Returns nil or an error upon failure to close the subscriber.
     public function __stop() returns error? {
-        return self.closeSubscriber(self.consumerActions);
+        return self.closeSubscriber();
     }
 
-    function closeSubscriber(DurableTopicSubscriberCaller actions) returns error? = external;
+    function closeSubscriber() returns error? = external;
 };
 
-# Caller actions related to  the DurableTopicSubscriber.
+# Caller actions related to the DurableTopicSubscriber.
 public type DurableTopicSubscriberCaller client object {
 
     # Acknowledges a received message.

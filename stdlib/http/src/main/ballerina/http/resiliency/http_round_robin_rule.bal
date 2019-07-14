@@ -21,25 +21,22 @@ public type LoadBalancerRounRobinRule object {
 
     public int index = 0;
 
-    # Provides an HTTP client which is choosen according to the round robin algorithm.
+    # Provides an HTTP client which is chosen according to the round robin algorithm.
     #
     # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Choosen `Client` from the algorithm or an `error` for a failure in
+    # + return - Chosen `Client` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|error;
-};
-
-public function LoadBalancerRounRobinRule.getNextClient(Client?[] loadBalanceCallerActionsArray)
-                                       returns Client|error {
-    Client httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-    lock {
-        if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
-            httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-            self.index = 0;
-        } else {
-            httpClient = <Client>loadBalanceCallerActionsArray[self.index];
-            self.index += 1;
+    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|error {
+        Client httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+        lock {
+            if (self.index == ((loadBalanceCallerActionsArray.length()) - 1)) {
+                httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+                self.index = 0;
+            } else {
+                httpClient = <Client>loadBalanceCallerActionsArray[self.index];
+                self.index += 1;
+            }
         }
+        return httpClient;
     }
-    return httpClient;
-}
+};

@@ -34,19 +34,13 @@ public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition
   BallerinaCallableUnitSignature getCallableUnitSignature();
 
   @Nullable
+  BallerinaExternalFunctionBody getExternalFunctionBody();
+
+  @Nullable
   BallerinaTypeName getTypeName();
 
   @Nullable
-  PsiElement getAssign();
-
-  @Nullable
   PsiElement getDot();
-
-  @Nullable
-  PsiElement getSemicolon();
-
-  @Nullable
-  PsiElement getExternal();
 
   @NotNull
   PsiElement getFunction();

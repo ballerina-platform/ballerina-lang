@@ -171,43 +171,43 @@ type T2 object {
     @v13 {
         val: "v13"
     }
-    public function getName() returns string;
+    public function getName() returns string { return self.name; }
 };
 
-@v1 {
-    val: "v1"
-}
-@v2 {
-    val: "v2"
-}
-@v5 {
-    val: "v5"
-}
-@v6 {
-    val: "v6"
-}
-@v7
-@v8 {
-    val: "v8"
-}
-@v9 {
-    val: "v9"
-}
-@v10 {
-    val: "v10"
-}
-@v11 {
-    val: 11
-}
-@v12 {
-    val: "v12"
-}
-@v13 {
-    val: "v13"
-}
-public function T2.getName() returns string {
-    return self.name;
-}
+//@v1 {
+//    val: "v1"
+//}
+//@v2 {
+//    val: "v2"
+//}
+//@v5 {
+//    val: "v5"
+//}
+//@v6 {
+//    val: "v6"
+//}
+//@v7
+//@v8 {
+//    val: "v8"
+//}
+//@v9 {
+//    val: "v9"
+//}
+//@v10 {
+//    val: "v10"
+//}
+//@v11 {
+//    val: 11
+//}
+//@v12 {
+//    val: "v12"
+//}
+//@v13 {
+//    val: "v13"
+//}
+//public function T2.getName() returns string {
+//    return self.name;
+//}
 
 @v1 {
     val: "v1"

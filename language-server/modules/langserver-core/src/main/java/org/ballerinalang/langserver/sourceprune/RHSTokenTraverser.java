@@ -33,18 +33,18 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
     private int leftBracketCount;
     private int leftParenthesisCount;
+    private int ltTokenCount;
     private List<Integer> rhsTraverseTerminals;
     private boolean definitionRemoved;
-    private int ltTokenCount;
 
     RHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
         this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
         this.leftBracketCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACKET_COUNT_KEY);
+        this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.definitionRemoved = sourcePruneContext.get(SourcePruneKeys.REMOVE_DEFINITION_KEY);
-        this.ltTokenCount = sourcePruneContext.get(SourcePruneKeys.LT_COUNT_KEY);
         this.processedTokens = new ArrayList<>();
     }
 
@@ -65,6 +65,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
                 }
             } else if (BallerinaParser.LEFT_BRACKET == type) {
                 leftBracketCount++;
+            } else if (BallerinaParser.LT == type) {
+                ltTokenCount++;
             }
             this.processToken(token.get());
             tokenIndex = token.get().getTokenIndex() + 1;

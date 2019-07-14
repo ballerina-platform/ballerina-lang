@@ -18,13 +18,13 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -72,7 +72,7 @@ public class WebSubHubStartUpTest {
     @Test(description = "Test shut down and restart", dependsOnMethods = "testHubStartUpWhenStarted")
     public void testHubShutdownAndStart() {
         int port = 9393;
-        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
+        BValue[] returns = BRunUtil.invoke(result, "stopHub", new BValue[]{new BInteger(9494)});
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue((((BBoolean) returns[0]).value()));
@@ -87,7 +87,8 @@ public class WebSubHubStartUpTest {
 
     @AfterClass
     public void tearDown() {
-        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
+        //TODO Uncomment following once test suite is migrated to jBal types and values
+//        BRunUtil.invoke(result, "stopHub", new BValue[]{hubStartUpObject});
     }
 
 }

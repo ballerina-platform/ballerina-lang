@@ -20,7 +20,6 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/sql;
 import ballerina/system;
 import ballerina/time;
 
@@ -146,9 +145,8 @@ service {
             }
         } else {
             if (mode != MODE_PUBLISH) {
-                params = request.getQueryParams();
-                mode = params[HUB_MODE] ?: "";
-                string topicValue = params[HUB_TOPIC] ?: "";
+                mode = request.getQueryParamValue(HUB_MODE) ?: "";
+                string topicValue = request.getQueryParamValue(HUB_TOPIC) ?: "";
                 var decodedTopic = http:decode(topicValue, "UTF-8");
                 topic = decodedTopic is string ? decodedTopic : topicValue;
             }
@@ -173,7 +171,7 @@ service {
                             string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                     + errorCause;
                             log:printError(errorMessage);
-                            response.setTextPayload(untaint errorMessage);
+                            response.setTextPayload(<@untainted string> errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
                             var responseError = httpCaller->respond(response);
                             if (responseError is error) {
@@ -196,7 +194,7 @@ service {
                         publishStatus = publishToInternalHub(topic, notification);
                     } else {
                         string errorCause = <string> binaryPayload.detail().message;
-                        string errorMessage = "Error extracting payload: " + untaint errorCause;
+                        string errorMessage = "Error extracting payload: " + <@untainted string> errorCause;
                         log:printError(errorMessage);
                         response.statusCode = http:BAD_REQUEST_400;
                         response.setTextPayload(errorMessage);
@@ -211,7 +209,7 @@ service {
                     if (publishStatus is error) {
                         string errorCause = <string> publishStatus.detail().message;
                         string errorMessage = "Update notification failed for Topic [" + topic + "]: " + errorCause;
-                        response.setTextPayload(untaint errorMessage);
+                        response.setTextPayload(<@untainted string> errorMessage);
                         log:printError(errorMessage);
                     } else {
                         log:printInfo("Update notification done for Topic [" + topic + "]");
@@ -226,7 +224,7 @@ service {
                 } else {
                     string errorMessage = "Publish request denied for unregistered topic[" + topic + "]";
                     log:printDebug(errorMessage);
-                    response.setTextPayload(untaint errorMessage);
+                    response.setTextPayload(<@untainted string> errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
                 var responseError = httpCaller->respond(response);
@@ -255,17 +253,16 @@ function validateSubscriptionChangeRequest(string mode, string topic, string cal
         PendingSubscriptionChangeRequest pendingRequest = new(mode, topic, callback);
         pendingRequests[generateKey(topic, callback)] = pendingRequest;
         if (!callback.hasPrefix("http://") && !callback.hasPrefix("https://")) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Malformed URL specified as callback" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Malformed URL specified as callback");
             return err;
         }
         if (hubTopicRegistrationRequired && !isTopicRegistered(topic)) {
-            error err = error(WEBSUB_ERROR_CODE, { message : "Subscription request denied for unregistered topic" });
+            error err = error(WEBSUB_ERROR_CODE, message = "Subscription request denied for unregistered topic");
             return err;
         }
         return;
     }
-    map<anydata> errorDetail = { message : "Topic/Callback cannot be null for subscription/unsubscription request" };
-    error err = error(WEBSUB_ERROR_CODE, errorDetail);
+    error err = error(WEBSUB_ERROR_CODE, message = "Topic/Callback cannot be null for subscription/unsubscription request");
     return err;
 }
 
@@ -303,7 +300,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint queryParams, message = request);
+    var subscriberResponse = callbackEp->get(<@untainted string> queryParams, message = request);
 
     if (subscriberResponse is http:Response) {
         var respStringPayload = subscriberResponse.getTextPayload();
@@ -475,8 +472,8 @@ returns error? {
         if (contentDistributionResponse is http:Response) {
             int respStatusCode = contentDistributionResponse.statusCode;
             if (isSuccessStatusCode(respStatusCode)) {
-                log:printDebug("Content delivery to callback[" + callback
-                                + "] successful for topic[" + subscriptionDetails.topic + "]");
+                log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
+                                    + subscriptionDetails.topic + "]");
             } else if (respStatusCode == http:GONE_410) {
                 removeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
