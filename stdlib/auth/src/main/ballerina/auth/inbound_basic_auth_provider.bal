@@ -18,6 +18,7 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/runtime;
+import ballerina/internal;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -42,8 +43,8 @@ public type InboundBasicAuthProvider object {
     # Attempts to authenticate with credentials.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `AuthError` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|AuthError {
+    # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|Error {
         if (credential == EMPTY_STRING) {
             return false;
         }
@@ -53,16 +54,19 @@ public type InboundBasicAuthProvider object {
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
-        if (passwordFromConfig.hasPrefix(CONFIG_PREFIX)) {
-            if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA256)) {
-                authenticated = encoding:encodeHex(crypto:hashSha256(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA384)) {
-                authenticated = encoding:encodeHex(crypto:hashSha384(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
-            } else if (passwordFromConfig.hasPrefix(CONFIG_PREFIX_SHA512)) {
-                authenticated = encoding:encodeHex(crypto:hashSha512(password.toByteArray(DEFAULT_CHARSET)))
-                                    .equalsIgnoreCase(extractHash(passwordFromConfig));
+        if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
+            if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
+            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
+            } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;
             }
@@ -70,10 +74,12 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = username;
-            principal.username = username;
-            principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = username;
+                principal.username = username;
+                principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
+            }
         }
         return authenticated;
     }
@@ -102,7 +108,7 @@ function getScopes(string username, string tableName) returns string[] {
 # + configValue - Config value to extract the password from
 # + return - Password hash extracted from the configuration field
 function extractHash(string configValue) returns string {
-    return configValue.substring(configValue.indexOf("{") + 1, configValue.lastIndexOf("}"));
+    return configValue.substring((<int> configValue.indexOf("{")) + 1, internal:lastIndexOf(configValue, "}"));
 }
 
 # Reads the password hash for a user.
@@ -116,7 +122,7 @@ function readPassword(string username) returns string {
 }
 
 function getConfigAuthValue(string instanceId, string property) returns string {
-    return config:getAsString(instanceId + "." + property, defaultValue = "");
+    return config:getAsString(instanceId + "." + property, "");
 }
 
 # Construct an array of groups from the comma separed group string passed.
@@ -128,5 +134,5 @@ function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return groupsArr;
     }
-    return groupString.split(",");
+    return internal:split(groupString, ",");
 }

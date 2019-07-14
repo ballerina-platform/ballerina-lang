@@ -255,7 +255,7 @@ public class CompletionVisitorUtil {
      */
     public static List<BLangNode> getFunctionParamsOrdered(BLangFunction function) {
         List<BLangNode> nodes = new ArrayList<>();
-        nodes.addAll(function.defaultableParams);
+//        nodes.addAll(function.defaultableParams);
         nodes.addAll(function.requiredParams);
         if (function.restParam != null) {
             nodes.add(function.restParam);

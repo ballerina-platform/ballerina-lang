@@ -836,7 +836,7 @@ public function LLVMGetBitcodeModule21(LLVMMemoryBufferRef memBuf, PointerPointe
 public function LLVMWriteBitcodeToFile(LLVMModuleRef m, string path) returns int = external;
 //public function LLVMWriteBitcodeToFile(LLVMModuleRef m, BytePointer path) returns int = external;
 public function LLVMWriteBitcodeToFD(LLVMModuleRef m, int fd, int shouldClose, int unbuffered) returns int = external;
-public function LLVMWriteBitcodeToFileHandle(LLVMModuleRef m, int handle) returns int = external;
+public function LLVMWriteBitcodeToFileHandle(LLVMModuleRef m, int fileHandle) returns int = external;
 public function LLVMWriteBitcodeToMemoryBuffer(LLVMModuleRef m) returns LLVMMemoryBufferRef = external;
 //public function LLVMCreateDisasm(BytePointer tripleName, Pointer disInfo, int tagType, LLVMOpInfoCallback getOpInfo, LLVMSymbolLookupCallback symbolLookUp) returns LLVMDisasmContextRef = external;
 public function LLVMCreateDisasm(string tripleName, Pointer disInfo, int tagType, LLVMOpInfoCallback getOpInfo, LLVMSymbolLookupCallback symbolLookUp) returns LLVMDisasmContextRef = external;

@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-listener grpc:Listener ep2 = new (9092, config = {
+listener grpc:Listener ep2 = new (9092, {
     host:"localhost"
 });
 

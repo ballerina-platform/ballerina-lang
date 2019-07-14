@@ -330,19 +330,19 @@ public class FilterUtils {
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         PackageID pkgId = getPackageIDForBType(symbolType);
         String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
-        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
+//        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
 
-        if (packageIDString.equals(builtinPkgName)) {
-            // Extract the invokable entries only from the scope entries
-            return symbolTable.builtInPackageSymbol.scope.entries.entrySet().stream().filter(entry -> {
-                BSymbol scopeEntrySymbol = entry.getValue().symbol;
-                if (!(scopeEntrySymbol instanceof BInvokableSymbol) || scopeEntrySymbol instanceof BOperatorSymbol) {
-                    return false;
-                }
-                BType ownerType = getModifiedBType(((BInvokableSymbol) scopeEntrySymbol).owner.type);
-                return ownerType == symbolType;
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        }
+//        if (packageIDString.equals(builtinPkgName)) {
+//            // Extract the invokable entries only from the scope entries
+//            return symbolTable.builtInPackageSymbol.scope.entries.entrySet().stream().filter(entry -> {
+//                BSymbol scopeEntrySymbol = entry.getValue().symbol;
+//                if (!(scopeEntrySymbol instanceof BInvokableSymbol) || scopeEntrySymbol instanceof BOperatorSymbol) {
+//                    return false;
+//                }
+//                BType ownerType = getModifiedBType(((BInvokableSymbol) scopeEntrySymbol).owner.type);
+//                return ownerType == symbolType;
+//            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//        }
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
             Map<Name, Scope.ScopeEntry> entries = objectTypeSymbol.methodScope.entries;

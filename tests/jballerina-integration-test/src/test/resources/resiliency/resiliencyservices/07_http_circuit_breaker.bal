@@ -37,7 +37,7 @@ http:ClientEndpointConfig conf = {
     timeoutMillis: 2000
 };
 
-http:Client backendClientEP00 = new("http://localhost:8086", config = conf);
+http:Client backendClientEP00 = new("http://localhost:8086", conf);
 
 @http:ServiceConfig {
     basePath: "/cb"
@@ -57,7 +57,7 @@ service circuitbreaker00 on circuitBreakerEP00 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -66,7 +66,7 @@ service circuitbreaker00 on circuitBreakerEP00 {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -90,7 +90,7 @@ service helloWorld on new http:Listener(8086) {
         }
         var responseToCaller = caller->respond("Hello World!!!");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }

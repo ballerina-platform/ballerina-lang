@@ -29,22 +29,22 @@ public const APPEND = "a";
 # Retrieves a ReadableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
-# + return - ByteChannel representation of the file resource or `IOError` if any error occurred
-public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|IOError = external;
+# + return - ByteChannel representation of the file resource or `Error` if any error occurred
+public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error = external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + append - Append to end of file.
-# + return - ByteChannel representation of the file resource or `IOError` if any error occurred
+# + return - ByteChannel representation of the file resource or `Error` if any error occurred
 public function openWritableFile(@untainted string path, boolean append = false)
-    returns @tainted WritableByteChannel|IOError = external;
+    returns @tainted WritableByteChannel|Error = external;
 
 # Creates an in-memory channel which will reference stream of bytes.
 #
 # + content - Content which should be exposed as channel
-# + return - ByteChannel representation to read the memory content or `IOError` if any error occurred
-public function createReadableChannel(byte[] content) returns ReadableByteChannel|IOError = external;
+# + return - ByteChannel representation to read the memory content or `Error` if any error occurred
+public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error = external;
 
 # Retrieves a readable CSV channel from a give file path.
 #
@@ -56,10 +56,10 @@ public function createReadableChannel(byte[] content) returns ReadableByteChanne
 public function openReadableCsvFile(@untainted string path,
                             @untainted Separator fieldSeparator = ",",
                             @untainted string charset = "UTF-8",
-                            @untainted int skipHeaders = 0) returns @tainted ReadableCSVChannel|IOError {
+                            @untainted int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
-    return new ReadableCSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
+    return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);
 }
 
 # Retrieves a writable CSV channel from a give file path.
@@ -68,12 +68,12 @@ public function openReadableCsvFile(@untainted string path,
 # + fieldSeparator - CSV record separator (i.e comma or tab)
 # + charset - Encoding characters in the file represents
 # + skipHeaders - Number of headers which should be skipped
-# + return - WritableCSVChannel which could be used to write CSV records or `IOError` if any error occurred
+# + return - WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred
 public function openWritableCsvFile(@untainted string path,
                                     @untainted Separator fieldSeparator = ",",
                                     @untainted string charset = "UTF-8",
-                                    @untainted int skipHeaders = 0) returns @tainted WritableCSVChannel|IOError {
+                                    @untainted int skipHeaders = 0) returns @tainted WritableCSVChannel|Error {
     WritableByteChannel byteChannel = check openWritableFile(path);
     WritableCharacterChannel charChannel = new(byteChannel, charset);
-    return new WritableCSVChannel(charChannel, fs = fieldSeparator);
+    return new WritableCSVChannel(charChannel, fieldSeparator);
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.utils;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -23,8 +23,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -54,13 +52,9 @@ import java.io.PrintStream;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class CreateServiceConsumer extends BlockingNativeCallableUnit {
+public class CreateServiceConsumer {
     private static final Logger logger = LoggerFactory.getLogger(CreateServiceConsumer.class);
     private static final PrintStream console = System.out;
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object createConsumer(Strand strand, ObjectValue listenerObj, ObjectValue service) {
         try {
@@ -80,17 +74,17 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
             String queueFilter = ArtemisUtils.getStringFromObjOrNull(queueConfig.get(ArtemisConstants.FILTER));
             boolean durable = queueConfig.getBooleanValue(ArtemisConstants.DURABLE);
             int maxConsumers = ArtemisUtils.getIntFromLong(queueConfig.getIntValue(ArtemisConstants.MAX_CONSUMERS),
-                                                           ArtemisConstants.MAX_CONSUMERS, logger);
+                    ArtemisConstants.MAX_CONSUMERS, logger);
             boolean purgeOnNoConsumers = queueConfig.getBooleanValue(ArtemisConstants.PURGE_ON_NO_CONSUMERS);
             boolean exclusive = queueConfig.getBooleanValue(ArtemisConstants.EXCLUSIVE);
             boolean lastValue = queueConfig.getBooleanValue(ArtemisConstants.LAST_VALUE);
 
             ClientConsumer consumer = ArtemisUtils.getClientConsumer(listenerObj, session, consumerFilter, queueName,
-                                                                     addressName, autoCreated, routingType, temporary,
-                                                                     queueFilter, durable, maxConsumers,
-                                                                     purgeOnNoConsumers, exclusive, lastValue, logger);
+                    addressName, autoCreated, routingType, temporary,
+                    queueFilter, durable, maxConsumers,
+                    purgeOnNoConsumers, exclusive, lastValue, logger);
             console.println("[" + ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS + "] Client Consumer created for queue " +
-                                    queueName);
+                    queueName);
             //Todo: Validate onMessage resource is not null at compiler level
             consumer.setMessageHandler(new ArtemisMessageHandler(strand.scheduler, service, sessionObj, autoAck));
         } catch (ActiveMQException e) {
@@ -102,5 +96,8 @@ public class CreateServiceConsumer extends BlockingNativeCallableUnit {
 
     private static MapValue getServiceConfigAnnotation(ObjectValue service) {
         return (MapValue) service.getType().getAnnotation(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS, "ServiceConfig");
+    }
+
+    private CreateServiceConsumer() {
     }
 }
