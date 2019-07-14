@@ -58,7 +58,6 @@ dependencies {
     testCompile project(':ballerina-encoding')
     testCompile project(':ballerina-internal')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')}
 
 createBalo {

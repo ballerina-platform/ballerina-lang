@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 /**
  * Represents a Runtime Exception that could be thrown when performing WebSub actions.

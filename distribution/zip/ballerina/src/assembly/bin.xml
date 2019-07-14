@@ -127,6 +127,7 @@
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-utils:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+                <include>org.ballerinalang:ballerina-xslt:jar</include>
                 <include>org.ballerinalang:ballerina-nats:jar</include>
                 <include>org.ballerinalang:ballerina-jwt:jar</include>
                 <include>org.ballerinalang:ballerina-ldap:jar</include>

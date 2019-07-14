@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/crypto;
 import ballerina/jwt;
 
@@ -29,7 +30,8 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     return jwtAuthProvider;
 }
 
-function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath) returns @tainted (boolean|error) {
+function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustStorePath)
+                                                  returns @tainted (boolean|auth:AuthError) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
@@ -41,7 +43,7 @@ function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustS
     return jwtAuthProvider.authenticate(jwtToken);
 }
 
-function generateJwt(string keyStorePath) returns string|error {
+function generateJwt(string keyStorePath) returns string|jwt:JwtError {
     jwt:JwtHeader header = {
         alg: "RS256",
         typ: "JWT"
@@ -61,7 +63,7 @@ function generateJwt(string keyStorePath) returns string|error {
     return jwt:issueJwt(header, payload, issuerConfig);
 }
 
-function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|error) {
+function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|jwt:JwtError) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig validatorConfig = {
         issuer: "wso2",

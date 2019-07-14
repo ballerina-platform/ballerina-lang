@@ -41,6 +41,6 @@ public class ListenerServiceTaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 26, 23);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 27, 23);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 42, 23);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 40, 23);
     }
 }

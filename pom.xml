@@ -884,6 +884,27 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
+            <!-- ballerina-xslt -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-xslt</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-xslt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-xslt</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
             <!-- ballerina nats -->
             <dependency>
                 <groupId>io.nats</groupId>
@@ -1852,6 +1873,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
+                <module>stdlib/xslt</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
@@ -1951,6 +1973,7 @@
                 <module>stdlib/filepath</module>
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
+                <module>stdlib/xslt</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
@@ -2044,6 +2067,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
+                <module>stdlib/xslt</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
@@ -2543,7 +2567,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.0.294</transport.http.version>
+        <transport.http.version>6.0.298</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
