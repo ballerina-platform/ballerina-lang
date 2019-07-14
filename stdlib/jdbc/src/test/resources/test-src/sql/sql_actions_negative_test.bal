@@ -60,7 +60,7 @@ function testErrorWithSelectData() returns string {
         if (jsonConversionResult is json) {
             retVal = io:sprintf("%s", jsonConversionResult);
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail()["message"] };
+            retVal =  <string> jsonConversionResult.detail()["message"];
         }
     } else {
         error e = x;
