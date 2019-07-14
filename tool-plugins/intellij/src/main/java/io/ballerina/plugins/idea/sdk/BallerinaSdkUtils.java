@@ -320,6 +320,34 @@ public class BallerinaSdkUtils {
         });
     }
 
+    /**
+     * Searches for a ballerina project using outward recursion starting from the file directory, until the given root
+     * directory is found. Returns and empty string if unable to detect any ballerina project under the current intellij
+     * project source root.
+     */
+    public static String searchForBallerinaProjectRoot(String currentPath, String root) {
+
+        if (currentPath.equals(root) || currentPath.equals("") || root.equals("")) {
+            return "";
+        }
+        File currentDir = new File(currentPath);
+        File[] files = currentDir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                //skips the .ballerina folder in the user home directory.
+                if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home")) && f
+                        .getName().equals(".ballerina")) {
+                    return currentDir.getAbsolutePath();
+                }
+            }
+        }
+
+        if (currentDir.getParentFile() == null) {
+            return "";
+        }
+        return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
+    }
+
     @Nullable
     private static VirtualFile getInnerSdkSrcDir(@NotNull BallerinaSdkService sdkService, @Nullable Module module) {
         String sdkHomePath = sdkService.getSdkHomePath(module);

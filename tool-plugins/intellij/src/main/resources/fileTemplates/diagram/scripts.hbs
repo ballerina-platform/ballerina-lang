@@ -1,6 +1,7 @@
 function loadedScript() {
     {{{getLangClient}}}
     let docUri = "{{{docUri}}}";
+    let sourceRootUri = "{{{sourceRootUri}}}";
     function drawDiagram() {
         try {
             let width = window.innerWidth - 6;
@@ -10,6 +11,7 @@ function loadedScript() {
                 target: document.getElementById("diagram"),
                 editorProps: {
                     docUri,
+                    sourceRootUri,
                     width,
                     height,
                     zoom,

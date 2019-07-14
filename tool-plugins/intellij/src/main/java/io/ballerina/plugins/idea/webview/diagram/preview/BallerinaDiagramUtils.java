@@ -22,6 +22,7 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
@@ -42,6 +43,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static org.wso2.lsp4intellij.utils.FileUtils.editorToProjectFolderUri;
+import static org.wso2.lsp4intellij.utils.FileUtils.editorToURIString;
+import static org.wso2.lsp4intellij.utils.FileUtils.pathToUri;
 
 /**
  * Diagram utilities.
@@ -90,7 +93,24 @@ public class BallerinaDiagramUtils {
             return "";
         }
 
-        return getWebviewContent(editorToProjectFolderUri(editor), panel, balSdk.getSdkPath());
+        if (editor != null && !editor.isDisposed()) {
+            String filePath = Objects.requireNonNull(FileDocumentManager.getInstance()
+                    .getFile(editor.getDocument())).getPath();
+
+            // Tries to detect a whether a ballerina project exists for the given file and if not,
+            // returns and empty string.
+            String ballerinaProjectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(filePath,
+                    editorToProjectFolderUri(editor));
+            if (ballerinaProjectRoot.isEmpty()) {
+                // If a ballerina project is not found, diagram editor treats it as an individual bal file.
+                return getWebviewContent("", editorToURIString(editor), panel,
+                        balSdk.getSdkPath());
+            }
+
+            return getWebviewContent(pathToUri(ballerinaProjectRoot), editorToURIString(editor), panel,
+                    balSdk.getSdkPath());
+        }
+        return "";
     }
 
     static Editor getEditorFor(VirtualFile file, Project project) {
@@ -101,7 +121,7 @@ public class BallerinaDiagramUtils {
         return null;
     }
 
-    private static String getWebviewContent(String uri, DiagramHtmlPanel myPanel,
+    private static String getWebviewContent(String sourceRootUri, String docUri, DiagramHtmlPanel myPanel,
                                             String sdkPath) {
         try {
             if (myPanel == null) {
@@ -114,7 +134,8 @@ public class BallerinaDiagramUtils {
 
             // Constructs the script to be run when loaded.
             HashMap<String, String> scriptContents = new HashMap<>();
-            scriptContents.put("docUri", uri);
+            scriptContents.put("sourceRootUri", sourceRootUri);
+            scriptContents.put("docUri", docUri);
             scriptContents.put("getLangClient", handlebars.compile(LANG_CLIENT_TEMPLATE_NAME).text());
             Context scriptContext = Context.newBuilder(scriptContents).resolver(MapValueResolver.INSTANCE).build();
 
