@@ -56,9 +56,26 @@ public class AnnotationDeclarationTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_annot_without_const_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 10);
-        String errorMessage = "annotation definition with 'source' attach point(s) should be a 'const' definition";
+        String errorMessage = "annotation declaration with 'source' attach point(s) should be a 'const' declaration";
         for (int index = 0; index < 9; index++) {
             BAssertUtil.validateError(compileResult, index, errorMessage, index + 17, 1);
         }
+    }
+
+    @Test
+    public void testInvalidAnnotType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        BAssertUtil.validateError(compileResult, 0, "annotation declaration requires a subtype of 'true', " +
+                "'map<anydata>' or 'map<anydata>[]', but found 'int'", 17, 12);
+    }
+
+    @Test
+    public void testAnnotWithInvalidConsts() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_consts.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
+        BAssertUtil.validateError(compileResult, 0, "expression is not a constant expression", 35, 14);
+        BAssertUtil.validateError(compileResult, 1, "invalid type 'Baz' for 'const' annotation declaration, expected " +
+                "'anydata'", 52, 25);
     }
 }

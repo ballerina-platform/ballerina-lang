@@ -128,7 +128,7 @@ public class IterableOperationsTests {
                 values.stream().mapToInt(Integer::intValue).average().getAsDouble());
     }
 
-    @Test (groups = "brokenOnBootstrappedJVMCodegen")
+    @Test
     public void testInt2() {
         List<Integer> values = Arrays.asList(2, 4, 5, 7, 2);
         int sum = values.stream().mapToInt(Integer::intValue).sum();

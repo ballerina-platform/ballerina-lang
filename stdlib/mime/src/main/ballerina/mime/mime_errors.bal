@@ -29,9 +29,6 @@ public type DecodeError error<DECODE_ERROR, Detail>;
 public const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
 public type GenericMimeError error<GENERIC_MIME_ERROR, Detail>;
 
-public const INIT_FAILED = "{ballerina/mime}InitializingFailed";
-public type InitializingError error<INIT_FAILED, Detail>;
-
 public const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
 public type SetHeaderError error<SET_HEADER_FAILED, Detail>;
 
@@ -51,9 +48,8 @@ public type HeaderUnavailableError error<HEADER_UNAVAILABLE, Detail>;
 public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/http}IdleTimeoutTriggeredError";
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
-public type MimeError ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |InitializingError|ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError
-                |IdleTimeoutTriggeredError;
+public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
+                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError;
 
 public function prepareEncodingErrorWithDetail(string detail) returns EncodeError {
     return error(ENCODE_ERROR, message = detail);

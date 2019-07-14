@@ -123,19 +123,18 @@ dependencies {
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    ballerina project(path: ':ballerina', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
     from configurations.balRuntime
-    into "$buildDir/bre/lib"
+    into '$buildDir/bre/lib'
 }
 
 test {
     // make sure ballerina zip is built before test run
-    dependsOn = [":ballerina:build", ":jballerina-tools:build"]
-    systemProperty "enableJBallerinaTests", "true"
+    dependsOn ':jballerina-tools:build'
+    systemProperty 'enableJBallerinaTests', 'true'
     
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"

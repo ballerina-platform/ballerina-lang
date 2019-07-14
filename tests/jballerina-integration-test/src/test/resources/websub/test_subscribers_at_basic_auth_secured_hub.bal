@@ -14,12 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
 listener websub:Listener websubEP = new websub:Listener(8484);
+auth:OutboundBasicAuthProvider basicAuthProvider1 = new({
+    username: "peter",
+    password: "pqr"
+});
+
+http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
@@ -28,13 +35,7 @@ listener websub:Listener websubEP = new websub:Listener(8484);
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
     subscriptionClientConfig: {
-        auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "1234"
-            }
-        }
+        auth: { authHandler: basicAuthHandler1 }
     }
 }
 service websubSubscriber on websubEP {
@@ -44,19 +45,20 @@ service websubSubscriber on websubEP {
     }
 }
 
+auth:OutboundBasicAuthProvider basicAuthProvider2 = new({
+    username: "tom",
+    password: "4321"
+});
+
+http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
+
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
     subscribeOnStartUp: true,
     resourceUrl: "http://localhost:8080/publisherTwo/discover",
     leaseSeconds: 1200,
     subscriptionClientConfig: {
-        auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "4321"
-            }
-        }
+        auth: { authHandler: basicAuthHandler2 }
     }
 }
 service websubSubscriberTwo on websubEP {
@@ -66,19 +68,20 @@ service websubSubscriberTwo on websubEP {
     }
 }
 
+auth:OutboundBasicAuthProvider basicAuthProvider3 = new({
+    username: "mary",
+    password: "xyz"
+});
+
+http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
+
 @websub:SubscriberServiceConfig {
     path: "/websubThree",
     subscribeOnStartUp: true,
     resourceUrl: "http://localhost:8080/publisher/discover",
     leaseSeconds: 1200,
     subscriptionClientConfig: {
-        auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "mary",
-                password: "xyz"
-            }
-        }
+        auth: { authHandler: basicAuthHandler3 }
     }
 }
 service websubSubscriberThree on websubEP {
@@ -88,19 +91,20 @@ service websubSubscriberThree on websubEP {
     }
 }
 
+auth:OutboundBasicAuthProvider basicAuthProvider4 = new({
+    username: "tom",
+    password: "1234"
+});
+
+http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
+
 @websub:SubscriberServiceConfig {
     path: "/websubFour",
     subscribeOnStartUp: true,
     resourceUrl: "http://localhost:8080/publisherThree/discover",
     leaseSeconds: 1200,
     subscriptionClientConfig: {
-        auth: {
-            scheme: http:BASIC_AUTH,
-            config: {
-                username: "tom",
-                password: "1234"
-            }
-        }
+        auth: { authHandler: basicAuthHandler4 }
     }
 }
 service websubSubscriberFour on websubEP {

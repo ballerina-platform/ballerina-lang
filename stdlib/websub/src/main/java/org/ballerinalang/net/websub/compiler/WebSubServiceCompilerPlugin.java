@@ -31,9 +31,9 @@ import java.util.List;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_CALLER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
@@ -49,8 +49,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.vali
         paramTypes = {
                 @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = WEBSUB_SERVICE_CALLER),
                 @SupportedResourceParamTypes.Type(packageName = WEBSUB,
-                        name = STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST),
-                @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = STRUCT_WEBSUB_NOTIFICATION_REQUEST)
+                        name = WEBSUB_INTENT_VERIFICATION_REQUEST),
+                @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = WEBSUB_NOTIFICATION_REQUEST)
         }
 )
 public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
@@ -75,10 +75,10 @@ public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin
             }
         }
 
-        if (webSubAnnotationConfigCount > 1) {
+        if (webSubAnnotationConfigCount == 0) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                               "cannot have more than one '" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG
-                                       + "' annotation");
+                               "'" + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG + "' annotation is compulsory");
+            return;
         }
 
         BType listenerType = ((BLangService) serviceNode).listenerType;
