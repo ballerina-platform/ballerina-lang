@@ -72,7 +72,7 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         } else if (element instanceof BallerinaPackageReference) {
-            annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+            annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
             if (elementType == BallerinaTypes.AT || elementType == BallerinaTypes.ANNOTATION_ACCESS) {
@@ -100,8 +100,6 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.XML_LITERAL_END) {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_TEXT) {
-                annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.SYMBOLIC_STRING_LITERAL) {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
                     || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
@@ -199,16 +197,16 @@ public class BallerinaAnnotator implements Annotator {
                 } else if (parent instanceof BallerinaAnyIdentifierName && !(parent
                         .getParent() instanceof BallerinaInvocation) && !(parent
                         .getParent() instanceof BallerinaFunctionNameReference)) {
-                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                     // Highlights type names.
                 } else if (parent instanceof BallerinaTypeDefinition) {
-                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                     // Highlights Service names.
                 } else if (parent instanceof BallerinaServiceDefinition) {
-                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                     // Highlights Worker names.
                 } else if (parent instanceof BallerinaWorkerDefinition) {
-                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.RESERVED_WORD, false);
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                 }
             }
         } else if (element instanceof BallerinaFloatingPointLiteral || element instanceof BallerinaIntegerLiteral) {
