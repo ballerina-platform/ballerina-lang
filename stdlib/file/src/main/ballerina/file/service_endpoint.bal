@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/'lang\.object as lang;
 
 ///////////////////////////////////
 /// Direcotry Listener Endpoint ///
@@ -23,7 +23,7 @@
 public type Listener object {
     private ListenerConfig config;
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public function __init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;

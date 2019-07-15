@@ -1,10 +1,10 @@
 function testStringFunctionInvocation() returns string {
-    string s = "ballerina".toUpper();
+    string s = "ballerina".toUpperAscii();
     return s;
 }
 
 function testStringFunctionInvocationInArgument() returns string {
-    return greet("ballerina".toUpper());
+    return greet("ballerina".toUpperAscii());
 }
 
 function greet(string s) returns string {

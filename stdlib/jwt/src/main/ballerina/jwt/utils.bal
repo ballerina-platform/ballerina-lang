@@ -25,7 +25,7 @@ const string WHITE_SPACE = " ";
 # + err - `error` instance
 # + return - Prepared `Error` instance
 function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err = err);
+    log:printError(message, err);
     Error jwtError;
     if (err is error) {
         jwtError = error(JWT_ERROR, message = message, cause = err);

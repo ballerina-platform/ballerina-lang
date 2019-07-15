@@ -51,7 +51,7 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "test2/clientPostWithoutBody"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Error occurred while extracting text data from entity : Empty content",
+        Assert.assertEquals(response.getData(), "Error occurred while retrieving the text payload from the request",
                             "Message content mismatched");
     }
 

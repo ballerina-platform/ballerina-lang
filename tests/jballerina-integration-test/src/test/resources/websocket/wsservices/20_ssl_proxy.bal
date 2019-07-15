@@ -21,7 +21,7 @@ import ballerina/log;
 }
 service on new http:WebSocketListener(9077) {
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", config = { callbackService:
+        http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
             sslClientService, secureSocket: { trustStore: {
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"

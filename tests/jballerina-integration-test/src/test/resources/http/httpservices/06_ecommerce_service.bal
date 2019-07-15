@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
+import ballerina/internal;
 
 listener http:Listener serviceEndpoint5 = new(9095);
 
@@ -31,7 +32,7 @@ service CustomerMgtService on serviceEndpoint5 {
     resource function customers(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (httpMethod.equalsIgnoreCase("GET")) {
+        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Customer":{"ID":"987654", "Name":"ABC PQR", "Description":"Sample Customer."}};
         } else {
             payload = {"Status":"Customer is successfully added."};
@@ -156,7 +157,7 @@ service OrderMgtService on serviceEndpoint5 {
     resource function orders(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (httpMethod.equalsIgnoreCase("GET")) {
+        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Order":{"ID":"111999", "Name":"ABC123", "Description":"Sample order."}};
         } else {
             payload = {"Status":"Order is successfully added."};
@@ -181,7 +182,7 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.convert(self.productsMap[prodId]);
+        var result = json.constructFrom(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
         } else {

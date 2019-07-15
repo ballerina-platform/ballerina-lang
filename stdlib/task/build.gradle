@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -30,8 +31,6 @@ configurations {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
@@ -39,9 +38,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-utils')
     implementation 'org.quartz-scheduler:quartz'
 
     testCompile 'org.awaitility:awaitility'

@@ -19,6 +19,7 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 import ballerina/system;
+import ballerina/internal;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
@@ -38,7 +39,7 @@ public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
-    boolean dumpBir = boolean.convert(args[3]);
+    boolean dumpBir = internal:equalsIgnoreCase(args[3], "true");
 
     var numCacheDirs = args.length() - 4;
     int i = 0;
@@ -86,12 +87,12 @@ function readMap(string path) returns map<string> {
             error e = <error>result;
             panic e;
         } else {
-            var externalMap = map<string>.convert(result);
-            if (externalMap is error){
-                panic externalMap;
-            } else {
-                return externalMap;
+            map<string> externalMap = {};
+            map<json> jsonMapResult = <map<json>> result;
+            foreach var [key, val] in jsonMapResult.entries() {
+                externalMap[key] = <string> val;
             }
+            return externalMap;
         }
     }
 }

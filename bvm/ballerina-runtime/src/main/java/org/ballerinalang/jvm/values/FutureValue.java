@@ -59,7 +59,7 @@
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());
          }
-         return "future:" + sj.toString();
+         return "future " + sj.toString();
      }
 
      @Override
@@ -74,7 +74,12 @@
 
      @Override
      public Object copy(Map<Object, Object> refs) {
-         return null;
+         throw new UnsupportedOperationException();
+     }
+
+     @Override
+     public Object frozenCopy(Map<Object, Object> refs) {
+         throw new UnsupportedOperationException();
      }
 
      public void cancel() {

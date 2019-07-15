@@ -44,16 +44,18 @@ public class OpenRecordNegativeTest {
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        assertEquals(result.getErrorCount(), 7);
+        assertEquals(result.getErrorCount(), 9);
 
         String expectedErrMsg = "incompatible types: expected 'string', ";
         validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
         validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
-        validateError(result, 2, "invalid literal for type '(anydata|error)'", 17, 36);
+        validateError(result, 2, "invalid usage of record literal with type 'anydata'", 17, 36);
         validateError(result, 3, "unknown type 'Animal'", 21, 5);
-        validateError(result, 4, "incompatible types: expected '(anydata|error)', found 'Bar'", 30, 18);
-        validateError(result, 5, "incompatible types: expected 'anydata', found 'error'", 44, 14);
-        validateError(result, 6, "incompatible types: expected 'anydata', found 'error'", 45, 14);
+        validateError(result, 4, "incompatible types: expected 'anydata', found 'Bar'", 30, 18);
+        validateError(result, 5, "incompatible types: expected 'anydata', found 'error'", 48, 14);
+        validateError(result, 6, "incompatible types: expected 'anydata', found 'error'", 49, 14);
+        validateError(result, 7, "incompatible types: expected 'anydata', found 'error'", 52, 12);
+        validateError(result, 8, "incompatible types: expected 'anydata', found 'error'", 53, 12);
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")

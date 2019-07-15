@@ -35,7 +35,7 @@ http:ClientEndpointConfig conf04 = {
     timeoutMillis: 2000
 };
 
-http:Client errornousClientEP = new("http://localhost:8090", config = conf04);
+http:Client errornousClientEP = new("http://localhost:8090", conf04);
 
 @http:ServiceConfig {
     basePath: "/cb"
@@ -50,7 +50,7 @@ service circuitbreaker04 on circuitBreakerEP04 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -59,7 +59,7 @@ service circuitbreaker04 on circuitBreakerEP04 {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -77,7 +77,7 @@ service errornousservice on new http:Listener(8090) {
         res.setPayload("Internal error occurred while processing the request.");
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }

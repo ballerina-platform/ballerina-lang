@@ -48,7 +48,7 @@ public class Call extends BlockingNativeCallableUnit {
             ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
-                parameters);
+                parameters, strand);
         return callStatement.execute();
     }
 }

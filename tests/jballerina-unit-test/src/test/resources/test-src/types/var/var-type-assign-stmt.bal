@@ -146,7 +146,7 @@ function testIncompatibleJsonToStructWithErrors() returns Person|error {
                  info:{status:"single"},
                  marks:[87,94,72]
              };
-    var p = Person.convert(j);
+    var p = Person.constructFrom(j);
     return p;
 }
 
@@ -158,7 +158,7 @@ type PersonA record {
 function testJsonToStructWithErrors() returns PersonA|error {
     json j = {name:"supun", age:"25"};
 
-    var p = PersonA.convert(j);
+    var p = PersonA.constructFrom(j);
 
     return p;
 }
@@ -176,9 +176,9 @@ function testCompatibleStructForceCasting() returns A|error {
     A a = {x: "x-valueof-a", y:4};
     B b = {x: "x-valueof-b"};
 
-    b = B.convert(a);
+    b = a;
 
-    var c = A.convert(b);
+    var c = A.constructFrom(b);
 
     a.x = "updated-x-valueof-a";
     return c;

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/internal;
 import ballerina/io;
 import ballerina/socket;
 
@@ -32,7 +33,7 @@ service echo on echoEP {
         var payload = req.getTextPayload();
         http:Response resp = new;
         if (payload is string) {
-            byte[] payloadByte = payload.toByteArray("UTF-8");
+            byte[] payloadByte = internal:toByteArray(payload, "UTF-8");
             var writeResult = socketClient->write(payloadByte);
             if (writeResult is int) {
                 io:println("Number of bytes written: ", writeResult);
@@ -40,21 +41,24 @@ service echo on echoEP {
             } else {
                 io:println("Write error!!!");
                 error writeError = writeResult;
-                string errMsg = <string>writeError.detail().message;
+                string errMsg = <string>writeError.detail()["message"];
                 resp.statusCode = 500;
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
                 if (responseError is error) {
-                    io:println("Error sending response: ", responseError.detail().message);
+                    error err = responseError;
+                    io:println("Error sending response: ", err.detail()["message"]);
                 }
             }
         } else {
-            string errMsg = <string>payload.detail().message;
+            error err = payload;
+            string errMsg = <string>err.detail()["message"];
             resp.statusCode = 500;
             resp.setPayload(<@untainted> errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                io:println("Error sending response: ", responseError.detail().message);
+                error responseErr = responseError;
+                io:println("Error sending response: ", responseErr.detail()["message"]);
             }
         }
     }
@@ -77,12 +81,12 @@ service ClientService = service {
                     io:println(<@untainted>str);
                 } else {
                     error e = str;
-                    io:println(e.detail().message);
+                    io:println(e.detail()["message"]);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
                     error closeResultError = closeResult;
-                    io:println(closeResultError.detail().message);
+                    io:println(closeResultError.detail()["message"]);
                 } else {
                     io:println("Client connection closed successfully.");
                 }
@@ -96,7 +100,7 @@ service ClientService = service {
 
     resource function onError(socket:Caller caller, error er) {
         error e = er;
-        io:println(e.detail().message);
+        io:println(e.detail()["message"]);
     }
 };
 

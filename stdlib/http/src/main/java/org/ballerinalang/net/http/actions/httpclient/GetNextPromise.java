@@ -66,7 +66,7 @@ public class GetNextPromise extends AbstractHTTPAction {
                 setPushPromiseListener(new BPromiseListener(dataContext));
     }
 
-    public static void getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
                                                   null);
@@ -75,6 +75,7 @@ public class GetNextPromise extends AbstractHTTPAction {
             throw new BallerinaException("invalid http handle");
         }
         clientConnector.getNextPushPromise(responseHandle).setPushPromiseListener(new PromiseListener(dataContext));
+        return null;
     }
 
     private static class BPromiseListener implements HttpClientConnectorListener {
@@ -106,7 +107,7 @@ public class GetNextPromise extends AbstractHTTPAction {
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
             ObjectValue pushPromiseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                              HttpConstants.PUSH_PROMISE);
+                    HttpConstants.PUSH_PROMISE, pushPromise.getPath(), pushPromise.getMethod());
             HttpUtil.populatePushPromiseStruct(pushPromiseObj, pushPromise);
             dataContext.notifyInboundResponseStatus(pushPromiseObj, null);
         }
