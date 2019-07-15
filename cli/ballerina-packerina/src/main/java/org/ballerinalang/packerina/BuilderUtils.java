@@ -20,8 +20,12 @@ package org.ballerinalang.packerina;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
+import org.wso2.ballerinalang.compiler.BIRFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.LockFileWriter;
+import org.wso2.ballerinalang.compiler.ModuleFileWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -70,6 +74,11 @@ public class BuilderUtils {
     private static final String BALLERINA_HOME = "BALLERINA_HOME";
     private static PrintStream outStream = System.out;
 
+    private static ModuleFileWriter moduleFileWriter;
+    private static BIRFileWriter birFileWriter;
+    private static LockFileWriter lockFileWriter;
+
+
     public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packagePath,
                                                 String targetPath,
@@ -105,12 +114,14 @@ public class BuilderUtils {
                                                 boolean enableExperimentalFeatures,
                                                 boolean siddhiRuntimeEnabled,
                                                 boolean jvmTarget,
-                                                boolean dumpBIR) {
+                                                boolean dumpBIR,
+                                                boolean genExecutables) {
         CompilerContext context = getCompilerContext(sourceRootPath, jvmTarget, buildCompiledPkg, offline,
                 lockEnabled, skiptests, enableExperimentalFeatures, siddhiRuntimeEnabled);
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packageName);
+        boolean isSingleFile = packageName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT);
 
         try {
             //TODO: replace with actual target dir
@@ -121,6 +132,10 @@ public class BuilderUtils {
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
                     targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
 
+            // If package is a ballerina file do not write executables.
+            if (isSingleFile) {
+                return;
+            }
             // Create executable jar files.
             if (bLangPackage.symbol.entryPointExists) {
                 outStream.println();
@@ -145,7 +160,8 @@ public class BuilderUtils {
 
     public static void compileWithTestsAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled,
                                                 boolean skiptests, boolean enableExperimentalFeatures,
-                                                boolean siddhiRuntimeEnabled, boolean jvmTarget, boolean dumpBir) {
+                                                boolean siddhiRuntimeEnabled, boolean jvmTarget, boolean dumpBir,
+                                                boolean genExecutables) {
         CompilerPhase compilerPhase = jvmTarget ? CompilerPhase.BIR_GEN : CompilerPhase.CODE_GEN;
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -168,11 +184,11 @@ public class BuilderUtils {
         if (jvmTarget) {
             outStream.println();
             outStream.println("Generating artifacts");
-            compiler.write(packages);
+            // compiler.write(packages);
+            generateModuleArtafacts(packages, context);
+
             for (BLangPackage bLangPackage : packages) {
                 try {
-                    //TODO: replace with actual target dir
-                    //Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
                     String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                             "ballerina.home is not set");
 
@@ -186,7 +202,7 @@ public class BuilderUtils {
             // Create executable jar files.
             List<BLangPackage> entryPackages = packages.stream().filter(p -> p.symbol.entryPointExists)
                     .collect(Collectors.toList());
-            if (!entryPackages.isEmpty()) {
+            if (genExecutables && !entryPackages.isEmpty()) {
                 outStream.println();
                 outStream.println("Generating executables");
                 entryPackages.forEach(p -> assembleExecutable(p, sourceRootPath));
@@ -208,6 +224,20 @@ public class BuilderUtils {
             runTests(compiler, sourceRootPath, packages);
             compiler.write(packages);
         }
+    }
+
+    private static void generateModuleArtafacts(List<BLangPackage> packages, CompilerContext context) {
+        // TODO: need to place the follow in a better place. I took these out from the compiler -
+        // to separate them from the compiler write. I am unable to refactor the compiler write ATM
+        // since the build rely on output of that. We need to fix the build and refactor this code.
+        moduleFileWriter = ModuleFileWriter.getInstance(context);
+        birFileWriter = BIRFileWriter.getInstance(context);
+        // todo put the lock file writer in a seperate package.
+        lockFileWriter = LockFileWriter.getInstance(context);
+        lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
+        packages.forEach(moduleFileWriter::write);
+        packages.forEach(birFileWriter::write);
+        packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
     }
 
     /**
@@ -325,53 +355,61 @@ public class BuilderUtils {
         }
     }
 
-    public static void assembleExecutable(BLangPackage bLangPackage, Path project) {
+    private static void assembleExecutable(BLangPackage bLangPackage, Path project) {
         try {
             final Path target = project.resolve(ProjectDirConstants.TARGET_DIR_NAME);
             final Path bin = target.resolve(ProjectDirConstants.BIN_DIR_NAME);
             final Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
                     .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+            String moduleJarName = bLangPackage.packageID.name.value
+                    + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+            // Copy the jar from cache to bin directory
+            Path uberJar = bin.resolve(moduleJarName);
+            Path moduleJar = jarCache.resolve(moduleJarName);
+
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
                 // Create bin directory if it is not there.
                 Files.createDirectories(bin);
 
-                String moduleJarName = bLangPackage.packageID.name.value
-                        + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-                // Copy the jar from cache to bin directory
-                Path uberJar = bin.resolve(moduleJarName);
-                Path moduleJar = jarCache.resolve(moduleJarName);
                 Files.copy(moduleJar, uberJar, StandardCopyOption.REPLACE_EXISTING);
-
                 // Get the fs handle to the jar file
-                URI uberJarUri = URI.create("jar:" + uberJar.toUri().toString());
-                try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                    Path to = toFs.getRootDirectories().iterator().next();
 
-                    // Iterate through the imports and copy dependencies.
-                    for (BPackageSymbol importz : bLangPackage.symbol.imports) {
-                        Path importJar = jarCache.resolve(importz.pkgID.name.value +
-                                ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
-                        if (Files.exists(importJar)) {
-                            URI moduleJarUri = URI.create("jar:" + importJar.toUri().toString());
-                            Path from = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())
-                                    .getRootDirectories().iterator().next();
-                            Files.walkFileTree(from, new Copy(from, to));
-                        }
+                // Iterate through the imports and copy dependencies.
+                for (BPackageSymbol importz : bLangPackage.symbol.imports) {
+                    Path importJar = jarCache.resolve(importz.pkgID.name.value +
+                            ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+                    if (Files.exists(importJar)) {
+                        copyFromJarToJar(importJar, uberJar);
                     }
-
                 }
-                // Copy dependency jar
-                // Copy dependency libraries
-
-                // Executable is created at give location.
-                outStream.println(project.relativize(uberJar).toString());
             }
+            // Copy dependency jar
+            // Copy dependency libraries
+            // Executable is created at give location.
+            outStream.println(project.relativize(uberJar).toString());
             // If no entry point is found we do nothing.
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
         }
     }
+
+
+    private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
+        URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
+        // Load the to jar to a file system
+        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+            Path to = toFs.getRootDirectories().iterator().next();
+            URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
+            // Load the from jar to a file system.
+            try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
+                Path from = fromFs.getRootDirectories().iterator().next();
+                // Walk and copy the files.
+                Files.walkFileTree(from, new Copy(from, to));
+            }
+        }
+    }
+
 
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;

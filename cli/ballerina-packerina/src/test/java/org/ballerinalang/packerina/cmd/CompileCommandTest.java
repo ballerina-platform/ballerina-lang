@@ -67,7 +67,7 @@ public class CompileCommandTest extends CommandTest {
         Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
     }
 
-    @Test(description = "Test Compile Command in a Project", enabled = false)
+    @Test(description = "Test Compile Command in a Project")
     public void testCompileCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
@@ -79,7 +79,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
-        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream);
+        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 
@@ -115,7 +115,7 @@ public class CompileCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testCompileCommand"})
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -198,7 +198,7 @@ public class CompileCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testCompileCommand"})
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
@@ -210,7 +210,7 @@ public class CompileCommandTest extends CommandTest {
 
     @Test(description = "Test Compile Command for a single file.")
     public void testCompileCommandSingleFile() throws IOException {
-        Path balFile = tmpDir.resolve("main.bal");
+        Path balFile = tmpDir.resolve("compile_main.bal");
         Files.createFile(balFile);
 
         String question = "public function main(){ int i =5; }";
@@ -218,7 +218,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
-        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream);
+        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 

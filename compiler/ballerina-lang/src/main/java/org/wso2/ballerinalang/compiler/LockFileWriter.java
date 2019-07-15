@@ -82,7 +82,7 @@ public class LockFileWriter {
      *
      * @param packageSymbol package symbol
      */
-    void addEntryPkg(BPackageSymbol packageSymbol) {
+    public void addEntryPkg(BPackageSymbol packageSymbol) {
         String entryPkg = packageSymbol.pkgID.name.value;
         if (packageSymbol.pkgID.isUnnamed) {
             entryPkg = packageSymbol.pkgID.sourceFileName.value;
@@ -169,7 +169,7 @@ public class LockFileWriter {
      *
      * @param manifest manifest object
      */
-    void writeLockFile(Manifest manifest) {
+    public void writeLockFile(Manifest manifest) {
         List<StringBuilder> builderList = new ArrayList<>();
         for (LockFilePackage lockFilePackage : ballerinaLockPackages.values()) {
 
