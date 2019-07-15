@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -562,7 +562,6 @@ function testArrayDataInsertAndPrint() returns [int, int, int, int, int, int] {
         updatedCount = updateRet.updatedRowCount;
     } else {
        error e = updateRet;
-       io:println(<string> e.detail().message);
     }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
@@ -1579,7 +1578,6 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
         var xmlConversionResult = xml.convert(tableOrError);
-        io:println(xmlConversionResult);
         if (xmlConversionResult is xml) {
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);

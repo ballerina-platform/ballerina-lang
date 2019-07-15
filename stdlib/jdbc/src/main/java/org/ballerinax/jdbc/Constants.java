@@ -90,7 +90,7 @@ public final class Constants {
     }
 
     /**
-     * XA Datasoruce for DB Types with first class support.
+     * XA Datasource for DB Types with first class support.
      */
     public static final class XADataSources {
         public static final String MYSQL_5_XA_DATASOURCE = "com.mysql.jdbc.jdbc2.optional.MysqlXADataSource";

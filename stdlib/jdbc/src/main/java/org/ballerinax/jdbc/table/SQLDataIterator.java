@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
@@ -34,10 +34,13 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableIterator;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
+import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Date;
@@ -115,8 +118,7 @@ public class SQLDataIterator extends TableIterator {
             if (columnDefs.size() != structFields.length) {
                 throw SQLDatasourceUtils.getSQLApplicationError("Number of fields in the constraint type is " + (
                         structFields.length > columnDefs.size() ?
-                                "greater" :
-                                "lower") + " than column count of the result set");
+                                "greater" : "lower") + " than column count of the result set");
             }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
@@ -175,7 +177,7 @@ public class SQLDataIterator extends TableIterator {
                             handleDateValue(bStruct, fieldName, timestamp, fieldType);
                             break;
                         case Types.ROWID:
-                            sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
+                            sValue = new String(rs.getRowId(index).getBytes(), StandardCharsets.UTF_8);
                             handleStringValue(sValue, fieldName, bStruct, fieldType);
                             break;
                         case Types.TINYINT:
@@ -245,7 +247,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName,
-            int expectedTypeTags[], int actualTypeTag, Object value, String exceptionMessage)
+            int[] expectedTypeTags, int actualTypeTag, Object value, String exceptionMessage)
             throws PanickingApplicationException {
         boolean typeMatches = Arrays.stream(expectedTypeTags).anyMatch(tag -> actualTypeTag == tag);
         setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);

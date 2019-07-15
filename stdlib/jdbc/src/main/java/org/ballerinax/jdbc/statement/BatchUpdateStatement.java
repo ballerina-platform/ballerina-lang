@@ -26,8 +26,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
@@ -103,13 +103,11 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // might have a requirement to ignore a few failed commands in the batch and let the rest of the commands
             // run if driver allows it.
             updatedCount = e.getUpdateCounts();
-            if (conn != null) {
-                if (!isInTransaction && rollbackAllInFailure) {
-                    try {
-                        conn.rollback();
-                    } catch (SQLException ex) {
-                        errorMessagePrefix += ", failed to rollback any changes happened in-between";
-                    }
+            if (!isInTransaction && rollbackAllInFailure) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
                 }
             }
             handleErrorOnTransaction(this.strand);
