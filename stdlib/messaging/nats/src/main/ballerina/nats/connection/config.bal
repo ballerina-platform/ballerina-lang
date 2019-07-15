@@ -23,9 +23,10 @@ import ballerina/crypto;
 # Use -1 to turn on infinite reconnects. The reconnect state is entered when the connection is connected and when
 # that connection is lost. During the initial connection attempt, the client will cycle over
 # its server list one time regardless of the maxReconnects value that is set.
-# + reconnectWait - The time to wait between reconnect attempts to reconnect to the same server. This is measured in seconds.
-# + connectionTimeout - The timeout for connection attempts measured in seconds.
-# + pingInterval - The interval between the attempts of pinging the server. This is measured in minutes.
+# + reconnectWaitInSeconds - The time to wait between reconnect attempts to reconnect to the same server.
+# This is measured in seconds.
+# + connectionTimeoutInSeconds - The timeout for connection attempts measured in seconds.
+# + pingIntervalInMinutes - The interval between the attempts of pinging the server. This is measured in minutes.
 # + maxPingsOut - The maximum number of pings the client can have in flight. The default value will be a small number.
 # + username - The username for basic authentication.
 # + password - The password for basic authentication.
