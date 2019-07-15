@@ -201,7 +201,8 @@ function processWebSubNotification(http:Request request, service serviceType) re
     if (payload is string) {
         return validateSignature(xHubSignature, payload, secret);
     } else {
-        string errCause = <string> payload.detail()?.message;
+        error err = payload;
+        string errCause = <string> err.detail()?.message;
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Error extracting notification payload as string " +
                                             "for signature validation: " + errCause);
         return webSubError;

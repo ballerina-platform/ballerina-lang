@@ -70,7 +70,8 @@ service nyseStockQuote1 on passthroughEP1 {
         if (bodyParts is mime:Entity[]) {
             checkpanic caller->respond(<@untainted> bodyParts);
         } else {
-            checkpanic caller->respond(<@untainted> bodyParts.reason());
+            error err = bodyParts;
+            checkpanic caller->respond(<@untainted> err.reason());
         }
     }
 }

@@ -86,7 +86,8 @@ public type Client client object {
                 return webSubError;
             }
         } else {
-            string errCause = <string> registrationResponse.detail()?.message;
+            error err = registrationResponse;
+            string errCause = <string> err.detail()?.message;
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic registration request: " + errCause);
             return webSubError;
         }
@@ -108,7 +109,8 @@ public type Client client object {
                 return webSubError;
             }
         } else {
-            string errCause = <string> unregistrationResponse.detail()?.message;
+            error err = unregistrationResponse;
+            string errCause = <string> err.detail()?.message;
             error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic unregistration request: " + errCause);
             return webSubError;
         }
@@ -272,7 +274,8 @@ function processHubResponse(@untainted string hub, @untainted string mode,
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
             } else {
-                string errCause = <string> responsePayload.detail()?.message;
+                error err = responsePayload;
+                string errCause = <string> err.detail()?.message;
                 errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
             }
             error webSubError = error(WEBSUB_ERROR_CODE, message = errorMessage);

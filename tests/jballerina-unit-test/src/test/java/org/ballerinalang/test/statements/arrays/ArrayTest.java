@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -174,7 +173,8 @@ public class ArrayTest {
     public void testArraysOfCyclicDependentTypes() {
         BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes");
         BValueArray arr = (BValueArray) retVals[0];
-        Assert.assertEquals(arr.stringValue(), "[{b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}, a1:\"A1\"}]");
+        Assert.assertEquals(arr.stringValue(),
+                            "[{b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}}, {b:{b1:\"B1\"}, a1:\"A1\"}]");
     }
 
     @Test

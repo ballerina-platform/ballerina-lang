@@ -19,8 +19,13 @@ package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
+import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import org.ballerinalang.jvm.transactions.TransactionUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
@@ -38,6 +43,7 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.SQLDataIterator;
 import org.ballerinax.jdbc.SQLDatasource;
 import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.SQLTransactionContext;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.table.BCursorTable;
@@ -75,6 +81,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAResource;
+
 import static org.ballerinax.jdbc.Constants.PARAMETER_DIRECTION_FIELD;
 import static org.ballerinax.jdbc.Constants.PARAMETER_SQL_TYPE_FIELD;
 import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
@@ -88,6 +97,11 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     private static final String POSTGRES_DOUBLE = "float8";
     private static final int ORACLE_CURSOR_TYPE = -10;
+    Strand strand;
+
+    AbstractSQLStatement(Strand strand) {
+        this.strand = strand;
+    }
 
     ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
         ArrayValue parametersNew = new ArrayValue();
@@ -432,94 +446,85 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-   /* protected void handleErrorOnTransaction(Context context) {
-        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+    protected void handleErrorOnTransaction(Strand strand) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
             return;
         }
-        notifyTxMarkForAbort(context, transactionLocalContext);
+        notifyTxMarkForAbort(strand, transactionLocalContext);
     }
-*/
 
-    Connection getDatabaseConnection(ObjectValue client, SQLDatasource datasource, boolean isSelectQuery)
-            throws DatabaseException {
-        //TODO: JBalMigration Commenting out transaction handling and observability
-        //TODO: #16033
-        /*Connection conn;
-        boolean isInTransaction = context.isInTransaction();
-        // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
-        // it to use a normal database connection. This is because,
-        // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
-        // which has an open result set on top of it
-        // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
-        // result set is fully iterated, it won't be possible to perform rest of the operations inside the transaction
-        // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
-        // (XA or general transactions)
-        // 4. However for call operations, despite of the fact that they could output resultsets
-        // (as OUT params or return values) we do not use a separate connection, because,
-        // call operations can contain UPDATE actions as well inside the procedure which may require to happen in the
-        // same scope as any other individual UPDATE actions
-        if (!isInTransaction || isSelectQuery) {
-            conn = datasource.getSQLConnection();
-            return conn;
-        } else {
-            //This is when there is an infected transaction block. But this is not participated to the transaction
-            //since the action call is outside of the transaction block.
-            if (!context.getLocalTransactionInfo().hasTransactionBlock()) {
-                conn = datasource.getSQLConnection();
-                return conn;
-            }
-        }
-        String connectorId = retrieveConnectorId(context);
-        boolean isXAConnection = datasource.isXAConnection();
-        TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
-        String globalTxId = transactionLocalContext.getGlobalTransactionId();
-        String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
-        if (txContext == null) {
-            if (isXAConnection) {
-                XAConnection xaConn = datasource.getXADataSource().getXAConnection();
-                XAResource xaResource = xaConn.getXAResource();
-                TransactionResourceManager.getInstance().beginXATransaction(globalTxId, currentTxBlockId, xaResource);
-                conn = xaConn.getConnection();
-                txContext = new SQLTransactionContext(conn, xaResource);
-            } else {
-                conn = datasource.getSQLConnection();
-                conn.setAutoCommit(false);
-                txContext = new SQLTransactionContext(conn);
-            }
-            transactionLocalContext.registerTransactionContext(connectorId, txContext);
-            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
-        } else {
-            conn = ((SQLTransactionContext) txContext).getConnection();
-        }
-        return conn;*/
+    Connection getDatabaseConnection(Strand strand, ObjectValue client, SQLDatasource datasource,
+                                     boolean isSelectQuery) throws DatabaseException {
         Connection conn;
         try {
-            conn = datasource.getSQLConnection();
+            boolean isInTransaction = strand.isInTransaction();
+            // Here when isSelectQuery condition is true i.e. in case of a select operation, we allow
+            // it to use a normal database connection. This is because,
+            // 1. In mysql (and possibly some other databases) another operation cannot be performed over a connection
+            // which has an open result set on top of it
+            // 2. But inside a transaction we use the same connection to perform all the db operation, so unless the
+            // result set is fully iterated, it won't be possible to perform rest of the operations inside the 
+            // transaction
+            // 3. Therefore, we allow select operations to be performed on separate db connections inside transactions
+            // (XA or general transactions)
+            // 4. However for call operations, despite of the fact that they could output resultsets
+            // (as OUT params or return values) we do not use a separate connection, because,
+            // call operations can contain UPDATE actions as well inside the procedure which may require to happen 
+            // in the
+            // same scope as any other individual UPDATE actions
+            if (!isInTransaction || isSelectQuery) {
+                conn = datasource.getSQLConnection();
+                return conn;
+            } else {
+                //This is when there is an infected transaction block. But this is not participated to the transaction
+                //since the action call is outside of the transaction block.
+                if (!strand.getLocalTransactionContext().hasTransactionBlock()) {
+                    conn = datasource.getSQLConnection();
+                    return conn;
+                }
+            }
+            String connectorId = retrieveConnectorId(client);
+            boolean isXAConnection = datasource.isXAConnection();
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            String globalTxId = transactionLocalContext.getGlobalTransactionId();
+            String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+            BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
+            if (txContext == null) {
+                if (isXAConnection) {
+                    XAConnection xaConn = datasource.getXADataSource().getXAConnection();
+                    XAResource xaResource = xaConn.getXAResource();
+                    TransactionResourceManager.getInstance()
+                                              .beginXATransaction(globalTxId, currentTxBlockId, xaResource);
+                    conn = xaConn.getConnection();
+                    txContext = new SQLTransactionContext(conn, xaResource);
+                } else {
+                    conn = datasource.getSQLConnection();
+                    conn.setAutoCommit(false);
+                    txContext = new SQLTransactionContext(conn);
+                }
+                transactionLocalContext.registerTransactionContext(connectorId, txContext);
+                TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, txContext);
+            } else {
+                conn = ((SQLTransactionContext) txContext).getConnection();
+            }
         } catch (SQLException e) {
             throw new DatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
         }
         return conn;
     }
 
-    //TODO: #16033
-   /* private String retrieveConnectorId(Context context) {
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
+    private String retrieveConnectorId(ObjectValue bConnector) {
         return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
-    }*/
+    }
 
-   /* private void notifyTxMarkForAbort(Context context, TransactionLocalContext transactionLocalContext) {
+    private void notifyTxMarkForAbort(Strand strand, TransactionLocalContext transactionLocalContext) {
         String globalTransactionId = transactionLocalContext.getGlobalTransactionId();
         String transactionBlockId = transactionLocalContext.getCurrentTransactionBlockId();
 
         transactionLocalContext.markFailure();
-        if (transactionLocalContext.isRetryPossible(context.getStrand(), transactionBlockId)) {
-            return;
-        }
-        TransactionUtils.notifyTransactionAbort(context.getStrand(), globalTransactionId,
-                transactionBlockId);
-    }*/
+        TransactionUtils.notifyTransactionAbort(strand, globalTransactionId, transactionBlockId);
+    }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
             int index) throws DatabaseException, ApplicationException {

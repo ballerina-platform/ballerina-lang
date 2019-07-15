@@ -51,8 +51,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.sql.rowset.CachedRowSet;
-
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
  * related to JDBC connector.
@@ -78,7 +76,7 @@ public class SQLDataIterator extends TableIterator {
     @Override
     public void close() {
         try {
-            if (rs != null && !(rs instanceof CachedRowSet) && !rs.isClosed()) {
+            if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
             resourceManager.gracefullyReleaseResources();
@@ -89,15 +87,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     public void reset() {
-        try {
-            if (rs instanceof CachedRowSet) {
-                rs.beforeFirst();
-            } else {
-                close();
-            }
-        } catch (SQLException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
-        }
+        close();
     }
 
     @Override

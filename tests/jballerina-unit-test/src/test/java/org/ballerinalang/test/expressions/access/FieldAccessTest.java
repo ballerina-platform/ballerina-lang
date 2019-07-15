@@ -48,7 +48,7 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 14);
+        Assert.assertEquals(negativeResult.getErrorCount(), 17);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
                               "for non-required field 'id'", 32, 9);
@@ -72,8 +72,11 @@ public class FieldAccessTest {
                       22);
         validateError(negativeResult, i++, "incompatible types: expected '(map<json>|error)', " +
                               "found '(map<json>|json|error)'", 102, 26);
-        validateError(negativeResult, i, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
+        validateError(negativeResult, i++, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
                       106, 20);
+        validateError(negativeResult, i++, "invalid operation: type 'Foo?' does not support field access", 131, 14);
+        validateError(negativeResult, i++, "invalid operation: type 'Baz?' does not support field access", 134, 16);
+        validateError(negativeResult, i, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
@@ -183,5 +186,17 @@ public class FieldAccessTest {
                 { "testMapJsonFieldAccessTypePositive1" },
                 { "testMapJsonFieldAccessTypePositive2" }
         };
+    }
+
+    @Test
+    public void testFieldAccessOnInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testFieldAccessOnInvocation");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testJsonFieldAccessOnInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonFieldAccessOnInvocation");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

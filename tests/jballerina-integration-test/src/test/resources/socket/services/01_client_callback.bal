@@ -45,16 +45,19 @@ service echo on echoEP {
                 resp.setPayload(errMsg);
                 var responseError = caller->respond(resp);
                 if (responseError is error) {
-                    io:println("Error sending response: ", responseError.detail()["message"]);
+                    error err = responseError;
+                    io:println("Error sending response: ", err.detail()["message"]);
                 }
             }
         } else {
-            string errMsg = <string>payload.detail()["message"];
+            error err = payload;
+            string errMsg = <string>err.detail().message;
             resp.statusCode = 500;
             resp.setPayload(<@untainted> errMsg);
             var responseError = caller->respond(resp);
             if (responseError is error) {
-                io:println("Error sending response: ", responseError.detail()["message"]);
+                error responseErr = responseError;
+                io:println("Error sending response: ", responseErr.detail()["message"]);
             }
         }
     }
@@ -77,7 +80,7 @@ service ClientService = service {
                     io:println(<@untainted>str);
                 } else {
                     error e = str;
-                    io:println(e.detail()["message"]);
+                    io:println(e.detail().message);
                 }
                 var closeResult = caller->close();
                 if (closeResult is error) {
@@ -96,7 +99,7 @@ service ClientService = service {
 
     resource function onError(socket:Caller caller, error er) {
         error e = er;
-        io:println(e.detail()["message"]);
+        io:println(e.detail().message);
     }
 };
 
