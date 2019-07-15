@@ -36,7 +36,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 
 /**
- * Native implementation of lang.map:get(map<Type>, string).
+ * Native implementation of lang.map:get(map&lt;Type&gt;, string).
  *
  * @since 1.0
  */

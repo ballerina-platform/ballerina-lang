@@ -16,11 +16,11 @@ service TestService on testEP {
         json[] jsonArray = [];
         string[] strArray = ["foo", "bar"];
         foreach var s in strArray {
-            jsonArray[jsonArray.count()] = s;
+            jsonArray[jsonArray.length()] = s;
         }
 
         http:Response res = new;
-        res.setJsonPayload(untaint jsonArray);
+        res.setJsonPayload(<@untainted> jsonArray);
         checkpanic caller->respond(res);
     }
 }
