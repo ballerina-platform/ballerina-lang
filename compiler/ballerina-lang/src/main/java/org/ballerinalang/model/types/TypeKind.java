@@ -86,6 +86,7 @@ public enum TypeKind {
     RECORD("record"),
     FINITE("finite"),
     CHANNEL("channel"),
+    HANDLE("handle"),
     TYPEPARAM("typeparam"),
     ;
 

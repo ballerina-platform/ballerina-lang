@@ -24,3 +24,13 @@ function testRecToJson() returns json|error {
     json|error j = typedesc<json>.constructFrom(p);
     return j;
 }
+
+function testOnTypeName() returns [Person|error, json|error] {
+   json p = { name : "tom", age: 2};
+   Person|error pp = Person.constructFrom(p);
+
+   Person s = { name : "bob", age: 4};
+   json|error ss = json.constructFrom(s);
+
+   return [pp, ss];
+}

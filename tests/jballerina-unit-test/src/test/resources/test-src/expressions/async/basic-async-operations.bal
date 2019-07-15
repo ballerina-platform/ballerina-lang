@@ -11,19 +11,22 @@ function testAsyncNonNativeBasic1() returns int {
 
 function testAsyncNonNativeBasic2() returns int {
     future<int> f1 = start add(5, 2);
-    int result = wait f1;
+    int result1 = wait f1;
     future<int> f2 = start add(10, 2);
     runtime:sleep(100);
-    result = result + wait f2;
-    return result;
+    int result2 = wait f2;
+    result1 = result1 + result2;
+    return result1;
 }
 
 function testAsyncNonNativeBasic3() returns int {
     future<int> f1 = start add(5, 2);
     int result = wait f1;
     future<int> f2 = start add(10, 2);
-    result = result + wait f2;
-    result = result + wait f2;
+    int result2 = wait f2;
+    result = result + result2;
+    int result3 = wait f2;
+    result = result + result3;
     return result;
 }
 
@@ -40,22 +43,19 @@ function testAsyncNonNativeBasic5() returns float {
 
 function testAsyncNonNativeBasic6() returns boolean {
     future<float> f1 = start addSlower(5.0, 5.0);
-    boolean a = f1.isDone();
     float v1 = wait f1;
-    boolean b = f1.isDone();
     future<any> f2 = start infiniteFunc();
-    boolean c = f2.isCancelled();
-    boolean d = f2.cancel();
+    f2.cancel();
     future<any> f3 = start io:println("NATIVE ASYNC BLOCKING");
-    boolean e = f3.cancel();
+    f3.cancel();
     future<any> f4 = start runtime:sleep(100);
-    boolean f = f4.cancel();
-    return !a && v1 == 10.0 && b && !c && d && !e && !f;
+    f4.cancel();
+    return v1 == 10.0;
 }
 
 function testAsyncNonNativeBasic7() returns int {
     future<int> f1 = start subtract(5, 2);
-    boolean cancelled = f1.cancel();
+    f1.cancel();
     int result = wait f1;
     return result;
 }
@@ -63,8 +63,8 @@ function testAsyncNonNativeBasic7() returns int {
 function testAsyncNonNativeBasic8() returns int {
     future<int> f1 = start subtract(8, 3);
     future<int> f2 = start subtract(5, 2);
-    boolean cancelled_f1 = f1.cancel();
-    boolean cancelled_f2 = f2.cancel();
+    f1.cancel();
+    f2.cancel();
     int result = wait f1 | f2;
     return result;
 }
@@ -72,7 +72,7 @@ function testAsyncNonNativeBasic8() returns int {
 function testAsyncNonNativeBasic9() returns int {
     future<int> f1 = start subtract(5, 2);
     future<int> f2 = start addNum(5, 2);
-    boolean cancelled_f1 = f1.cancel();
+    f1.cancel();
     int result = wait f1 | f2;
     return result;
 }
@@ -80,7 +80,7 @@ function testAsyncNonNativeBasic9() returns int {
 function testAsyncNonNativeBasic10() returns any {
     future<int> f1 = start addNum(5, 2);
     future<int> f2 = start subtract(5, 2);
-    boolean cancelled_f2 = f2.cancel();
+    f2.cancel();
     any result = wait {f1,f2};
     return result;
 }
@@ -88,8 +88,8 @@ function testAsyncNonNativeBasic10() returns any {
 function testAsyncNonNativeBasic11() returns any {
     future<int> f1 = start subtract(7, 2);
     future<int> f2 = start subtract(5, 2);
-    boolean cancelled_f1 = f1.cancel();
-    boolean cancelled_f2 = f2.cancel();
+    f1.cancel();
+    f2.cancel();
     any result = wait {f1,f2};
     return result;
 }
@@ -131,3 +131,32 @@ function infiniteFunc() {
         i = i + 1;
     }
 }
+
+function testAsyncObjectAttachedFunctions() returns int {
+    foo f = new;
+    int a = f.doFoo(5);
+    return a;
+}
+
+type foo object {
+
+    bar b = new;
+
+    function doFoo(int x) returns int {
+        future<int> f1 = start self.b.doBar(x);
+        future<int> f2 = start self.doFoo1(x);
+        int a = wait f1;
+        int b = wait f2;
+        return a + b;
+    }
+
+    function doFoo1(int x) returns int {
+        return x;
+    }
+};
+
+type bar object {
+    function doBar(int x) returns int {
+        return x;
+    }
+};

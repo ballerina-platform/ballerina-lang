@@ -43,6 +43,7 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
@@ -312,8 +313,15 @@ public class TypeChecker {
             return false;
         }
 
-        if (isSimpleBasicType(getType(lhsValue)) && isSimpleBasicType(getType(rhsValue))) {
+        BType lhsType = getType(lhsValue);
+        BType rhsType = getType(rhsValue);
+
+        if (isSimpleBasicType(lhsType) && isSimpleBasicType(rhsType)) {
             return isEqual(lhsValue, rhsValue);
+        }
+
+        if (isHandleType(lhsType) && isHandleType(rhsType)) {
+            return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
@@ -404,6 +412,8 @@ public class TypeChecker {
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType);
+            case TypeTags.HANDLE_TAG:
+                return sourceType.getTag() == TypeTags.HANDLE_TAG;
             default:
                 return false;
         }
@@ -430,40 +440,46 @@ public class TypeChecker {
     }
 
     private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
-        } else if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-        }
+        switch (sourceType.getTag()) {
+            case TypeTags.UNION_TAG:
+                return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+            default:
+                for (BType type : targetType.getMemberTypes()) {
+                    if (checkIsType(sourceType, type, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
 
-        for (BType type : targetType.getMemberTypes()) {
-            if (checkIsType(sourceType, type, unresolvedTypes)) {
-                return true;
-            }
         }
-        return false;
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.MAP_TAG && sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
+        switch (sourceType.getTag()) {
+            case TypeTags.MAP_TAG:
+                return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                        unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recType = (BRecordType) sourceType;
+                List<BType> types = new ArrayList<>();
+                for (BField f : recType.getFields().values()) {
+                    types.add(f.type);
+                }
+                if (!recType.sealed) {
+                    types.add(recType.restFieldType);
+                }
+                BUnionType fieldType = new BUnionType(types);
+                return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
+            case TypeTags.JSON_TAG:
+                if (targetType.getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
         }
-
-        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recType = (BRecordType) sourceType;
-            List<BType> types = new ArrayList<>();
-            for (BField f : recType.getFields().values()) {
-                types.add(f.type);
-            }
-            if (!recType.sealed) {
-                types.add(recType.restFieldType);
-            }
-            BUnionType fieldType = new BUnionType(types);
-            return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
-        }
-
-        return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -1208,6 +1224,10 @@ public class TypeChecker {
         return type.getTag() < TypeTags.JSON_TAG;
     }
 
+    private static boolean isHandleType(BType type) {
+        return type.getTag() == TypeTags.HANDLE_TAG;
+    }
+
     /**
      * Deep value equality check for anydata.
      *
@@ -1387,6 +1407,19 @@ public class TypeChecker {
             TypePair other = (TypePair) obj;
             return this.sourceType.equals(other.sourceType) && this.targetType.equals(other.targetType);
         }
+    }
+
+    /**
+     * Check the reference equality of handle values.
+     *
+     * @param lhsValue The value on the left hand side
+     * @param rhsValue The value on the right hand side
+     * @return True if values are equal, else false.
+     */
+    private static boolean isHandleValueRefEqual(Object lhsValue, Object rhsValue) {
+        HandleValue lhsHandle = (HandleValue) lhsValue;
+        HandleValue rhsHandle = (HandleValue) rhsValue;
+        return lhsHandle.getValue() == rhsHandle.getValue();
     }
 
     /**

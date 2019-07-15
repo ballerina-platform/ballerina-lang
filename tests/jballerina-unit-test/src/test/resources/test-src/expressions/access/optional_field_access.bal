@@ -291,3 +291,43 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
     }
     return false;
 }
+
+type Qux record {
+    Corge corge;
+};
+
+type Corge record {
+    int i;
+};
+
+function getQux() returns Qux {
+    return { corge: { i: 10 } };
+}
+
+function getQuxOrNil(boolean getQux) returns Qux? {
+    return getQux ? { corge: { i: 10 } } : ();
+}
+
+function testOptionalFieldAccessForRequiredFieldOnInvocation() returns boolean {
+    int ri = getQux()?.corge?.i;
+    return ri == 10;
+}
+
+function testOptionalFieldAccessOnNillableTypeInvocation() returns boolean {
+    int? ri = getQuxOrNil(true)?.corge?.i;
+    return ri == 10;
+}
+
+function testNilLiftingWithOptionalFieldAccessOnNillableTypeInvocation() returns boolean {
+    int? ri = getQuxOrNil(false)?.corge?.i;
+    return ri == ();
+}
+
+function testJsonOptionalFieldAccessOnInvocation() returns boolean {
+    json|error v = getJson()?.x?.y;
+    return v == 1;
+}
+
+function getJson() returns json {
+    return { x: { y: 1 } };
+}

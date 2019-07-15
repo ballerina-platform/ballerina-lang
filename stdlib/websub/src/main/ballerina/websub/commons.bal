@@ -178,7 +178,8 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 # + serviceType - The service for which the request was rceived
 # + return - `error`, if an error occurred in extraction or signature validation failed
 function processWebSubNotification(http:Request request, service serviceType) returns @tainted error? {
-    string secret = retrieveSubscriberServiceAnnotations(serviceType)?.secret ?: "";
+    SubscriberServiceConfiguration? subscriberConfig = retrieveSubscriberServiceAnnotations(serviceType);
+    string secret = subscriberConfig?.secret ?: "";
     // Build the data source before responding to the content delivery requests automatically
     var payload = request.getTextPayload();
 
@@ -200,7 +201,8 @@ function processWebSubNotification(http:Request request, service serviceType) re
     if (payload is string) {
         return validateSignature(xHubSignature, payload, secret);
     } else {
-        string errCause = <string> payload.detail()?.message;
+        error err = payload;
+        string errCause = <string> err.detail()?.message;
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Error extracting notification payload as string " +
                                             "for signature validation: " + errCause);
         return webSubError;

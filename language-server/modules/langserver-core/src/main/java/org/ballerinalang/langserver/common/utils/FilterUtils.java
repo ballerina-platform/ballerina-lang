@@ -20,18 +20,15 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -41,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -325,23 +321,23 @@ public class FilterUtils {
      * @return {@link Map} Scope Entry Map
      */
     private static Map<Name, Scope.ScopeEntry> getScopeEntriesForSymbol(BType symbolType, LSContext context) {
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        PackageID pkgId = getPackageIDForBType(symbolType);
-        String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
-        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
+//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+//        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+//        PackageID pkgId = getPackageIDForBType(symbolType);
+//        String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
+//        String builtinPkgName = symbolTable.builtInPackageSymbol.pkgID.name.getValue();
 
-        if (packageIDString.equals(builtinPkgName)) {
-            // Extract the invokable entries only from the scope entries
-            return symbolTable.builtInPackageSymbol.scope.entries.entrySet().stream().filter(entry -> {
-                BSymbol scopeEntrySymbol = entry.getValue().symbol;
-                if (!(scopeEntrySymbol instanceof BInvokableSymbol) || scopeEntrySymbol instanceof BOperatorSymbol) {
-                    return false;
-                }
-                BType ownerType = getModifiedBType(((BInvokableSymbol) scopeEntrySymbol).owner.type);
-                return ownerType == symbolType;
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        }
+//        if (packageIDString.equals(builtinPkgName)) {
+//            // Extract the invokable entries only from the scope entries
+//            return symbolTable.builtInPackageSymbol.scope.entries.entrySet().stream().filter(entry -> {
+//                BSymbol scopeEntrySymbol = entry.getValue().symbol;
+//                if (!(scopeEntrySymbol instanceof BInvokableSymbol) || scopeEntrySymbol instanceof BOperatorSymbol) {
+//                    return false;
+//                }
+//                BType ownerType = getModifiedBType(((BInvokableSymbol) scopeEntrySymbol).owner.type);
+//                return ownerType == symbolType;
+//            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+//        }
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
             Map<Name, Scope.ScopeEntry> entries = objectTypeSymbol.methodScope.entries;

@@ -62,11 +62,16 @@ function beginTransactionInitiator(string transactionBlockId, int rMax, function
         if (trxResult is int) {
             // If transaction result == 0, means it is successful.
             if (trxResult == 0) { 
-                var endSuccess = trap endTransaction(transactionId, transactionBlockId);
-                if (endSuccess is string) {
-                    if (endSuccess == OUTCOME_COMMITTED) {
-                        isTrxSuccess = true;
-                        break;
+                // We need to check any failures in transaction context. This will handle cases where transaction
+                // code will not panic still we need to fail the transaction. ex sql transactions
+                boolean isFailed = getAndClearFailure();
+                if (!isFailed) {
+                    var endSuccess = trap endTransaction(transactionId, transactionBlockId);
+                    if (endSuccess is string) {
+                        if (endSuccess == OUTCOME_COMMITTED) {
+                            isTrxSuccess = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -381,4 +386,7 @@ function rollbackTransaction(string transactionBlockId) = external;
 # + transactionBlockId - ID of the transaction block.
 function cleanupTransactionContext(string transactionBlockId) = external;
 
-
+# Get and Cleanup the failure.
+#
+# + return - is failed.
+function getAndClearFailure() returns boolean = external;
