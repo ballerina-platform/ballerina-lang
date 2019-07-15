@@ -1,4 +1,4 @@
-import ballerina/test;
+/*import ballerina/test;
 import ballerina/io;
 
 # Before Suite Function
@@ -22,3 +22,4 @@ function testServiceFunction () {
 function afterSuiteServiceFunc () {
     io:println("I'm the after suite service function!");
 }
+*/

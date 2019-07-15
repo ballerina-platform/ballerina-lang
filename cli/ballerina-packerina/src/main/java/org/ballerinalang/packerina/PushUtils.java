@@ -35,23 +35,16 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Scanner;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
@@ -91,12 +84,12 @@ public class PushUtils {
             throw createLauncherException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
         }
-    
+
         if (manifest.getProject().getVersion().isEmpty()) {
             throw createLauncherException("A module version is required when pushing. This is not specified " +
                                                      "in Ballerina.toml inside the project");
         }
-    
+
         String orgName = manifest.getProject().getOrgName();
         // Validate the org-name
         if (!RepoUtils.validateOrg(orgName)) {
@@ -108,7 +101,7 @@ public class PushUtils {
             throw createLauncherException("invalid organization name provided \'" + orgName + "\'. 'ballerina' and " +
                     "'ballerinax' are reserved organization names that are used by Ballerina");
         }
-    
+
         // Validate the module-name
         if (!RepoUtils.validatePkg(moduleName)) {
             throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
@@ -117,11 +110,11 @@ public class PushUtils {
         }
         String version = manifest.getProject().getVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(moduleName), new Name(version));
-    
+
         // Get balo output path
         Path baloOutputDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.TARGET_DIR_NAME,
                                             ProjectDirConstants.TARGET_BALO_DIRECTORY);
-    
+
         if (Files.notExists(baloOutputDir)) {
             throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. Run 'jballerina " +
                                           "compile' to compile and generate a module artifact(balo).");
@@ -129,11 +122,16 @@ public class PushUtils {
             // Get access token
             String accessToken = checkAccessToken();
             Proxy proxy = settings.getProxy();
-            for (File baloFile : Objects.requireNonNull(baloOutputDir.toFile().listFiles())) {
+            File[] baloFiles = baloOutputDir.toFile().listFiles();
+            if (baloFiles == null) {
+                // TODO: this is highly unlikely so need to handle this in a better way.
+                return true;
+            }
+            for (File baloFile : baloFiles) {
                 // Push module to central
                 String urlWithModulePath = resolvePkgPathInRemoteRepo(packageID);
                 String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
-        
+
                 Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
                         proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
                         baloFile.toPath().toAbsolutePath().toString(), outputLogMessage);
@@ -145,7 +143,7 @@ public class PushUtils {
                     }
                 }
             }
-    
+
             return true;
         }
     }
@@ -170,7 +168,7 @@ public class PushUtils {
             }
             long modifiedTimeOfFileAtStart = getLastModifiedTimeOfFile(SETTINGS_TOML_FILE_PATH);
             executor.executeService("module_cli_token_updater");
-            
+
             boolean waitForToken = true;
             while (waitForToken) {
                 pause();
@@ -225,26 +223,26 @@ public class PushUtils {
      * @param packageID          packageID of the module
      * @param pkgPathFromPrjtDir module path from the project directory
      */
-    private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
-        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(),
-                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
-                                             packageID.orgName.getValue(),
-                                             packageID.name.getValue(),
-                                             packageID.version.getValue(),
-                                             packageID.name.getValue() + ".zip");
-        if (Files.exists(targetDirectoryPath)) {
-            throw createLauncherException("Ballerina module exists in the home repository");
-        } else {
-            try {
-                Files.createDirectories(targetDirectoryPath);
-                Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-                SYS_OUT.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
-                                          packageID.version.getValue() + " [project repo -> home repo]");
-            } catch (IOException e) {
-                throw createLauncherException("Error occurred when creating directories in the home repository");
-            }
-        }
-    }
+//    private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
+//        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(),
+//                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
+//                                             packageID.orgName.getValue(),
+//                                             packageID.name.getValue(),
+//                                             packageID.version.getValue(),
+//                                             packageID.name.getValue() + ".zip");
+//        if (Files.exists(targetDirectoryPath)) {
+//            throw createLauncherException("Ballerina module exists in the home repository");
+//        } else {
+//            try {
+//                Files.createDirectories(targetDirectoryPath);
+//                Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
+//                SYS_OUT.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
+//                                          packageID.version.getValue() + " [project repo -> home repo]");
+//            } catch (IOException e) {
+//                throw createLauncherException("Error occurred when creating directories in the home repository");
+//            }
+//        }
+//    }
 
     /**
      * Get URI of the module from the remote repo.
@@ -291,31 +289,31 @@ public class PushUtils {
      * @param archivedFilePath balo file path of the module
      * @return content of Module.md as a string
      */
-    private static String getModuleMDFileContent(String archivedFilePath, String packageName) {
-        ZipFile zipFile = null;
-        try {
-            zipFile = new ZipFile(archivedFilePath);
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = entries.nextElement();
-                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Module.md")) {
-                    InputStream stream = zipFile.getInputStream(entry);
-                    Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
-                    return scanner.hasNext() ? scanner.next() : "";
-                }
-            }
-        } catch (IOException ignore) {
-        } finally {
-            try {
-                if (zipFile != null) {
-                    zipFile.close();
-                }
-            } catch (IOException ignore) {
-            }
-        }
-        return null;
-    }
+//    private static String getModuleMDFileContent(String archivedFilePath, String packageName) {
+//        ZipFile zipFile = null;
+//        try {
+//            zipFile = new ZipFile(archivedFilePath);
+//            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+//
+//            while (entries.hasMoreElements()) {
+//                ZipEntry entry = entries.nextElement();
+//                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Module.md")) {
+//                    InputStream stream = zipFile.getInputStream(entry);
+//                    Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
+//                    return scanner.hasNext() ? scanner.next() : "";
+//                }
+//            }
+//        } catch (IOException ignore) {
+//        } finally {
+//            try {
+//                if (zipFile != null) {
+//                    zipFile.close();
+//                }
+//            } catch (IOException ignore) {
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * Read summary of the module from Module.md file.
@@ -323,25 +321,25 @@ public class PushUtils {
      * @param mdFileContent full content of Module.md
      * @return summary of the module
      */
-    private static String readSummary(String mdFileContent) {
-        if (mdFileContent.isEmpty()) {
-            throw createLauncherException("Module.md in the artifact is empty");
-        }
-
-        Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
-                                        .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                                        .findFirst();
-
-        if (!result.isPresent()) {
-            throw createLauncherException("Cannot find module summary");
-        }
-
-        String firstLine = result.get();
-        if (firstLine.length() > 50) {
-            throw createLauncherException("Summary of the module exceeds 50 characters");
-        }
-        return firstLine;
-    }
+//    private static String readSummary(String mdFileContent) {
+//        if (mdFileContent.isEmpty()) {
+//            throw createLauncherException("Module.md in the artifact is empty");
+//        }
+//
+//        Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
+//                                        .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+//                                        .findFirst();
+//
+//        if (!result.isPresent()) {
+//            throw createLauncherException("Cannot find module summary");
+//        }
+//
+//        String firstLine = result.get();
+//        if (firstLine.length() > 50) {
+//            throw createLauncherException("Summary of the module exceeds 50 characters");
+//        }
+//        return firstLine;
+//    }
 
     /**
      * Push all modules to central.

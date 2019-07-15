@@ -1,6 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
+/*
 # Before Suite Function
 
 @test:BeforeSuite
@@ -37,3 +38,4 @@ function afterFunc () {
 function afterSuiteFunc () {
     io:println("I'm the after suite function!");
 }
+*/
