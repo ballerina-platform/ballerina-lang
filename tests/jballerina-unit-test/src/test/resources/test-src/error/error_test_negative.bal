@@ -50,8 +50,20 @@ function testInvalidErrorTypeInFunc() {
 type MyError error<string>;
 
 function testSelfReferencingErrorConstructor() {
-    error e3 = error(e3.reason(), e3 = e3);
-    MyError e4 = error("reason", e4 = e4);
+    error e3 = error(e3.reason(), cause = e3);
+    MyError e4 = error("reason", cause = e4);
     UserDefErrorOne ue1 = UserDefErrorOne();
     MyError me1 = MyError();
 }
+
+type TrxErrorData record {|
+    string message = "";
+    error cause?;
+    map<string> data = {};
+|};
+
+type MyErrorErrorData record {|
+    string message = "";
+    MyError cause?;
+    map<string> data = {};
+|};

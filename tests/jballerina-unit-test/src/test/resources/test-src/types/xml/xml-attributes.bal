@@ -190,21 +190,18 @@ function testUsingQNameAsString () returns [string, string] {
     return [s1, s2];
 }
 
-function testGetAttributesAsMap() returns [map<string>|error, map<string>|error, string, string] {
+function testGetAttributesAsMap() returns [map<string>?, map<string>?, string, string] {
     var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
     
-    map<string>|error m1 = map<string>.convert(x1@);
-    map<string>|error m2 = map<string>.convert(x2@);
+    map<string>? m1 = x1@;
+    map<string>? m2 = x2@;
 
-    if (m1 is map<string>) {
-        var a = m1["{http://sample.com/wso2/a1}foo1"];
-        var s1 = a is string ?  a : "";
-        a = m1[ns0:foo1];
-        var s2 =  a is string ? a : "";
-        return [m1, m2, s1, s2];
-    }
-    return [m1, m2, "", ""];
+    var a = m1["{http://sample.com/wso2/a1}foo1"];
+    var s1 = a is string ?  a : "";
+    a = m1[ns0:foo1];
+    var s2 =  a is string ? a : "";
+    return [m1, m2, s1, s2];
 }
 
 function testXMLAttributesToAny() returns (any) {
@@ -296,10 +293,12 @@ function passXmlAttrToFunction() returns map<string>? {
 function mapOperationsOnXmlAttribute() returns [int?, string[]?, boolean] {
     var x1 = xml `<child foo="bar"/>`;
     boolean isMap = false;
-    if (x1@ is map<string>) {
-        isMap = true;
+    map<string>? attrMap = x1@;
+    if (attrMap is map<string>) {
+        return [attrMap.length(), attrMap.keys(), true];
+    } else {
+        return [0, (), false];
     }
-    return [x1@.length(), x1@.keys(), isMap];
 }
 
 function mapUpdateOnXmlAttribute() returns (xml) {
