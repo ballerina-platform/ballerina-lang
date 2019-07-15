@@ -34,10 +34,11 @@
 
     > **Note:** However, the context should be taken into account when formatting words/phrases with backquotes. For example, although the word "record" is a keyword of the language, it need not be highlighted if you are referring to the record construct of the language as shown below.
 
-    ````
-    // Defines an open record type named Student. The { and } delimiters indicate that in addition to the defined fields,
-    // this record type allows additional fields with pure-typed (i.e., anydata|error) values.
-    // The descriptor record { } is equivalent to record {| (anydata|error)...; |}.
+    ```
+    // Defines an open record type named Student. The { and } delimiters indicate that
+    // in addition to the defined fields, this record type allows additional fields with
+    // pure-typed (i.e., anydata|error) values. The descriptor record { } is equivalent to 
+    // record {| (anydata|error)...; |}.
     type Student record {
         string name;
         int age;
@@ -63,7 +64,7 @@
 
         ![comment boxes](images/comment-boxes.png "comment-boxes")
 
-2. Since comments are used in the right hand side boxes as a mechanism to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
+2. Since comments are used to describe the code, they should be valid sentences (i.e., start with an upper case letter and end with a full stop etc.).
 
 3. After a comment is strated, it will continue being applied to the subsequent lines in the file until another comment or an empty line is found. Therefore, use comments/new lines appropriately to ensure that they apply only to the relevant lines.
 
@@ -75,7 +76,7 @@
 
 ## Practices related to the folder structure
 
-1. Each BBE should be in a separate directory in the [ballerina-lang Git Hub repository](https://github.com/ballerina-platform/ballerina-lang/tree/master/examples) named by the example (e.g., https://github.com/ballerina-platform/ballerina-lang/tree/master/examples/artemis-transaction-producer).
+1. Each BBE should be in a separate directory in the [ballerina-lang GitHub repository](https://github.com/ballerina-platform/ballerina-lang/tree/master/examples) named by the example (e.g., https://github.com/ballerina-platform/ballerina-lang/tree/master/examples/hello-world).
 
 2. Directory name should be in all lowercase letters with words separated by “-” (e.g., abstract-objects).
 
@@ -89,7 +90,7 @@
 
     `.out` - Output of the example displayed at the bottom black colour box in the [Ballerina By Example](https://ballerina.io/learn/by-example/).
 
-    `<example_name>_test.bal` - Contains the test to validate the output of the BBE during the build time. 
+    `<example_name>_test.bal` - Contains the tests to validate the output of the BBE during the build time. 
 
     <img src="images/bbe-folder-structure.png" width="300" height="150" alt="BBE folder structure" />
 
@@ -116,7 +117,7 @@
     <img src="images/service-example-structure.png" width="330" height="180" alt="service example structure" />
 
 
-6. Unless it is really required, it is not encouraged to have multiple `.bal` files in the same example. In case if multiple are needed, each BAL file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
+6. Unless it is really required, it is not encouraged to have multiple `.bal` files in the same example. In case if multiple are needed, each `.bal` file can have its own name and the respective `.out` files should match the name of the respective `.bal` file. 
 
 <img src="images/multiple-bal-examples.png" width="400" height="150" alt="multiple-bal-examples" />
 
