@@ -32,11 +32,11 @@ public type ConnectionError error<CONNECTION_ERROR, Detail>;
 public const INVALID_CONTINUATION_FRAME_ERROR = "{ballerina/http}InvalidContinuationFrameError";
 public type InvalidContinuationFrameError error<INVALID_CONTINUATION_FRAME_ERROR, Detail>;
 
-public const GENERIC_ERROR = "{ballerina/http}GenericError";
-public type GenericError error<GENERIC_ERROR, Detail>;
+public const GENERIC_ERROR = "{ballerina/http}WebSocketGenericError";
+public type WebSocketGenericError error<GENERIC_ERROR, Detail>;
 
 public type WebSocketError ConnectionClosureError|InvalidHandshakeError|PayloadTooBigError|ProtocolError|
-ConnectionError|InvalidContinuationFrameError|GenericError;
+ConnectionError|InvalidContinuationFrameError|WebSocketGenericError;
 
 public type Detail record {
     string message;

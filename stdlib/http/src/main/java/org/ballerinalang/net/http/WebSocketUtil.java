@@ -43,8 +43,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import java.util.Arrays;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.GenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.InvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WebSocketGenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
@@ -237,7 +237,7 @@ public class WebSocketUtil {
      * @return ErrorValue instance which contains the error details
      */
     public static ErrorValue createWebSocketError(String errMsg) {
-        return BallerinaErrors.createError(GenericError.errorCode(), createDetailRecord(errMsg, null));
+        return BallerinaErrors.createError(WebSocketGenericError.errorCode(), createDetailRecord(errMsg, null));
     }
 
     /**

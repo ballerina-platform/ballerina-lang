@@ -108,7 +108,7 @@ public class WebSocketConstants {
         ProtocolError("{ballerina/http}ProtocolError"),
         ConnectionError("{ballerina/http}ConnectionError"),
         InvalidContinuationFrameError("{ballerina/http}InvalidContinuationFrameError"),
-        GenericError("{ballerina/http}GenericError");
+        WebSocketGenericError("{ballerina/http}GenericError");
 
         private String errorCode;
 
