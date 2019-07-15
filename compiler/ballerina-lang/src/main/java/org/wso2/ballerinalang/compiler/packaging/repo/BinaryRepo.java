@@ -21,7 +21,6 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 public class BinaryRepo implements Repo<Path> {
 
     private final ZipConverter converter;
-    private final CompilerPhase compilerPhase;
 
     public BinaryRepo(Path pathToHiddenDir, CompilerPhase compilerPhase) {
         this(pathToHiddenDir, Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME), compilerPhase);
@@ -29,7 +28,6 @@ public class BinaryRepo implements Repo<Path> {
 
     public BinaryRepo(ZipConverter converter, CompilerPhase compilerPhase) {
         this.converter = converter;
-        this.compilerPhase = compilerPhase;
     }
 
     public BinaryRepo(Path pathToHiddenDir, Path subDir, CompilerPhase compilerPhase) {
@@ -49,9 +47,9 @@ public class BinaryRepo implements Repo<Path> {
         }
         String artifactName = pkgName + ".zip";
 
-        String binaryFileName = pkgName + (this.compilerPhase == CompilerPhase.BIR_GEN ? ".bir" : ".balo");
+        String binaryFileName = pkgName + ".bir";
 
-        String folderName = this.compilerPhase == CompilerPhase.BIR_GEN ? "bir" : "obj";
+        String folderName = "bir";
 
         return new Patten(path(orgName, pkgName), version, path(artifactName, folderName, binaryFileName));
     }

@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 public class URIConverter implements Converter<URI> {
 
     private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
-            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.CODE_GEN); // TODO check phase
+            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.BIR_GEN); // TODO check phase
     private final URI base;
     private boolean isBuild = true;
     private PrintStream outStream = System.err;
