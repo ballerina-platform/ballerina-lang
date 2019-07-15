@@ -68,7 +68,8 @@ public class LangLibIntTest {
 
         BError err = (BError) returns[1];
         assertEquals(err.getReason(), BallerinaErrorReasons.NUMBER_PARSING_ERROR);
-        assertEquals(err.getDetails().toString(), "{message:\"For input string: \"12invalid34\"\"}");
+        assertEquals(err.getDetails().toString(), "message:\"'string' value '12invalid34'" +
+                " cannot be converted to 'int'\"");
     }
 
     @Test
