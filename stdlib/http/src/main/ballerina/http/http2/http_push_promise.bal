@@ -27,7 +27,7 @@ public type PushPromise object {
     #
     # + path - The resource path
     # + method - The HTTP method
-    public function __init(string path = "/", string method = "GET") {
+    public function __init(public string path = "/", public string method = "GET") {
         self.path = path;
         self.method = method;
     }

@@ -44,7 +44,7 @@
             <!--<package name="org.ballerinalang.test.parser.*"/>-->
             <!--<package name="org.ballerinalang.test.closures.*"/>-->
             <!--<package name="org.ballerinalang.test.dataflow.*"/>-->
-            <!--<package name="org.ballerinalang.test.variable.shadowing.*"/>-->
+            <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>

@@ -37,20 +37,18 @@ public type JdbcClient client object {
     # + return - A `table` returned by the sql query statement else `Error` will be returned if there
     # is any error
     public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
-    Param... parameters) returns @tainted table<record {}>|Error {
+                                  Param... parameters) returns @tainted table<record {}>|Error {
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
 
     # The update remote function implementation for JDBC Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - A `UpdateResult` with the updated row count and key column values,
     #            else `Error` will be returned if there is any error
-    public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
-                                  returns UpdateResult|Error {
-        return nativeUpdate(self, sqlQuery, keyColumns, ...parameters);
+    public remote function update(@untainted string sqlQuery, Param... parameters) returns UpdateResult|Error {
+        return nativeUpdate(self, sqlQuery, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.
@@ -80,7 +78,7 @@ function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc
 function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
    returns @tainted table<record {}>[]|()|Error = external;
 
-function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
+function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, Param... parameters)
     returns UpdateResult|Error = external;
 
 function nativeBatchUpdate(JdbcClient sqlClient, @untainted string sqlQuery, boolean rollbackAllInFailure,
