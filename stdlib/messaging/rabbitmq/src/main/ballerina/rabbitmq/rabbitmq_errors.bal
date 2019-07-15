@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const RABBITMQ_ERROR = "{ballerina/rabbitmq}RabbitMQError";
-public type RabbitMQError error<RABBITMQ_ERROR, Detail>;
+public const RABBITMQ_ERROR = "{ballerina/rabbitmq}Error";
+public type Error error<RABBITMQ_ERROR, Detail>;
