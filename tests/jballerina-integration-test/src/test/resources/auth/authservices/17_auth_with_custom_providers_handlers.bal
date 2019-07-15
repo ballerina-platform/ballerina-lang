@@ -139,7 +139,7 @@ public type InboundCustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|error {
+    public function authenticate(string credential) returns boolean|auth:Error {
         string token = "4ddb0c25";
         boolean authenticated = crypto:crc32b(credential) == token;
         if (authenticated) {
@@ -166,7 +166,7 @@ public type OutboundCustomAuthHandler object {
 
     public function prepare(http:Request req) returns http:Request|error {
         string token = check self.authProvider.generateToken();
-        req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+        req.setHeader(http:AUTH_HEADER, "Custom " + token);
         return req;
     }
 
@@ -179,7 +179,7 @@ public type OutboundCustomAuthHandler object {
         }
         string? token = check self.authProvider.inspect(headerMap);
         if (token is string) {
-            req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+            req.setHeader(http:AUTH_HEADER, "Custom " + token);
             return req;
         }
         return ();
@@ -192,15 +192,15 @@ public type OutboundCustomAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public function generateToken() returns string|error {
+    public function generateToken() returns string|auth:Error {
         string token = "plumless";
-        return crypto:crc32b(token);
+        return token;
     }
 
-    public function inspect(map<anydata> data) returns string|error? {
+    public function inspect(map<anydata> data) returns string|auth:Error? {
         if (data[http:STATUS_CODE] == http:FORBIDDEN_403) {
             string token = "buckeroo";
-            return crypto:crc32b(token);
+            return token;
         }
     }
 };
