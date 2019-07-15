@@ -34,3 +34,8 @@ function testOnTypeName() returns [Person|error, json|error] {
 
    return [pp, ss];
 }
+
+function floatToDecimal() returns decimal {
+    float f = 33.3;
+    return decimal.constructFrom(f);
+}

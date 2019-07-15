@@ -55,7 +55,7 @@
             <!--<package name="org.ballerinalang.test.main.function.*"/>-->
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <!--<package name="org.ballerinalang.test.types.any.*"/>-->
-            <!--<package name="org.ballerinalang.test.error.*"/>-->
+            <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <!--<package name="org.ballerinalang.test.types.finite.*"/>-->
             <!--<package name="org.ballerinalang.test.types.map.*"/>-->
