@@ -410,10 +410,11 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                && !currentPkgID.name.value.equals(packageID.name.value)) {
-            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
+//        else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+//                && !currentPkgID.name.value.equals(packageID.name.value)) {
+//            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+//        }
 
         boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
         

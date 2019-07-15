@@ -196,7 +196,7 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns [string, map<any>]|error = external;
+public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -250,9 +250,10 @@ function buildResponse(ResponseMessage message) returns Response {
 # + requestAction - `HttpOperation` related to the request
 # + httpClient - HTTP client which uses to call the relevant functions
 # + verb - HTTP verb used for submit method
-# + return - The response for the request or an `error` if failed to establish communication with the upstream server
-public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction,
-                                                HttpClient httpClient, string verb = "") returns HttpResponse|error {
+# + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
+public function invokeEndpoint (string path, Request outRequest, HttpOperation requestAction, HttpClient httpClient,
+                                                                    string verb = "") returns HttpResponse|ClientError {
+
     if (HTTP_GET == requestAction) {
         var result = httpClient->get(path, message = outRequest);
         return result;
@@ -319,9 +320,10 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
     return result;
 }
 
-function getError() returns error {
-    error httpConnectorErr = error("Unsupported connector action received.");
-    return httpConnectorErr;
+function getError() returns UnsupportedActionError {
+    string message = "Unsupported connector action received.";
+    UnsupportedActionError unsupportedActionError = error(UNSUPPORTED_ACTION, message = message);
+    return unsupportedActionError;
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {
@@ -375,10 +377,11 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
     }
 }
 
-function getInvalidTypeError() returns error {
-    error invalidTypeError = error("Invalid return type found for the HTTP operation");
+function getInvalidTypeError() returns ClientError {
+    string message = "Invalid return type found for the HTTP operation";
+    GenericClientError invalidTypeError = error(GENERIC_CLIENT_ERROR, message = message);
     return invalidTypeError;
 }
 
 //Resolve a given path against a given URI.
-function resolve(string baseUrl, string path) returns string|error = external;
+function resolve(string baseUrl, string path) returns string|ClientError = external;

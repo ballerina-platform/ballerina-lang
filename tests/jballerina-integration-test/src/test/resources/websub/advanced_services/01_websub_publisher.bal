@@ -64,7 +64,7 @@ service publisher on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req, string subscriber) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
@@ -101,7 +101,7 @@ service publisherTwo on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
 
         checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
@@ -138,7 +138,7 @@ service publisherThree on publisherServiceEP {
     resource function notify(http:Caller caller, http:Request req) {
         var payload = req.getJsonPayload();
         if (payload is error) {
-            panic payload;
+            panic <error> payload;
         }
         checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);

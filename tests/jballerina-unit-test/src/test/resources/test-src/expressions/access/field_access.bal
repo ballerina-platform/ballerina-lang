@@ -231,3 +231,44 @@ function testMapJsonFieldAccessTypePositive2() returns boolean {
     json|error jv = m2.a.b;
     return jv is json && jv == 1;
 }
+
+type Foo record {
+    Bar bar;
+    function() returns Baz bazFunc = getBaz;
+};
+
+type Bar object {
+    int i;
+
+    public function __init(int i) {
+        self.i = i;
+    }
+};
+
+type Baz record {
+    float f = 2.0;
+};
+
+function getFoo() returns Foo {
+    return { bar: new(10) };
+}
+
+function getBaz() returns Baz {
+    return { f: 100.0 };
+}
+
+function testFieldAccessOnInvocation() returns boolean {
+    int ri = getFoo().bar.i;
+    float rf = getFoo().bazFunc().f;
+
+    return ri == 10 && rf == 100.0;
+}
+
+function testJsonFieldAccessOnInvocation() returns boolean {
+    json|error v = getJson().x.y;
+    return v == 1;
+}
+
+function getJson() returns json {
+    return { x: { y: 1 } };
+}

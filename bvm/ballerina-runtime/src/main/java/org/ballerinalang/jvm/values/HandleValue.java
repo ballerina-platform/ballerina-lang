@@ -31,15 +31,24 @@ import java.util.Map;
  */
 public class HandleValue implements RefValue {
 
-    public Object value;
+    private Object value;
 
     public HandleValue(Object value) {
         this.value = value;
     }
 
+    public Object getValue() {
+        return value;
+    }
+
     @Override
     public String stringValue() {
         return value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value != null ? value.toString() : null;
     }
 
     @Override

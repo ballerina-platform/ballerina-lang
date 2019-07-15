@@ -37,7 +37,7 @@ insert into CustomersTrx (firstName,lastName,registrationID,creditLimit,country)
 insert into CustomersTrx2 (customerId,firstName,lastName,registrationID,creditLimit,country)
   values (1, 'Peter', 'Stuart', 1, 5000.75, 'USA');
 /
-CREATE ALIAS InsertPersonDataSuccessful FOR "org.ballerinalang.stdlib.database.sql.transaction.SQLTransactionsTest.insertPersonDataSuccessful";
+CREATE ALIAS InsertPersonDataSuccessful FOR "org.ballerinax.jdbc.transaction.SQLTransactionsTest.insertPersonDataSuccessful";
 /
-CREATE ALIAS InsertPersonDataFailure FOR "org.ballerinalang.stdlib.database.sql.transaction.SQLTransactionsTest.insertPersonDataFailure";
+CREATE ALIAS InsertPersonDataFailure FOR "org.ballerinax.jdbc.transaction.SQLTransactionsTest.insertPersonDataFailure";
 /
