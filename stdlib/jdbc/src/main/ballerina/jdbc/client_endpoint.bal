@@ -49,7 +49,8 @@ public type Client client object {
     # + parameters - The parameters to be passed to the select query. The number of parameters is variable
     # + return - A `table` returned by the sql query statement else `Error` will be returned if there
     # is any error
-    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters) returns @tainted table<record {}>|Error {
+    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters)
+                                  returns @tainted table<record {}>|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
@@ -59,16 +60,15 @@ public type Client client object {
     # The update remote function implementation for JDBC Client to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
-    # + keyColumns - Names of auto generated columns for which the auto generated key values are returned
     # + parameters - The parameters to be passed to the update query. The number of parameters is variable
     # + return - `UpdateResult` with the updated row count and key column values,
     #             else  `Error` will be returned if there is any error
-    public remote function update(@untainted string sqlQuery, string[]? keyColumns = (), Param... parameters)
+    public remote function update(@untainted string sqlQuery, Param... parameters)
                                   returns UpdateResult|Error {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return self.jdbcClient->update(sqlQuery, keyColumns, ...parameters);
+        return self.jdbcClient->update(sqlQuery, ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to batch data insert.
