@@ -386,7 +386,6 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testCompoundAssignment() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/compound-assignment.bal");
-        System.out.println(result);
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 

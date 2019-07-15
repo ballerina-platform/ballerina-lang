@@ -27,9 +27,18 @@ import ballerina/internal;
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 public type HttpCache object {
 
-    public cache:Cache cache = new;
+    public cache:Cache cache;
     public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
     public boolean isShared = false;
+
+    # Creates the HTTP cache.
+    #
+    # + config - The configurations for the HTTP cache
+    public function __init(CacheConfig cacheConfig) {
+            self.cache = new cache:Cache(cacheConfig.expiryTimeMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
+            self.policy = cacheConfig.policy;
+            self.isShared = cacheConfig.isShared;
+    }
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
@@ -129,16 +138,6 @@ public type HttpCache object {
         self.cache.remove(key);
     }
 };
-
-function createHttpCache (string name, CacheConfig cacheConfig) returns HttpCache {
-    HttpCache httpCache = new;
-    cache:Cache backingCache = new(cacheConfig.expiryTimeMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
-    httpCache.cache = backingCache;
-    httpCache.policy = cacheConfig.policy;
-    httpCache.isShared = cacheConfig.isShared;
-    return httpCache;
-}
-
 
 function isCacheableStatusCode (int statusCode) returns boolean {
     return statusCode == OK_200 || statusCode == NON_AUTHORITATIVE_INFORMATION_203 ||

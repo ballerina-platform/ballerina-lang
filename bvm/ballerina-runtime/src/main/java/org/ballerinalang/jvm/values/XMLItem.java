@@ -701,9 +701,6 @@ public final class XMLItem extends XMLValue<OMNode> {
         return this.omNode == null ? 0 : 1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public int length() {
         return this.omNode == null ? 0 : 1;
     }

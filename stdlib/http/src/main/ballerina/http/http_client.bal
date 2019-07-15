@@ -26,7 +26,7 @@ public type HttpClient client object {
     public ClientEndpointConfig config = {};
     public string url;
 
-    public function __init(string url, ClientEndpointConfig? config = ()) {
+    public function __init(string url, public ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
         createSimpleHttpClient(self, globalHttpClientConnPool);
@@ -48,7 +48,7 @@ public type HttpClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return nativeHead(self, path, <Request>message);
     }
 
@@ -99,7 +99,7 @@ public type HttpClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return nativeGet(self, path, <Request>message);
     }
 
@@ -109,7 +109,7 @@ public type HttpClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return nativeOptions(self, path, <Request>message);
     }
 

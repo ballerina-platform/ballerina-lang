@@ -29,7 +29,7 @@ function printName(any name) {
             string name = "Ballerina";
             return "";
         };
-        name = getName.call();
+        name = getName();
     }
 
     xmlns "http://sample.com/wso2/a3" as ns;
@@ -81,7 +81,7 @@ function testLambdaFunctions() returns string {
         };
     }
 
-    return fn.call();
+    return fn();
 }
 
 function testNestedLambdaFunctions() returns string {
@@ -98,7 +98,7 @@ function testNestedLambdaFunctions() returns string {
         return x;
     };
 
-    return fn.call();
+    return fn();
 }
 
 function testFuncParams(string param) {
