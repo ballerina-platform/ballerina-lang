@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 
 /**
- * Native implementation of lang.map:filter(map<Type>, function).
+ * Native implementation of lang.map:filter(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */
