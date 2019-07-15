@@ -102,7 +102,8 @@ service demo on subscription {
 
 ```ballerina
 import ballerina/io;
-import ballerina/nats
+import ballerina/nats;
+
 // Initializes the NATS Streaming listener.
 listener nats:StreamingListener subscription = new(conn, "test-cluster", "c1");
 
