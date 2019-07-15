@@ -55,7 +55,7 @@ function testByteToIntConversion(byte b) returns int {
 
 function testSafeCasting() returns int|error {
   any abc = byteReturn();
-  int val = check int.convert(abc);
+  int val = <int>abc;
   return val;
 }
 
@@ -66,7 +66,7 @@ function byteReturn() returns any {
 
 function testAnyToByteCasting() returns byte|error {
   any val = 45;
-  byte i = check byte.convert(val);
+  byte i = <byte>val;
   return i;
 }
 

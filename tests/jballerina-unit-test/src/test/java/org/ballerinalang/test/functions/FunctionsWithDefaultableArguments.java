@@ -177,7 +177,7 @@ public class FunctionsWithDefaultableArguments {
 
     @Test(description = "Test functions arguments default value panicing",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: Panic! \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: Panic!.*")
     public void testPanicWithinDefaultExpr() {
         BValue[] returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");
         Assert.assertTrue(returns[0] instanceof BInteger);

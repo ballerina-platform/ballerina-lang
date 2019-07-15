@@ -20,4 +20,4 @@ type Detail record {
 };
 
 public const ENCODING_ERROR = "{ballerina/encoding}EncodingError";
-public type EncodingError error<ENCODING_ERROR, Detail>;
+public type Error error<ENCODING_ERROR, Detail>;

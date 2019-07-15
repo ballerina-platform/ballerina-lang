@@ -1,3 +1,5 @@
+import ballerina/'lang\.int as ints;
+
 function checkFunctionPointerNullEqual() returns (int){
    function (int, string) returns (float|error) f = getIt();
    if (f == ()) {
@@ -22,7 +24,7 @@ function getIt () returns (function (int, string) returns (float|error)) {
 }
 
 function test (int x, string s) returns (float|error) {
-    var y = check int.convert(s);
+    var y = check ints:fromString(s);
     float f = x * 1.0 * y;
     return f;
 }

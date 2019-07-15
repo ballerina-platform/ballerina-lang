@@ -38,7 +38,7 @@ public type HttpSecureClient client object {
         if (simpleClient is HttpClient) {
             self.httpClient = simpleClient;
         } else {
-            panic simpleClient;
+            panic <error> simpleClient;
         }
     }
 
@@ -49,7 +49,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function post(string path, RequestMessage message) returns Response|error {
+    public remote function post(string path, RequestMessage message) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->post(path, req);
@@ -67,7 +67,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function head(string path, RequestMessage message = ()) returns Response|error {
+    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
@@ -85,7 +85,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function put(string path, RequestMessage message) returns Response|error {
+    public remote function put(string path, RequestMessage message) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->put(path, req);
@@ -104,7 +104,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->execute(httpVerb, path, req);
@@ -122,7 +122,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or an error occurred while attempting to fulfill the HTTP request
-    public remote function patch(string path, RequestMessage message) returns Response|error {
+    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->patch(path, req);
@@ -140,7 +140,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, RequestMessage message) returns Response|error {
+    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->delete(path, req);
@@ -158,7 +158,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function get(string path, RequestMessage message = ()) returns Response|error {
+    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->get(path, message = req);
@@ -176,7 +176,7 @@ public type HttpSecureClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one  occurred while attempting to fulfill the HTTP request
-    public remote function options(string path, RequestMessage message = ()) returns Response|error {
+    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->options(path, message = req);
@@ -193,7 +193,7 @@ public type HttpSecureClient client object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function forward(string path, Request request) returns Response|error {
+    public remote function forward(string path, Request request) returns Response|ClientError {
         Request req = request;
         req = check prepareSecureRequest(request, self.config);
         Response res = check self.httpClient->forward(path, request);
@@ -212,7 +212,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         return self.httpClient->submit(httpVerb, path, req);
@@ -222,7 +222,7 @@ public type HttpSecureClient client object {
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP response message, or an error if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+    public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
 
@@ -238,7 +238,7 @@ public type HttpSecureClient client object {
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an error if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
@@ -246,7 +246,7 @@ public type HttpSecureClient client object {
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an error if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
+    public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
@@ -263,7 +263,7 @@ public type HttpSecureClient client object {
 # + url - Base URL
 # + config - Client endpoint configurations
 # + return - Created secure HTTP client
-public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|error {
+public function createHttpSecureClient(string url, ClientEndpointConfig config) returns HttpClient|ClientError {
     HttpSecureClient httpSecureClient;
     if (config.auth is OutboundAuthConfig) {
         httpSecureClient = new(url, config);
@@ -277,15 +277,15 @@ public function createHttpSecureClient(string url, ClientEndpointConfig config) 
 #
 # + req - An HTTP outbound request message
 # + config - Client endpoint configurations
-# + return - Prepared HTTP request or `error` if an error occurred at auth handler invocation
-function prepareSecureRequest(Request req, ClientEndpointConfig config) returns Request|error {
+# + return - Prepared HTTP request or `http:ClientError` if an error occurred at auth handler invocation
+function prepareSecureRequest(Request req, ClientEndpointConfig config) returns Request|ClientError {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;
         return authHandler.prepare(req);
     }
     // Never throw this error since the auth config is already validated.
-    return prepareError("Failed to prepare the HTTP request since OutboundAuthConfig is not configured.");
+    return prepareAuthenticationError("Failed to prepare the HTTP request since OutboundAuthConfig is not configured.");
 }
 
 # Do inspection with the received HTTP response for the prepared HTTP request.
@@ -293,7 +293,7 @@ function prepareSecureRequest(Request req, ClientEndpointConfig config) returns 
 # + req - An HTTP outbound request message
 # + res - An HTTP outbound response message
 # + config - Client endpoint configurations
-# + return - Prepared HTTP request or `()` if nothing to be done or `error` if an error occurred at auth handler invocation
+# + return - Prepared HTTP request or `()` if nothing to be done or `http:ClientError` if an error occurred at auth handler invocation
 function doInspection(Request req, Response res, ClientEndpointConfig config) returns Request|error? {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {

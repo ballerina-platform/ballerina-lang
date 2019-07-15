@@ -52,8 +52,8 @@ public type Response object {
 
     # Gets the `Entity` associated with the response.
     #
-    # + return - The `Entity` of the response. An `error` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|error = external;
+    # + return - The `Entity` of the response. An `http:ClientError` is returned, if entity construction fails
+    public function getEntity() returns mime:Entity|ClientError = external;
 
     //Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
     function getEntityWithoutBody() returns mime:Entity = external;
@@ -112,7 +112,7 @@ public type Response object {
         entity.setHeader(headerName, headerValue);
 
         // TODO: see if this can be handled in a better manner
-        if (SERVER.equalsIgnoreCase(headerName)) {
+        if (internal:equalsIgnoreCase(SERVER, headerName)) {
             self.server = headerValue;
         }
     }
@@ -155,48 +155,115 @@ public type Response object {
         return entity.getContentType();
     }
 
-    # Extract `json` payload from the response. If the content type is not JSON, an `error` is returned.
+    # Extract `json` payload from the response. If the content type is not JSON, an `http:ClientError` is returned.
     #
-    # + return - The `json` payload or `error` in case of errors
-    public function getJsonPayload() returns @tainted json|error {
-        return self.getEntity()!getJson();
+    # + return - The `json` payload or `http:ClientError` in case of errors
+    public function getJsonPayload() returns @tainted json|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
+        } else {
+            var payload = result.getJson();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the json payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
+        }
     }
 
-    # Extracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.
+    # Extracts `xml` payload from the response.
     #
-    # + return - The `xml` payload or `error` in case of errors
-    public function getXmlPayload() returns @tainted xml|error {
-        return self.getEntity()!getXml();
+    # + return - The `xml` payload or `http:ClientError` in case of errors
+    public function getXmlPayload() returns @tainted xml|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
+        } else {
+            var payload = result.getXml();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the xml payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
+        }
     }
 
-    # Extracts `text` payload from the response. If the content type is not of type text, an `error` is returned.
+    # Extracts `text` payload from the response.
     #
-    # + return - The string representation of the message payload or `error` in case of errors
-    public function getTextPayload() returns @tainted string|error {
-        return self.getEntity()!getText();
+    # + return - The string representation of the message payload or `http:ClientError` in case of errors
+    public function getTextPayload() returns @tainted string|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
+        } else {
+            var payload = result.getText();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the text payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
+        }
     }
 
     # Gets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use
     # `getBodyParts()`.
     #
-    # + return - A byte channel from which the message payload can be read or `error` in case of errors
-    public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
-        return self.getEntity()!getByteChannel();
+    # + return - A byte channel from which the message payload can be read or `http:ClientError` in case of errors
+    public function getByteChannel() returns @tainted io:ReadableByteChannel|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
+        } else {
+            var payload = result.getByteChannel();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the byte channel from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
+        }
     }
 
     # Gets the response payload as a `byte[]`.
     #
-    # + return - The byte[] representation of the message payload or `error` in case of errors
-    public function getBinaryPayload() returns @tainted byte[]|error {
-        return self.getEntity()!getByteArray();
+    # + return - The byte[] representation of the message payload or `http:ClientError` in case of errors
+    public function getBinaryPayload() returns @tainted byte[]|ClientError {
+        var result = self.getEntity();
+        if (result is error) {
+            return result;
+        } else {
+            var payload = result.getByteArray();
+            if (payload is mime:Error) {
+                string message = "Error occurred while retrieving the binary payload from the request";
+                return getGenericClientError(message, payload);
+            } else {
+                return payload;
+            }
+        }
     }
 
     # Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
     #
-    # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
+    # + return - Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in
     #            constructing the body parts from the response
-    public function getBodyParts() returns mime:Entity[]|error {
-        return self.getEntity()!getBodyParts();
+    public function getBodyParts() returns mime:Entity[]|ClientError {
+        var result = self.getEntity();
+        if (result is ClientError) {
+            // TODO: Confirm whether this is actually a ClientError or not.
+            return result;
+        } else {
+            var bodyParts = result.getBodyParts();
+            if (bodyParts is mime:Error) {
+                string message = "Error occurred while retrieving body parts from the request";
+                return getGenericClientError(message, bodyParts);
+            } else {
+                return bodyParts;
+            }
+        }
     }
 
     # Sets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.
@@ -225,9 +292,9 @@ public type Response object {
     # + payload - The `json` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `json`
-    public function setJsonPayload(json payload, string contentType = "application/json") {
+    public function setJsonPayload(json payload, public string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setJson(payload, contentType = contentType);
+        entity.setJson(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -236,9 +303,9 @@ public type Response object {
     # + payload - The `xml` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `xml`
-    public function setXmlPayload(xml payload, string contentType = "application/xml") {
+    public function setXmlPayload(xml payload, public string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setXml(payload, contentType = contentType);
+        entity.setXml(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -247,9 +314,9 @@ public type Response object {
     # + payload - The `string` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `string`
-    public function setTextPayload(string payload, string contentType = "text/plain") {
+    public function setTextPayload(string payload, public string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setText(payload, contentType = contentType);
+        entity.setText(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -258,9 +325,9 @@ public type Response object {
     # + payload - The `byte[]` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
     #                 for `byte[]`
-    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
+    public function setBinaryPayload(byte[] payload, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteArray(payload, contentType = contentType);
+        entity.setByteArray(payload, contentType);
         self.setEntity(entity);
     }
 
@@ -269,9 +336,9 @@ public type Response object {
     # + bodyParts - The entities which make up the message body
     # + contentType - The content type of the top level message. Set this to override the default
     #                 `content-type` header value
-    public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
+    public function setBodyParts(mime:Entity[] bodyParts, public string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setBodyParts(bodyParts, contentType = contentType);
+        entity.setBodyParts(bodyParts, contentType);
         self.setEntity(entity);
     }
 
@@ -280,9 +347,9 @@ public type Response object {
     # + filePath - Path to the file to be set as the payload
     # + contentType - The content type of the specified file. Set this to override the default `content-type`
     #                 header value
-    public function setFileAsPayload(string filePath, string contentType = "application/octet-stream") {
+    public function setFileAsPayload(string filePath, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setFileAsEntityBody(filePath, contentType = contentType);
+        entity.setFileAsEntityBody(filePath, contentType);
         self.setEntity(entity);
     }
 
@@ -291,9 +358,9 @@ public type Response object {
     # + payload - A `ByteChannel` through which the message payload can be read
     # + contentType - The content type of the payload. Set this to override the default `content-type`
     #                 header value
-    public function setByteChannel(io:ReadableByteChannel payload, string contentType = "application/octet-stream") {
+    public function setByteChannel(io:ReadableByteChannel payload, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setByteChannel(payload, contentType = contentType);
+        entity.setByteChannel(payload, contentType);
         self.setEntity(entity);
     }
 

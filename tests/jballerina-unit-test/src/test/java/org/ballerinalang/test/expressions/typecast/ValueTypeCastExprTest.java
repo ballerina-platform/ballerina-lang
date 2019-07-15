@@ -60,15 +60,6 @@ public class ValueTypeCastExprTest {
     }
 
     @Test
-    public void testIntToBoolean() {
-        BValue[] args = {new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(result, "intToBoolean", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        final boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
-    }
-
-    @Test
     public void testIntToAny() {
         BValue[] args = {new BInteger(1)};
         BValue[] returns = BRunUtil.invoke(result, "intToAny", args);
@@ -91,15 +82,6 @@ public class ValueTypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue().substring(0, 7), expected);
-    }
-
-    @Test
-    public void testFloatToBoolean() {
-        BValue[] args = {new BFloat(1.0f)};
-        BValue[] returns = BRunUtil.invoke(result, "floatToBoolean", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        final boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
     }
 
     @Test
@@ -128,37 +110,10 @@ public class ValueTypeCastExprTest {
     }
 
     @Test
-    public void testStringToBoolean() {
-        BValue[] args = {new BString("trUe")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToBoolean", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        boolean expected = true;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
-    }
-
-    @Test
     public void testStringToAny() {
         BValue[] args = {new BString("adfs sadfasd")};
         BValue[] returns = BRunUtil.invoke(result, "stringToAny", args);
         Assert.assertTrue(returns[0] instanceof BString);
-    }
-
-    @Test
-    public void testBooleanToInt() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanToInt", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        final int expected = 1;
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
-    }
-
-    @Test
-    public void testBooleanToFloat() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanToFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        final double expected = 1.0;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected);
     }
 
     @Test

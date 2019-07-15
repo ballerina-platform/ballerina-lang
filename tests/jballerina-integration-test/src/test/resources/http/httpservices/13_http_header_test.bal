@@ -27,11 +27,12 @@ service headerService on new http:Listener(9106) {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP->get("/sample/stocks", message = <@untainted> req);
+        var result = stockqEP->get("/sample/stocks", <@untainted> req);
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
@@ -52,7 +53,8 @@ service headerService on new http:Listener(9106) {
             }
             checkpanic caller->respond(payload);
         } else {
-            checkpanic caller->respond(clientResponse.reason());
+            error err = clientResponse;
+            checkpanic caller->respond(err.reason());
         }
     }
 
@@ -61,27 +63,30 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
     resource function entityBodyGet(http:Caller caller, http:Request req) {
-        var result = stockqEP->get("/sample/entitySizeChecker", message = "hello");
+        var result = stockqEP->get("/sample/entitySizeChecker", "hello");
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
     resource function entityGet(http:Caller caller, http:Request req) {
         http:Request request = new;
         request.setHeader("X_test", "One header");
-        var result = stockqEP->get("/sample/entitySizeChecker", message = request);
+        var result = stockqEP->get("/sample/entitySizeChecker", request);
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
@@ -90,7 +95,8 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
@@ -99,7 +105,8 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
@@ -108,16 +115,18 @@ service headerService on new http:Listener(9106) {
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 
     resource function passthruGet(http:Caller caller, http:Request req) {
-        var result = stockqEP->get("/sample/entitySizeChecker", message = <@untainted> req);
+        var result = stockqEP->get("/sample/entitySizeChecker", <@untainted> req);
         if (result is http:Response) {
             checkpanic caller->respond(result);
         } else {
-            checkpanic caller->respond(result.reason());
+            error err = result;
+            checkpanic caller->respond(err.reason());
         }
     }
 }

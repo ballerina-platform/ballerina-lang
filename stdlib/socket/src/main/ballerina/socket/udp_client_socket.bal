@@ -49,7 +49,7 @@ public type UdpClient client object {
     # + content - the content that wish to send to the client socket
     # + address - the address of the remote client socket
     # + return - number of bytes got written or an error if encounters an error while writing
-    public remote function sendTo(byte[] content, Address address) returns int|error = external;
+    public remote function sendTo(byte[] content, Address address) returns int|Error = external;
 
     # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
     # are received from the client. Else, return the data available in the OS buffer or wait until data receive.
@@ -58,12 +58,12 @@ public type UdpClient client object {
     # + length - Positive integer. Represents the number of bytes which should be read
     # + return - Content as a byte array, the number of bytes read and the address of the sender
     # or an error if encounters an error while reading
-    public remote function receiveFrom(int length = -100) returns [byte[], int, Address]|error = external;
+    public remote function receiveFrom(int length = -100) returns [byte[], int, Address]|ReadTimedOutError = external;
 
     # Closes the client socket connection.
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
-    public remote function close() returns error? = external;
+    public remote function close() returns Error? = external;
 };
 
 # This represent the IP socket address.

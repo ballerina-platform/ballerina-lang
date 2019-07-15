@@ -13,24 +13,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
+import ballerinax/jdbc;
 
 type ResultCount record {
     int COUNTVAL;
 };
 
-function testXATransactonSuccess() returns @tainted (int, int) {
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+function testXATransactonSuccess() returns @tainted [int, int] {
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
@@ -53,21 +51,19 @@ function testXATransactonSuccess() returns @tainted (int, int) {
 
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonSuccessWithDataSource() returns @tainted (int, int) {
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+function testXATransactonSuccessWithDataSource() returns @tainted [int, int] {
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
@@ -89,21 +85,19 @@ function testXATransactonSuccessWithDataSource() returns @tainted (int, int) {
     count2 = getTableCountValColumn(dt2);
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonSuccessWithH2Client() returns @tainted (int, int) {
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+function testXATransactonSuccessWithH2Client() returns @tainted [int, int] {
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
@@ -125,22 +119,20 @@ function testXATransactonSuccessWithH2Client() returns @tainted (int, int) {
     count2 = getTableCountValColumn(dt2);
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonFailed1() returns @tainted (int, int) {
+function testXATransactonFailed1() returns @tainted [int, int] {
 
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
@@ -159,10 +151,10 @@ function testXATransactonFailed1() returns @tainted (int, int) {
 
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonFailed1Helper(h2:Client testDB1, h2:Client testDB2) {
+function testXATransactonFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
         _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
                                     values (2, 'John', 1000, 'UK')");
@@ -170,19 +162,17 @@ function testXATransactonFailed1Helper(h2:Client testDB1, h2:Client testDB2) {
     }
 }
 
-function testXATransactonFailed2() returns @tainted (int, int) {
+function testXATransactonFailed2() returns @tainted [int, int] {
 
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
@@ -197,10 +187,10 @@ function testXATransactonFailed2() returns @tainted (int, int) {
 
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonFailed2Helper(h2:Client testDB1, h2:Client testDB2) {
+function testXATransactonFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
         _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn)
                                     values (2, 'John', 1000, 'UK')");
@@ -208,19 +198,17 @@ function testXATransactonFailed2Helper(h2:Client testDB1, h2:Client testDB2) {
     }
 }
 
-function testXATransactonRetry() returns @tainted (int, int) {
+function testXATransactonRetry() returns @tainted [int, int] {
 
-    h2:Client testDB1 = new({
-        path: "./target/H2_1/",
-        name: "TestDB1",
+    jdbc:Client testDB1 = new({
+        url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    h2:Client testDB2 = new({
-        path: "./target/H2_2/",
-        name: "TestDB2",
+    jdbc:Client testDB2 = new({
+        url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
@@ -236,10 +224,10 @@ function testXATransactonRetry() returns @tainted (int, int) {
 
     checkpanic testDB1.stop();
     checkpanic testDB2.stop();
-    return (count1, count2);
+    return [count1, count2];
 }
 
-function testXATransactonRetryHelper(h2:Client testDB1, h2:Client testDB2) {
+function testXATransactonRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) {
     int i = 0;
     transaction {
         if (i == 2) {

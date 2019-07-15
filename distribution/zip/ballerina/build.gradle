@@ -117,7 +117,7 @@ dependencies {
     dist 'io.netty:netty-transport-native-kqueue:4.1.34.Final'
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -137,7 +137,7 @@ dependencies {
     distBal project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-socket', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-streams', configuration: 'baloImplementation')
+//    distBal project(path: ':ballerina-streams', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-openapi', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-system', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-task', configuration: 'baloImplementation')
@@ -154,7 +154,7 @@ dependencies {
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
-    balSource project(path: ':ballerina-builtin', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
     balSource project(path: ':ballerina-config-api', configuration: 'balSource')
     balSource project(path: ':ballerina-crypto', configuration: 'balSource')
@@ -174,7 +174,7 @@ dependencies {
     balSource project(path: ':ballerina-reflect', configuration: 'balSource')
     balSource project(path: ':ballerina-runtime-api', configuration: 'balSource')
     balSource project(path: ':ballerina-socket', configuration: 'balSource')
-    balSource project(path: ':ballerina-streams', configuration: 'balSource')
+//    balSource project(path: ':ballerina-streams', configuration: 'balSource')
     balSource project(path: ':ballerina-openapi', configuration: 'balSource')
     balSource project(path: ':ballerina-system', configuration: 'balSource')
     balSource project(path: ':ballerina-task', configuration: 'balSource')
@@ -192,7 +192,7 @@ dependencies {
 
     dist 'org.ballerinalang:ballerina-lang:0.992.0-m1'
     dist project(':ballerina-auth')
-    dist project(':ballerina-builtin')
+    dist project(':ballerina-lang:annotations')
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-config')
     dist project(':ballerina-config-api')
@@ -222,7 +222,7 @@ dependencies {
     dist project(':ballerina-streaming:siddhi-core')
     dist project(':ballerina-streaming:siddhi-query-api')
     dist project(':ballerina-streaming:siddhi-query-compiler')
-    dist project(':ballerina-streams')
+//    dist project(':ballerina-streams')
     dist project(':ballerina-system')
     dist project(':ballerina-task')
     dist project(':ballerina-time')

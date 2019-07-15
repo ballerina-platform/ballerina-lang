@@ -20,4 +20,4 @@ type Detail record {
 };
 
 public const CRYPTO_ERROR = "{ballerina/crypto}CryptoError";
-public type CryptoError error<CRYPTO_ERROR, Detail>;
+public type Error error<CRYPTO_ERROR, Detail>;

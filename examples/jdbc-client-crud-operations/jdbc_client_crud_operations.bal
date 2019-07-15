@@ -119,7 +119,7 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|jdbc:JdbcClientError returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {

@@ -32,7 +32,7 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
+//    implementation project(':ballerina-builtin')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-io')
     implementation project(':ballerina-encoding')

@@ -91,7 +91,7 @@ public class ObjectInitializerTest {
                       63, 5);
         validateError(result, 6,
                       "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
-                              "'(error|error)'",
+                              "'(FooErr|BarErr)'",
                       85, 5);
     }
 
@@ -164,6 +164,6 @@ public class ObjectInitializerTest {
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
     }
 }

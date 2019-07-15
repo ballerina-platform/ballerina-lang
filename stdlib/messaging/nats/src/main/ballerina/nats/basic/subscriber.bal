@@ -13,11 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/'lang\.object as lang;
 
 # Represents a connection which will be used for subscription.
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
     private Connection connection;
 
     # Creates a new consumer. A new connection will be created if a refernece to a connection is not provided.

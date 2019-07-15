@@ -16,14 +16,14 @@
 
 const COLON = ":";
 
-public function getServiceAnnotations(service serviceType, string? moduleName = (), string annotName) returns any {
-    return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
+public function getServiceAnnotations(service serviceType, string annotName, string? moduleName = ()) returns any {
+    return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(annotName, moduleName));
 }
 
-public function getResourceAnnotations(service serviceType, string resourceName, string? moduleName = (),
-                                       string annotName) returns any {
+public function getResourceAnnotations(service serviceType, string resourceName, string annotName,
+                                        string? moduleName = ()) returns any {
     return getResourceAnnotationsExternal(serviceType, resourceName,
-                                          getAnnotQualifiedIdentifier(moduleName = moduleName, annotName));
+                                          getAnnotQualifiedIdentifier(annotName, moduleName));
 }
 
 function getServiceAnnotationsExternal(service serviceType, string annot) returns any = external;
@@ -31,7 +31,7 @@ function getServiceAnnotationsExternal(service serviceType, string annot) return
 function getResourceAnnotationsExternal(service serviceType, string resourceName, string annot)
     returns any = external;
 
-function getAnnotQualifiedIdentifier(string? moduleName = (), string annotName) returns string {
+function getAnnotQualifiedIdentifier(string annotName, string? moduleName = ()) returns string {
     if (moduleName is string) {
         return moduleName + COLON + annotName;
     }
