@@ -101,14 +101,14 @@ public class BallerinaDiagramUtils {
             // returns and empty string.
             String ballerinaProjectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(filePath,
                     editorToProjectFolderUri(editor));
+
+            // If a ballerina project is not found, diagram editor treats it as an individual bal file.
             if (ballerinaProjectRoot.isEmpty()) {
-                // If a ballerina project is not found, diagram editor treats it as an individual bal file.
-                return getWebviewContent("", editorToURIString(editor), panel,
+                return getWebviewContent(ballerinaProjectRoot, editorToURIString(editor), panel, balSdk.getSdkPath());
+            } else {
+                return getWebviewContent(pathToUri(ballerinaProjectRoot), editorToURIString(editor), panel,
                         balSdk.getSdkPath());
             }
-
-            return getWebviewContent(pathToUri(ballerinaProjectRoot), editorToURIString(editor), panel,
-                    balSdk.getSdkPath());
         }
         return "";
     }
@@ -127,7 +127,6 @@ public class BallerinaDiagramUtils {
             if (myPanel == null) {
                 return "";
             }
-
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(TEMPLATES_CLASSPATH));
             Template scriptTemplate = handlebars.compile(SCRIPT_TEMPLATE_NAME);
             Template webviewTemplate = handlebars.compile(WEBVIEW_TEMPLATE_NAME);

@@ -58,6 +58,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXECUTABLE_
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_PORJECT_CACHE_FOLDER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
 
 /**
@@ -327,7 +328,7 @@ public class BallerinaSdkUtils {
      */
     public static String searchForBallerinaProjectRoot(String currentPath, String root) {
 
-        if (currentPath.equals(root) || currentPath.equals("") || root.equals("")) {
+        if (currentPath.equals(root) || currentPath.isEmpty() || root.isEmpty()) {
             return "";
         }
         File currentDir = new File(currentPath);
@@ -336,7 +337,7 @@ public class BallerinaSdkUtils {
             for (File f : files) {
                 //skips the .ballerina folder in the user home directory.
                 if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home")) && f
-                        .getName().equals(".ballerina")) {
+                        .getName().equals(BALLERINA_PORJECT_CACHE_FOLDER_NAME)) {
                     return currentDir.getAbsolutePath();
                 }
             }
