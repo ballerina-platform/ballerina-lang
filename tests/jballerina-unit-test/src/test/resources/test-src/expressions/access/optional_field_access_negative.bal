@@ -70,3 +70,23 @@ function testInvalidOptionalFieldAccessTypeForLaxType() {
     map<json>|json j1 = j;
     json j2 = j1?.a;
 }
+
+type Qux object {
+    int? i = 1;
+};
+
+function getQux() returns Qux {
+    return new;
+}
+
+function getNonOptionalFieldAccessibleValue() returns string[] {
+    return [];
+}
+
+function testInvalidOptionalFieldAccessOnInvocation1() {
+    _ = getQux()?.i;
+}
+
+function testInvalidOptionalFieldAccessOnInvocation2() {
+    _ = getNonOptionalFieldAccessibleValue()?.x;
+}

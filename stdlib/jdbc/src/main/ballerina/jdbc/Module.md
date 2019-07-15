@@ -24,7 +24,7 @@ jdbc:Client testDB = new({
 });
 ```
 
-2. Client owned, unshareable connection pool
+2. Client owned, unsharable connection pool
 If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
 ```ballerina
