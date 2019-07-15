@@ -52,9 +52,11 @@ public type StreamingProducer client object {
     #
     # + return - Retruns () or the error if unable to complete the close operation.
     public function close() returns error? {
-        Connection? natsConnection = self.connection;
-        self.connection = ();
-        return self.detachFromNatsConnection(natsConnection);
+        if (self.connection is Connection) {
+            Connection? natsConnection = self.connection;
+            self.connection = ();
+            return self.detachFromNatsConnection(natsConnection);
+        }
     }
 
     function detachFromNatsConnection(Connection? natsConnection) returns error? = external;
