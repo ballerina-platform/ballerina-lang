@@ -237,7 +237,7 @@ public class ErrorTest {
                                   "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
         BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', expected a subtype of " 
                 + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 40, 33);
-        BAssertUtil.validateError(negativeCompileResult, 4,"invalid error detail type 'boolean', expected a subtype " 
+        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean', expected a subtype "
                 + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 36);
         BAssertUtil.validateError(negativeCompileResult, 5,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
