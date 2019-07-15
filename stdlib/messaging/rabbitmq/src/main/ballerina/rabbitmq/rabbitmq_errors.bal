@@ -15,7 +15,7 @@
 // under the License.
 
 type Detail record {
-    string message;
+    string message?;
     error cause?;
 };
 
