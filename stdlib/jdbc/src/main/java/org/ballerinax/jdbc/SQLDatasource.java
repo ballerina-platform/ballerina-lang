@@ -357,11 +357,6 @@ public class SQLDatasource {
             return this;
         }
 
-        public SQLDatasourceParamsBuilder withDbType(String dbType) {
-            this.dbType = dbType;
-            return this;
-        }
-
         public SQLDatasourceParamsBuilder withUsername(String username) {
             this.username = username;
             return this;

@@ -52,7 +52,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Class contains utility methods for SQL Connector operations.
+ * Class contains utility methods for JDBC Client operations.
  *
  * @since 0.8.0
  */
@@ -198,10 +198,9 @@ public class SQLDatasourceUtils {
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("")
-                .withPoolOptions(poolOptionsWrapper).withJdbcUrl(url).withUsername(username).withPassword(password)
-                .withDbName("").withDbOptionsMap(dbOptions).withIsGlobalDatasource(userProvidedPoolOptionsNotPresent)
-                .build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
+                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
         return createSQLClient(sqlDatasourceParams);
     }

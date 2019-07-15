@@ -115,8 +115,7 @@ public class SQLDataIterator extends TableIterator {
             if (columnDefs.size() != structFields.length) {
                 throw SQLDatasourceUtils.getSQLApplicationError("Number of fields in the constraint type is " + (
                         structFields.length > columnDefs.size() ?
-                                "greater" :
-                                "lower") + " than column count of the result set");
+                                "greater" : "lower") + " than column count of the result set");
             }
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
