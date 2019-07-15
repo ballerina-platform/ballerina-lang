@@ -83,7 +83,7 @@ public class PushPromisedResponse extends ConnectionAction {
 //                http2PushPromise);
     }
 
-    public static void pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
+    public static Object pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
                                      ObjectValue outboundResponseObj) {
         //TODO : NonBlockingCallback is used to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
@@ -102,6 +102,7 @@ public class PushPromisedResponse extends ConnectionAction {
         HttpUtil.prepareOutboundResponse(connectionObj, inboundRequestMsg, outboundResponseMsg, outboundResponseObj);
         pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg,
                 http2PushPromise);
+        return null;
     }
 
     private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,

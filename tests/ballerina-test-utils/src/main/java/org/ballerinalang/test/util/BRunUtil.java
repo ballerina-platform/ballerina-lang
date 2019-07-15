@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -68,6 +69,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -286,6 +288,8 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Long) {
+                paramTypes[i] = Long.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -512,6 +516,9 @@ public class BRunUtil {
                 case TypeTags.NULL_TAG:
                     typeClazz = Object.class;
                     break;
+                case TypeTags.HANDLE_TAG:
+                    typeClazz = HandleValue.class;
+                    break;
                 default:
                     throw new RuntimeException("Function signature type '" + type + "' is not supported");
             }
@@ -674,6 +681,9 @@ public class BRunUtil {
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+            case TypeTags.HANDLE_TAG:
+                BHandleValue handleValue = (BHandleValue) value;
+                return new HandleValue(handleValue.getValue());
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -778,6 +788,9 @@ public class BRunUtil {
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+            case TypeTags.HANDLE_TAG:
+                BHandleValue bHandleValue = (BHandleValue) value;
+                return new HandleValue(bHandleValue.getValue());
             default:
                 throw new RuntimeException("Function signature type '" + type + "' is not supported");
         }
@@ -904,6 +917,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeAnydata;
             case TypeTags.JSON_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeJSON;
+            case TypeTags.HANDLE_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeHandle;
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
@@ -1064,6 +1079,9 @@ public class BRunUtil {
                 FPValue functionValue = (FPValue) value;
                 bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+                bvmValue = new BHandleValue(((HandleValue) value).getValue());
+                break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -1186,6 +1204,8 @@ public class BRunUtil {
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
                 return new BFunctionType(bParamTypes, new BType[]{bRetType});
+            case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
+                return BTypes.typeHandle;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

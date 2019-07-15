@@ -99,9 +99,8 @@ public type GlobalPoolConfigContainer object {
      }
 };
 
-// This is an instance of GlobalPoolConfigContainer object type.
-// __init functions of database clients pass poolConfig member of this instance
-// to the extern client creation logic in order to access the internal map
+// This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
+// poolConfig member of this instance to the extern client creation logic in order to access the internal map
 // of connection pools.
 final GlobalPoolConfigContainer globalPoolConfigContainer = new;
 
@@ -210,7 +209,7 @@ public type Parameter record {|
     typedesc<record{}> recordType?;
 |};
 
-# Result represents the output of the `update` remote function.
+# UpdateResult represents the output of the `update` remote function.
 #
 # + updatedRowCount - The updated row count during the sql statement exectuion
 # + generatedKeys - A map of auto generated key values during the sql statement execution
@@ -219,37 +218,20 @@ public type UpdateResult record {|
     map<anydata> generatedKeys;
 |};
 
+# BatchUpdateResult represents the output of the `batchUpdate` remote function.
+#
+# + updatedRowCount - The updated row count during the sql statement exectuion
+#            A number greater than or equal to zero - indicates that the command was processed successfully
+#                                                     and is an update count giving the number of rows
+#            A value of -2 - Indicates that the command was processed successfully but that the number of rows
+#                            affected is unknown
+#            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
+#                            continues to process commands after a command fails
+# + returnedError - The `Error` returned from the remote function in case of a failure
+public type BatchUpdateResult record {|
+    int[] updatedRowCount;
+    Error? returnedError;
+|};
+
 # The parameter passed into the operations.
 type Param string|int|boolean|float|decimal|byte[]|Parameter;
-
-public const DATABASE_ERROR_REASON = "{ballerinax/jdbc}DatabaseError";
-
-# Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
-# database resource clean-up and other similar scenarios.
-public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
-
-public const APPLICATION_ERROR_REASON = "{ballerinax/jdbc}ApplicationError";
-
-# Represents the error which is related to Non SQL errors
-public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
-
-# Represents a database or application level error returned from JDBC client remote functions.
-public type JdbcClientError DatabaseError|ApplicationError;
-
-# Represents the properties which are related to SQL database errors
-#
-# + message - Error message
-# + sqlErrorCode - SQL error code
-# + sqlState - SQL state
-public type DatabaseErrorData record {|
-    string message;
-    int sqlErrorCode;
-    string sqlState;
-|};
-
-# Represents the properties which are related to Non SQL errors
-#
-# + message - Error message
-public type ApplicationErrorData record {|
-    string message;
-|};

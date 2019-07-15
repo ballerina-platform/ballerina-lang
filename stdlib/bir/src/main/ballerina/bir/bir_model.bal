@@ -91,13 +91,19 @@ public type AnnotationAttachment record {|
     AnnotationValue?[] annotValues = [];
 |};
 
-public type AnnotationValue record {|
-    map<AnnotationValueEntry?[]> valueEntryMap = {};
+public type AnnotationValue AnnotationLiteralValue | AnnotationRecordValue | AnnotationArrayValue;
+
+public type AnnotationLiteralValue record {|
+    BType literalType;
+    anydata literalValue;
 |};
 
-public type AnnotationValueEntry record {|
-    BType literalType;
-    anydata value;
+public type AnnotationRecordValue record {|
+    map<AnnotationValue> annotValueMap = {};
+|};
+
+public type AnnotationArrayValue record {|
+    AnnotationValue?[]  annotValueArray = [];
 |};
 
 public const BINARY_ADD = "ADD";
@@ -305,6 +311,8 @@ public type BJSONType TYPE_JSON;
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
+const HANDLE_TYPE_NAME = "handle";
+
 public type BServiceType record {|
     BObjectType oType;
 |};
@@ -357,6 +365,11 @@ public type BObjectType record {|
     BAttachedFunction? constructor;
 |};
 
+public type BTypeHandle record {
+    HANDLE_TYPE_NAME typeName = HANDLE_TYPE_NAME;
+    string? constraint = ();
+};
+
 public type Self record {|
     BType bType;
 |};
@@ -402,7 +415,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";

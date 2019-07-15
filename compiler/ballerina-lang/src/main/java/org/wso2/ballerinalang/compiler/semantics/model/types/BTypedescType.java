@@ -30,9 +30,9 @@ public class BTypedescType extends BBuiltInRefType implements ConstrainedType {
 
     public BType constraint;
 
-    public BTypedescType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BTypedescType(BType constraint, BTypeSymbol tsymbol) {
 
-        super(tag, tsymbol);
+        super(TypeTags.TYPEDESC, tsymbol);
         this.constraint = constraint;
     }
 

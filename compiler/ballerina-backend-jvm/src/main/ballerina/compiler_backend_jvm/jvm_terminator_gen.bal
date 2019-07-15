@@ -135,6 +135,7 @@ type TerminatorGenerator object {
                 bType is bir:BFutureType ||
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BFiniteType ||
                 bType is bir:BTypeDesc) {
             self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
@@ -427,7 +428,7 @@ type TerminatorGenerator object {
         }
         boolean isVoid = returnType is bir:BTypeNil;
         createFunctionPointer(self.mv, methodClass, lambdaName, isVoid, 0);
-        lambdas[lambdaName] = [callIns, methodClass];
+        lambdas[lambdaName] = callIns;
         self.lambdaIndex += 1;
         
         self.submitToScheduler(callIns.lhsOp, localVarOffset);

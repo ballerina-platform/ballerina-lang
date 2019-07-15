@@ -24,7 +24,7 @@ function echo(string msg) returns string {
     if (sendResult is int) {
         io:println("Number of bytes written: ", sendResult);
     } else {
-        panic sendResult;
+        panic <error> sendResult;
     }
     string returnStr = "";
     var result = socketClient->receiveFrom();
@@ -32,59 +32,62 @@ function echo(string msg) returns string {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
-            string? errMsg = str.detail()?.message;
+            error err = str;
+            string? errMsg = err.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
-        io:println(result);
+        io:println(<error> result);
     }
     checkpanic socketClient->close();
     return returnStr;
 }
 
 function contentReceive() returns string {
-    socket:UdpClient socketClient = new(localAddress = { port: 48827 });
+    socket:UdpClient socketClient = new({ port: 48827 });
     string returnStr = "";
     var result = socketClient->receiveFrom();
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
-            string? errMsg = str.detail()?.message;
+            error err = str;
+            string? errMsg = err.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
-        io:println(result);
+        io:println(<error> result);
     }
     checkpanic socketClient->close();
     return returnStr;
 }
 
 function contentReceiveWithLength() returns string {
-    socket:UdpClient socketClient = new(localAddress = { host: "localhost", port: 48828 });
+    socket:UdpClient socketClient = new({ host: "localhost", port: 48828 });
     string returnStr = "";
-    var result = socketClient->receiveFrom(length = 56);
+    var result = socketClient->receiveFrom(56);
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
         var str = getString(content);
         if (str is string) {
-            returnStr = <@untainted> str;
+            returnStr = <@untainted>str;
         } else {
-            string? errMsg = str.detail()?.message;
+            error err = str;
+            string? errMsg = err.detail()?.message;
             io:println(errMsg is string ? errMsg : "Error in socket client");
         }
     } else {
-        io:println(result);
+        io:println(<error> result);
     }
     checkpanic socketClient->close();
     return returnStr;
 }
 
-function getString(byte[] content) returns @tainted string|io:IOError {
+function getString(byte[] content) returns @tainted string|io:Error {
     io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
     io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
     return check characterChannel.read(60);

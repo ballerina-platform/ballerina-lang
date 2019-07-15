@@ -20,7 +20,7 @@ import ballerina/log;
 
 final string ACCEPT_ENCODING = "accept-encoding";
 
-listener http:Listener passthroughEP2 = new(9091);
+listener http:Listener passthroughEP2 = new(9091, config = {server: "Mysql"});
 
 http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_AUTO
@@ -47,9 +47,10 @@ service passthrough on passthroughEP2 {
                     log:printError("Error sending response", responseError);
                 }
             } else {
+                error err = clientResponse;
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(clientResponse.reason());
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);
@@ -60,9 +61,10 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 checkpanic caller->respond(clientResponse);
             } else  {
+                error err = clientResponse;
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(clientResponse.reason());
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);
@@ -73,9 +75,10 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 checkpanic caller->respond(clientResponse);
             } else {
+                error err = clientResponse;
                 http:Response res = new;
                 res.statusCode =500;
-                res.setPayload(clientResponse.reason());
+                res.setPayload(err.reason());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);

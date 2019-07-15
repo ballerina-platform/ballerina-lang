@@ -48,25 +48,25 @@ const string CONFIG_USER_SECTION = "b7a.users";
 # Extracts the username and password from the credential values.
 #
 # + credential - The credential values.
-# + return - A `string` tuple with the extracted username and password or `AuthError` occurred while extracting credentials
-public function extractUsernameAndPassword(string credential) returns [string, string]|AuthError {
+# + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
+public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     string decodedHeaderValue = encoding:byteArrayToString(check encoding:decodeBase64(credential));
     string[] decodedCredentials = internal:split(decodedHeaderValue, ":");
     if (decodedCredentials.length() != 2) {
-        return prepareAuthError("Incorrect credential format. Format should be username:password");
+        return prepareError("Incorrect credential format. Format should be username:password");
     } else {
         return [decodedCredentials[0], decodedCredentials[1]];
     }
 }
 
-# Log and prepare `error` as a `AuthError`.
+# Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `AuthError` instance
-public function prepareAuthError(string message, error? err = ()) returns AuthError {
+# + return - Prepared `Error` instance
+public function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
-    AuthError authError;
+    Error authError;
     if (err is error) {
         authError = error(AUTH_ERROR, message = message, cause = err);
     } else {

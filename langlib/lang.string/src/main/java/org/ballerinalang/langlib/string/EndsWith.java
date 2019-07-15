@@ -38,6 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class EndsWith {
 
     public static boolean endsWith(Strand strand, String str, String substr) {
-        return false;
+        return str.endsWith(substr);
     }
 }

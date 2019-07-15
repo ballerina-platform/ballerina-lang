@@ -72,14 +72,14 @@ service publisher on publisherServiceEP {
         }
 
         if (mode == "internal") {
-            err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
-            if (err is error) {
-                log:printError("Error publishing update directly", err);
+            var result = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (result is error) {
+                log:printError("Error publishing update directly", result);
             }
         } else {
-            err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
-            if (err is error) {
-                log:printError("Error publishing update remotely", err);
+            var result = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (result is error) {
+                log:printError("Error publishing update remotely", result);
             }
         }
     }
@@ -161,14 +161,14 @@ service contentTypePublisher on publisherServiceEP {
         }
 
         if (mode == "internal") {
-            err = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
-            if (err is error) {
-                log:printError("Error publishing update directly", err);
+            var result = webSubHub.publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (result is error) {
+                log:printError("Error publishing update directly", result);
             }
         } else {
-            err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
-            if (err is error) {
-                log:printError("Error publishing update remotely", err);
+            var result = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, getPayloadContent(contentType, mode));
+            if (result is error) {
+                log:printError("Error publishing update remotely", result);
             }
         }
     }
@@ -231,9 +231,11 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     string errorMessage = "unknown content type";
     if (contentType == "" || contentType == "json") {
         if (mode == "internal") {
-            return {"action":"publish","mode":"internal-hub"};
+            json j = {"action":"publish","mode":"internal-hub"};
+            return j;
         }
-        return {"action":"publish","mode":"remote-hub"};
+        json k = {"action":"publish","mode":"remote-hub"};
+        return k;
     } else if (contentType == "string") {
         if (mode == "internal") {
             return "Text update for internal Hub";

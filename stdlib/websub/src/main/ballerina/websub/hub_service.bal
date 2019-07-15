@@ -335,12 +335,14 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                         + callback + "]");
             }
         } else {
-            string errCause = <string> respStringPayload.detail()?.message;
+            error err = respStringPayload;
+            string errCause = <string> err.detail()?.message;
             log:printInfo("Intent verification failed for mode: [" + mode + "], for callback URL: [" + callback
                     + "]: Error retrieving response payload: " + errCause);
         }
     } else {
-        string errCause = <string> subscriberResponse.detail()?.message;
+        error err = subscriberResponse;
+        string errCause = <string> err.detail()?.message;
         log:printInfo("Error sending intent verification request for callback URL: [" + callback + "]: " + errCause);
     }
     PendingSubscriptionChangeRequest pendingSubscriptionChangeRequest = new(mode, topic, callback);
@@ -358,11 +360,12 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
 # + mode - Whether the change is for addition/removal
 # + topic - The topic for which registration is changing
 function persistTopicRegistrationChange(string mode, string topic) {
-    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+    HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
+    if (hubStoreImpl is HubPersistenceStore) {
         if (mode == MODE_REGISTER) {
-            hubPersistenceStoreImpl.addTopic(topic);
+            hubStoreImpl.addTopic(topic);
         } else {
-            hubPersistenceStoreImpl.removeTopic(topic);
+            hubStoreImpl.removeTopic(topic);
         }
     }
 }
@@ -372,11 +375,12 @@ function persistTopicRegistrationChange(string mode, string topic) {
 # + mode - Whether the subscription change is for unsubscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) {
-    if (hubPersistenceStoreImpl is HubPersistenceStore) {
+    HubPersistenceStore? hubStoreImpl = hubPersistenceStoreImpl;
+    if (hubStoreImpl is HubPersistenceStore) {
       if (mode == MODE_SUBSCRIBE) {
-            hubPersistenceStoreImpl.addSubscription(subscriptionDetails);
+            hubStoreImpl.addSubscription(subscriptionDetails);
         } else {
-            hubPersistenceStoreImpl.removeSubscription(subscriptionDetails);
+            hubStoreImpl.removeSubscription(subscriptionDetails);
         }
     }
 }
@@ -492,7 +496,8 @@ returns error? {
                             + subscriptionDetails.topic + "]: received response code " + respStatusCode);
             }
         } else {
-            string errCause = <string> contentDistributionResponse.detail()?.message;
+            error err = contentDistributionResponse;
+            string errCause = <string> err.detail()?.message;
             log:printError("Error delivering content to callback[" + callback + "] for topic["
                             + subscriptionDetails.topic + "]: " + errCause);
         }

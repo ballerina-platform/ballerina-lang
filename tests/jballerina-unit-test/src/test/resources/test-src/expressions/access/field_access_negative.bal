@@ -105,3 +105,39 @@ function testJsonMapAccessInvalidType() {
     map<map<json>>|map<map<map<json>>> m4 = m3;
     map<json> jv = m4.a.b;
 }
+
+type Foo record {
+    Bar bar;
+    function() returns Baz? bazFunc = getBaz;
+};
+
+type Bar object {
+    int i = 10;
+};
+
+type Baz record {
+    float f = 2.0;
+};
+
+function getFoo() returns Foo? {
+    return { bar: new };
+}
+
+function getBaz() returns Baz? {
+    return { f: 100.0 };
+}
+
+function testInvalidFieldAccessOnInvocation1() {
+    int ri = getFoo().bar.i;
+
+    Foo fv = { bar: new };
+    float rf = fv.bazFunc().f;
+}
+
+function testInvalidFieldAccessOnInvocation2() {
+    _ = getNonFieldAccessibleValue().f;
+}
+
+function getNonFieldAccessibleValue() returns Foo[] {
+    return [];
+}
