@@ -91,7 +91,7 @@ public class AnnotationTest {
         Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'restParams'", 2, 46);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'restParams'", 3, 68);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'restParams'", 4, 82);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'restParams'", 4, 87);
     }
 
     @Test

@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +64,7 @@ public class BLangAnonymousModelHelper {
     String getNextAnonymousTypeKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonTypeCount.get(packageID)).orElse(0);
         anonTypeCount.put(packageID, nextValue + 1);
-        if (Names.BUILTIN_PACKAGE.equals(packageID.name)) {
+        if (PackageID.ANNOTATIONS.equals(packageID)) {
             return BUILTIN_ANON_TYPE + nextValue;
         }
         return ANON_TYPE + nextValue;
@@ -86,9 +85,6 @@ public class BLangAnonymousModelHelper {
     public String getNextAnonymousFunctionKey(PackageID packageID) {
         Integer nextValue = Optional.ofNullable(anonFunctionCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
-        if (Names.BUILTIN_PACKAGE.equals(packageID.name)) {
-            return BUILTIN_LAMBDA + nextValue;
-        }
         return LAMBDA + nextValue;
     }
 

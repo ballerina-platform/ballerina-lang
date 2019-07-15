@@ -23,6 +23,9 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -54,7 +57,7 @@ public class ServiceTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/echo-service.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/echo-service.bal");
         negativeResult = BCompileUtil.compile("test-src/services/service-negative.bal");
     }
 
@@ -214,10 +217,10 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson instanceof BMap);
-        Assert.assertTrue(((BMap<String, BValue>) bJson).get("Team").stringValue().isEmpty(),
-                "Team variable not set properly.");
+        Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertTrue(bJson instanceof MapValue);
+
+        Assert.assertTrue(((MapValueImpl) bJson).get("Team").toString().isEmpty(), "Team variable not set properly");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")
@@ -252,7 +255,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Content type header is not available");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Content-Type header is not available");
     }
 
     @Test(description = "Test Http PATCH verb dispatching with a responseMsgPayload")

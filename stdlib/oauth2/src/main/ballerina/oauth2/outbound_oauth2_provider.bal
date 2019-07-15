@@ -55,7 +55,7 @@ public type OutboundOAuth2Provider object {
         } else {
             // TODO: Remove the below casting when new lang syntax are merged.
             error e = authToken;
-            return auth:prepareError("Failed to generate OAuth2 token.", err = e);
+            return auth:prepareError("Failed to generate OAuth2 token.", e);
         }
     }
 
@@ -71,7 +71,7 @@ public type OutboundOAuth2Provider object {
             } else {
                 // TODO: Remove the below casting when new lang syntax are merged.
                 error e = authToken;
-                return auth:prepareError("Failed to generate OAuth2 token at inspection.", err = e);
+                return auth:prepareError("Failed to generate OAuth2 token at inspection.", e);
             }
         }
         return ();
@@ -455,18 +455,24 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     if (config is PasswordGrantConfig) {
         var refreshConfig = config["refreshConfig"];
         if (refreshConfig is RefreshConfig) {
-            if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+            string? clientId = config?.clientId;
+            string? clientSecret = config?.clientSecret;
+            if (clientId is string && clientSecret is string) {
+                if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+                    return prepareError("Client id or client secret cannot be empty.");
+                }
+                refreshUrl = <@untainted> refreshConfig.refreshUrl;
+                requestConfig = {
+                    payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
+                    clientId: clientId,
+                    clientSecret: clientSecret,
+                    scopes: refreshConfig["scopes"],
+                    credentialBearer: refreshConfig.credentialBearer
+                };
+                clientConfig = refreshConfig.clientConfig;
+            } else {
                 return prepareError("Client id or client secret cannot be empty.");
             }
-            refreshUrl = <@untainted> refreshConfig.refreshUrl;
-            requestConfig = {
-                payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
-                clientId: config.clientId,
-                clientSecret: config.clientSecret,
-                scopes: refreshConfig["scopes"],
-                credentialBearer: refreshConfig.credentialBearer
-            };
-            clientConfig = refreshConfig.clientConfig;
         } else {
             return prepareError("Failed to refresh access token since RefreshTokenConfig is not provided.");
         }
@@ -506,7 +512,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + return - Access token received or `Error` if an error occurred during HTTP client invocation
 function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
                    @tainted CachedToken tokenCache, int clockSkew) returns @tainted (string|Error) {
-    http:Client clientEP = new(url, config = clientConfig);
+    http:Client clientEP = new(url, clientConfig);
     var response = clientEP->post(EMPTY_STRING, request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
@@ -514,7 +520,7 @@ function doRequest(string url, http:Request request, http:ClientEndpointConfig c
         });
         return extractAccessTokenFromResponse(response, tokenCache, clockSkew);
     } else {
-        return prepareError("Failed to send request to URL: " + url, err = response);
+        return prepareError("Failed to send request to URL: " + url, response);
     }
 }
 
@@ -545,7 +551,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
             req.addHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BASIC +
-                    encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8")));
+                    encoding:encodeBase64(clientIdSecret.toBytes()));
         } else {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }
@@ -556,7 +562,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
             return prepareError("Client ID or client secret is not provided for client authentication.");
         }
     }
-    req.setTextPayload(<@untainted> textPayload, contentType = mime:APPLICATION_FORM_URLENCODED);
+    req.setTextPayload(<@untainted> textPayload, mime:APPLICATION_FORM_URLENCODED);
     return req;
 }
 
@@ -577,14 +583,14 @@ function extractAccessTokenFromResponse(http:Response response, @tainted CachedT
             updateTokenCache(payload, tokenCache, clockSkew);
             return payload.access_token.toString();
         } else {
-            return prepareError("Failed to retrieve access token since the response payload is not a JSON.", err = payload);
+            return prepareError("Failed to retrieve access token since the response payload is not a JSON.", payload);
         }
     } else {
         var payload = response.getTextPayload();
         if (payload is string) {
             return prepareError("Received an invalid response. StatusCode: " + response.statusCode + " Payload: " + payload);
         } else {
-            return prepareError("Received an invalid response. StatusCode: " + response.statusCode, err = payload);
+            return prepareError("Received an invalid response. StatusCode: " + response.statusCode, payload);
         }
     }
 }
@@ -598,11 +604,11 @@ function updateTokenCache(json responsePayload, CachedToken tokenCache, int cloc
     int issueTime = time:currentTime().time;
     string accessToken = responsePayload.access_token.toString();
     tokenCache.accessToken = accessToken;
-    var expiresIn = responsePayload["expires_in"];
+    var expiresIn = responsePayload.expires_in;
     if (expiresIn is int) {
         tokenCache.expiryTime = issueTime + (expiresIn - clockSkew) * 1000;
     }
-    if (responsePayload["refresh_token"] is string) {
+    if (responsePayload.refresh_token is string) {
         string refreshToken = responsePayload.refresh_token.toString();
         tokenCache.refreshToken = refreshToken;
     }

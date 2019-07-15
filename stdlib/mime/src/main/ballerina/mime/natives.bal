@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
+import ballerina/'lang\.int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
 public const string BOUNDARY = "boundary";
@@ -169,7 +170,7 @@ public type Entity object {
     # + contentLength - Content length that needs to be set to entity
     public function setContentLength(@untainted int contentLength) {
         self.cLength = contentLength;
-        var contentLengthStr = string.convert(contentLength);
+        var contentLengthStr = contentLength.toString();
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 
@@ -184,7 +185,7 @@ public type Entity object {
         if (contentLength == "") {
             return -1;
         } else {
-            return int.convert(contentLength);
+            return langint:fromString(contentLength);
         }
     }
 
@@ -233,7 +234,7 @@ public type Entity object {
     # + filePath - Represents the path to the file
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setFileAsEntityBody(@untainted string filePath, string contentType = "application/octet-stream") {
+    public function setFileAsEntityBody(@untainted string filePath, public string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
@@ -245,7 +246,7 @@ public type Entity object {
     # + jsonContent - JSON content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
     #                 is used as the default value.
-    public function setJson(@untainted json jsonContent, @untainted string contentType = "application/json") = external;
+    public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") = external;
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
@@ -260,7 +261,7 @@ public type Entity object {
     # + xmlContent - XML content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
     #                 is used as the default value.
-    public function setXml(@untainted xml xmlContent, @untainted string contentType = "application/xml") = external;
+    public function setXml(@untainted xml xmlContent, @untainted public string contentType = "application/xml") = external;
 
     # Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
     #
@@ -275,7 +276,7 @@ public type Entity object {
     # + textContent - Text content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
     #                 is used as the default value.
-    public function setText(@untainted string textContent, @untainted string contentType = "text/plain") = external;
+    public function setText(@untainted string textContent, @untainted public string contentType = "text/plain") = external;
 
     # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
     #
@@ -289,7 +290,8 @@ public type Entity object {
     # + blobContent - byte[] content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setByteArray(@untainted byte[] blobContent, @untainted string contentType = "application/octet-stream") = external;
+    public function setByteArray(@untainted byte[] blobContent, @untainted public string contentType =
+                                                                            "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
     # using getByteChannel() method instead.
@@ -305,7 +307,8 @@ public type Entity object {
     # + byteChannel - Byte channel that needs to be set to entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `application/octet-stream` is used as the default value.
-    public function setByteChannel(io:ReadableByteChannel byteChannel, @untainted string contentType = "application/octet-stream") = external;
+    public function setByteChannel(io:ReadableByteChannel byteChannel, @untainted public string contentType =
+                                                                            "application/octet-stream") = external;
 
     # Given an entity, gets the entity body as a byte channel.
     #
@@ -330,7 +333,8 @@ public type Entity object {
     # + bodyParts - Represents the body parts that needs to be set to the entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
     #                 `multipart/form-data` is used as the default value.
-    public function setBodyParts(@untainted Entity[] bodyParts, @untainted string contentType = "multipart/form-data") = external;
+    public function setBodyParts(@untainted Entity[] bodyParts, @untainted public string contentType =
+                                                                                "multipart/form-data") = external;
 
     # Gets the header value associated with the given header name.
     #
@@ -432,8 +436,8 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeE
 #
 # + contentType - A MediaType struct
 # + return - The encoding value as a `string`
-function getEncoding(MediaType contentType) returns (string) {
-    return contentType.parameters.CHARSET;
+function getEncoding(MediaType contentType) returns (string?) {
+    return contentType.parameters[CHARSET];
 }
 
 # Given the Content-Type in string, gets the MediaType object populated with it.

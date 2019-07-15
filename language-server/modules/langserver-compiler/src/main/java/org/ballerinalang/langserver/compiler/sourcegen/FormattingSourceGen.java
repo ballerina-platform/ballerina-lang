@@ -191,7 +191,7 @@ public class FormattingSourceGen {
      * @param node         Parent of the attach point
      * @param attachPoint  Name of the attach point where the new node to be added
      * @param insertBefore start position to add the new node above existing node
-     * @return {@link int} start position suitable for the new node to be added
+     * @return int start position suitable for the new node to be added
      */
     public static int getStartPosition(JsonObject node, String attachPoint, int insertBefore) {
         int startPosition = 0;

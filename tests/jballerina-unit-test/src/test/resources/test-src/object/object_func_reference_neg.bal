@@ -32,7 +32,7 @@ public type Foo abstract object {
 
     public function test2(string aString);
 
-    function test3(string defaultable = "foo", int anInt, int def2 = 10, string aString);
+    function test3(int anInt, string aString, string defaultable = "foo", int def2 = 10);
 
     function test4(string aString, int anInt, Bar... bars) returns string;
 
@@ -56,7 +56,7 @@ public type FooImpl1 object {
     function test2(string aString) {}
 
     // return type mismatch
-    function test3(string defaultable = "foo", int def2 = 10, string aString, int anInt) returns string {
+    function test3(string aString, int anInt, string defaultable = "foo", int def2 = 10) returns string {
         return "";
     }
 

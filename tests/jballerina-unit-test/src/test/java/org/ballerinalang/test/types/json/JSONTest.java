@@ -166,7 +166,7 @@ public class JSONTest {
                 "\"marks\":[78, 45, 87]}");
     }
 
-    @Test(description = "Get JSON from a malformed string", groups = { "brokenOnBootstrappedJVMCodegen" })
+    @Test(description = "Get JSON from a malformed string")
     public void testParseMalformedString() {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);

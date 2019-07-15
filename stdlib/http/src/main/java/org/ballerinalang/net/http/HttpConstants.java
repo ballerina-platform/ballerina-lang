@@ -349,7 +349,7 @@ public class HttpConstants {
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
     public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
-    
+
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
@@ -428,6 +428,9 @@ public class HttpConstants {
     public static final String DOLLAR = "$";
 
     public static final String HTTP_VERSION_1_1 = "1.1";
+
+    // Ballerina error types related constants
+    public static final String HTTP_ERROR_DETAIL_RECORD = "Detail";
 
     private HttpConstants() {
     }

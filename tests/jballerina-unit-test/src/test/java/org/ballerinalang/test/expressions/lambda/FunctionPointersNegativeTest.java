@@ -52,7 +52,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "function invocation on type '(anydata|error)' is not supported", 17, 16);
+        BAssertUtil.validateError(result, 0, "undefined function 'getFullName'", 17, 16);
     }
 
     @Test()
@@ -60,14 +60,14 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 44);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
     }
 
     @Test()
     public void testFPWithNoImport() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-with-import-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 6);
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 5);
         BAssertUtil.validateError(result, ++i, "unknown type 'Select'", 19, 5);
@@ -81,17 +81,13 @@ public class FunctionPointersNegativeTest {
     public void testFPInvalidInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
                 "/fp_invalid_invocation_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 10);
+        Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined function 'Person.getFullName'", 35, 16);
-        BAssertUtil.validateError(result, i++, "undefined function 'Person.getName'", 36, 16);
-        BAssertUtil.validateError(result, i++, "undefined function 'f1'", 39, 5);
-        BAssertUtil.validateError(result, i++, "undefined function 'f2'", 42, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'getFullName'", 35, 16);
         BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 45, 14);
         BAssertUtil.validateError(result, i++, "undefined function 'f3'", 46, 9);
-        BAssertUtil.validateError(result, i++, "undefined function 'f4'", 49, 9);
-        BAssertUtil.validateError(result, i++, "undefined function 'getLname' in object 'Employee'", 51, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 76, 14);
-        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 85, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFname' in object 'Employee'", 77, 14);
+        BAssertUtil.validateError(result, i++, "undefined function 'f3'", 78, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'getLname' in object 'Employee'", 83, 9);
     }
 }

@@ -125,14 +125,14 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-<!--    <test name="ballerina-filter-tests" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.filter.FilterTestCommons"/>-->
-<!--            <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-filter-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.filter.FilterTestCommons"/>
+            <class name="org.ballerinalang.test.filter.MultpleFiltersTestCase"/>
+            <class name="org.ballerinalang.test.filter.InvocationContextTestCase"/>
+            <class name="org.ballerinalang.test.filter.SingleFilterTestCase"/>
+        </classes>
+    </test>
 
 <!--    <test name="ballerina-transaction-tests" parallel="false">-->
 <!--        <classes>-->
@@ -141,38 +141,39 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-<!--    <test name="ballerina-websocket-tests" parallel="false">-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.CustomHeaderServerSupportTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.OnErrorWebSocketTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.PingPongSupportTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.ResourceFailureTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.UpgradeResourceFailureTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketAutoPingPongTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketContinuationAndAggregationTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-websocket-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
+            <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
+            <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>
+            <class name="org.ballerinalang.test.service.websocket.CustomHeaderServerSupportTest"/>
+            <class name="org.ballerinalang.test.service.websocket.OnErrorWebSocketTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PingPongSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.ResourceFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.UpgradeResourceFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketAutoPingPongTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketContinuationAndAggregationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PushAndOnTextResourceTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketQueryAndPathParamSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketServiceNotFoundTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSimpleProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketSslProxyTest"/>
+            <class name="org.ballerinalang.test.service.websocket.OnBinaryContinuationTest"/>
+            <class name="org.ballerinalang.test.service.websocket.MissingResourcesTest"/>
+            <class name="org.ballerinalang.test.service.websocket.ClientCloseTest"/>
+            <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
+            <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
+            <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
+        </classes>
+    </test>
 
 <!--    <test name="ballerina-grpc-tests" parallel="false">-->
 <!--        <groups>-->

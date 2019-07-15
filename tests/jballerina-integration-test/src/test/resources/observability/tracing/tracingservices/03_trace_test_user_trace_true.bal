@@ -49,7 +49,7 @@ service echoService2 on new http:Listener(9092) {
 }
 
 function callNextResource2(int parentSpanId) returns (http:Response|error) {
-    http:Client httpEndpoint = new("http://localhost:9092/echoService", config = {});
+    http:Client httpEndpoint = new("http://localhost:9092/echoService", {});
     int spanId = check observe:startSpan("uSpanFour", parentSpanId = parentSpanId);
     http:Response resp = check httpEndpoint->get("/resourceTwo");
     checkpanic observe:addTagToSpan(spanId = spanId, "Allowed", "Successful");

@@ -42,7 +42,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/createdWithBody"
     }
     resource function sendCreatedWithBody(http:Caller caller, http:Request req) {
-        checkpanic caller->created("/newResourceURI", message = "Created Response");
+        checkpanic caller->created("/newResourceURI", "Created Response");
     }
 
     @http:ResourceConfig {
@@ -66,7 +66,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/acceptedWithBody"
     }
     resource function sendAcceptedWithBody(http:Caller caller, http:Request req) {
-        checkpanic caller->accepted(message = { msg: "accepted response" });
+        checkpanic caller->accepted({ msg: "accepted response" });
     }
 
     @http:ResourceConfig {

@@ -20,8 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.util.DefaultValueLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 
@@ -32,15 +30,10 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
  */
 public class BVarSymbol extends BSymbol implements VariableSymbol {
 
-    public DefaultValueLiteral defaultValue;
+    public boolean defaultableParam = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
-
-    /**
-     * Holds the expression to be evaluated to obtain the default value.
-     */
-    public BLangExpression defaultExpression;
 
     /**
      * Represent the index of the variable in a memory block of the VM.

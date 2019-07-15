@@ -60,8 +60,8 @@ public class ErrorTest {
     public void testIndirectErrorCtor() {
         BValue[] errors = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
         Assert.assertEquals(errors.length, 4);
-        Assert.assertEquals(errors[0].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
-        Assert.assertEquals(errors[1].stringValue(), "ErrNo-1 {\"detail1\":\"arg\"}");
+        Assert.assertEquals(errors[0].stringValue(), "ErrNo-1 {message:\"arg\", data:{}}");
+        Assert.assertEquals(errors[1].stringValue(), "ErrNo-1 {message:\"arg\", data:{}}");
         Assert.assertEquals(errors[2], errors[0]);
         Assert.assertEquals(errors[3], errors[1]);
     }
@@ -87,9 +87,9 @@ public class ErrorTest {
     @Test
     public void errorConstructDetailTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
-        String detail1 = "{\"message\":\"msg1\"}";
-        String detail2 = "{\"message\":\"msg2\"}";
-        String detail3 = "{\"message\":\"msg3\"}";
+        String detail1 = "{message:\"msg1\"}";
+        String detail2 = "{message:\"msg2\"}";
+        String detail3 = "{message:\"msg3\"}";
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue().trim(), detail1);
@@ -123,7 +123,7 @@ public class ErrorTest {
         String message = ((BLangRuntimeException) expectedException).getMessage();
 
         Assert.assertEquals(message,
-                "error: largeNumber {\"message\":\"large number\"}\n\t" +
+                "error: largeNumber message=large number\n\t" +
                         "at errorPanicCallee(error_test.bal:37)\n\t" +
                         "   errorPanicTest(error_test.bal:31)");
     }
@@ -138,14 +138,14 @@ public class ErrorTest {
         // Now panic
         args = new BValue[] { new BInteger(15) };
         returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
-        String result = "largeNumber {\"message\":\"large number\"}";
+        String result = "largeNumber {message:\"large number\"}";
         Assert.assertEquals(returns[0].stringValue(), result.trim());
     }
 
     @Test
     public void customErrorDetailsTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testCustomErrorDetails");
-        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", cause:(), data:\"test\"}");
+        Assert.assertEquals(returns[0].stringValue(), "trxErr {message:\"\", data:\"test\"}");
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         Assert.assertEquals(((BError) returns[0]).getDetails().getType().getName(), "TrxErrorData");
     }
@@ -166,7 +166,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:74}");
+                + " fileName:\"error_test.bal\", lineNumber:80}");
     }
 
     @Test
@@ -235,17 +235,17 @@ public class ErrorTest {
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
         BAssertUtil.validateError(negativeCompileResult, 2,
                                   "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
-        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', " +
-                "expected a subtype of 'record { }' or 'map<anydata|error>'", 40, 33);
-        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean'," +
-                " expected a subtype of 'record { }' or 'map<anydata|error>'", 41, 36);
+        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', expected a subtype of " 
+                + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 40, 33);
+        BAssertUtil.validateError(negativeCompileResult, 4,"invalid error detail type 'boolean', expected a subtype " 
+                + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 36);
         BAssertUtil.validateError(negativeCompileResult, 5,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
         BAssertUtil.validateError(negativeCompileResult, 6,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
         BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
-        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 41);
-        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 40);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 43);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 42);
         BAssertUtil.validateError(negativeCompileResult, 10,
                 "cannot infer reason type from error constructor: 'UserDefErrorOne'", 55, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
@@ -272,7 +272,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonInference");
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
-        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
+        Assert.assertEquals(((BMap) ((BError) returns[1]).getDetails()).get("data").stringValue(),
                 "{\"arg1\":\"arg1-1\", \"arg2\":\"arg2-2\"}");
     }
 

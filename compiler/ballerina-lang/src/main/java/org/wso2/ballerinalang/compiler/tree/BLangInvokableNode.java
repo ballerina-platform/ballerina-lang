@@ -27,11 +27,9 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -59,7 +57,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangEndpoint> endpoints;
     public List<BLangWorker> workers;
-    public List<BLangSimpleVariableDef> defaultableParams;
     public BLangSimpleVariable restParam;
 
     public BInvokableSymbol symbol;
@@ -74,7 +71,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
         this.endpoints = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.workers = new ArrayList<>();
-        this.defaultableParams = new ArrayList<>();
         this.defaultWorkerName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         this.defaultWorkerName.value = DEFAULT_WORKER_NAME;
     }
@@ -177,16 +173,6 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public List<BLangWorker> getWorkers() {
         return workers;
-    }
-
-    @Override
-    public List<BLangSimpleVariableDef> getDefaultableParameters() {
-        return defaultableParams;
-    }
-
-    @Override
-    public void addDefaultableParameter(VariableDefinitionNode param) {
-        this.defaultableParams.add((BLangSimpleVariableDef) param);
     }
 
     @Override

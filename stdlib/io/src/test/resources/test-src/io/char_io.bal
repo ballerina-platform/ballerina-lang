@@ -35,20 +35,22 @@ function initWritableChannel(string filePath, string encoding) returns io:Error?
 }
 
 function initWritableChannelToAppend(string filePath, string encoding) returns io:Error? {
-    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, append = true);
+    io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, true);
     wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns @tainted string|error {
-    var result = rch.read(numberOfCharacters);
-    if (result is string) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error("Character channel not initialized properly");
-        return e;
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel){
+        var result = rCha.read(numberOfCharacters);
+        if (result is string) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    error e = error("Character channel not initialized properly");
+    return e;
 }
 
 function readAllCharacters() returns @tainted string|io:Error? {
@@ -61,7 +63,7 @@ function readAllCharacters() returns @tainted string|io:Error? {
             result = result + readResult;
         } else {
             error e = readResult;
-            if (<string>e.detail().message == "io.EOF") {
+            if (<string>e.detail()["message"] == "io.EOF") {
                 isDone = true;
             } else {
                 io:GenericError readError = error(io:GENERIC_ERROR, message = "Error while reading the content", cause = readResult);
@@ -73,76 +75,105 @@ function readAllCharacters() returns @tainted string|io:Error? {
 }
 
 function writeCharacters(string content, int startOffset) returns int|io:Error? {
-    var result = wch.write(content, startOffset);
-    if (result is int) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
-        return e;
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var result = wCha.write(content, startOffset);
+        if (result is int) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    // error e = error("Character channel not initialized properly");
+    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    return e;
 }
 
 function appendCharacters(string content, int startOffset) returns int|io:Error? {
-    var result = wca.write(content, startOffset);
-    if (result is int) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
-        return e;
+    var wCha = wca;
+    if(wCha is io:WritableCharacterChannel){
+        var result = wCha.write(content, startOffset);
+        if (result is int) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    return e;
 }
 
 function readJson() returns @tainted json|error {
-    var result = rch.readJson();
-    if (result is json) {
-        return result;
-    } else {
-        return result;
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel){
+        var result = rCha.readJson();
+        if (result is json) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    return ();
 }
 
 function readXml() returns @tainted xml|error {
-    var result = rch.readXml();
-    if (result is xml) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
-        return e;
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel){
+        var result = rCha.readXml();
+        if (result is xml) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    io:GenericError e = error(io:GENERIC_ERROR, message = "Character channel not initialized properly");
+    return e;
 }
 
 function writeJson(json content) {
-    var result = wch.writeJson(content);
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var result = wCha.writeJson(content);
+    }
 }
 
 function writeJsonWithHigherUnicodeRange() {
     json content = {
         "loop": "É"
     };
-    var result = wch.writeJson(content);
-    if (result is error) {
-        panic <error>result;
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var result = wCha.writeJson(content);
+        if (result is error) {
+            panic <error>result;
+        }
     }
 }
 
 function writeXml(xml content) {
-    var result = wch.writeXml(content);
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var result = wCha.writeXml(content);
+    }
 }
 
 function closeReadableChannel() {
-    var err = rch.close();
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel){
+        var err = rCha.close();
+    }
 }
 
 function closeWritableChannel() {
-    var err = wch.close();
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var err = wCha.close();
+    }
 }
 
 function closeWritableChannelToAppend() {
-    var err = wca.close();
+    var wCha = wch;
+    if(wCha is io:WritableCharacterChannel){
+        var err = wCha.close();
+    }
 }

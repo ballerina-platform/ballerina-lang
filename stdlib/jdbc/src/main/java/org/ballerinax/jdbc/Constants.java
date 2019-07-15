@@ -175,7 +175,8 @@ public final class Constants {
     public static final String JDBC_PACKAGE_PATH = "ballerinax" + ORG_NAME_SEPARATOR + "jdbc";
     public static final String SQL_PARAMETER = "Parameter";
     public static final String JDBC_CLIENT = "JdbcClient";
-    public static final String SQL_UPDATE_RESULT = "UpdateResult";
+    public static final String JDBC_UPDATE_RESULT = "UpdateResult";
+    public static final String JDBC_BATCH_UPDATE_RESULT = "BatchUpdateResult";
     public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
 
     public static final String APPLICATION_ERROR_DATA_RECORD_NAME = "ApplicationErrorData";

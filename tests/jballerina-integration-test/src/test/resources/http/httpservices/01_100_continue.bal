@@ -33,7 +33,7 @@ service helloContinue on new http:Listener(9090) {
                 log:printInfo("Sending 100-Continue response");
                 var responseError = caller->continue();
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
             } else {
                 log:printInfo("Ignore payload by sending 417 response");
@@ -42,7 +42,7 @@ service helloContinue on new http:Listener(9090) {
                 res.setPayload("Do not send me any payload");
                 var responseError = caller->respond(res);
                 if (responseError is error) {
-                    log:printError("Error sending response", err = responseError);
+                    log:printError("Error sending response", responseError);
                 }
                 return;
             }
@@ -54,15 +54,16 @@ service helloContinue on new http:Listener(9090) {
         if (result is string) {
             var responseError = caller->respond(<@untainted> result);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         } else {
+            error err = result;
             res.statusCode = 500;
-            res.setPayload(<@untainted> result.reason());
-            log:printError("Failed to retrieve payload from request: " + result.reason());
+            res.setPayload(<@untainted> err.reason());
+            log:printError("Failed to retrieve payload from request: " + err.reason());
             var responseError = caller->respond(res);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         }
     }
@@ -88,10 +89,10 @@ service helloContinue on new http:Listener(9090) {
             }
             var responseError = caller->respond(<@untainted> replyMsg);
             if (responseError is error) {
-                log:printError(responseError.reason(), err = responseError);
+                log:printError(responseError.reason(), responseError);
             }
         } else {
-            log:printError(bodyParts.reason(), err = bodyParts);
+            log:printError(bodyParts.reason(), bodyParts);
         }
     }
 
@@ -100,17 +101,17 @@ service helloContinue on new http:Listener(9090) {
             req.removeHeader("Expect");
             var responseError = caller->continue();
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         }
         var res = clientEndpoint->forward("/backend/hello", <@untainted> req);
         if (res is http:Response) {
             var responseError = caller->respond(res);
             if (responseError is error) {
-                log:printError("Error sending response", err = responseError);
+                log:printError("Error sending response", responseError);
             }
         } else {
-            log:printError(res.reason(), err = res);
+            log:printError(res.reason(), res);
         }
     }
 }
@@ -122,11 +123,12 @@ service backend on new http:Listener(9224) {
         if (payload is string) {
             response.setTextPayload(<@untainted> payload);
         } else {
-            response.setTextPayload(<@untainted> payload.reason());
+            error err = payload;
+            response.setTextPayload(<@untainted> err.reason());
         }
         var responseError = caller->respond(response);
         if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+            log:printError("Error sending response", responseError);
         }
     }
 }

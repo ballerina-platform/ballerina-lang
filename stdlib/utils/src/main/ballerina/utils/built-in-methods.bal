@@ -25,21 +25,21 @@ function clone(any value) returns anydata|error = external;
 # + stampType - Type to be stamped
 # + value - Value to be stamped
 # + return - Stamped value
-function stamp(typedesc stampType, any value) returns anydata|error = external;
+function stamp(typedesc<any|error> stampType, any value) returns anydata|error = external;
 
 # Convert value to given type which can be stampable.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-function convert(typedesc convertType, any value) returns anydata|error = external;
+function convert(typedesc<any|error> convertType, any value) returns anydata|error = external;
 
 # Convert simple value to given type.
 #
 # + convertType - Type to be converted
 # + value - Value to be converted
 # + return - Converted value
-function simpleValueConvert(typedesc convertType, any value) returns anydata|error = external;
+function simpleValueConvert(typedesc<any|error> convertType, any value) returns anydata|error = external;
 
 # Freeze a given value.
 #
@@ -53,17 +53,17 @@ function freeze(any|error value) returns anydata|error = external;
 # + return - True for a frozen value
 function isFrozen(any|error value) returns boolean = external;
 
-# Get the reason phrase of an error value.
-#
-# + value - Error value
-# + return - Reason phrase
-function reason(error value) returns string = external;
-
-# Get error details of an error value.
-#
-# + value - Error value
-# + return - Error detail
-function detail(error value) returns anydata = external;
+//# Get the reason phrase of an error value.
+//#
+//# + value - Error value
+//# + return - Reason phrase
+//function reason(error value) returns string = external;
+//
+//# Get error details of an error value.
+//#
+//# + value - Error value
+//# + return - Error detail
+//function detail(error value) returns anydata = external;
 
 # Get a new Iterator
 #

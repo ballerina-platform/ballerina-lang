@@ -29,7 +29,7 @@ http:ServiceEndpointConfiguration echoEP2Config = {
     }
 };
 
-listener http:Listener echoEP2 = new(9111, config = echoEP2Config);
+listener http:Listener echoEP2 = new(9111, echoEP2Config);
 
 @http:ServiceConfig {
     basePath:"/echo"
