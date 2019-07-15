@@ -1989,6 +1989,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
+        BType astAccessExprExprType = astIndexBasedAccessExpr.expr.type;
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -2001,7 +2002,10 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_STORE;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
+                    (astAccessExprExprType.tag == TypeTags.UNION &&
+                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                     .next().tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -2023,12 +2027,15 @@ public class BIRGen extends BLangNodeVisitor {
             if (astIndexBasedAccessExpr.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
                 insKind = InstructionKind.XML_ATTRIBUTE_LOAD;
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
-            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.XML) {
+            } else if (astAccessExprExprType.tag == TypeTags.XML) {
                 generateXMLAccess((BLangXMLAccessExpr) astIndexBasedAccessExpr, tempVarRef, varRefRegIndex,
                         keyRegIndex);
                 this.varAssignment = variableStore;
                 return;
-            } else if (astIndexBasedAccessExpr.expr.type.tag == TypeTags.OBJECT) {
+            } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
+                    (astAccessExprExprType.tag == TypeTags.UNION &&
+                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                     .next().tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;
