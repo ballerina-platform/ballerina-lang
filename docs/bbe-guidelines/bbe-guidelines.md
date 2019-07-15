@@ -34,7 +34,7 @@
 
     > **Note:** However, the context should be taken into account when formatting words/phrases with backquotes. For example, although the word "record" is a keyword of the language, it need not be highlighted if you are referring to the record construct of the language as shown below.
 
-    ```
+    ```ballerina
     // Defines an open record type named Student. The { and } delimiters indicate that
     // in addition to the defined fields, this record type allows additional fields with
     // pure-typed (i.e., anydata|error) values. The descriptor record { } is equivalent to 
