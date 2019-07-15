@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -97,6 +98,7 @@ public class HttpFiltersDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private final Types types;
 
     private static final String HTTP_ENDPOINT_CONFIG = "config";
     private static final String HTTP_FILTERS_VAR = "filters";
@@ -139,6 +141,7 @@ public class HttpFiltersDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     /**
@@ -370,11 +373,7 @@ public class HttpFiltersDesugar {
         foreach.body = ifStatement;
         foreach.collection = filtersField;
         foreach.isDeclaredWithVar = false;
-        foreach.varType = filterType;
-        BMapType mapType = new BMapType(TypeTags.MAP, filterType, symTable.mapType.tsymbol);
-        foreach.resultType = mapType;
-        foreach.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
-
+        this.types.setForeachTypedBindingPatternType(foreach);
         foreach.variableDefinitionNode = variableDefinition;
 
         resourceNode.body.stmts.add(2, foreach);
