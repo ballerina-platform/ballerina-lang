@@ -582,7 +582,7 @@ function getTableCountValColumn(table<record {}>|error? result) returns int|stri
         }
         return count;
     } else if (result is error) {
-        return <string> result.detail().message;
+        return <string> result.detail()["message"];
     } else {
         return -1;
     }

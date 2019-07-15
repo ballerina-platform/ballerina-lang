@@ -19,7 +19,6 @@
 package org.ballerinax.jdbc;
 
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -74,7 +73,7 @@ public class PoolOptionsWrapper {
         try {
             sqlDatasource.acquireMutex();
         } catch (InterruptedException e) {
-            throw new BallerinaException("error in obtaining a connection pool");
+            throw SQLDatasourceUtils.getSQLApplicationError("error in obtaining a connection pool");
         }
     }
 

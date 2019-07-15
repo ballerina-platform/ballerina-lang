@@ -21,7 +21,7 @@ listener jms:QueueListener consumerEndpoint = new({
         providerUrl: "amqp://admin:admin@carbon/carbon"
             + "?brokerlist='tcp://localhost:5672'",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, queueName = "MyQueue");
+    }, "MyQueue");
 
 @jms:ServiceConfig {
     queueConfig: {

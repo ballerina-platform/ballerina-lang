@@ -193,11 +193,7 @@ public class BIRBinaryWriter {
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
-        }
-
-        buf.writeInt(birFunction.defaultParams.size());
-        for (BIRParameter parameter : birFunction.defaultParams) {
-            buf.writeInt(addStringCPEntry(parameter.name.value));
+            buf.writeInt(parameter.flags);
         }
 
         // TODO find a better way

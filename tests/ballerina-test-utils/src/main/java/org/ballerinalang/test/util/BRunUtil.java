@@ -288,6 +288,8 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Long) {
+                paramTypes[i] = Long.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -612,6 +614,7 @@ public class BRunUtil {
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
                 ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
+                jvmArray.elementType = getJVMType(array.elementType);
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -712,6 +715,8 @@ public class BRunUtil {
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
+            case TypeTags.DECIMAL_TAG:
+                return new DecimalValue(((BDecimal) value).value());
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
@@ -886,6 +891,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeString;
             case TypeTags.FLOAT_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.DECIMAL_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeDecimal;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
@@ -1176,7 +1183,8 @@ public class BRunUtil {
                 return BTypes.typeXML;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
-                return new BTypeDesc(typedescType.getName(), typedescType.getPackage().getName());
+                return new BTypeDesc(typedescType.getName(),
+                        typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:

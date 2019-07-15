@@ -53,7 +53,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
 
     // generate method desc
     bir:Function birFunc = extFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
     int selfParamIndex = -1;
@@ -216,9 +216,10 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
     bir:BType? attachedType = birFunc.receiverType;
-    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
-    string jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType = attachedType);
+    string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
+                                        attachedType = attachedType);
 
     return {
         orgName : orgName,

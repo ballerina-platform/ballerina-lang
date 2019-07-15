@@ -125,15 +125,15 @@ const map<string> m5 = { "m5k": "m5v" };
 
 // Negative tests.
 function getNestedConstantMapValue() returns string {
-    return m4.m4k.m5k;
+    return m4["m4k"]["m5k"];
 }
 
 function updateNestedConstantMapValue() {
-    m4.m4k.m5k = "m5nv";
+    m4["m4k"]["m5k"] = "m5nv";
 }
 
 function updateNestedConstantMapValue2() {
-    m4.m4k.newKey = "newValue";
+    m4["m4k"]["newKey"] = "newValue";
 }
 
 // -----------------------------------------------------------
@@ -142,15 +142,15 @@ map<string>[] a1 = [m5];
 
 // Negative tests.
 function updateConstantMapValueInArray() {
-    a1[0].m5k = "m5nv";
+    a1[0]["m5k"] = "m5nv";
 }
 
 function updateConstantMapValueInArray2() {
-    a1[0].newKey = "newValue";
+    a1[0]["newKey"] = "newValue";
 }
 
 function getConstantMapValueInArray() returns string {
-    return a1[0].m5k;
+    return a1[0]["m5k"];
 }
 
 // -----------------------------------------------------------
@@ -163,7 +163,7 @@ function updateReturnedConstantMap() {
 
 function updateReturnedConstantMap2() {
     map<string> m = getMap();
-    m.newKey = "newValue";
+    m["newKey"] = "newValue";
 }
 
 function getMap() returns map<string> {
@@ -173,7 +173,7 @@ function getMap() returns map<string> {
 // -----------------------------------------------------------
 
 const map<boolean> bm3 = { "bm3k": true };
-const map<boolean> bm4 = { "bm4kn": bm3.bm3k };
+const map<boolean> bm4 = { "bm4kn": bm3["bm3k"] };
 
 function testBooleanConstKeyReference() returns map<boolean> {
     return bm4;
@@ -200,7 +200,7 @@ function testByteConstKeyReference() returns map<byte> {
 // -----------------------------------------------------------
 
 const map<float> fm3 = { "fm3k": 12.5 };
-const map<float> fm4 = { "fm4kn": fm3.fm3k };
+const map<float> fm4 = { "fm4kn": fm3["fm3k"] };
 
 function testFloatConstKeyReference() returns map<float> {
     return fm4;
@@ -209,7 +209,7 @@ function testFloatConstKeyReference() returns map<float> {
 // -----------------------------------------------------------
 
 const map<decimal> dm3 = { "dm3k": 5.56 };
-const map<decimal> dm4 = { "dm4kn": dm3.dm3k };
+const map<decimal> dm4 = { "dm4kn": dm3["dm3k"] };
 
 function testDecimalConstKeyReference() returns map<decimal> {
     return dm4;
@@ -218,7 +218,7 @@ function testDecimalConstKeyReference() returns map<decimal> {
 // -----------------------------------------------------------
 
 const map<string> sm3 = { "sm3k": "sm3v" };
-const map<string> sm4 = { "sm4kn": sm3.sm3k };
+const map<string> sm4 = { "sm4kn": sm3["sm3k"] };
 
 function testStringConstKeyReference() returns map<string> {
     return sm4;
@@ -227,7 +227,7 @@ function testStringConstKeyReference() returns map<string> {
 // -----------------------------------------------------------
 
 const map<()> nm3 = { "nm3k": () };
-const map<()> nm4 = { "nm4kn": nm3.nm3k };
+const map<()> nm4 = { "nm4kn": nm3["nm3k"] };
 
 function testNullConstKeyReference() returns map<()> {
     return nm4;
@@ -236,48 +236,48 @@ function testNullConstKeyReference() returns map<()> {
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = bm3.bm3k;
+    boolean b = bm3["bm3k"];
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = im3.im3k;
+    int i = im3["im3k"];
     return i;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = bytem3.bytem3k;
+    byte b = bytem3["bytem3k"];
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = fm3.fm3k;
+    float f = fm3["fm3k"];
     return f;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = dm3.dm3k;
+    decimal d = dm3["dm3k"];
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = sm3.sm3k;
+    string s = sm3["sm3k"];
     return s;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = nm3.nm3k;
+    () n = nm3["nm3k"];
     return n;
 }

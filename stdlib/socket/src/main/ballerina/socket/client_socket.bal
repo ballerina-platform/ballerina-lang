@@ -53,7 +53,7 @@ public type Client client object {
     #
     # + content - - the content that wish to send to the client socket
     # + return - - number of bytes got written or an error if encounters an error while writing
-    public remote function write(byte[] content) returns int|error = external;
+    public remote function write(byte[] content) returns int|Error = external;
 
     # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
     # are received from the client. Else, return the data available in the OS buffer.
@@ -63,22 +63,22 @@ public type Client client object {
     #
     # + length - - Positive integer. Represents the number of bytes which should be read
     # + return - - Content as a byte array and the number of bytes read or an error if encounters an error while reading
-    public remote function read(int length = -100) returns @tainted [byte[], int]|error = external;
+    public remote function read(public int length = -100) returns @tainted [byte[], int]|ReadTimedOutError = external;
 
     # Closes the client socket connection.
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
-    public remote function close() returns error? = external;
+    public remote function close() returns Error? = external;
 
     # Shutdowns the further read from socket.
     #
     # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
-    public remote function shutdownRead() returns error? = external;
+    public remote function shutdownRead() returns Error? = external;
 
     # Shutdowns the further write from socket.
     #
     # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
-    public remote function shutdownWrite() returns error? = external;
+    public remote function shutdownWrite() returns Error? = external;
 };
 
 # Configuration for socket client endpoint.

@@ -38,10 +38,14 @@ public type AuthzHandler object {
     # + req - `Request` instance
     # + return - `true` if can be authorized, else `false`, or `error` if error occurred
     function canHandle(Request req) returns boolean|error {
-        if (runtime:getInvocationContext().principal.username.length() == 0) {
-            return prepareError("Username not set in auth context. Unable to authorize.");
+        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+        if (principal is runtime:Principal) {
+            if (principal.username.length() == 0) {
+                return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
+            }
+            return true;
         }
-        return true;
+        return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
     }
 
     # Tries to authorize the request
@@ -54,31 +58,34 @@ public type AuthzHandler object {
     # + return - true if authorization check is a success, else false
     function process(string username, string serviceName, string resourceName, string method,
         string[]|string[][] scopes) returns boolean {
-        // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
-        // since different resources can have different scopes
-        string authzCacheKey = runtime:getInvocationContext().principal.userId + "-" + serviceName + "-" +
-            resourceName + "-" + method;
+        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+        if (principal is runtime:Principal) {
+            // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
+            // since different resources can have different scopes
+            string authzCacheKey = principal.userId + "-" + serviceName + "-" +
+                resourceName + "-" + method;
 
-        string[] authCtxtScopes = runtime:getInvocationContext().principal.scopes;
-        //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
-        if (authCtxtScopes.length() > 0) {
-            authzCacheKey += "-";
-            foreach var authCtxtScope in authCtxtScopes {
-                authzCacheKey += authCtxtScope + ",";
-            }
-        }
-
-        var authorizedFromCache = self.authorizeFromCache(authzCacheKey);
-        if (authorizedFromCache is boolean) {
-            return authorizedFromCache;
-        } else {
-            // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
-            // match against those.
+            string[] authCtxtScopes = principal.scopes;
+            //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
             if (authCtxtScopes.length() > 0) {
-                boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
-                // cache authz result
-                self.cacheAuthzResult(authzCacheKey, authorized);
-                return authorized;
+                authzCacheKey += "-";
+                foreach var authCtxtScope in authCtxtScopes {
+                    authzCacheKey += authCtxtScope + ",";
+                }
+            }
+
+            var authorizedFromCache = self.authorizeFromCache(authzCacheKey);
+            if (authorizedFromCache is boolean) {
+                return authorizedFromCache;
+            } else {
+                // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
+                // match against those.
+                if (authCtxtScopes.length() > 0) {
+                    boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
+                    // cache authz result
+                    self.cacheAuthzResult(authzCacheKey, authorized);
+                    return authorized;
+                }
             }
         }
         return false;
@@ -89,14 +96,24 @@ public type AuthzHandler object {
     # + authzCacheKey - Cache key
     # + return - true or false in case of a cache hit, nil in case of a cache miss
     function authorizeFromCache(string authzCacheKey) returns boolean? {
-        var positiveCacheResponse = self.positiveAuthzCache.get(authzCacheKey);
-        if (positiveCacheResponse is boolean) {
-            return true;
+        cache:Cache? pCache = self.positiveAuthzCache;
+
+        if (pCache is cache:Cache) {
+            var positiveCacheResponse = pCache.get(authzCacheKey);
+            if (positiveCacheResponse is boolean) {
+                return true;
+            }
         }
-        var negativeCacheResponse = self.negativeAuthzCache.get(authzCacheKey);
-        if (negativeCacheResponse is boolean) {
-            return false;
+
+        cache:Cache? nCache = self.negativeAuthzCache;
+
+        if (nCache is cache:Cache) {
+            var negativeCacheResponse = nCache.get(authzCacheKey);
+            if (negativeCacheResponse is boolean) {
+                return false;
+            }
         }
+        return ();
     }
 
     # Cached the authorization result
@@ -105,9 +122,15 @@ public type AuthzHandler object {
     # + authorized - boolean flag to indicate the authorization decision
     function cacheAuthzResult(string authzCacheKey, boolean authorized) {
         if (authorized) {
-            self.positiveAuthzCache.put(authzCacheKey, authorized);
+            cache:Cache? pCache = self.positiveAuthzCache;
+            if (pCache is cache:Cache) {
+                pCache.put(authzCacheKey, authorized);
+            }
         } else {
-            self.negativeAuthzCache.put(authzCacheKey, authorized);
+            cache:Cache? nCache = self.negativeAuthzCache;
+             if (nCache is cache:Cache) {
+                nCache.put(authzCacheKey, authorized);
+             }
         }
     }
 };

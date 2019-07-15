@@ -16,9 +16,9 @@
 
 import ballerina/http;
 
-listener http:Listener serviceEndpointWithoutSSL = new(9095, config = { httpVersion: "2.0" });
+listener http:Listener serviceEndpointWithoutSSL = new(9095, { httpVersion: "2.0" });
 
-listener http:Listener serviceEndpointWithSSL = new(9096, config = {
+listener http:Listener serviceEndpointWithSSL = new(9096, {
     httpVersion: "2.0",
     secureSocket: {
         keyStore: {

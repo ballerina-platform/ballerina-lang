@@ -17,7 +17,7 @@ import ballerina/config;
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep10 = new (9317, config = {
+listener grpc:Listener ep10 = new (9317, {
     host:"localhost",
     secureSocket:{
         keyFile: config:getAsString("certificate.key"),
@@ -37,7 +37,7 @@ service grpcMutualSslService on ep10 {
         string message = "Hello " + name;
         error? err = caller->send(message);
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         } else {
             log:printInfo("Server send response : " + message);
         }

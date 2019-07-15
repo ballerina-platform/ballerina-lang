@@ -105,7 +105,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
 
     // Generate method desc
     bir:Function birFunc = jFieldFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
@@ -253,7 +253,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
 
     // Generate method desc
     bir:Function birFunc = extFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());

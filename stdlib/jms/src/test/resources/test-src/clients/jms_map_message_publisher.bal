@@ -11,13 +11,12 @@ jms:Session jmsSession = new(jmsConnection, {
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
     });
 
-jms:TopicPublisher publisher = new(jmsSession,
-    topicPattern = "testMapMessageSubscriber");
+jms:TopicPublisher publisher = new(jmsSession, "testMapMessageSubscriber");
 
 public function sendTextMessage() {
     // Create a Text message.
     string stringValue = "abcde";
-    byte[] blobValue = stringValue.toByteArray("UTF-8");
+    byte[] blobValue = stringValue.toBytes();
     map<any> message = { "a": 1, "b": "abc", "c": true, "d": 1.2,
         "e": blobValue };
     var msg = jmsSession.createMapMessage(message);

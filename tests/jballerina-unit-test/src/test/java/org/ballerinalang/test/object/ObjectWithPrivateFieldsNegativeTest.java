@@ -35,7 +35,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-01-negative.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {message:\"incompatible types:" +
                 " 'org.foo:user' cannot be cast to 'userB'\"}");
     }
 
@@ -84,8 +84,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 15, 13);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, 6,
-                "undefined field 'address' in object 'testorg/org.foo.baz:FooEmployee'", 15, 13);
+                "undefined field 'address' in object 'testorg/org.foo.baz:FooEmployee'", 10, 13);
     }
 }

@@ -304,7 +304,7 @@ public class AnnotationDesugar {
     }
 
     private void addVarArgsAnnotation(BLangFunction mainFunc) {
-        if (mainFunc.symbol.defaultableParams.isEmpty()) {
+        if (mainFunc.symbol.getParameters().isEmpty()) {
             return;
         }
         DiagnosticPos pos = mainFunc.pos;
@@ -351,7 +351,7 @@ public class AnnotationDesugar {
         valueLiteral.type = symTable.arrayType;
         valueLiteral.pos = pos;
 
-        for (BVarSymbol varSymbol : mainFunc.symbol.defaultableParams) {
+        for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = varSymbol.name.value;
             str.type = symTable.stringType;
