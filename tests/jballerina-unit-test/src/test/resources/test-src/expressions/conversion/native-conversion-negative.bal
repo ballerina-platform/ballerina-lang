@@ -102,26 +102,26 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
                 info:{status:"single"},
                 marks:[87, 94, 72]
     };
-    Person p  = check Person.convert(j);
+    Person p  = check Person.constructFrom(j);
     return p;
 }
 
 
 function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
     json j = {};
-    var testStruct = check StructWithoutDefaults.convert(j);
+    var testStruct = check StructWithoutDefaults.constructFrom(j);
     return testStruct;
 }
 
 function testEmptyMaptoStructWithDefaults () returns StructWithDefaults|error {
-    map<any> m = {};
-    var testStruct = check StructWithDefaults.convert(m);
+    map<anydata> m = {};
+    var testStruct = check StructWithDefaults.constructFrom(m);
     return testStruct;
 }
 
 function testEmptyMaptoStructWithoutDefaults () returns StructWithoutDefaults|error {
-    map<any> m = {};
-    var testStruct = check StructWithoutDefaults.convert(m);
+    map<anydata> m = {};
+    var testStruct = check StructWithoutDefaults.constructFrom(m);
     return testStruct;
 }
 
@@ -131,7 +131,7 @@ function testTupleConversionFail() returns [T1, T2] | error {
     [T1, T1] x = [a, b];
     [T1, T2] x2;
     anydata y = x;
-    var result = [T1, T2].convert(y);
+    var result = [T1, T2].constructFrom(y);
     return result;
 }
 
@@ -143,19 +143,19 @@ function testArrayToJsonFail() returns json|error {
     b.x = 15;
     x[0] = a;
     x[1] = b;
-    return json.convert(x);
+    return json.constructFrom(x);
 }
 
 function testIncompatibleImplicitConversion() returns int|error {
     json operationReq = { "toInt": "abjd" };
-    return int.convert(operationReq.toInt);
+    return int.constructFrom(check operationReq.toInt);
 }
 
 function testConvertRecordToRecordWithCyclicValueReferences() returns Engineer|error {
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    Engineer|error e =  trap Engineer.convert(p); // Cyclic value will be check with isLikeType method.
+    Engineer|error e =  trap Engineer.constructFrom(p); // Cyclic value will be check with isLikeType method.
     return e;
 }
 
@@ -163,7 +163,7 @@ function testConvertRecordToJsonWithCyclicValueReferences() returns json|error {
     Manager p = { name: "Waruna", age: 25, parent: () };
     Manager p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    json j =  check trap json.convert(p); // Cyclic value will be check with isLikeType method.
+    json j =  check trap json.constructFrom(p); // Cyclic value will be check with isLikeType method.
     return j;
 }
 
@@ -173,7 +173,7 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     p.parent = p2;
     anydata a = p;
     basicMatch(a);
-    map<anydata> m =  check trap map<anydata>.convert(p); // Cyclic value will be check when stamping the value.
+    map<anydata> m =  check trap map<anydata>.constructFrom(p); // Cyclic value will be check when stamping the value.
     return m;
 }
 
