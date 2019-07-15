@@ -80,9 +80,10 @@ service failoverDemoService02 on failoverEP02 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -102,9 +103,10 @@ service failoverDemoService02 on failoverEP02 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -124,9 +126,10 @@ service failoverDemoService02 on failoverEP02 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -139,7 +142,7 @@ service failoverDemoService02 on failoverEP02 {
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = string.convert(foBackendEP02.succeededEndpointIndex);
+        string startIndex = foBackendEP02.succeededEndpointIndex.toString();
         var backendRes = foBackendEP02->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
@@ -148,9 +151,10 @@ service failoverDemoService02 on failoverEP02 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -196,19 +200,21 @@ service mock02 on backendEP02 {
         }
         http:Response response = new;
         if (req.hasHeader(mime:CONTENT_TYPE)
-            && req.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
+            && req.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
             var mimeEntity = req.getBodyParts();
             if (mimeEntity is error) {
-                log:printError(<string> mimeEntity.detail().message);
+                error err = mimeEntity;
+                log:printError(<string> err.detail()?.message);
                 response.setPayload("Error in decoding multiparts!");
                 response.statusCode = 500;
             } else {
                 foreach var bodyPart in mimeEntity {
                     if (bodyPart.hasHeader(mime:CONTENT_TYPE)
-                        && bodyPart.getHeader(mime:CONTENT_TYPE).hasPrefix(http:MULTIPART_AS_PRIMARY_TYPE)) {
+                        && bodyPart.getHeader(mime:CONTENT_TYPE).startsWith(http:MULTIPART_AS_PRIMARY_TYPE)) {
                         var nestedMimeEntity = bodyPart.getBodyParts();
                         if (nestedMimeEntity is error) {
-                            log:printError(<string> nestedMimeEntity.detail().message);
+                            error nestedErr = nestedMimeEntity;
+                            log:printError(<string> nestedErr.detail()?.message);
                             response.setPayload("Error in decoding nested multiparts!");
                             response.statusCode = 500;
                         } else {
@@ -219,13 +225,13 @@ service mock02 on backendEP02 {
                                 var childBlobContent = childPart.getByteArray();
                             }
                             io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, untaint bodyPart.getContentType());
+                            bodyPart.setBodyParts(<@untainted> childParts, <@untainted> bodyPart.getContentType());
                         }
                     } else {
                         var bodyPartBlobContent = bodyPart.getByteArray();
                     }
                 }
-                response.setBodyParts(untaint mimeEntity, untaint req.getContentType());
+                response.setBodyParts(<@untainted> mimeEntity, <@untainted> req.getContentType());
             }
         } else {
             response.setPayload("Mock Resource is Invoked.");
