@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.model.util;
 
-import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVM.FreezeStatus;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.util.exceptions.BallerinaException;
+
+import static org.ballerinalang.bre.bvm.BVM.FreezeStatus.State;
 
 /**
  * Class for freeze() util methods.
@@ -37,7 +39,7 @@ public class FreezeUtils {
      * @return true if the state is unfrozen, false if not. Would throw a {@link BLangFreezeException} if the value
      * is already part of a different freeze attempt.
      */
-    public static boolean isOpenForFreeze(BVM.FreezeStatus currentFreezeStatus, BVM.FreezeStatus receivedFreezeStatus) {
+    public static boolean isOpenForFreeze(FreezeStatus currentFreezeStatus, FreezeStatus receivedFreezeStatus) {
         switch (currentFreezeStatus.getState()) {
             case FROZEN:
                 return false;
@@ -57,9 +59,9 @@ public class FreezeUtils {
      * An update to a value would panic either if a value is frozen or if a value is currently in the process of
      * being frozen.
      *
-     * @param currentState the current {@link BVM.FreezeStatus.State} of the value
+     * @param currentState the current {@link State} of the value
      */
-    public static void handleInvalidUpdate(BVM.FreezeStatus.State currentState) {
+    public static void handleInvalidUpdate(State currentState) {
         switch (currentState) {
             case FROZEN:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
