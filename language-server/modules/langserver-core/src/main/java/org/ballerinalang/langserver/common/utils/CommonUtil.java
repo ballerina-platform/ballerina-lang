@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -99,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -799,11 +799,12 @@ public class CommonUtil {
         String[] nameComponents = bType.tsymbol.name.value.split("\\$")[0].split(":");
         if (ctx != null) {
             PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-            if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
+            if (pkgId.toString().equals(currentPkgId.toString())
+                    || pkgId.getName().getValue().startsWith("lang.")) {
                 return nameComponents[nameComponents.length - 1];
             }
         }
-        if (pkgId.getName().getValue().equals("builtin")) {
+        if (pkgId.getName().getValue().startsWith("lang.")) {
             return nameComponents[nameComponents.length - 1];
         }
         return pkgId.getName().getValue() + CommonKeys.PKG_DELIMITER_KEYWORD
@@ -922,103 +923,6 @@ public class CommonUtil {
      */
     public static BLangPackage getSourceOwnerBLangPackage(String relativePath, BLangPackage parentPkg) {
         return isTestSource(relativePath) ? parentPkg.getTestablePkg() : parentPkg;
-    }
-
-    static void populateIterableAndBuiltinFunctions(BType bType, List<SymbolInfo> symbolInfoList,
-                                                    LSContext context) {
-        if (iterableType(bType)) {
-            SymbolInfo itrForEach = getIterableOpSymbolInfo(Snippet.ITR_FOREACH.get(), bType,
-                    ItemResolverConstants.ITR_FOREACH_LABEL, context);
-            SymbolInfo itrMap = getIterableOpSymbolInfo(Snippet.ITR_MAP.get(), bType,
-                    ItemResolverConstants.ITR_MAP_LABEL, context);
-            SymbolInfo itrFilter = getIterableOpSymbolInfo(Snippet.ITR_FILTER.get(), bType,
-                    ItemResolverConstants.ITR_FILTER_LABEL, context);
-            SymbolInfo itrCount = getIterableOpSymbolInfo(Snippet.ITR_COUNT.get(), bType,
-                    ItemResolverConstants.ITR_COUNT_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(itrForEach, itrMap, itrFilter, itrCount));
-            
-            if (bType.tag == TypeTags.TABLE) {
-                SymbolInfo itrSelect = getIterableOpSymbolInfo(Snippet.ITR_SELECT.get(), bType,
-                        ItemResolverConstants.ITR_SELECT_LABEL, context);
-                symbolInfoList.add(itrSelect);
-            }
-
-            if (aggregateFunctionsAllowed(bType)) {
-                SymbolInfo itrMin = getIterableOpSymbolInfo(Snippet.ITR_MIN.get(), bType,
-                        ItemResolverConstants.ITR_MIN_LABEL, context);
-                SymbolInfo itrMax = getIterableOpSymbolInfo(Snippet.ITR_MAX.get(), bType,
-                        ItemResolverConstants.ITR_MAX_LABEL, context);
-                SymbolInfo itrAvg = getIterableOpSymbolInfo(Snippet.ITR_AVERAGE.get(), bType,
-                        ItemResolverConstants.ITR_AVERAGE_LABEL, context);
-                SymbolInfo itrSum = getIterableOpSymbolInfo(Snippet.ITR_SUM.get(), bType,
-                        ItemResolverConstants.ITR_SUM_LABEL, context);
-                symbolInfoList.addAll(Arrays.asList(itrMin, itrMax, itrAvg, itrSum));
-            }
-
-            // TODO: Add support for Table and Tuple collection
-        }
-
-        if (builtinLengthFunctionAllowed(bType)) {
-            // For the iterable types, add the length builtin function
-            SymbolInfo lengthSymbolInfo = getIterableOpSymbolInfo(Snippet.BUILTIN_LENGTH.get(), bType,
-                    ItemResolverConstants.BUILTIN_LENGTH_LABEL, context);
-            symbolInfoList.add(lengthSymbolInfo);
-        }
-
-        if (builtinFreezeFunctionAllowed(context, bType)) {
-            // For the any data value type, add the freeze, isFrozen builtin function
-            SymbolInfo freeze = getIterableOpSymbolInfo(Snippet.BUILTIN_FREEZE.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_FREEZE_LABEL, context);
-            SymbolInfo isFrozen = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FROZEN.get(), bType,
-                                                          ItemResolverConstants.BUILTIN_IS_FROZEN_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(freeze, isFrozen));
-        }
-
-        if (isAnyData(context, bType)) {
-            // For the any data value type, add the stamp,clone,create builtin functions
-            SymbolInfo stamp = getIterableOpSymbolInfo(Snippet.BUILTIN_STAMP.get(), bType,
-                                                       ItemResolverConstants.BUILTIN_STAMP_LABEL, context);
-            SymbolInfo clone = getIterableOpSymbolInfo(Snippet.BUILTIN_CLONE.get(), bType,
-                                                       ItemResolverConstants.BUILTIN_CLONE_LABEL, context);
-            SymbolInfo convert = getIterableOpSymbolInfo(Snippet.BUILTIN_CONVERT.get(), bType,
-                                                        ItemResolverConstants.BUILTIN_CONVERT_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(stamp, clone, convert));
-        }
-
-        // Populate the Builtin Functions
-        if (bType.tag == TypeTags.FLOAT) {
-            SymbolInfo isNaN = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_NAN.get(), bType,
-                    ItemResolverConstants.BUILTIN_IS_NAN_LABEL, context);
-            SymbolInfo isFinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_FINITE.get(), bType,
-                    ItemResolverConstants.BUILTIN_IS_FINITE_LABEL, context);
-            SymbolInfo isInfinite = getIterableOpSymbolInfo(Snippet.BUILTIN_IS_INFINITE.get(), bType,
-                    ItemResolverConstants.BUILTIN_IS_INFINITE_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(isNaN, isFinite, isInfinite));
-        }
-        
-        if (bType.tag == TypeTags.ERROR) {
-            SymbolInfo detail = getIterableOpSymbolInfo(Snippet.BUILTIN_DETAIL.get(), bType,
-                    ItemResolverConstants.BUILTIN_DETAIL_LABEL, context);
-            SymbolInfo reason = getIterableOpSymbolInfo(Snippet.BUILTIN_REASON.get(), bType,
-                    ItemResolverConstants.BUILTIN_REASON_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(detail, reason));
-        }
-        
-        if (bType.tag == TypeTags.MAP) {
-            SymbolInfo hasKey = getIterableOpSymbolInfo(Snippet.BUILTIN_HAS_KEY.get(), bType,
-                    ItemResolverConstants.BUILTIN_HASKEY_LABEL, context);
-            SymbolInfo remove = getIterableOpSymbolInfo(Snippet.BUILTIN_REMOVE.get(), bType,
-                    ItemResolverConstants.BUILTIN_REMOVE_LABEL, context);
-            SymbolInfo clear = getIterableOpSymbolInfo(Snippet.BUILTIN_CLEAR.get(), bType,
-                    ItemResolverConstants.BUILTIN_CLEAR_LABEL, context);
-            SymbolInfo keys = getIterableOpSymbolInfo(Snippet.BUILTIN_KEYS.get(), bType,
-                    ItemResolverConstants.BUILTIN_KEYS_LABEL, context);
-            SymbolInfo values = getIterableOpSymbolInfo(Snippet.BUILTIN_VALUES.get(), bType,
-                    ItemResolverConstants.BUILTIN_GET_VALUES_LABEL, context);
-            symbolInfoList.addAll(Arrays.asList(hasKey, remove, clear, keys, values));
-        }
-        
-        
     }
 
     /**
@@ -1231,10 +1135,14 @@ public class CommonUtil {
             }
         } else {
             for (int itr = 0; itr < parameterDefs.size(); itr++) {
-                signature.append(getFunctionInvocationParameterSignature(parameterDefs.get(itr), false, ctx));
-
-                if (itr != parameterDefs.size() - 1) {
-                    signature.append(", ");
+                BVarSymbol param = parameterDefs.get(itr);
+                BType paramType = (param.type instanceof BArrayType)
+                        ? ((BArrayType) param.type).eType : param.type;
+                if (!isLangLibSpecificParam(paramType)) {
+                    signature.append(getFunctionInvocationParameterSignature(param, false, ctx));
+                    if (itr != parameterDefs.size() - 1) {
+                        signature.append(", ");
+                    }
                 }
             }
             insertText.append("${1}");
@@ -1602,6 +1510,16 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Check whether the parameter is a lang lib param which we need to avoid analyzing.
+     * 
+     * @param type param type
+     * @return {@link Boolean} param status
+     */
+    public static boolean isLangLibSpecificParam(BType type) {
+        return Symbols.isFlagOn(type.flags, Flags.TYPE_PARAM) ||
+                (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM));
+    }
 
     private static Set<String> getAllNameEntries(BLangNode bLangNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();
