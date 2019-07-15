@@ -35,15 +35,14 @@ public type Producer client object {
     # Produces a message to a NATS basic server for the given subject.
     #
     # + subject - Could also be referred as the 'topic/queue' name.
-    # + replyTo - Subject for the receiver to reply to. This is an optional parameter, which will be set only if a reply is needed.
     # + data - Data to publish.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
-    public remote function publish(@untainted string subject, @untainted Content data, @untainted string? replyTo = ()) returns Error? {
+    public remote function publish(string subject, @untainted Content data) returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted, replyTo = replyTo);
+            return self.externPublish(subject, converted, replyTo = ());
         }
     }
 
@@ -55,7 +54,7 @@ public type Producer client object {
     # + data - Data to publish.
     # + duration - The time to wait for a response measured in milliseconds.
     # + return -  The response message or an error.
-    public remote function request(@untainted string subject, @untainted Content data, int? duration = ()) returns Message|Error {
+    public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
