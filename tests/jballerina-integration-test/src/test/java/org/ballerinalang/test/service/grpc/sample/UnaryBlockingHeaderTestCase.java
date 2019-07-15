@@ -41,7 +41,7 @@ public class UnaryBlockingHeaderTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_client_with_headers.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "08_unary_client_with_headers.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 

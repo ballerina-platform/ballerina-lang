@@ -46,7 +46,7 @@ public class ByteArrayTestCase extends GrpcBaseTest {
 
     @Test
     public void testbyteArray() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_byte_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "11_grpc_byte_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "byte array works";
 
@@ -59,7 +59,7 @@ public class ByteArrayTestCase extends GrpcBaseTest {
 
     @Test(description = "Test transmitting 30KB content in data frame.")
     public void testLargeByteArray() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_byte_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "11_grpc_byte_client.bal");
         Path sampleDataFile = Paths.get("src", "test", "resources", "grpc", "clients", "sample_bytes.txt");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "30KB file content transmitted successfully";

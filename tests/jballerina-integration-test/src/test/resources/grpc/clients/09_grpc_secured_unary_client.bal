@@ -16,8 +16,13 @@
 import ballerina/grpc;
 import ballerina/io;
 
+public function main() {
+    string resp = testUnarySecuredBlocking();
+    io:println(resp);
+}
+
 function testUnarySecuredBlocking() returns (string) {
-    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:8085", config = {
+    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9099", config = {
         secureSocket:{
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -31,7 +36,6 @@ function testUnarySecuredBlocking() returns (string) {
                 name: "TLSv1.2",
                 versions: ["TLSv1.2","TLSv1.1"]
             },
-            ciphers:["TLS_RSA_WITH_AES_128_CBC_SHA"],
             certValidation : {
                 enable: false
             },

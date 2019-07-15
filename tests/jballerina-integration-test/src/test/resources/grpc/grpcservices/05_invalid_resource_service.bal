@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep5 = new (9098);
+listener grpc:Listener ep5 = new (9095);
 @grpc:ServiceDescriptor {
     descriptor: ROOT_DESCRIPTOR_5,
     descMap: getDescriptorMap5()

@@ -21,7 +21,7 @@ string response = "";
 int total = 0;
 function testClientStreaming(string[] args) returns (string) {
     // Client endpoint configuration
-    HelloWorldClient helloWorldEp = new ("http://localhost:9096");
+    HelloWorldClient helloWorldEp = new ("http://localhost:9094");
 
     grpc:StreamingClient ep = new;
     // Executing unary non-blocking call registering server message listener.

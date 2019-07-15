@@ -64,6 +64,8 @@ dependencies {
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
+    implementation project(':ballerina-backend-jvm')
+    implementation project(':ballerina-jvm')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
@@ -106,6 +108,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/grpc;
+import ballerina/io;
 
 @grpc:ServiceDescriptor {
     descriptor: ROOT_DESCRIPTOR_15,
@@ -23,6 +24,8 @@ import ballerina/grpc;
 service OneofFieldService on new grpc:Listener(9105) {
 
     resource function hello(grpc:Caller caller, Request1 value) {
+        io:println("################################################################");
+        io:println(value);
         string request = "";
         if (value.name is Request1_FirstName) {
             var conv = Request1_FirstName.convert(value.name);
@@ -36,6 +39,7 @@ service OneofFieldService on new grpc:Listener(9105) {
             }
         }
         Response1 response = {message: "Hello " + request};
+        io:println(response);
         checkpanic caller->send(response);
         checkpanic caller->complete();
     }

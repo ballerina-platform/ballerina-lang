@@ -45,7 +45,7 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "server_streaming_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "06_server_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
 

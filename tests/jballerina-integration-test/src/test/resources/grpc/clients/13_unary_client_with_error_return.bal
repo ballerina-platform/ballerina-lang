@@ -16,6 +16,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
+public function main() {
+    string resp = testErrorResponse("WSO2");
+    io:println(resp);
+}
+
 public function testErrorResponse(string name) returns string {
     // Client endpoint configuration
     HelloWorldBlockingClient helloWorldBlockingEp = new("http://localhost:9103");

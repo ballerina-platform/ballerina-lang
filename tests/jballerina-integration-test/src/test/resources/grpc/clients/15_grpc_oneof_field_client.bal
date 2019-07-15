@@ -20,6 +20,34 @@ import ballerina/io;
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 const string ERROR_MESSAGE = "Expected response value type not received";
 
+public function main() {
+    string resp;
+    resp = testOneofFieldValue();
+    io:println(resp);
+    resp = testDoubleFieldValue();
+    io:println(resp);
+    resp = testFloatFieldValue();
+    io:println(resp);
+    resp = testInt64FieldValue();
+    io:println(resp);
+    resp = testUInt64FieldValue();
+    io:println(resp);
+    resp = testInt32FieldValue();
+    io:println(resp);
+    resp = testFixed64FieldValue();
+    io:println(resp);
+    resp = testFixed32FieldValue();
+    io:println(resp);
+    resp = testBolFieldValue();
+    io:println(resp);
+    resp = testStringFieldValue();
+    io:println(resp);
+    resp = testMessageFieldValue();
+    io:println(resp);
+    resp = testBytesFieldValue();
+    io:println(resp);
+}
+
 public function testOneofFieldValue() returns string {
     Request1_FirstName first = {first_name:"Sam"};
     Request1_Age age = {age:31};
@@ -296,7 +324,8 @@ public type OneofFieldServiceClient client object {
 };
 
 type Request1 record {
-    Other other;Name name;
+    Other other;
+    Name name;
 };
 
 public type Other Request1_Age|Request1_Address|Request1_Married;

@@ -23,7 +23,7 @@ public function main() {
 }
 
 function testByteArray() returns (string) {
-    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");
     string statement = "Lion in Town.";
     byte[] bytes = statement.toByteArray("UTF-8");
     var addResponse = blockingEp->checkBytes(bytes);
@@ -38,25 +38,30 @@ function testByteArray() returns (string) {
 }
 
 function testLargeByteArray(string filePath) returns (string) {
-    byteServiceBlockingClient blockingEp  = new ("http://localhost:8557");
-    io:ReadableByteChannel rch = <@untainted> io:openReadableFile(filePath);
-    var resultBytes = rch.read(10000);
-    byte[] bytes = [];
-    if (resultBytes is [byte[], int]) {
-        [bytes, _] = resultBytes;
+    byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");
+    var rch = <@untainted> io:openReadableFile(filePath);
+    if (rch is error) {
+        return "Error while reading the file.";
     } else {
-        return io:sprintf("File read error: %s - %s", resultBytes.reason(), <string>resultBytes.detail().message);
-    }
-    var addResponse = blockingEp->checkBytes(bytes);
-    if (addResponse is error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
-    } else {
-        byte[] result = [];
-        [result, _] = addResponse;
-        if(result == bytes) {
-            return "30KB file content transmitted successfully";
+        var resultBytes = rch.read(10000);
+        byte[] bytes = [];
+        if (resultBytes is [byte[], int]) {
+            [bytes, _] = resultBytes;
         } else {
-            return "Error while transmitting file content";
+            error err = resultBytes;
+            return io:sprintf("File read error: %s - %s", err.reason(), <string>err.detail().message);
+        }
+        var addResponse = blockingEp->checkBytes(bytes);
+        if (addResponse is error) {
+            return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+        } else {
+            byte[] result = [];
+            [result, _] = addResponse;
+            if(result == bytes) {
+                return "30KB file content transmitted successfully";
+            } else {
+                return "Error while transmitting file content";
+            }
         }
     }
 }

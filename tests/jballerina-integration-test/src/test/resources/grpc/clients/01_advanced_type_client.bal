@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9090");
+HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9091");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 function testInputNestedStruct(Person p) returns (string) {

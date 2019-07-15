@@ -19,6 +19,13 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
+public function main() {
+    string[] bol = ["A", "B", "S"];
+    TestString testbol = {values: bol};
+    var resp = testStringArrayInput(testbol);
+    io:println(resp);
+}
+
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");
     io:println(req);

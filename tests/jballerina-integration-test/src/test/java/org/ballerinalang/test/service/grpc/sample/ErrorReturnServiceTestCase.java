@@ -43,7 +43,7 @@ public class ErrorReturnServiceTestCase extends GrpcBaseTest {
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients",
-                "unary_client_with_error_return.bal");
+                "13_unary_client_with_error_return.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 

@@ -17,7 +17,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Client endpoint configuration
-HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9101");
+HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 function testUnaryBlockingClient(string name) returns (string) {

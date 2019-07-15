@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep9 = new (8085, config = {
+listener grpc:Listener ep9 = new (9099, config = {
     host:"localhost",
     secureSocket:{
         keyStore:{
@@ -31,7 +31,6 @@ listener grpc:Listener ep9 = new (8085, config = {
             name: "TLSv1.2",
             versions: ["TLSv1.2","TLSv1.1"]
         },
-        ciphers:["TLS_RSA_WITH_AES_128_CBC_SHA"],
         sslVerifyClient:"require",
         certValidation : {
             enable: false

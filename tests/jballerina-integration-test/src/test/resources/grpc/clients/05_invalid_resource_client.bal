@@ -16,7 +16,18 @@
 import ballerina/grpc;
 import ballerina/io;
 
-HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
+HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
+
+public function main() {
+    //string resp = testInvalidRemoteMethod("WSO2");
+    //io:println(resp);
+    int iResp = testInvalidInputParameter(100);
+    io:println(iResp);
+    //var vResp = testInvalidOutputResponse(1.0);
+    //io:println(vResp);
+    //var vvResp = testNonExistenceRemoteMethod(true);
+    //io:println(vvResp);
+}
 
 function testInvalidRemoteMethod(string name) returns (string) {
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);

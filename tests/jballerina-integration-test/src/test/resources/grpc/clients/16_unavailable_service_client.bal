@@ -16,21 +16,23 @@
 import ballerina/grpc;
 import ballerina/io;
 
-function testEnum() returns (string) {
-    testEnumServiceBlockingClient blockingEp = new ("http://localhost:8555");
+HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9106");
 
-    orderInfo orderReq = { id:"100500", mode:r };
-    var addResponse = blockingEp->testEnum(orderReq);
-    if (addResponse is error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+function testUnaryBlockingClient(string name) returns (string) {
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
+    if (unionResp is error) {
+        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
     } else {
-        string result = "";
-        [result, _] = addResponse;
-        return result;
+        io:println("Client Got Response : ");
+        string result;
+        [result, _] = unionResp;
+        io:println(result);
+        return "Client got response: " + result;
     }
 }
 
-public type testEnumServiceBlockingClient client object {
+public type HelloWorldBlockingClient client object {
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
@@ -44,16 +46,17 @@ public type testEnumServiceBlockingClient client object {
         }
     }
 
-    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
-        grpc:Headers resHeaders = new;
-        any result = ();
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
+        any result;
+        grpc:Headers resHeaders;
         [result, resHeaders] = unionResp;
         return [string.convert(result), resHeaders];
     }
 };
 
-public type testEnumServiceClient client object {
+public type helloWorldClient client object {
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
@@ -67,29 +70,18 @@ public type testEnumServiceClient client object {
         }
     }
 
-    remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers = headers);
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers = headers);
     }
 };
-
-
-type orderInfo record {
-    string id = "";
-    Mode mode = r;
-
-};
-
-public type Mode r;
-
-public const r = "r";
-
-const string ROOT_DESCRIPTOR = "0A1574657374456E756D536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22430A096F72646572496E666F120E0A0269641801200128095202696412260A046D6F646518022001280E32122E6772706373657276696365732E4D6F646552046D6F64652A0D0A044D6F646512050A0172100032540A0F74657374456E756D5365727669636512410A0874657374456E756D12172E6772706373657276696365732E6F72646572496E666F1A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
+const string ROOT_DESCRIPTOR = "0A1668656C6C6F576F726C64537472696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32510A0A48656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";
 function getDescriptorMap() returns map<string> {
     return {
-        "testEnumService.proto":
-        "0A1574657374456E756D536572766963652E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22430A096F72646572496E666F120E0A0269641801200128095202696412260A046D6F646518022001280E32122E6772706373657276696365732E4D6F646552046D6F64652A0D0A044D6F646512050A0172100032540A0F74657374456E756D5365727669636512410A0874657374456E756D12172E6772706373657276696365732E6F72646572496E666F1A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33"
+        "HelloWorld.proto":
+        "0A1668656C6C6F576F726C64537472696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32510A0A48656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33"
         ,
         "google/protobuf/wrappers.proto":
         "0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
     };
 }
+

@@ -21,7 +21,7 @@ import ballerina/runtime;
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
-    HelloWorldClient helloWorldEp = new("http://localhost:9099");
+    HelloWorldClient helloWorldEp = new("http://localhost:9096");
 
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);

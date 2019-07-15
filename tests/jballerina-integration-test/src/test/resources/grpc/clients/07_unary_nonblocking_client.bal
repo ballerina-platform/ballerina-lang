@@ -15,100 +15,69 @@
 // under the License.
 import ballerina/grpc;
 import ballerina/io;
+import ballerina/runtime;
 
-HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9100");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+boolean respReceived = false;
+boolean eofReceived = false;
 
-function testUnaryBlockingClient(string name) returns (string) {
-    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
-    if (unionResp is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
-        io:println(msg);
-        return msg;
-    } else {
-        io:println("Client Got Response : ");
-        string result = "";
-        [result, _] = unionResp;
-        io:println(result);
-        return "Client got response: " + result;
-    }
+
+public function main() {
+    boolean a = testUnaryNonBlockingClient();
+    io:println(a);
 }
 
-function testUnaryBlockingIntClient(int age) returns (int) {
-    [int, grpc:Headers]|error unionResp = helloWorldBlockingEp->testInt(age);
-    if (unionResp is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
-        io:println(msg);
-        return -1;
-    } else {
-        io:println("Client got response : ");
-        int result = 0;
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
-    }
-}
-
-function testUnaryBlockingFloatClient(float salary) returns (float) {
-    [float, grpc:Headers]|error unionResp = helloWorldBlockingEp->testFloat(salary);
-    if (unionResp is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
-        io:println(msg);
-        return -1.0;
-    } else {
-        io:println("Client got response : ");
-        float result = 0.0;
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
-    }
-}
-
-function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
-    [boolean, grpc:Headers]|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
-    if (unionResp is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+function testUnaryNonBlockingClient() returns boolean {
+    // Client endpoint configuration
+    HelloWorldClient helloWorldEp = new ("http://localhost:9097");
+    // Executing unary non-blocking call registering server message listener.
+    error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
+    if (result is error) {
+        string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string>result.detail().message);
         io:println(msg);
         return false;
     } else {
-        io:println("Client got response : ");
-        boolean result = false;
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
+        io:println("Connected successfully");
     }
+
+    int waitCount = 0;
+    while(true) {
+        if (respReceived && eofReceived) {
+            break;
+        }
+        runtime:sleep(1000);
+        io:println("response received: ", respReceived);
+        io:println("EOF received: ", eofReceived);
+        if (waitCount > 10) {
+            break;
+        }
+        waitCount += 1;
+    }
+    io:println("Response received: " + (respReceived && eofReceived));
+    return (respReceived && eofReceived);
 }
 
-function testResponseInsideMatch(string msg) returns Response {
-    [Response, grpc:Headers]|error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
-    if (unionResp is error) {
-        string message = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
-        io:println(message);
-        return {};
-    } else {
-        io:println("Client got response : ");
-        Response result = {};
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
-    }
-}
+// Server Message Listener.
+service HelloWorldMessageListener = service {
 
-function testUnaryBlockingStructClient(Request req) returns (Response) {
-    //Request req = {name:"Sam", age:25, message:"Testing."};
-    [Response, grpc:Headers]|error unionResp = helloWorldBlockingEp->testStruct(req);
-    if (unionResp is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+    // Resource registered to receive server messages
+    resource function onMessage(string message) {
+        io:println("Response received from server: " + message);
+        respReceived = true;
+    }
+
+    // Resource registered to receive server error messages
+    resource function onError(error err) {
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
         io:println(msg);
-        return {};
-    } else {
-        io:println("Client got response : ");
-        Response result = {};
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
     }
-}
+
+    // Resource registered to receive server completed message.
+    resource function onComplete() {
+        io:println("Server Complete Sending Response.");
+        eofReceived = true;
+    }
+};
 
 public type HelloWorldBlockingClient client object {
 
@@ -184,23 +153,9 @@ public type HelloWorldBlockingClient client object {
             return value;
         }
     }
-
-    remote function testResponseInsideMatch(string req, grpc:Headers? headers = ()) returns [Response, grpc:Headers]|error {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req, headers = headers);
-        any result = ();
-        grpc:Headers resHeaders = new;
-        [result, resHeaders] = unionResp;
-        var value = Response.convert(result);
-        if (value is Response) {
-            return [value, resHeaders];
-        } else {
-            return value;
-        }
-    }
 };
 
-
-public type helloWorldClient client object {
+public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
@@ -234,24 +189,14 @@ public type helloWorldClient client object {
     remote function testStruct(Request req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testStruct", req, msgListener, headers = headers);
     }
-
-    remote function testResponseInsideMatch (string req, service msgListener, grpc:Headers? headers = ()) returns error? {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req, msgListener,
-            headers = headers);
-    }
 };
-
 const string ROOT_DESCRIPTOR = "0A1348656C6C6F576F726C643130302E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22490A075265717565737412120A046E616D6518012001280952046E616D6512180A076D65737361676518022001280952076D65737361676512100A036167651803200128035203616765221E0A08526573706F6E736512120A047265737018012001280952047265737032B5030A0D48656C6C6F576F726C6431303012430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A0774657374496E74121B2E676F6F676C652E70726F746F6275662E496E74363456616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512450A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C756512450A0B74657374426F6F6C65616E121A2E676F6F676C652E70726F746F6275662E426F6F6C56616C75651A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565123B0A0A7465737453747275637412152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E7365124F0A1774657374526573706F6E7365496E736964654D61746368121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A162E6772706373657276696365732E526573706F6E7365620670726F746F33";
+
 function getDescriptorMap() returns map<string> {
-    return  {
-        "HelloWorld100.proto":
-        "0A1348656C6C6F576F726C643130302E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22490A075265717565737412120A046E616D6518012001280952046E616D6512180A076D65737361676518022001280952076D65737361676512100A036167651803200128035203616765221E0A08526573706F6E736512120A047265737018012001280952047265737032B5030A0D48656C6C6F576F726C6431303012430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A0774657374496E74121B2E676F6F676C652E70726F746F6275662E496E74363456616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512450A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C756512450A0B74657374426F6F6C65616E121A2E676F6F676C652E70726F746F6275662E426F6F6C56616C75651A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565123B0A0A7465737453747275637412152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E7365124F0A1774657374526573706F6E7365496E736964654D61746368121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A162E6772706373657276696365732E526573706F6E7365620670726F746F33"
-        ,
-        "google/protobuf/wrappers.proto":
-        "0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
-        ,
-        "google/protobuf/empty.proto":
-        "0A0B656D7074792E70726F746F120F676F6F676C652E70726F746F62756622070A05456D70747942540A13636F6D2E676F6F676C652E70726F746F627566420A456D70747950726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
+    return {
+    "HelloWorld100.proto":"0A1348656C6C6F576F726C643130302E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22490A075265717565737412120A046E616D6518012001280952046E616D6512180A076D65737361676518022001280952076D65737361676512100A036167651803200128035203616765221E0A08526573706F6E736512120A047265737018012001280952047265737032B5030A0D48656C6C6F576F726C6431303012430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A0774657374496E74121B2E676F6F676C652E70726F746F6275662E496E74363456616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512450A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C756512450A0B74657374426F6F6C65616E121A2E676F6F676C652E70726F746F6275662E426F6F6C56616C75651A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565123B0A0A7465737453747275637412152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E7365124F0A1774657374526573706F6E7365496E736964654D61746368121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A162E6772706373657276696365732E526573706F6E7365620670726F746F33",
+    "google/protobuf/wrappers.proto":"0A0E77726170706572732E70726F746F120F676F6F676C652E70726F746F62756622230A0B446F75626C6556616C756512140A0576616C7565180120012801520576616C756522220A0A466C6F617456616C756512140A0576616C7565180120012802520576616C756522220A0A496E74363456616C756512140A0576616C7565180120012803520576616C756522230A0B55496E74363456616C756512140A0576616C7565180120012804520576616C756522220A0A496E74333256616C756512140A0576616C7565180120012805520576616C756522230A0B55496E74333256616C756512140A0576616C756518012001280D520576616C756522210A09426F6F6C56616C756512140A0576616C7565180120012808520576616C756522230A0B537472696E6756616C756512140A0576616C7565180120012809520576616C756522220A0A427974657356616C756512140A0576616C756518012001280C520576616C756542570A13636F6D2E676F6F676C652E70726F746F627566420D577261707065727350726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33",
+    "google/protobuf/empty.proto":"0A0B656D7074792E70726F746F120F676F6F676C652E70726F746F62756622070A05456D70747942540A13636F6D2E676F6F676C652E70726F746F627566420A456D70747950726F746F50015A057479706573F80101A20203475042AA021E476F6F676C652E50726F746F6275662E57656C6C4B6E6F776E5479706573620670726F746F33"
     };
 }
 

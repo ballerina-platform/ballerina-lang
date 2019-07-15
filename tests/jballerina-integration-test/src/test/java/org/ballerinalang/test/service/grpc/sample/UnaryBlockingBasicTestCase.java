@@ -18,7 +18,8 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -29,8 +30,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -49,16 +48,15 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_blocking_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingBallerinaClient() {
-        BString request = new BString("WSO2");
         final String serverMsg = "Hello WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), "Client got response: " + serverMsg);
@@ -66,10 +64,9 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testBlockingErrorResponse() {
-        BString request = new BString("invalid");
         final String serverMsg = "Error from Connector: {ballerina/grpc}ABORTED - Operation aborted";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"invalid"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
@@ -77,10 +74,9 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testIntBlockingBallerinaClient() {
-        BInteger request = new BInteger(10);
         final int serverMsg = 8;
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingIntClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingIntClient", new Object[]{10});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BInteger);
         Assert.assertEquals(Integer.parseInt(responses[0].stringValue()), serverMsg);
@@ -88,10 +84,9 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testFloatBlockingBallerinaClient() {
-        BFloat request = new BFloat(1000.5);
         final double response = 880.44;
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingFloatClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingFloatClient", new Object[]{1000.5});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BFloat);
         Assert.assertEquals(Double.parseDouble(responses[0].stringValue()), response);
@@ -99,10 +94,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testBooleanBlockingBallerinaClient() {
-        BBoolean request = new BBoolean(false);
         final boolean response = true;
-
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingBoolClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingBoolClient", new Object[]{Boolean.FALSE});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BBoolean);
         Assert.assertEquals(Boolean.parseBoolean(responses[0].stringValue()), response);
@@ -110,15 +103,12 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testStructBlockingBallerinaClient() {
-        PackageInfo httpPackageInfo = result.getProgFile().getPackageInfo(".");
-        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo("Request");
-        BStructureType structType = structInfo.getType();
-        BMap<String, BValue> request = new BMap<String, BValue>(structType);
-        request.put("name", new BString("Sam"));
-        request.put("message", new BString("Testing."));
-        request.put("age", new BInteger(10));
+        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
+        request.put("name", "Sam");
+        request.put("message", "Testing.");
+        request.put("age", 10);
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
@@ -127,10 +117,9 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test(description = "Test deriving gRPC service response type when send expression inside match statement")
     public void testResponseInsideMatch() {
-        BString request = new BString("WSO2");
         final String serverMsg = "Acknowledge WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testResponseInsideMatch", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testResponseInsideMatch", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
@@ -139,10 +128,10 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary_nonblocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BBoolean);
         BBoolean response = (BBoolean) responses[0];

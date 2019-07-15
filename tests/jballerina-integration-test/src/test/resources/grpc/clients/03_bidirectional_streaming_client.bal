@@ -24,9 +24,14 @@ string responseMsg = "";
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
 
+public function main() {
+    string resp = testBidiStreaming();
+    io:println(resp);
+}
+
 public function testBidiStreaming() returns string {
     grpc:StreamingClient ep = new;
-    ChatClient chatEp = new ("http://localhost:9095");
+    ChatClient chatEp = new ("http://localhost:9093");
     string response = "";
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);

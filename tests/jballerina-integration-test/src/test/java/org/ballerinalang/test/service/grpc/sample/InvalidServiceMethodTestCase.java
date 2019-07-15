@@ -44,7 +44,7 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "invalid_resource_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "05_invalid_resource_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -77,7 +77,7 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
         BFloat request = new BFloat(1000.5);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - {ballerina}ConversionError";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - {ballerina}NumberConversionError";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
