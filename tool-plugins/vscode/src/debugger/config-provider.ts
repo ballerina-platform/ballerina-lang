@@ -36,7 +36,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
             config.request = 'launch';
         }
 
-        if (!config.script) {
+        if (!config.script || config.script == "${file}") {
             if (!window.activeTextEditor) {
                 ballerinaExtInstance.showMessageInvalidFile();
                 return
@@ -51,7 +51,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
 
             config.script = window.activeTextEditor.document.uri.path;
         }
-        config.debuggeePort = "5006";
+        config.debuggeePort = "5010";
 
         let cwd: string | undefined = path.dirname(config.script);
         let { sourceRoot, ballerinaPackage } = getRunningInfo(cwd, path.parse(config.script).root);
@@ -123,12 +123,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             const ballerinaPath = session.configuration['ballerina.home'];
             const ballerinaExec = `${ballerinaPath}/bin/jballerina`;
             const balProcess = child_process.spawn(ballerinaExec, 
-                ['run', session.configuration.script], {
-                cwd: session.configuration.sourceRoot,
-                env: {
-                    'BAL_JAVA_DEBUG': '5006'
-                }
-            });
+                ['run', '--debug', session.configuration.debuggeePort, session.configuration.script]);
 
             balProcess.stdout.on('data', (data) => {
                 if (data.toString().includes('Listening for transport dt_socket')) {
@@ -142,7 +137,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         });
     }
     static launchAdapter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
-        const ballerinaPath = ballerinaExtInstance.autoDetectBallerinaHome();
+        const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
 
         let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
         // Ensure that start script can be executed
