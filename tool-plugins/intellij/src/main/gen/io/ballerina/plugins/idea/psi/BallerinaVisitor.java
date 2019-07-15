@@ -780,10 +780,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitReturnType(@NotNull BallerinaReturnType o) {
-    visitPsiElement(o);
-  }
-
   public void visitSealedLiteral(@NotNull BallerinaSealedLiteral o) {
     visitPsiElement(o);
   }

@@ -32,7 +32,7 @@ public interface BallerinaTupleTypeName extends BallerinaTypeName {
   @NotNull
   PsiElement getLeftBracket();
 
-  @NotNull
+  @Nullable
   PsiElement getRightBracket();
 
 }

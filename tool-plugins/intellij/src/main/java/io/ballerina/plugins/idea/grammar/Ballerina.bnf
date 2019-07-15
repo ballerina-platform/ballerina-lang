@@ -169,11 +169,9 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public|private)? remote? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public|private)? remote? function ((AttachedObject|TypeName) DOT)? CallableUnitSignature (CallableUnitBody | ExternalFunctionBody SEMICOLON) {
     pin=3 methods=[getIdentifier getName]
 }
-private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | ExternalFunctionBody ) {pin=2}
-private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature (CallableUnitBody | ExternalFunctionBody ) {pin=2}
 
 ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=3}
 
@@ -189,7 +187,7 @@ private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS (ArrowParam (COMMA Arr
 ArrowParam ::= identifier
 
 // Todo - cache and add Signature owner?
-CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
+CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=2}
 
 TypeDefinition ::= public? type identifier FiniteType SEMICOLON {
     pin=2
@@ -286,8 +284,8 @@ HandleTypeName ::= handle
 ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
-GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
-TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET
+GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
+TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET {pin=1}
 ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 
 InclusiveRecordTypeDescriptor ::=   record LEFT_BRACE FieldDescriptor* RIGHT_BRACE
@@ -735,8 +733,7 @@ PackageReference ::= identifier COLON {
     pin=2
 }
 
-ReturnParameter ::= returns ReturnType {pin=1}
-ReturnType ::= AnnotationAttachment* TypeName
+ReturnParameter ::= returns AnnotationAttachment* TypeName {pin=1}
 
 LambdaReturnParameter ::= AnnotationAttachment* TypeName
 

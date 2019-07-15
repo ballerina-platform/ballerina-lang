@@ -28,6 +28,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
+import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
@@ -206,6 +207,9 @@ public class BallerinaAnnotator implements Annotator {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                     // Highlights Worker names.
                 } else if (parent instanceof BallerinaWorkerDefinition) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
+                    // Highlights package alias.
+                } else if (parent instanceof BallerinaAlias) {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                 }
             }

@@ -233,7 +233,6 @@ public interface BallerinaTypes {
   IElementType RETURN_PARAMETER_DOCUMENTATION = new BallerinaCompositeElementType("RETURN_PARAMETER_DOCUMENTATION");
   IElementType RETURN_PARAMETER_DOCUMENTATION_LINE = new BallerinaCompositeElementType("RETURN_PARAMETER_DOCUMENTATION_LINE");
   IElementType RETURN_STATEMENT = new BallerinaCompositeElementType("RETURN_STATEMENT");
-  IElementType RETURN_TYPE = new BallerinaCompositeElementType("RETURN_TYPE");
   IElementType SEALED_LITERAL = new BallerinaCompositeElementType("SEALED_LITERAL");
   IElementType SELECT_CLAUSE = new BallerinaCompositeElementType("SELECT_CLAUSE");
   IElementType SELECT_EXPRESSION = new BallerinaCompositeElementType("SELECT_EXPRESSION");
@@ -1219,9 +1218,6 @@ public interface BallerinaTypes {
       }
       else if (type == RETURN_STATEMENT) {
         return new BallerinaReturnStatementImpl(node);
-      }
-      else if (type == RETURN_TYPE) {
-        return new BallerinaReturnTypeImpl(node);
       }
       else if (type == SEALED_LITERAL) {
         return new BallerinaSealedLiteralImpl(node);

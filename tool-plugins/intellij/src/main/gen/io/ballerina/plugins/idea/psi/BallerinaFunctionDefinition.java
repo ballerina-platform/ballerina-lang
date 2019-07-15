@@ -42,6 +42,9 @@ public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition
   @Nullable
   PsiElement getDot();
 
+  @Nullable
+  PsiElement getSemicolon();
+
   @NotNull
   PsiElement getFunction();
 

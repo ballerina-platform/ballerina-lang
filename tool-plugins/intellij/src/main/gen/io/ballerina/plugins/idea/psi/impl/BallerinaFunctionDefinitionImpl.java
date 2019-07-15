@@ -79,6 +79,12 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
+  }
+
+  @Override
   @NotNull
   public PsiElement getFunction() {
     return findNotNullChildByType(FUNCTION);
