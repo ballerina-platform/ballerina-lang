@@ -376,7 +376,7 @@ public class FunctionSignatureTest {
         Assert.assertEquals(returns[5].stringValue(), "[]");
     }
 
-    @Test
+    @Test(enabled = false) // disabling due to, external functions not yet supported in tests
     public void testOptionalArgsInNativeFunc() {
         NativeElementRepository repo = NativeUnitLoader.getInstance().getNativeElementRepository();
         StandardNativeElementProvider provider = new StandardNativeElementProvider();
