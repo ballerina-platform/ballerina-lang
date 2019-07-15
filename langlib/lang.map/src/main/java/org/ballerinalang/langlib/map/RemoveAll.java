@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 
 /**
- * ENative implementation of lang.map:removeAll(map<Type>).
+ * ENative implementation of lang.map:removeAll(map&lt;Type&gt;).
  *
  * @since 1.0
  */

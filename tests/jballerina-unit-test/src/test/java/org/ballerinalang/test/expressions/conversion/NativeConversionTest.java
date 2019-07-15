@@ -19,8 +19,6 @@ package org.ballerinalang.test.expressions.conversion;
 
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -35,9 +33,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-
-import java.math.BigDecimal;
-import java.math.MathContext;
 
 /**
  * Test Cases for type conversion.
