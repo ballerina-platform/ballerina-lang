@@ -49,8 +49,8 @@
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <!--<package name="org.ballerinalang.test.structs.*"/>-->
-            <!--<package name="org.ballerinalang.test.jvm.*"/>-->
-            <package name="org.ballerinalang.test.types.innteger"/>
+            <package name="org.ballerinalang.test.jvm.*"/>
+            <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
