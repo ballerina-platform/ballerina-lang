@@ -431,13 +431,13 @@ function genMethodForBallerinaFunction(bir:Function func,
         jvm:Label startLabel = methodStartLabel;
         jvm:Label endLabel = methodEndLabel;
         if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam) 
-            && !(localVar.meta["name"] is ())) {
+            && !(localVar.meta["name"] is () || localVar.meta["name"] == "")) {
             if (localVar.kind is bir:LocalVarKind) {
                 startLabel = labelGen.getLabel(funcName + localVar.meta.startBBID + "ins" + localVar.meta.insOffset);
                 endLabel = labelGen.getLabel(funcName + localVar.meta.endBBID + "beforeTerm");
             }
             mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue), 
-                startLabel, endLabel, k);
+                startLabel, endLabel, indexMap.getIndex(localVar));
         }
         k = k + 1;
     }
