@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Locale;
 
@@ -67,13 +66,13 @@ public class BTypeCompletionItemBuilder {
         } else if (bSymbol.type instanceof BFiniteType || bSymbol.type instanceof BUnionType) {
             // enums
             item.setKind(CompletionItemKind.Enum);
-        }
+//        }
 //        else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG) &&
 //                bSymbol.pkgID.name.equals(Names.BUILTIN_PACKAGE)) {
 //            // keyword
 //            item.setKind(CompletionItemKind.Keyword);
 //        }
-        else {
+        } else {
             // default
             item.setKind(CompletionItemKind.Unit);
         }
