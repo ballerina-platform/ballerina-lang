@@ -37,8 +37,3 @@ public type WebSocketGenericError error<GENERIC_ERROR, Detail>;
 
 public type WebSocketError ConnectionClosureError|InvalidHandshakeError|PayloadTooBigError|ProtocolError|
 ConnectionError|InvalidContinuationFrameError|WebSocketGenericError;
-
-public type Detail record {
-    string message;
-    error cause?;
-};
