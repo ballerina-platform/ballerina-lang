@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/runtime;
