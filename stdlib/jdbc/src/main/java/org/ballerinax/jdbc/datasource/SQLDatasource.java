@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.datasource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
@@ -41,7 +42,6 @@ public class SQLDatasource {
 
     private HikariDataSource hikariDataSource;
     private String peerAddress;
-    private String databaseName;
     private String databaseProductName;
     private boolean xaConn;
     private boolean globalDatasource;
@@ -51,7 +51,6 @@ public class SQLDatasource {
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
         this.globalDatasource = sqlDatasourceParams.isGlobalDatasource;
-        databaseName = sqlDatasourceParams.dbName;
         peerAddress = sqlDatasourceParams.jdbcUrl;
         buildDataSource(sqlDatasourceParams);
         try {
@@ -76,15 +75,6 @@ public class SQLDatasource {
      */
     public String getPeerAddress() {
         return peerAddress;
-    }
-
-    /**
-     * Get the database name.
-     *
-     * @return The database name, or null if the URL is used.
-     */
-    public String getDatabaseName() {
-        return databaseName;
     }
 
     /**
@@ -307,7 +297,6 @@ public class SQLDatasource {
         private String dbType;
         private String username;
         private String password;
-        private String dbName;
         private boolean isGlobalDatasource;
         private MapValue<String, Object> dbOptionsMap;
 
@@ -317,7 +306,6 @@ public class SQLDatasource {
             this.dbType = builder.dbType;
             this.username = builder.username;
             this.password = builder.password;
-            this.dbName = builder.dbName;
             this.isGlobalDatasource = builder.isGlobalDatasource;
             this.dbOptionsMap = builder.dbOptionsMap;
         }
@@ -340,7 +328,6 @@ public class SQLDatasource {
         private String dbType;
         private String username;
         private String password;
-        private String dbName;
         private boolean isGlobalDatasource;
         private MapValue<String, Object> dbOptionsMap;
 
@@ -374,11 +361,6 @@ public class SQLDatasource {
 
         public SQLDatasourceParamsBuilder withPoolOptions(PoolOptionsWrapper options) {
             this.poolOptions = options;
-            return this;
-        }
-
-        public SQLDatasourceParamsBuilder withDbName(String dbName) {
-            this.dbName = dbName;
             return this;
         }
 

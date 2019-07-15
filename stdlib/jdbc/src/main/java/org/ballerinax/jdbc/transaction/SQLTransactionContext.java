@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.transaction;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;

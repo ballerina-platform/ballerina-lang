@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.datasource;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
@@ -225,7 +226,7 @@ public class SQLDatasourceUtils {
         return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
     }
 
-    public static ErrorValue getSQLDatabaseError(DatabaseException exception) {
+    static ErrorValue getSQLDatabaseError(DatabaseException exception) {
         return getSQLDatabaseError(exception, "");
     }
 

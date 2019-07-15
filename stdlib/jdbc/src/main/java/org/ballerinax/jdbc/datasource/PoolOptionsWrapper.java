@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.datasource;
 
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -32,7 +32,7 @@ public class PoolOptionsWrapper {
 
     private final MapValue<String, Object> poolOptions;
 
-    protected PoolOptionsWrapper(MapValue<String, Object> poolOptions) {
+    PoolOptionsWrapper(MapValue<String, Object> poolOptions) {
         this.poolOptions = poolOptions;
     }
 

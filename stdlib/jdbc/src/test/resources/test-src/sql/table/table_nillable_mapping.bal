@@ -126,8 +126,8 @@ function testMappingToNillableTypeFields() returns @tainted [int?, int?, float?,
     });
 
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
+        boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
+        binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
 
     int? int_type = ();
     int? long_type = ();
