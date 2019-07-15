@@ -67,10 +67,14 @@ public class LValueTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         int i = 0;
         validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 23, 5);
-        validateError(negativeResult, i, "invalid operation: type 'A' does not support indexing", 24, 5);
+        validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 24, 5);
+        validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
+                "assignment", 34, 5);
+        validateError(negativeResult, i, "optional field access cannot be used in the target expression of an " +
+                "assignment", 35, 5);
     }
 
     @Test(dataProvider = "valueStoreFunctions")

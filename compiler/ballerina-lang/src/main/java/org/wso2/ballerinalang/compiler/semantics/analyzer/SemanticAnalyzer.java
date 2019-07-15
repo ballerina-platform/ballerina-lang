@@ -1401,6 +1401,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT, varRef);
             expTypes.add(symTable.semanticError);
         } else {
+            compoundAssignment.varRef.compoundAssignmentLhsVar = true;
             this.typeChecker.checkExpr(varRef, env);
             expTypes.add(varRef.type);
         }

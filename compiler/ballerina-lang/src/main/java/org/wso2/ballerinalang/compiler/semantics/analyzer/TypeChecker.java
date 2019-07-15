@@ -1149,7 +1149,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 // If the constant is on the LHS, modifications are not allowed.
                 // E.g. m.k = "10"; // where `m` is a constant.
-                if (varRefExpr.lhsVar) {
+                if (varRefExpr.lhsVar || varRefExpr.compoundAssignmentLhsVar) {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
@@ -1413,6 +1413,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         // First analyze the variable reference expression.
         ((BLangVariableReference) fieldAccessExpr.expr).lhsVar = fieldAccessExpr.lhsVar;
+        ((BLangVariableReference) fieldAccessExpr.expr).compoundAssignmentLhsVar =
+                fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
         // Accessing all fields using * is only supported for XML.
@@ -1423,7 +1425,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType;
 
         if (fieldAccessExpr.optionalFieldAccess) {
-            if (fieldAccessExpr.lhsVar) {
+            if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
                 resultType = symTable.semanticError;
                 return;
@@ -1440,6 +1442,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexBasedAccessExpr) {
         // First analyze the variable reference expression.
         ((BLangVariableReference) indexBasedAccessExpr.expr).lhsVar = indexBasedAccessExpr.lhsVar;
+        ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
+                indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
