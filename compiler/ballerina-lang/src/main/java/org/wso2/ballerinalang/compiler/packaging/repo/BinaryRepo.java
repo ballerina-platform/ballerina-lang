@@ -49,9 +49,9 @@ public class BinaryRepo implements Repo<Path> {
         }
         String artifactName = pkgName + ".zip";
 
-        String binaryFileName = pkgName + (this.compilerPhase == CompilerPhase.BIR_GEN ? ".bir" : ".balo");
+        String binaryFileName = pkgName + ".bir";
 
-        String folderName = this.compilerPhase == CompilerPhase.BIR_GEN ? "bir" : "obj";
+        String folderName = "bir";
 
         return new Patten(path(orgName, pkgName), version, path(artifactName, folderName, binaryFileName));
     }
