@@ -25,14 +25,13 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,9 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "nats",
                    functionName = "createStreamingConnection",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingProducer",
-                                        structPackage = "ballerina/nats"),
                    isPublic = true)
 public class CreateStreamingConnection implements NativeCallableUnit {
 
@@ -57,15 +53,16 @@ public class CreateStreamingConnection implements NativeCallableUnit {
         return false;
     }
 
-    public static void createStreamingConnection(Strand strand, ObjectValue streamingProducer, ObjectValue conn,
-            String clusterId, String clientId, Object streamingConfig) {
+    public static void createStreamingConnection(Strand strand, Object streamingClient, ObjectValue conn,
+            String clusterId, Object clientIdNillable, Object streamingConfig) {
         Connection natsConnection = (Connection) conn.getNativeData(Constants.NATS_CONNECTION);
+        String clientId = clientIdNillable == null ? UUID.randomUUID().toString() : (String) clientIdNillable;
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
                 new BallerinaNatsStreamingConnectionFactory(
                 natsConnection, clusterId, clientId, (MapValue<String, Object>) streamingConfig);
         try {
             StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
-            streamingProducer.addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
+            ((ObjectValue) streamingClient).addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
             ((AtomicInteger) conn.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
         } catch (IOException e) {
             throw Utils.createNatsError(e.getMessage());

@@ -7,19 +7,14 @@ import ballerina/nats;
 nats:Connection conn = new("localhost:4222");
 
 // Initializes the NATS Streaming listener.
-listener nats:StreamingListener lis1 = new(conn, "test-cluster", "c1");
-listener nats:StreamingListener lis2 = new(conn, "test-cluster", "c2");
-listener nats:StreamingListener lis3 = new(conn, "test-cluster", "c3");
-listener nats:StreamingListener lis4 = new(conn, "test-cluster", "c4");
-listener nats:StreamingListener lis5 = new(conn, "test-cluster", "c5");
-
+listener nats:StreamingListener lis = new(conn);
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 // By default, only new messages are received.
 @nats:StreamingSubscriptionConfig {
     subject: "demo"
 }
-service receiveNewOnly on lis1 {
+service receiveNewOnly on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
        io:println("Message Received to service receiveNewOnly: "
@@ -38,7 +33,7 @@ service receiveNewOnly on lis1 {
     subject: "demo",
     startPosition : nats:FIRST
 }
-service receiveFromBegining on lis2 {
+service receiveFromBegining on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
        io:println("Message Received to service receiveFromBegining: "
@@ -57,7 +52,7 @@ service receiveFromBegining on lis2 {
     subject: "demo",
     startPosition : nats:LAST_RECEIVED
 }
-service receiveFromLastReceived on lis3 {
+service receiveFromLastReceived on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
        io:println("Message Received to service receiveFromLastReceived: "
@@ -75,9 +70,9 @@ service receiveFromLastReceived on lis3 {
 // Receives messages starting from the provided sequence number.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : 3
+    startPosition : [nats:SEQUENCE_NUMBER, 3]
 }
-service receiveFromGivenIndex on lis4 {
+service receiveFromGivenIndex on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
        io:println("Message Received to service receiveFromGivenIndex: "
@@ -95,9 +90,9 @@ service receiveFromGivenIndex on lis4 {
 // Recieves messages since the provided historical time delta.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : { timeDelta: 5, timeUnit: nats:SECONDS }
+    startPosition : [nats:TIME_DELTA_START, 5]
 }
-service receiveSinceTimeDelta on lis5 {
+service receiveSinceTimeDelta on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
        io:println("Message Received to service receiveSinceTimeDelta: "

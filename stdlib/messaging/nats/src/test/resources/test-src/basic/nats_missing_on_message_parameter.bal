@@ -20,7 +20,7 @@ import ballerina/io;
 
 nats:Connection conn = new("localhost:4222");
 
-listener nats:StreamingListener lis = new(conn, "test-cluster", "bytes");
+listener nats:StreamingListener lis = new(conn);
 
 @nats:StreamingSubscriptionConfig {
     subject: "demo"

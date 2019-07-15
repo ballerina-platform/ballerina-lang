@@ -34,8 +34,8 @@ public class BallerinaNatsStreamingConnectionFactory {
     private final String clusterId;
     private final String clientId;
 
-    private static final String ACK_TIMEOUT = "ackTimeout";
-    private static final String CONNECTION_TIMEOUT = "connectionTimeout";
+    private static final String ACK_TIMEOUT = "ackTimeoutInSeconds";
+    private static final String CONNECTION_TIMEOUT = "connectionTimeoutInSeconds";
     private static final String MAX_PUB_ACKS_IN_FLIGHT = "maxPubAcksInFlight";
     private static final String DISCOVERY_PREFIX = "discoverPrefix";
 

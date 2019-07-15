@@ -12,7 +12,7 @@ public function main() {
 
     nats:Connection conn = new("localhost:4222");
 
-    nats:StreamingProducer publisher = new(conn, "p0", "test-cluster");
+    nats:StreamingProducer publisher = new(conn);
 
     while (message != ESCAPE) {
         message = io:readln("Message : ");
