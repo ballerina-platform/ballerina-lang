@@ -60,6 +60,7 @@ public class BTypes {
             null, null), typeString, typeErrorDetail);
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
     public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
+    public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
 
     static {
         HashMap<String, BField> fields = new HashMap<>();

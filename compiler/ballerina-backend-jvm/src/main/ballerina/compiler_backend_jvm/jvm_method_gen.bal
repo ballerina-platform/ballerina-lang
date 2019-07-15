@@ -21,16 +21,16 @@ function generateMethod(bir:Function birFunc,
                             bir:Package birModule,
                             bir:BType? attachedType = ()) {
     if (isExternFunc(birFunc)) {
-        genMethodForExternalFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genMethodForBallerinaFunction(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, attachedType = attachedType);
     }
 }
 
-function genMethodForBallerinaFunction(bir:Function func,
-                                           jvm:ClassWriter cw,
-                                           bir:Package module,
-                                           bir:BType? attachedType = ()) {
+function genJMethodForBFunc(bir:Function func,
+                           jvm:ClassWriter cw,
+                           bir:Package module,
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
@@ -271,7 +271,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), "D");
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
@@ -295,19 +295,19 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ARRAY_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BErrorType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", ERROR_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BFutureType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", FUTURE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BInvokableType) {
@@ -324,12 +324,16 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFiniteType) {
-            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"), 
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", OBJECT));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BXMLType) {
             mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", XML_VALUE));
+            mv.visitVarInsn(ASTORE, index);
+        } else if (bType is bir:BTypeHandle) {
+            mv.visitFieldInsn(GETFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+                    io:sprintf("L%s;", HANDLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else {
             error err = error( "JVM generation is not supported for type " +
@@ -422,6 +426,10 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", XML_VALUE));
+        } else if (bType is bir:BTypeHandle) {
+            mv.visitVarInsn(ALOAD, index);
+            mv.visitFieldInsn(PUTFIELD, frameName, internal:replace(localVar.name.value, "%","_"),
+                     io:sprintf("L%s;", HANDLE_VALUE));
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -632,11 +640,13 @@ function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicB
     mv.visitJumpInsn(GOTO, gotoLabel);
 }
 
-function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string className, string lambdaName) {
+function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, string lambdaName) {
     bir:BType? lhsType;
     string orgName;
     string moduleName;
     string funcName;
+    int paramIndex = 1;
+    boolean isVirtual = ins is bir:AsyncCall &&  ins.isVirtual;
     if (ins is bir:AsyncCall) {
         lhsType = ins.lhsOp?.typeValue;
         orgName = ins.pkgID.org;
@@ -649,7 +659,10 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
         funcName = ins.name.value;
     }
 
-    bir:BType returnType = <bir:BType> bir:TYPE_NIL;
+    boolean isExternFunction =  isExternStaticFunctionCall(ins);
+    boolean isBuiltinModule = isBallerinaBuiltinModule(orgName, moduleName);
+
+    bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
     } else if (lhsType is bir:BInvokableType) { 
@@ -686,7 +699,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
 
-    if (isExternStaticFunctionCall(ins)) {
+    if (isExternFunction) {
         jvm:Label blockedOnExternLabel = new;
 
         mv.visitInsn(DUP);
@@ -709,31 +722,43 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
         mv.visitLabel(blockedOnExternLabel);
     }
-
     bir:BType?[] paramBTypes = [];
-    boolean isVirtual = false;
-    if (ins is bir:AsyncCall) {
-        isVirtual = ins.isVirtual;
-        bir:VarRef?[] paramTypes = ins.args;
-        // load and cast param values
-        int paramIndex = 1;
-        int argIndex = 1;
-        foreach var paramType in paramTypes {
-            bir:VarRef ref = getVarRef(paramType);
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitIntInsn(BIPUSH, argIndex);
-            mv.visitInsn(AALOAD);
-            addUnboxInsn(mv, ref.typeValue);
-            paramBTypes[paramIndex -1] = paramType?.typeValue;
-            paramIndex += 1;
 
-            argIndex += 1;
-            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
-                addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
-                paramBTypes[paramIndex -1] = "boolean";
+    if (ins is bir:AsyncCall) {
+        bir:VarRef?[] paramTypes = ins.args;
+        if (isVirtual) {
+            genLoadDataForObjectAttachedLambdas(ins, mv, closureMapsCount, paramTypes , isBuiltinModule);
+            int paramTypeIndex = 1;
+            paramIndex = 2;
+            while ( paramTypeIndex < paramTypes.length()) {
+                generateObjectArgs(mv, paramIndex);
+                paramTypeIndex += 1;
                 paramIndex += 1;
+                if (!isBuiltinModule) {
+                    generateObjectArgs(mv, paramIndex);
+                    paramIndex += 1;
+                }
             }
-            argIndex += 1;
+        } else {
+            // load and cast param values
+            int argIndex = 1;
+            foreach var paramType in paramTypes {
+                bir:VarRef ref = getVarRef(paramType);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitIntInsn(BIPUSH, argIndex);
+                mv.visitInsn(AALOAD);
+                addUnboxInsn(mv, ref.typeValue);
+                paramBTypes[paramIndex -1] = paramType?.typeValue;
+                paramIndex += 1;
+
+                argIndex += 1;
+                if (!isBuiltinModule) {
+                    addBooleanTypeToLambdaParamTypes(mv, 0, argIndex);
+                    paramBTypes[paramIndex -1] = "boolean";
+                    paramIndex += 1;
+                }
+                argIndex += 1;
+            }
         }
     } else {
         //load closureMaps
@@ -746,7 +771,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
 
         bir:VariableDcl?[] paramTypes = ins.params;
         // load and cast param values
-        int paramIndex = 1;
+
         int argIndex = 1;
         foreach var paramType in paramTypes {
             bir:VariableDcl dcl = getVariableDcl(paramType);
@@ -759,7 +784,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
             i += 1;
             argIndex += 1;
             
-            if (!isBallerinaBuiltinModule(orgName, moduleName)) {
+            if (!isBuiltinModule) {
                 addBooleanTypeToLambdaParamTypes(mv, closureMapsCount, argIndex);
                 paramBTypes[paramIndex -1] = "boolean";
                 paramIndex += 1;
@@ -781,7 +806,9 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     if (isVoid) {
         mv.visitInsn(RETURN);
     } else {
-        addBoxInsn(mv, returnType);
+        if (!isVirtual) {
+            addBoxInsn(mv, returnType);
+        }
         mv.visitInsn(ARETURN);
     }
 
@@ -863,6 +890,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
@@ -898,6 +926,7 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
     } else {
@@ -987,6 +1016,8 @@ function getArgTypeSignature(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     } else if (bType is bir:BXMLType) {
         return io:sprintf("L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeHandle) {
+        return io:sprintf("L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -1038,6 +1069,8 @@ function generateReturnType(bir:BType? bType) returns string {
         return io:sprintf(")L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BXMLType) {
         return io:sprintf(")L%s;", XML_VALUE);
+    } else if (bType is bir:BTypeHandle) {
+        return io:sprintf(")L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " + io:sprintf("%s", bType));
         panic err;
@@ -1289,17 +1322,13 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
     int defaultableIndex = 0;
     foreach var attachment in annotAttachments {
         if (attachment is bir:AnnotationAttachment && attachment.annotTagRef.value == DEFAULTABLE_ARGS_ANOT_NAME) {
-            map<bir:AnnotationValueEntry?[]>? entryMap = attachment.annotValues[0]?.valueEntryMap;
-            if (entryMap is map<bir:AnnotationValueEntry?[]>) {
-                var entries = entryMap[DEFAULTABLE_ARGS_ANOT_FIELD];
-                if (entries is bir:AnnotationValueEntry?[]) {
-                    foreach var entry in entries {
-                        if (entry is bir:AnnotationValueEntry) {
-                            defaultableNames[defaultableIndex] = <string>entry.value;
-                            defaultableIndex += 1;
-                        }
-                    }
-                }  
+            var annotRecValue = <bir:AnnotationRecordValue>attachment.annotValues[0];
+            var annotFieldMap = annotRecValue.annotValueMap;
+            var annotArrayValue = <bir:AnnotationArrayValue>annotFieldMap[DEFAULTABLE_ARGS_ANOT_FIELD];
+            foreach var entryOptional in annotArrayValue.annotValueArray {
+                var argValue = <bir:AnnotationLiteralValue>entryOptional;
+                defaultableNames[defaultableIndex] = <string>argValue.literalValue;
+                defaultableIndex += 1;
             }
             break;
         }
@@ -1694,6 +1723,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", OBJECT);
     } else if (bType is bir:BInvokableType) {
         typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeHandle) {
+        typeSig = io:sprintf("L%s;", HANDLE_VALUE);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));

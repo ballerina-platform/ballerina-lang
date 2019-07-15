@@ -20,7 +20,10 @@ package org.ballerinalang.langlib.integer;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,7 +46,9 @@ public class FromString {
         try {
             return Long.parseLong(s);
         } catch (NumberFormatException e) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_PARSING_ERROR, e.getMessage());
+            return BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_PARSING_ERROR,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                    BTypes.typeString, s, BTypes.typeInt));
         }
     }
 }

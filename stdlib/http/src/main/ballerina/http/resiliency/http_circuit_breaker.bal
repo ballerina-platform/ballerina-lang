@@ -154,9 +154,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function post(string path, RequestMessage message) returns Response|error {
+    public function post(string path, RequestMessage message) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -175,9 +175,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function head(string path, RequestMessage message = ()) returns Response|error {
+    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -196,9 +196,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function put(string path, RequestMessage message) returns Response|error {
+    public function put(string path, RequestMessage message) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -218,9 +218,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
     #             `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function execute(string httpVerb, string path, RequestMessage message) returns Response|error {
+    public function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -239,9 +239,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
     #             `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function patch(string path, RequestMessage message) returns Response|error {
+    public function patch(string path, RequestMessage message) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -260,9 +260,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
     #             `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function delete(string path, RequestMessage message) returns Response|error {
+    public function delete(string path, RequestMessage message) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -281,9 +281,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #            `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function get(string path, RequestMessage message = ()) returns Response|error {
+    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -302,9 +302,9 @@ public type CircuitBreakerClient client object {
     # + path - Resource path
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function options(string path, RequestMessage message = ()) returns Response|error {
+    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -322,9 +322,9 @@ public type CircuitBreakerClient client object {
     #
     # + path - Resource path
     # + request - A Request struct
-    # + return - The response for the request or an `error` if failed to establish communication with the upstream
+    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function forward(string path, Request request) returns Response|error {
+    public function forward(string path, Request request) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -345,9 +345,9 @@ public type CircuitBreakerClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
     #            fails
-    public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|error {
+    public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -369,8 +369,8 @@ public type CircuitBreakerClient client object {
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `error` if the invocation fails
-    public function getResponse(HttpFuture httpFuture) returns Response|error {
+    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         // No need to check for response as we already check for the response in submit method
         return self.httpClient->getResponse(httpFuture);
     }
@@ -387,16 +387,16 @@ public type CircuitBreakerClient client object {
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP `PushPromise` message, or an `error` if the invocation fails
-    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+    # + return - An HTTP `PushPromise` message, or an `http:ClientError` if the invocation fails
+    public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public function getPromisedResponse(PushPromise promise) returns Response|error {
+    # + return - A promised HTTP `Response` message, or an `http:ClientError` if the invocation fails
+    public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
@@ -481,8 +481,8 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
     }
 }
 
-function updateCircuitHealthAndRespond(Response|error serviceResponse, CircuitHealth circuitHealth,
-                                   CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|error {
+function updateCircuitHealthAndRespond(Response|ClientError serviceResponse, CircuitHealth circuitHealth,
+                               CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns Response|ClientError {
     if (serviceResponse is Response) {
         if (circuitBreakerInferredConfig.statusCodes[serviceResponse.statusCode]) {
             updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
@@ -536,14 +536,14 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth,
 
 // Handles open circuit state.
 function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig)
-             returns (error) {
+             returns (ClientError) {
     updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
     int timeDif = time:currentTime().time - effectiveErrorTime.time;
     int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining + " milliseconds.";
-    error httpConnectorErr = error(HTTP_ERROR_CODE, message = errorMessage);
+    UpstreamServiceUnavailableError httpConnectorErr = error(UPSTREAM_SERVICE_UNAVAILABLE, message = errorMessage);
     return httpConnectorErr;
 }
 

@@ -93,7 +93,7 @@ public class TestReusabilityOfRequest extends HttpBaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "Hello from POST!Error occurred while extracting text " +
-                "data from entity : Empty content", "Message content mismatched");
+        Assert.assertEquals(response.getData(), "Hello from POST!Error occurred while retrieving the text" +
+                " payload from the request", "Message content mismatched");
     }
 }

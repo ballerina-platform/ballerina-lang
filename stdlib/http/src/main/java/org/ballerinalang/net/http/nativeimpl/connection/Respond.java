@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -35,6 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.BResponseCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
@@ -158,8 +158,9 @@ public class Respond extends ConnectionAction {
             }
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
-            log.debug("Couldn't complete outbound response", e);
-            return BallerinaErrors.createError("Couldn't complete outbound response");
+            String errorMessage = "Couldn't complete outbound response";
+            log.debug(errorMessage, e);
+            return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         return null;
     }

@@ -63,16 +63,14 @@ dependencies {
     testCompile project(':ballerina-config-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')
-    testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-utils')
     implementation project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-runtime')
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    implementation project(':ballerina-test-utils')
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'com.h2database:h2'

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jvm;
+
 type BIRFunctionWrapper record {
     string orgName;
     string moduleName;
@@ -29,7 +31,7 @@ map<bir:TypeDef> typeDefMap = {};
 
 map<string> globalVarClassNames = {};
 
-map<[bir:AsyncCall|bir:FPLoad, string]> lambdas = {};
+map<bir:AsyncCall|bir:FPLoad> lambdas = {};
 
 map<bir:Package> compiledPkgCache = {};
 
@@ -176,7 +178,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         }
         // generate lambdas created during generating methods
         foreach var [name, call] in lambdas.entries() {
-            generateLambdaMethod(call[0], cw, call[1], name);
+            generateLambdaMethod(call, cw, name);
         }
         // clear the lambdas
         lambdas = {};
@@ -341,7 +343,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<[bir:AsyncCall|bir:FPLoad, string]> lambdaCalls) returns map<JavaClass> {
+                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -399,22 +401,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             }
 
             BIRFunctionWrapper birFuncWrapper;
-            if (isExternFunc(getFunction(birFunc))) { // if this function is an extern
-                var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFuncName);
-                if (jClassName is string) {
-                    if isBallerinaBuiltinModule(orgName, moduleName) {
-                        birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
-                    } else {
-                        bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
-                        addDefaultableBooleanVarsToSignature(birFunc);
-                        birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
-                                                    birModuleClassName, jClassName, jMethodPramTypes);
-                    }
-                } else {
-                    error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                        birFuncName);
-                    panic err;
-                }
+            if (isExternFunc(getFunction(birFunc))) {
+                birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName,
+                                                    versionValue, birModuleClassName);
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc);
                 birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
@@ -452,11 +441,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 
                 var jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (jClassName is string) {
-                    bir:BType?[] jMethodPramTypes = currentFunc.typeValue.paramTypes.clone();
-                    addDefaultableBooleanVarsToSignature(currentFunc);
-                    birFunctionMap[pkgName + lookupKey] = createExternalFunctionWrapper(currentFunc, orgName,
-                                                               moduleName, versionValue, jClassName, jClassName,
-                                                               jMethodPramTypes);
+                    birFunctionMap[pkgName + lookupKey] = createOldStyleExternalFunctionWrapper(currentFunc, orgName,
+                                                               moduleName, versionValue, jClassName, jClassName);
                 } else {
                     error err = error("native function not available: " + pkgName + lookupKey);
                     panic err;

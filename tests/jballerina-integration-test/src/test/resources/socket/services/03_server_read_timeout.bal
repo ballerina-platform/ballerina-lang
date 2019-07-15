@@ -25,7 +25,7 @@ service timeoutServer on new socket:Listener(61599, {readTimeout: 20000}) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(length = 18);
+        var result = caller->read(18);
         if (result is [byte[], int]) {
             var [content, length] = result;
             if (length > 0) {
@@ -35,11 +35,12 @@ service timeoutServer on new socket:Listener(61599, {readTimeout: 20000}) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            io:println(result.detail().message);
+            error resultError = result;
+            io:println(resultError.detail()["message"]);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on timeout server", er);
+        log:printError("Error on timeout server", <error> er);
     }
 }

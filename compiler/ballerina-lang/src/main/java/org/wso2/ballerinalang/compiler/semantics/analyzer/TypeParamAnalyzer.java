@@ -465,7 +465,7 @@ public class TypeParamAnalyzer {
                 return getMatchingErrorBoundType((BErrorType) expType, env, resolvedTypes);
             case TypeTags.TYPEDESC:
                 constraint = ((BTypedescType) expType).constraint;
-                return new BTypedescType(TypeTags.TYPEDESC, getMatchingBoundType(constraint, env, resolvedTypes),
+                return new BTypedescType(getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.typeDesc.tsymbol);
             default:
                 return expType;

@@ -77,7 +77,7 @@ function checkForAuthHandlers(InboundAuthHandler?[] authHandlers, Request reques
         if (authHandler is InboundAuthHandler) {
             boolean canHandleResponse = authHandler.canHandle(request);
             if (canHandleResponse) {
-                var handleResponse = authHandler.handle(request);
+                var handleResponse = authHandler.process(request);
                 if (handleResponse is boolean) {
                     if (handleResponse) {
                         // If one of the authenticators from the chain could successfully authenticate the user,
@@ -110,7 +110,7 @@ function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns b
             response.setTextPayload("Authentication failure");
             var err = caller->respond(response);
             if (err is error) {
-                panic err;
+                panic <error> err;
             }
             return false;
         }
@@ -118,7 +118,7 @@ function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns b
         response.setTextPayload("Authentication failure. " + authenticated.reason());
         var err = caller->respond(response);
         if (err is error) {
-            panic err;
+            panic <error> err;
         }
         return false;
     }

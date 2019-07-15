@@ -40,12 +40,12 @@ service echoServer on server {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error on echo server read", result);
+            log:printError("Error on echo server read", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on echo service", er);
+        log:printError("Error on echo service", <error> er);
     }
 }
 
@@ -68,7 +68,7 @@ service helloServer on new socket:Listener(59153) {
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on hello server", er);
+        log:printError("Error on hello server", <error> er);
     }
 }
 
@@ -92,7 +92,7 @@ function process(any|error result, socket:Caller caller) {
             return;
         }
     } else if (result is error) {
-        log:printError("Error while process data", result);
+        log:printError("Error while process data", <error> result);
     }
 }
 
@@ -113,12 +113,12 @@ service BlockingReadServer on new socket:Listener(59154) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error while read data", result);
+            log:printError("Error while read data", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        log:printError("Error on blocking read server", er);
+        log:printError("Error on blocking read server", <error> er);
     }
 }
 
@@ -139,12 +139,13 @@ service errorServer on new socket:Listener(59155) {
                 log:printInfo("Client close: " + caller.remotePort);
             }
         } else {
-            log:printError("Error on error server read", result);
+            log:printError("Error on error server read", <error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        errorString = <@untainted> er.reason();
+        error e = er;
+        errorString = <@untainted> e.reason();
     }
 }
 

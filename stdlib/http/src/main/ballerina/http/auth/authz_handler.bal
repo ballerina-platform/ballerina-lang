@@ -41,11 +41,11 @@ public type AuthzHandler object {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
             if (principal.username.length() == 0) {
-                return prepareError("Username not set in auth context. Unable to authorize.");
+                return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
             }
             return true;
         }
-        return prepareError("Username not set in auth context. Unable to authorize.");
+        return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
     }
 
     # Tries to authorize the request
@@ -56,7 +56,7 @@ public type AuthzHandler object {
     # + method - HTTP method name
     # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
-    function handle(string username, string serviceName, string resourceName, string method,
+    function process(string username, string serviceName, string resourceName, string method,
         string[]|string[][] scopes) returns boolean {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
