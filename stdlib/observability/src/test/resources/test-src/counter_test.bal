@@ -3,7 +3,7 @@ import ballerina/observe;
 
 function testCounterIncrementByOne() returns (int) {
     map<string> tags = { "method": "GET" };
-    observe:Counter counter = new("RequestCounter", "", tags);
+    observe:Counter counter = new("RequestCounter", tags = tags);
     counter.increment(1);
     return counter.getValue();
 }
