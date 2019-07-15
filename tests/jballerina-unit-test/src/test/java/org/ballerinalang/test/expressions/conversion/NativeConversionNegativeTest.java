@@ -112,7 +112,9 @@ public class NativeConversionNegativeTest {
 
     @Test(description = "Test object conversions not supported")
     public void testObjectToJson() {
-        BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'anydata', found 'PersonObj'", 48, 31);
+
+        BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'anydata', found 'PersonObj'",
+                48, 31);
     }
 
     @Test
