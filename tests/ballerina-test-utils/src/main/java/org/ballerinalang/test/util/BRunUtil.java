@@ -1183,7 +1183,8 @@ public class BRunUtil {
                 return BTypes.typeXML;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
-                return new BTypeDesc(typedescType.getName(), typedescType.getPackage().getName());
+                return new BTypeDesc(typedescType.getName(),
+                        typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:

@@ -235,127 +235,127 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
-                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='int' " +
+                    "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidIntAsByte(int i) {
         BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":" +
-                    "\"incompatible types: 'int' cannot be cast to 'byte\\|boolean'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=" +
+                    "incompatible types: 'int' cannot be cast to 'byte\\|boolean'.*")
     public void testInvalidIntAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testIntAsByteInUnions", new BValue[]{new BInteger(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByte(int i) {
         BRunUtil.invoke(result, "testFloatAsByte", new BValue[]{new BFloat(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value '.*' cannot be converted to 'byte'.*")
     public void testInvalidFloatAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testFloatAsByteInUnions", new BValue[]{new BFloat(i)});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '.*' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value '.*' cannot be converted to 'byte'.*")
     public void testInvalidDecimalAsByte(int i) {
         BRunUtil.invoke(result, "testDecimalAsByte", new BValue[]{new BDecimal(new BigDecimal(i))});
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'decimal' cannot be cast to '(byte\\|Employee)'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+                    "types: 'decimal' cannot be cast to '(byte\\|Employee)'.*")
     public void testInvalidDecimalAsByteInUnions(int i) {
         BRunUtil.invoke(result, "testDecimalAsByteInUnions", new BValue[] { new BDecimal(new BigDecimal(i)) });
     }
 
     @Test(dataProvider = "naNFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value 'NaN' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value 'NaN' cannot be converted to 'byte'.*")
     public void testNaNFloatAsByte(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value 'Infinity' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value 'Infinity' cannot be converted to 'byte'.*")
     public void testInfiniteFloatAsByte(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "naNFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value 'NaN' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value 'NaN' cannot be converted to 'int'.*")
     public void testNaNFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "infiniteFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'float' " +
-                    "value 'Infinity' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='float' " +
+                    "value 'Infinity' cannot be converted to 'int'.*")
     public void testInfiniteFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeFloatAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
-                    "'float' value '.*' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message=" +
+                    "'float' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeFloatAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"" +
-                    "'decimal' value '.*' cannot be converted to 'int'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message=" +
+                    "'decimal' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "naNDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value 'NaN' cannot be converted to 'byte'.*")
     public void testNaNDecimalAsByte(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "positiveInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value 'Infinity' cannot be converted to 'byte'.*")
     public void testPositiveInfiniteDecimalAsByte(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "negativeInfiniteDecimalAsByteTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'byte'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value '-Infinity' cannot be converted to 'byte'.*")
     public void testNegativeInfiniteDecimalAsByte(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "naNDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'NaN' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value 'NaN' cannot be converted to 'int'.*")
     public void testNaNDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "positiveInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value 'Infinity' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value 'Infinity' cannot be converted to 'int'.*")
     public void testPositiveInfiniteDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }
 
     @Test(dataProvider = "negativeInfiniteDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'decimal'" +
-                    " value '-Infinity' cannot be converted to 'int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError message='decimal'" +
+                    " value '-Infinity' cannot be converted to 'int'.*")
     public void testNegativeInfiniteDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }

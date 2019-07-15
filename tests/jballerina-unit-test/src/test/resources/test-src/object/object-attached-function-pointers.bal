@@ -39,59 +39,59 @@ type Person object {
 
     function attachedFn6(int a, float b) returns int {
         function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
-        return a + <int>b + foo.call(43, 10.2);
+        return a + <int>b + foo(43, 10.2);
     }
 
     function attachedFn7(int a, float b) returns (int) {
         function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
-        return a + <int>b + foo.call(43, 10.2);
+        return a + <int>b + foo(43, 10.2);
     }
 };
 
 function test1() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn1(x, y);
-    return foo.call(43, 10.2);
+    return foo(43, 10.2);
 }
 
 function test2() returns (int) {
     Person p = new;
     function () returns (function (int, float) returns (int)) foo = () => p.attachedFn2();
-    var bar = foo.call();
-    return bar.call(43, 10.2);
+    var bar = foo();
+    return bar(43, 10.2);
 }
 
 function test3() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn3(x, y);
-    return foo.call(43, 10.2);
+    return foo(43, 10.2);
 }
 
 function test4() returns (int) {
     Person p = new;
     function () returns (function (int, float) returns (int)) foo = () => p.attachedFn4();
-    var bar = foo.call();
-    return bar.call(43, 10.2);
+    var bar = foo();
+    return bar(43, 10.2);
 }
 
 function test5() returns (int) {
     Person p = new;
     function (int a, float b) returns (function (float) returns ((function (boolean) returns (int)))) foo = (x, y) => p.attachedFn5(x, y);
-    var bar = foo.call(43, 10.2);
-    var baz = bar.call(5.3);
-    return baz.call(true);
+    var bar = foo(43, 10.2);
+    var baz = bar(5.3);
+    return baz(true);
 }
 
 function test6() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn6(x, y);
-    return foo.call(43, 10.2);
+    return foo(43, 10.2);
 }
 
 function test7() returns (int) {
     Person p = new;
     function (int a, float b) returns (int) foo = (x, y) => p.attachedFn7(x, y);
-    return foo.call(43, 10.2);
+    return foo(43, 10.2);
 }
 
 public type FooObj object {
@@ -103,16 +103,18 @@ public type FooObj object {
         self.fp2 = fp2;
         string[] s = ["abc", "afg"];
         int[] i = [1,2,3,4,5];
-        string a = fp1.call(s);
-        int b = fp2.call(i);
+        string a = fp1(s);
+        int b = fp2(i);
     }
 
     public function processStrArray(string[] vals) returns string{
-        return self.fp1.call(vals);
+        var f = self.fp1;
+        return f(vals);
     }
 
     public function processIntArray(int[] vals) returns int{
-        return self.fp2.call(vals);
+        var f = self.fp2;
+        return f(vals);
     }
 };
 
@@ -125,10 +127,10 @@ function test8() returns [string, int] {
     FooObj fooObj = new (foo, bar);
     _ = fooObj.processStrArray(s);
     (function (string[] vals) returns string) x = (vals) => fooObj.processStrArray(vals);
-    string q = x.call(s);
+    string q = x(s);
     _ = fooObj.processIntArray(i);
     (function (int[] vals) returns int) y = (vals) => fooObj.processIntArray(vals);
-    int r = y.call(i);
+    int r = y(i);
 
     return[q, r];
 }
@@ -151,7 +153,8 @@ public type O1 object {
     }
 
     public function process(string[] vals) returns string{
-        return self.fpO1.call(vals);
+        var f = self.fpO1;
+        return f(vals);
     }
 };
 
@@ -163,7 +166,8 @@ public type O2 object {
     }
 
     public function process(string[] vals) returns string{
-        return self.fpO2.call(vals);
+        var f = self.fpO2;
+        return f(vals);
     }
 };
 
@@ -175,7 +179,8 @@ public type O3 object {
     }
 
     public function process(string[] vals) returns string{
-        return self.fpO3.call(vals);
+        var f = self.fpO3;
+        return f(vals);
     }
 };
 
@@ -187,7 +192,8 @@ public type O4 object {
     }
 
     public function process(string[] vals) returns string{
-        return self.fpO4.call(vals);
+        var f = self.fpO4;
+        return f(vals);
     }
 };
 
@@ -199,6 +205,7 @@ public type O5 object {
     }
 
     public function process(string[] vals) returns string {
-        return self.fpO5.call(vals);
+        var f = self.fpO5;
+        return f(vals);
     }
 };

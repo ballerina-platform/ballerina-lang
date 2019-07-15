@@ -200,3 +200,128 @@ function testMapAccessForNonExistingKey() returns boolean {
 
     return s2 is () && s4 is ();
 }
+
+function testMemberAccessOnNillableMap1() returns boolean {
+    map<string>? m = { "one": "1", "two": "2" };
+
+    string index = "two";
+    string? s1 = m["one"];
+    string? s2 = m[index];
+    return s1 == "1" && s2 == "2";
+}
+
+function testMemberAccessOnNillableMap2() returns boolean {
+    map<map<int>>? m = { "one": { first: 1, second: 2 }, "two": { third: 3 } };
+
+    string index = "two";
+    int? s1 = m["one"]["first"];
+    int? s2 = m[index]["third"];
+    return s1 == 1 && s2 == 3;
+}
+
+function testMemberAccessNilLiftingOnNillableMap1() returns boolean {
+    map<string>? m = ();
+
+    string index = "two";
+    string? s1 = m["one"];
+    string? s2 = m[index];
+    return s1 == () && s2 == ();
+}
+
+function testMemberAccessNilLiftingOnNillableMap2() returns boolean {
+    map<map<string>>? m = ();
+
+    string index = "two";
+    string? s1 = m["one"]["two"];
+    string? s2 = m[index]["three"];
+    return s1 == () && s2 == ();
+}
+
+type Foo record {
+    Bar b = { id: 1 };
+};
+
+type Bar record {
+    int id;
+};
+
+function testMemberAccessOnNillableRecord1() returns boolean {
+    Employee? m = { name: "Anne", registered: true };
+    string index = "registered";
+    string? s1 = m["name"];
+    string|boolean|int|anydata s2 = m[index];
+    return s1 == "Anne" && s2 == true;
+}
+
+function testMemberAccessOnNillableRecord2() returns boolean {
+    Foo? m = { b: { id: 100 } };
+    string index = "registered";
+    int? s1 = m["b"]["id"];
+    int|anydata s2 = m["b"][index];
+    return s1 == 100 && s2 == ();
+}
+
+function testMemberAccessNilLiftingOnNillableRecord1() returns boolean {
+    Employee? m = ();
+    string index = "registered";
+    string? s1 = m["name"];
+    string|boolean|int|anydata s2 = m[index];
+    return s1 == () && s2 == ();
+}
+
+function testMemberAccessNilLiftingOnNillableRecord2() returns boolean {
+    Foo? m = ();
+    string index = "registered";
+    int? s1 = m["b"]["id"];
+    int|anydata s2 = m["b"][index];
+    return s1 == () && s2 == ();
+}
+
+type Baz record {
+    string x;
+    int y?;
+};
+
+type Qux record {
+    string x;
+    boolean y;
+    float z = 1.0;
+};
+
+function testMemberAccessOnRecordUnion() returns boolean {
+    Baz b = { x: "hello", y: 11 };
+    Baz|Qux bq = b;
+    string index = "x";
+
+    string x = bq["x"];
+    anydata x2 = bq[index];
+    int|boolean? y = bq["y"];
+    anydata z = bq["z"];
+
+    return x == "hello" && x2 == "hello" && y == 11 && z is ();
+}
+
+function testMemberAccessOnMapUnion() returns boolean {
+    map<string> b = { x: "hello", y: "world" };
+    map<string>|map<map<boolean>> bq = b;
+    string index = "x";
+
+    string|map<boolean>? x = bq["x"];
+    anydata x2 = bq[index];
+    string|map<boolean>? y = bq["z"];
+
+    return x == "hello" && x2 == "hello" && y is ();
+}
+
+function testMemberAccessOnMappingUnion() returns boolean {
+    Baz b = { x: "hello", y: 11 };
+    Baz|map<int>|map<map<float>> bq = b;
+    string index = "x";
+
+    string|int|map<float>? x = bq["x"];
+    anydata x2 = bq[index];
+    int|map<float>? y = bq["y"];
+    anydata z = bq["z"];
+
+    return x == "hello" && x2 == "hello" && y == 11 && z is ();
+}

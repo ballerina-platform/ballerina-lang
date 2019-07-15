@@ -47,7 +47,7 @@ public class OptionalFieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 10);
+        Assert.assertEquals(negativeResult.getErrorCount(), 12);
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Foo' does not support optional field access",
                       23, 19);
@@ -64,7 +64,11 @@ public class OptionalFieldAccessTest {
                 "access", 61, 19);
         validateError(negativeResult, i++, "invalid operation: type '(map<xml>|map<json>)' does not support optional " +
                 "field access", 65, 20);
-        validateError(negativeResult, i, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
+        validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
+                , 9);
+        validateError(negativeResult, i, "invalid operation: type 'string[]' does not support optional field access",
+                      91, 9);
     }
 
     @Test(dataProvider = "recordOptionalFieldAccessFunctions")
@@ -112,6 +116,22 @@ public class OptionalFieldAccessTest {
                 { "testOptionalFieldAccessNilLiftingOnLaxUnion" },
                 { "testOptionalFieldAccessErrorReturnOnLaxUnion" },
                 { "testOptionalFieldAccessErrorLiftingOnLaxUnion" }
+        };
+    }
+
+    @Test(dataProvider = "optionalFieldAccessOnInvocationFunctions")
+    public void testOptionalFieldAccessOnInvocation(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "optionalFieldAccessOnInvocationFunctions")
+    public Object[][] optionalFieldAccessOnInvocationFunctions() {
+        return new Object[][] {
+                { "testOptionalFieldAccessForRequiredFieldOnInvocation" },
+                { "testOptionalFieldAccessOnNillableTypeInvocation" },
+                { "testNilLiftingWithOptionalFieldAccessOnNillableTypeInvocation" },
+                { "testJsonOptionalFieldAccessOnInvocation" }
         };
     }
 }
