@@ -245,7 +245,7 @@ function testUninitializedVarReferrencing() {
     }
 
     // uninitialized var in conversion
-    string str = string.convert(a);
+    string|error str = string.constructFrom(a);
 
     // uninitialized var XML
     xml x1 = xml`<foo id="{{a}}" xmlns:ns0="{{a}}">
@@ -258,7 +258,6 @@ function testUninitializedVarReferrencing() {
     string text = string `hello ${a}`;
 
     // uninitialized var index/field based access
-    _ = m.foo;
     _ = m[s];
 
     // uninitialized var in function invocation, expression statement
@@ -270,7 +269,8 @@ function testUninitializedVarReferrencing() {
     _ = x@[s];
 
     // uninitialized var in range expression
-    int[] range = a...a+5;
+    //
+    var range = a...a+5;
 }
 
 function foo(int a, string str = "hello", string... args) {
@@ -393,7 +393,7 @@ function testUninitVsPartiallyInit() returns [string, string] {
         if (true) {
             // do nothing
         } else if (true) {
-            b = "something";            
+            b = "something";
         } else {
             // do nothing
         }
