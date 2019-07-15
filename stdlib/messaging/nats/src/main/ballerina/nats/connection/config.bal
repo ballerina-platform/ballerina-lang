@@ -25,7 +25,7 @@ import ballerina/crypto;
 # its server list one time regardless of the maxReconnects value that is set.
 # + reconnectWait - The time to wait between reconnect attempts to reconnect to the same server. This is measured in seconds.
 # + connectionTimeout - The timeout for connection attempts measured in seconds.
-# + pingInterval - ** The interval between the attempts of pinging the server. This is measured in minutes. **
+# + pingInterval - The interval between the attempts of pinging the server. This is measured in minutes.
 # + maxPingsOut - The maximum number of pings the client can have in flight. The default value will be a small number.
 # + username - The username for basic authentication.
 # + password - The password for basic authentication.
@@ -38,9 +38,9 @@ import ballerina/crypto;
 public type ConnectionConfig record {|
   string connectionName = "ballerina-nats";
   int maxReconnect = 60;
-  int reconnectWait = 2;
-  int connectionTimeout = 2;
-  int pingInterval = 2;
+  int reconnectWaitInSeconds = 2;
+  int connectionTimeoutInSeconds = 2;
+  int pingIntervalInMinutes = 2;
   int maxPingsOut = 2;
   string username?;
   string password?;

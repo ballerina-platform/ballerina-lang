@@ -77,12 +77,12 @@ import static org.ballerinalang.nats.Constants.SERVICE_LIST;
 )
 public class Init extends BlockingNativeCallableUnit {
 
-    private static final String RECONNECT_WAIT = "reconnectWait";
+    private static final String RECONNECT_WAIT = "reconnectWaitInSeconds";
     private static final String SERVER_URL_SEPARATOR = ",";
     private static final String CONNECTION_NAME = "connectionName";
     private static final String MAX_RECONNECT = "maxReconnect";
-    private static final String CONNECTION_TIMEOUT = "connectionTimeout";
-    private static final String PING_INTERVAL = "pingInterval";
+    private static final String CONNECTION_TIMEOUT = "connectionTimeoutInSeconds";
+    private static final String PING_INTERVAL = "pingIntervalInMinutes";
     private static final String MAX_PINGS_OUT = "maxPingsOut";
     private static final String INBOX_PREFIX = "inboxPrefix";
     private static final String NO_ECHO = "noEcho";
