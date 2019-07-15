@@ -41,11 +41,11 @@ public type AuthzHandler object {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
             if (principal.username.length() == 0) {
-                return prepareError("Username not set in auth context. Unable to authorize.");
+                return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
             }
             return true;
         }
-        return prepareError("Username not set in auth context. Unable to authorize.");
+        return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
     }
 
     # Tries to authorize the request

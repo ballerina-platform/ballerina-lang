@@ -69,7 +69,7 @@ public class Promise extends ConnectionAction {
 //        setResponseConnectorListener(dataContext, outboundRespStatusFuture);
     }
 
-    public void promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
+    public static Object promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
         //TODO : NonBlockingCallback is used to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
 
@@ -81,5 +81,6 @@ public class Promise extends ConnectionAction {
                 HttpUtil.createHttpPushPromise(pushPromiseObj));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
+        return null;
     }
 }

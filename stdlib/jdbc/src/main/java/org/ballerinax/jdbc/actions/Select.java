@@ -49,7 +49,7 @@ public class Select extends BlockingNativeCallableUnit {
             ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
-                (TypedescValue) recordType);
+                (TypedescValue) recordType, strand);
         return selectStatement.execute();
     }
 }

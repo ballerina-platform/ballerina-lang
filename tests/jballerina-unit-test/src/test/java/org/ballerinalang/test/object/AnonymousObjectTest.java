@@ -148,7 +148,7 @@ public class AnonymousObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "Tyler Jewell");
     }
 
-    @Test(description = "Negative test to test un-defaultable anon object", enabled = false)
+    @Test(description = "Negative test to test un-defaultable anon object", groups = "brokenOnLangLibChange")
     public void testUndefaultableAnonObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
