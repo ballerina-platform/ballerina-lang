@@ -16,5 +16,5 @@
 import ballerina/io;
 
 public function main(int i, boolean b, string s = "default hello", string s2 = "default") {
-    io:print(string.convert(i) + " " + s + " world: " + s2 + " " + string.convert(b));
+    io:print(i.toHexString() + " " + s + " world: " + s2 + " " + b.toString());
 }
