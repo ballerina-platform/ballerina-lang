@@ -26,7 +26,12 @@ service simple7 on new http:Listener(9097) {
     resource function websocketProxy(http:Caller httpEp, http:Request req) {
         http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1[0];
+        var queryParam = req.getQueryParamValue("q1");
+        if (queryParam == ()) {
+            error err = error("Query param not set");
+            panic err;
+        }
+        wsServiceEp.attributes["Query1"] = queryParam;
     }
 }
 
