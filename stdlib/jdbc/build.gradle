@@ -25,6 +25,7 @@ configurations.all {
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
 
     // transitive
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
@@ -72,7 +73,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-test-utils')
     testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     

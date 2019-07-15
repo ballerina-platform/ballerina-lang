@@ -440,40 +440,46 @@ public class TypeChecker {
     }
 
     private static boolean checkIsUnionType(BType sourceType, BUnionType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() == TypeTags.UNION_TAG) {
-            return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
-        } else if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-        }
+        switch (sourceType.getTag()) {
+            case TypeTags.UNION_TAG:
+                return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
+            case TypeTags.FINITE_TYPE_TAG:
+                return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+            default:
+                for (BType type : targetType.getMemberTypes()) {
+                    if (checkIsType(sourceType, type, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
 
-        for (BType type : targetType.getMemberTypes()) {
-            if (checkIsType(sourceType, type, unresolvedTypes)) {
-                return true;
-            }
         }
-        return false;
     }
 
     private static boolean checkIsMapType(BType sourceType, BMapType targetType, List<TypePair> unresolvedTypes) {
-        if (sourceType.getTag() != TypeTags.MAP_TAG && sourceType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            return false;
+        switch (sourceType.getTag()) {
+            case TypeTags.MAP_TAG:
+                return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                        unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recType = (BRecordType) sourceType;
+                List<BType> types = new ArrayList<>();
+                for (BField f : recType.getFields().values()) {
+                    types.add(f.type);
+                }
+                if (!recType.sealed) {
+                    types.add(recType.restFieldType);
+                }
+                BUnionType fieldType = new BUnionType(types);
+                return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
+            case TypeTags.JSON_TAG:
+                if (targetType.getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
         }
-
-        if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recType = (BRecordType) sourceType;
-            List<BType> types = new ArrayList<>();
-            for (BField f : recType.getFields().values()) {
-                types.add(f.type);
-            }
-            if (!recType.sealed) {
-                types.add(recType.restFieldType);
-            }
-            BUnionType fieldType = new BUnionType(types);
-            return checkContraints(fieldType, targetType.getConstrainedType(), unresolvedTypes);
-        }
-
-        return checkContraints(((BMapType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                unresolvedTypes);
     }
 
     private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {

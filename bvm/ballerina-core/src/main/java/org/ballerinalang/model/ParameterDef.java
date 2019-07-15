@@ -18,12 +18,14 @@
 
 package org.ballerinalang.model;
 
+import org.wso2.ballerinalang.compiler.tree.BLangResource;
+
 import java.util.List;
 
 /**
  * {@code Parameter} represent a Parameter in various signatures.
  * <p>
- * This can be a part of {@link Function}, {@link org.wso2.ballerinalang.compiler.tree.BLangResource}
+ * This can be a part of {@link Function}, {@link BLangResource}
  * or {@link Action} signature
  *
  * @since 0.8.0
