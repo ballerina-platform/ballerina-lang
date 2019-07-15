@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.map:map(map<Type>, function).
+ * Native implementation of lang.map:map(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */

@@ -42,11 +42,11 @@ service echoServer on server {
                         io:println(<@untainted> str);
                     } else {
                         error e = str;
-                        io:println("Error: ", e.detail().message);
+                        io:println("Error: ", e.detail()["message"]);
                     }
                 } else {
                     error byteError = byteChannel;
-                    io:println("Error: ", byteError.detail().message);
+                    io:println("Error: ", byteError.detail()["message"]);
                 }
             } else {
                 io:println("Client close: ", caller.remotePort);
@@ -58,6 +58,6 @@ service echoServer on server {
 
     resource function onError(socket:Caller caller, error er) {
         error e = er;
-        io:println(e.detail().message);
+        io:println(e.detail()["message"]);
     }
 }

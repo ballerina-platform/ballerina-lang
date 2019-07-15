@@ -25,5 +25,5 @@ public function main([int, Employee, string] t) {
     string dept;
     [id, e, dept] = t;
 
-    io:print("Id: " + string.convert(id) + ", Name: " + e.name + ", Dept: " + dept);
+    io:print("Id: " + id.toString() + ", Name: " + e.name + ", Dept: " + dept);
 }

@@ -33,7 +33,7 @@ public class RabbitMQConstants {
     public static final String PACKAGE_RABBITMQ = ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ;
 
     // Error constant fields
-    public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
+    public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}Error";
     static final String RABBITMQ_ERROR_DETAILS = "Detail";
     static final String RABBITMQ_ERROR_MESSAGE = "message";
     static final String RABBITMQ_ERROR_CAUSE = "cause";
