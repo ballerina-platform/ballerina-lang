@@ -61,7 +61,7 @@
             <!--<package name="org.ballerinalang.test.types.map.*"/>-->
             <!--<package name="org.ballerinalang.test.types.string.*"/>-->
             <package name="org.ballerinalang.test.types.errors.*"/>
-            <!--<package name="org.ballerinalang.test.types.var.*"/>-->
+            <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
             <package name="org.ballerinalang.test.types.tuples.*"/>
@@ -107,7 +107,7 @@
             <!--<package name="org.ballerinalang.test.enum.*" />-->
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
-            <!--<package name="org.ballerinalang.test.types.xml.*" />-->
+            <package name="org.ballerinalang.test.types.xml.*" />
             <!--<package name="org.ballerinalang.test.record.*"/>-->
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>

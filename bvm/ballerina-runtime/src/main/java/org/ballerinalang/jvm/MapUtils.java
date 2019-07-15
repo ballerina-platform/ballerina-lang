@@ -88,8 +88,12 @@ public class MapUtils {
     }
 
     public static void checkIsMapOnlyOperation(BType mapType, String op) {
-        if (mapType.getTag() != TypeTags.MAP_TAG) {
-            throw createOpNotSupportedError(mapType, op);
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                return;
+            default:
+                throw createOpNotSupportedError(mapType, op);
         }
     }
 }
