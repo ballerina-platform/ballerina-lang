@@ -1295,13 +1295,16 @@ public class Desugar extends BLangNodeVisitor {
                 ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), detailType);
         detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
-            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, parentIndexBasedAccess.type);
+            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
+            detailInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
+                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
+            detailInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
         } else {
             detailInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
+            detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
+                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
+            detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
         }
-        detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
-                                                                  names.fromString(ERROR_DETAIL_FUNCTION_NAME));
-        detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
         detailInvocation.type = detailInvocation.symbol.type.getReturnType();
         return detailInvocation;
     }
@@ -1314,15 +1317,16 @@ public class Desugar extends BLangNodeVisitor {
         reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
             reasonInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
-            reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
-                    names.fromString(ERROR_REASON_FUNCTION_NAME), parentIndexBasedAccess.type);
+            reasonInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
+                    names.fromString(ERROR_REASON_FUNCTION_NAME));
+            reasonInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
         } else {
             reasonInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+            reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
+                                                                      names.fromString(ERROR_REASON_FUNCTION_NAME));
+            reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
         }
 
-        reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
-                                                                  names.fromString(ERROR_REASON_FUNCTION_NAME));
-        reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
         reasonInvocation.type = reasonInvocation.symbol.type.getReturnType();
         return reasonInvocation;
     }

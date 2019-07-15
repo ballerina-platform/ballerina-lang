@@ -1234,14 +1234,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangFieldBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
+                unresolvedReference = true;
                 continue;
             } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangIndexBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+                unresolvedReference = true;
                 continue;
             }
 
@@ -1341,25 +1339,6 @@ public class TypeChecker extends BLangNodeVisitor {
             unresolvedReference = true;
         }
         return unresolvedReference;
-    }
-
-    private boolean checkIndexBasedAccessExpr(BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
-        Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
-        if (fSym != null) {
-            if (fSym.type.getKind() == TypeKind.MAP) {
-                BType constraint = ((BMapType) fSym.type).constraint;
-                checkExpr(detailItem, this.env, constraint);
-                return false;
-            } else {
-                if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, fSym.type);
-                } else {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING, fSym.type);
-                }
-            }
-        }
-        return true;
     }
 
     @Override
