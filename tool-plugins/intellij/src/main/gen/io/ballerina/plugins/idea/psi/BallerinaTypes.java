@@ -292,11 +292,11 @@ public interface BallerinaTypes {
   IElementType TRY_CATCH_STATEMENT = new BallerinaCompositeElementType("TRY_CATCH_STATEMENT");
   IElementType TUPLE_REST_DESCRIPTOR = new BallerinaCompositeElementType("TUPLE_REST_DESCRIPTOR");
   IElementType TUPLE_TYPE_NAME = new BallerinaCompositeElementType("TUPLE_TYPE_NAME");
-  IElementType TYPEDESC_TYPE_NAME = new BallerinaCompositeElementType("TYPEDESC_TYPE_NAME");
   IElementType TYPE_ACCESS_EXPRESSION = new BallerinaCompositeElementType("TYPE_ACCESS_EXPRESSION");
   IElementType TYPE_ACCESS_EXPR_INVOCATION_REFERENCE = new BallerinaCompositeElementType("TYPE_ACCESS_EXPR_INVOCATION_REFERENCE");
   IElementType TYPE_CONVERSION_EXPRESSION = new BallerinaCompositeElementType("TYPE_CONVERSION_EXPRESSION");
   IElementType TYPE_DEFINITION = new BallerinaCompositeElementType("TYPE_DEFINITION");
+  IElementType TYPE_DESC_REFERENCE_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_REFERENCE_TYPE_NAME");
   IElementType TYPE_DESC_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_TYPE_NAME");
   IElementType TYPE_INIT_EXPRESSION = new BallerinaCompositeElementType("TYPE_INIT_EXPRESSION");
   IElementType TYPE_NAME = new BallerinaCompositeElementType("TYPE_NAME");
@@ -1393,9 +1393,6 @@ public interface BallerinaTypes {
       else if (type == TUPLE_TYPE_NAME) {
         return new BallerinaTupleTypeNameImpl(node);
       }
-      else if (type == TYPEDESC_TYPE_NAME) {
-        return new BallerinaTypedescTypeNameImpl(node);
-      }
       else if (type == TYPE_ACCESS_EXPRESSION) {
         return new BallerinaTypeAccessExpressionImpl(node);
       }
@@ -1407,6 +1404,9 @@ public interface BallerinaTypes {
       }
       else if (type == TYPE_DEFINITION) {
         return new BallerinaTypeDefinitionImpl(node);
+      }
+      else if (type == TYPE_DESC_REFERENCE_TYPE_NAME) {
+        return new BallerinaTypeDescReferenceTypeNameImpl(node);
       }
       else if (type == TYPE_DESC_TYPE_NAME) {
         return new BallerinaTypeDescTypeNameImpl(node);

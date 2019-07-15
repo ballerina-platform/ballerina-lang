@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTypedescTypeNameImpl extends ASTWrapperPsiElement implements BallerinaTypedescTypeName {
+public class BallerinaTypeDescReferenceTypeNameImpl extends ASTWrapperPsiElement implements BallerinaTypeDescReferenceTypeName {
 
-  public BallerinaTypedescTypeNameImpl(@NotNull ASTNode node) {
+  public BallerinaTypeDescReferenceTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTypedescTypeName(this);
+    visitor.visitTypeDescReferenceTypeName(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

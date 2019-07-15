@@ -48,7 +48,7 @@ public interface BallerinaBuiltInReferenceTypeName extends PsiElement {
   BallerinaTableTypeName getTableTypeName();
 
   @Nullable
-  BallerinaTypedescTypeName getTypedescTypeName();
+  BallerinaTypeDescReferenceTypeName getTypeDescReferenceTypeName();
 
   @Nullable
   BallerinaXmlTypeName getXmlTypeName();

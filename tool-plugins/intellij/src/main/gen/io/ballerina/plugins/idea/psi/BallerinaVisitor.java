@@ -1024,6 +1024,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTopLevelDefinition(o);
   }
 
+  public void visitTypeDescReferenceTypeName(@NotNull BallerinaTypeDescReferenceTypeName o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeDescTypeName(@NotNull BallerinaTypeDescTypeName o) {
     visitPsiElement(o);
   }
@@ -1042,10 +1046,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitTypeTestExpression(@NotNull BallerinaTypeTestExpression o) {
     visitExpression(o);
-  }
-
-  public void visitTypedescTypeName(@NotNull BallerinaTypedescTypeName o) {
-    visitPsiElement(o);
   }
 
   public void visitUnaryExpression(@NotNull BallerinaUnaryExpression o) {
