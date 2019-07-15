@@ -42,10 +42,12 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                firstVal = result.reason();
+                error err = result;
+                firstVal = err.reason();
             }
         } else  {
-            firstVal = firstResponse.reason();
+            error err = firstResponse;
+            firstVal = err.reason();
         }
 
         var secondResponse = clientEP1 -> get("", clientReq);
@@ -54,10 +56,12 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                secondVal = result.reason();
+                error err = result;
+                secondVal = err.reason();
             }
         } else {
-            secondVal = secondResponse.reason();
+            error err = secondResponse;
+            secondVal = err.reason();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -82,10 +86,12 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                firstVal = result.reason();
+                error err = result;
+                firstVal = err.reason();
             }
         } else {
-            firstVal = firstResponse.reason();
+            error err = firstResponse;
+            firstVal = err.reason();
         }
 
         var secondResponse = clientEP1 -> get("", clientReq);
@@ -94,10 +100,12 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                secondVal = result.reason();
+                error err = result;
+                secondVal = err.reason();
             }
         } else {
-            secondVal = secondResponse.reason();
+            error err = secondResponse;
+            secondVal = err.reason();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -128,23 +136,28 @@ service testService_1 on testEP {
                     if (result1 is string) {
                         firstVal = result1;
                     } else {
-                        firstVal = result1.reason();
+                        error err = result1;
+                        firstVal = err.reason();
                     }
 
                     var result2 = <@untainted> secondResponse.getTextPayload();
                     if (result2 is string) {
                         secondVal = result2;
                     } else {
-                        secondVal = result2.reason();
+                        error err = result2;
+                        secondVal = err.reason();
                     }
                 } else {
-                    log:printError(secondResponse.reason(), secondResponse);
+                    error err = secondResponse;
+                    log:printError(err.reason(), err);
                 }
             } else {
-                log:printError(firstResponse.reason(), firstResponse);
+                error err = firstResponse;
+                log:printError(err.reason(), err);
             }
         } else {
-            log:printError(entity.reason(), entity);
+            error err = entity;
+            log:printError(err.reason(), err);
         }
         testResponse.setTextPayload(firstVal + secondVal);
         checkpanic caller->respond(testResponse);
@@ -166,10 +179,12 @@ service testService_1 on testEP {
             if (result is string) {
                 firstVal = result;
             } else {
-                firstVal = result.reason();
+                error err = result;
+                firstVal = err.reason();
             }
         } else {
-            firstVal = firstResponse.reason();
+            error err = firstResponse;
+            firstVal = err.reason();
         }
 
         var secondResponse = clientEP1 -> post("/datasource", clientReq);
@@ -178,10 +193,12 @@ service testService_1 on testEP {
             if (result is string) {
                 secondVal = result;
             } else {
-                secondVal = result.reason();
+                error err = result;
+                secondVal = err.reason();
             }
         } else {
-            secondVal = secondResponse.reason();
+            error err = secondResponse;
+            secondVal = err.reason();
         }
         http:Response testResponse = new;
         testResponse.setPayload(firstVal + secondVal);
@@ -211,23 +228,27 @@ service testService_1 on testEP {
                         secondVal = "Error in parsing payload";
                     }
                 } else {
-                    secondVal = <string> secondResponse.detail()["message"];
+                    error err = secondResponse;
+                    secondVal = <string> err.detail().["message"];
                 }
 
                 var result2 = firstResponse.getTextPayload();
                 if (result2 is string) {
                     firstVal = result2;
                 } else {
-                    firstVal = result2.reason();
+                    error err = result2;
+                    firstVal = err.reason();
                 }
 
                 testResponse.setTextPayload(<@untainted> firstVal + <@untainted> secondVal);
                 checkpanic caller->respond(testResponse);
             } else {
-                log:printError(firstResponse.reason(), firstResponse);
+                error err = firstResponse;
+                log:printError(err.reason(), err);
             }
         } else {
-            log:printError(byteChannel.reason(), byteChannel);
+            error err = byteChannel;
+            log:printError(err.reason(), err);
         }
     }
 }
@@ -265,7 +286,8 @@ service testService_2 on testEP {
         if (stringPayload is string) {
             response.setPayload(<@untainted> stringPayload);
         } else  {
-            string errMsg = <string> stringPayload.detail()["message"];
+            error err = stringPayload;
+            string errMsg = <string> err.detail()["message"];
             response.setPayload(<@untainted> errMsg);
         }
         checkpanic caller->respond(response);

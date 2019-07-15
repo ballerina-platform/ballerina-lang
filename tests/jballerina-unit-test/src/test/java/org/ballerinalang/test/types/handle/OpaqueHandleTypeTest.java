@@ -31,7 +31,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.PrintStream;
 import java.util.UUID;
 
 /**
@@ -44,7 +43,6 @@ public class OpaqueHandleTypeTest {
 
     @BeforeClass
     public void setup() {
-        PrintStream out = System.out;
         result = BCompileUtil.compile("test-src/types/handle/handle-type.bal");
     }
 

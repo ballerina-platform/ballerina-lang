@@ -263,6 +263,7 @@ public class SQLActionsTest {
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
+        Assert.assertEquals(returns[1], null);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -392,16 +393,19 @@ public class SQLActionsTest {
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
         Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), -3);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), -3);
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed batch update")
     public void testErrorWithBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithBatchUpdate");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertTrue(returns[0].stringValue().contains("array values are -3"));
+        Assert.assertTrue(returns[1].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

@@ -114,7 +114,7 @@ function isAuthzSuccessful(Caller caller, boolean|error authorized) returns bool
             response.setTextPayload("Authorization failure");
             var err = caller->respond(response);
             if (err is error) {
-                panic err;
+                panic <error> err;
             }
             return false;
         }
@@ -122,7 +122,7 @@ function isAuthzSuccessful(Caller caller, boolean|error authorized) returns bool
         response.setTextPayload("Authorization failure. " + authorized.reason());
         var err = caller->respond(response);
         if (err is error) {
-            panic err;
+            panic <error> err;
         }
         return false;
     }

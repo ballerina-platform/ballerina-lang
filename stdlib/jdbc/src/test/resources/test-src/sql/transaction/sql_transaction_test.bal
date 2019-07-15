@@ -221,9 +221,9 @@ function testLocalTransactionBatchUpdate() returns @tainted [int, int] {
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -263,9 +263,9 @@ function testLocalTransactionRollbackBatchUpdate() returns @tainted [int, int] {
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers2
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
