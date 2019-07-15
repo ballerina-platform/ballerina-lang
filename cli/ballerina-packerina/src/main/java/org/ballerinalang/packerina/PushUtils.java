@@ -22,13 +22,11 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -78,11 +76,10 @@ public class PushUtils {
      * Push/Uploads modules to the central repository.
      *
      * @param moduleName path of the module folder to be pushed
-     * @param sourceRoot path to the directory containing source files and modules
+     * @param prjDirPath path to the directory containing source files and modules
      * @return status of the module pushed
      */
-    public static boolean pushPackages(String moduleName, String sourceRoot) {
-        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+    public static boolean pushPackages(String moduleName, Path prjDirPath) {
         // Check if the Ballerina.toml exists
         if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
             throw createLauncherException("Couldn't locate Ballerina.toml in the project directory. Run " +
@@ -349,11 +346,10 @@ public class PushUtils {
     /**
      * Push all modules to central.
      *
-     * @param sourceRoot source root or project root
+     * @param sourceRootPath source root or project root
      * @return status of the modules pushed
      */
-    public static boolean pushAllPackages(String sourceRoot) {
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+    public static boolean pushAllPackages(Path sourceRootPath) {
         try {
             List<String> fileList = Files.list(sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))
                                          .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
@@ -364,7 +360,7 @@ public class PushUtils {
                 throw createLauncherException("no modules found to push in " + sourceRootPath.toString());
             }
             for (String path : fileList) {
-                boolean statusOfModulePush = pushPackages(path, sourceRoot);
+                boolean statusOfModulePush = pushPackages(path, sourceRootPath);
                 if (!statusOfModulePush) {
                     return false;
                 }
