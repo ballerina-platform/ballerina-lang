@@ -99,7 +99,7 @@ function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: st
 
     const defLink: string[][] = definition.slice().reverse();
 
-    if (defLink[0][0] !== "builtin") {
+    if (defLink[0][0] !== "builtin" && defLink[0][0] !== "lang.annotations") {
         return;
     }
 
