@@ -86,6 +86,7 @@ public class ProjectDirConstants {
     public static final String BALO_DOC_DIR_NAME = "docs";
     public static final String BALO_PLATFORM_LIB_DIR_NAME = "platform-libs";
 
+    public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
 }

@@ -14,9 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/filepath;
 import ballerina/http;
-import ballerina/internal;
 import ballerina/io;
+import ballerina/system;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -59,17 +60,16 @@ function createError(string errMessage) returns error {
 public function main(string... args) {
     http:Client httpEndpoint;
     string url = <@untainted> args[0];
-    string dirPath = args[1];
-    string pkgPath = <@untainted> args[2];
-    string fileSeparator = args[3];
-    string host = args[4];
-    string strPort = args[5];
-    string proxyUsername = args[6];
-    string proxyPassword = args[7];
-    string terminalWidth = args[8];
-    string versionRange = args[9];
-    isBuild = <@untainted> boolean.convert(args[10]);
-    boolean nightlyBuild = <@untainted> boolean.convert(args[11]);
+    string modulePathInBaloCache = args[1]; // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<version>/ . if no version given then uses "*".
+    string modulePath = <@untainted> args[2]; // <org-name>/<module-name>
+    string host = args[3];
+    string strPort = args[4];
+    string proxyUsername = args[5];
+    string proxyPassword = args[6];
+    string terminalWidth = args[7];
+    string versionRange = args[8];
+    isBuild = <@untainted> boolean.convert(args[9]);
+    boolean nightlyBuild = <@untainted> boolean.convert(args[10]);
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -77,135 +77,129 @@ public function main(string... args) {
 
     if (host != "" && strPort != "") {
         // validate port
-        var port = int.convert(strPort);
-        if (port is int) {
-            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
-            if (result is http:Client) {
-                httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
-            } else {
-                panic createError("failed to resolve host : " + host + " with port " + port);
-            }
-        } else {
+        int|error port = int.convert(strPort);
+        if (port is error) {
             panic createError("invalid port : " + strPort);
+        } else {
+            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+            if (result is error) {
+                panic createError("failed to resolve host : " + host + " with port " + port);
+            } else {
+                httpEndpoint = result;
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
+            }
         }
-    } else  if (host != "" || strPort != "") {
+    } else if (host != "" || strPort != "") {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, pkgPath, dirPath, versionRange, fileSeparator, terminalWidth, nightlyBuild);
+        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
     }
 }
 
-# Pulling a module
+# Pulling a module.
 #
 # + httpEndpoint - The endpoint to call
 # + url - Central URL
-# + pkgPath - Module Path
-# + dirPath - Directory path
-# + versionRange - Balo version range
-# + fileSeparator - System file separator
+# + modulePath - Module Path.
+# + baloCache - Balo cache path.
+# + versionRange - Balo version range.
 # + terminalWidth - Width of the terminal
 # + nightlyBuild - Release is a nightly build
-function pullPackage(http:Client httpEndpoint, string url, string pkgPath, string dirPath, string versionRange,
-                     string fileSeparator, string terminalWidth, boolean nightlyBuild) {
+function pullPackage(http:Client httpEndpoint, string url, string modulePath, string baloCache, string versionRange,
+                     string terminalWidth, boolean nightlyBuild) {
     http:Client centralEndpoint = httpEndpoint;
 
-    string fullPkgPath = pkgPath;
-    string destDirPath = dirPath;
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
-
-    http:Response httpResponse = new;
-    var result = centralEndpoint -> get(<@untainted> versionRange, message=req);
-    if (result is http:Response) {
-        httpResponse = result;
+    http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, message=req);
+    if (httpResponse is error) {
+        panic createError("connection to the remote host failed : " + <string>httpResponse.detail().msg);
     } else {
-        panic createError("connection to the remote host failed : " + result.reason());
-    }
-
-    http:Response res = new;
-    string statusCode = string.convert(httpResponse.statusCode);
-    if (statusCode.hasPrefix("5")) {
-        panic createError("remote registry failed for url :" + url);
-    } else if (statusCode != "200") {
-        var resp = httpResponse.getJsonPayload();
-        if (resp is json) {
-            if (statusCode == "404" && isBuild && resp.message.toString().contains("could not find module")) {
-                // To ignore printing the error
-                panic createError("");
+        string statusCode = string.convert(httpResponse.statusCode);
+        if (statusCode.hasPrefix("5")) {
+            panic createError("remote registry failed for url:" + url);
+        } else if (statusCode != "200") {
+            var resp = httpResponse.getJsonPayload();
+            if (resp is json) {
+                if (statusCode == "404" && isBuild && resp.message.toString().contains("module not found")) {
+                    // To ignore printing the error
+                    panic createError("");
+                } else {
+                    panic createError(resp.message.toString());
+                }
             } else {
-                panic createError(resp.message.toString());
+                panic createError("error occurred when pulling the module");
             }
         } else {
-            panic createError("error occurred when pulling the module");
-        }
-    } else {
-        string contentLengthHeader;
-        int pkgSize = <@untainted> MAX_INT_VALUE;
+            string contentLengthHeader;
+            int baloSize = <@untainted> MAX_INT_VALUE;
 
-        if (httpResponse.hasHeader("content-length")) {
-            contentLengthHeader = httpResponse.getHeader("content-length");
-            pkgSize = <@untainted> checkpanic int.convert(contentLengthHeader);
-        } else {
-            panic createError("module size information is missing from remote repository. please retry.");
-        }
+            if (httpResponse.hasHeader("content-length")) {
+                contentLengthHeader = httpResponse.getHeader("content-length");
+                baloSize = <@untainted> checkpanic int.convert(contentLengthHeader);
+            } else {
+                panic createError("module size information is missing from remote repository. please retry.");
+            }
 
-        io:ReadableByteChannel sourceChannel = checkpanic (httpResponse.getByteChannel());
+            io:ReadableByteChannel sourceChannel = checkpanic (httpResponse.getByteChannel());
 
-        string resolvedURI = httpResponse.resolvedRequestedURI;
-        if (resolvedURI == "") {
-            resolvedURI = url;
-        }
+            string resolvedURI = httpResponse.resolvedRequestedURI;
+            if (resolvedURI == "") {
+                resolvedURI = url;
+            }
 
-        string [] uriParts = resolvedURI.split("/");
-        string pkgVersion = uriParts[uriParts.length() - 2];
-        boolean valid = checkpanic pkgVersion.matches(VERSION_REGEX);
+            string [] uriParts = resolvedURI.split("/");
+            string moduleVersion = uriParts[uriParts.length() - 3];
+            boolean valid = checkpanic moduleVersion.matches(VERSION_REGEX);
 
-        if (valid) {
-            string pkgName = fullPkgPath.substring(fullPkgPath.lastIndexOf("/") + 1, fullPkgPath.length());
-            string archiveFileName = pkgName + ".zip";
+            if (valid) {
+                string moduleName = modulePath.substring(modulePath.lastIndexOf("/") + 1, modulePath.length());
+                string baloFile = moduleName + ".balo";
 
-            fullPkgPath = fullPkgPath + ":" + pkgVersion;
-            destDirPath = destDirPath + fileSeparator + pkgVersion;
-            string destArchivePath = destDirPath  + fileSeparator + archiveFileName;
+                // adding version to the module path
+                string modulePathWithVersion = modulePath + ":" + moduleVersion;
+                string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
-            if (!createDirectories(destDirPath)) {
-                internal:Path pkgArchivePath = new(destArchivePath);
-                if (pkgArchivePath.exists()) {
+                string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
+                if (system:exists(baloPath)) {
                     panic createError("module already exists in the home repository");
                 }
-            }
 
-            io:WritableByteChannel wch = checkpanic io:openWritableFile(<@untainted> destArchivePath);
-
-            string toAndFrom = " [central.ballerina.io -> home repo]";
-            int rightMargin = 3;
-            int width = (checkpanic int.convert(terminalWidth)) - rightMargin;
-            copy(pkgSize, sourceChannel, wch, fullPkgPath, toAndFrom, width);
-
-            var destChannelClose = wch.close();
-            if (destChannelClose is error) {
-                panic createError("error occurred while closing the channel: " + destChannelClose.reason());
-            } else {
-                var srcChannelClose = sourceChannel.close();
-                if (srcChannelClose is error) {
-                    panic createError("error occurred while closing the channel: " + srcChannelClose.reason());
-                } else {
-                    if (nightlyBuild) {
-                        // If its a nightly build tag the file as a module from nightly
-                        internal:Path sourcePath = new(destDirPath);
-                        internal:Path metaFilePath = sourcePath.resolve("nightly.build");
-                        var createFileResult = metaFilePath.createFile();
-                        if (createFileResult is error) {
-                            panic createError("Error occurred while creating nightly.build file.");
-                        }
-                    }
-                    return ();
+                string|error createBaloFile = system:createDir(baloCacheWithModulePath, parentDirs = true);
+                if (createBaloFile is error) {
+                    panic createError("error creating directory for balo file");
                 }
+
+                io:WritableByteChannel wch = checkpanic io:openWritableFile(<@untainted> baloPath);
+
+                string toAndFrom = " [central.ballerina.io -> home repo]";
+                int rightMargin = 3;
+                int width = (checkpanic int.convert(terminalWidth)) - rightMargin;
+                copy(baloSize, sourceChannel, wch, modulePathWithVersion, toAndFrom, width);
+
+                var destChannelClose = wch.close();
+                if (destChannelClose is error) {
+                    panic createError("error occurred while closing the channel: " + destChannelClose.reason());
+                } else {
+                    var srcChannelClose = sourceChannel.close();
+                    if (srcChannelClose is error) {
+                        panic createError("error occurred while closing the channel: " + srcChannelClose.reason());
+                    } else {
+                        if (nightlyBuild) {
+                            // If its a nightly build tag the file as a module from nightly
+                            string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
+                            string|error createdNightlyBuildFile = system:createFile(nightlyBuildMetafile);
+                            if (createdNightlyBuildFile is error) {
+                                panic createError("Error occurred while creating nightly.build file.");
+                            }
+                        }
+                        return ();
+                    }
+                }
+            } else {
+                panic createError("module version could not be detected");
             }
-        } else {
-            panic createError("module version could not be detected");
         }
     }
 }
@@ -218,8 +212,8 @@ function pullPackage(http:Client httpEndpoint, string url, string pkgPath, strin
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-public function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client {
-    http:Client httpEndpointWithProxy = new (url, config = {
+public function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client {
+    http:Client httpEndpointWithProxy = new(url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -238,8 +232,8 @@ public function defineEndpointWithProxy (string url, string hostname, int port, 
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpointWithoutProxy = new (url, config = {
+function defineEndpointWithoutProxy(string url) returns http:Client{
+    http:Client httpEndpointWithoutProxy = new(url, config = {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -278,14 +272,14 @@ function writeBytes(io:WritableByteChannel byteChannel, byte[] content, int star
 
 # This function will copy files from source to the destination path.
 #
-# + pkgSize - Size of the module pulled
+# + baloSize - Size of the module pulled
 # + src - Byte channel of the source file
 # + dest - Byte channel of the destination folder
-# + fullPkgPath - Full module path
+# + modulePath - Full module path
 # + toAndFrom - Pulled module details
 # + width - Width of the terminal
-function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
-              string fullPkgPath, string toAndFrom, int width) {
+function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel dest,
+              string modulePath, string toAndFrom, int width) {
     int terminalWidth = width - logFormatter.offset;
     int bytesChunk = 8;
     byte[] readContent = [];
@@ -309,15 +303,15 @@ function copy(int pkgSize, io:ReadableByteChannel src, io:WritableByteChannel de
             numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
         }
         totalCount = totalCount + readCount;
-        float percentage = totalCount / pkgSize;
-        noOfBytesRead = totalCount + "/" + pkgSize;
+        float percentage = totalCount / baloSize;
+        noOfBytesRead = totalCount + "/" + baloSize;
         string bar = equals.substring(startVal, <int> (percentage * totalVal));
         string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
-        string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;
-        string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
+        string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + baloSize;
+        string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
         io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
     }
-    io:println("\r" + logFormatter.formatLog(rightPad(fullPkgPath + toAndFrom, terminalWidth)));
+    io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
     return;
 }
 
@@ -355,24 +349,6 @@ function truncateString (string text, int maxSize) returns (string) {
         return truncatedStr + "…";
     }
     return text;
-}
-
-# This function creates directories.
-#
-# + directoryPath - Directory path to be created
-# + return - If the directories were created or not
-function createDirectories(string directoryPath) returns (boolean) {
-    internal:Path dirPath = new(directoryPath);
-    if (!dirPath.exists()){
-        var result = dirPath.createDirectory();
-        if (result is error) {
-            return false;
-        } else {
-            return true;
-        }
-    } else {
-        return false;
-    }
 }
 
 # This function will close the byte channel.

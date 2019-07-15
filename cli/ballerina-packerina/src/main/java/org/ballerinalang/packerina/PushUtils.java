@@ -253,7 +253,7 @@ public class PushUtils {
      * @return full URI path of the module relative to the remote repo
      */
     private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL() + "/modules/"));
+        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()).resolve("modules"));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
             throw createLauncherException("Couldn't find module " + packageID.toString());
