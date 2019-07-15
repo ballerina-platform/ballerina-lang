@@ -1,39 +1,15 @@
 import ballerina/io;
 
-function contains(string sourceString, string substring) returns (boolean) {
-    return sourceString.contains(substring);
-}
-
-function equalsIgnoreCase(string s1, string s2) returns (boolean) {
-    return s1.equalsIgnoreCase(s2);
-}
-
 function hasPrefix(string s, string prefix) returns (boolean) {
-    return s.hasPrefix(prefix);
+    return s.startsWith(prefix);
 }
 
 function hasSuffix(string s, string suffix) returns (boolean) {
-    return s.hasSuffix(suffix);
+    return s.endsWith(suffix);
 }
 
-function indexOf(string s, string str) returns (int) {
+function indexOf(string s, string str) returns (int?) {
     return s.indexOf(str);
-}
-
-function lastIndexOf(string s, string str) returns (int) {
-    return s.lastIndexOf(str);
-}
-
-function replace(string s, string sourceString, string target) returns (string) {
-    return s.replace(sourceString, target);
-}
-
-function replaceAll(string s, string sourceString, string target) returns (string) {
-    return s.replaceAll(sourceString, target);
-}
-
-function replaceFirst(string s, string sourceString, string target) returns (string) {
-    return s.replaceFirst(sourceString, target);
 }
 
 function substring(string s, int beginIndex, int endIndex) returns (string) {
@@ -41,11 +17,11 @@ function substring(string s, int beginIndex, int endIndex) returns (string) {
 }
 
 function toLower(string s) returns (string) {
-    return s.toLower();
+    return s.toLowerAscii();
 }
 
 function toUpper(string s) returns (string) {
-    return s.toUpper();
+    return s.toUpperAscii();
 }
 
 function trim(string s) returns (string) {
@@ -53,23 +29,23 @@ function trim(string s) returns (string) {
 }
 
 function intValueOf(int i) returns (string) {
-    return string.convert(i);
+    return i.toString();
 }
 
 function floatValueOf(float f) returns (string) {
-    return string.convert(f);
+    return f.toString();
 }
 
 function booleanValueOf(boolean b) returns (string) {
-    return string.convert(b);
+    return b.toString();
 }
 
 function stringValueOf(string s) returns (string) {
-    return <string>(s);
+    return s.toString();
 }
 
 function xmlValueOf(xml x) returns (string) {
-    return io:sprintf("%s", x);
+    return x.toString();
 }
 
 function jsonValueOf(json j) returns (string?) {
@@ -80,14 +56,6 @@ function lengthOfStr(string j) returns (int) {
     return j.length();
 }
 
-function unescape(string j) returns (string) {
-    return j.unescape();
-}
-
-function split(string j, string k) returns (string[]) {
-    return j.split(k);
-}
-
-function toByteArray(string l, string m) returns (byte[]) {
-    return l.toByteArray(m);
+function toByteArray(string l) returns (byte[]) {
+    return l.toBytes();
 }

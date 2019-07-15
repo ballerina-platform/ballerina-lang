@@ -62,6 +62,7 @@ import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,11 @@ import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ConnectionTimedOutException;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.PromiseRejectedException;
+import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
@@ -130,8 +136,8 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STO
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
@@ -158,8 +164,25 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -495,13 +518,9 @@ public class HttpUtil {
      * @return Error struct
      */
     public static ErrorValue getError(String errMsg) {
-        MapValue<String, Object> httpErrorRecord = createHTTPErrorRecord();
+        MapValue<String, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
         httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
         return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
-    }
-
-    private static MapValue<String, Object> createHTTPErrorRecord() {
-        return BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
     }
 
     /**
@@ -511,11 +530,110 @@ public class HttpUtil {
      * @return Error struct
      */
     public static ErrorValue getError(Throwable throwable) {
-        if (throwable.getMessage() == null) {
-            return getError(IO_EXCEPTION_OCCURED);
-        } else {
-            return getError(throwable.getMessage());
+        if (throwable instanceof ClientConnectorException) {
+            return createHttpError(throwable);
         }
+        if (throwable.getMessage() == null) {
+            return createHttpError(IO_EXCEPTION_OCCURED);
+        } else {
+            return createHttpError(throwable.getMessage());
+        }
+    }
+
+    public static ErrorValue createHttpError(String errorMessage) {
+        HttpErrorType errorType = getErrorType(errorMessage);
+        return createHttpError(errorMessage, errorType);
+    }
+
+    public static ErrorValue createHttpError(Throwable throwable) {
+        ErrorValue cause;
+        if (throwable instanceof EndpointTimeOutException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.IDLE_TIMEOUT_TRIGGERED);
+        } else if (throwable instanceof SslException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.SSL_ERROR);
+        } else if (throwable instanceof PromiseRejectedException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
+        } else if (throwable instanceof ConnectionTimedOutException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else if (throwable instanceof ClientConnectorException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.GenericError.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else {
+            return createHttpError(throwable.getMessage());
+        }
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
+        MapValue<String, Object> detail = BallerinaValues
+                .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
+        return BallerinaValues.createRecord(detail, message, cause);
+    }
+
+    // TODO: Find a better way to get the error type than String matching.
+    private static HttpErrorType getErrorType(String errorMessage) {
+        // Every Idle Timeout triggered error is mapped to IdleTimeoutError
+        if (errorMessage.contains("Idle timeout triggered")) {
+            return HttpErrorType.IDLE_TIMEOUT_TRIGGERED;
+        }
+
+        switch (errorMessage) {
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE:
+                return HttpErrorType.INIT_INBOUND_RESPONSE_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.READING_INBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY:
+                return HttpErrorType.READING_INBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST:
+                return HttpErrorType.INIT_OUTBOUND_REQUEST_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST:
+                return HttpErrorType.INIT_INBOUND_REQUEST_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS:
+                return HttpErrorType.READING_INBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY:
+                return HttpErrorType.READING_INBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE:
+                return HttpErrorType.INIT_OUTBOUND_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.INIT_100_CONTINUE_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.WRITING_100_CONTINUE_RESPONSE_FAILED;
+            case PROMISED_STREAM_REJECTED_ERROR:
+                return HttpErrorType.HTTP2_CLIENT_ERROR;
+            default:
+                return HttpErrorType.GENERIC_CLIENT_ERROR;
+        }
+    }
+
+    private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
+
+        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
+        MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
+        return BallerinaErrors.createError(reason, detailRecord);
     }
 
     //TODO Remove after migration : implemented using bvm values/types
@@ -1680,6 +1798,12 @@ public class HttpUtil {
                 .setId(HttpUtil.getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
 
         return listenerConfiguration;
+    }
+
+    public static String getServiceName(ObjectValue balService) {
+        String serviceTypeName = balService.getType().getName();
+        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
+        return serviceTypeName.substring(0, serviceIndex);
     }
 
     private HttpUtil() {

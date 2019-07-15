@@ -217,7 +217,7 @@ function errorResult() returns error? {
                 b = <- w2;
                 if (b > 0) {
                     map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.k1, message = "msg3");
+                    error er3 = error(reason.get("k1"), message = "msg3");
                     return er3;
                 }
                 foreach var i in 1 ... 5 {
@@ -268,7 +268,7 @@ function panicTest() returns error? {
                 b = <- w2;
                 if (b > 0) {
                     map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.k1, message = "msg3");
+                    error er3 = error(reason.get("k1"), message = "msg3");
                     panic er3;
                 }
 

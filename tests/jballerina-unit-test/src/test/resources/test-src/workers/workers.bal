@@ -321,7 +321,7 @@ function test(int c) {
 
 function workerTestWithLambda() returns int {
     invokeTestFunc(5);
-    int a = fa.call();
+    int a = fa();
     return a;
 }
 

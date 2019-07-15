@@ -16,6 +16,7 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -32,14 +33,11 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
 
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 }
 

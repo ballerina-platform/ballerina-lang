@@ -48,7 +48,7 @@ public type Caller client object {
     # + return - Returns an `error` on failure
     public remote function accepted(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                returns error? {
-        return self.httpCaller->accepted(message = message);
+        return self.httpCaller->accepted(message);
     }
 };
 

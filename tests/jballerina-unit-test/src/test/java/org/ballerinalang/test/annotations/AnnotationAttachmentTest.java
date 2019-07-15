@@ -77,7 +77,7 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v61 value required");
 
-        attachments = function.defaultableParams.get(0).getVariable().annAttachments;
+        attachments = function.requiredParams.get(1).annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v61 value defaultable");
 
@@ -103,7 +103,7 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value required");
 
-        attachments = function.defaultableParams.get(0).getVariable().annAttachments;
+        attachments = function.requiredParams.get(1).annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertNameAndKeyValuePair(attachments.get(0), "v6", "val", "v63 value defaultable");
 

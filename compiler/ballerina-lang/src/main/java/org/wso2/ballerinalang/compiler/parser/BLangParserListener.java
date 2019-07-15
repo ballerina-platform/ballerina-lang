@@ -101,7 +101,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                      getCurrentPos(ctx.Identifier()), false,
-                                     ctx.annotationAttachment().size());
+                                     ctx.annotationAttachment().size(), ctx.PUBLIC() != null);
     }
 
     /**
@@ -1899,7 +1899,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             fieldType = FieldKind.ALL;
         }
         this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
-                fieldType, ctx.field().NOT() != null);
+                fieldType, ctx.field().OPTIONAL_FIELD_ACCESS() != null);
     }
 
     @Override

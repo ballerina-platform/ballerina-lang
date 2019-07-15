@@ -48,7 +48,7 @@ service echoService0 on new http:Listener(9090) {
 }
 
 function callNextResource0() returns (http:Response | error) {
-    http:Client httpEndpoint = new("http://localhost:9090/echoService", config = {});
+    http:Client httpEndpoint = new("http://localhost:9090/echoService", {});
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
     return resp;
 }

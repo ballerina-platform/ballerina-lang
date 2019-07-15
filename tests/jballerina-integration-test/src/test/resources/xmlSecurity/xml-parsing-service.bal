@@ -14,7 +14,7 @@ service xmlParserService on new http:Listener(9090) {
         if (payload is xml) {
             var responseToCaller = caller->respond(untaint payload.getTextValue());
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response res = new;
@@ -22,7 +22,7 @@ service xmlParserService on new http:Listener(9090) {
             res.setTextPayload(untaint payload.reason());
             var responseToCaller = caller->respond(res);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }

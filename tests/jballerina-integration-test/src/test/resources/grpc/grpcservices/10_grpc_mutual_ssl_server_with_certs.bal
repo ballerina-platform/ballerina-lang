@@ -37,7 +37,7 @@ service grpcMutualSslService on ep10 {
         string message = "Hello " + name;
         error? err = caller->send(message);
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         } else {
             log:printInfo("Server send response : " + message);
         }

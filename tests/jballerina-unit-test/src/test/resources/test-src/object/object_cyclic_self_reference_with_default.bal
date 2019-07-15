@@ -4,7 +4,9 @@ function testCyclicReferenceWithDefaultable () returns int {
     Employee em = new;
     em.age = 89;
     p.emp = em;
-    return (p.emp.age ?: 56);
+    Employee e = <Employee>p.emp;
+
+    return e.age;
 }
 
 type Person object {

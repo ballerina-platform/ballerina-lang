@@ -23,5 +23,5 @@ function forkWithWorkers() returns int {
 
     map<int> result = wait {forkWorker1, forkWorker2, newWorker1, newWorker2};
 
-    return result.forkWorker1 + result.forkWorker2 + result.newWorker1 + result.newWorker2;
+    return result.get("forkWorker1") + result.get("forkWorker2") + result.get("newWorker1") + result.get("newWorker2");
 }

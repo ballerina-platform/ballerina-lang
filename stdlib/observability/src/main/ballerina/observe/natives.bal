@@ -41,7 +41,7 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
 # + return - An error if an error occurred while attaching tag to the span
-public function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error? = external;
+public function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
 
 # Finish the current span.
 #
@@ -79,7 +79,7 @@ public type Counter object {
     # + desc - Description of the Counter instance. If no description is provided, the the default empty string
     #          will be used.
     # + tags - The key/value pair of Tags. If no tags are provided, the default nil value will be used.
-    public function __init(string name, string? desc = "", map<string>? tags = ()) {
+    public function __init(string name, public string? desc = "", public map<string>? tags = ()) {
         self.name = name;
         if (desc is string) {
             self.description = desc;

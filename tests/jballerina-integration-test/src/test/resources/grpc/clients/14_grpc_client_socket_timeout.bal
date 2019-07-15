@@ -19,7 +19,7 @@ import ballerina/io;
 
 public function testClientSocketTimeout() returns string {
     // Client endpoint configuration
-    HelloWorld14BlockingClient helloWorldBlockingEp = new("http://localhost:9104", config = {
+    HelloWorld14BlockingClient helloWorldBlockingEp = new("http://localhost:9104", {
                                         timeoutMillis : 1000});
 
     // Executes unary blocking call.
@@ -40,7 +40,7 @@ public type HelloWorld14BlockingClient client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -65,7 +65,7 @@ public type HelloWorld14Client client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;

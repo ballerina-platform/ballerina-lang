@@ -4,7 +4,7 @@ import ballerinax/jms;
 jms:QueueSender queueSender = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616"
-    }, queueName = "testMbSimpleQueueReceiverProducer");
+    }, "testMbSimpleQueueReceiverProducer");
 
 public function sendTextMessage () {
     // Create a Text message.
