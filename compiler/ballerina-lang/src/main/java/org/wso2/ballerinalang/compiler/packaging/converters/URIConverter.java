@@ -31,13 +31,11 @@ import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -53,11 +51,11 @@ public class URIConverter implements Converter<URI> {
     private PrintStream outStream = System.err;
 
     public URIConverter(URI base) {
-        this.base = base;
+        this.base = URI.create(base.toString() + "/modules/");
     }
 
     public URIConverter(URI base, boolean isBuild) {
-        this.base = base;
+        this.base = URI.create(base.toString() + "/modules/");
         this.isBuild = isBuild;
     }
 
@@ -102,24 +100,24 @@ public class URIConverter implements Converter<URI> {
 
     }
 
-    public Stream<CompilerInput> finalize(URI u, PackageID packageID) {
-        String orgName = packageID.getOrgName().getValue();
-        String pkgName = packageID.getName().getValue();
-        Path destDirPath = RepoUtils.createAndGetHomeReposPath().resolve(Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
-                                                                                   ProjectDirConstants
-                                                                                           .BALLERINA_CENTRAL_DIR_NAME,
-                                                                                   orgName, pkgName));
-        createDirectory(destDirPath);
+    public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
+        String orgName = moduleID.getOrgName().getValue();
+        String moduleName = moduleID.getName().getValue();
+        Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
+                .resolve(orgName)
+                .resolve(moduleName);
+        
+        createDirectory(modulePathInBaloCache);
         try {
-            String fullPkgPath = orgName + "/" + pkgName;
+            String modulePath = orgName + "/" + moduleName;
             Proxy proxy = TomlParserUtils.readSettings().getProxy();
 
-            String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION +
-                    "," + ProgramFileConstants.MAX_SUPPORTED_VERSION;
+            String supportedVersionRange = "";
             String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
-                    u.toString(), destDirPath.toString(), fullPkgPath, File.separator, proxy.getHost(),
+                    remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
                     proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                     supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
             // Check if error has occurred or not.
@@ -130,8 +128,8 @@ public class URIConverter implements Converter<URI> {
                 }
                 return Stream.of();
             } else {
-                Patten patten = binaryRepo.calculate(packageID);
-                return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
+                Patten patten = binaryRepo.calculate(moduleID);
+                return patten.convertToSources(binaryRepo.getConverterInstance(), moduleID);
             }
         } catch (Exception e) {
             outStream.println(e.getMessage());
