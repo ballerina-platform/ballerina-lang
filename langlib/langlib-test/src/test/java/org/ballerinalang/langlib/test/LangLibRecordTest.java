@@ -43,6 +43,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * Test cases for record type.
+ */
 public class LangLibRecordTest {
 
     private CompileResult compileResult;

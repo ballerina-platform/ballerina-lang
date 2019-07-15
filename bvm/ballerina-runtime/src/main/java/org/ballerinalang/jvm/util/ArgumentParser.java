@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.RuntimeUtils.ParamInfo;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -64,20 +65,20 @@ public class ArgumentParser {
      * Method to retrieve the {@link Object} array containing the arguments to invoke the function specified as the
      * entry function. First element is ignored to keep the strand.
      *
-     * @param funcInfo {@link RuntimeUtils.ParamInfo[] } for the entry function
+     * @param funcInfo {@link ParamInfo} array for the entry function
      * @param args     the string array of arguments specified
      * @param hasRestParam whether function accepts rest arguments
      * @return the {@link Object} array containing the arguments to invoke the function
      */
-    public static Object[] extractEntryFuncArgs(RuntimeUtils.ParamInfo[] funcInfo, String[] args,
+    public static Object[] extractEntryFuncArgs(ParamInfo[] funcInfo, String[] args,
                                                 boolean hasRestParam) {
         // first arg is reserved for strand
         Object[] bValueArgs = new Object[funcInfo.length * 2 + 1];
-        Map<String, RuntimeUtils.ParamInfo> namedArgs = new HashMap<>();
+        Map<String, ParamInfo> namedArgs = new HashMap<>();
 
         //create map of defaultable params and there indices
         int defaultableCount = 0;
-        for (RuntimeUtils.ParamInfo info : funcInfo) {
+        for (ParamInfo info : funcInfo) {
             if (info.hasDefaultable) {
                 info.index = defaultableCount;
                 namedArgs.put(info.name, info);
@@ -100,7 +101,7 @@ public class ArgumentParser {
 
         for (String arg : args) {
             if (isDefaultParamCandidate(arg) && namedArgs.containsKey(getParamName(arg))) {
-                RuntimeUtils.ParamInfo info = namedArgs.get(getParamName(arg));
+                ParamInfo info = namedArgs.get(getParamName(arg));
                 bValueArgs[info.index * 2 + defaultableArgIndex] = getBValue(info.type, getValueString(arg));
                 bValueArgs[info.index * 2 + defaultableArgIndex + 1] = true;
             } else {
@@ -118,7 +119,7 @@ public class ArgumentParser {
 
         // now go through required args and populate value[]
         for (int i = 0; i < requiredParamsCount; i++) {
-            RuntimeUtils.ParamInfo functionInfo = funcInfo[i];
+            ParamInfo functionInfo = funcInfo[i];
             String arg = requiredAndRestArgs.get(i);
             bValueArgs[2 * i + 1] = getBValue(functionInfo.type, arg);
             bValueArgs[2 * i + 2] = true;

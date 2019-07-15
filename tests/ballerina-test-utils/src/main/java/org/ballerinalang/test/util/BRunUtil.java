@@ -1080,7 +1080,7 @@ public class BRunUtil {
                 bvmValue = new BFunctionPointer(null, getBVMType(functionValue.getType(), new Stack<>()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
-                bvmValue = new BHandleValue(((HandleValue) value).value);
+                bvmValue = new BHandleValue(((HandleValue) value).getValue());
                 break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
@@ -1183,7 +1183,8 @@ public class BRunUtil {
                 return BTypes.typeXML;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
-                return new BTypeDesc(typedescType.getName(), typedescType.getPackage().getName());
+                return new BTypeDesc(typedescType.getName(),
+                        typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:

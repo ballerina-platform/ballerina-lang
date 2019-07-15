@@ -90,7 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -410,10 +409,11 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                && !currentPkgID.name.value.equals(packageID.name.value)) {
-            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
+//        else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
+//                && !currentPkgID.name.value.equals(packageID.name.value)) {
+//            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+//        }
 
         boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
         

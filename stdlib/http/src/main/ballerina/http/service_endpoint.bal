@@ -44,7 +44,7 @@ public type Listener object {
         return self.register(s, name);
     }
 
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, public ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;
