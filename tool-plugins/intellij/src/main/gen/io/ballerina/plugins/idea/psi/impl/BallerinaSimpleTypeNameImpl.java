@@ -55,6 +55,12 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
+  public BallerinaHandleTypeName getHandleTypeName() {
+    return findChildByClass(BallerinaHandleTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaNilLiteral getNilLiteral() {
     return findChildByClass(BallerinaNilLiteral.class);
   }

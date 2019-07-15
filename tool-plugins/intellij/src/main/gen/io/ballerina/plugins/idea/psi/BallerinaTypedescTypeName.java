@@ -21,30 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSimpleLiteral extends PsiElement {
+public interface BallerinaTypedescTypeName extends PsiElement {
 
   @Nullable
-  BallerinaBlobLiteral getBlobLiteral();
+  BallerinaTypeName getTypeName();
 
   @Nullable
-  BallerinaFloatingPointLiteral getFloatingPointLiteral();
+  PsiElement getGt();
 
   @Nullable
-  BallerinaIntegerLiteral getIntegerLiteral();
+  PsiElement getLt();
 
-  @Nullable
-  BallerinaNilLiteral getNilLiteral();
-
-  @Nullable
-  PsiElement getBooleanLiteral();
-
-  @Nullable
-  PsiElement getNullLiteral();
-
-  @Nullable
-  PsiElement getQuotedStringLiteral();
-
-  @Nullable
-  PsiElement getSub();
+  @NotNull
+  PsiElement getTypedesc();
 
 }

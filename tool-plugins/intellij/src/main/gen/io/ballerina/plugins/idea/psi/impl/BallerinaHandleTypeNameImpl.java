@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaActionInvocationImpl extends ASTWrapperPsiElement implements BallerinaActionInvocation {
+public class BallerinaHandleTypeNameImpl extends ASTWrapperPsiElement implements BallerinaHandleTypeName {
 
-  public BallerinaActionInvocationImpl(@NotNull ASTNode node) {
+  public BallerinaHandleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitActionInvocation(this);
+    visitor.visitHandleTypeName(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,32 +44,8 @@ public class BallerinaActionInvocationImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaFunctionInvocation getFunctionInvocation() {
-    return findNotNullChildByClass(BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaVariableReference getVariableReference() {
-    return findNotNullChildByClass(BallerinaVariableReference.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getRarrow() {
-    return findNotNullChildByType(RARROW);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getStart() {
-    return findChildByType(START);
+  public PsiElement getHandle() {
+    return findNotNullChildByType(HANDLE);
   }
 
 }

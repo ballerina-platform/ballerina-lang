@@ -30,6 +30,9 @@ public interface BallerinaSimpleTypeName extends BallerinaTypeName {
   BallerinaAnyTypeName getAnyTypeName();
 
   @Nullable
+  BallerinaHandleTypeName getHandleTypeName();
+
+  @Nullable
   BallerinaNilLiteral getNilLiteral();
 
   @Nullable
