@@ -19,6 +19,8 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
 import ballerina/math;
+import ballerina/internal;
+import ballerina/'lang\.int as lint;
 
 # This function searches modules from ballerina central.
 #
@@ -29,16 +31,17 @@ import ballerina/math;
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(querySearched, message=req);
+    var result = httpEndpoint -> get(querySearched, req);
     http:Response httpResponse = new;
     if (result is http:Response) {
         httpResponse = result;
     } else {
-        io:println("Connection to the remote host failed : " + result.reason());
+        error e = result;
+        io:println("Connection to the remote host failed : " + e.reason());
         return;
     }
-    string statusCode = string.convert(httpResponse.statusCode);
-    if (statusCode.hasPrefix("5")) {
+    string statusCode = httpResponse.statusCode.toString();
+    if (internal:hasPrefix(statusCode, "5")) {
         io:println("remote registry failed for url : " + url + "/" + querySearched);
     } else if (statusCode != "200") {
         var resp = httpResponse.getJsonPayload();
@@ -59,7 +62,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
                     int rightMargin = 3;
                     int width;
-                    var intTerminalWidth = int.convert(terminalWidth);
+                    var intTerminalWidth = lint:fromString(terminalWidth);
                     if (intTerminalWidth is int) {
                         width = intTerminalWidth - rightMargin;
                     } else {
@@ -118,14 +121,14 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                         if (descColWidth >= minDescColWidth) {
                             printInCLI(summary, descColWidth - authorsColWidth);
                             string authors = "";
-                            json authorsArr = jsonElement.authors;
-                            foreach var authorIndex in 0 ..< authorsArr.length() {
-                                if (authorIndex == authorsArr.length() - 1) {
-                                    authors = authors + authorsArr[authorIndex].toString();
-                                } else {
-                                    authors = authors + " , " + authorsArr[authorIndex].toString();
-                                }
-                            }
+                            json authorsArr = checkpanic jsonElement.authors;
+                            //foreach var authorIndex in 0 ..< authorsArr.length() {
+                            //    if (authorIndex == authorsArr.length() - 1) {
+                            //        authors = authors ;//+ authorsArr[authorIndex].toString(); todo fixme
+                            //    } else {
+                            //        authors = authors ;//+ " , " + authorsArr[authorIndex].toString(); todo fixme
+                            //    }
+                            //}
                             printInCLI(authors, authorsColWidth);
                         } else {
                             printInCLI(summary, descColWidth);
@@ -161,7 +164,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
-    http:Client httpEndpoint = new (url, config = {
+    http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -180,7 +183,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpoint = new (url, config = {
+    http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -240,12 +243,13 @@ function printTitle(string title) {
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
     string jsonTime = jsonObj.time.toString();
-    var timeInMillis = int.convert(jsonTime);
+    var timeInMillis = lint:fromString(jsonTime);
     if (timeInMillis is int) {
         time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
         return checkpanic time:format(timeRecord, "yyyy-MM-dd-E");
     } else {
-        panic timeInMillis;
+        error e = timeInMillis;
+        panic e;
     }
 }
 
@@ -256,7 +260,7 @@ public function main(string... args) {
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
-        var port = int.convert(strPort);
+        var port = lint:fromString(strPort);
         if (port is int) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {
