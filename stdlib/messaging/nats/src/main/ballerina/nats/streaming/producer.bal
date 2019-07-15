@@ -48,19 +48,20 @@ public type StreamingProducer client object {
 
     function externPublish(string subject, string | byte[] data) returns string | Error = external;
 
-    # Close a given connection.
+    # Close the producer.
     #
     # + return - Retruns () or the error if unable to complete the close operation.
     public function close() returns error? {
         if (self.connection is Connection) {
             Connection? natsConnection = self.connection;
             self.connection = ();
-            return self.detachFromNatsConnection(natsConnection);
+            return detachFromNatsConnection(self, natsConnection);
         }
     }
-
-    function detachFromNatsConnection(Connection? natsConnection) returns error? = external;
 };
 
-function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection conn,
+function detachFromNatsConnection(StreamingProducer|StreamingListener streamingClient, Connection? natsConnection)
+returns error? = external;
+
+function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection? conn,
 string clusterId, string? clientId, StreamingConfig? streamingConfig) = external;

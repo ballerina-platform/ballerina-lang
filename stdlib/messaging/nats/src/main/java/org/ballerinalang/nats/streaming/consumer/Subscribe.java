@@ -37,8 +37,10 @@ import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
+
+import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
 
 /**
  * Remote function implementation for subscribing to a NATS subject.
@@ -71,26 +73,30 @@ public class Subscribe implements NativeCallableUnit {
         return false;
     }
 
-    public static void subscribe(Strand strand, ObjectValue streamingListener, ObjectValue service,
-            ObjectValue connection) {
+    public static void subscribe(Strand strand, ObjectValue streamingListener) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingListener
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
+                (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
+                        .getNativeData(STREAMING_DISPATCHER_LIST);
+        serviceListenerMap.forEach(
+                (subscriberService, listener) -> createSubscription(subscriberService, listener, streamingConnection));
+    }
+
+    private static void createSubscription(ObjectValue service, StreamingListener messageHandler,
+            StreamingConnection streamingConnection) {
         MapValue<String, Object> annotation = (MapValue<String, Object>) service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
+        assertNull(annotation, "Streaming configuration annotation not present.");
+        String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD);
+        assertNull(subject, "`Subject` annotation field is mandatory");
+        String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD);
+        SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
         try {
-            StreamingListener messageHandler = new StreamingListener(service, strand.scheduler);
-            assertNull(annotation, "Streaming configuration annotation not present.");
-            String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD);
-            assertNull(subject, "`Subject` annotation field is mandatory");
-            String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD);
-            SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
             streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
-
-            List<ObjectValue> serviceList = (List<ObjectValue>) connection.getNativeData(Constants.SERVICE_LIST);
-            serviceList.add(service);
-        } catch (IOException | TimeoutException e) {
+        } catch (IOException | InterruptedException e) {
             throw Utils.createNatsError(e.getMessage());
-        } catch (InterruptedException e) {
+        } catch (TimeoutException e) {
             throw Utils.createNatsError("Error while creating the subscription");
         }
     }
