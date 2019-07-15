@@ -606,7 +606,7 @@ type TypeEmitter object {
             i = i + 1;
         }
         print(") -> ");
-        self.emitType(bInvokableType.retType);
+        self.emitType(<BType> bInvokableType?.retType);
     }
 
     function emitArrayType(BArrayType bArrayType, string tabs) {

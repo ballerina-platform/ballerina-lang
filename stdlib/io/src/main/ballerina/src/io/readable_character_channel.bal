@@ -38,21 +38,21 @@ public type ReadableCharacterChannel object {
     # Reads a given number of characters.
     #
     # + numberOfChars - Number of characters which should be read
-    # + return - Content which is read or `IOError` if any error occurred
-    public function read(@untainted int numberOfChars) returns @tainted string|IOError = external;
+    # + return - Content which is read or `Error` if any error occurred
+    public function read(@untainted int numberOfChars) returns @tainted string|Error = external;
 
     # Reads a json from the given channel.
     #
-    # + return - Read json string or `IOError` if any error occurred
-    public function readJson() returns @tainted json|IOError = external;
+    # + return - Read json string or `Error` if any error occurred
+    public function readJson() returns @tainted json|Error = external;
 
     # Reads a XML from the given channel.
     #
-    # + return - Read xml or `IOError` if any error occurred
-    public function readXml() returns @tainted xml|IOError = external;
+    # + return - Read xml or `Error` if any error occurred
+    public function readXml() returns @tainted xml|Error = external;
 
     # Closes a given character channel.
     #
     # + return - If an error occurred while writing
-    public function close() returns IOError? = external;
+    public function close() returns Error? = external;
 };

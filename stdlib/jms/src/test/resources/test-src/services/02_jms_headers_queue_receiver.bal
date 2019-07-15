@@ -14,7 +14,7 @@ jms:Session jmsSession1 = new (conn1, {
     });
 
 // Initialize a Queue consumer using the created session.
-listener jms:QueueListener consumer1 = new(jmsSession1, queueName = "MyQueue");
+listener jms:QueueListener consumer1 = new(jmsSession1, "MyQueue");
 
 // Bind the created consumer to the listener service.
 service jmsListener1 on consumer1 {

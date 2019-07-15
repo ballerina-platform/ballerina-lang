@@ -8,16 +8,16 @@ function getAllMetricsSize() returns (int) {
 
 function registerAngGetMetrics() returns (int) {
     map<string> tags = { "method": "PUT" };
-    observe:Counter counter1 = new("service_requests_total", desc = "Total requests.", tags = tags);
+    observe:Counter counter1 = new("service_requests_total", "Total requests.", tags);
     checkpanic counter1.register();
-    counter1.increment(amount = 5);
+    counter1.increment(5);
     return getAllMetricsSize();
 }
 
 function lookupRegisteredMetrics() returns (boolean) {
     string name = "service_requests_total";
     map<string> tags = { "method": "PUT" };
-    observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags = tags);
+    observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags);
 
     if metric is observe:Counter {
         int value = metric.getValue();
@@ -44,10 +44,10 @@ function lookupRegisteredNameOnlyMetrics() returns (boolean) {
 function lookupRegisterAndIncrement() returns (boolean) {
     string name = "service_requests_total";
     map<string> tags = { "method": "PUT" };
-    observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags = tags);
+    observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags);
     if metric is observe:Counter {
-        metric.increment(amount=10);
-        observe:Counter|observe:Gauge|() nextLookupMetric = observe:lookupMetric(name, tags = tags);
+        metric.increment(10);
+        observe:Counter|observe:Gauge|() nextLookupMetric = observe:lookupMetric(name, tags);
         if nextLookupMetric is observe:Counter {
             return (nextLookupMetric.getValue() == 15);
         }

@@ -20,7 +20,7 @@ public type employee object {
     public string name = "";
     public string address = "";
 
-    public function __init (int a = 10, string name) {
+    public function __init (string name, int a = 10) {
         self.age = a;
         self.name = name;
     }

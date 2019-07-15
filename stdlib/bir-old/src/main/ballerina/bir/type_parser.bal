@@ -103,6 +103,9 @@ public type TypeParser object {
 
     function parseType() returns BType {
         var typeTag = self.readInt8();
+        // Ignoring name and flags
+        _ = self.readInt32();
+        _ = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
@@ -124,7 +127,7 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
         } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
-            return TYPE_DESC;
+            return self.parseTypedescType();
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -159,6 +162,12 @@ public type TypeParser object {
 
         error err = error("Unknown type tag :" + typeTag);
         panic err;
+    }
+
+    function parseTypedescType() returns BTypeDesc {
+        BTypeDesc obj = { typeConstraint: TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.typeConstraint = self.parseTypeCpRef();
+        return obj;
     }
 
     function parseArrayType() returns BArrayType {

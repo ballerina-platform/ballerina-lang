@@ -27,8 +27,8 @@ service clientFailure on new http:WebSocketListener(9091) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp;
-        globalServerCaller = untaint wsEp;
-        wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: errorHandlingService });
+        globalServerCaller = <@untainted> wsEp;
+        wsClientEp = new(REMOTE_BACKEND_URL1, { callbackService: errorHandlingService });
     }
 }
 service errorHandlingService = @http:WebSocketServiceConfig {} service {
@@ -37,7 +37,7 @@ service errorHandlingService = @http:WebSocketServiceConfig {} service {
         if (serverCaller is http:WebSocketCaller) {
             var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message,
             timeoutInSecs = 0);
-            log:printError("Failed during closing the connection", err = closeErr);
+            log:printError("Failed during closing the connection", closeErr);
         } else {
             log:printError("serverCaller has not been set");
         }

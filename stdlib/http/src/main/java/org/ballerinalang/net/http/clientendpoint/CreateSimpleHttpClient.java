@@ -160,6 +160,13 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
                     get(HttpConstants.HTTP2_SETTINGS);
             boolean http2PriorKnowledge = (boolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE);
             senderConfiguration.setForceHttp2(http2PriorKnowledge);
+        } else {
+            MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig.get(
+                    HttpConstants.HTTP1_SETTINGS);
+            String chunking = http1Settings.getStringValue(HttpConstants.CLIENT_EP_CHUNKING);
+            senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
+            String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
+            senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
         }
 
         populateSenderConfigurations(senderConfiguration, clientEndpointConfig);

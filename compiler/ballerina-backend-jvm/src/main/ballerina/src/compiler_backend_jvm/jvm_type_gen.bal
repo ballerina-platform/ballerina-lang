@@ -626,7 +626,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             // if this initializer function, set it to the object type
-            if (attachedFunc.name.value.contains("__init")) {
+            if (internal:contains(attachedFunc.name.value, "__init")) {
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
                 mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -657,7 +657,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + initFunction - init functions to be added
 function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
                                     bir:BObjectType objType, BalToJVMIndexMap indexMap) {
-    if (initFunction is bir:BAttachedFunction && initFunction.name.value.contains("__init")) {
+    if (initFunction is bir:BAttachedFunction && internal:contains(initFunction.name.value, "__init")) {
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
         bir:VariableDcl attachedFuncVar = { typeValue: "any",
@@ -787,7 +787,8 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BXMLType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
-        typeFieldName = "typeTypedesc";
+        loadTypedescType(mv, bType);
+        return;
     }  else if (bType is bir:BServiceType) {
         if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
             loadUserDefinedType(mv, bType);
@@ -861,6 +862,22 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;I)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given typedesc type
+# to the top of the stack.
+#
+# + bType - typedesc type to load
+function loadTypedescType(jvm:MethodVisitor mv, bir:BTypeDesc bType) {
+    // Create an new map type
+    mv.visitTypeInsn(NEW, TYPEDESC_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.typeConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given map type
@@ -1048,7 +1065,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
     }
 
     // load return type type
-    loadType(mv, bType.retType);
+    loadType(mv, bType?.retType);
 
     // initialize the function type using the param types array and the return type
     mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);

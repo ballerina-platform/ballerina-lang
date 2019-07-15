@@ -60,7 +60,7 @@ public type OperandProcessor object {
             if (streamName == self.alias) {
                 (function (map<anydata> stateData) returns boolean)? condition = self.onConditionFunc;
                 if (condition is function (map<anydata> stateData) returns boolean) {
-                    if (condition.call(event.data)) {
+                    if (condition(event.data)) {
                         promote = true;
                     }
                 } else {

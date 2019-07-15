@@ -20,8 +20,6 @@
 package org.ballerinalang.messaging.artemis.externimpl.producer;
 
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -46,11 +44,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class IsClosed extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class IsClosed {
 
     public static boolean isClosed(Strand strand, ObjectValue producerObj) {
         ClientProducer producer =
@@ -58,4 +52,6 @@ public class IsClosed extends BlockingNativeCallableUnit {
         return producer.isClosed();
     }
 
+    private IsClosed() {
+    }
 }

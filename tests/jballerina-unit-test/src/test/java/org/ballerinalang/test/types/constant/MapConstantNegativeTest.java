@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  */
 public class MapConstantNegativeTest {
 
-    @Test
+    @Test(enabled = false)
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "map-literal-constant-negative.bal");

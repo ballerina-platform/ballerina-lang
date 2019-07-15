@@ -452,13 +452,7 @@ public class PackageLoader {
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
         byte[] pkgBinaryContent = pkgBinary.getCompilerInput().getCode();
         BPackageSymbol pkgSymbol;
-        if (this.compilerPhase == CompilerPhase.BIR_GEN) { //TODO temp fix, remove this - rajith
-            pkgSymbol = this.birPackageSymbolEnter.definePackage(
-                    pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
-        } else {
-            pkgSymbol = this.compiledPkgSymbolEnter.definePackage(
-                    pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
-        }
+        pkgSymbol = this.birPackageSymbolEnter.definePackage(pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
         this.packageCache.putSymbol(pkgId, pkgSymbol);
 
         // TODO create CompiledPackage

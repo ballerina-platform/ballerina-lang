@@ -113,7 +113,7 @@ function testComplexConstMap() returns map<map<map<string>>> {
 // -----------------------------------------------------------
 
 const map<boolean> bm4 = { "bm4k": true };
-const map<boolean> bm5 = { "bm5kn": bm4.bm4k };
+const map<boolean> bm5 = { "bm5kn": bm4["bm4k"] };
 
 function testBooleanConstKeyReference() returns map<boolean> {
     return bm5;
@@ -122,7 +122,7 @@ function testBooleanConstKeyReference() returns map<boolean> {
 // -----------------------------------------------------------
 
 const map<int> im4 = { "im4k": 123 };
-const map<int> im5 = { "im5kn": im4.im4k };
+const map<int> im5 = { "im5kn": im4["im4k"] };
 
 function testIntConstKeyReference() returns map<int> {
     return im5;
@@ -131,7 +131,7 @@ function testIntConstKeyReference() returns map<int> {
 // -----------------------------------------------------------
 
 const map<byte> bytem4 = { "bytem4k": 64 };
-const map<byte> bytem5 = { "bytem5kn": bytem4.bytem4k };
+const map<byte> bytem5 = { "bytem5kn": bytem4["bytem4k"] };
 
 function testByteConstKeyReference() returns map<byte> {
     return bytem5;
@@ -140,7 +140,7 @@ function testByteConstKeyReference() returns map<byte> {
 // -----------------------------------------------------------
 
 const map<float> fm4 = { "fm4k": 12.5 };
-const map<float> fm5 = { "fm5kn": fm4.fm4k };
+const map<float> fm5 = { "fm5kn": fm4["fm4k"] };
 
 function testFloatConstKeyReference() returns map<float> {
     return fm5;
@@ -149,7 +149,7 @@ function testFloatConstKeyReference() returns map<float> {
 // -----------------------------------------------------------
 
 const map<decimal> dm4 = { "dm4k": 5.56 };
-const map<decimal> dm5 = { "dm5kn": dm4.dm4k };
+const map<decimal> dm5 = { "dm5kn": dm4["dm4k"] };
 
 function testDecimalConstKeyReference() returns map<decimal> {
     return dm5;
@@ -158,7 +158,7 @@ function testDecimalConstKeyReference() returns map<decimal> {
 // -----------------------------------------------------------
 
 const map<string> sm4 = { "sm4k": "sm4v" };
-const map<string> sm5 = { "sm5kn": sm4.sm4k };
+const map<string> sm5 = { "sm5kn": sm4["sm4k"] };
 
 function testStringConstKeyReference() returns map<string> {
     return sm5;
@@ -167,7 +167,7 @@ function testStringConstKeyReference() returns map<string> {
 // -----------------------------------------------------------
 
 const map<()> nm4 = { "nm4k": () };
-const map<()> nm5 = { "nm5kn": nm4.nm4k };
+const map<()> nm5 = { "nm5kn": nm4["nm4k"] };
 
 function testNullConstKeyReference() returns map<()> {
     return nm5;
@@ -176,49 +176,49 @@ function testNullConstKeyReference() returns map<()> {
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = bm4.bm4k;
+    boolean b = bm4["bm4k"];
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = im4.im4k;
+    int i = im4["im4k"];
     return i;
 }
 
 // -----------------------------------------------------------
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = bytem4.bytem4k;
+    byte b = bytem4["bytem4k"];
     return b;
 }
 
 // -----------------------------------------------------------
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = fm4.fm4k;
+    float f = fm4["fm4k"];
     return f;
 }
 
 // -----------------------------------------------------------
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = dm4.dm4k;
+    decimal d = dm4["dm4k"];
     return d;
 }
 
 // -----------------------------------------------------------
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = sm4.sm4k;
+    string s = sm4["sm4k"];
     return s;
 }
 
 // -----------------------------------------------------------
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = nm4.nm4k;
+    () n = nm4["nm4k"];
     return n;
 }
 
@@ -247,6 +247,6 @@ type RecordOne record {
 
 function testConstInAnnotations() returns TestConfig? {
     RecordOne r1 = {};
-    typedesc t = typeof r1;
+    typedesc<any> t = typeof r1;
     return t.@testAnnotation;
 }

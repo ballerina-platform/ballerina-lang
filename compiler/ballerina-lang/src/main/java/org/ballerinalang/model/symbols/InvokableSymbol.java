@@ -29,6 +29,4 @@ public interface InvokableSymbol extends Symbol {
     List<? extends VariableSymbol> getParameters();
 
     Type getReturnType();
-
-    List<? extends VariableSymbol> getDefaultableParameters();
 }

@@ -207,7 +207,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-launcher</artifactId>
+            <artifactId>ballerina-test-utils</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

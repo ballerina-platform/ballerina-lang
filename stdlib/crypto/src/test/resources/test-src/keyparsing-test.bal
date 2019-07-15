@@ -17,19 +17,19 @@
 import ballerina/crypto;
 
 function testParsingPrivateKeyFromP12(string path, string keyStorePassword, string keyAlias, string keyPassword)
-                                      returns crypto:PrivateKey|crypto:CryptoError {
+                                      returns crypto:PrivateKey|crypto:Error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePrivateKey(keyStore = keyStore,  keyAlias = keyAlias, keyPassword = keyPassword);
+    return check crypto:decodePrivateKey(keyStore,  keyAlias, keyPassword);
 }
 
 function testParsingPublicKeyFromP12(string path, string keyStorePassword, string keyAlias)
-                                     returns crypto:PublicKey|crypto:CryptoError {
+                                     returns crypto:PublicKey|crypto:Error {
     crypto:KeyStore keyStore = {
         path: path,
         password: keyStorePassword
     };
-    return check crypto:decodePublicKey(keyStore = keyStore,  keyAlias = keyAlias);
+    return check crypto:decodePublicKey(keyStore, keyAlias);
 }
