@@ -94,7 +94,7 @@ service backEndService on new http:Listener(9097) {
                         checkpanic caller->respond(<@untainted> bodyParts);
                     } else {
                         error err = bodyParts;
-                        checkpanic caller->respond(<@untainted> string err.reason());
+                        checkpanic caller->respond(<@untainted> <string> err.detail()["message"]);
                     }
                 }
             } else {
@@ -130,7 +130,7 @@ service testService on new http:Listener(9098) {
         }
 
         //No Payload
-        var response2 = clientEP2->get("/test1/greeting", message = ());
+        var response2 = clientEP2->get("/test1/greeting", ());
         if (response2 is http:Response) {
             var result = response2.getTextPayload();
             if (result is string) {
@@ -143,7 +143,7 @@ service testService on new http:Listener(9098) {
 
         http:Request httpReq = new;
         //Request as message
-        var response3 = clientEP2->get("/test1/greeting", message = httpReq);
+        var response3 = clientEP2->get("/test1/greeting", httpReq);
         if (response3 is http:Response) {
             var result = response3.getTextPayload();
             if (result is string) {
