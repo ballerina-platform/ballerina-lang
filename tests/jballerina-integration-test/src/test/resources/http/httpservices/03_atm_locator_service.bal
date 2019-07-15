@@ -36,10 +36,10 @@ service ATMLocator on serviceEnpoint {
         http:Request backendServiceReq = new;
         var jsonLocatorReq = req.getJsonPayload();
         if (jsonLocatorReq is json) {
-            string zipCode = jsonLocatorReq["ATMLocator"]["ZipCode"].toString();
+            string zipCode = jsonLocatorReq.ATMLocator.ZipCode.toString();
             io:println("Zip Code " + zipCode);
-            json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
-            branchLocatorReq.BranchLocator.ZipCode = zipCode;
+            map<map<json>> branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
+            branchLocatorReq["BranchLocator"]["ZipCode"] = zipCode;
             backendServiceReq.setPayload(<@untainted> branchLocatorReq);
         } else {
             io:println("Error occurred while reading ATM locator request");
@@ -57,8 +57,8 @@ service ATMLocator on serviceEnpoint {
         if (branchLocatorRes is json) {
             string branchCode = branchLocatorRes.ABCBank.BranchCode.toString();
             io:println("Branch Code " + branchCode);
-            json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
-            bankInfoReq.BranchInfo.BranchCode = branchCode;
+            map<map<json>> bankInfoReq = {"BranchInfo":{"BranchCode":""}};
+            bankInfoReq["BranchInfo"]["BranchCode"] = branchCode;
             backendServiceReq.setJsonPayload(<@untainted> bankInfoReq);
         } else {
             io:println("Error occurred while reading branch locator response");
