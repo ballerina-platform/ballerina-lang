@@ -20,7 +20,7 @@ public type StreamingListener object {
 
     *AbstractListener;
 
-    private Connection connection;
+    private Connection? connection;
     private string clusterId;
     private string? clientId;
     private StreamingConfig? streamingConfig;
@@ -38,21 +38,34 @@ public type StreamingListener object {
         self.clusterId = clusterId;
         self.clientId = clientId;
         self.streamingConfig = streamingConfig;
-        createStreamingConnection(self, connection, clusterId, clientId, streamingConfig);
+        self.init();
     }
+
+    function init() = external;
 
     public function __attach(service s, string? name = ()) returns error? {
-        self.subscribe(s, self.connection);
+        self.attach(s, self.connection);
     }
 
-    function subscribe(service serviceType, Connection conn) = external;
+    function attach(service serviceType, Connection? conn) = external;
 
     public function __start() returns error? {
-        //ignore : since connection can be re-used between multiple listeners
+         createStreamingConnection(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
+         self.subscribe();
     }
 
+    function subscribe() = external;
+
     public function __stop() returns error? {
-        //ignore : since connection can be re-used between multiple listeners
+        return self.close();
+    }
+
+    function close() returns error? {
+        if (self.connection is Connection) {
+            Connection? natsConnection = self.connection;
+            self.connection = ();
+            return detachFromNatsConnection(self, natsConnection);
+        }
     }
 
 };

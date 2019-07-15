@@ -53,9 +53,10 @@ public class CreateStreamingConnection implements NativeCallableUnit {
         return false;
     }
 
-    public static void createStreamingConnection(Strand strand, Object streamingClient, ObjectValue conn,
+    public static void createStreamingConnection(Strand strand, Object streamingClient, Object conn,
             String clusterId, Object clientIdNillable, Object streamingConfig) {
-        Connection natsConnection = (Connection) conn.getNativeData(Constants.NATS_CONNECTION);
+        ObjectValue connectionObject = (ObjectValue) conn;
+        Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         String clientId = clientIdNillable == null ? UUID.randomUUID().toString() : (String) clientIdNillable;
         BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
                 new BallerinaNatsStreamingConnectionFactory(
@@ -63,7 +64,7 @@ public class CreateStreamingConnection implements NativeCallableUnit {
         try {
             StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
             ((ObjectValue) streamingClient).addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
-            ((AtomicInteger) conn.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
+            ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
         } catch (IOException e) {
             throw Utils.createNatsError(e.getMessage());
         } catch (InterruptedException e) {

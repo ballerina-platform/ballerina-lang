@@ -92,6 +92,10 @@ public class Constants {
 
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 
+    public static final String NATS_STREAMING_LISTENER = "StreamingListener";
+
+    public static final String STREAMING_DISPATCHER_LIST = "StreamingDispatcherList";
+
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
 
     public static final String ON_ERROR_RESOURCE = "onError";

@@ -15,33 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nats.streaming.producer;
+package org.ballerinalang.nats.streaming.consumer;
 
-import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.Utils;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
 
 /**
- * Closes a producer.
+ * Create a listener and attach service.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "nats",
-                   functionName = "detachFromNatsConnection",
+                   functionName = "attach",
+                   receiver = @Receiver(type = TypeKind.OBJECT,
+                                        structType = "StreamingListener",
+                                        structPackage = "ballerina/nats"),
                    isPublic = true)
-public class CloseConnection implements NativeCallableUnit {
-
+public class Attach implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
 
@@ -52,19 +55,14 @@ public class CloseConnection implements NativeCallableUnit {
         return false;
     }
 
-    public static Object detachFromNatsConnection(Strand strand, Object streamingClient, Object natsConnection) {
-        ObjectValue streamingClientObject = (ObjectValue) streamingClient;
-        StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
-                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
-        try {
-            streamingConnection.close();
-            ObjectValue basicNatsConnection = (ObjectValue) natsConnection;
-            ((AtomicInteger) basicNatsConnection.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-            return null;
-        } catch (IOException | TimeoutException e) {
-            return Utils.createNatsError(e.getMessage());
-        } catch (InterruptedException e) {
-            return Utils.createNatsError("Internal error while closing producer");
-        }
+    public static void attach(Strand strand, ObjectValue streamingListener, ObjectValue service,
+            Object connection) {
+        List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
+                .getNativeData(Constants.SERVICE_LIST);
+        serviceList.add(service);
+        ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
+                (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
+                .getNativeData(STREAMING_DISPATCHER_LIST);
+        serviceListenerMap.put(service, new StreamingListener(service, strand.scheduler));
     }
 }
