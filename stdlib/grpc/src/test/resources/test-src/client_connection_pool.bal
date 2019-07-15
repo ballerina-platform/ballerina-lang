@@ -27,15 +27,15 @@ function testGlobalPoolConfig() returns grpc:Client?[] {
 }
 
 function testSharedPoolConfig() returns grpc:Client?[] {
-    grpc:Client client1 = new("http://localhost:8080", config = { poolConfig: sharedPoolConfig });
-    grpc:Client client2 = new("http://localhost:8080", config = { poolConfig: sharedPoolConfig });
+    grpc:Client client1 = new("http://localhost:8080", { poolConfig: sharedPoolConfig });
+    grpc:Client client2 = new("http://localhost:8080", { poolConfig: sharedPoolConfig });
     grpc:Client?[] clients = [client1, client2];
     return clients;
 }
 
 function testPoolPerClient() returns grpc:Client?[] {
-    grpc:Client client1 = new("http://localhost:8080", config = { poolConfig: { maxActiveConnections: 50 } });
-    grpc:Client client2 = new("http://localhost:8080", config = { poolConfig: { maxActiveConnections: 25 } });
+    grpc:Client client1 = new("http://localhost:8080", { poolConfig: { maxActiveConnections: 50 } });
+    grpc:Client client2 = new("http://localhost:8080", { poolConfig: { maxActiveConnections: 25 } });
     grpc:Client?[] clients = [client1, client2];
     return clients;
 }

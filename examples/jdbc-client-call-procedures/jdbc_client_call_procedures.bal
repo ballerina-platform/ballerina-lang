@@ -54,8 +54,9 @@ public function main() {
     if (retCall is ()|table<record {}>[]) {
         io:println("Call operation with IN params successful");
     } else {
+        error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>retCall.detail().message);
+                + <string>err.detail().message);
     }
 
     // Here stored procedure with OUT and INOUT parameters is invoked.
@@ -73,8 +74,9 @@ public function main() {
         io:print("Student count with age = 20: ");
         io:println(param2.value);
     } else {
+        error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>retCall.detail().message);
+                + <string>err.detail().message);
     }
 
     checkData();
@@ -92,11 +94,12 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string>err.detail().message);
     }
 }
 
@@ -111,7 +114,8 @@ function checkData() {
             io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
         }
     } else {
+        error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>dtReturned.detail().message);
+                + <string>err.detail().message);
     }
 }

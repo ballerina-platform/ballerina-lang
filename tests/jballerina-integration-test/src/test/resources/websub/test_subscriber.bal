@@ -20,7 +20,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8181, config = { host: "0.0.0.0" });
+listener websub:Listener websubEP = new websub:Listener(8181, { host: "0.0.0.0" });
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -51,7 +51,7 @@ service websubSubscriberTwo on websubEP {
         } else {
             io:println("Intent verification denied explicitly for subscription change request");
         }
-        var result = caller->respond(untaint response);
+        var result = caller->respond(<@untainted> response);
         if (result is error) {
             io:println("Error responding to intent verification request: ", result);
         }

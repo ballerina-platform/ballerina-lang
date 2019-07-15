@@ -15,21 +15,21 @@
 // under the License.
 
 // Decimal to other types (int, float, string, boolean, any, json) conversion.
-function testDecimalToOtherTypesConversion() returns [int, float, string, boolean, any, json] {
-    decimal d = 23.456;
+import ballerina/'lang\.decimal as decimals;
 
+function testDecimalToOtherTypesConversion() returns [int, float, string, any, json] {
+    decimal d = 23.456;
     int i = <int> d;
     float f = <float> d;
-    string s = string.convert(d);
-    boolean b = boolean.convert(d);
+    string s = d.toString();
     any a = d;
     json j = d;
 
-    return [i, f, s, b, a, j];
+    return [i, f, s, a, j];
 }
 
-// Other types (int, float, string, boolean, any, json) to decimal conversion.
-function testOtherTypesToDecimalConversion() returns [decimal, decimal, decimal, decimal, decimal, decimal]|error {
+// Other types (int, float, string) to decimal conversion.
+function testOtherTypesToDecimalConversion() returns [decimal, decimal, decimal]|error {
     int i = 12;
     decimal d1 = <decimal> i;
 
@@ -37,16 +37,7 @@ function testOtherTypesToDecimalConversion() returns [decimal, decimal, decimal,
     decimal d2 = <decimal> f;
 
     string s = "23.456";
-    decimal d3 = check decimal.convert(s);
+    decimal d3 = check decimals:fromString(s);
 
-    boolean b = true;
-    decimal d4 = decimal.convert(b);
-
-    any a = 12.3;
-    decimal d5 = check decimal.convert(a);
-
-    json j = 23.4;
-    decimal d6 = check decimal.convert(j);
-
-    return [d1, d2, d3, d4, d5, d6];
+    return [d1, d2, d3];
 }

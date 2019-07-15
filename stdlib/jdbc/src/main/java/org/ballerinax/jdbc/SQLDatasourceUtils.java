@@ -43,7 +43,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -212,6 +214,10 @@ public class SQLDatasourceUtils {
         return getSQLDatabaseError(messagePrefix + sqlErrorMessage, vendorCode, sqlState);
     }
 
+    public static ErrorValue getSQLDatabaseError(SQLException exception) {
+        return getSQLDatabaseError(exception, "");
+    }
+
     public static ErrorValue getSQLDatabaseError(DatabaseException exception, String messagePrefix) {
         String message = exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
         int vendorCode = exception.getSqlErrorCode();
@@ -220,12 +226,18 @@ public class SQLDatasourceUtils {
         return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
     }
 
+    public static ErrorValue getSQLDatabaseError(DatabaseException exception) {
+        return getSQLDatabaseError(exception, "");
+    }
+
     private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("message", message);
+        valueMap.put("sqlErrorCode", vendorCode);
+        valueMap.put("sqlState", sqlState);
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME);
-        MapValue<String, Object> populatedDetailRecord = BallerinaValues
-                .createRecord(sqlClientErrorDetailRecord, message, vendorCode, sqlState);
-        return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, populatedDetailRecord);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME, valueMap);
+        return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
     public static ErrorValue getSQLApplicationError(ApplicationException exception, String messagePrefix) {
@@ -238,12 +250,16 @@ public class SQLDatasourceUtils {
         return getSQLApplicationError(detailedErrorMessage);
     }
 
+    public static ErrorValue getSQLApplicationError(ApplicationException exception) {
+        return getSQLApplicationError(exception, "");
+    }
+
     public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
+        Map<String, Object> valueMap = new HashMap<>();
+        valueMap.put("message", detailedErrorMessage);
         MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME);
-        MapValue<String, Object> populatedDetailRecord = BallerinaValues
-                .createRecord(sqlClientErrorDetailRecord, detailedErrorMessage);
-        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, populatedDetailRecord);
+                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
+        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
     static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(

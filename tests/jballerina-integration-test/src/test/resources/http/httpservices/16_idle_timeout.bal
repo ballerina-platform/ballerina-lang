@@ -21,7 +21,7 @@ import ballerina/runtime;
 @http:ServiceConfig {
     basePath: "/idle"
 }
-service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 }) {
+service idleTimeout on new http:Listener(9112, { timeoutMillis: 1000, server: "Mysql" }) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/timeout408"
@@ -31,11 +31,11 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         if (result is string) {
             log:printInfo(result);
         } else  {
-            log:printError("Error reading request", err = result);
+            log:printError("Error reading request", result);
         }
         var responseError = caller->respond("some");
         if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+            log:printError("Error sending response", responseError);
         }
     }
 
@@ -47,7 +47,7 @@ service idleTimeout on new http:Listener(9112, config = { timeoutMillis: 1000 })
         runtime:sleep(3000);
         var responseError = caller->respond("some");
         if (responseError is error) {
-            log:printError("Error sending response", err = responseError);
+            log:printError("Error sending response", responseError);
         }
     }
 }

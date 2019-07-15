@@ -101,7 +101,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addSimpleVar(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                      getCurrentPos(ctx.Identifier()), false,
-                                     ctx.annotationAttachment().size());
+                                     ctx.annotationAttachment().size(), ctx.PUBLIC() != null);
     }
 
     /**
@@ -1899,7 +1899,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             fieldType = FieldKind.ALL;
         }
         this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
-                fieldType, ctx.field().NOT() != null);
+                fieldType, ctx.field().OPTIONAL_FIELD_ACCESS() != null);
     }
 
     @Override
@@ -3533,8 +3533,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (ExperimentalFeatures.STREAMS.value.equals(typeName) ||
-                ExperimentalFeatures.CHANNEL.value.equals(typeName)) {
+        if (ExperimentalFeatures.STREAMS.value.equals(typeName)) {
             dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, typeName);
         }
     }
@@ -3549,7 +3548,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private enum ExperimentalFeatures {
         STREAMS("stream"),
-        CHANNEL("channel"),
         TABLE_QUERIES("table queries"),
         STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),

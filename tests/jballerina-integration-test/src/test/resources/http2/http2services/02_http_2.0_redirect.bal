@@ -18,23 +18,23 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-listener http:Listener serviceEndpoint1 = new(9092, config = { httpVersion: "2.0" });
+listener http:Listener serviceEndpoint1 = new(9092, { httpVersion: "2.0" });
 
-listener http:Listener serviceEndpoint2 = new(9093, config = { httpVersion: "2.0" });
+listener http:Listener serviceEndpoint2 = new(9093, { httpVersion: "2.0" });
 
-listener http:Listener serviceEndpoint3 = new(9094, config = { httpVersion: "2.0" });
+listener http:Listener serviceEndpoint3 = new(9094, { httpVersion: "2.0" });
 
-http:Client endPoint1 = new("http://localhost:9093", config = {
+http:Client endPoint1 = new("http://localhost:9093", {
     httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 3 }
 });
 
-http:Client endPoint2 = new("http://localhost:9093", config = {
+http:Client endPoint2 = new("http://localhost:9093", {
     httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 5 }
 });
 
-http:Client endPoint3 = new("http://localhost:9094", config = {
+http:Client endPoint3 = new("http://localhost:9094", {
     httpVersion: "2.0",
     followRedirects: { enabled: true }
 });
@@ -274,8 +274,8 @@ service redirect1 on serviceEndpoint2 {
         path: "/processQP"
     }
     resource function processQP(http:Caller caller, http:Request req) {
-        map<string> paramsMap = req.getQueryParams();
-        string returnVal = paramsMap.key + ":" + paramsMap.lang;
+        map<string[]> paramsMap = req.getQueryParams();
+        string returnVal = paramsMap["key"][0] + ":" + paramsMap["lang"][0];
         checkpanic caller->respond(untaint returnVal);
     }
 }

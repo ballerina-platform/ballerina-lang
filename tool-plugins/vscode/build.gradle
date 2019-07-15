@@ -49,11 +49,11 @@ npmBuild() {
 }
 
 task copyDistribution() {
-    dependsOn ":ballerina-tools:build"
+    dependsOn ":jballerina-tools:build"
     doFirst {
         copy {
             from file(configurations.ballerinaTools.asPath)
-            into "extractedDistribution/ballerina-tools-${project.version}"
+            into "extractedDistribution/jballerina-tools-${project.version}"
         }
     }
 }
@@ -63,7 +63,7 @@ task assemble(overwrite: true) {
 }
 
 dependencies {
-    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+    ballerinaTools project(path: ':jballerina-tools', configuration: 'unzipped')
 }
 
 task test(type: Exec) {

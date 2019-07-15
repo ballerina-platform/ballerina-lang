@@ -29,48 +29,48 @@ public type ReadableDataChannel object {
 
     #Reads a 16 bit integer.
 
-    # + return - value of the integer which is read or an error
-    public function readInt16() returns int|error = external;
+    # + return - value of the integer which is read or `Error` if any error occurred
+    public function readInt16() returns int|Error = external;
 
     # Reads a 32 bit integer.
 
-    # + return - value of the integer which is read or an error
-    public function readInt32() returns int|error = external;
+    # + return - value of the integer which is read or `Error` if any error occurred
+    public function readInt32() returns int|Error = external;
 
     # Reads a 64 bit integer.
 
-    # + return - value of the integer which is read or an error
-    public function readInt64() returns int|error = external;
+    # + return - value of the integer which is read or `Error` if any error occurred
+    public function readInt64() returns int|Error = external;
 
     # Reads 32 bit float.
 
-    # + return - value of the float which is read or an error
-    public function readFloat32() returns float|error = external;
+    # + return - value of the float which is read or `Error` if any error occurred
+    public function readFloat32() returns float|Error = external;
 
     # Reads 64 bit float.
 
-    # + return - value of the float which is read or an error
-    public function readFloat64() returns float|error = external;
+    # + return - value of the float which is read or `Error` if any error occurred
+    public function readFloat64() returns float|Error = external;
 
     # Reads 1 byte and convert it's value to boolean.
 
-    # + return - boolean value which is read or an error
-    public function readBool() returns boolean|error = external;
+    # + return - boolean value which is read or `Error` if any error occurred
+    public function readBool() returns boolean|Error = external;
 
     # Reads string value represented through the provided number of bytes.
 
     # + nBytes - specifies the number of bytes which represents the string
     # + encoding - specifies the char-set encoding of the string
     # + return - value of the string or an error
-    public function readString(int nBytes, string encoding) returns string|error = external;
+    public function readString(int nBytes, string encoding) returns string|Error = external;
 
     # Reads a variable length integer.
 
-    # + return - value of the integer which is read or an error
-    public function readVarInt() returns int|error = external;
+    # + return - value of the integer which is read or `Error` if any error occurred
+    public function readVarInt() returns int|Error = external;
 
     # Closes the data channel.
 
-    # + return - nill if the channel is closed successfully or an i/o error
-    public function close() returns error? = external;
+    # + return - nill if the channel is closed successfully or `Error` if any error occurred
+    public function close() returns Error? = external;
 };

@@ -129,7 +129,7 @@ function errorTest() returns error? {
             }
             if(k>3) {
                 map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.k1,  message = "msg3");
+                    error er3 = error(reason.get("k1"),  message = "msg3");
                     return er3;
                 }
 
@@ -180,7 +180,7 @@ function panicTest() returns error? {
             }
             if(k>3) {
                 map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.k1, message = "msg3");
+                    error er3 = error(reason.get("k1"), message = "msg3");
                     panic er3;
                 }
 

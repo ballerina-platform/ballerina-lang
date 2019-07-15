@@ -19,6 +19,7 @@ import ballerina/cache;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
+import ballerina/internal;
 
 const string SCOPES = "scope";
 const string GROUPS = "groups";
@@ -44,9 +45,9 @@ public type InboundJwtAuthProvider object {
     # Authenticate with a JWT token.
     #
     # + credential - Jwt token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or `error` occurred during JWT validation
-    public function authenticate(string credential) returns @tainted (boolean|error) {
-        string[] jwtComponents = credential.split("\\.");
+    # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
+    public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
+        string[] jwtComponents = internal:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
             return false;
         }
@@ -61,13 +62,15 @@ public type InboundJwtAuthProvider object {
             }
         }
 
-        var payload = validateJwt(credential, self.jwtValidatorConfig);
-        if (payload is JwtPayload) {
-            setAuthenticationContext(payload, credential);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, payload.exp, payload);
+        var validationResult = validateJwt(credential, self.jwtValidatorConfig);
+        if (validationResult is JwtPayload) {
+            setAuthenticationContext(validationResult, credential);
+            addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
             return true;
         } else {
-            return payload;
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = validationResult;
+            return auth:prepareError("JWT validation failed.", e);
         }
     }
 };
@@ -78,9 +81,13 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
         // convert to current time and check the expiry time
         if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = cachedJwt.jwtPayload;
-            log:printDebug(function() returns string {
-                return "Authenticate user :" + payload.sub + " from cache";
-            });
+            string? sub = payload?.sub;
+            if (sub is string) {
+                string printMsg = sub;
+                log:printDebug(function() returns string {
+                    return "Authenticate user :" + printMsg + " from cache";
+                });
+            }
             return payload;
         } else {
             jwtValidatorConfig.jwtCache.remove(jwtToken);
@@ -88,33 +95,47 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
     }
 }
 
-function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int exp, JwtPayload payload) {
-    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp};
+function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
+    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
     jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
-    log:printDebug(function() returns string {
-        return "Add authenticated user :" + payload.sub + " to the cache";
-    });
+    string? sub = payload?.sub;
+    if (sub is string) {
+    string printMsg = sub;
+     log:printDebug(function() returns string {
+            return "Add authenticated user :" + printMsg + " to the cache";
+        });
+    }
 }
 
 function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
-    runtime:Principal principal = runtime:getInvocationContext().principal;
-    principal.userId = jwtPayload.iss + ":" + jwtPayload.sub;
-    // By default set sub as username.
-    principal.username = jwtPayload.sub;
-    principal.claims = jwtPayload.customClaims;
-    if (jwtPayload.customClaims.hasKey(SCOPES)) {
-        var scopeString = jwtPayload.customClaims[SCOPES];
-        if (scopeString is string) {
-            principal.scopes = scopeString.split(" ");
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        string? iss = jwtPayload?.iss;
+        string? sub = jwtPayload?.sub;
+        principal.userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
+        // By default set sub as username.
+        principal.username = (sub is () ? "" : sub);
+        map<json>? claims = jwtPayload?.customClaims;
+        if (claims is map<json>) {
+            principal.claims = claims;
+            if (claims.hasKey(SCOPES)) {
+                var scopeString = claims[SCOPES];
+                if (scopeString is string) {
+                    principal.scopes = internal:split(scopeString, " ");
+                }
+            }
+            if (claims.hasKey(USERNAME)) {
+                var name = claims[USERNAME];
+                if (name is string) {
+                    principal.username = name;
+                }
+            }
         }
     }
-    if (jwtPayload.customClaims.hasKey(USERNAME)) {
-        var name = jwtPayload.customClaims[USERNAME];
-        if (name is string) {
-            principal.username = name;
-        }
+
+    runtime:AuthenticationContext? authenticationContext = runtime:getInvocationContext()?.authenticationContext;
+    if (authenticationContext is runtime:AuthenticationContext) {
+        authenticationContext.scheme = AUTH_TYPE_JWT;
+        authenticationContext.authToken = jwtToken;
     }
-    runtime:AuthenticationContext authenticationContext = runtime:getInvocationContext().authenticationContext;
-    authenticationContext.scheme = AUTH_TYPE_JWT;
-    authenticationContext.authToken = jwtToken;
 }

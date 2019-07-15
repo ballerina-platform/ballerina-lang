@@ -22,7 +22,7 @@ public type LoadBalancerRule abstract object {
     # Provides an HTTP client which is chosen according to the algorithm.
     #
     # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Chosen `Client` from the algorithm or an `error`
+    # + return - Chosen `Client` from the algorithm or an `http:ClientError`
     #            for the failure in the algorithm implementation
-    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|error;
+    public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|ClientError;
 };

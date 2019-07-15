@@ -238,7 +238,7 @@ public class AnnotationDesugar {
 
         BLangFunction function = defineFunction(pos, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-        addAnnotsToLiteral(annAttachments, mapLiteral, function, pkgNode);
+        addAnnotsToLiteral(annAttachments, mapLiteral, function);
 
         if (mapLiteral.keyValuePairs.isEmpty()) {
             return null;
@@ -258,7 +258,7 @@ public class AnnotationDesugar {
         if (!bLangFunction.annAttachments.isEmpty()) {
             function = defineFunction(bLangFunction.pos, pkgID, owner);
             mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-            addAnnotsToLiteral(bLangFunction.annAttachments, mapLiteral, function, pkgNode);
+            addAnnotsToLiteral(bLangFunction.annAttachments, mapLiteral, function);
             annotFunctionDefined = true;
         }
 
@@ -286,7 +286,7 @@ public class AnnotationDesugar {
 
             BLangFunction retFunction = defineFunction(bLangFunction.pos, pkgID, owner);
             BLangRecordLiteral retMapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-            addAnnotsToLiteral(bLangFunction.returnTypeAnnAttachments, retMapLiteral, retFunction, pkgNode);
+            addAnnotsToLiteral(bLangFunction.returnTypeAnnAttachments, retMapLiteral, retFunction);
             BLangLambdaFunction returnAnnotLambda = addReturnAndDefineLambda(retFunction, retMapLiteral, pkgNode,
                                                                              env, pkgID, owner);
             addInvocationToLiteral(mapLiteral, RETURNS, bLangFunction.returnTypeAnnAttachments.get(0).pos,
@@ -304,7 +304,7 @@ public class AnnotationDesugar {
     }
 
     private void addVarArgsAnnotation(BLangFunction mainFunc) {
-        if (mainFunc.symbol.defaultableParams.isEmpty()) {
+        if (mainFunc.symbol.getParameters().isEmpty()) {
             return;
         }
         DiagnosticPos pos = mainFunc.pos;
@@ -351,7 +351,7 @@ public class AnnotationDesugar {
         valueLiteral.type = symTable.arrayType;
         valueLiteral.pos = pos;
 
-        for (BVarSymbol varSymbol : mainFunc.symbol.defaultableParams) {
+        for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = varSymbol.name.value;
             str.type = symTable.stringType;
@@ -419,11 +419,13 @@ public class AnnotationDesugar {
     }
 
     private void addAnnotsToLiteral(List<BLangAnnotationAttachment> nodeAttachments, BLangRecordLiteral mapLiteral,
-                                    BLangFunction function, BLangPackage pkgNode) {
+                                    BLangFunction function) {
         Map<BAnnotationSymbol, List<BLangAnnotationAttachment>> attachments = new HashMap<>();
 
         for (AnnotationAttachmentNode attachment : nodeAttachments) {
             BLangAnnotationAttachment annotationAttachment = (BLangAnnotationAttachment) attachment;
+            desugar.visit(annotationAttachment);
+
             BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
             if (attachments.containsKey(annotationSymbol)) {
                 attachments.get(annotationSymbol).add(annotationAttachment);
