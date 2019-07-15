@@ -19,6 +19,7 @@ type Foo record {
     Bar bar = {};
     Bar bar2 = {};
     Baz baz = new;
+    string s?;
 };
 
 type FooTwo record {
@@ -26,6 +27,7 @@ type FooTwo record {
     Bar bar = {};
     Bar bar2 = {};
     Baz baz = new;
+    string s = "hello";
 };
 
 type Bar record {
@@ -98,7 +100,10 @@ function testValueStoreForRecord() returns boolean {
     f.bar.f = 3.0;
     f["bar2"]["y"] = 4;
 
-    return f["x"] == "hello" && f["z"] == 2 && f.bar.x == 2 && f.bar2.x == 3 && f.bar.f == 3.0 && f.bar2["y"] == 4;
+    f.s = "string for optional field";
+
+    return f["x"] == "hello" && f["z"] == 2 && f.bar.x == 2 && f.bar2.x == 3 && f.bar.f == 3.0 && f.bar2["y"] == 4 &&
+            f?.s == "string for optional field";
 }
 
 function testValueStoreForObject() returns boolean {
@@ -150,7 +155,10 @@ function testValueStoreForRecordUnion() returns boolean {
     f.bar.f = 3.0;
     f["bar2"]["y"] = 4;
 
-    return f["x"] == "hello" && f["z"] == 2 && f.bar.x == 2 && f.bar2.x == 3 && f.bar.f == 3.0 && f.bar2["y"] == 4;
+    f.s = "string for optional field";
+
+    return f["x"] == "hello" && f["z"] == 2 && f.bar.x == 2 && f.bar2.x == 3 && f.bar.f == 3.0 && f.bar2["y"] == 4 &&
+        f?.s == "string for optional field";
 }
 
 function testValueStoreForObjectUnion() returns boolean {

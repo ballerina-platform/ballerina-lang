@@ -14,5 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type A object {
+    string x = "hello";
+};
 
-
+function testInvalidObjectLvExpr() {
+    A a = new;
+    a.y = 1;
+    a["x"] = "hello";
+}

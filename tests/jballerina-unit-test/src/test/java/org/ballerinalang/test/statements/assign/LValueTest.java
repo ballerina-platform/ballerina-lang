@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * Class to test lvalues of assignments.
  *
@@ -61,6 +63,14 @@ public class LValueTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/assign/lvalue.bal");
         negativeResult = BCompileUtil.compile("test-src/statements/assign/lvalue_negative.bal");
+    }
+
+    @Test
+    public void testNegativeCases() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        int i = 0;
+        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 23, 5);
+        validateError(negativeResult, i, "invalid operation: type 'A' does not support indexing", 24, 5);
     }
 
     @Test(dataProvider = "valueStoreFunctions")
