@@ -1114,7 +1114,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
     // start all listeners
-    startListeners(mv, serviceEPAvailable);
+    startLaunchListeners(mv, serviceEPAvailable);
 
     BalToJVMIndexMap indexMap = new;
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
@@ -1213,19 +1213,19 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
 
     // stop all listeners
-    stopListeners(mv, serviceEPAvailable);
+    stopLaunchListeners(mv, serviceEPAvailable);
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
 }
 
-function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+function startLaunchListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
     mv.visitLdcInsn(isServiceEPAvailable);
     mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "startListeners", "(Z)V", false);
 }
 
-function stopListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
+function stopLaunchListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
     mv.visitLdcInsn(isServiceEPAvailable);
     mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
 }

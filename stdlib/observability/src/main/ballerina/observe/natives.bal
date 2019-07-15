@@ -37,11 +37,11 @@ public function startSpan(string spanName, map<string>? tags = (), int parentSpa
 
 # Add a key value pair as a tag to the span.
 #
-# + spanId - Id of span to which the tags should be added or -1 to add tags to the current active span
 # + tagKey - Key of the tag
 # + tagValue - Value of the tag
+# + spanId - Id of span to which the tags should be added or -1 to add tags to the current active span
 # + return - An error if an error occurred while attaching tag to the span
-public function addTagToSpan(int spanId = -1, string tagKey, string tagValue) returns error? = external;
+public function addTagToSpan(string tagKey, string tagValue, int spanId = -1) returns error? = external;
 
 # Finish the current span.
 #

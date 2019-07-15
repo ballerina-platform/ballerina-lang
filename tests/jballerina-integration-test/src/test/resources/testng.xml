@@ -217,17 +217,20 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-<!--    <test name="ballerina-observability-tests" parallel="false">-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+<!--         <test name="ballerina-observability-tests" parallel="false">
+            <parameter name="enableJBallerinaTests" value="true" />
+            <groups>
+                <run>
+                    <exclude name="broken" />
+                </run>
+            </groups>
+            <classes>
+                <class
+                    name="org.ballerinalang.test.observability.tracing.TracingTestCase" />
+                <class
+                    name="org.ballerinalang.test.observability.metrics.MetricsTestCase" />
+            </classes>
+        </test> -->
 
 <!--    <test name="ballerina-streaming-tests" parallel="false" enabled="false">-->
 <!--        <classes>-->

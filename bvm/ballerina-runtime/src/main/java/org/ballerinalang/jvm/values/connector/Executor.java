@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -77,6 +78,7 @@ public class Executor {
             scheduler = new Scheduler(4, false);
             scheduler.start();
         }
+
         Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
         scheduler.schedule(new Object[1], func, null, callback, properties);
     }
@@ -98,7 +100,12 @@ public class Executor {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                                                providedArgNo + ".");
         }
-        return service.call(new Strand(strand.scheduler), resource.getName(), args);
+
+        // start observation
+        Strand newStrand = new Strand(strand.scheduler);
+        ObserveUtils.startCallableObservation(newStrand);
+
+        return service.call(newStrand, resource.getName(), args);
     }
 
     /**

@@ -139,6 +139,7 @@ test {
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
+    systemProperty 'observability.test.utils', "$buildDir/../../observability-test-utils/"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"

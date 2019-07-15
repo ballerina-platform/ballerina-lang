@@ -61,6 +61,10 @@ public class ObserveUtils {
         observers.add(observer);
     }
 
+    public static void startResourceObservation(Strand strand) {
+        startResourceObservation(strand, null);
+    }
+
     /**
      * Start observability for the resource invocation.
      *
@@ -107,9 +111,8 @@ public class ObserveUtils {
      * Start observability for the synchronous function/action invocations.
      *
      * @param strand current frame
-     * @param flags  action invocation flags
      */
-    public static void startCallableObservation(Strand strand, int flags) {
+    public static void startCallableObservation(Strand strand) {
         if (!enabled) {
             return;
         }
@@ -138,8 +141,10 @@ public class ObserveUtils {
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(observerCtx);
         newObContext.setStarted();
-//        newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
-//        newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
+
+        // TODO: get htese info from context/strand
+        newObContext.setConnectorName(UNKNOWN_CONNECTOR);
+        newObContext.setActionName(UNKNOWN_CONNECTOR);
         newObContext.setServiceName(getServiceName(strand));
         strand.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));

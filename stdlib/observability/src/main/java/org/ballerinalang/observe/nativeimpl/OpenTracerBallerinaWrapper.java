@@ -31,7 +31,7 @@ import org.ballerinalang.jvm.observability.tracer.TracersStore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
@@ -44,8 +44,8 @@ public class OpenTracerBallerinaWrapper {
     private static OpenTracerBallerinaWrapper instance = new OpenTracerBallerinaWrapper();
     private TracersStore tracerStore;
     private final boolean enabled;
-    private Map<Integer, ObserverContext> observerContextList = new HashMap<>();
-    private AtomicInteger spanId = new AtomicInteger();
+    private Map<Long, ObserverContext> observerContextList = new HashMap<>();
+    private AtomicLong spanId = new AtomicLong();
     private static final int SYSTEM_TRACE_INDICATOR = -1;
 
     static final int ROOT_SPAN_INDICATOR = -2;
@@ -110,10 +110,10 @@ public class OpenTracerBallerinaWrapper {
         return -1;
     }
 
-    private int startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
+    private long startSpan(ObserverContext observerContext, boolean isClient, String spanName) {
         observerContext.setActionName(spanName);
         TracingUtils.startObservation(observerContext, isClient);
-        int spanId = this.spanId.getAndIncrement();
+        long spanId = this.spanId.getAndIncrement();
         observerContextList.put(spanId, observerContext);
         return spanId;
     }
@@ -186,7 +186,7 @@ public class OpenTracerBallerinaWrapper {
      * @param strand      native context
      * @return unique id of the created span
      */
-    public int startSpan(String spanName, Map<String, String> tags, int parentSpanId, Strand strand) {
+    public long startSpan(String spanName, Map<String, String> tags, long parentSpanId, Strand strand) {
         if (!enabled) {
             return -1;
         }
@@ -232,7 +232,7 @@ public class OpenTracerBallerinaWrapper {
      * @param spanId id of the Span
      * @return boolean to indicate if span was finished
      */
-    public boolean finishSpan(Strand strand, int spanId) {
+    public boolean finishSpan(Strand strand, long spanId) {
         if (!enabled) {
             return false;
         }
@@ -259,7 +259,7 @@ public class OpenTracerBallerinaWrapper {
      * @param strand current strand
      * @return boolean to indicate if tag was added to the span
      */
-    public boolean addTag(String tagKey, String tagValue, int spanId, Strand strand) {
+    public boolean addTag(String tagKey, String tagValue, long spanId, Strand strand) {
         if (!enabled) {
             return false;
         }
