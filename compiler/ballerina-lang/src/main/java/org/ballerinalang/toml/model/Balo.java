@@ -23,14 +23,14 @@ package org.ballerinalang.toml.model;
  * @since 1.0
  */
 public class Balo {
-    public String balo_version = "1.0";
+    public double balo_version = 1.0;
     public String built_by = "WSO2";
 
-    public String getBalo_version() {
+    public double getBalo_version() {
         return balo_version;
     }
 
-    public void setBalo_version(String balo_version) {
+    public void setBalo_version(double balo_version) {
         this.balo_version = balo_version;
     }
 

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -303,6 +304,8 @@ public class ModuleFileWriter {
         moduleObj.setModule_keywords(manifest.getProject().getKeywords());
         moduleObj.setModule_source_repository(manifest.getProject().getRepository());
         moduleObj.setModule_licenses(manifest.getProject().getLicense());
+        moduleObj.setPlatform(manifest.getTargetPlatform());
+        moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes());
     }
