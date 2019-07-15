@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.tool.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
