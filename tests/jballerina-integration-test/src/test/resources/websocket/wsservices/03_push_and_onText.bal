@@ -22,9 +22,8 @@ service onTextString on new http:WebSocketListener(9080) {
 
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
         var returnVal = caller->pushText(data);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
@@ -33,9 +32,8 @@ service onTextJSON on new http:WebSocketListener(9081) {
 
 resource function onText(http:WebSocketCaller caller, json data) {
         var returnVal = caller->pushText(data);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
@@ -44,9 +42,8 @@ service onTextXML on new http:WebSocketListener(9082) {
 
     resource function onText(http:WebSocketCaller caller, xml data) {
         var returnVal = caller->pushText(data);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
@@ -60,13 +57,11 @@ service onTextRecord on new http:WebSocketListener(9083) {
     resource function onText(http:WebSocketCaller caller, Person data) {
         var personData = json.convert(data);
         if (personData is error) {
-            error personDataError = personData;
-            panic personDataError;
+            panic personData;
         } else {
              var returnVal = caller->pushText(personData);
-             if (returnVal is error) {
-                error returnValError = returnVal;
-                panic returnValError;
+             if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
              }
         }
     }
@@ -76,9 +71,8 @@ service onTextByteArray on new http:WebSocketListener(9084){
 
     resource function onText(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushText(data);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }

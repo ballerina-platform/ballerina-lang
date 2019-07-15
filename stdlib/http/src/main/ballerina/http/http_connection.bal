@@ -75,7 +75,7 @@ public type Caller client object {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public remote function cancelWebSocketUpgrade(int status, string reason) returns error? = external;
+    public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? = external;
 
     # Sends a `100-continue` response to the caller.
     #

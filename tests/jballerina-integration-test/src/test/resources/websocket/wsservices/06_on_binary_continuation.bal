@@ -23,9 +23,8 @@ service onBinaryContinuation on new http:WebSocketListener(9088) {
         if (finalFrame) {
             appendToArray(<@untainted> data, content);
             var returnVal = caller->pushBinary(content);
-            if (returnVal is error) {
-                error returnValError = returnVal;
-                panic returnValError;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         } else {
             appendToArray(<@untainted> data, content);

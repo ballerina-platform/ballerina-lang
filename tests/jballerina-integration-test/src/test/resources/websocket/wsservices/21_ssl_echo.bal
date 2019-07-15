@@ -24,17 +24,15 @@ service sslEcho on new http:WebSocketListener(9076, config = { secureSocket: {
 
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
         var returnVal = caller->pushText(data, finalFrame = finalFrame);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         var returnVal = caller->pushBinary(data, finalFrame = finalFrame);
-        if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
