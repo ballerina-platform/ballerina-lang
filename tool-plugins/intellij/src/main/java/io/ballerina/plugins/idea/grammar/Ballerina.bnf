@@ -308,7 +308,7 @@ BuiltInReferenceTypeName ::= MapTypeName
                              | StreamTypeName
                              | TableTypeName
                              | ServiceTypeName
-                             | TypedescTypeName
+                             | TypeDescReferenceTypeName
                              | ErrorTypeName
                              | FunctionTypeName
 
@@ -321,7 +321,7 @@ ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream LT TypeName GT {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 ServiceTypeName ::= service
-TypedescTypeName ::=  typedesc LT TypeName GT {pin=1}
+TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=1}
 
 // Todo - Cache
 AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}

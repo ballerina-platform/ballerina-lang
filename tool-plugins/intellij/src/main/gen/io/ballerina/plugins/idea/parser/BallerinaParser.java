@@ -526,7 +526,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   //                              | StreamTypeName
   //                              | TableTypeName
   //                              | ServiceTypeName
-  //                              | TypedescTypeName
+  //                              | TypeDescReferenceTypeName
   //                              | ErrorTypeName
   //                              | FunctionTypeName
   public static boolean BuiltInReferenceTypeName(PsiBuilder b, int l) {
@@ -540,7 +540,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = StreamTypeName(b, l + 1);
     if (!r) r = TableTypeName(b, l + 1);
     if (!r) r = ServiceTypeName(b, l + 1);
-    if (!r) r = TypedescTypeName(b, l + 1);
+    if (!r) r = TypeDescReferenceTypeName(b, l + 1);
     if (!r) r = ErrorTypeName(b, l + 1);
     if (!r) r = FunctionTypeName(b, l + 1);
     exit_section_(b, l, m, r, false, null);
@@ -6215,6 +6215,21 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // typedesc LT TypeName GT
+  public static boolean TypeDescReferenceTypeName(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDescReferenceTypeName")) return false;
+    if (!nextTokenIs(b, TYPEDESC)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_DESC_REFERENCE_TYPE_NAME, null);
+    r = consumeTokens(b, 1, TYPEDESC, LT);
+    p = r; // pin = 1
+    r = r && report_error_(b, TypeName(b, l + 1, -1));
+    r = p && consumeToken(b, GT) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
   // typedesc
   public static boolean TypeDescTypeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeDescTypeName")) return false;
@@ -6237,21 +6252,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     p = r; // pin = 1
     r = r && report_error_(b, SimpleTypeName(b, l + 1));
     r = p && consumeToken(b, SEMICOLON) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  /* ********************************************************** */
-  // typedesc LT TypeName GT
-  public static boolean TypedescTypeName(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypedescTypeName")) return false;
-    if (!nextTokenIs(b, TYPEDESC)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, TYPEDESC_TYPE_NAME, null);
-    r = consumeTokens(b, 1, TYPEDESC, LT);
-    p = r; // pin = 1
-    r = r && report_error_(b, TypeName(b, l + 1, -1));
-    r = p && consumeToken(b, GT) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }

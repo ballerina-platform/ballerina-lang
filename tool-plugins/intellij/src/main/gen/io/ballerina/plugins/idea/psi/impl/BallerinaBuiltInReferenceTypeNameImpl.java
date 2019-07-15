@@ -92,8 +92,8 @@ public class BallerinaBuiltInReferenceTypeNameImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
-  public BallerinaTypedescTypeName getTypedescTypeName() {
-    return findChildByClass(BallerinaTypedescTypeName.class);
+  public BallerinaTypeDescReferenceTypeName getTypeDescReferenceTypeName() {
+    return findChildByClass(BallerinaTypeDescReferenceTypeName.class);
   }
 
   @Override
