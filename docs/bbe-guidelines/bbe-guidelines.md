@@ -42,7 +42,7 @@
     type Student record {
         string name;
         int age;
-    Grades grades;
+        Grades grades;
     };
     ```
 
