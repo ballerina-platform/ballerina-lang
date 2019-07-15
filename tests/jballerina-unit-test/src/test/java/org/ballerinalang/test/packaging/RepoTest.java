@@ -67,7 +67,7 @@ public class RepoTest {
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/nice_org/any.pkg/10.2.3/any.pkg.zip/obj/any.pkg.balo");
+        Assert.assertEquals(patten.toString(), "$/nice_org/any.pkg/10.2.3/any.pkg.zip/bir/any.pkg.bir");
     }
 
     @Test

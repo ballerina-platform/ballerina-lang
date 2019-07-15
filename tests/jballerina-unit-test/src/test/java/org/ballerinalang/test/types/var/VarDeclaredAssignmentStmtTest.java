@@ -199,7 +199,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'json' value cannot be converted to 'Person'");
+                            "'map<json>' value cannot be converted to 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -211,7 +211,7 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
 
         Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'json' value cannot be converted to 'PersonA'");
+                            "'map<json>' value cannot be converted to 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")

@@ -20,4 +20,4 @@ type Detail record {
 };
 
 public const AUTH_ERROR = "{ballerina/auth}AuthError";
-public type AuthError error<AUTH_ERROR, Detail>;
+public type Error error<AUTH_ERROR, Detail>;

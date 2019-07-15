@@ -63,7 +63,7 @@ public class Decode extends BlockingNativeCallableUnit {
         try {
             return URLDecoder.decode(url, charset);
         } catch (UnsupportedEncodingException e) {
-            return HttpUtil.getError("Error occurred while decoding the url. " + e.getMessage());
+            return HttpUtil.createHttpError("Error occurred while decoding the url. " + e.getMessage());
         }
     }
 }

@@ -41,22 +41,23 @@ service echoServer on server {
                     if (str is string) {
                         io:println(<@untainted> str);
                     } else {
-                        error e = <error>str;
-                        io:println("Error: ", e.detail().message);
+                        error e = str;
+                        io:println("Error: ", e.detail()["message"]);
                     }
                 } else {
-                    error byteError = <error>byteChannel;
-                    io:println("Error: ", byteError.detail().message);
+                    error byteError = byteChannel;
+                    io:println("Error: ", byteError.detail()["message"]);
                 }
             } else {
                 io:println("Client close: ", caller.remotePort);
             }
         } else {
-            io:println(result);
+            io:println(<error> result);
         }
     }
 
     resource function onError(socket:Caller caller, error er) {
-        io:println(er.detail().message);
+        error e = er;
+        io:println(e.detail()["message"]);
     }
 }

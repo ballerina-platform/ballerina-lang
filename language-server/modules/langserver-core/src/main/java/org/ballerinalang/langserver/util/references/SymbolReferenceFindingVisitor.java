@@ -193,7 +193,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             this.addSymbol(funcNode, funcNode.symbol, isDefinition, pos);
         }
 
-        funcNode.defaultableParams.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
         this.acceptNode(funcNode.body);

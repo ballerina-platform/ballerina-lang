@@ -78,4 +78,16 @@ public final class XMLAttributes implements RefValue {
 
         return new XMLAttributes(value);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLAttributes copy = (XMLAttributes) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
 }

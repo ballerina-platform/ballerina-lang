@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
+import ballerina/internal;
 
 listener http:Listener serviceEndpoint5 = new(9095);
 
@@ -31,7 +32,7 @@ service CustomerMgtService on serviceEndpoint5 {
     resource function customers(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (httpMethod.equalsIgnoreCase("GET")) {
+        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Customer":{"ID":"987654", "Name":"ABC PQR", "Description":"Sample Customer."}};
         } else {
             payload = {"Status":"Customer is successfully added."};
@@ -57,7 +58,7 @@ service Ecommerce on serviceEndpoint5 {
     resource function productsInfo(http:Caller caller, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + <@untainted> prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService->get(<@untainted> reqPath, message = clientRequest);
+        var clientResponse = productsService->get(<@untainted> reqPath, clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -94,7 +95,7 @@ service Ecommerce on serviceEndpoint5 {
     }
     resource function ordersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService->get("/orderservice/orders", message = clientRequest);
+        var clientResponse = productsService->get("/orderservice/orders", clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -122,7 +123,7 @@ service Ecommerce on serviceEndpoint5 {
     }
     resource function customersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService->get("/customerservice/customers", message = clientRequest);
+        var clientResponse = productsService->get("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -156,7 +157,7 @@ service OrderMgtService on serviceEndpoint5 {
     resource function orders(http:Caller caller, http:Request req) {
         json payload = {};
         string httpMethod = req.method;
-        if (httpMethod.equalsIgnoreCase("GET")) {
+        if (internal:equalsIgnoreCase(httpMethod, "GET")) {
             payload = {"Order":{"ID":"111999", "Name":"ABC123", "Description":"Sample order."}};
         } else {
             payload = {"Status":"Order is successfully added."};
@@ -173,7 +174,7 @@ service OrderMgtService on serviceEndpoint5 {
 }
 service productmgt on serviceEndpoint5 {
 
-    map<any> productsMap = populateSampleProducts();
+    map<anydata> productsMap = populateSampleProducts();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -181,7 +182,7 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.convert(self.productsMap[prodId]);
+        var result = json.constructFrom(self.productsMap[prodId]);
         if (result is json) {
             res.setPayload(result);
         } else {
@@ -210,8 +211,8 @@ service productmgt on serviceEndpoint5 {
     }
 }
 
-function populateSampleProducts() returns (map<any>) {
-    map<any> productsMap = {};
+function populateSampleProducts() returns (map<anydata>) {
+    map<anydata> productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};

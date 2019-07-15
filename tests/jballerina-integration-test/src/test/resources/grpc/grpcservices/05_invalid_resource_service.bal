@@ -32,7 +32,7 @@ service HelloWorld98 on ep5 {
             err = caller->send(message);
         }
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         }
         checkpanic caller->complete();
     }
@@ -47,7 +47,7 @@ service HelloWorld98 on ep5 {
         }
         error? err = caller->send(displayAge);
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         } else {
             log:printInfo("display age : " + displayAge);
         }
@@ -59,7 +59,7 @@ service HelloWorld98 on ep5 {
         string netSalary = "salary";
         error? err = caller->send(netSalary);
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         } else {
             log:printInfo("net salary : " + netSalary);
         }

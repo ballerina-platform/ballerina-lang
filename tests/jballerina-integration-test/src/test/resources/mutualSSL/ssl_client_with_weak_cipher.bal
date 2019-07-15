@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 public function main(string... args) {
-    http:Client clientEP = new(args[0], config = {
+    http:Client clientEP = new(args[0], {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

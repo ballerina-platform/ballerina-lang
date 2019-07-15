@@ -153,7 +153,7 @@ public class ServerSocketTest {
             BCompileUtil
                     .compile(true, testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
         } catch (BLangRuntimeException e) {
-            String errorStr = e.getMessage().substring(49, 49 + 58);
+            String errorStr = e.getMessage().substring(48, 48 + 58);
             Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
         }
     }

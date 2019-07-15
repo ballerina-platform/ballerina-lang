@@ -35,9 +35,10 @@ public class IOTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = { "brokenOnLangLibChange" })
     public void testCharacterIONegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
+        System.out.println(result);
         Assert.assertEquals(result.getDiagnostics().length, 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'path'", 9, 69);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'path'", 12, 69);

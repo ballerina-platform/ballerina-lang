@@ -17,6 +17,7 @@
 import ballerina/crypto;
 import ballerina/log;
 import ballerina/system;
+import ballerina/'lang\.object as lang;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///
@@ -25,7 +26,7 @@ import ballerina/system;
 # remote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations.
 public type Listener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private int port = 0;
     private ServiceEndpointConfiguration config = {};
@@ -43,7 +44,7 @@ public type Listener object {
         return self.register(s, name);
     }
 
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, public ServiceEndpointConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;
@@ -149,6 +150,7 @@ public type RequestLimits record {|
 #                          connection. By default, 10 requests can be pipelined on a single connection and the user can
 #                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authenticaton configurations
+# + server - The server name which should appear as a response header
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     KeepAlive keepAlive = KEEPALIVE_AUTO;
@@ -160,6 +162,7 @@ public type ServiceEndpointConfiguration record {|
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     ListenerAuth auth?;
+    string? server = ();
 |};
 
 # Authentication configurations for the listener.
@@ -256,12 +259,12 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         authFilters[0] = authnFilter;
 
         var scopes = auth["scopes"];
-        cache:Cache positiveAuthzCache = new(expiryTimeMillis = auth.positiveAuthzCache.expiryTimeMillis,
-                                            capacity = auth.positiveAuthzCache.capacity,
-                                            evictionFactor = auth.positiveAuthzCache.evictionFactor);
-        cache:Cache negativeAuthzCache = new(expiryTimeMillis = auth.negativeAuthzCache.expiryTimeMillis,
-                                            capacity = auth.negativeAuthzCache.capacity,
-                                            evictionFactor = auth.negativeAuthzCache.evictionFactor);
+        cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeMillis,
+                                            auth.positiveAuthzCache.capacity,
+                                            auth.positiveAuthzCache.evictionFactor);
+        cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeMillis,
+                                            auth.negativeAuthzCache.capacity,
+                                            auth.negativeAuthzCache.evictionFactor);
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
         authFilters[1] = authzFilter;
@@ -290,7 +293,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 // public type WebSocketListener Listener;
 public type WebSocketListener object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private Listener httpEndpoint;
 
@@ -312,7 +315,7 @@ public type WebSocketListener object {
     # + port - The port of the endpoint
     # + config - The `ServiceEndpointConfiguration` of the endpoint
     public function __init(int port, ServiceEndpointConfiguration? config = ()) {
-        self.httpEndpoint = new(port, config = config);
+        self.httpEndpoint = new(port, config);
     }
 
 };

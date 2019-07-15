@@ -26,22 +26,26 @@ public const APPLICATION_ERROR_REASON = "{ballerinax/jdbc}ApplicationError";
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
 # Represents a database or application level error returned from JDBC client remote functions.
-public type JdbcClientError DatabaseError|ApplicationError;
+public type Error DatabaseError|ApplicationError;
 
 # Represents the properties which are related to SQL database errors
 #
 # + message - Error message
 # + sqlErrorCode - SQL error code
 # + sqlState - SQL state
+# + cause - Cause of the error
 public type DatabaseErrorData record {|
-    string message;
+    string message?;
     int sqlErrorCode;
     string sqlState;
+    error cause?;
 |};
 
 # Represents the properties which are related to Non SQL errors
 #
 # + message - Error message
+# + cause - Cause of the error
 public type ApplicationErrorData record {|
-    string message;
+    string message?;
+    error cause?;
 |};

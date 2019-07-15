@@ -16,7 +16,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep9 = new (8085, config = {
+listener grpc:Listener ep9 = new (8085, {
     host:"localhost",
     secureSocket:{
         keyStore:{
@@ -52,7 +52,7 @@ service HelloWorld85 on ep9 {
         string message = "Hello " + name;
         error? err = caller->send(message);
         if (err is error) {
-            log:printError(err.reason(), err = err);
+            log:printError(err.reason(), err);
         } else {
             log:printInfo("Server send response : " + message);
         }

@@ -19,6 +19,18 @@ import ballerina/http;
 
 final string CUSTOM_HEADER = "X-some-header";
 
+service simpleProxy3 = @http:WebSocketServiceConfig {} service {
+
+    resource function onText(http:WebSocketCaller wsEp, string text) {
+        if (text == "custom-headers") {
+            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
+            if (returnVal is error) {
+                 panic returnVal;
+            }
+        }
+    }
+};
+
 service simple3 on new http:Listener(9093) {
 
     @http:ResourceConfig {
@@ -34,14 +46,3 @@ service simple3 on new http:Listener(9093) {
     }
 }
 
-service simpleProxy3 = @http:WebSocketServiceConfig {} service {
-
-    resource function onText(http:WebSocketCaller wsEp, string text) {
-        if (text == "custom-headers") {
-            var returnVal = wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]);
-            if (returnVal is error) {
-                 panic returnVal;
-            }
-        }
-    }
-};

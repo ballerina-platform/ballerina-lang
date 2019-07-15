@@ -25,5 +25,5 @@ public function main (string... args) {
         return r;
     };
 
-    secureFunction(testLambda.call(args[0], args[0]), testLambda.call(args[0], args[0]));
+    secureFunction(testLambda(args[0], args[0]), testLambda(args[0], args[0]));
 }

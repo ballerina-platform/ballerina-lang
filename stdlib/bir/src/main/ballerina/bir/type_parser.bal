@@ -59,8 +59,7 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT =33;
     public int TYPE_TAG_BYTE_ARRAY =34;
     public int TYPE_TAG_FUNCTION_POINTER =35;
-    public int TYPE_TAG_CHANNEL =36;
-    public int TYPE_TAG_SERVICE =37;
+    public int TYPE_TAG_HANDLE = 36;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -104,6 +103,9 @@ public type TypeParser object {
 
     function parseType() returns BType {
         var typeTag = self.readInt8();
+        // Ignoring name and flags
+        _ = self.readInt32();
+        _ = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
@@ -125,7 +127,7 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
         } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
-            return TYPE_DESC;
+            return self.parseTypedescType();
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -154,9 +156,18 @@ public type TypeParser object {
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
-        } 
+        } else if (typeTag == self.TYPE_TAG_HANDLE){
+            return <BTypeHandle> {};
+        }
+
         error err = error("Unknown type tag :" + typeTag);
         panic err;
+    }
+
+    function parseTypedescType() returns BTypeDesc {
+        BTypeDesc obj = { typeConstraint: TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.typeConstraint = self.parseTypeCpRef();
+        return obj;
     }
 
     function parseArrayType() returns BArrayType {
@@ -430,10 +441,10 @@ public type TypeParser object {
         int octave2 = 16;
         int octave3 = 24;
         var b = self.reader.buf;
-        int b0 = int.convert(b[pos + 0]);
-        int b1 = int.convert(b[pos + 1]);
-        int b2 = int.convert(b[pos + 2]);
-        int b3 = int.convert(b[pos + 3]);
+        int b0 = <int> b[pos + 0];
+        int b1 = <int> b[pos + 1];
+        int b2 = <int> b[pos + 2];
+        int b3 = <int> b[pos + 3];
         self.reader.pos = pos + 4;
         return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
     }

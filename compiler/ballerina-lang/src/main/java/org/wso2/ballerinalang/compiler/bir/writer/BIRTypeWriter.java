@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -86,6 +88,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     public void visitType(BType type) {
         buff.writeByte(type.tag);
+        buff.writeInt(addStringCPEntry(type.name.getValue()));
+        buff.writeInt(type.flags);
         type.accept(this);
     }
 
@@ -179,8 +183,18 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
+    public void visit(BTypedescType typedescType) {
+
+        writeTypeCpIndex(typedescType.constraint);
+    }
+
+    @Override
     public void visit(BFutureType bFutureType) {
         writeTypeCpIndex(bFutureType.constraint);
+    }
+
+    @Override
+    public void visit(BHandleType bHandleType) {
     }
 
     @Override

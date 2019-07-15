@@ -47,14 +47,14 @@ type employee object {
     public int age = 0;
     public string name = "A";
 
-    function __init (int a = 30, string name) {
+    function __init (string name, int a = 30) {
         self.name = self.name + name;
         self.age = a;
     }
 };
 
 function testObjectInitializerOrder() returns [int, string]{
-    employee p = new (a = 40, "B");
+    employee p = new ("B", a = 40);
     return [p.age, p.name];
 }
 
@@ -126,7 +126,7 @@ type Person2 object {
 
 function testInitializerWithRestArgs() returns Person2 {
     json adr = {city: "Colombo", country: "Sri Lanka"};
-    Person2 p = new("Pubudu", profession = "Software Engineer", adr);
+    Person2 p = new("Pubudu", "Software Engineer", adr);
     return p;
 }
 

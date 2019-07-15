@@ -19,6 +19,7 @@
  
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations {
     balRuntime
@@ -38,6 +39,7 @@ dependencies {
     implementation project(':ballerina-jvm')
     implementation project(':ballerina-bir')
     implementation project(':ballerina-backend-jvm')
+    implementation project(':ballerina-java')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -57,7 +59,7 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
-    baloTestImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
@@ -75,6 +77,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')

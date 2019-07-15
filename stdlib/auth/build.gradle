@@ -16,10 +16,10 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloImplementation project(path: ":ballerina-internal", configuration: 'baloImplementation')
-    baloImplementation project(path: ":ballerina-builtin", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-crypto", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-cache", configuration: 'baloImplementation')
@@ -27,7 +27,6 @@ dependencies {
     baloImplementation project(path: ":ballerina-runtime-api", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
@@ -39,7 +38,6 @@ dependencies {
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-config')
     implementation project(':ballerina-internal')
-    implementation project(":ballerina-builtin")
     implementation project(":ballerina-config-api")
     implementation project(":ballerina-crypto")
     implementation project(":ballerina-cache")
@@ -49,7 +47,6 @@ dependencies {
     implementation project(":ballerina-system")
     implementation project(":ballerina-time")
     implementation project(':ballerina-task')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
     implementation project(':ballerina-encoding')
     implementation 'commons-logging:commons-logging'
@@ -59,7 +56,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-builtin')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-system')
