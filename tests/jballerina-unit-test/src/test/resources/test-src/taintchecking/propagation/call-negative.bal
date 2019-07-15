@@ -15,7 +15,7 @@
 // under the License.
 
 public function main (string... args) {
-    secureFunction.call(args[0], args[0]);
+    secureFunction(args[0], args[0]);
 }
 
 public function secureFunction (@untainted any secureIn, any insecureIn) {
