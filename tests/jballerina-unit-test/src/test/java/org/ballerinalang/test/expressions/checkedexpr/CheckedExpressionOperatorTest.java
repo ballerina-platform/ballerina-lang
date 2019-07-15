@@ -223,13 +223,13 @@ public class CheckedExpressionOperatorTest {
                 "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
     }
 
-    @Test(description = "Test checked expressions in binary and expression")
-    public void testCheckInBinaryAndExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryAndExpression", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
+//    @Test(description = "Test checked expressions in binary and expression")
+//    public void testCheckInBinaryAndExpression() {
+//        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryAndExpression", new BValue[]{});
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+//        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+//    }
 
     @Test(description = "Test checked expressions in binary add expression")
     public void testCheckInBinaryAddExpression() {

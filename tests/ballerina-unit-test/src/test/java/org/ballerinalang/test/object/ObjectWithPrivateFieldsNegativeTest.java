@@ -84,8 +84,8 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'PrivatePerson'", 42, 73);
         BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 4, expectedErrMsg1 + "'FooFamily'", 5, 13);
-        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 15, 13);
+        BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, 6, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
-                15, 13);
+                10, 13);
     }
 }

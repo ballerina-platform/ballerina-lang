@@ -71,10 +71,10 @@ public class XMLAccessTest {
     public void testXMLAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
     }
-    
-    @Test(expectedExceptions = {BLangRuntimeException.class}, 
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina\\}XMLOperationError \\{\"message\"" +
-                    ":\"\\{ballerina\\}IndexOutOfRange\"\\}.*")
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina\\}XMLOperationError " +
+                    "message=\\{ballerina\\}IndexOutOfRange.*")
     public void testXMLSequenceAccessWithOutOfIndex() {
         BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }
