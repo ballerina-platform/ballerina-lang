@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/nats;
 import ballerina/io;
+import ballerina/nats;
 
 nats:Connection conn = new("localhost:4222");
 
