@@ -150,7 +150,7 @@ public class BallerinaDAPClientConnector {
     void attachToServer() {
         Map<String, Object> requestArgs = new HashMap<>();
         requestArgs.put(CONFIG_SOURCEROOT, project.getBasePath());
-        requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(5006));
+        requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
         try {
             requestManager.attach(requestArgs);
         } catch (Exception e) {
