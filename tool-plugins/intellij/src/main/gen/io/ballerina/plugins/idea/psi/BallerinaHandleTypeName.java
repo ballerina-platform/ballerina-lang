@@ -21,30 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSimpleLiteral extends PsiElement {
+public interface BallerinaHandleTypeName extends PsiElement {
 
-  @Nullable
-  BallerinaBlobLiteral getBlobLiteral();
-
-  @Nullable
-  BallerinaFloatingPointLiteral getFloatingPointLiteral();
-
-  @Nullable
-  BallerinaIntegerLiteral getIntegerLiteral();
-
-  @Nullable
-  BallerinaNilLiteral getNilLiteral();
-
-  @Nullable
-  PsiElement getBooleanLiteral();
-
-  @Nullable
-  PsiElement getNullLiteral();
-
-  @Nullable
-  PsiElement getQuotedStringLiteral();
-
-  @Nullable
-  PsiElement getSub();
+  @NotNull
+  PsiElement getHandle();
 
 }

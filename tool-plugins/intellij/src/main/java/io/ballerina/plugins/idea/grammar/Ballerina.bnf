@@ -169,11 +169,9 @@ WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
 Block ::= Statement* {methods=[processDeclarations]}
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public|private)? remote? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public|private)? remote? function ((AttachedObject|TypeName) DOT)? CallableUnitSignature (CallableUnitBody | ExternalFunctionBody SEMICOLON) {
     pin=3 methods=[getIdentifier getName]
 }
-private FunctionWithReceiver ::=  (TypeName DOT)? CallableUnitSignature (CallableUnitBody | ExternalFunctionBody ) {pin=2}
-private FunctionWithoutReceiver ::= AttachedObject DOT CallableUnitSignature (CallableUnitBody | ExternalFunctionBody ) {pin=2}
 
 ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=3}
 
@@ -189,7 +187,7 @@ private ArrowFunctionWithParenthesis ::= LEFT_PARENTHESIS (ArrowParam (COMMA Arr
 ArrowParam ::= identifier
 
 // Todo - cache and add Signature owner?
-CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
+CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=2}
 
 TypeDefinition ::= public? type identifier FiniteType SEMICOLON {
     pin=2
@@ -245,8 +243,8 @@ SourceOnlyAttachPoint ::= source SourceOnlyAttachPointIdent {pin=1}
 SourceOnlyAttachPointIdent ::=  annotation | external | var | const | listener
 
 // Todo - Rename as declaration
-WorkerDefinition ::= worker identifier ReturnParameter? WorkerBody {
-    pin=1
+WorkerDefinition ::= AnnotationAttachment* worker identifier ReturnParameter? WorkerBody {
+    pin=2
     recoverWhile=WorkerDefinitionRecover
 }
 
@@ -272,6 +270,7 @@ TypeName ::= TupleTypeName
 SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
                    | AnyDataTypeName
+                   | HandleTypeName
                    | TypeDescTypeName
                    | ValueTypeName
                    | ReferenceTypeName
@@ -280,12 +279,13 @@ SimpleTypeName ::= NULL_LITERAL
 AnyTypeName ::= any
 AnyDataTypeName ::= anydata
 TypeDescTypeName ::= typedesc
+HandleTypeName ::= handle
 
 ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
-GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
-TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET
+GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
+TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET {pin=1}
 ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 
 InclusiveRecordTypeDescriptor ::=   record LEFT_BRACE FieldDescriptor* RIGHT_BRACE
@@ -308,6 +308,7 @@ BuiltInReferenceTypeName ::= MapTypeName
                              | StreamTypeName
                              | TableTypeName
                              | ServiceTypeName
+                             | TypedescTypeName
                              | ErrorTypeName
                              | FunctionTypeName
 
@@ -320,6 +321,7 @@ ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream LT TypeName GT {pin=1}
 FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 ServiceTypeName ::= service
+TypedescTypeName ::=  typedesc LT TypeName GT {pin=1}
 
 // Todo - Cache
 AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
@@ -360,7 +362,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|SYMBOLIC_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -454,7 +456,7 @@ ErrorArgListMatchPattern::= SimpleMatchPattern (COMMA ErrorDetailBindingPattern)
                           | RestMatchPattern
 ErrorRestBindingPattern ::= ELLIPSIS identifier
 RestMatchPattern ::= ELLIPSIS var identifier
-SimpleMatchPattern ::= var? identifier
+SimpleMatchPattern ::= var? (identifier | QUOTED_STRING_LITERAL)
 ErrorDetailBindingPattern ::= identifier ASSIGN BindingPattern
 
 ListBindingPattern ::= LEFT_BRACKET BindingPattern (COMMA BindingPattern)+ RIGHT_BRACKET
@@ -568,7 +570,7 @@ StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
 Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
-Field ::= (DOT | NOT) (identifier | MUL) /*{pin=1}*/
+Field ::= (DOT | OPTIONAL_FIELD_ACCESS) (identifier | MUL) /*{pin=1}*/
 XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
 
 // Todo - Need to pin?
@@ -577,7 +579,7 @@ InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1}
 InvocationArg ::= NamedArgs | RestArgs | Expression
 
 // Todo - Update the recovery rule
-ActionInvocation ::= start? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
+ActionInvocation ::= (AnnotationAttachment* start)? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
 
 ExpressionList ::= Expression (COMMA Expression)* {
     pin(".*")=1
@@ -687,7 +689,7 @@ ListConstructorExpression ::= ListConstructorExpr
 RecordLiteralExpression ::= RecordLiteral
 XmlLiteralExpression ::= XmlLiteral
 StringTemplateLiteralExpression ::= StringTemplateLiteral
-VariableReferenceExpression ::= start? VariableReference
+VariableReferenceExpression ::= (AnnotationAttachment* start)? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT (AnnotationAttachment+ TypeName? | TypeName) GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | typeof) Expression {pin=1}
@@ -731,8 +733,7 @@ PackageReference ::= identifier COLON {
     pin=2
 }
 
-ReturnParameter ::= returns ReturnType {pin=1}
-ReturnType ::= AnnotationAttachment* TypeName
+ReturnParameter ::= returns AnnotationAttachment* TypeName {pin=1}
 
 LambdaReturnParameter ::= AnnotationAttachment* TypeName
 
@@ -742,7 +743,7 @@ parameterTypeName ::= AnnotationAttachment* TypeName
 
 ParameterList ::= Parameter (COMMA Parameter)* {pin(".*")=1 /*recoverWhile=RecoverParameter*/}
 
-Parameter ::= AnnotationAttachment* TypeName identifier
+Parameter ::= AnnotationAttachment* public? TypeName identifier
 
 DefaultableParameter ::= Parameter ASSIGN Expression
 
@@ -753,7 +754,6 @@ FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultablePa
 SimpleLiteral ::= SUB? IntegerLiteral
                   | SUB? FloatingPointLiteral
                   | QUOTED_STRING_LITERAL
-                  | SYMBOLIC_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | NilLiteral
                   | BlobLiteral

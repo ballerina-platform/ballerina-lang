@@ -32,4 +32,7 @@ public interface BallerinaParameter extends PsiElement {
   @NotNull
   PsiElement getIdentifier();
 
+  @Nullable
+  PsiElement getPublic();
+
 }

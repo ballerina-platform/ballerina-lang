@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaReturnTypeImpl extends ASTWrapperPsiElement implements BallerinaReturnType {
+public class BallerinaTypedescTypeNameImpl extends ASTWrapperPsiElement implements BallerinaTypedescTypeName {
 
-  public BallerinaReturnTypeImpl(@NotNull ASTNode node) {
+  public BallerinaTypedescTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitReturnType(this);
+    visitor.visitTypedescTypeName(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +43,27 @@ public class BallerinaReturnTypeImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  @Nullable
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getGt() {
+    return findChildByType(GT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLt() {
+    return findChildByType(LT);
   }
 
   @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return findNotNullChildByClass(BallerinaTypeName.class);
+  public PsiElement getTypedesc() {
+    return findNotNullChildByType(TYPEDESC);
   }
 
 }

@@ -84,6 +84,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FULL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HANDLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HAVING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEX_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HOUR;
@@ -183,14 +184,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABORTED, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BYTE, CATCH, CHANNEL,
                     CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DEPRECATED, DECIMAL, ELSE, ERROR, EXTERNAL,
-                    FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, IS, JOIN, JSON,
-                    LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC, RECORD,
-                    REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING, TABLE,
-                    TRANSACTION, TRY, TYPE, TYPEDESC, TYPEOF, TRAP, THROW, WAIT, WHILE, WITH, WORKER, VAR, VERSION,
-                    XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE,
-                    FOLLOWED, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER, RIGHT,
-                    LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS, MONTH, MONTHS,
-                    YEAR, YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING);
+                    FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN, INT, IS, JOIN,
+                    JSON, LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC,
+                    RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING,
+                    TABLE, TRANSACTION, TRY, TYPE, TYPEDESC, TYPEOF, TRAP, THROW, WAIT, WHILE, WITH, WORKER, VAR,
+                    VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT, GROUP, BY, HAVING, ORDER,
+                    WHERE, FOLLOWED, FOR, WINDOW, EVENTS, EVERY, WITHIN, LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER,
+                    RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS, MONTH,
+                    MONTHS, YEAR, YEARS, FOREVER, LIMIT, ASCENDING, DESCENDING);
 
     public static final TokenSet OPERATORS = TokenSet.create(ELVIS, EQUAL_GT, LARROW, RARROW, SYNCRARROW);
 
@@ -231,7 +232,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
         return new BallerinaFile(viewProvider);
     }
 
-    public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {
+    public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
         return SpaceRequirements.MAY;
     }
 

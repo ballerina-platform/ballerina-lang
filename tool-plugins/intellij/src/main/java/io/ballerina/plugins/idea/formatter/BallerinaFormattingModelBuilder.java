@@ -197,7 +197,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACKET;
@@ -451,8 +450,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(SIMPLE_TYPE_NAME).spaceIf(false)
                 .between(NAME_REFERENCE, RECORD_LITERAL).spaceIf(true)
                 .around(NAME_REFERENCE).spaceIf(false)
-                .before(RETURN_TYPE).spaceIf(false)
-                .after(RETURN_TYPE).spaceIf(true)
+
                 .between(UNION_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(FUNCTION_NAME_REFERENCE, LEFT_PARENTHESIS).spaceIf(false)
 
