@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 
 /**
  * Build command tests.
+ *
  * @since 1.0
  */
 public class BuildCommandTest extends CommandTest {
@@ -203,7 +204,7 @@ public class BuildCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testBuildCommand"})
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
@@ -214,7 +215,7 @@ public class BuildCommandTest extends CommandTest {
     }
 
     @Test(description = "Test Build Command for a single file.")
-    public void testBuildCommandSingleFile() throws IOException {
+    public void testBuildCommandWithoutArgs() throws IOException {
         Path balFile = tmpDir.resolve("main.bal");
         Files.createFile(balFile);
 
@@ -222,7 +223,19 @@ public class BuildCommandTest extends CommandTest {
         Files.write(balFile, question.getBytes());
 
         // Build the project
-        String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
+        String[] compileArgs = {};
+        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("Please provide a Ballerina file as a"));
+    }
+
+
+    @Test(description = "Test Build Command for a single file.", dependsOnMethods = "testBuildCommandWithoutArgs")
+    public void testBuildCommandSingleFile() throws IOException {
+        // Build the project
+        String[] compileArgs = {"main.bal"};
         BuildCommand buildCommand = new BuildCommand(tmpDir, printStream);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
@@ -236,16 +249,11 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
     }
 
-    @Test(description = "Test Build Command for a single file with output flag.")
+    @Test(description = "Test Build Command for a single file with output flag.",
+            dependsOnMethods = "testBuildCommandWithoutArgs")
     public void testBuildCommandSingleFileWithOutput() throws IOException {
-        Path balFile = tmpDir.resolve("main.bal");
-        Files.createFile(balFile);
-
-        String question = "public function main(){ int i =5; }";
-        Files.write(balFile, question.getBytes());
-
         // Build the project
-        String[] compileArgs = {"-o sample", "--skip-tests", "-c", "--jvmTarget"};
+        String[] compileArgs = {"main.bal"};
         BuildCommand buildCommand = new BuildCommand(tmpDir, printStream);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();

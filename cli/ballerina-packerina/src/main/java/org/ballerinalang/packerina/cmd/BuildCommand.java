@@ -21,6 +21,7 @@ import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
@@ -31,9 +32,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.util.BLangConstants.JVM_TARGET;
 
 /**
  * This class represents the "ballerina build" command.
@@ -45,6 +44,8 @@ public class BuildCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+
+    public static final boolean GEN_EXECUTABLES = true;
 
     public BuildCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
@@ -124,9 +125,21 @@ public class BuildCommand implements BLauncherCmd {
         if (nativeBinary) {
             genNativeBinary(sourceRootPath, argList);
         } else if (argList == null || argList.size() == 0) {
+            if (!ProjectDirs.isProject(sourceRootPath)) {
+                Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
+                if (null == findRoot) {
+                    CommandUtil.printError(errStream,
+                            "Please provide a Ballerina file as a " +
+                                    "input or run build command inside a project",
+                            "ballerina build [<filename.bal>]",
+                            false);
+                    return;
+                }
+                sourceRootPath = findRoot;
+            }
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
-                    siddhiRuntimeFlag, jvmTarget, dumpBIR);
+                    siddhiRuntimeFlag, jvmTarget, dumpBIR, GEN_EXECUTABLES);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -208,11 +221,12 @@ public class BuildCommand implements BLauncherCmd {
 
             // Load the configuration file. If no config file is given then the default config file i.e.
             // "ballerina.conf" in the source root path is taken.
-            LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
+            // todo: L1 need to enable config files.
+            // LauncherUtils.loadConfigurations(sourceRootPath, configFilePath);
 
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
-                    jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
+                    jvmTarget, dumpBIR, GEN_EXECUTABLES);
         }
     }
 

@@ -48,6 +48,8 @@ public class CompileCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
 
+    public static final boolean GEN_EXECUTABLES = false;
+
     public CompileCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
@@ -142,7 +144,7 @@ public class CompileCommand implements BLauncherCmd {
         } else if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests, experimentalFlag,
-                    siddhiRuntimeFlag, jvmTarget, dumpBIR);
+                    siddhiRuntimeFlag, jvmTarget, dumpBIR, GEN_EXECUTABLES);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -229,7 +231,8 @@ public class CompileCommand implements BLauncherCmd {
 
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
-                    jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)), dumpBIR);
+                    jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)),
+                    dumpBIR, GEN_EXECUTABLES);
         }
     }
 
