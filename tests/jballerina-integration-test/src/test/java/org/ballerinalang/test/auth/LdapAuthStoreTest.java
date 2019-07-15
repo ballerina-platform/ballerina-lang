@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test cases for ldap user store based authentication/authorization scenarios.
+ * Test cases for LDAP user store based authentication/authorization scenarios.
  *
  * @since 0.983.0
  */
@@ -46,7 +46,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     }
 
     @Test(description = "Test authenticate request against ldap auth store")
-    public void testAuthenticationWithLDAPAuthstoreWithoutAuthorization() throws Exception {
+    public void testAuthenticationWithLdapAuthStoreWithoutAuthorization() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
@@ -55,7 +55,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     }
 
     @Test(description = "Test authenticate and authorize request against ldap auth store")
-    public void testAuthenticationWithLDAPAuthstoreWithAuthorization() throws Exception {
+    public void testAuthenticationWithLdapAuthStoreWithAuthorization() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
@@ -64,7 +64,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     }
 
     @Test(description = "Test the failure of authorization request against ldap auth store")
-    public void testAuthorizationFailureWithLDAPAuthStore() throws Exception {
+    public void testAuthorizationFailureWithLdapAuthStore() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(authzServicePort,
