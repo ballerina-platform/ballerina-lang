@@ -47,17 +47,21 @@ public class CompileCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
+
 
     public static final boolean GEN_EXECUTABLES = false;
 
     public CompileCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
+        exitWhenFinish = true;
     }
 
-    public CompileCommand(Path userDir, PrintStream errStream) {
+    public CompileCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
 
@@ -165,7 +169,7 @@ public class CompileCommand implements BLauncherCmd {
             }
 
             Path resolvedFullPath = sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                                  .resolve(sourcePath);
+                    .resolve(sourcePath);
             // If the source is a single bal file which is not inside a project
             if (Files.isRegularFile(resolvedFullPath) &&
                     sourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
@@ -233,6 +237,9 @@ public class CompileCommand implements BLauncherCmd {
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)),
                     dumpBIR, GEN_EXECUTABLES);
+            if (exitWhenFinish) {
+                Runtime.getRuntime().exit(0);
+            }
         }
     }
 

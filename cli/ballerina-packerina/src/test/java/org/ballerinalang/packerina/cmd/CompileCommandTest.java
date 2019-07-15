@@ -79,7 +79,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
-        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream);
+        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 
@@ -218,7 +218,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
-        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream);
+        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 

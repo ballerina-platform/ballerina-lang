@@ -44,17 +44,20 @@ public class BuildCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
 
     public static final boolean GEN_EXECUTABLES = true;
 
     public BuildCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
+        exitWhenFinish = true;
     }
 
-    public BuildCommand(Path userDir, PrintStream errStream) {
+    public BuildCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
 
@@ -77,7 +80,7 @@ public class BuildCommand implements BLauncherCmd {
     private List<String> argList;
 
     @CommandLine.Option(names = {"--native"}, hidden = true,
-                        description = "compile Ballerina program to a native binary")
+            description = "compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -188,16 +191,16 @@ public class BuildCommand implements BLauncherCmd {
                 }
                 if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                     throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
-                                                                "files can be used with the 'ballerina build' " +
-                                                                        "command.");
+                            "files can be used with the 'ballerina build' " +
+                            "command.");
                 }
 
                 if (Files.exists(resolvedFullPath)) {
                     if (Files.isRegularFile(resolvedFullPath) && !sourcePath.toString()
-                                                                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
+                            .endsWith(BLANG_SRC_FILE_SUFFIX)) {
                         throw LauncherUtils.createLauncherException("only modules and " + BLANG_SRC_FILE_SUFFIX + " " +
-                                                                    "files can be used with the 'ballerina build' " +
-                                                                            "command.");
+                                "files can be used with the 'ballerina build' " +
+                                "command.");
                     }
                 } else {
                     throw LauncherUtils.createLauncherException("ballerina source does not exist '" + sourcePath + "'");
@@ -209,14 +212,14 @@ public class BuildCommand implements BLauncherCmd {
                 if (Files.isRegularFile(resolvedFullPath) && sourcePath.toString().endsWith(BLANG_SRC_FILE_SUFFIX) &&
                         parentPath != null) {
                     throw LauncherUtils.createLauncherException("you are trying to build a ballerina file inside a " +
-                                                                        "module within a project. Try running " +
-                                                                        "'ballerina build <module-name>'");
+                            "module within a project. Try running " +
+                            "'ballerina build <module-name>'");
                 }
             } else {
                 // Invalid source file provided
                 throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
-                                                                    "directory or a file  with a \'"
-                                                            + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+                        "directory or a file  with a \'"
+                        + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
 
             // Load the configuration file. If no config file is given then the default config file i.e.
@@ -227,6 +230,9 @@ public class BuildCommand implements BLauncherCmd {
             BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg,
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget, dumpBIR, GEN_EXECUTABLES);
+        }
+        if (exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
         }
     }
 
