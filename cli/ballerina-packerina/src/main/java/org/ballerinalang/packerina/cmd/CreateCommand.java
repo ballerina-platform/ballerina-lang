@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.cmd;
 
 
-import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;

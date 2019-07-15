@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * This class provides util methods when pushing Ballerina modules to central and home repository.

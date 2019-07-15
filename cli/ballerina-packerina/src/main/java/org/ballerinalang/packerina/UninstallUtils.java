@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
