@@ -20,34 +20,44 @@ public type Message client object {
 
     private MessageType messageType = TEXT;
     private MessageConfiguration configuration;
+    private MessageContent | Error content;
+    private boolean created = false;
+    private Session session;
 
     public function __init(Session session, @untainted MessageContent data, MessageConfiguration? config = ()) {
+        self.session = session;
+        self.content = data;
         if (config is MessageConfiguration) {
             self.configuration = config;
         } else {
             self.configuration = {};
         }
+        if(!self.created) {
+            self.initCreation(data);
+        }
+    }
 
+    function initCreation(MessageContent data) {
         if (data is (string | json | xml | int | float | byte | boolean)) {
             self.messageType = TEXT;
         }
         if (data is io:ReadableByteChannel) {
             self.messageType = STREAM;
-            self.createMessage(session, data, self.configuration);
+            self.createMessage(self.session, data, self.configuration);
         } else if (data is byte) {
             // Verify this.
-            //self.createMessage(session, string.convert(int.convert(data)), self.configuration);
-            self.createMessage(session, data.toString(), self.configuration);
+            //self.createMessage(self.session, string.convert(int.convert(data)), self.configuration);
+            self.createMessage(self.session, data.toString(), self.configuration);
         } else if (data is map<string | int | float | byte | boolean | byte[]>) {
             self.messageType = MAP;
-            self.createMessage(session, data, self.configuration);
+            self.createMessage(self.session, data, self.configuration);
         } else if (data is xml) {
-            self.createMessage(session, data.toString(), self.configuration);
+            self.createMessage(self.session, data.toString(), self.configuration);
         } else if (data is json) {
-            self.createMessage(session, data.toString(), self.configuration);
+            self.createMessage(self.session, data.toString(), self.configuration);
         } else {
             self.messageType = BYTES;
-            self.createMessage(session, data, self.configuration);
+            self.createMessage(self.session, data, self.configuration);
         }
     }
 
@@ -86,8 +96,16 @@ public type Message client object {
     #
     # + return - The message payload or error on failure to retrieve payload or if the type is unsupported.
     #  A map payload can contain an error if the type is unsupported.
-    public function getPayload() returns @tainted string | byte[] | map<string | int | float | byte | boolean | byte[]> |
-                                            Error | () = external;
+    public function getPayload() returns @tainted int | float | byte | boolean | string | map<string | int | float |
+    byte | boolean | byte[]> | xml | json | byte[] | Error | () {
+        var temp = self.content;
+        if (temp is io:ReadableByteChannel) {
+            Error err = error(message = "Use the saveToFile function for STREAM type message");
+            return err;
+        } else {
+            return temp;
+        }
+    }
 
     # Call this function to save to a WritableByteChannel if the message is `STREAM` type.
     #

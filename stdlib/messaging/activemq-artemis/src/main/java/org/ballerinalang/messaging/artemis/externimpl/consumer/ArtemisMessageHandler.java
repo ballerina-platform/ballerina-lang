@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.Scheduler;
@@ -48,6 +47,7 @@ import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.messaging.artemis.ArtemisConnectorException;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
+import org.ballerinalang.messaging.artemis.externimpl.message.GetPayload;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,8 @@ class ArtemisMessageHandler implements MessageHandler {
             dispatchResourceWithDataBinding(clientMessage, parameterTypes);
         } else {
             Object[] signatureParams = new Object[parameterTypes.length * 2];
-            signatureParams[0] = createAndGetMessageObj(clientMessage, sessionObj);
+            signatureParams[0] = ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj,
+                                                                     GetPayload.getPayload(clientMessage));
             signatureParams[1] = true;
             dispatchResource(clientMessage, signatureParams);
         }
@@ -101,7 +102,8 @@ class ArtemisMessageHandler implements MessageHandler {
             if (msgObj != null) {
                 signatureParams[2] = msgObj;
                 signatureParams[3] = true;
-                signatureParams[0] = createAndGetMessageObj(clientMessage, sessionObj);
+                signatureParams[0] = ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj,
+                                                                         GetPayload.getPayload(clientMessage));
                 signatureParams[1] = true;
                 dispatchResource(clientMessage, signatureParams);
             }
@@ -115,23 +117,14 @@ class ArtemisMessageHandler implements MessageHandler {
         // of the same session in multiple threads concurrently (Error AMQ212051).
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Executor.submit(scheduler, service, onMessageResource.getName(),
-                new ArtemisResourceCallback(clientMessage, autoAck, sessionObj, countDownLatch), null, bValues);
+                        new ArtemisResourceCallback(clientMessage, autoAck, sessionObj, countDownLatch), null, bValues);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ArtemisConnectorException("Error occurred in RabbitMQ service. " +
-                    "The current thread got interrupted");
+                                                        "The current thread got interrupted");
         }
-    }
-
-    private Object createAndGetMessageObj(ClientMessage clientMessage,
-                                          ObjectValue sessionObj) {
-        ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                ArtemisConstants.MESSAGE_OBJ);
-        ArtemisUtils.populateMessageObj(clientMessage, sessionObj.getNativeData(
-                ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT), messageObj);
-        return messageObj;
     }
 
     private Object getContentForType(ClientMessage message, BType dataType) {
@@ -151,7 +144,7 @@ class ArtemisMessageHandler implements MessageHandler {
                 return bxml;
             case TypeTags.RECORD_TYPE_TAG:
                 return JSONUtils.convertJSONToRecord(JSONParser.parse(getBodyText(message, messageType)),
-                        (BStructureType) dataType);
+                                                     (BStructureType) dataType);
             case TypeTags.ARRAY_TAG:
                 if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
                     validateBytesContentType(messageType);
@@ -265,24 +258,21 @@ class ArtemisMessageHandler implements MessageHandler {
             BType[] parameterTypes = onErrorResource.getParameterType();
             Object[] signatureParams = new Object[parameterTypes.length * 2];
             ErrorValue errorValue = ArtemisUtils.getError(errorMessage);
-            ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                    ArtemisConstants.MESSAGE_OBJ);
+            Object messageObj = ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj,
+                                                                    GetPayload.getPayload(clientMessage));
             signatureParams[0] = messageObj;
             signatureParams[1] = true;
             signatureParams[2] = errorValue;
             signatureParams[3] = true;
-            ArtemisUtils.populateMessageObj(clientMessage, sessionObj.getNativeData(
-                    ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT), messageObj);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             Executor.submit(scheduler, service, onErrorResource.getName(), new ArtemisResourceCallback(
-                            clientMessage, autoAck, sessionObj, countDownLatch),
-                    null, signatureParams);
+                    clientMessage, autoAck, sessionObj, countDownLatch), null, signatureParams);
             try {
                 countDownLatch.await();
             } catch (InterruptedException exception) {
                 Thread.currentThread().interrupt();
                 throw new ArtemisConnectorException("Error occurred in RabbitMQ service. " +
-                        "The current thread got interrupted");
+                                                            "The current thread got interrupted");
             }
         }
     }
@@ -321,8 +311,10 @@ class ArtemisMessageHandler implements MessageHandler {
         AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
         if (resourceName.equals(attachedFunctions[0].getName())) {
             return attachedFunctions[0];
-        } else if (resourceName.equals(attachedFunctions[1].getName())) {
-            return attachedFunctions[1];
+        } else if (attachedFunctions.length > 1) {
+            if (resourceName.equals(attachedFunctions[1].getName())) {
+                return attachedFunctions[1];
+            }
         }
         return null;
     }
