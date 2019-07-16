@@ -36,8 +36,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
 
     if (response is error) {
         error e = response;
-        io:println(e.reason());
-        panic createError("connection to the remote host failed : " + e.reason());
+        string? errMsg = e.detail()?.message;
+        if (errMsg is string) {
+            panic createError("connection to the remote host failed : " + errMsg);
+        } else {
+            panic createError("connection to the remote host failed.");
+        }
     } else {
         string statusCode = response.statusCode.toString();
         if (internal:hasPrefix(statusCode, "5")) {
@@ -108,7 +112,10 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        proxy : getProxyConfigurations(hostname, port, username, password),
+        cache: {
+            enabled: false
+        }
     });
     return httpEndpoint;
 }
@@ -126,6 +133,9 @@ function defineEndpointWithoutProxy (string url) returns http:Client{
             },
             verifyHostname: false,
             shareSession: true
+        },
+        cache: {
+            enabled: false
         }
     });
     return httpEndpoint;
