@@ -90,16 +90,17 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
-        var metaVarName = self.reader.readStringCpRef();
+        VariableDclMeta meta = {};
+        if (kind is ArgVarKind) {
+            meta.name = self.reader.readStringCpRef();
+        }
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind,
             hasDefaultExpr: hasDefaultExpr,
-            meta: {
-                name: metaVarName
-            }
+            meta: meta
         };
         return dcl;
     }
@@ -203,14 +204,15 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
-            if (!(dcl.kind is TempVarKind)) {
+            if (dcl.kind is LocalVarKind || dcl.kind is ArgVarKind) {
                 dcl.meta.name = self.reader.readStringCpRef();
-            }
-            if (dcl.kind is LocalVarKind) {
-                var meta = dcl.meta;
-                meta.endBBID = self.reader.readStringCpRef();
-                meta.startBBID = self.reader.readStringCpRef();
-                meta.insOffset = self.reader.readInt32();
+                // local variables have visible range information as well
+                if (dcl.kind is LocalVarKind) {
+                    var meta = dcl.meta;
+                    meta.endBBID = self.reader.readStringCpRef();
+                    meta.startBBID = self.reader.readStringCpRef();
+                    meta.insOffset = self.reader.readInt32();
+                }
             }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;

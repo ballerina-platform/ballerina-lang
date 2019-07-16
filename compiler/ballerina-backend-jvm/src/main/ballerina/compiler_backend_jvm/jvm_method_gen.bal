@@ -261,21 +261,21 @@ function genJMethodForBFunc(bir:Function func,
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
         jvm:Label endLabel = methodEndLabel;
-        if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam)
-            && !(localVar.meta?.name is () || localVar.meta?.name == "")) {
+        if (localVar.meta != () && (localVar.kind is bir:LocalVarKind || localVar.kind is bir:ArgVarKind)) {
+            // local vars have visible range information
             if (localVar.kind is bir:LocalVarKind) {
-                string? startBBID = localVar.meta?.startBBID;
-                string? endBBID = localVar.meta?.endBBID;
-                int? insOffset = localVar.meta?.insOffset;
-                if (startBBID is string && insOffset is int) {
+                string startBBID = localVar.meta.startBBID;
+                string endBBID = localVar.meta.endBBID;
+                int insOffset = localVar.meta.insOffset;
+                if (startBBID != "") {
                     startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset);
                 }
-                if (endBBID is string) {
+                if (endBBID != "") {
                     endLabel = labelGen.getLabel(funcName + endBBID + "beforeTerm");
                 }
             }
-            string? metaVarName = localVar.meta?.name;
-            if (metaVarName is string) {
+            string metaVarName = localVar.meta.name;
+            if (metaVarName != "") {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
                                 startLabel, endLabel, indexMap.getIndex(localVar));
             }

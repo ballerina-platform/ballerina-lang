@@ -553,6 +553,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                                                 handlerLabel, jumpLabel);
         }
         while (m < insCount) {
+            jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m);
+            mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
             var pos = inst.pos;
             if (pos is bir:DiagnosticPos) {

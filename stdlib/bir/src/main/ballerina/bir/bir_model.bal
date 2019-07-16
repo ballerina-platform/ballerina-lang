@@ -252,10 +252,10 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
 public type VariableDclMeta record {
-    string name?;
-    string endBBID?;
-    string startBBID?;
-    int insOffset?;
+    string name = "";
+    string endBBID = "";
+    string startBBID = "";
+    int insOffset = 0;
 };
 
 public type VariableDcl record {|
