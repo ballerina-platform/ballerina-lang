@@ -155,3 +155,27 @@ type PersonWithOptionalId record {|
     string name;
     string id?;
 |};
+
+type Foo object {
+    string s = "";
+};
+
+function refAndNilEqualityCheck() {
+    Employee emp = {name: "John", id: 1};
+
+    if (emp == ()) {
+        // do nothing
+    }
+
+    Foo f = new;
+
+    if (f == ()) {
+        // do nothing
+    }
+
+    var func = function () returns string { return "foobar"; };
+
+    if (func == ()) {
+        // do nothing
+    }
+}

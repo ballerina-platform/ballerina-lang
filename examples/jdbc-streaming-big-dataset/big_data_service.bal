@@ -1,6 +1,6 @@
 import ballerina/http;
 import ballerina/log;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 // Create MySQL client.
 jdbc:Client testDB = new({

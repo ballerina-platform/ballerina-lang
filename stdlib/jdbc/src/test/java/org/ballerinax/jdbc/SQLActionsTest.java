@@ -263,7 +263,7 @@ public class SQLActionsTest {
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
-        Assert.assertEquals(returns[1], null);
+        Assert.assertNull(returns[1]);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -367,7 +367,7 @@ public class SQLActionsTest {
     public void testErrorWithSelectData() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithSelectData");
         Assert.assertEquals(returns.length, 4);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}DatabaseError"));
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
@@ -383,7 +383,7 @@ public class SQLActionsTest {
     public void testFailedGeneratedKeyOnInsertError() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsertError");
         Assert.assertEquals(returns.length, 4);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}DatabaseError"));
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
@@ -402,7 +402,7 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithBatchUpdate");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0].stringValue().contains("array values are -3"));
-        Assert.assertTrue(returns[1].stringValue().contains("{ballerinax/jdbc}DatabaseError"));
+        Assert.assertTrue(returns[1].stringValue().contains("{ballerinax/java.jdbc}DatabaseError"));
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
@@ -411,8 +411,8 @@ public class SQLActionsTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     ".*Invalid update of record field: modification not allowed on frozen value.*")
-    public void testUpdateReslt() {
-        BRunUtil.invoke(resultNegative, "testUpdateReslt");
+    public void testUpdateResult() {
+        BRunUtil.invoke(resultNegative, "testUpdateResult");
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed parameter array update")
@@ -426,7 +426,7 @@ public class SQLActionsTest {
     public void testErrorWithInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testErrorWithInvalidArrayofQueryParameters");
         Assert.assertEquals(returns.length, 3);
-        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/jdbc}ApplicationError"));
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(returns[2].stringValue()
                             .contains("execute query failed: unsupported array type for parameter index 0"));

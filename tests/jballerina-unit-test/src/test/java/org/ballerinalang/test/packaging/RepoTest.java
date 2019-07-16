@@ -37,7 +37,7 @@ public class RepoTest {
 
         Patten prospect = subject.calculate(pkg);
 
-        Assert.assertEquals(prospect.toString(), "$/this.pkg/**~resources/*.bal");
+        Assert.assertEquals(prospect.toString(), "$/src/this.pkg/**~resources/*.bal");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class RepoTest {
 
         Patten prospect = subject.calculate(pkg);
 
-        Assert.assertEquals(prospect.toString(), "$/this.pkg/**~test~resources/*.bal");
+        Assert.assertEquals(prospect.toString(), "$/src/this.pkg/**~test~resources/*.bal");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class RepoTest {
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/nice_org/any.pkg/10.2.3/any.pkg.zip/obj/any.pkg.balo");
+        Assert.assertEquals(patten.toString(), "$/nice_org/any.pkg/10.2.3/any.pkg.zip/bir/any.pkg.bir");
     }
 
     @Test

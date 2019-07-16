@@ -56,18 +56,6 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
   }
@@ -80,8 +68,20 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getConst() {
+    return findChildByType(CONST);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOn() {
+    return findChildByType(ON);
   }
 
   @Override

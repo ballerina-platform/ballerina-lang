@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.all {
     resolutionStrategy {
@@ -199,9 +200,4 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-}
-
-createJavadoc {
-    // TODO: remove following, it fails at org.eclipse currently
-    exclude "**"
 }

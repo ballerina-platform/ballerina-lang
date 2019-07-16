@@ -24,33 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaAttachmentPoint extends PsiElement {
 
   @Nullable
-  PsiElement getTypeParameter();
+  BallerinaDualAttachPoint getDualAttachPoint();
 
   @Nullable
-  PsiElement getAnnotation();
-
-  @Nullable
-  PsiElement getClient();
-
-  @Nullable
-  PsiElement getFunction();
-
-  @Nullable
-  PsiElement getListener();
-
-  @Nullable
-  PsiElement getObject();
-
-  @Nullable
-  PsiElement getRemote();
-
-  @Nullable
-  PsiElement getResource();
-
-  @Nullable
-  PsiElement getService();
-
-  @Nullable
-  PsiElement getType();
+  BallerinaSourceOnlyAttachPoint getSourceOnlyAttachPoint();
 
 }

@@ -344,6 +344,13 @@ public class TableLiteralTest {
                         + "table with type:Person");
     }
 
+    @Test(priority = 1,
+          description = "Test removing data from a table using a given lambda as a filter")
+    public void testRemoveOpAnonymousFilter() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveOpAnonymousFilter");
+        Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
+    }
+
     @Test(priority = 3,
           enabled = false) //Issue #5106
     public void testSessionCount() {

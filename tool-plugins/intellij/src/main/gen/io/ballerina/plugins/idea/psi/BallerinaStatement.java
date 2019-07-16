@@ -57,7 +57,13 @@ public interface BallerinaStatement extends PsiElement {
   BallerinaIfElseStatement getIfElseStatement();
 
   @Nullable
+  BallerinaListDestructuringStatement getListDestructuringStatement();
+
+  @Nullable
   BallerinaLockStatement getLockStatement();
+
+  @Nullable
+  BallerinaMatchStatement getMatchStatement();
 
   @Nullable
   BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement();
@@ -94,11 +100,5 @@ public interface BallerinaStatement extends PsiElement {
 
   @Nullable
   BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement();
-
-  @Nullable
-  BallerinaMatchStatement getMatchStatement();
-
-  @Nullable
-  BallerinaTupleDestructuringStatement getTupleDestructuringStatement();
 
 }
