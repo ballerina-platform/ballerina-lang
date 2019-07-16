@@ -121,4 +121,3 @@ export const TopMenu = (props: TopMenuProps) => {
         </div>
     );
 };
-
