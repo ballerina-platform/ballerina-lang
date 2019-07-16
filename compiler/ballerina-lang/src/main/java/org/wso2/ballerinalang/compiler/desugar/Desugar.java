@@ -1254,7 +1254,8 @@ public class Desugar extends BLangNodeVisitor {
         return x;
     }
 
-    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr, BLangSimpleVariable detailMap) {
+    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr,
+                                                         BLangSimpleVariable detailMap) {
         BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), typeCastExpr.type);
 
         invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, detailMap.symbol);

@@ -45,9 +45,11 @@ public class MapConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bm3'", offset += 3, 39);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bm5'", offset += 3, 33);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bm7'", offset += 3, 33);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'boolean?'", offset + 3, 36);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'boolean?'",
+                offset + 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 36);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'boolean?'", offset + 3, 36);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'boolean?'",
+                offset + 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 2, 29);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset, 39);
@@ -57,9 +59,11 @@ public class MapConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'im3'", offset += 3, 35);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'im5'", offset += 3, 29);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'im7'", offset += 3, 29);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'int?'", offset + 3, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'int?'",
+                offset + 3, 32);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 32);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'int?'", offset + 3, 32);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found 'int?'",
+                offset + 3, 32);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 32);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 2, 25);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset, 35);
@@ -69,9 +73,11 @@ public class MapConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bytem3'", offset += 3, 42);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bytem5'", offset += 3, 36);
         BAssertUtil.validateError(compileResult, index++, "key 'key' not found in 'bytem7'", offset += 3, 36);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'byte?'", offset + 3, 36);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'byte?'",
+                offset + 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 36);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'byte?'", offset + 3, 36);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'byte?'",
+                offset + 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 36);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 2, 29);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset, 39);
