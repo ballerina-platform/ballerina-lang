@@ -100,7 +100,9 @@ public class GlobalVarFunctionWithPkgTest {
     @Test(description = "Test retrieving variable from different package when that package is already initialized " +
             "within another package")
     public void testRetrievingVarFromDifferentPkg() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj", "globalvar.pkg.abc");
+
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj",
+                "globalvar.pkg.abc");
         BValue[] returns = BRunUtil.invoke(result, "getStringInPkg", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);
