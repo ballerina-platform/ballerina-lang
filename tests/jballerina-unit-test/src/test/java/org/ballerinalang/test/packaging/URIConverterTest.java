@@ -26,7 +26,7 @@ public class URIConverterTest {
         List<URI> urls = patten.convert(subject, null)
                                .collect(Collectors.toList());
 
-        URI expected = URI.create("http://staging.central.ballerina.io:9090/natasha/foo.bar/1.0.5/");
+        URI expected = URI.create("http://staging.central.ballerina.io:9090/modules/natasha/foo.bar/1.0.5/");
         Assert.assertEquals(urls, Collections.singletonList(expected));
     }
 

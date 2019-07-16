@@ -39,4 +39,10 @@ public class ProgramFileConstants {
     // byte has been given negative offset value in order to properly find the correct opCodes at
     // {@link CodeGenerator#getOpcodeForArrayOperations(int, int)} method.
     public static final int BYTE_NEGATIVE_OFFSET = 1;
+
+
+    // todo move this to a proper place
+    public static final String IMPLEMENTATION_VERSION = "2019r3";
+    public static final String[] SUPPORTED_PLATFORMS = {"java", "java8"};
+    public static final String ANY_PLATFORM = "any";
 }
