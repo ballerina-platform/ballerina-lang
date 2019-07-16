@@ -65,7 +65,7 @@ public class GlobalVarFunctionWithPkgTest {
 
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 165.0);
 
-        CompileResult resultGlobalVar = BCompileUtil.compile(this, "test-src/statements/variabledef",
+        CompileResult resultGlobalVar = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj",
                 "globalvar.pkg.main");
         BValue[] returnsChanged = BRunUtil.invoke(resultGlobalVar, "getGlobalFloatVar", new BValue[0]);
 
@@ -100,7 +100,7 @@ public class GlobalVarFunctionWithPkgTest {
     @Test(description = "Test retrieving variable from different package when that package is already initialized " +
             "within another package")
     public void testRetrievingVarFromDifferentPkg() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalvar.pkg.abc");
+        CompileResult result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj", "globalvar.pkg.abc");
         BValue[] returns = BRunUtil.invoke(result, "getStringInPkg", new BValue[0]);
 
         Assert.assertEquals(returns.length, 1);
