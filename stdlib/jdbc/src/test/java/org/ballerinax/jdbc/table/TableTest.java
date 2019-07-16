@@ -135,8 +135,7 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // TODO: #16033
-    @Test(groups = TABLE_TEST, description = "Check table to XML conversion.", enabled = false)
+    @Test(groups = TABLE_TEST, description = "Check table to XML conversion.")
     public void testToXmlComplexTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexTypes");
         Assert.assertEquals(returns.length, 1);
@@ -623,8 +622,7 @@ public class TableTest {
                 + "-2147483648|-9223372036854775808#3|-1|-1|-1|-1#");
     }
 
-    // TODO: #16033
-    @Test(groups = TABLE_TEST, description = "Check blob binary and clob types types.", enabled = false)
+    @Test(groups = TABLE_TEST, description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval");
         Assert.assertEquals(returns.length, 6);

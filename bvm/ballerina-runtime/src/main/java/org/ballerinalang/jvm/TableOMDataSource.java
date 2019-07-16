@@ -103,7 +103,7 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
         case TypeTags.DECIMAL_TAG:
             value = String.valueOf(table.getDecimal(index));
             break;
-        case TypeTags.BYTE_TAG:
+        case TypeTags.BYTE_ARRAY_TAG:
             value = table.getBlob(index);
             break;
         case TypeTags.ARRAY_TAG:
