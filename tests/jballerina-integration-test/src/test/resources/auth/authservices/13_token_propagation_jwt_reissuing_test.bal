@@ -28,7 +28,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider13_1 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_1 = new(jwtAuthProvider13_1);
 
-listener http:Listener listener13_1 = new(9107, config = {
+listener http:Listener listener13_1 = new(9107, {
     auth: {
         authHandlers: [jwtAuthHandler13_1]
     },
@@ -54,7 +54,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider13_2 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_2 = new(jwtAuthProvider13_2);
 
-http:Client nyseEP13 = new("https://localhost:9108", config = {
+http:Client nyseEP13 = new("https://localhost:9108", {
     auth: {
         authHandler: jwtAuthHandler13_2
     }
@@ -92,7 +92,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider13_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_3 = new(jwtAuthProvider13_3);
 
-listener http:Listener listener13_2 = new(9108, config = {
+listener http:Listener listener13_2 = new(9108, {
     auth: {
         authHandlers: [jwtAuthHandler13_3]
     },

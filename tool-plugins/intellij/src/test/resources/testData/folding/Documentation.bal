@@ -20,7 +20,7 @@ public type DummyObject abstract object <fold text='{...}'>{
     #              `doThatOnObject` function.
     # + return - This is the description for the return value of
     #            `doThatOnObject` function.</fold>
-    public function doThatOnObject(string paramOne) returns (boolean);
+    public function doThatOnObject(string paramOne) returns boolean;
 }</fold>;
 
 // This is the documentation attachment for the `DummyRecord` record.
@@ -29,7 +29,7 @@ public type DummyObject abstract object <fold text='{...}'>{
 #
 # + fieldOne - This is the description for `DummyRecord`'s field `fieldOne`.
 # + fieldTwo - This is the description for `DummyRecord`'s field `fieldTwo`.</fold>
-public type DummyRecord record {
+public type DummyRecord record <fold text='{...}'>{
     string fieldOne;
     int fieldTwo;
-};
+}</fold>;

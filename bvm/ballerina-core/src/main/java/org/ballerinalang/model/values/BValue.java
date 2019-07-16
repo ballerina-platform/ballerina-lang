@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.BVM;
+import org.ballerinalang.bre.bvm.BVM.FreezeStatus;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.BLangFreezeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -53,10 +54,10 @@ public interface BValue {
     /**
      * Method to attempt freezing a {@link BValue}, to disallow further modification.
      *
-     * @param freezeStatus  the {@link BVM.FreezeStatus} instance to keep track of the
+     * @param freezeStatus  the {@link FreezeStatus} instance to keep track of the
      *                      freeze result of this attempt
      */
-    default void attemptFreeze(BVM.FreezeStatus freezeStatus) {
+    default void attemptFreeze(FreezeStatus freezeStatus) {
         throw new BLangFreezeException("'freeze()' not allowed on '" + getType() + "'");
     }
 

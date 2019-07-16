@@ -122,7 +122,7 @@ public type ExternalTimeWindow object {
                     StreamEvent streamEvent = getStreamEvent(streamEventChunk.next());
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(events);
+                nextProcessFuncPointer(events);
             }
         }
     }
@@ -148,7 +148,7 @@ public type ExternalTimeWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }

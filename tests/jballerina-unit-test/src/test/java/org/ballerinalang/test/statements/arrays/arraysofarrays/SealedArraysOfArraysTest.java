@@ -104,7 +104,7 @@ public class SealedArraysOfArraysTest {
         Assert.assertEquals((returnValues[2]).stringValue(), "val1", "Value didn't match");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNegativeSealedArraysOfArrays() {
         BAssertUtil.validateError(
                 resultNegative, 0, "size mismatch in sealed array. expected '2', but found '3'", 19, 23);

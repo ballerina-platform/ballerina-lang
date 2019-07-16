@@ -119,7 +119,7 @@ public class MainFunctionsTest {
         assertTrue(result.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.contains("const error reason"), "invalid error reason");
-        assertTrue(result.contains("message:\"error message\""), "invalid error message");
+        assertTrue(result.contains("message=error message"), "invalid error message");
     }
 
     @Test
@@ -130,11 +130,11 @@ public class MainFunctionsTest {
         validateError(negativeResult, 1, "invalid type 'typedesc' as main function parameter, expected anydata",
                       17, 15);
         validateError(negativeResult, 2, "invalid type '(int|typedesc)' as main function parameter, expected anydata",
-                      17, 27);
+                      17, 32);
         validateError(negativeResult, 3, "invalid type 'FooObject[]' as main function parameter, expected anydata",
-                      17, 47);
+                      17, 57);
         validateError(negativeResult, 4, "invalid main function return type 'string', expected a subtype of 'error?'",
-                      17, 71);
+                      17, 81);
     }
 
     @AfterClass

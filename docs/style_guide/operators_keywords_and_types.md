@@ -1,8 +1,8 @@
-# Operators, keywords and types
+# Operators, keywords, and types
 
 ## Single-line formatting
 ### Keywords and types
-* Keep only a single space between the type and a pipe operator when it is in an union type `string | int`.
+* Keep only a single space between the type and the pipe operator when it is in an union type (e.g., `string | int`).
   
   Example,
   ```ballerina
@@ -27,12 +27,12 @@
   ```
 * Avoid line breaks in constrained types.
   
-  Dos
+  **Do's**
   ```ballerina
     map<int | string> // map reference type
   ```
   
-  Don'ts
+  **Don'ts**
   ```ballerina
   map<
       int
@@ -48,7 +48,7 @@
   int a = 0;
   ```
 * Do not keep spaces around the semicolon `;`.
-* Do not keep spaces between the unary operator and expression.
+* Do not keep spaces between the unary operator and the expression.
 
   Example,
   ```ballerina
@@ -71,7 +71,7 @@
   ```ballerina
   name += lastName;
   ```
-* When accessing a function, object or record from another module, do not keep spaces around `:`.
+* When accessing a function, object, or record from another module, do not keep spaces around `:`.
   
   Example,
   ```ballerina

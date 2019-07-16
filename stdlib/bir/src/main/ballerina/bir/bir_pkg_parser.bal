@@ -73,7 +73,7 @@ public type PackageParser object {
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
-            _ = self.reader.readByteArray(untaint constValueLength);
+            _ = self.reader.readByteArray(<@untainted> constValueLength);
 
             GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT, 
                                       name:{value:name}, 
@@ -90,16 +90,17 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
-        var metaVarName = self.reader.readStringCpRef();
+        VariableDclMeta meta = {};
+        if (kind is ArgVarKind) {
+            meta.name = self.reader.readStringCpRef();
+        }
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind,
             hasDefaultExpr: hasDefaultExpr,
-            meta: {
-                name: metaVarName
-            }
+            meta: meta
         };
         return dcl;
     }
@@ -112,7 +113,8 @@ public type PackageParser object {
             funcs[i] = self.parseFunction(typeDefs);
             i += 1;
         }
-        return funcs;
+        // TODO: dhananjaya please remove
+        return <@untainted> funcs;
     }
     private function parseInvokableType() returns BInvokableType {
         var functionType = self.reader.readTypeCpRef();
@@ -123,7 +125,7 @@ public type PackageParser object {
         panic err;
     }
 
-    public function parseFunction(TypeDef?[] typeDefs) returns Function {
+    public function parseFunction(TypeDef?[] typeDefs) returns @untainted Function {
         map<VariableDcl> localVarMap = {};
         FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
@@ -150,12 +152,12 @@ public type PackageParser object {
         }
 
         int taintLength = self.reader.readInt64();
-        _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
+        _ = self.reader.readByteArray(<@untainted> taintLength); // read and ignore taint table
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
-            _ = self.reader.readByteArray(untaint bodyLength);
-            return {
+            _ = self.reader.readByteArray(<@untainted> bodyLength);
+            return <@untainted Function> {
                 pos: pos,
                 name: { value: name },
                 flags: flags,
@@ -197,18 +199,20 @@ public type PackageParser object {
             localVarMap[dcl.name.value] = dcl;
             count += 1;
         }
+
         count = 0;
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
-            if (!(dcl.kind is TempVarKind)) {
+            if (dcl.kind is LocalVarKind || dcl.kind is ArgVarKind) {
                 dcl.meta.name = self.reader.readStringCpRef();
-            }
-            if (dcl.kind is LocalVarKind) {
-                var meta = dcl.meta;
-                meta.endBBID = self.reader.readStringCpRef();
-                meta.startBBID = self.reader.readStringCpRef();
-                meta.insOffset = self.reader.readInt32();
+                // local variables have visible range information as well
+                if (dcl.kind is LocalVarKind) {
+                    var meta = dcl.meta;
+                    meta.endBBID = self.reader.readStringCpRef();
+                    meta.startBBID = self.reader.readStringCpRef();
+                    meta.insOffset = self.reader.readInt32();
+                }
             }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
@@ -226,7 +230,7 @@ public type PackageParser object {
         ErrorEntry?[] errorEntries = self.getErrorEntries(bodyParser);
         ChannelDetail[] workerChannels = getWorkerChannels(self.reader);
 
-        return {
+        return <@untainted Function> {
             pos: pos,
             name: { value: name },
             flags: flags,
@@ -248,15 +252,11 @@ public type PackageParser object {
         int requiredParamCount = self.reader.readInt32();
         int i = 0;
         while (i < requiredParamCount) {
+            // ignore name
+            _ = self.reader.readInt32();
+            // ignore flags
             _ = self.reader.readInt32();
             i += 1;
-        }
-
-        int defaultableParamCount = self.reader.readInt32();
-        int j = 0;
-        while (j < defaultableParamCount) {
-            _ = self.reader.readInt32();
-            j += 1;
         }
     }
 
@@ -277,7 +277,7 @@ public type PackageParser object {
 
         self.skipAnnotations();
 
-        return { importModules : importModules,
+        return <@untainted Package> { importModules : importModules,
                     typeDefs : typeDefs, 
                     globalVars : globalVars, 
                     functions : funcs,
@@ -390,7 +390,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (sig.lastIndexOf("(N)") == (sig.length() - 3)) {
+        if (internal:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
             returnType = "()";
         }
         return {
@@ -436,22 +436,48 @@ public type PackageParser object {
     }
 
     function parseAnnotAttachValue() returns AnnotationValue {
-        AnnotationValue annotValue = {};
+        var bType = self.reader.readTypeCpRef();
+        if bType is BArrayType {
+            return self.parseAnnotArrayValue();
+        } else if bType is BMapType || bType is BRecordType {
+            return self.parseAnnotRecordValue();
+        } else {
+            // This is a value type
+            return self.parseAnnotLiteralValue(bType);
+        }
+    }
+
+    function parseAnnotLiteralValue(BType bType) returns AnnotationLiteralValue {
+        var value = parseLiteralValue(self.reader, bType);
+        return {
+            literalType: bType,
+            literalValue: value
+        };
+    }
+
+    function parseAnnotRecordValue() returns AnnotationRecordValue {
+        map<AnnotationValue> annotValueMap = {};
         var noOfAnnotValueEntries = self.reader.readInt32();
         foreach var i in 0..<noOfAnnotValueEntries {
             var key = self.reader.readStringCpRef();
-            // read count
-            var noOfValueEntries = self.reader.readInt32();
-            AnnotationValueEntry?[] valueEntries = [];
-            foreach var j in 0..<noOfValueEntries {
-               var bType = self.reader.readTypeCpRef();
-               var value = parseLiteralValue(self.reader, bType);
-               valueEntries[j] = {literalType: bType, value: value};
-            }
-            
-            annotValue.valueEntryMap[key] = valueEntries;
+            var annotValue = self.parseAnnotAttachValue();
+            annotValueMap[key] = annotValue;
         }
-        return annotValue;
+        return {
+            annotValueMap: annotValueMap
+        };
+    }
+
+    function parseAnnotArrayValue() returns AnnotationArrayValue {
+        AnnotationValue?[]  annotValueArray = [];
+        var noOfAnnotValueEntries = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValueEntries {
+            var annotValue = self.parseAnnotAttachValue();
+            annotValueArray[annotValueArray.length()] = annotValue;
+        }
+        return {
+            annotValueArray: annotValueArray
+        };
     }
 
 };
@@ -459,9 +485,9 @@ public type PackageParser object {
 function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata {
     anydata value;
     if (bType is BTypeByte) {
-        value = reader.readIntCpRef();
-    } else if (bType is BTypeInt) {
         value = reader.readByteCpRef();
+    } else if (bType is BTypeInt) {
+        value = reader.readIntCpRef();
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {
@@ -472,7 +498,8 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        error err = error("unsupported literal value type in annotation attachment value", {"type":bType});
+        record{| anydata|error...; |} detailMap = { 'type : bType };
+        error err = error("unsupported literal value type in annotation attachment value", err = detailMap);
         panic err;
     }
     return value;

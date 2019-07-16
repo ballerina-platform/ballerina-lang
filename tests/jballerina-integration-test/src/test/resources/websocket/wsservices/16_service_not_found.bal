@@ -17,6 +17,12 @@
 import ballerina/log;
 import ballerina/http;
 
+service simpleProxy8 = @http:WebSocketServiceConfig {} service {
+
+    resource function onOpen(http:WebSocketCaller wsEp) {
+    }
+};
+
 @http:ServiceConfig {
     basePath: "/proxy"
 }
@@ -28,14 +34,10 @@ service simple8 on new http:Listener(9098) {
             upgradeService: simpleProxy8
         }
     }
-    resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
+    resource function websocketProxy(http:Caller httpEp, http:Request req) {
 
     }
 }
 
-service simpleProxy8 = @http:WebSocketServiceConfig {} service {
 
-    resource function onOpen(http:WebSocketCaller wsEp) {
-    }
-};
 

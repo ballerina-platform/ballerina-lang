@@ -44,7 +44,7 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Generic Error \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics1() {
         BValue[] arg = {new BInteger(1)};
         BValue[] returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
@@ -52,15 +52,14 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true," +
-                    " \"message\":\"Something Went Wrong\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: Generic Error fatal=true message=Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
         BValue[] arg = {new BInteger(2)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Generic Error \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics3() {
         BValue[] arg = {new BInteger(3)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
@@ -75,15 +74,15 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":" +
-                    "\"array index out of range: index: 4, size: 2\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=array index" +
+                    " out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
         BValue[] arg = {new BInteger(5)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: My Error \\{code:12\\}.*")
+            expectedExceptionsMessageRegExp = "error: My Error code=12.*")
     public void testSafeAssignmentBasics6() {
         BValue[] arg = {new BInteger(6)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);

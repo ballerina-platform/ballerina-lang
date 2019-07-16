@@ -13,11 +13,12 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/'lang\.object as lang;
 
 # Represents ActiveMQ Artemis Listener. This is an abstraction for that includes the connection and session. 
 # Consumers are represented by the service attaching to this listener.
 public type Listener object {
-    *AbstractListener;
+    *lang:AbstractListener;
     private Session session;
 
     public function __init(Session | EndpointConfiguration sessionOrEndpointConfig) {
@@ -27,11 +28,11 @@ public type Listener object {
             Connection connection;
             var secureSocket = sessionOrEndpointConfig["secureSocket"];
             if (secureSocket is SecureSocket) {
-                connection = new(parseUrl(sessionOrEndpointConfig), config = {secureSocket: secureSocket});
+                connection = new(parseUrl(sessionOrEndpointConfig), {secureSocket: secureSocket});
             } else {
                 connection = new(parseUrl(sessionOrEndpointConfig));
             }
-            self.session = new(connection, config = { username: sessionOrEndpointConfig["username"],
+            self.session = new(connection, { username: sessionOrEndpointConfig["username"],
                     password: sessionOrEndpointConfig["password"],
                     autoCommitSends: false, autoCommitAcks:  false });
             self.session.anonymousSession = true;

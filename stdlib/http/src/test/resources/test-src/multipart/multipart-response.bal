@@ -17,7 +17,7 @@ service test on mockEP {
 
         //Create another body part with a xml file.
         mime:Entity bodyPart2 = new;
-        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", contentType = mime:TEXT_XML);
+        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", mime:TEXT_XML);
 
         //Create a text body part.
         mime:Entity bodyPart3 = new;
@@ -33,7 +33,7 @@ service test on mockEP {
         //Set the body parts to outbound response.
         http:Response outResponse = new;
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
-        outResponse.setBodyParts(bodyParts, contentType = contentType);
+        outResponse.setBodyParts(bodyParts, contentType);
 
         checkpanic caller->respond(outResponse);
     }
@@ -48,9 +48,11 @@ service test on mockEP {
         var bodyParts = request.getBodyParts();
 
         if (bodyParts is mime:Entity[]) {
-            outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType = contentType);
+            outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType);
         } else {
-            outResponse.setPayload(<@untainted string> <string>bodyParts.detail().message);
+            error err = bodyParts;
+            string? errMsg = <string> err.detail()?.message;
+            outResponse.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing body parts");
         }
         checkpanic caller->respond(outResponse);
     }

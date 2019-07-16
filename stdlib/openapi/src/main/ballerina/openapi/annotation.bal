@@ -14,195 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-# Model for additional OpenAPI information of a Ballerina service.
-#
-# + title - Title of the OpenAPI definition
-# + serviceVersion - Version of the OpenAPI
-# + description - Description of the service
-# + termsOfService - Service usage terms and conditions
-# + contact - Contact information for the exposed API
-# + license - License information for the exposed API
-# + externalDocs - Additional external documentation
-# + tags - A list of tags used by the specification with additional metadata
-# + security - Security requirements for this service
+# Service validation codee
+# + contract - OpenApi Contract link
+# + tags - OpenApi Tags
+# + operations - OpenApi Operations
 public type ServiceInformation record {|
-    string title = "";
-    string serviceVersion = "";
-    string description = "";
-    string termsOfService = "";
-    Contact contact = {};
-    License license = {};
-    DocumentationInformation externalDocs = {};
-    Tag[] tags = [];
-    SecurityRequirement[] security = [];
-|};
-
-# Model for OpenAPI contact information.
-#
-# + name - Contact name
-# + email - Contact email
-# + url - Contact web address/page
-public type Contact record {|
-    string name = "";
-    string email = "";
-    string url = "";
-|};
-
-# Model for service licence information.
-#
-# + name - License name
-# + url - License url
-public type License record {|
-    string name = "";
-    string url = "";
-|};
-
-# Model for service documentation definition.
-#
-# + description - Documentation description
-# + url - External documentation url
-public type DocumentationInformation record {|
-    string description = "";
-    string url = "";
-|};
-
-# Model for OpenAPI service tag definition.
-#
-# + name - Tag name
-# + description - Tag decription
-# + externalDocs - Optional documentation on the tag
-public type Tag record {|
-    string name = "";
-    string description = "";
-    DocumentationInformation externalDocs = {};
-|};
-
-# Model for security requirement definition. This is most likely the OAuth scopes.
-#
-# + name - Security scheme name
-# + requirements - Array of security requirements
-public type SecurityRequirement record {|
-    string name = "";
-    string[] requirements = [];
-|};
-
-# Model for keeping OpenAPI parameter information.
-#
-# + inInfo - Where the parameter is located. Ex: query
-# + name - Parameter name
-# + paramType - Parameter type
-# + description - Description of the parameter
-# + required - Is this parameter MUST be present in the request
-# + discontinued - Is this parameter deprecated
-# + allowEmptyValue - Is an empty value allowed for this parameter. Valid only for query parameters
-# + schema - Parameter data type
-public type ParameterInformation record {|
-    string inInfo = "";
-    string name = "";
-    string paramType = "";
-    string description = "";
-    boolean required = false;
-    boolean discontinued = false;
-    string allowEmptyValue = "";
-    Schema schema = {};
-|};
-
-# Model for keeping additional OpenAPI schema information.
-#
-# + format - Data format as specified by OpenAPI data type
-# + isArray - Is this an array type schema
-# + ref - Schema reference if this schema definition is a reference type definition
-public type Schema record {|
-    string format = "";
-    boolean isArray = false;
-    string ref = "";
-|};
-
-# Model for additional OpenAPI resource definition.
-#
-# + tags - Tags attched to this resource
-# + summary - A short summary of what the operation does
-# + description - A verbose explanation of the operation behavior
-# + externalDocs - Additional documentation for this operation
-# + parameters - A list of parameters that are applicable for this operation
-public type ResourceInformation record {|
-    string[] tags = [];
-    string summary = "";
-    string description = "";
-    DocumentationInformation externalDocs = {};
-    ParameterInformation[] parameters = [];
-|};
-
-# Model for keeping OpenAPI response information.
-#
-# + code - Reponse code
-# + description - Response description
-# + response - Response content
-# + headers - Response headers
-# + examples - Examples for this response
-public type Response record {|
-    string code = "";
-    string description = "";
-    string response = "";
-    Header[] headers = [];
-    Example[] examples = [];
-|};
-
-# Model for keeping OpenAPI header definition information.
-#
-# + required - Is this a required header
-# + discontinued - Is this header deprecated
-# + description - Header description
-public type Header record {|
-    boolean required = false;
-    boolean discontinued = false;
-    string description = "";
-|};
-
-# Model for keeping OpenAPI example information.
-#
-# + summary - Short description for the example
-# + description - Long description for the example
-# + value - Any example value
-# + externalValue - A URL that points to the literal example
-public type Example record {|
-    string summary = "";
-    string description = "";
-    any value = "";
-    string externalValue = "";
-|};
-
-# Model for additional OpenAPI request body details.
-#
-# + description - Brief description of the request body
-# + required - Determines if the request body is required in the request
-# + example - Example of the request body media type
-# + examples - Examples of the media type
-# + schema - The schema defining the type used for the request body
-# + encoding - Encoding and content type details
-public type requestBody record {|
-    string description = "";
-    boolean required = false;
-    string example = "";
-    Example[] examples = [];
-    Schema schema = {};
-    Encoding[] encoding = [];
-|};
-
-# Model for additional OpenAPI content type definition.
-#
-# + headers - Additional information to be provided as headers
-# + contentType - The Content-Type for encoding a specific property
-# + style - Describes how a specific property value will be serialized depending on its type
-# + explode - Should property values of array or object generate separate parameters for each value of the array
-# + allowReserved - Determines whether the parameter value SHOULD allow reserved characters
-public type Encoding record {|
-    ParameterInformation[] headers = [];
-    string contentType = "";
-    string style = "";
-    boolean explode = false;
-    boolean allowReserved = false;
+    string contract = "";
+    string[]? tags = [];
+    string[]? operations = [];
 |};
 
 # Configuration elements for client code generation.
@@ -210,13 +29,6 @@ public type Encoding record {|
 # + generate - generates client code if set to true
 public type ClientInformation record {|
     boolean generate = true;
-|};
-
-# Model for multi openapi operation definition for ballerina resource.
-#
-# + resourceInformation - list of resource information
-public type MultiResourceInformation record {|
-    map<ResourceInformation> resourceInformation;
 |};
 
 # Presence of this annotation will mark this endpoint to be used as a service endpoint for client generation
@@ -228,8 +40,3 @@ public annotation ClientInformation ClientConfig on service;
 # Annotation for additional OpenAPI information of a Ballerina service.
 public annotation ServiceInformation ServiceInfo on service;
 
-# Annotation for additional OpenAPI information of a Ballerina resource.
-public annotation ResourceInformation ResourceInfo on resource function;
-
-# Annotation for multi OpenAPI operation information of a Ballerina resource.
-public annotation MultiResourceInformation MultiResourceInfo on resource function;

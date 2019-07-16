@@ -19,9 +19,9 @@ service chatAppUpgrader on new http:Listener(9090) {
     resource function upgrader(http:Caller caller, http:Request req,
                                 string name) {
         http:WebSocketCaller wsEp;
-        // Retrieves query parameters from the `http:Request`.
-        map<string> queryParams = req.getQueryParams();
-        // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
+        // Retrieve query parameters from the `http:Request`.
+        map<string[]> queryParams = req.getQueryParams();
+        // Cancel the handshake by sending a 400 status code if the age parameter is missing in the request.
         if (!queryParams.hasKey("age")) {
             var err = caller->cancelWebSocketUpgrade(400, "Age is required");
             if (err is error) {
@@ -31,10 +31,10 @@ service chatAppUpgrader on new http:Listener(9090) {
         }
         map<string> headers = {};
         wsEp = caller->acceptWebSocketUpgrade(headers);
-        // The attributes map of the caller is useful for storing connection specific data.
-        // In this case `NAME`and `AGE` are unique to each connection.
+        // The attributes map of the caller is useful for storing connection-specific data.
+        // In this case, the `NAME`and `AGE` are unique to each connection.
         wsEp.attributes[NAME] = name;
-        wsEp.attributes[AGE] = queryParams["age"];
+        wsEp.attributes[AGE] = queryParams["age"][0];
         string msg =
             "Hi " + name + "! You have successfully connected to the chat";
         var err = wsEp->pushText(msg);

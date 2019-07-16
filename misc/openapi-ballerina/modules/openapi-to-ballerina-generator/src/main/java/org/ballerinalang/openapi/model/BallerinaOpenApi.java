@@ -45,6 +45,7 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
     private String srcPackage;
     private String modelPackage;
     private String openapi = "3.0.0";
+    private String definitionPath = "";
     private Info info = null;
     private ExternalDocumentation externalDocs = null;
     private List<BallerinaServer> servers = null;
@@ -260,4 +261,13 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
     public Set<Map.Entry<String, BallerinaSchema>> getSchemas() {
         return schemas;
     }
+
+    public void setDefinitionPath(String definitionPath) {
+        this.definitionPath = definitionPath;
+    }
+
+    public String getDefinitionPath() {
+        return definitionPath;
+    }
+
 }

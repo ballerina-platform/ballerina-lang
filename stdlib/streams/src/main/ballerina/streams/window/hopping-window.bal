@@ -114,7 +114,7 @@ public type HoppingWindow object {
             self.currentEventQueue.addLast(clonedEvent);
         }
         if (sendEvents) {
-            if (self.currentEventQueue.getFirst() != ()) {
+            if (!(self.currentEventQueue.getFirst() is ())) {
                 if (!(self.resetEvent is ())) {
                     outputStreamEvents.addLast(self.resetEvent);
                     self.resetEvent = ();
@@ -142,7 +142,7 @@ public type HoppingWindow object {
                     StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
                     events[events.length()] = streamEvent;
                 }
-                nextProcessFuncPointer.call(events);
+                nextProcessFuncPointer(events);
             }
         }
     }
@@ -168,7 +168,7 @@ public type HoppingWindow object {
                 StreamEvent rhsEvent = (isLHSTrigger) ? e : originEvent;
 
                 if (conditionFunc is function (map<anydata> e1Data, map<anydata> e2Data) returns boolean) {
-                    if (conditionFunc.call(lshEvent.data, rhsEvent.data)) {
+                    if (conditionFunc(lshEvent.data, rhsEvent.data)) {
                         events[i] = [lshEvent, rhsEvent];
                         i += 1;
                     }

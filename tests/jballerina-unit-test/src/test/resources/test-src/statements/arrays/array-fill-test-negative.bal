@@ -54,7 +54,7 @@ function testArrayFillWithStringFiniteTypes() {
 }
 
 function testArrayFillWithTypedesc() {
-    typedesc[] typedescArr = [];
+    typedesc<any>[] typedescArr = [];
     typedescArr[1] = int;
 }
 

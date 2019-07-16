@@ -65,12 +65,17 @@ public type AuthzFilter object {
 function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
         string[]|string[][] scopes) returns boolean|error {
     boolean|error authorized = true;
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (scopes is string[]) {
         if (scopes.length() > 0) {
             var canHandleResponse = authzHandler.canHandle(request);
             if (canHandleResponse is boolean && canHandleResponse) {
-                authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
-                    context.serviceName, context.resourceName, request.method, scopes);
+                if(principal is runtime:Principal) {
+                    authorized = authzHandler.process(principal.username,context.serviceName, context.resourceName,
+                                                    request.method, scopes);
+                } else {
+                    authorized = false;
+                }
             } else {
                 authorized = canHandleResponse;
             }
@@ -82,8 +87,12 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
         if (scopes[0].length() > 0) {
             var canHandleResponse = authzHandler.canHandle(request);
             if (canHandleResponse is boolean && canHandleResponse) {
-                authorized = authzHandler.handle(runtime:getInvocationContext().principal.username,
-                    context.serviceName, context.resourceName, request.method, scopes);
+                if(principal is runtime:Principal) {
+                 authorized = authzHandler.process(principal.username,
+                                    context.serviceName, context.resourceName, request.method, scopes);
+                } else {
+                    authorized = false;
+                }
             } else {
                 authorized = canHandleResponse;
             }
@@ -105,7 +114,7 @@ function isAuthzSuccessful(Caller caller, boolean|error authorized) returns bool
             response.setTextPayload("Authorization failure");
             var err = caller->respond(response);
             if (err is error) {
-                panic err;
+                panic <error> err;
             }
             return false;
         }
@@ -113,7 +122,7 @@ function isAuthzSuccessful(Caller caller, boolean|error authorized) returns bool
         response.setTextPayload("Authorization failure. " + authorized.reason());
         var err = caller->respond(response);
         if (err is error) {
-            panic err;
+            panic <error> err;
         }
         return false;
     }

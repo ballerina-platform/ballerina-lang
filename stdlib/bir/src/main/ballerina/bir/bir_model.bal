@@ -91,13 +91,19 @@ public type AnnotationAttachment record {|
     AnnotationValue?[] annotValues = [];
 |};
 
-public type AnnotationValue record {|
-    map<AnnotationValueEntry?[]> valueEntryMap = {};
+public type AnnotationValue AnnotationLiteralValue | AnnotationRecordValue | AnnotationArrayValue;
+
+public type AnnotationLiteralValue record {|
+    BType literalType;
+    anydata literalValue;
 |};
 
-public type AnnotationValueEntry record {|
-    BType literalType;
-    anydata value;
+public type AnnotationRecordValue record {|
+    map<AnnotationValue> annotValueMap = {};
+|};
+
+public type AnnotationArrayValue record {|
+    AnnotationValue?[]  annotValueArray = [];
 |};
 
 public const BINARY_ADD = "ADD";
@@ -246,10 +252,10 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
 public type VariableDclMeta record {
-    string name?;
-    string endBBID?;
-    string startBBID?;
-    int insOffset?;
+    string name = "";
+    string endBBID = "";
+    string startBBID = "";
+    int insOffset = 0;
 };
 
 public type VariableDcl record {|
@@ -311,11 +317,10 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
-public const TYPE_DESC = "typedesc";
-public type BTypeDesc TYPE_DESC;
-
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
+
+const HANDLE_TYPE_NAME = "handle";
 
 public type BServiceType record {|
     BObjectType oType;
@@ -325,6 +330,10 @@ public type BArrayType record {|
     ArrayState state;
     int size;
     BType eType;
+|};
+
+public type BTypeDesc record {|
+    BType typeConstraint;
 |};
 
 public type BMapType record {|
@@ -365,6 +374,11 @@ public type BObjectType record {|
     BAttachedFunction? constructor;
 |};
 
+public type BTypeHandle record {
+    HANDLE_TYPE_NAME typeName = HANDLE_TYPE_NAME;
+    string? constraint = ();
+};
+
 public type Self record {|
     BType bType;
 |};
@@ -404,13 +418,13 @@ public type BFutureType record {|
 public type BFiniteType record {|
     Name name = {};
     int flags;
-    (int | string | boolean | float | byte| () | Decimal) [] values;
+    [(int | string | boolean | float | byte| () | Decimal), BType] [] values;
 |};
 
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal;
+                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";
@@ -520,7 +534,8 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    boolean except = true;
+    boolean optionalFieldAccess = false;
+    boolean fillingRead = false;
 |};
 
 public type TypeCast record {|
@@ -528,6 +543,7 @@ public type TypeCast record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
+    BType castType;
     boolean checkType;
 |};
 
@@ -621,6 +637,8 @@ public type AsyncCall record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    boolean isVirtual;
+    boolean isAsync = true;
     BasicBlock thenBB;
 |};
 

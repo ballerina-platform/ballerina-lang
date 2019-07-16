@@ -21,7 +21,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as _ from 'lodash';
 
-import { BallerinaExtension, ExtendedLangClient } from 'src/core';
+import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier } from 'src/core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
@@ -43,49 +43,79 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext> ballerinaExtInstance.context;
 	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
 
+	function updateSelectedConstruct(construct: ConstructIdentifier) {
+		// If Project Overview is already showing update it to show the selected construct
+		if (overviewPanel) {
+			if (rpcHandler) {
+				const { moduleName, constructName } = construct;
+				rpcHandler.invokeRemoteMethod("selectConstruct", [moduleName, constructName], () => {});
+			}
+		} else {
+			// If Project Overview is not yet opened open it and show the selected construct
+			openWebView(context, langClient, construct);
+		}
+	}
+
+	ballerinaExtInstance.onProjectTreeElementClicked((construct) => {
+		updateSelectedConstruct(construct);
+	});
+
 	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
 		return ballerinaExtInstance.onReady()
 		.then(() => {
-			if (!window.activeTextEditor) {
-				return;
-			}
-			const currentUri = window.activeTextEditor.document.fileName;
-			const sourceRoot = getSourceRoot(currentUri, path.parse(currentUri).root);
-
-			if (!sourceRoot) {
-				return;
-			}
-
-			const didChangeDisposable = workspace.onDidChangeTextDocument(
-				_.debounce((e: TextDocumentChangeEvent) => {
-				updateWebView( e.document.uri);
-			}, DEBOUNCE_WAIT));
-
-            overviewPanel = window.createWebviewPanel(
-                'projectOverview',
-                'Project Overview',
-                { viewColumn: ViewColumn.One, preserveFocus: true } ,
-                getCommonWebViewOptions()
-			);
-
-            const editor = window.activeTextEditor;
-            if(!editor) {
-                return;
-            }
-
-			rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
-			const html = render(context, langClient, Uri.file(sourceRoot).toString());
-			if (overviewPanel && html) {
-				overviewPanel.webview.html = html;
-			}
-			
-			overviewPanel.onDidDispose(() => {
-				overviewPanel = undefined;
-				didChangeDisposable.dispose();
-			});
+			openWebView(context, langClient);
 		});
 	});
     context.subscriptions.push(projectOverviewDisposable);
+}
+
+function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, construct?: ConstructIdentifier) {
+	if (!window.activeTextEditor) {
+		return;
+	}
+	const currentFilePath = window.activeTextEditor.document.fileName;
+	const sourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
+
+	const options : {
+		currentUri: string,
+		sourceRootUri?: string,
+		construct?: ConstructIdentifier
+	} = {
+		currentUri: Uri.file(currentFilePath).toString(),
+		construct,
+	};
+
+	if (sourceRoot) {
+		options.sourceRootUri = Uri.file(sourceRoot).toString();
+	}
+
+	const didChangeDisposable = workspace.onDidChangeTextDocument(
+		_.debounce((e: TextDocumentChangeEvent) => {
+		updateWebView( e.document.uri);
+	}, DEBOUNCE_WAIT));
+
+	overviewPanel = window.createWebviewPanel(
+		'projectOverview',
+		'Project Overview',
+		{ viewColumn: ViewColumn.One, preserveFocus: true },
+		getCommonWebViewOptions()
+	);
+
+	const editor = window.activeTextEditor;
+	if(!editor) {
+		return;
+	}
+
+	rpcHandler = WebViewRPCHandler.create(overviewPanel, langClient);
+	const html = render(context, langClient, options);
+	if (overviewPanel && html) {
+		overviewPanel.webview.html = html;
+	}
+
+	overviewPanel.onDidDispose(() => {
+		overviewPanel = undefined;
+		didChangeDisposable.dispose();
+	});
 }
 
 function getSourceRoot(currentPath: string, root: string): string|undefined {

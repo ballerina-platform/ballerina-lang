@@ -159,7 +159,7 @@ type TwoPhaseCommitTransaction object {
     function prepareParticipants(string protocol) returns PrepareDecision {
         PrepareDecision prepareDecision = PREPARE_DECISION_COMMIT;
         future<[(PrepareResult|error)?, Participant]>?[] results = [];
-        foreach var [key, participant] in self.participants {
+        foreach var participant in self.participants {
             string participantId = participant.participantId;
             future<[(PrepareResult|error)?, Participant]> f = start participant.prepare(protocol);
             results[results.length()] = f;
@@ -216,7 +216,7 @@ type TwoPhaseCommitTransaction object {
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
         future<(NotifyResult|error)?>?[] results = [];
-        foreach var [key, participant] in self.participants {
+        foreach var participant in self.participants {
             future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
             results[results.length()] = f;
 
@@ -286,8 +286,8 @@ type TwoPhaseCommitTransaction object {
     }
 
     function removeParticipant(string participantId, string failedMessage) {
-        boolean participantRemoved = self.participants.remove(participantId);
-        if (!participantRemoved) {
+        var removed = trap self.participants.remove(participantId);
+        if (removed is error) {
             log:printError(failedMessage);
         }
     }

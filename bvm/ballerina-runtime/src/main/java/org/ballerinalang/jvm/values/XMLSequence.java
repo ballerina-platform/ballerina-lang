@@ -455,6 +455,18 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLSequence copy = (XMLSequence) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public XMLValue<?> getItem(int index) {
         try {
             return (XMLValue<?>) this.sequence.getRefValue(index);
@@ -530,6 +542,12 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             this.freezeStatus = freezeStatus;
             Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
         }
+    }
+
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+        Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).freezeDirect());
     }
 
     @Override

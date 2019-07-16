@@ -37,9 +37,6 @@ public const AUTO_ACK = "auto";
 # Constant for the RabbitMQ client acknowledgement mode.
 public const CLIENT_ACK = "client";
 
-# RabbitMQ Error code.
-public const string RABBITMQ_ERROR_CODE = "{ballerina/RabbitMQ}RabbitMQError";
-
 # Holds other properties of the message - routing headers etc.
 #
 # + replyTo - The queue name to which the other apps should send the response.

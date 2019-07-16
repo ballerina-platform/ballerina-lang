@@ -44,14 +44,14 @@ public class BallerinaStructuredRefBindingPatternImpl extends ASTWrapperPsiEleme
 
   @Override
   @Nullable
-  public BallerinaRecordRefBindingPattern getRecordRefBindingPattern() {
-    return findChildByClass(BallerinaRecordRefBindingPattern.class);
+  public BallerinaListRefBindingPattern getListRefBindingPattern() {
+    return findChildByClass(BallerinaListRefBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public BallerinaTupleRefBindingPattern getTupleRefBindingPattern() {
-    return findChildByClass(BallerinaTupleRefBindingPattern.class);
+  public BallerinaRecordRefBindingPattern getRecordRefBindingPattern() {
+    return findChildByClass(BallerinaRecordRefBindingPattern.class);
   }
 
 }
