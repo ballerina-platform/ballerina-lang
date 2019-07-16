@@ -231,10 +231,7 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // TODO: #16033
-    // When try to debug, int and long values seem to be in refvalues. When we get stringvalue,
-    // int/long value arrays are shown as empty arrays
-    @Test(groups = {TABLE_TEST}, description = "Check json conversion with complex element.", enabled = false)
+    @Test(groups = {TABLE_TEST}, description = "Check json conversion with complex element.")
     public void testToJsonComplex() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplex");
         Assert.assertEquals(returns.length, 1);
@@ -249,8 +246,7 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // TODO: #16033
-    @Test(groups = {TABLE_TEST}, description = "Check json conversion with complex element.", enabled = false)
+    @Test(groups = {TABLE_TEST}, description = "Check json conversion with complex element.")
     public void testToJsonComplexWithStructDef() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexWithStructDef");
         Assert.assertEquals(returns.length, 1);
