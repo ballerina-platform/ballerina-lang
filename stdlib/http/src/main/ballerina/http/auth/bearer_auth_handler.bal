@@ -47,14 +47,20 @@ public type BearerAuthHandler object {
     # Authenticates the incoming request with the use of credentials passed as the Bearer Auth header.
     #
     # + req - The `Request` instance.
-    # + return - Returns `true` if authenticated successfully. Else, returns `false` or the `error` in case of an error.
-    public function process(Request req) returns boolean|error {
+    # + return - Returns `true` if authenticated successfully. Else, returns `false`
+    # or the `AuthenticationError` in case of an error.
+    public function process(Request req) returns boolean|AuthenticationError {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(6, headerValue.length());
         credential = credential.trim();
         var authProvider = self.authProvider;
         if (authProvider is auth:InboundAuthProvider) {
-            return authProvider.authenticate(credential);
+            var authenticationResult = authProvider.authenticate(credential);
+            if (authenticationResult is boolean) {
+                return authenticationResult;
+            } else {
+                return prepareAuthenticationError("Failed to authenticate with bearer auth handler.", authenticationResult);
+            }
         } else {
             return prepareAuthenticationError("Outbound auth provider is configured for inbound authentication.");
         }
@@ -63,8 +69,8 @@ public type BearerAuthHandler object {
     # Prepares the request with the Bearer Auth header.
     #
     # + req - The`Request` instance.
-    # + return - Returns the updated `Request` instance or the `ClientError` in case of an error.
-    public function prepare(Request req) returns Request|ClientError {
+    # + return - Returns the updated `Request` instance or the `AuthenticationError` in case of an error.
+    public function prepare(Request req) returns Request|AuthenticationError {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             string token = check authProvider.generateToken();
@@ -79,8 +85,9 @@ public type BearerAuthHandler object {
     #
     # req - The `Request` instance.
     # resp - The `Response` instance.
-    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be returned.
-    public function inspect(Request req, Response resp) returns Request|error? {
+    # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error,
+    # or `()` if nothing is to be returned.
+    public function inspect(Request req, Response resp) returns Request|AuthenticationError? {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             map<anydata> headerMap = createResponseHeaderMap(resp);

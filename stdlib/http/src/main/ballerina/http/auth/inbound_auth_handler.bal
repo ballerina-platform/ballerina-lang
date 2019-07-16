@@ -26,6 +26,6 @@ public type InboundAuthHandler abstract object {
     # Tries to authenticate the request with the relevant `InboundAuthHandler` implementation.
     #
     # + req - `Request` instance
-    # + return - `true` if authenticated successfully, else `false` or, `error` in case of errors
-    public function process(Request req) returns boolean|error;
+    # + return - `true` if authenticated successfully, else `false` or, `AuthenticationError` in case of errors
+    public function process(Request req) returns boolean|AuthenticationError;
 };

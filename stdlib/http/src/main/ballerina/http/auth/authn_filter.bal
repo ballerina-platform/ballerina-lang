@@ -34,7 +34,7 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - Returns `true` if the filter succeeds. Else, returns `false`.
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean|error authenticated;
+        boolean|AuthenticationError authenticated;
         var authHandlers = getAuthHandlers(context);
         if (authHandlers is InboundAuthHandler[]|InboundAuthHandler[][]) {
             authenticated = handleAuthRequest(authHandlers, request);
@@ -53,7 +53,8 @@ public type AuthnFilter object {
     }
 };
 
-function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandlers, Request request) returns boolean|error {
+function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandlers, Request request)
+                           returns boolean|AuthenticationError {
     if (authHandlers is InboundAuthHandler[]) {
         return checkForAuthHandlers(authHandlers, request);
     } else {
@@ -71,8 +72,8 @@ function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandl
     }
 }
 
-function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request) returns boolean|error {
-    error? err = ();
+function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request) returns boolean|AuthenticationError {
+    AuthenticationError? err = ();
     foreach InboundAuthHandler authHandler in authHandlers {
         boolean canProcessResponse = authHandler.canProcess(request);
         if (canProcessResponse) {
@@ -89,7 +90,7 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
             }
         }
     }
-    if (err is error) {
+    if (err is AuthenticationError) {
         return err;
     }
     return false;
@@ -98,9 +99,9 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
 # Verifies if the authentication is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authenticated - Authentication status for the request, or `error` if error occurred
+# + authenticated - Authentication status for the request, or `AuthenticationError` if error occurred
 # + return - Authentication result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns boolean {
+function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authenticated) returns boolean {
     Response response = new;
     response.statusCode = 401;
     if (authenticated is boolean) {
@@ -113,7 +114,9 @@ function isAuthnSuccessful(Caller caller, boolean|error authenticated) returns b
             return false;
         }
     } else {
-        response.setTextPayload("Authentication failure. " + authenticated.reason());
+        // TODO: Remove the below casting when new lang syntax are merged.
+        error e = authenticated;
+        response.setTextPayload("Authentication failure. " + e.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic <error> err;

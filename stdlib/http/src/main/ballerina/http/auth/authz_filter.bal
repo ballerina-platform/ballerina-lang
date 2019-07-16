@@ -38,7 +38,7 @@ public type AuthzFilter object {
     # + context - `FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        boolean|error authorized = true;
+        boolean|AuthorizationError authorized = true;
         var scopes = getScopes(context);
         if (scopes is string[]|string[][]) {
             authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
@@ -63,8 +63,8 @@ public type AuthzFilter object {
 };
 
 function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
-        string[]|string[][] scopes) returns boolean|error {
-    boolean|error authorized = true;
+                            string[]|string[][] scopes) returns boolean|AuthorizationError {
+    boolean|AuthorizationError authorized = true;
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (scopes is string[]) {
         if (scopes.length() > 0) {
@@ -104,9 +104,9 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
 # Verifies if the authorization is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP responses
-# + authorized - Authorization status for the request, or `error` if error occurred
+# + authorized - Authorization status for the request, or `AuthorizationError` if error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
-function isAuthzSuccessful(Caller caller, boolean|error authorized) returns boolean {
+function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
     Response response = new;
     response.statusCode = 403;
     if (authorized is boolean) {
@@ -119,7 +119,9 @@ function isAuthzSuccessful(Caller caller, boolean|error authorized) returns bool
             return false;
         }
     } else {
-        response.setTextPayload("Authorization failure. " + authorized.reason());
+        // TODO: Remove the below casting when new lang syntax are merged.
+        error e = authorized;
+        response.setTextPayload("Authorization failure. " + e.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic <error> err;
