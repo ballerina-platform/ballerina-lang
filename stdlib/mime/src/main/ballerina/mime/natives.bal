@@ -200,7 +200,7 @@ public type Entity object {
     # Gets the content disposition of entity.
     #
     # + return - A `ContentDisposition` object
-    public function getContentDisposition() returns ContentDisposition {
+    public function getContentDisposition() returns @tainted ContentDisposition {
         string contentDispositionVal = "";
         if (self.hasHeader(CONTENT_DISPOSITION)) {
             contentDispositionVal = self.getHeader(CONTENT_DISPOSITION);

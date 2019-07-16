@@ -62,7 +62,7 @@ public type ChannelReader object {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
             var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
-            return encoding:byteArrayToString(strBytes, "utf-8");
+            return encoding:byteArrayToString(<@untainted>strBytes, "utf-8");
         } else {
             return "";
         }
