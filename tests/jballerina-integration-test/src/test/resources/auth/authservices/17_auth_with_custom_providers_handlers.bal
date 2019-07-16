@@ -124,10 +124,17 @@ public type InboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function process(http:Request req) returns boolean|error {
+    public function process(http:Request req) returns boolean|http:AuthenticationError {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
         string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
-        return self.authProvider.authenticate(credential);
+        var authenticationResult = self.authProvider.authenticate(credential);
+        if (authenticationResult is boolean) {
+            return authenticationResult;
+        } else {
+            string message = "Failed to authenticate with custom auth hanndler.";
+            http:AuthenticationError authError = error(http:AUTHN_FAILED, message = message, cause = authenticationResult);
+            return authError;
+        }
     }
 
     public function canProcess(http:Request req) returns @tainted boolean {
@@ -169,13 +176,13 @@ public type OutboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function prepare(http:Request req) returns http:Request|http:ClientError {
+    public function prepare(http:Request req) returns http:Request|http:AuthenticationError {
         string token = check self.authProvider.generateToken();
         req.setHeader(http:AUTH_HEADER, "Custom " + token);
         return req;
     }
 
-    public function inspect(http:Request req, http:Response resp) returns http:Request|error? {
+    public function inspect(http:Request req, http:Response resp) returns http:Request|http:AuthenticationError? {
         map<anydata> headerMap = { "STATUS_CODE": resp.statusCode };
         string[] headerNames = <@untainted> resp.getHeaderNames();
         foreach string header in headerNames {
