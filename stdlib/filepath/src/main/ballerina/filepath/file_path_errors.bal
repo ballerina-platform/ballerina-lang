@@ -27,7 +27,7 @@ public const FILE_PATH_ERROR = "{ballerina/filepath}Error";
 
 public type Error error<FILE_PATH_ERROR, Detail>;
 
-# Prepare the `error` as a `Error`.
+# Prepare the `error` as an `Error`.
 #
 # + message - The error message.
 # + err - The `error` instance.

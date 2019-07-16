@@ -49,12 +49,12 @@ public class UtilsTest {
                 "message=Invalid path format: /User/ballerina/path\\test cause=null");
 
         // Get Path error without throwable.
-        ErrorValue error3 = Utils.getPathError(reason, (Throwable) null);
+        ErrorValue error3 = Utils.getPathError(reason, null);
         Assert.assertEquals(error3.getReason(), Constants.FILEPATH_ERROR_CODE);
         Assert.assertEquals(error3.getDetails().toString(), "message=INVALID_PATH cause=null");
 
         // Get Path error without both reason and throwable.
-        ErrorValue error4 = Utils.getPathError(null, (Throwable) null);
+        ErrorValue error4 = Utils.getPathError(null, null);
         Assert.assertEquals(error4.getReason(), Constants.FILEPATH_ERROR_CODE);
         Assert.assertEquals(error4.getDetails().toString(), "message=Unknown Error cause=null");
 
