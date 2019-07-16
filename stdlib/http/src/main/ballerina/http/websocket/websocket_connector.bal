@@ -68,12 +68,13 @@ type WebSocketConnector object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
-    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60) returns WebSocketError? {
+    public function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60)
+    returns WebSocketError? {
         if (statusCode is int) {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
-                ConnectionClosureError err = error(message = "Failed to execute close. Invalid status code: " +
-                 statusCode);
+                WsConnectionClosureError err = error(message = "Failed to execute close. Invalid status code: " +
+                statusCode);
                 return err;
             }
             return self.externClose(statusCode, reason ?: "", timeoutInSecs);

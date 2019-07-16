@@ -28,7 +28,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.ConnectionError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
 import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
@@ -64,7 +64,7 @@ public class Ready {
             callback.notifySuccess();
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(createWebSocketError(ConnectionError, e.getMessage()));
+            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;

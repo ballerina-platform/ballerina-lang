@@ -29,7 +29,7 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.InvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
 import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
@@ -62,7 +62,7 @@ public class CancelWebSocketUpgrade {
         future.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(createWebSocketError(InvalidHandshakeError, cause.getMessage()));
+                callback.setReturnValues(createWebSocketError(WsInvalidHandshakeError, cause.getMessage()));
             } else {
                 callback.setReturnValues(null);
             }

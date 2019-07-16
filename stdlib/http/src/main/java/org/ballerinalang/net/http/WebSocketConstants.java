@@ -102,13 +102,13 @@ public class WebSocketConstants {
      */
     public enum ErrorCode {
 
-        ConnectionClosureError("{ballerina/http}ConnectionClosureError"),
-        InvalidHandshakeError("{ballerina/http}InvalidHandshakeError"),
-        PayloadTooBigError("{ballerina/http}PayloadTooBigError"),
-        ProtocolError("{ballerina/http}ProtocolError"),
-        ConnectionError("{ballerina/http}ConnectionError"),
-        InvalidContinuationFrameError("{ballerina/http}InvalidContinuationFrameError"),
-        WebSocketGenericError("{ballerina/http}WebSocketGenericError");
+        WsConnectionClosureError("{ballerina/http}WsConnectionClosureError"),
+        WsInvalidHandshakeError("{ballerina/http}WsInvalidHandshakeError"),
+        WsPayloadTooBigError("{ballerina/http}WsPayloadTooBigError"),
+        WsProtocolError("{ballerina/http}WsProtocolError"),
+        WsConnectionError("{ballerina/http}WsConnectionError"),
+        WsInvalidContinuationFrameError("{ballerina/http}WsInvalidContinuationFrameError"),
+        WsGenericError("{ballerina/http}WsGenericError");
 
         private String errorCode;
 

@@ -43,8 +43,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import java.util.Arrays;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.InvalidHandshakeError;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WebSocketGenericError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
 import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
@@ -102,7 +102,7 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(createWebSocketError(InvalidHandshakeError ,
+                    callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError ,
                             "Unable to complete handshake:" + throwable.getMessage()));
                 } else {
                     throw new WebSocketException("Unable to complete handshake", throwable);
@@ -237,7 +237,7 @@ public class WebSocketUtil {
      * @return ErrorValue instance which contains the error details
      */
     public static ErrorValue createWebSocketError(String errMsg) {
-        return BallerinaErrors.createError(WebSocketGenericError.errorCode(), createDetailRecord(errMsg, null));
+        return BallerinaErrors.createError(WsGenericError.errorCode(), createDetailRecord(errMsg, null));
     }
 
     /**

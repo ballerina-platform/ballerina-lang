@@ -14,26 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const CONNECTION_CLOSURE_ERROR = "{ballerina/http}ConnectionClosureError";
-public type ConnectionClosureError error<CONNECTION_CLOSURE_ERROR, Detail>;
+public const CONNECTION_CLOSURE_ERROR = "{ballerina/http}WsConnectionClosureError";
+public type WsConnectionClosureError error<CONNECTION_CLOSURE_ERROR, Detail>;
 
-public const INVALID_HANDSHAKE_ERROR = "{ballerina/http}InvalidHandshakeError";
-public type InvalidHandshakeError error<INVALID_HANDSHAKE_ERROR, Detail>;
+public const INVALID_HANDSHAKE_ERROR = "{ballerina/http}WsInvalidHandshakeError";
+public type WsInvalidHandshakeError error<INVALID_HANDSHAKE_ERROR, Detail>;
 
-public const PAYLOAD_TOO_BIG_ERROR = "{ballerina/http}PayloadTooBigError";
-public type PayloadTooBigError error<PAYLOAD_TOO_BIG_ERROR, Detail>;
+public const PAYLOAD_TOO_BIG_ERROR = "{ballerina/http}WsPayloadTooBigError";
+public type WsPayloadTooBigError error<PAYLOAD_TOO_BIG_ERROR, Detail>;
 
-public const PROTOCOL_ERROR = "{ballerina/http}ProtocolError";
-public type ProtocolError error<PROTOCOL_ERROR, Detail>;
+public const PROTOCOL_ERROR = "{ballerina/http}WsProtocolError";
+public type WsProtocolError error<PROTOCOL_ERROR, Detail>;
 
-public const CONNECTION_ERROR = "{ballerina/http}ConnectionError";
-public type ConnectionError error<CONNECTION_ERROR, Detail>;
+public const CONNECTION_ERROR = "{ballerina/http}WsConnectionError";
+public type WsConnectionError error<CONNECTION_ERROR, Detail>;
 
-public const INVALID_CONTINUATION_FRAME_ERROR = "{ballerina/http}InvalidContinuationFrameError";
-public type InvalidContinuationFrameError error<INVALID_CONTINUATION_FRAME_ERROR, Detail>;
+public const INVALID_CONTINUATION_FRAME_ERROR = "{ballerina/http}WsInvalidContinuationFrameError";
+public type WsInvalidContinuationFrameError error<INVALID_CONTINUATION_FRAME_ERROR, Detail>;
 
-public const GENERIC_ERROR = "{ballerina/http}WebSocketGenericError";
-public type WebSocketGenericError error<GENERIC_ERROR, Detail>;
+public const GENERIC_ERROR = "{ballerina/http}WsGenericError";
+public type WsGenericError error<GENERIC_ERROR, Detail>;
 
-public type WebSocketError ConnectionClosureError|InvalidHandshakeError|PayloadTooBigError|ProtocolError|
-ConnectionError|InvalidContinuationFrameError|WebSocketGenericError;
+public type WebSocketError WsConnectionClosureError|WsInvalidHandshakeError|WsPayloadTooBigError|
+WsProtocolError|WsConnectionError|WsInvalidContinuationFrameError|WsGenericError;
