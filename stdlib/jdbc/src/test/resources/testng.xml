@@ -37,7 +37,7 @@ under the License.
             <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>
             <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
 
-<!--            <class name="org.ballerinax.jdbc.table.TableTest"/>-->
+            <class name="org.ballerinax.jdbc.table.TableTest"/>
 <!--            <class name="org.ballerinax.jdbc.table.TableIterationTest"/>-->
         </classes>
     </test>

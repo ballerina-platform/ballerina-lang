@@ -383,60 +383,58 @@ function testXmlWithNull() returns xml {
     checkpanic testDB.stop();
     return ret;
 }
+
+function testToXmlWithinTransaction() returns [string, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    int returnValue = -1;
+    string resultXml = "";
+    transaction {
+        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+        if (dt is table<record {}>) {
+            var result = typedesc<xml>.constructFrom(dt);
+            if (result is xml) {
+                resultXml = io:sprintf("%s", result);
+                returnValue = 0;
+            } else {
+                resultXml = "<fail>error</fail>";
+            }
+        }
+    }
+    checkpanic testDB.stop();
+    return [resultXml, returnValue];
+}
 // TODO: #16033
-//function testToXmlWithinTransaction() returns [string, int] {
-//    jdbc:Client testDB = new({
-//        path: "./target/tempdb/",
-//        name: "TEST_DATA_TABLE_H2",
-//        username: "SA",
-//        password: "",
-//        poolOptions: { maximumPoolSize: 1 }
-//    });
-//
-//    int returnValue = -1;
-//    string resultXml = "";
-//    transaction {
-//        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-//        if (dt is table<record {}>) {
-//            var result = xml.convert(dt);
-//            if (result is xml) {
-//                resultXml = io:sprintf("%s", result);
-//                returnValue = 0;
-//            } else {
-//                resultXml = "<fail>error</fail>";
-//            }
-//        }
-//    }
-//    checkpanic testDB.stop();
-//    return [resultXml, returnValue];
-//}
-// TODO: #16033
-//function testToJsonWithinTransaction() returns [string, int] {
-//    jdbc:Client testDB = new({
-//        path: "./target/tempdb/",
-//        name: "TEST_DATA_TABLE_H2",
-//        username: "SA",
-//        password: "",
-//        poolOptions: { maximumPoolSize: 1 }
-//    });
-//
-//    int returnValue = -1;
-//    string result = "";
-//    transaction {
-//        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
-//        if (dt is table<record {}>) {
-//            var j = json.convert(dt);
-//            if (j is json) {
-//                result = io:sprintf("%s", j);
-//                returnValue = 0;
-//            } else {
-//                result = "<fail>error</fail>";
-//            }
-//        }
-//    }
-//    checkpanic testDB.stop();
-//    return [result, returnValue];
-//}
+function testToJsonWithinTransaction() returns [string, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    int returnValue = -1;
+    string result = "";
+    transaction {
+        var dt = testDB->select("SELECT int_type, long_type from DataTable WHERE row_id = 1", ());
+        if (dt is table<record {}>) {
+            var j = typedesc<json>.constructFrom(dt);
+            if (j is json) {
+                result = io:sprintf("%s", j);
+                returnValue = 0;
+            } else {
+                result = "<fail>error</fail>";
+            }
+        }
+    }
+    checkpanic testDB.stop();
+    return [result, returnValue];
+}
 
 function testGetPrimitiveTypes() returns @tainted [int, int, float, float, boolean, string, decimal] {
     jdbc:Client testDB = new({
@@ -528,7 +526,7 @@ function testArrayData() returns @tainted [int[], int[], decimal[], string[], bo
     return [int_arr, long_arr, float_arr, string_arr, boolean_arr];
 }
 
-function testArrayDataInsertAndPrint() returns [int, int, int, int, int, int] {
+function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int, int] {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -562,6 +560,7 @@ function testArrayDataInsertAndPrint() returns [int, int, int, int, int, int] {
         updatedCount = updateRet.updatedRowCount;
     } else {
        error e = updateRet;
+       io:println(<string> e.detail()["message"]);
     }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
@@ -1235,7 +1234,7 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
     string selectSQL =
     "SELECT row_id, blob_type, clob_type, binary_type FROM ComplexTypes where row_id = 100 or row_id = 200";
     string text = "Sample Text";
-    byte[] content = text.toByteArray("UTF-8");
+    byte[] content = text.toBytes();
 
     int retDataInsert;
     int retNullInsert;
@@ -1426,7 +1425,7 @@ function testTableAddInvalid() returns @tainted string {
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.add(row);
         if (ret is error) {
-            s = <string>ret.detail().message;
+            s = <string>ret.detail()["message"];
         } else {
             s = "nil";
         }
@@ -1449,10 +1448,10 @@ function testTableRemoveInvalid() returns @tainted string {
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
-            s = string.convert(ret);
+            s = checkpanic string.constructFrom(ret);
         } else {
             error e = ret;
-            s = <string> e.detail().message;
+            s = <string> e.detail()["message"];
         }
         selectRet.close();
     }
@@ -1473,7 +1472,7 @@ function tableGetNextInvalid() returns @tainted string {
         selectRet.close();
         var ret = trap selectRet.getNext();
         if (ret is error) {
-            retVal = <string> ret.detail().message;
+            retVal = <string> ret.detail()["message"];
         }
     }
     checkpanic testDB.stop();
@@ -1494,10 +1493,10 @@ function testToJsonAndAccessFromMiddle() returns @tainted [json, int] {
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
-
-    json j = result[1];
+    json[] jArray = <json[]>result;
+    json j = jArray[1];
     checkpanic testDB.stop();
-    return [result, result.length()];
+    return [result, jArray.length()];
 }
 
 function testToJsonAndIterate() returns @tainted [json, int]|error {
@@ -1510,12 +1509,7 @@ function testToJsonAndIterate() returns @tainted [json, int]|error {
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
-    json j = [];
-    int i = 0;
-    foreach var row in check json[].convert(result) {
-        j[i] = row;
-        i += 1;
-    }
+    json[] j = <json[]> result;
     checkpanic testDB.stop();
     return [j, j.length()];
 }
@@ -1547,12 +1541,14 @@ function testToJsonAndLengthof() returns [int, int] {
 
     json result = getJsonConversionResult(selectRet);
 
+    json[] jArray = checkpanic json[].constructFrom(result);
+
     // get the length before accessing
-    int beforeLen = result.length();
+    int beforeLen = jArray.length();
 
     // get the length after accessing
-    json j = result[0];
-    int afterLen = result.length();
+    json j = jArray[0];
+    int afterLen = jArray.length();
     checkpanic testDB.stop();
     return [beforeLen, afterLen];
 }
@@ -1560,16 +1556,16 @@ function testToJsonAndLengthof() returns [int, int] {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             // Converting to string to make sure the json is built before returning.
-            _ = jsonConversionResult.toString();
+            string data = io:sprintf("%s", jsonConversionResult);
             retVal = jsonConversionResult;
         } else {
-            retVal = {"Error" : <string>jsonConversionResult.detail().message};
+            retVal = {"Error" : <string>jsonConversionResult.detail()["message"]};
         }
     } else {
-        retVal = {"Error" : <string>tableOrError.detail().message};
+        retVal = {"Error" : <string>tableOrError.detail()["message"]};
     }
     return retVal;
 }
@@ -1577,58 +1573,59 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
 function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
-        var xmlConversionResult = xml.convert(tableOrError);
+        var xmlConversionResult = typedesc<xml>.constructFrom(tableOrError);
+        io:println(xmlConversionResult);
         if (xmlConversionResult is xml) {
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);
             retVal = xmlConversionResult;
         } else {
-            string errorXML = <string>xmlConversionResult.detail().message;
+            string errorXML = <string>xmlConversionResult.detail()["message"];
             retVal = xml `<Error>{{errorXML}}</Error>`;
         }
     } else {
-        string errorXML = <string>tableOrError.detail().message;
+        string errorXML = <string>tableOrError.detail()["message"];
         retVal = xml `<Error>{{errorXML}}</Error>`;
     }
     return retVal;
 }
 
-function testSelectQueryWithCursorTable() returns error? {
-    jdbc:Client testDB = new({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
+//function testSelectQueryWithCursorTable() returns error? {
+//    jdbc:Client testDB = new({
+//        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+//        username: "SA",
+//        password: "",
+//        poolOptions: { maximumPoolSize: 1 }
+//    });
+//
+//    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+//    error? e = trap testSelectQueryWithCursorTableHelper(t1);
+//    t1.close();
+//    checkpanic testDB.stop();
+//    return e;
+//}
 
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    error? e = trap testSelectQueryWithCursorTableHelper(t1);
-    t1.close();
-    checkpanic testDB.stop();
-    return e;
-}
+//function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
+//    table<IntData> t1Copy = from t1 select *;
+//}
 
-function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
-    table<IntData> t1Copy = from t1 select *;
-}
-
-function testJoinQueryWithCursorTable() returns error? {
-    jdbc:Client testDB = new({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 2 }
-    });
-
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-
-    error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
-    t1.close();
-    t2.close();
-    checkpanic testDB.stop();
-    return e;
-}
+//function testJoinQueryWithCursorTable() returns error? {
+//    jdbc:Client testDB = new({
+//        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+//        username: "SA",
+//        password: "",
+//        poolOptions: { maximumPoolSize: 2 }
+//    });
+//
+//    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+//    table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+//
+//    error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
+//    t1.close();
+//    t2.close();
+//    checkpanic testDB.stop();
+//    return e;
+//}
 
 function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns @tainted [int, int, float, float, boolean,
      string] {
@@ -1664,10 +1661,10 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns @t
      return [i, l, f, d, b, s];
 }
 
-function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
-    table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
-    table1.int_type == table2.int_type select table1.int_type as int_type;
-}
+//function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
+//    table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
+//    table1.int_type == table2.int_type select table1.int_type as int_type;
+//}
 
 function testAssignStringValueToJsonField() returns @tainted json {
     jdbc:Client testDB = new({
@@ -1692,19 +1689,3 @@ type Order record {
     int id;
     string name;
 };
-
-function testRemoveOp() returns table<Order> {
-    table<Order> orderTable = table {
-        { id, name },
-        [
-            {1, "BTC"},
-            {2, "LTC"}
-        ]
-    };
-
-    int invalid = 0;
-    var s = orderTable.remove(function (Order ord) returns boolean {
-                        return ord.id > invalid;
-                    });
-    return orderTable;
-}

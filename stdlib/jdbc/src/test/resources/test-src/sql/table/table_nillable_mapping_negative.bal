@@ -209,7 +209,7 @@ function testAssignNilToNonNillableTimeStamp() returns @tainted string {
     return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc recordType) returns @tainted string {
+function testAssignNilToNonNillableField(string field, typedesc<record{}> recordType) returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -231,7 +231,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -326,7 +326,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tain
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -349,7 +349,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tai
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -372,7 +372,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -395,7 +395,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -416,7 +416,7 @@ function testAssignInvalidUnionArray() returns @tainted string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.detail().message;
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -437,7 +437,7 @@ function testAssignInvalidUnionArrayElement() returns @tainted string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.detail().message;
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -458,7 +458,7 @@ function testAssignInvalidUnionArray2() returns @tainted string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.detail().message;
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -491,7 +491,7 @@ function testAssignToInvalidUnionField(string field) returns @tainted string {
         while (dt.hasNext()) {
             var ret = trap <InvalidUnion>dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail().message;
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
