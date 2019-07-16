@@ -1393,11 +1393,4 @@ public class TableTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello");
     }
-
-    // TODO: #16033
-    @Test(description = "Test removing data from a table using a given lambda as a filter", enabled = false)
-    public void testRemoveOp() {
-        BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
-        Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
-    }
 }

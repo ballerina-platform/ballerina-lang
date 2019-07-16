@@ -1738,24 +1738,3 @@ function testAssignStringValueToJsonField() returns json {
     checkpanic testDB.stop();
     return val;
 }
-
-type Order record {
-    int id;
-    string name;
-};
-
-function testRemoveOp() returns table<Order> {
-    table<Order> orderTable = table {
-        { id, name },
-        [
-            {1, "BTC"},
-            {2, "LTC"}
-        ]
-    };
-
-    int invalid = 0;
-    var s = orderTable.remove(function (Order ord) returns boolean {
-                        return ord.id > invalid;
-                    });
-    return orderTable;
-}
