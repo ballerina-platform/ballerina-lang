@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-listener http:Listener circuitBreakerEP07 = new(9315, config = { httpVersion: "2.0" });
+listener http:Listener circuitBreakerEP07 = new(9315, { httpVersion: "2.0" });
 
 http:ClientEndpointConfig conf07 = {
     circuitBreaker: {
@@ -18,7 +18,7 @@ http:ClientEndpointConfig conf07 = {
     httpVersion: "2.0"
 };
 
-http:Client backendClientEP07 = new("http://localhost:8095", config = conf07);
+http:Client backendClientEP07 = new("http://localhost:8095", conf07);
 
 int cbTrialRequestCount = 0;
 
@@ -42,7 +42,7 @@ service circuitbreaker07 on circuitBreakerEP07 {
             if (backendRes is http:Response) {
                 var responseToCaller = caller->respond(backendRes);
                 if (responseToCaller is error) {
-                    log:printError("Error sending response", err = responseToCaller);
+                    log:printError("Error sending response", responseToCaller);
                 }
             } else {
                 sendCBErrorResponse(caller, backendRes);
@@ -72,7 +72,7 @@ service helloService07 on new http:Listener(8095) {
         }
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }
@@ -84,6 +84,6 @@ function sendCBErrorResponse(http:Caller caller, error e) {
     response.setPayload(errCause);
     var responseToCaller = caller->respond(response);
     if (responseToCaller is error) {
-        log:printError("Error sending response", err = responseToCaller);
+        log:printError("Error sending response", responseToCaller);
     }
 }

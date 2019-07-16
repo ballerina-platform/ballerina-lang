@@ -29,7 +29,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
 
 http:BearerAuthHandler jwtAuthHandler07 = new(jwtAuthProvider07);
 
-listener http:Listener listener07 = new(9098, config = {
+listener http:Listener listener07 = new(9098, {
     auth: {
         authHandlers: [jwtAuthHandler07]
     },

@@ -110,9 +110,7 @@ public class HttpService implements Cloneable {
     }
 
     public String getName() {
-        String serviceTypeName = balService.getType().getName();
-        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
-        return serviceTypeName.substring(0, serviceIndex);
+        return HttpUtil.getServiceName(balService);
     }
 
     public String getPackage() {

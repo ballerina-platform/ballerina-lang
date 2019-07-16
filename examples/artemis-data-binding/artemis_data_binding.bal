@@ -27,11 +27,15 @@ service artemisConsumer on new artemis:Listener(
         // Posts order details to the backend and awaits response.
         http:Client clientEP = new("http://www.mocky.io");
         var response = clientEP->post("/v2/5cde49ef3000005e004307f0",
-                             untaint check json.convert(orderDetails));
+                             <@untainted> check json.convert(orderDetails));
         if (response is http:Response) {
             log:printInfo(check response.getTextPayload());
         } else {
             log:printError("Invalid response ", err = response);
         }
+    }
+
+    resource function onError(artemis:Message message, artemis:ArtemisError err) {
+        log:printError(err.detail().message);
     }
 }

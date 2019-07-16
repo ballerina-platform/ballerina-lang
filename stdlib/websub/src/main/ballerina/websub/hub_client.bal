@@ -33,8 +33,8 @@ public type Client client object {
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
         self.hubUrl = url;
-        self.httpClientEndpoint = new (self.hubUrl, config = config);
-        self.followRedirects = config.followRedirects;
+        self.httpClientEndpoint = new (self.hubUrl, config);
+        self.followRedirects = config?.followRedirects;
     }
 
     # Sends a subscription request to a WebSub Hub.
@@ -43,7 +43,15 @@ public type Client client object {
     # + return - `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
     #            `error` if an error occurred with the subscription request
     public remote function subscribe(SubscriptionChangeRequest subscriptionRequest)
-        returns @tainted SubscriptionChangeResponse|error;
+        returns @tainted SubscriptionChangeResponse|error {
+
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
+        var response = httpClientEndpoint->post("", builtSubscriptionRequest);
+        int redirectCount = getRedirectionMaxCount(self.followRedirects);
+        return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
+                                  redirectCount);
+    }
 
     # Sends an unsubscription request to a WebSub Hub.
     #
@@ -51,20 +59,63 @@ public type Client client object {
     # + return - `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
     #            `error` if an error occurred with the unsubscription request
     public remote function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
-        returns @tainted SubscriptionChangeResponse|error;
+        returns @tainted SubscriptionChangeResponse|error {
+
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
+        var response = httpClientEndpoint->post("", builtUnsubscriptionRequest);
+        int redirectCount = getRedirectionMaxCount(self.followRedirects);
+        return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
+                                  redirectCount);
+    }
 
     # Registers a topic in a Ballerina WebSub Hub against which subscribers can subscribe and the publisher will
     # publish updates.
     #
     # + topic - The topic to register
     # + return - `error` if an error occurred registering the topic
-    public remote function registerTopic(string topic) returns error?;
+    public remote function registerTopic(string topic) returns @tainted error? {
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
+        var registrationResponse = httpClientEndpoint->post("", request);
+        if (registrationResponse is http:Response) {
+            if (registrationResponse.statusCode != http:ACCEPTED_202) {
+                var result = registrationResponse.getTextPayload();
+                string payload = result is string ? result : "";
+                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic registration: " + payload);
+                return webSubError;
+            }
+        } else {
+            error err = registrationResponse;
+            string errCause = <string> err.detail()?.message;
+            error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic registration request: " + errCause);
+            return webSubError;
+        }
+    }
 
     # Unregisters a topic in a Ballerina WebSub Hub.
     #
     # + topic - The topic to unregister
     # + return - `error` if an error occurred unregistering the topic
-    public remote function unregisterTopic(string topic) returns error?;
+    public remote function unregisterTopic(string topic) returns @tainted error? {
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
+        var unregistrationResponse = httpClientEndpoint->post("", request);
+        if (unregistrationResponse is http:Response) {
+            if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
+                var result = unregistrationResponse.getTextPayload();
+                string payload = result is string ? result : "";
+                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic unregistration: " + payload);
+                return webSubError;
+            }
+        } else {
+            error err = unregistrationResponse;
+            string errCause = <string> err.detail()?.message;
+            error webSubError = error(WEBSUB_ERROR_CODE, message = "Error sending topic unregistration request: " + errCause);
+            return webSubError;
+        }
+        return;
+    }
 
     # Publishes an update to a remote Ballerina WebSub Hub.
     #
@@ -74,7 +125,36 @@ public type Client client object {
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the update
     public remote function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                         string? contentType = (), map<string>? headers = ()) returns error?;
+                                         string? contentType = (), map<string>? headers = ()) returns @tainted error? {
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request request = new;
+        string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
+        request.setPayload(payload);
+
+        if (contentType is string) {
+            check request.setContentType(contentType);
+        }
+
+        if (headers is map<string>) {
+            foreach var [key, value] in headers.entries() {
+                request.setHeader(key, value);
+            }
+        }
+
+        var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
+        if (response is http:Response) {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                var result = response.getTextPayload();
+                string textPayload = result is string ? result : "";
+                error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred publishing update: " + textPayload);
+                return webSubError;
+            }
+        } else {
+            error webSubError = error(WEBSUB_ERROR_CODE, message = "Publish failed for topic [" + topic + "]");
+            return webSubError;
+        }
+        return;
+    }
 
     # Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
     # happen as such.
@@ -82,143 +162,41 @@ public type Client client object {
     # + topic - The topic for which the update occurred
     # + headers - The headers, if any, that need to be set
     # + return - `error` if an error occurred with the notification
-    public remote function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
+    public remote function notifyUpdate(string topic, map<string>? headers = ()) returns @tainted error? {
+        http:Client httpClientEndpoint = self.httpClientEndpoint;
+        http:Request request = new;
+        string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
+
+        if (headers is map<string>) {
+            foreach var [key, value] in headers.entries() {
+                request.setHeader(key, value);
+            }
+        }
+
+        var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
+        if (response is http:Response) {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                var result = response.getTextPayload();
+                string textPayload = result is string ? result : "";
+                error webSubError = error(WEBSUB_ERROR_CODE,
+                                            message = "Error occurred notifying update availability: " + textPayload);
+                return webSubError;
+            }
+        } else {
+            error webSubError = error(WEBSUB_ERROR_CODE,
+                                        message = "Update availability notification failed for topic [" + topic + "]");
+            return webSubError;
+        }
+        return;
+    }
 };
-
-public remote function Client.subscribe(SubscriptionChangeRequest subscriptionRequest)
-    returns @tainted SubscriptionChangeResponse|error {
-
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = httpClientEndpoint->post("", builtSubscriptionRequest);
-    int redirectCount = getRedirectionMaxCount(self.followRedirects);
-    return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
-                              redirectCount);
-}
-
-public remote function Client.unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
-    returns @tainted SubscriptionChangeResponse|error {
-
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = httpClientEndpoint->post("", builtUnsubscriptionRequest);
-    int redirectCount = getRedirectionMaxCount(self.followRedirects);
-    return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
-                              redirectCount);
-}
-
-public remote function Client.registerTopic(string topic) returns @tainted error? {
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
-    var registrationResponse = httpClientEndpoint->post("", request);
-    if (registrationResponse is http:Response) {
-        if (registrationResponse.statusCode != http:ACCEPTED_202) {
-            var result = registrationResponse.getTextPayload();
-            string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occurred during topic registration: " + payload };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
-    } else {
-        string errCause = <string> registrationResponse.detail().message;
-        map<anydata> errorDetail = { message : "Error sending topic registration request: " + errCause };
-        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-        return webSubError;
-    }
-    return;
-}
-
-public remote function Client.unregisterTopic(string topic) returns @tainted error? {
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
-    var unregistrationResponse = httpClientEndpoint->post("", request);
-    if (unregistrationResponse is http:Response) {
-        if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
-            var result = unregistrationResponse.getTextPayload();
-            string payload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occurred during topic unregistration: " + payload };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
-    } else {
-        string errCause = <string> unregistrationResponse.detail().message;
-        map<anydata> errorDetail = { message : "Error sending topic unregistration request: " + errCause };
-        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-        return webSubError;
-    }
-    return;
-}
-
-public remote function Client.publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
-                                      string? contentType = (), map<string>? headers = ()) returns @tainted error? {
-
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = new;
-    string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
-    request.setPayload(payload);
-
-    if (contentType is string) {
-        check request.setContentType(contentType);
-    }
-
-    if (headers is map<string>) {
-        foreach var (key, value) in headers {
-            request.setHeader(key, value);
-        }
-    }
-
-    var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
-    if (response is http:Response) {
-        if (!isSuccessStatusCode(response.statusCode)) {
-            var result = response.getTextPayload();
-            string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occurred publishing update: " + textPayload };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
-    } else {
-        map<anydata> errorDetail = { message : "Publish failed for topic [" + topic + "]" };
-        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-        return webSubError;
-    }
-    return;
-}
-
-public remote function Client.notifyUpdate(string topic, map<string>? headers = ()) returns @tainted error? {
-    http:Client httpClientEndpoint = self.httpClientEndpoint;
-    http:Request request = new;
-    string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
-
-    if (headers is map<string>) {
-        foreach var (key, value) in headers {
-            request.setHeader(key, value);
-        }
-    }
-
-    var response = httpClientEndpoint->post(<@untainted string> ("?" + queryParams), request);
-    if (response is http:Response) {
-        if (!isSuccessStatusCode(response.statusCode)) {
-            var result = response.getTextPayload();
-            string textPayload = result is string ? result : "";
-            map<anydata> errorDetail = { message : "Error occurred notifying update availability: " + textPayload };
-            error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-            return webSubError;
-        }
-    } else {
-        map<anydata> errorDetail = { message : "Update availability notification failed for topic [" + topic + "]" };
-        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
-        return webSubError;
-    }
-    return;
-}
-
 
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #
 # + mode - Whether the request is for registration or unregistration
 # + topic - The topic to register/unregister
 # + return - `http:Request` The Request to send to the hub to register/unregister
-function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive string topic) returns (http:Request) {
+function buildTopicRegistrationChangeRequest(@untainted string mode, @untainted string topic) returns (http:Request) {
     http:Request request = new;
     request.setTextPayload(HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic);
     request.setHeader(CONTENT_TYPE, mime:APPLICATION_FORM_URLENCODED);
@@ -231,7 +209,7 @@ function buildTopicRegistrationChangeRequest(@sensitive string mode, @sensitive 
 # + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
 #                               parameters to use
 # + return - `http:Request` The Request to send to the hub to subscribe/unsubscribe
-function buildSubscriptionChangeRequest(@sensitive string mode,
+function buildSubscriptionChangeRequest(@untainted string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;
 
@@ -266,17 +244,16 @@ function buildSubscriptionChangeRequest(@sensitive string mode,
 # + httpClientEndpoint - The underlying HTTP Client Endpoint
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function processHubResponse(@sensitive string hub, @sensitive string mode,
+function processHubResponse(@untainted string hub, @untainted string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
                             http:Response|error response, http:Client httpClientEndpoint,
                             int remainingRedirects) returns @tainted SubscriptionChangeResponse|error {
 
     string topic = subscriptionChangeRequest.topic;
     if (response is error) {
-        string errCause = <string> response.detail().message;
-        map<anydata> errorDetail = { message : "Error occurred for request: Mode[" + mode + "] at Hub[" + hub + "] - " +
-                                errCause };
-        error webSubError = error(WEBSUB_ERROR_CODE, errorDetail);
+        string errCause = <string> response.detail()?.message;
+        error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred for request: Mode[" + mode
+                                        + "] at Hub[" + hub + "] - " + errCause );
         return webSubError;
     } else {
         int responseStatusCode = response.statusCode;
@@ -287,10 +264,9 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
                                                             httpClientEndpoint.config.auth, remainingRedirects - 1);
             }
-            map<anydata> errorDetail = { message : "Redirection response received for subscription change request"
-                                    + " made with followRedirects disabled or after maxCount exceeded: Hub ["
-                                    + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
-            error subscriptionError = error(WEBSUB_ERROR_CODE, errorDetail);
+            error subscriptionError = error(WEBSUB_ERROR_CODE, message = "Redirection response received for "
+                    + "subscription change request made with followRedirects disabled or after maxCount exceeded: Hub ["
+                    + hub + "], Topic [" + subscriptionChangeRequest.topic + "]");
             return subscriptionError;
         } else if (!isSuccessStatusCode(responseStatusCode)) {
             var responsePayload = response.getTextPayload();
@@ -298,10 +274,11 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
             if (responsePayload is string) {
                 errorMessage = errorMessage + " - " + responsePayload;
             } else {
-                string errCause = <string> responsePayload.detail().message;
+                error err = responsePayload;
+                string errCause = <string> err.detail()?.message;
                 errorMessage = errorMessage + " - Error occurred identifying cause: " + errCause;
             }
-            error webSubError = error(WEBSUB_ERROR_CODE, { message : errorMessage });
+            error webSubError = error(WEBSUB_ERROR_CODE, message = errorMessage);
             return webSubError;
         } else {
             if (responseStatusCode != http:ACCEPTED_202) {
@@ -323,7 +300,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
 # + auth - The auth config to use at the hub, if specified
 # + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
 #            else `error` if an error occurred
-function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive string mode,
+function invokeClientConnectorOnRedirection(@untainted string hub, @untainted string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,
                                             http:OutboundAuthConfig? auth, int remainingRedirects)
     returns @tainted SubscriptionChangeResponse|error {
@@ -337,7 +314,7 @@ function invokeClientConnectorOnRedirection(@sensitive string hub, @sensitive st
 function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscriptionRequest,
                               http:OutboundAuthConfig? auth, int remainingRedirects = 0)
              returns @tainted SubscriptionChangeResponse| error {
-    http:Client clientEndpoint = new http:Client(hubUrl, config = { auth: auth });
+    http:Client clientEndpoint = new http:Client(hubUrl, { auth: auth });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
     var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
@@ -347,7 +324,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
 function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubscriptionRequest,
                                 http:OutboundAuthConfig? auth, int remainingRedirects = 0)
              returns @tainted SubscriptionChangeResponse|error {
-    http:Client clientEndpoint = new http:Client(hubUrl, config = {
+    http:Client clientEndpoint = new http:Client(hubUrl, {
         auth: auth
     });
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);

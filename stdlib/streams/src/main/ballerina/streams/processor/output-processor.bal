@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+
 # The `OutputProcess` object is responsible for sending the output (only the events of type `streams:CURRENT` to the
 # destination stream. It takes a function pointer `outputFunc` which actually has the logic to process the output.
 public type OutputProcess object {
@@ -35,9 +37,9 @@ public type OutputProcess object {
             StreamEvent event = <StreamEvent> ev;
             if (event.eventType == "CURRENT") {
                 map<anydata> outputData = {};
-                foreach var [k, v] in event.data {
-                    string[] s = k.split("\\.");
-                    if (OUTPUT.equalsIgnoreCase(s[0])) {
+                foreach var [k, v] in event.data.entries() {
+                    string[] s = internal:split(k, "\\.");
+                    if (internal:equalsIgnoreCase(OUTPUT, s[0])) {
                         outputData[s[1]] = v;
                     }
                 }
@@ -45,7 +47,8 @@ public type OutputProcess object {
                 i += 1;
             }
         }
-        self.outputFunc.call(events);
+        function (map<anydata>[]) outFunction = self.outputFunc;
+        outFunction(events);
     }
 };
 

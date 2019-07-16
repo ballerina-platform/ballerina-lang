@@ -23,7 +23,10 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaDocumentService;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaExtendedLangServer;
+import io.ballerina.plugins.idea.extensions.server.BallerinaProjectService;
 import io.ballerina.plugins.idea.extensions.server.BallerinaSymbolService;
+import io.ballerina.plugins.idea.extensions.server.ModulesRequest;
+import io.ballerina.plugins.idea.extensions.server.ModulesResponse;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -41,6 +44,7 @@ public class BallerinaRequestManager extends DefaultRequestManager {
 
     private BallerinaDocumentService ballerinaDocumentService;
     private BallerinaSymbolService ballerinaSymbolService;
+    private BallerinaProjectService ballerinaProjectService;
 
     public BallerinaRequestManager(LanguageServerWrapper wrapper, LanguageServer server, LanguageClient client,
                                    ServerCapabilities serverCapabilities) {
@@ -48,12 +52,28 @@ public class BallerinaRequestManager extends DefaultRequestManager {
         BallerinaExtendedLangServer extendedServer = (BallerinaExtendedLangServer) server;
         ballerinaDocumentService = extendedServer.getBallerinaDocumentService();
         ballerinaSymbolService = extendedServer.getBallerinaSymbolService();
+        ballerinaProjectService = extendedServer.getBallerinaProjectService();
+
     }
 
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         if (checkStatus()) {
             try {
                 return ballerinaDocumentService.ast(request);
+            } catch (Exception e) {
+                LOG.warn("Unexpected error occurred in ballerina language client request manager", e);
+                return null;
+            }
+        } else {
+            LOG.warn("Language server is not initialized.");
+            return null;
+        }
+    }
+
+    public CompletableFuture<ModulesResponse> modules(ModulesRequest request) {
+        if (checkStatus()) {
+            try {
+                return ballerinaProjectService.modules(request);
             } catch (Exception e) {
                 LOG.warn("Unexpected error occurred in ballerina language client request manager", e);
                 return null;

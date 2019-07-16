@@ -25,11 +25,11 @@ under the License.
         <groups>
             <run>
                 <exclude name="broken"/>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
             </run>
         </groups>
         <packages>
-            <!-- <package name="org.ballerinalang.stdlib.database.h2"/>
-            <package name="org.ballerinalang.stdlib.database.sql.*"/> -->
+            <package name="org.ballerinax.jdbc.transaction.*"/> 
         </packages>
         <classes>
 <!--            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>-->
@@ -38,7 +38,7 @@ under the License.
             <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
 
 <!--            <class name="org.ballerinax.jdbc.table.TableTest"/>-->
-            <class name="org.ballerinax.jdbc.table.TableIterationTest"/>
+<!--            <class name="org.ballerinax.jdbc.table.TableIterationTest"/>-->
         </classes>
     </test>
 </suite>

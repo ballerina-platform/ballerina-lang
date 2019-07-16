@@ -27,7 +27,7 @@ service testService16 on new http:Listener(9118) {
         path: "/"
     }
     resource function getPayload(http:Caller caller, http:Request request) {
-        var res = clientEP19->get("/payloadTest", message = ());
+        var res = clientEP19->get("/payloadTest", ());
         if (res is http:Response) {
             //First get the payload as a byte array, then take it as an xml
             var binaryPayload = res.getBinaryPayload();
@@ -37,13 +37,16 @@ service testService16 on new http:Listener(9118) {
                     xml descendants = payload.selectDescendants("title");
                     checkpanic caller->respond(<@untainted> descendants.getTextValue());
                 } else {
-                    checkpanic caller->respond(<@untainted> payload.reason());
+                    error err = payload;
+                    checkpanic caller->respond(<@untainted> err.reason());
                 }
             } else {
-                checkpanic caller->respond(<@untainted> binaryPayload.reason());
+                error err = binaryPayload;
+                checkpanic caller->respond(<@untainted> err.reason());
             }
         } else {
-            checkpanic caller->respond(<@untainted> res.reason());
+            error err = res;
+            checkpanic caller->respond(<@untainted> err.reason());
         }
     }
 }

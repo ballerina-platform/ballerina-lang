@@ -77,7 +77,7 @@ service failoverDemoService03 on failoverEP03 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -85,7 +85,7 @@ service failoverDemoService03 on failoverEP03 {
             response.setPayload(<string> backendRes.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -99,7 +99,7 @@ service failoverDemoService03 on failoverEP03 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -107,7 +107,7 @@ service failoverDemoService03 on failoverEP03 {
             response.setPayload(<string> backendRes.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -121,7 +121,7 @@ service failoverDemoService03 on failoverEP03 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -129,7 +129,7 @@ service failoverDemoService03 on failoverEP03 {
             response.setPayload(<string> backendRes.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -145,7 +145,7 @@ service failoverDemoService03 on failoverEP03 {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -153,7 +153,7 @@ service failoverDemoService03 on failoverEP03 {
             response.setPayload(<string> backendRes.detail().message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -174,7 +174,7 @@ service echo03 on backendEP03 {
         runtime:sleep(30000);
         var responseToCaller = caller->respond("echo Resource is invoked");
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }
@@ -219,13 +219,13 @@ service mock03 on backendEP03 {
                                 var childBlobContent = childPart.getByteArray();
                             }
                             io:println(bodyPart.getContentType());
-                            bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
+                            bodyPart.setBodyParts(untaint childParts, untaint bodyPart.getContentType());
                         }
                     } else {
                         var bodyPartBlobContent = bodyPart.getByteArray();
                     }
                 }
-                response.setBodyParts(untaint mimeEntity, contentType = untaint req.getContentType());
+                response.setBodyParts(untaint mimeEntity, untaint req.getContentType());
             }
         } else {
             response.setPayload("Mock Resource is Invoked.");
@@ -233,7 +233,7 @@ service mock03 on backendEP03 {
 
         var responseToCaller = caller->respond(response);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }
@@ -253,7 +253,7 @@ service failureStatusCodeService03 on backendEP03 {
         outResponse.setPayload("Failure status code scenario");
         var responseToCaller = caller->respond(outResponse);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }

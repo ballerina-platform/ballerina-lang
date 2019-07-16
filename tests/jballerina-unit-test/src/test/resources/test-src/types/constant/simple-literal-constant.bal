@@ -1,3 +1,4 @@
+import ballerina/'lang\.string as strings;
 const nameWithoutType = "Ballerina";
 const string nameWithType = "Ballerina";
 
@@ -241,22 +242,22 @@ function testFloatAsFiniteType() returns [FiniteFloatType, FiniteFloatType] {
 const string key = "key";
 const string value = "value";
 
-function testConstInMapKey() returns string {
+function testConstInMapKey() returns string? {
     map<string> m = { key: "value" };
-    return m.key;
+    return m["key"];
 }
 
-function testConstInMapValue() returns string {
+function testConstInMapValue() returns string? {
     map<string> m = { "key": value };
-    return m.key;
+    return m["key"];
 }
 
-function testConstInJsonKey() returns json {
+function testConstInJsonKey() returns (json|error) {
     json j = { key: "value" };
     return j.key;
 }
 
-function testConstInJsonValue() returns json {
+function testConstInJsonValue() returns (json|error) {
     json j = { "key": value };
     return j.key;
 }
@@ -349,14 +350,14 @@ function testProperSubset() returns G {
 const string SHA1 = "SHA1";
 
 function testBuiltinFunctionInvocation() returns boolean {
-    return SHA1.equalsIgnoreCase("SHA1");
+    return strings:startsWith(SHA1, "SH");
 }
 
 // -----------------------------------------------------------
 
 function testBuiltinFunctionInvocationOnArrayElement() returns boolean {
     string[] arr = [SHA1];
-    return arr[0].equalsIgnoreCase("SHA1");
+    return strings:startsWith(arr[0], "SH");
 }
 
 // -----------------------------------------------------------
@@ -367,7 +368,7 @@ type TestRecord record {
 
 function testBuiltinFunctionInvocationOnField() returns boolean {
     TestRecord tr = { field: SHA1 };
-    return tr.field.equalsIgnoreCase("SHA1");
+    return strings:startsWith(tr.field, "SH");
 }
 // -----------------------------------------------------------
 

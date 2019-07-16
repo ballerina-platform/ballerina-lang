@@ -75,9 +75,9 @@ dependencies {
     dist project(':ballerina-formatter')
     dist project(':ballerina-packerina')
     dist project(':protobuf-ballerina')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':docerina')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    dist project(':openapi-ballerina:openapi-validator')
+    dist project(':openapi-ballerina:ballerina-client-generator')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')

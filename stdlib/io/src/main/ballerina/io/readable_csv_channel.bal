@@ -27,7 +27,7 @@ public type ReadableCSVChannel object {
         if (fs == TAB) {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "TDF");
         } else if (fs == COLON) {
-            self.dc = new ReadableTextRecordChannel(byteChannel, fs = FS_COLON, rs = CSV_RECORD_SEPARATOR);
+            self.dc = new ReadableTextRecordChannel(byteChannel, FS_COLON, CSV_RECORD_SEPARATOR);
         } else {
             self.dc = new ReadableTextRecordChannel(byteChannel, fmt = "CSV");
         }
@@ -53,28 +53,36 @@ public type ReadableCSVChannel object {
         if (recordChannel is ReadableTextRecordChannel) {
             return recordChannel.hasNext();
         } else {
-            IOError e = error(IO_ERROR, message = "Channel not initialized");
+            GenericError e = error(GENERIC_ERROR, message = "Channel not initialized");
             panic e;
         }
     }
 
     # Gets the next record from the CSV file.
     #
-    # + return - List of fields in the CSV or `IOError` if any error occurred
-    public function getNext() returns @tainted string[]|IOError? {
-        return self.dc.getNext();
+    # + return - List of fields in the CSV or `Error` if any error occurred
+    public function getNext() returns @tainted string[]|Error? {
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.getNext();
+        }
+        return ();
     }
 
     # Closes a given CSVChannel.
     #
-    # + return - Returns `IOError` if any error occurred
-    public function close() returns IOError? {
-        return self.dc.close();
+    # + return - Returns `Error` if any error occurred
+    public function close() returns Error? {
+        if(self.dc is ReadableTextRecordChannel){
+            var result = <ReadableTextRecordChannel> self.dc;
+            return result.close();
+        }
+        return ();
     }
 
     # Returns a table which corresponds to the CSV records.
     #
     # + structType - The object the CSV records should be deserialized
-    # + return - Table which represents CSV records or `IOError` if any error occurred
-    public function getTable(typedesc structType) returns @tainted table<record {}>|IOError = external;
+    # + return - Table which represents CSV records or `Error` if any error occurred
+    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error = external;
 };

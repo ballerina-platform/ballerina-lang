@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/oauth2;
 import ballerina/http;
 
@@ -34,7 +35,7 @@ oauth2:IntrospectionServerConfig introspectionServerConfig = {
 oauth2:InboundOAuth2Provider oauth2Provider21 = new(introspectionServerConfig);
 http:BearerAuthHandler oauth2Handler21 = new(oauth2Provider21);
 
-listener http:Listener listener21 = new(9117, config = {
+listener http:Listener listener21 = new(9117, {
     auth: {
         authHandlers: [oauth2Handler21]
     },

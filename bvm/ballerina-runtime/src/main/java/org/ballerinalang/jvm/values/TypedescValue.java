@@ -49,7 +49,7 @@ public class TypedescValue implements RefValue {
 
     @Override
     public String stringValue() {
-        return null;
+        return "typedesc " + describingType.toString();
     }
 
     @Override
@@ -64,6 +64,14 @@ public class TypedescValue implements RefValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
         return this;
     }
 

@@ -56,8 +56,8 @@ public class BallerinaFieldImpl extends ASTWrapperPsiElement implements Ballerin
 
   @Override
   @Nullable
-  public PsiElement getNot() {
-    return findChildByType(NOT);
+  public PsiElement getOptionalFieldAccess() {
+    return findChildByType(OPTIONAL_FIELD_ACCESS);
   }
 
   @Override

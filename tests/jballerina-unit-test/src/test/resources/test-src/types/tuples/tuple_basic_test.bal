@@ -15,14 +15,14 @@ function basicTupleTest () returns (string) {
     int d;
     [c, d] = ["test3", 3];
     addValue(c);
-    addValue(string.convert(d));
+    addValue(d.toString());
     endTest();
 
     // Test 4
     [string,int] f = ["test4", 4];
     var [g, h] = f;
     addValue(g);
-    addValue(string.convert(h));
+    addValue(h.toString());
     endTest();
 
     // Test 5

@@ -199,7 +199,7 @@ public class HoverUtil {
                 BTypeSymbol bTypeSymbol = varNode.symbol.type.tsymbol;
                 PackageID pkgID = bTypeSymbol.pkgID;
                 int packagePrefixLen = (pkgID != PackageID.DEFAULT
-                        && pkgID.name != Names.BUILTIN_PACKAGE
+                        && !pkgID.name.value.startsWith("lang.")
                         && pkgID.name != Names.DEFAULT_PACKAGE)
                         ? (pkgID.name.value + ":").length()
                         : 0;

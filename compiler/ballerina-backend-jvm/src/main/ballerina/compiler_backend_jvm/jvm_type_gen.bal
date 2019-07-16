@@ -341,7 +341,6 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
 #
 # + mv - method visitor
 # + recordType - record type
-# + name - name of the record
 function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:TypeDef typeDef) {
     // Create the record type
     mv.visitTypeInsn(NEW, RECORD_TYPE);
@@ -452,7 +451,6 @@ function addRecordRestField(jvm:MethodVisitor mv, bir:BType restFieldType) {
 #
 # + mv - method visitor
 # + objectType - object type
-# + name - name of the object
 function createObjectType(jvm:MethodVisitor mv, bir:BObjectType objectType, bir:TypeDef typeDef) {
     // Create the object type
     mv.visitTypeInsn(NEW, OBJECT_TYPE);
@@ -628,7 +626,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             // if this initializer function, set it to the object type
-            if (attachedFunc.name.value.contains("__init")) {
+            if (internal:contains(attachedFunc.name.value, "__init")) {
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
                 mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -659,7 +657,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + initFunction - init functions to be added
 function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
                                     bir:BObjectType objType, BalToJVMIndexMap indexMap) {
-    if (initFunction is bir:BAttachedFunction && initFunction.name.value.contains("__init")) {
+    if (initFunction is bir:BAttachedFunction && internal:contains(initFunction.name.value, "__init")) {
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
         bir:VariableDcl attachedFuncVar = { typeValue: "any",
@@ -789,13 +787,16 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BXMLType) {
         typeFieldName = "typeXML";
     } else if (bType is bir:BTypeDesc) {
-        typeFieldName = "typeTypedesc";
+        loadTypedescType(mv, bType);
+        return;
     }  else if (bType is bir:BServiceType) {
         if (getTypeFieldName(bType.oType.name.value) != "$type$service") {
             loadUserDefinedType(mv, bType);
             return;
         }
         typeFieldName = "typeAnyService";
+    } else if (bType is bir:BTypeHandle) {
+        typeFieldName = "typeHandle";
     } else if (bType is bir:BArrayType) {
         loadArrayType(mv, bType);
         return;
@@ -861,6 +862,22 @@ function loadArrayType(jvm:MethodVisitor mv, bir:BArrayType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", io:sprintf("(L%s;I)V", BTYPE), false);
+}
+
+# Generate code to load an instance of the given typedesc type
+# to the top of the stack.
+#
+# + bType - typedesc type to load
+function loadTypedescType(jvm:MethodVisitor mv, bir:BTypeDesc bType) {
+    // Create an new map type
+    mv.visitTypeInsn(NEW, TYPEDESC_TYPE);
+    mv.visitInsn(DUP);
+
+    // Load the constraint type
+    loadType(mv, bType.typeConstraint);
+
+    // invoke the constructor
+    mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given map type
@@ -987,7 +1004,6 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
 # Load a user defined type instance to the top of the stack.
 #
 # + mv - method visitor
-# + typeName - type to be loaded
 function loadUserDefinedType(jvm:MethodVisitor mv, bir:BObjectType|bir:BRecordType|bir:BServiceType bType) {
     string fieldName = "";
     string typeOwner = "";
@@ -1049,7 +1065,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
     }
 
     // load return type type
-    loadType(mv, bType.retType);
+    loadType(mv, bType?.retType);
 
     // initialize the function type using the param types array and the return type
     mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
@@ -1086,6 +1102,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", OBJECT_VALUE);
     }  else if (bType is bir:BXMLType) {
         return io:sprintf("L%s;", XML_VALUE);
+    }  else if (bType is bir:BTypeHandle) {
+        return io:sprintf("L%s;", HANDLE_VALUE);
     } else if (bType is bir:BTypeAny ||
                bType is bir:BTypeAnyData ||
                bType is bir:BUnionType ||
@@ -1112,10 +1130,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
 
-    foreach var value in finiteType.values {
+    foreach var valueTypePair in finiteType.values {
+        var value = valueTypePair[0];
+        bir:BType valueType = valueTypePair[1];
         mv.visitInsn(DUP);
 
-        if (value is ()) {
+        if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
         } else if (value is bir:Decimal) { 
             // do nothing
@@ -1123,13 +1143,13 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
             mv.visitLdcInsn(value);
         }
 
-        if (value is int) {
+        if (valueType is bir:BTypeInt) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-        } else if (value is boolean) {
+        } else if (valueType is bir:BTypeBoolean) {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else if (value is float) {
+        } else if (valueType is bir:BTypeFloat) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (value is byte) {
+        } else if (valueType is bir:BTypeByte) {
             mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
         } else if (value is bir:Decimal) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);

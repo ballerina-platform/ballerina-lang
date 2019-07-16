@@ -12,7 +12,7 @@ service sample on helloWorldEP {
         path:"/path/{foo}"
     }
     resource function params (http:Caller caller, http:Request req, string foo) {
-        map<any> paramsMap = req.getQueryParams();
+        var bar = req.getQueryParamValue("bar");
         var bar = paramsMap.bar;
 
         self.serviceLevelVariable = foo;

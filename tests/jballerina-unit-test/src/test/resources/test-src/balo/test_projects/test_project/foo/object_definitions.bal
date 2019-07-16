@@ -26,7 +26,7 @@ public type Planet object {
     public int year;
     public string month = "february";
 
-    public function __init (int year = 50, int count, string name = "sample value1", string val1 = "default value") {
+    public function __init (int count, int year = 50, string name = "sample value1", string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
