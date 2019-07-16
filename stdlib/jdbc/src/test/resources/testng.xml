@@ -32,7 +32,7 @@ under the License.
             <package name="org.ballerinax.jdbc.transaction.*"/>
         </packages>
         <classes>
-<!--            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>-->
+            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>
             <class name="org.ballerinax.jdbc.SQLActionsTest"/>
             <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>
             <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
