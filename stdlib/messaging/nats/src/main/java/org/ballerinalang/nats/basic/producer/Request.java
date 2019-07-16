@@ -20,8 +20,6 @@ package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
@@ -53,13 +51,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Request extends BlockingNativeCallableUnit {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-    }
+public class Request {
 
     @SuppressWarnings("unused")
     public static Object externRequest(Strand strand, ObjectValue producerObject, String subject, Object data,
