@@ -187,8 +187,12 @@ public class PackageLoader {
         if (offline) {
             homeCacheNode = node(homeBaloCache, node(homeCacheRepo, node(systemRepo)));
         } else {
-            homeCacheNode = node(homeBaloCache, node(homeCacheRepo, node(systemRepo,
-                    node(remoteRepo, node(secondarySystemRepo)))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node(systemRepo,
+                                        node(remoteRepo,
+                                            node(homeBaloCache,
+                                                node(secondarySystemRepo))))));
         }
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),
