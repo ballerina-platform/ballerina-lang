@@ -261,7 +261,8 @@ function genJMethodForBFunc(bir:Function func,
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
         jvm:Label endLabel = methodEndLabel;
-        if (localVar.meta != () && (localVar.kind is bir:LocalVarKind || localVar.kind is bir:ArgVarKind)) {
+        var tmpBoolParam = localVar.typeValue is bir:BTypeBoolean && localVar.name.value.startsWith("%syn");
+        if (!tmpBoolParam && (localVar.kind is bir:LocalVarKind || localVar.kind is bir:ArgVarKind)) {
             // local vars have visible range information
             if (localVar.kind is bir:LocalVarKind) {
                 string startBBID = localVar.meta.startBBID;
