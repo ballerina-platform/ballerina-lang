@@ -164,6 +164,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     if (element[child] && Object.keys(element[child]).length > 0) {
                         collapseMode = vscode.TreeItemCollapsibleState.Collapsed;
                     }
+
                     elementTree.push(new ProjectTreeElement(child, collapseMode, {
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
@@ -174,10 +175,14 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                 let treeObj = this.getTreeForKey(element, parentEl.label);
                 if (Object.keys(treeObj).length !== 0) {
                     Object.keys(treeObj).map(child => {
+                        let args = [key, child];
+                        if (parentEl.command && parentEl.command.arguments) {
+                            args = [...parentEl.command.arguments, child];
+                        }
                         elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
                             command: "ballerina.executeTreeElement",
                             title: "Execute Tree Command",
-                            arguments: [key, child]
+                            arguments: args,
                         }));
                     });
                 }
