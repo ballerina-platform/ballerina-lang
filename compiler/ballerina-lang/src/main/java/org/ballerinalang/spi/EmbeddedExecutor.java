@@ -38,6 +38,7 @@ public interface EmbeddedExecutor {
      * Executes a service of a module.
      *
      * @param moduleName Name of the module.
+     * @return Program execution output.
      */
     Optional<RuntimeException> executeService(String moduleName);
 }
