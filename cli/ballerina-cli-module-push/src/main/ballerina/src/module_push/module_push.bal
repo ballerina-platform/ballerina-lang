@@ -33,7 +33,6 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
     http:Response|error response = httpEndpoint->post("", req);
 
     if (response is error) {
-        io:println(response);
         panic createError("connection to the remote host failed : " + <string>response.detail().msg);
     } else {
         string statusCode = string.convert(response.statusCode);

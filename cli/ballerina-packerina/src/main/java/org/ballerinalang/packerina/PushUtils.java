@@ -126,24 +126,38 @@ public class PushUtils {
             throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. Run 'jballerina " +
                                           "compile' to compile and generate a module artifact(balo).");
         } else {
-            // Get access token
-            String accessToken = checkAccessToken();
-            Proxy proxy = settings.getProxy();
-            for (File baloFile : Objects.requireNonNull(baloOutputDir.toFile().listFiles())) {
-                // Push module to central
-                String urlWithModulePath = resolvePkgPathInRemoteRepo(packageID);
-                String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
+            try {
+                Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
+                        .filter(baloFile -> baloFile.getFileName().toString().startsWith(moduleName + "-"))
+                        .findFirst();
+                
+                if (moduleBaloFile.isPresent()) {
+                    // Get access token
+                    String accessToken = checkAccessToken();
+                    Proxy proxy = settings.getProxy();
+                    
+                    // Push module to central
+                    String urlWithModulePath = resolvePkgPathInRemoteRepo(packageID);
+                    String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
-                Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
-                        proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
-                        baloFile.toPath().toAbsolutePath().toString(), outputLogMessage);
-                if (execute.isPresent()) {
-                    String errorMessage = execute.get().getMessage();
-                    if (!errorMessage.trim().equals("")) {
-                        SYS_ERR.println(errorMessage);
-                        return false;
+                    Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
+                            proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
+                            moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
+                    if (execute.isPresent()) {
+                        String errorMessage = execute.get().getMessage();
+                        if (!errorMessage.trim().equals("")) {
+                            SYS_ERR.println(errorMessage);
+                            return false;
+                        }
                     }
+                } else {
+                    throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. " +
+                                                  "Run 'jballerina compile' to compile and generate a module " +
+                                                  "artifact(balo).");
                 }
+            } catch (IOException e) {
+                throw createLauncherException("File error occurred in finding balo file for the module '" + moduleName +
+                                              "'");
             }
     
             return true;
@@ -253,7 +267,7 @@ public class PushUtils {
      * @return full URI path of the module relative to the remote repo
      */
     private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()).resolve("modules"));
+        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Patten patten = remoteRepo.calculate(packageID);
         if (patten == Patten.NULL) {
             throw createLauncherException("Couldn't find module " + packageID.toString());
