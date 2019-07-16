@@ -32,7 +32,7 @@ import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
  * @since 0.8.4
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "close"
 )
 public class Close extends BlockingNativeCallableUnit {

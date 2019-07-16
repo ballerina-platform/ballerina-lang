@@ -36,7 +36,7 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
  * Extern function to initialize the global pool map.
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "initGlobalPoolContainer",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "GlobalPoolConfigContainer",
                              structPackage = JDBC_PACKAGE_PATH)
