@@ -49,17 +49,17 @@ public type Cache object {
 
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
-            error e = error("Expiry time must be greater than 0.");
+            Error e = error(CACHE_ERROR, message = "Expiry time must be greater than 0.");
             panic e;
         }
         // Cache capacity must be a positive value.
         if (capacity <= 0) {
-            error e = error("Capacity must be greater than 0.");
+            Error e = error(CACHE_ERROR, message = "Capacity must be greater than 0.");
             panic e;
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (evictionFactor <= 0 || evictionFactor > 1) {
-            error e = error("Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
+            Error e = error(CACHE_ERROR, message = "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).");
             panic e;
         }
         // We remove empty caches to prevent OOM issues. So in such scenarios, the cache will not be in the `cacheMap`
@@ -80,13 +80,13 @@ public type Cache object {
         var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
         if (attachCacheCleanerResult is error) {
             record {| string message?; anydata|error...; |} detail = attachCacheCleanerResult.detail();
-            error e = error("Failed to create the cache cleanup task.", message = <string> detail["message"]);
+            Error e = error(CACHE_ERROR, message = "Failed to create the cache cleanup task: " +  <string> detail["message"]);
             panic e;
         }
         var timerStartResult = cacheCleanupTimer.start();
         if (timerStartResult is error) {
             record {| string message?; anydata|error...; |} detail = timerStartResult.detail();
-            error e = error("Failed to start the cache cleanup task.", message = <string> detail["message"]);
+            Error e = error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " +  <string> detail["message"]);
             panic e;
         }
     }
@@ -219,9 +219,7 @@ public type Cache object {
 };
 
 # Removes expired cache entries from all caches.
-#
-# + return - Any error which occurred during cache expiration
-function runCacheExpiry() returns error? {
+function runCacheExpiry() {
 
     // We need to keep track of empty caches. We remove these to prevent OOM issues.
     int emptyCacheCount = 0;
@@ -329,6 +327,6 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 # Cleanup service which cleans the cache periodically.
 service cacheCleanupService = service {
     resource function onTrigger() {
-        checkpanic runCacheExpiry();
+        runCacheExpiry();
     }
 };
