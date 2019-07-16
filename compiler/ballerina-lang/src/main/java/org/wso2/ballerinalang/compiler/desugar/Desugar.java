@@ -1353,32 +1353,6 @@ public class Desugar extends BLangNodeVisitor {
         return detailMap;
     }
 
-//    private BLangMapLiteral createMapLiteral(List<String> keysToRemove, DiagnosticPos pos) {
-//        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new ArrayList<>();
-//        for (String key : keysToRemove) {
-//            BLangLiteral keyLiteral = new BLangLiteral(key, symTable.stringType);
-//            BLangRecordLiteral.BLangRecordKeyValue keyVal = new BLangRecordLiteral.BLangRecordKeyValue(
-//                    new BLangRecordLiteral.BLangRecordKey(keyLiteral),
-//                    keyLiteral);
-//            keyValues.add(keyVal);
-//        }
-//
-//        return new BLangMapLiteral(pos, keyValues,
-//                new BMapType(TypeTags.MAP, symTable.stringType, null));
-//    }
-
-    private BLangSimpleVariableDef createAndAddBoundRestDetailDef(BLangErrorVariable parentErrorVariable,
-                                                                  BLangBlockStmt parentBlockStmt,
-                                                                  BLangExpression expression) {
-        BLangSimpleVariableDef errorDetailVar = createVarDef(
-                parentErrorVariable.restDetail.name.value,
-                parentErrorVariable.restDetail.type,
-                expression,
-                parentErrorVariable.restDetail.pos);
-        parentBlockStmt.addStatement(errorDetailVar);
-        return errorDetailVar;
-    }
-
     private void createAndAddBoundVariableDef(BLangBlockStmt parentBlockStmt,
                                               BLangErrorVariable.BLangErrorDetailEntry detailEntry,
                                               BLangExpression detailEntryVar) {
@@ -1499,17 +1473,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction function = ASTBuilderUtil.createFunction(pos, "$anonFunc$" + lambdaFunctionCount++);
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
-        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
-                null, keyValSymbol);
-        function.requiredParams.add(inputParameter);
-        BLangValueType booleanTypeKind = new BLangValueType();
-        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
-        booleanTypeKind.type = symTable.booleanType;
-        function.returnTypeNode = booleanTypeKind;
-
-        BLangBlockStmt functionBlock1 = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
-        function.body = functionBlock1;
-        BLangBlockStmt functionBlock = functionBlock1;
+        BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
         BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
                 symTable.anyType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
@@ -1523,23 +1487,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Create the final return true statement
-        BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
-        trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
-
-        // Create function symbol before visiting desugar phase for the function
-        BInvokableSymbol functionSymbol1 = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
-                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
-        functionSymbol1.retType = function.returnTypeNode.type;
-        functionSymbol1.params = function.requiredParams.stream()
-                .map(param -> param.symbol)
-                .collect(Collectors.toList());
-        functionSymbol1.scope = env.scope;
-        functionSymbol1.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
-                symTable.booleanType, null);
-        function.symbol = functionSymbol1;
-        rewrite(function, env);
-        env.enclPkg.addFunction(function);
-        BInvokableSymbol functionSymbol = functionSymbol1;
+        BInvokableSymbol functionSymbol = createReturnTrueStatement(pos, function, functionBlock);
 
         // Create and return a lambda function
         return createLambdaFunction(function, functionSymbol);
@@ -1565,17 +1513,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
                 getStringAnyTupleType(), this.env.scope.owner);
-        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
-                null, keyValSymbol);
-        function.requiredParams.add(inputParameter);
-        BLangValueType booleanTypeKind = new BLangValueType();
-        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
-        booleanTypeKind.type = symTable.booleanType;
-        function.returnTypeNode = booleanTypeKind;
-
-        BLangBlockStmt functionBlock1 = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
-        function.body = functionBlock1;
-        BLangBlockStmt functionBlock = functionBlock1;
+        BLangBlockStmt functionBlock = createAnonymousFunctionBlock(pos, function, keyValSymbol);
 
         BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
                 symTable.anyType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0));
@@ -1589,23 +1527,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Create the final return true statement
-        BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
-        trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
-
-        // Create function symbol before visiting desugar phase for the function
-        BInvokableSymbol functionSymbol1 = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
-                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
-        functionSymbol1.retType = function.returnTypeNode.type;
-        functionSymbol1.params = function.requiredParams.stream()
-                .map(param -> param.symbol)
-                .collect(Collectors.toList());
-        functionSymbol1.scope = env.scope;
-        functionSymbol1.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
-                symTable.booleanType, null);
-        function.symbol = functionSymbol1;
-        rewrite(function, env);
-        env.enclPkg.addFunction(function);
-        BInvokableSymbol functionSymbol = functionSymbol1;
+        BInvokableSymbol functionSymbol = createReturnTrueStatement(pos, function, functionBlock);
 
         // Create and return a lambda function
         return createLambdaFunction(function, functionSymbol);
@@ -1648,6 +1570,42 @@ public class Desugar extends BLangNodeVisitor {
         lambdaFunction.function = function;
         lambdaFunction.type = functionSymbol.type;
         return lambdaFunction;
+    }
+
+    private BInvokableSymbol createReturnTrueStatement(DiagnosticPos pos, BLangFunction function,
+                                                       BLangBlockStmt functionBlock) {
+        BLangReturn trueReturnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
+        trueReturnStmt.expr = ASTBuilderUtil.createLiteral(pos, symTable.booleanType, true);
+
+        // Create function symbol before visiting desugar phase for the function
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
+                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
+        functionSymbol.scope = env.scope;
+        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
+                symTable.booleanType, null);
+        function.symbol = functionSymbol;
+        rewrite(function, env);
+        env.enclPkg.addFunction(function);
+        return functionSymbol;
+    }
+
+    private BLangBlockStmt createAnonymousFunctionBlock(DiagnosticPos pos, BLangFunction function,
+                                                        BVarSymbol keyValSymbol) {
+        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
+                null, keyValSymbol);
+        function.requiredParams.add(inputParameter);
+        BLangValueType booleanTypeKind = new BLangValueType();
+        booleanTypeKind.typeKind = TypeKind.BOOLEAN;
+        booleanTypeKind.type = symTable.booleanType;
+        function.returnTypeNode = booleanTypeKind;
+
+        BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        function.body = functionBlock;
+        return functionBlock;
     }
 
     private BTupleType getStringAnyTupleType() {
