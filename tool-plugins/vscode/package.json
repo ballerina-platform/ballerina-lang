@@ -29,10 +29,12 @@
     ],
     "contributes": {
         "views": {
-            "explorer": [{
-                "id" : "ballerinaProjectTree",
-                "name": "Ballerina Project Overview"
-            }]
+            "explorer": [
+                {
+                    "id": "ballerinaProjectTree",
+                    "name": "Ballerina Project Overview"
+                }
+            ]
         },
         "languages": [
             {
