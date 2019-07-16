@@ -38,7 +38,7 @@ public class GlobalVarFunctionWithPkgTest {
     
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src/statements/variabledef", "globalvar.pkg.main");
+        result = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj", "globalvar.pkg.main");
     }
 
     @Test(description = "Test accessing global variables defined in other packages")
