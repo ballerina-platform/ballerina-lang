@@ -40,13 +40,11 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_RESOURCE_URL;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TARGET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG;
@@ -94,10 +92,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
             subscriptionDetails.put(WEBSUB_SERVICE_NAME, webSubHttpService.getBalService().getType().getName());
             subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP, Boolean.toString(
                     annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP)));
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_RESOURCE_URL,
-                                    annotation.getStringValue(ANN_WEBSUB_ATTR_RESOURCE_URL));
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_HUB, annotation.getStringValue(ANN_WEBSUB_ATTR_HUB));
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_TOPIC, annotation.getStringValue(ANN_WEBSUB_ATTR_TOPIC));
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_TARGET, annotation.get(ANN_WEBSUB_ATTR_TARGET));
             subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS, Long.toString(annotation.getIntValue(
                     ANN_WEBSUB_ATTR_LEASE_SECONDS)));
             subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));

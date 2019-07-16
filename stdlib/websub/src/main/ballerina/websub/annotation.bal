@@ -24,10 +24,8 @@ import ballerina/http;
 # + endpoints - Array of endpoints the service would be attached to
 # + path - Path of the WebSubSubscriber service
 # + subscribeOnStartUp - Boolean indicating whether a subscription request is expected to be sent on start up
-# + resourceUrl - The resource URL for which discovery will be initiated to identify hub and topic if not
-#                 specified
-# + hub - The hub at which the subscription should be registered
-# + topic - The topic for which this WebSub subscriber (callback) should be registered
+# + target - The `string` resource URL for which discovery will be initiated to identify the hub and topic,
+#               or a tuple `[hub, topic]` representing a discovered hub and a topic
 # + leaseSeconds - The period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution
 # + callback - The callback to use when registering, if unspecified host:port/path will be used
@@ -36,9 +34,7 @@ public type SubscriberServiceConfiguration record {|
     Listener?[] endpoints = [];
     string path = "";
     boolean subscribeOnStartUp = false;
-    string resourceUrl = "";
-    string hub = "";
-    string topic = "";
+    string|[string, string] target;
     int leaseSeconds = 0;
     string secret = "";
     string callback = "";

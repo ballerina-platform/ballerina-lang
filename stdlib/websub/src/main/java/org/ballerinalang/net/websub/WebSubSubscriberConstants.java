@@ -43,8 +43,7 @@ public class WebSubSubscriberConstants {
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG = "secureSocket";
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
-    public static final String ANN_WEBSUB_ATTR_RESOURCE_URL = "resourceUrl";
-    public static final String ANN_WEBSUB_ATTR_HUB = "hub";
+    public static final String ANN_WEBSUB_ATTR_TARGET = "target";
     public static final String ANN_WEBSUB_ATTR_TOPIC = "topic";
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";

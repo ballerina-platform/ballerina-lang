@@ -94,20 +94,23 @@ public type Listener object {
             boolean subscribeOnStartUp = internal:toBoolean(strSubscribeOnStartUp);
 
             if (subscribeOnStartUp) {
-                string resourceUrl = <string>subscriptionDetails["resourceUrl"];
-                string hub = <string>subscriptionDetails["hub"];
-                string topic = <string>subscriptionDetails["topic"];
+                string? resourceUrl = ();
+                string? hub = ();
+                string topic;
+
+                any target = subscriptionDetails.get("target");
+
+                if (target is string) {
+                    resourceUrl = target;
+                } else {
+                    [hub, topic] = <[string, string]> target;
+                }
 
                 var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails["subscriptionClientConfig"];
                 http:ClientEndpointConfig? subscriptionClientConfig =
                                                     clientConfig is http:ClientEndpointConfig ? clientConfig : ();
 
-                if (hub == "" || topic == "") {
-                    if (resourceUrl == "") {
-                        log:printError(
-                            "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
-                        return;
-                    }
+                if (resourceUrl is string) {
                     var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
@@ -123,9 +126,8 @@ public type Listener object {
                         } else {
                             panic <error> topicDecodeResponse;
                         }
-                        subscriptionDetails["hub"] = retHub;
                         hub = retHub;
-                        subscriptionDetails["topic"] = retTopic;
+                        subscriptionDetails["target"] = [retHub, retTopic];
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
@@ -134,7 +136,8 @@ public type Listener object {
                         continue;
                     }
                 }
-                invokeClientConnectorForSubscription(hub, subscriptionClientConfig, <@untainted> subscriptionDetails);
+                invokeClientConnectorForSubscription(<string> hub, subscriptionClientConfig,
+                                                     <@untainted> subscriptionDetails);
             }
         }
     }
@@ -247,7 +250,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
 
-    string topic = <string>subscriptionDetails["topic"];
+    [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
     string callback = <string>subscriptionDetails["callback"];
 
     if (hub == "" || topic == "" || callback == "") {
