@@ -221,7 +221,7 @@ function testTypeDefWithFunctions() returns int {
     FuncType fn = function (string s) returns int {
         return s.length();
     };
-    return fn.call("Hello");
+    return fn("Hello");
 }
 
 type FuncType2 (function (string) returns int)|string;
@@ -232,7 +232,7 @@ function testTypeDefWithFunctions2() returns int {
     };
 
     if (fn is function (string) returns int) {
-        return fn.call("Hello");
+        return fn("Hello");
     }
 
     return -1;
