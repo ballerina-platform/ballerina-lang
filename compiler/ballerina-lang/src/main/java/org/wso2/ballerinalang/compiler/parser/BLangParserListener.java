@@ -926,6 +926,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitSimpleMatchPattern(BallerinaParser.SimpleMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endSimpleMatchPattern(getWS(ctx));
+    }
+
+    @Override
     public void exitErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx) {
         if (isInErrorState) {
             return;
@@ -953,6 +962,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), reasonIdentifier,
                 restIdentifier, reasonVar, constReasonMatchPattern, restParamPos);
+    }
+
+    @Override
+    public void exitErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.endErrorMatchPattern(getWS(ctx));
     }
 
     @Override
@@ -2265,7 +2282,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createSimpleVariableReference(getCurrentPos(ctx), getWS(ctx));
     }
 
-    @Override public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {
+    @Override
+    public void exitTypeDescExpr(BallerinaParser.TypeDescExprContext ctx) {
         if (isInErrorState) {
             return;
         }

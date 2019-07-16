@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaConstantDefinition extends PsiElement {
 
   @NotNull
-  BallerinaExpression getExpression();
+  BallerinaConstantExpression getConstantExpression();
 
   @Nullable
   BallerinaTypeName getTypeName();

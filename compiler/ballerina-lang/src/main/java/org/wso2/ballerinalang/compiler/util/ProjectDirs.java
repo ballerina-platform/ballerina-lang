@@ -97,6 +97,12 @@ public class ProjectDirs {
         if (Names.DOT.value.equals(pkg)) {
             return false;
         }
+    
+        // If the pkg is not a part of the sourceRoot project then it wont be a test source.
+        if (!isModuleExist(sourceRoot, pkg)) {
+            return false;
+        }
+        
         // Resolve package path with the source root
         Path pkgPath = sourceRoot.resolve(pkg);
         // Construct a relative path between the package path and the ballerina source file path.
@@ -128,5 +134,43 @@ public class ProjectDirs {
             }
         }
         return false;
+    }
+
+    /**
+     * Check of given path is a valid ballerina project.
+     * @param path project path
+     * @return true if a project
+     */
+    public static boolean isProject(Path path) {
+        return Files.exists(path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
+    }
+
+    /**
+     * Find the project root by recursively up to the root.
+     *
+     * @param projectDir project path
+     * @return project root
+     */
+    public static Path findProjectRoot(Path projectDir) {
+        Path path = projectDir.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+        if (Files.exists(path)) {
+            return projectDir;
+        }
+        Path parentsParent = projectDir.getParent();
+        if (null != parentsParent) {
+            return findProjectRoot(parentsParent);
+        }
+        return null;
+    }
+
+    /**
+     * Check if a ballerina module exist.
+     * @param projectPath project path
+     * @param moduleName module name
+     * @return module exist
+     */
+    public static boolean isModuleExist(Path projectPath, String moduleName) {
+        Path modulePath = projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName);
+        return Files.exists(modulePath);
     }
 }

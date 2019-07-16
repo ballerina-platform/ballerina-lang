@@ -21,10 +21,10 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaStaticMatchOrExpression extends BallerinaStaticMatchLiterals {
+public interface BallerinaStaticMatchOrExpression extends BallerinaStaticMatchLiteral {
 
   @NotNull
-  List<BallerinaStaticMatchLiterals> getStaticMatchLiteralsList();
+  List<BallerinaStaticMatchLiteral> getStaticMatchLiteralList();
 
   @NotNull
   PsiElement getPipe();

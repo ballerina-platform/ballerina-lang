@@ -1254,7 +1254,8 @@ public class Desugar extends BLangNodeVisitor {
         return x;
     }
 
-    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr, BLangSimpleVariable detailMap) {
+    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr,
+                                                         BLangSimpleVariable detailMap) {
         BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), typeCastExpr.type);
 
         invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, detailMap.symbol);
@@ -5018,6 +5019,10 @@ public class Desugar extends BLangNodeVisitor {
         BOperatorSymbol conversionSymbol;
         if (types.isValueType(lhsType)) {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
+        } else if (lhsType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(lhsType, TypeTags.ERROR)) {
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, symTable.errorType, symTable.errorType, false,
+                                                                true, InstructionCodes.NOP, null, null);
+            lhsType = symTable.errorType;
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
                                                                 InstructionCodes.NOP, null, null);

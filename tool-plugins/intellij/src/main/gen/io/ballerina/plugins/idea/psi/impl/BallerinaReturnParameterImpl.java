@@ -43,9 +43,15 @@ public class BallerinaReturnParameterImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
   @Nullable
-  public BallerinaReturnType getReturnType() {
-    return findChildByClass(BallerinaReturnType.class);
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override

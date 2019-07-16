@@ -34,17 +34,17 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Top Level Scope");
         return new Object[][] {
-//                {"allTopLevelItemSkip.json", "toplevel"},
-//                {"topLevelNonEmptyFirstLine.json", "toplevel"},
-//                {"topLevelEmptyFirstLine.json", "toplevel"},
+                {"allTopLevelItemSkip.json", "toplevel"},
+                {"topLevelNonEmptyFirstLine.json", "toplevel"},
+                {"topLevelEmptyFirstLine.json", "toplevel"},
                 {"topLevelFirstLineWithPublicKeyword.json", "toplevel"},
                 {"topLevelFirstLineWithPublicDefStart.json", "toplevel"},
-//                {"mapTest1.json", "toplevel"},
-//                {"recordTest1.json", "toplevel"},
-//                {"recordTest2.json", "toplevel"},
+                {"mapTest1.json", "toplevel"},
+                {"recordTest1.json", "toplevel"},
+                {"recordTest2.json", "toplevel"},
                 {"globalVarDef1.json", "toplevel"},
                 {"globalVarDefPackageContent.json", "toplevel"},
-//                {"topLevelCompletionAfterDocumentation.json", "toplevel"},
+                {"topLevelCompletionAfterDocumentation.json", "toplevel"},
                 {"importStatement1.json", "toplevel"},
                 {"importStatement2.json", "toplevel"},
                 {"importStatement3.json", "toplevel"},
@@ -53,8 +53,8 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"topLevelCompletionAfterListenerKeyword1.json", "toplevel"},
                 {"topLevelCompletionAfterListenerKeyword2.json", "toplevel"},
                 {"topLevelCompletionAfterListenerKeyword3.json", "toplevel"},
-//                {"topLevelCompletionAfterFinalKeyword1.json", "toplevel"},
-//                {"topLevelCompletionAfterFinalKeyword2.json", "toplevel"},
+                {"topLevelCompletionAfterFinalKeyword1.json", "toplevel"},
+                {"topLevelCompletionAfterFinalKeyword2.json", "toplevel"},
                 {"topLevelPackageContentAccess.json", "toplevel"},
         };
     }
