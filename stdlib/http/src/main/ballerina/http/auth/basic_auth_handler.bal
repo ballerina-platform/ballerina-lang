@@ -75,9 +75,13 @@ public type BasicAuthHandler object {
     public function prepare(Request req) returns Request|AuthenticationError {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
-            string token = check authProvider.generateToken();
-            req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
-            return req;
+            var token = authProvider.generateToken();
+            if (token is string) {
+                req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
+                return req;
+            } else {
+                return prepareAuthenticationError("Failed to prepare request at basic auth handler.", token);
+            }
         } else {
             return prepareAuthenticationError("Inbound auth provider is configured for outbound authentication.");
         }
@@ -88,15 +92,17 @@ public type BasicAuthHandler object {
     # req - The `Request` instance.
     # resp - The `Response` instance.
     # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error,
-    # or `()` if nothing is to be done.
+    # or `()` if nothing is to be returned.
     public function inspect(Request req, Response resp) returns Request|AuthenticationError? {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             map<anydata> headerMap = createResponseHeaderMap(resp);
-            string? token = check authProvider.inspect(headerMap);
+            var token = authProvider.inspect(headerMap);
             if (token is string) {
                 req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
                 return req;
+            } else if (token is auth:Error) {
+                return prepareAuthenticationError("Failed to inspect at basic auth handler.", token);
             }
             return ();
         } else {
