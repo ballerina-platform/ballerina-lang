@@ -115,13 +115,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         try {
             sourceRoot = args.get("sourceRoot").toString();
-            String packageName = args.get("package").toString();
+            String packageName = args.get("package") == null ? "" : args.get("package").toString();
+            if (!sourceRoot.endsWith(File.separator)) {
+                sourceRoot += File.separator;
+            }
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
             debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.addClassFilter("");
             classPrepareRequest.enable();
             this.eventBus.setDebuggee(debuggee);
             this.eventBus.startListening(sourceRoot, packageName);
@@ -145,7 +147,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
-            erm.createClassPrepareRequest().enable();
+            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
+            classPrepareRequest.enable();
             this.eventBus.setDebuggee(debuggee);
             this.eventBus.startListening(sourceRoot, packageName);
 
