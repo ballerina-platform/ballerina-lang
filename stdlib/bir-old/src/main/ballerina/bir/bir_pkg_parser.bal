@@ -16,7 +16,7 @@ import ballerina/io;
 // under the License.
 public type PackageParser object {
     BirChannelReader reader;
-    map<VariableDcl> globalVarMap;
+    map<GlobalVariableDcl> globalVarMap;
     boolean addInterimBB = true;
     boolean symbolsOnly;
 
@@ -90,12 +90,16 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
+        var metaVarName = self.reader.readStringCpRef();
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind,
-            hasDefaultExpr: hasDefaultExpr
+            hasDefaultExpr: hasDefaultExpr,
+            meta: {
+                name: metaVarName
+            }
         };
         return dcl;
     }
@@ -198,6 +202,15 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
+            if (!(dcl.kind is TempVarKind)) {
+                dcl.meta.name = self.reader.readStringCpRef();
+            }
+            if (dcl.kind is LocalVarKind) {
+                var meta = dcl.meta;
+                meta.endBBID = self.reader.readStringCpRef();
+                meta.startBBID = self.reader.readStringCpRef();
+                meta.insOffset = self.reader.readInt32();
+            }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
             count += 1;
