@@ -53,7 +53,7 @@ public class SocketConstants {
     public static final int DEFAULT_EXPECTED_READ_LENGTH = -100;
 
     // Default read timeout set as 5 min.
-    public static final String READ_TIMEOUT = "readTimeout";
+    public static final String READ_TIMEOUT = "readTimeoutInMilliseconds";
 
     /**
      * Specifies the error code for socket module.

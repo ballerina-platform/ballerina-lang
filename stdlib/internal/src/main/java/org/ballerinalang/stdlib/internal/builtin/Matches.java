@@ -18,13 +18,13 @@
 
 package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,14 +36,14 @@ import java.util.regex.PatternSyntaxException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "internal",
         functionName = "matches",
-        args = {@Argument(name = "s", type = TypeKind.STRING),
-                @Argument(name = "reg", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.RECORD)},
+        args = {@Argument(name = "src", type = TypeKind.STRING),
+                @Argument(name = "regex", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class Matches {
 
-    public static Object matches(Strand strand, String value, String regex) {
+    public static boolean matches(Strand strand, String value, String regex) {
 
         StringUtils.checkForNull(value, regex);
         try {
@@ -51,7 +51,7 @@ public class Matches {
             Matcher matcher = pattern.matcher(value);
             return matcher.matches();
         } catch (PatternSyntaxException e) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.STRING_OPERATION_ERROR, e.getMessage());
+            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR, e.getMessage());
         }
     }
 }

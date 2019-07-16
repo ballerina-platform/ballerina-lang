@@ -151,6 +151,7 @@ public class CommandUtil {
      * @param documentManager  Document manager
      * @param lsCompiler       LS Compiler
      * @return {@link Command}  Test Generation command
+     * @throws LSCompilerException LS Compiler Exception
      */
     public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params,

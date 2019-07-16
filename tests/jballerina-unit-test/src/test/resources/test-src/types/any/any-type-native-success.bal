@@ -2,7 +2,7 @@ import ballerina/io;
 
 function successfulXmlCasting() returns (string)  {
   var abc = jsonReturnFunction();
-  string strVal = extractFieldValue(abc.PropertyName);
+  string strVal = extractFieldValue(checkpanic abc.PropertyName);
   return strVal;
 }
 

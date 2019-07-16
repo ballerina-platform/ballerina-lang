@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -70,7 +71,7 @@ public class GetSubscribers extends BlockingNativeCallableUnit {
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
             MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE,
                                                                                      SUBSCRIPTION_DETAILS);
-            subscriberDetailArray = new ArrayValue(subscriberDetailsRecordValue.getType());
+            subscriberDetailArray = new ArrayValue(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {
                 if (topic.equals(subscriber.getTopic())) {
                     MapValue<String, Object> subscriberDetail = BallerinaValues.createRecord(

@@ -116,7 +116,7 @@ public class ArtemisCompilationTest {
         BAssertUtil.validateError(
                 compileResult, 0,
                 "Invalid resource signature for onError resource in service : The second parameter should be " +
-                        "artemis:ArtemisError", 28, 5);
+                        "artemis:Error", 28, 5);
     }
 
     @Test(description = "Invalid resource names")
