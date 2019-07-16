@@ -25,24 +25,24 @@ service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient wsEp, string text) {
         http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText(text);
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onPing(http:WebSocketClient wsEp, byte[] localData) {
         http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText("ping-from-remote-server-received");
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onPong(http:WebSocketClient wsEp, byte[] localData) {
         http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText("pong-from-remote-server-received");
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 };
@@ -58,8 +58,8 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+           panic <error> returnVal;
         }
     }
 
@@ -68,16 +68,16 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
 
         if (text == "ping-me") {
              var returnVal = wsEp->ping(APPLICATION_DATA3);
-             if (returnVal is error) {
-                  panic returnVal;
+             if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
              }
         }
 
         if (text == "ping-remote-server") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->ping(APPLICATION_DATA3);
-            if (returnVal is error) {
-                 panic returnVal;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
 
@@ -85,37 +85,37 @@ service PingPongTestService2 on new http:WebSocketListener(9095) {
             clientEp = getAssociatedClientEndpoint(wsEp);
             log:printInfo(clientEp.response.getHeader("upgrade"));
             var returnVal = clientEp->pushText("ping");
-            if (returnVal is error) {
-                 panic returnVal;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(text + ":X-some-header");
-            if (returnVal is error) {
-                 panic returnVal;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
-            if (returnVal is error) {
-                 panic returnVal;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
     }
 
     resource function onPing(http:WebSocketCaller wsEp, byte[] localData) {
         var returnVal = wsEp->pong(localData);
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onPong(http:WebSocketCaller wsEp, byte[] localData) {
         var returnVal = wsEp->pushText("pong-from-you");
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 

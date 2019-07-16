@@ -36,7 +36,8 @@ public type WebSocketCaller client object {
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true) returns error? {
+    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean finalFrame = true)
+    returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
 
@@ -45,7 +46,7 @@ public type WebSocketCaller client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -53,7 +54,7 @@ public type WebSocketCaller client object {
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public remote function ping(byte[] data) returns error? {
+    public remote function ping(byte[] data) returns WebSocketError? {
         return self.conn.ping(data);
     }
 
@@ -61,7 +62,7 @@ public type WebSocketCaller client object {
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public remote function pong(byte[] data) returns error? {
+    public remote function pong(byte[] data) returns WebSocketError? {
         return self.conn.pong(data);
     }
 
@@ -76,7 +77,7 @@ public type WebSocketCaller client object {
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
     public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSecs = 60) returns error? {
+        public int timeoutInSecs = 60) returns WebSocketError? {
         return self.conn.close(statusCode = statusCode, reason = reason, timeoutInSecs = timeoutInSecs);
     }
 };

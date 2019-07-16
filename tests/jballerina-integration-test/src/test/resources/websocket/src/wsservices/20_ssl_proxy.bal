@@ -30,32 +30,32 @@ service on new http:WebSocketListener(9077) {
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode, reason);
-        if (returnVal is error) {
-            panic returnVal;
+        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
@@ -80,8 +80,9 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
     resource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode, reason);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 };

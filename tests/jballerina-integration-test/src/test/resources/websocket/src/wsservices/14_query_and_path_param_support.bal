@@ -51,8 +51,8 @@ service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
             string msg = string `path-params: ${path1}, ${path2}; query-params: ${query1}, ${query2}`;
             var returnVal = wsEp->pushText(msg);
-            if(returnVal is error) {
-                panic returnVal;
+            if(returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
     }
