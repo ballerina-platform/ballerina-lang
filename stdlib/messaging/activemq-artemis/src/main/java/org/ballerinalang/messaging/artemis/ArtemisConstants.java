@@ -34,7 +34,7 @@ public class ArtemisConstants {
     public static final String PROTOCOL_PACKAGE_ARTEMIS = BALLERINA_PACKAGE_PREFIX + ARTEMIS;
 
     // Error related constants
-    static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}ArtemisError";
+    static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}Error";
     static final String ARTEMIS_ERROR_RECORD = "ArtemisError";
     static final String ARTEMIS_ERROR_DETAILS = "Detail";
     static final String ARTEMIS_ERROR_MESSAGE = "message";
