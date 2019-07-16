@@ -36,16 +36,16 @@ type T2 object {
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints1() returns boolean {
     T1 a = { name: "ballerina" };
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     map<string>? annot = t.@v1; // Should be`()` at runtime since it matches `source type`
     return annot is ();
 }
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints2() returns boolean {
     T2 a = new;
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     map<string>? annot = t.@v1; // Should not be `()` at runtime since it matches `object type`
-    return annot is map<string> && annot.foo == STRING_VAL_TWO;
+    return annot is map<string> && annot["foo"] == STRING_VAL_TWO;
 }
 
 const annotation map<string> v2 on type, source object type;
@@ -67,14 +67,14 @@ type T4 object {
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints3() returns boolean {
     T3 a = { name: "ballerina" };
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     map<string>? annot = t.@v2; // Should not be `()` at runtime since it matches `type`
-    return annot is map<string> && annot.foo == STRING_VAL && annot.bar == "1";
+    return annot is map<string> && annot["foo"] == STRING_VAL && annot["bar"] == "1";
 }
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints4() returns boolean {
     T4 a = new;
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     map<string>? annot = t.@v2; // Should be`()` at runtime since it matches `source object type`
     return annot is ();
 }
@@ -93,13 +93,13 @@ type T6 object {
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints5() returns boolean {
     T5 a = { name: "ballerina" };
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     boolean? annot = t.@v3; // Should be`()` at runtime since it matches `source type`
     return annot is ();
 }
 
 function testAnnotAccessForAnnotWithSourceOnlyPoints6() returns boolean {
     T6 a = new;
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     return t.@v3 is (); // Should be`()` at runtime since it matches `source type`
 }
