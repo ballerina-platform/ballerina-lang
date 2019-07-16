@@ -1129,6 +1129,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>openapi-validator</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>protobuf-ballerina</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1581,6 +1586,11 @@
                 <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-amqp</artifactId>
                 <version>${broker.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.moandjiezana.toml</groupId>
+                <artifactId>toml4j</artifactId>
+                <version>${toml4j.version}</version>
             </dependency>
 
             <!-- Observability dependency-->
@@ -2606,6 +2616,7 @@
         <bcprov-jdk15on.version>1.61</bcprov-jdk15on.version>
         <bcpkix-jdk15on.version>1.61</bcpkix-jdk15on.version>
         <broker.version>0.970.5</broker.version>
+        <toml4j.version>0.7.2</toml4j.version>
         <netty-tcnative-boringssl-static.version>2.0.23.Final</netty-tcnative-boringssl-static.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>

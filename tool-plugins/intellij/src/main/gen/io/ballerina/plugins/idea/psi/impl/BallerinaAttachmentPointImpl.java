@@ -44,62 +44,14 @@ public class BallerinaAttachmentPointImpl extends ASTWrapperPsiElement implement
 
   @Override
   @Nullable
-  public PsiElement getTypeParameter() {
-    return findChildByType(TYPE_PARAMETER);
+  public BallerinaDualAttachPoint getDualAttachPoint() {
+    return findChildByClass(BallerinaDualAttachPoint.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getAnnotation() {
-    return findChildByType(ANNOTATION);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getClient() {
-    return findChildByType(CLIENT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getFunction() {
-    return findChildByType(FUNCTION);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getListener() {
-    return findChildByType(LISTENER);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getObject() {
-    return findChildByType(OBJECT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRemote() {
-    return findChildByType(REMOTE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getResource() {
-    return findChildByType(RESOURCE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getService() {
-    return findChildByType(SERVICE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getType() {
-    return findChildByType(TYPE);
+  public BallerinaSourceOnlyAttachPoint getSourceOnlyAttachPoint() {
+    return findChildByClass(BallerinaSourceOnlyAttachPoint.class);
   }
 
 }

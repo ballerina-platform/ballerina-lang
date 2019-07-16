@@ -35,7 +35,7 @@ import org.ballerinax.jdbc.statement.SelectStatement;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeSelect"
 )
 public class Select extends BlockingNativeCallableUnit {

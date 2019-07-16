@@ -20,6 +20,7 @@ package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 import java.util.List;
 
@@ -41,4 +42,6 @@ public interface ErrorVariableReferenceNode extends VariableReferenceNode {
     ExpressionNode getReason();
 
     List<BLangNamedArgsExpression> getDetail();
+
+    BLangVariableReference getRestVar();
 }

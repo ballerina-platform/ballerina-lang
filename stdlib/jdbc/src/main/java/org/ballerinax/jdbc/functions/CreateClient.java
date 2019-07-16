@@ -35,7 +35,7 @@ import java.util.UUID;
  */
 
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "createClient",
         isPublic = true
 )

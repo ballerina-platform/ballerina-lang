@@ -44,14 +44,20 @@ public class BallerinaMatchPatternClauseImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public BallerinaStaticMatchPattern getStaticMatchPattern() {
-    return findChildByClass(BallerinaStaticMatchPattern.class);
+  public BallerinaErrorMatchPatternClause getErrorMatchPatternClause() {
+    return findChildByClass(BallerinaErrorMatchPatternClause.class);
   }
 
   @Override
   @Nullable
-  public BallerinaVarMatchPattern getVarMatchPattern() {
-    return findChildByClass(BallerinaVarMatchPattern.class);
+  public BallerinaStaticMatchPatternClause getStaticMatchPatternClause() {
+    return findChildByClass(BallerinaStaticMatchPatternClause.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaVarMatchPatternClause getVarMatchPatternClause() {
+    return findChildByClass(BallerinaVarMatchPatternClause.class);
   }
 
 }

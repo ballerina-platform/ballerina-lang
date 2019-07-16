@@ -39,9 +39,7 @@ public class InvocationOrFieldAccessContextProvider extends LSCompletionProvider
 
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-
         Either<List<CompletionItem>, List<SymbolInfo>> content = new DelimiterBasedContentFilter().filterItems(context);
-
         return this.getCompletionItemList(content, context);
     }
 }

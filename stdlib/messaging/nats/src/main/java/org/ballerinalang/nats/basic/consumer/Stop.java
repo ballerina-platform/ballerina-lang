@@ -20,8 +20,6 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -49,7 +47,7 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
                 structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Stop extends BlockingNativeCallableUnit {
+public class Stop {
 
     private static final Logger LOG = LoggerFactory.getLogger(Stop.class);
 
@@ -82,10 +80,5 @@ public class Stop extends BlockingNativeCallableUnit {
                 throw new BallerinaConnectorException("Listener interrupted while closing NATS connection");
             }
         }
-    }
-
-    @Override
-    public void execute(Context context) {
-
     }
 }
