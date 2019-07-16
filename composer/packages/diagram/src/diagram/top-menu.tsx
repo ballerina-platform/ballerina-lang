@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, DropdownItemProps, Grid, Icon } from "semantic-ui-react";
+import { Dropdown, DropdownItemProps, Grid, Icon, Label } from "semantic-ui-react";
 import { DiagramMode } from "./diagram-context";
 
 export interface TopMenuProps {
@@ -56,13 +56,7 @@ export const TopMenu = (props: TopMenuProps) => {
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
                         <Icon onClick={handleZoomOut} className="fw fw-minus" />
-                        <Dropdown text={`${Math.floor(zoomFactor * 100)}%`} className="menu-dropdown-small">
-                            <Dropdown.Menu>
-                                <Dropdown.Item text="10%" />
-                                <Dropdown.Item text="20%" />
-                                <Dropdown.Item text="30%" />
-                            </Dropdown.Menu>
-                        </Dropdown>
+                        <Label className="menu-dropdown-small"> {`${Math.floor(zoomFactor * 100)}%`} </Label>
                         <Icon onClick={handleZoomIn} className="fw fw-add" />
                         <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen" />
                     </Grid.Column>
@@ -127,3 +121,4 @@ export const TopMenu = (props: TopMenuProps) => {
         </div>
     );
 };
+
