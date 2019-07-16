@@ -97,6 +97,12 @@ public class ProjectDirs {
         if (Names.DOT.value.equals(pkg)) {
             return false;
         }
+    
+        // If the pkg is not a part of the sourceRoot project then it wont be a test source.
+        if (!isModuleExist(sourceRoot, pkg)) {
+            return false;
+        }
+        
         // Resolve package path with the source root
         Path pkgPath = sourceRoot.resolve(pkg);
         // Construct a relative path between the package path and the ballerina source file path.

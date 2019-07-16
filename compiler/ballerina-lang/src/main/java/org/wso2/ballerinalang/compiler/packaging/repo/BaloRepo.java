@@ -30,15 +30,15 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DI
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**
- * Repo for balo_cache
+ * Repo for balo_cache.
  */
 public class BaloRepo implements Repo<Path> {
     ZipConverter zipConverter;
     Path repoLocation;
     
-    public BaloRepo(Path parentFolderOfBaloCache) {
-        this.zipConverter = new ZipConverter(parentFolderOfBaloCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
-        this.repoLocation = parentFolderOfBaloCache;
+    public BaloRepo(Path repo) {
+        this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
+        this.repoLocation = repo;
     }
     
     @Override
@@ -53,7 +53,10 @@ public class BaloRepo implements Repo<Path> {
             version = path(versionStr);
         }
     
-        return new Patten(path(orgName, pkgName), version, path(pkgName, ".balo"));
+        return new Patten(path(orgName, pkgName),
+                version,
+                path(pkgName + ".balo", ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                Patten.WILDCARD_SOURCE);
     }
     
     @Override

@@ -237,9 +237,10 @@ public class CompileCommand implements BLauncherCmd {
                     offline, lockEnabled, skiptests, experimentalFlag, siddhiRuntimeFlag,
                     jvmTarget || JVM_TARGET.equals(System.getProperty(BALLERINA_TARGET)),
                     dumpBIR, GEN_EXECUTABLES);
-            if (exitWhenFinish) {
-                Runtime.getRuntime().exit(0);
-            }
+        }
+    
+        if (exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
         }
     }
 
