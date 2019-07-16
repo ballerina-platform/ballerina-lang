@@ -18,7 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep8 = new (9098, config = {
+listener grpc:Listener ep8 = new (9098, {
     host:"localhost"
 });
 
@@ -40,7 +40,7 @@ service HelloWorld101 on ep8 {
             io:print("Response Headers: ");
             io:println(headers.getAll("x-id"));
         }
-        error? err = caller->send(message, headers = headers);
+        error? err = caller->send(message, headers);
         if (err is error) {
             io:println("Error from Connector: " + err.reason());
         } else {

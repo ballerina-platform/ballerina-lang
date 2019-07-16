@@ -28,12 +28,12 @@ service OneofFieldService on new grpc:Listener(9105) {
         io:println(value);
         string request = "";
         if (value.name is Request1_FirstName) {
-            var conv = Request1_FirstName.convert(value.name);
+            var conv = typedesc<Request1_FirstName>.constructFrom(value.name);
             if (conv is Request1_FirstName) {
                 request = conv.first_name;
             }
         } else {
-            Request1_LastName|error conv = Request1_LastName.convert(value.name);
+            Request1_LastName|error conv = typedesc<Request1_LastName>.constructFrom(value.name);
             if (conv is Request1_LastName) {
                 request = conv.last_name;
             }

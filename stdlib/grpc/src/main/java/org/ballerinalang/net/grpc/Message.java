@@ -97,10 +97,10 @@ public class Message {
         this(messageName);
         MapValue<String, Object> bMapValue = null;
         Map<String, BType> bMapFields = new HashMap<>();
-        if (bType.getTag() == TypeTags.MAP_TAG) {
+        if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             bMapValue = BallerinaValues.createRecordValue(NO_PACKAGE, messageName);
             for (Object messageField : ((MapValue) bMapValue).getKeys()) {
-                bMapFields.put(messageField.toString(), TypeChecker.getType(messageField));
+                bMapFields.put(messageField.toString(), TypeChecker.getType(bMapValue.get(messageField)));
             }
             bMessage = bMapValue;
         }
@@ -116,7 +116,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue floatArray = new ArrayValue(BTypes.typeFloat);
+                                ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -134,7 +134,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue floatArray = new ArrayValue(BTypes.typeFloat);
+                                ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -154,7 +154,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -172,7 +172,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -190,7 +190,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -208,7 +208,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -226,7 +226,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -244,7 +244,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue booleanArray = new ArrayValue(BTypes.typeBoolean);
+                                ArrayValue booleanArray = new ArrayValue(new BArrayType(BTypes.typeBoolean));
                                 if (bMapValue.containsKey(name)) {
                                     booleanArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -262,7 +262,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue stringArray = new ArrayValue(BTypes.typeString);
+                                ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -281,7 +281,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue stringArray = new ArrayValue(BTypes.typeString);
+                                ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
                                 }
@@ -320,8 +320,7 @@ public class Message {
                                 ArrayValue structArray = bMapValue.get(name) != null ?
                                         (ArrayValue) bMapValue.get(name) : null;
                                 if (structArray == null || structArray.size() == 0) {
-                                    structArray = new ArrayValue(((BArrayType) bMapFields.get(name))
-                                            .getElementType());
+                                    structArray = new ArrayValue(bMapFields.get(name));
                                     bMapValue.put(name, structArray);
                                 }
 

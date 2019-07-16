@@ -36,7 +36,7 @@ public function testBidiStreaming() returns string {
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string>res.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
         io:println(msg);
     } else {
         ep = res;
@@ -45,7 +45,7 @@ public function testBidiStreaming() returns string {
     ChatMessage mes1 = {name:"Sam", message:"Hi"};
     error? connErr = ep->send(mes1);
     if (connErr is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
     }
     if (!isValidResponse("Sam: Hi")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: Hi", responseMsg);
@@ -56,7 +56,7 @@ public function testBidiStreaming() returns string {
     ChatMessage mes2 = {name:"Sam", message:"GM"};
     connErr = ep->send(mes2);
     if (connErr is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string>connErr.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
     }
     if (!isValidResponse("Sam: GM")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: GM", responseMsg);
@@ -87,7 +87,7 @@ service ChatMessageListener = service {
     }
 
     function onError(error err) {
-        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
+        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
         io:println(responseMsg);
     }
 
@@ -114,7 +114,7 @@ public type ChatClient client object {
     }
 
     remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
-        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers = headers);
+        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };
 

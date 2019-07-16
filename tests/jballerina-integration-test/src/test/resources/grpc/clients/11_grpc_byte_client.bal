@@ -25,10 +25,10 @@ public function main() {
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");
     string statement = "Lion in Town.";
-    byte[] bytes = statement.toByteArray("UTF-8");
+    byte[] bytes = statement.toBytes();
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
@@ -49,11 +49,11 @@ function testLargeByteArray(string filePath) returns (string) {
             [bytes, _] = resultBytes;
         } else {
             error err = resultBytes;
-            return io:sprintf("File read error: %s - %s", err.reason(), <string>err.detail().message);
+            return io:sprintf("File read error: %s - %s", err.reason(), <string> err.detail()["message"]);
         }
         var addResponse = blockingEp->checkBytes(bytes);
         if (addResponse is error) {
-            return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+            return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
         } else {
             byte[] result = [];
             [result, _] = addResponse;
@@ -81,11 +81,11 @@ public type byteServiceBlockingClient client object {
     }
 
     remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
-        any result = ();
+        anydata result = ();
         [result, resHeaders] = unionResp;
-        var value = byte[].convert(result);
+        var value = typedesc<byte[]>.constructFrom(result);
         if (value is byte[]) {
             return [value, resHeaders];
         } else {
@@ -109,7 +109,7 @@ public type byteServiceClient client object {
     }
 
     remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };
 

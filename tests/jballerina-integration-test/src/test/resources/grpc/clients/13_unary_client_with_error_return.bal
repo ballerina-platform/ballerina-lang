@@ -28,7 +28,7 @@ public function testErrorResponse(string name) returns string {
 
     if (unionResp is error) {
         string message = "Error from Connector: " + unionResp.reason() + " - "
-            + <string>unionResp.detail().message;
+            + <string> unionResp.detail()["message"];
         io:println(message);
         return message;
     } else {
@@ -53,11 +53,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var payload = check self.grpcClient->blockingExecute("HelloWorld13/hello", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("HelloWorld13/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = payload;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
 };
@@ -77,7 +77,7 @@ public type HelloWorldClient client object {
     }
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
     }
 
 };

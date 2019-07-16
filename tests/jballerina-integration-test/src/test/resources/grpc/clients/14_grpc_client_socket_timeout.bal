@@ -17,6 +17,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
+public function main() {
+    string resp = testClientSocketTimeout();
+    io:println(resp);
+}
+
 public function testClientSocketTimeout() returns string {
     // Client endpoint configuration
     HelloWorld14BlockingClient helloWorldBlockingEp = new("http://localhost:9104", {
@@ -27,7 +32,7 @@ public function testClientSocketTimeout() returns string {
 
     // Reads message from response.
     if (unionResp is error) {
-        return "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        return "Error from Connector: " + unionResp.reason() + " - " + <string> unionResp.detail()["message"];
     } else {
         string result;
         [result, _] = unionResp;
@@ -51,11 +56,11 @@ public type HelloWorld14BlockingClient client object {
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
 
-        var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = payload;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
 };
@@ -76,7 +81,7 @@ public type HelloWorld14Client client object {
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
-        return self.grpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers);
     }
 
 };

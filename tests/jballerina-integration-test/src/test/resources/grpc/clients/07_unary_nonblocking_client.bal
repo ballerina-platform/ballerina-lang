@@ -33,7 +33,7 @@ function testUnaryNonBlockingClient() returns boolean {
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->hello("WSO2", HelloWorldMessageListener);
     if (result is error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string>result.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string> result.detail()["message"]);
         io:println(msg);
         return false;
     } else {
@@ -68,7 +68,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string>err.detail().message);
+        string msg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
         io:println(msg);
     }
 
@@ -95,19 +95,19 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/hello", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/hello", req, headers);
         any result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
     remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testInt", req, headers = headers);
-        any result = ();
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testInt", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = int.convert(result);
+        var value = typedesc<int>.constructFrom(result);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -116,11 +116,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers = headers);
-        any result = ();
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = float.convert(result);
+        var value = typedesc<float>.constructFrom(result);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -129,11 +129,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers = headers);
-        any result = ();
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = boolean.convert(result);
+        var value = typedesc<boolean>.constructFrom(result);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -142,11 +142,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testStruct(Request req, grpc:Headers? headers = ()) returns ([Response, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers = headers);
-        any result = ();
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = Response.convert(result);
+        var value = typedesc<Response>.constructFrom(result);
         if (value is Response) {
             return [value, resHeaders];
         } else {
@@ -171,23 +171,23 @@ public type HelloWorldClient client object {
     }
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/hello", req, msgListener, headers);
     }
 
     remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testInt", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testInt", req, msgListener, headers);
     }
 
     remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testFloat", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testFloat", req, msgListener, headers);
     }
 
     remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testBoolean", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testBoolean", req, msgListener, headers);
     }
 
     remote function testStruct(Request req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testStruct", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testStruct", req, msgListener, headers);
     }
 };
 const string ROOT_DESCRIPTOR = "0A1348656C6C6F576F726C643130302E70726F746F120C6772706373657276696365731A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F1A1B676F6F676C652F70726F746F6275662F656D7074792E70726F746F22490A075265717565737412120A046E616D6518012001280952046E616D6512180A076D65737361676518022001280952076D65737361676512100A036167651803200128035203616765221E0A08526573706F6E736512120A047265737018012001280952047265737032B5030A0D48656C6C6F576F726C6431303012430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C756512430A0774657374496E74121B2E676F6F676C652E70726F746F6275662E496E74363456616C75651A1B2E676F6F676C652E70726F746F6275662E496E74363456616C756512450A0974657374466C6F6174121B2E676F6F676C652E70726F746F6275662E466C6F617456616C75651A1B2E676F6F676C652E70726F746F6275662E466C6F617456616C756512450A0B74657374426F6F6C65616E121A2E676F6F676C652E70726F746F6275662E426F6F6C56616C75651A1A2E676F6F676C652E70726F746F6275662E426F6F6C56616C7565123B0A0A7465737453747275637412152E6772706373657276696365732E526571756573741A162E6772706373657276696365732E526573706F6E7365124F0A1774657374526573706F6E7365496E736964654D61746368121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A162E6772706373657276696365732E526573706F6E7365620670726F746F33";

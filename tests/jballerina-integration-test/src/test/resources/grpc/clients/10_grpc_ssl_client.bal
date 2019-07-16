@@ -18,8 +18,13 @@ import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
+public function main() {
+    string resp1 = testUnarySecuredBlockingWithCerts();
+    io:println(resp1);
+}
+
 function testUnarySecuredBlockingWithCerts() returns (string) {
-    grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9100", config = {
+    grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9100", {
         secureSocket:{
             keyFile: config:getAsString("client.certificate.key"),
             certFile: config:getAsString("client.public.cert"),
@@ -29,7 +34,7 @@ function testUnarySecuredBlockingWithCerts() returns (string) {
 
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         string result;
         [result, _] = unionResp;
@@ -55,11 +60,11 @@ public type grpcMutualSslServiceBlockingClient client object {
 
     remote function hello (string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
 
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 };
 
@@ -80,7 +85,7 @@ public type grpcMutualSslServiceClient client object {
 
     remote function hello (string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
-        return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, msgListener, headers);
     }
 };
 

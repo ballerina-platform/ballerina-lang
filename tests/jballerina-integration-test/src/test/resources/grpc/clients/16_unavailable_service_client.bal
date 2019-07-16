@@ -18,10 +18,15 @@ import ballerina/io;
 
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9106");
 
+public function main() {
+    string resp = testUnaryBlockingClient("WSO2");
+    io:println(resp);
+}
+
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -47,11 +52,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers = headers);
-        any result;
+        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers);
+        anydata result;
         grpc:Headers resHeaders;
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 };
 
@@ -71,7 +76,7 @@ public type helloWorldClient client object {
     }
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
     }
 };
 const string ROOT_DESCRIPTOR = "0A1668656C6C6F576F726C64537472696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32510A0A48656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";

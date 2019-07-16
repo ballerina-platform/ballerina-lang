@@ -22,7 +22,7 @@ public function main() {
 }
 
 function testUnarySecuredBlocking() returns (string) {
-    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9099", config = {
+    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9099", {
         secureSocket:{
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -45,7 +45,7 @@ function testUnarySecuredBlocking() returns (string) {
 
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         string result;
         [result, _] = unionResp;
@@ -71,11 +71,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld85/hello", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld85/hello", req, headers);
         any result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 };
 
@@ -95,7 +95,7 @@ public type HelloWorldClient client object {
     }
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld85/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld85/hello", req, msgListener, headers);
     }
 };
 

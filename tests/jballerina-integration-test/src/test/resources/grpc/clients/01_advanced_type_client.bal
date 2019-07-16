@@ -19,13 +19,46 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9091");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
+public function main() {
+    Person p = {
+        name : "Danesh"
+    };
+    string resp1 = testInputNestedStruct(p);
+    io:println(resp1);
+
+    var resp2 = testOutputNestedStruct("WSO2");
+    io:println(resp2);
+
+    StockRequest sp = {
+        name: "GOOGL"
+    };
+    var resp3 = testInputStructOutputStruct(sp);
+    io:println(resp3);
+
+    var resp4 = testNoInputOutputStruct();
+    io:println(resp4);
+
+    var resp5 = testNoInputOutputArray();
+    io:println(resp5);
+
+    StockQuote sq = {
+        symbol: "IBM",
+        name: "IBM",
+        last: 0.0,
+        low: 0.0,
+        high: 0.0
+    };
+    var resp6 = testInputStructNoOutput(sq);
+    io:println(resp6);
+}
+
 function testInputNestedStruct(Person p) returns (string) {
     io:println("testInputNestedStruct: input:");
     io:println(p);
     [string, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         string result = "";
@@ -40,7 +73,7 @@ function testOutputNestedStruct(string name) returns (Person|string) {
     [Person, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testOutputNestedStruct(name);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         Person result = {};
@@ -56,7 +89,7 @@ function testInputStructOutputStruct(StockRequest request) returns (StockQuote|s
     [StockQuote, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testInputStructOutputStruct(request);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         StockQuote result = {};
@@ -71,7 +104,7 @@ function testNoInputOutputStruct() returns (StockQuotes|string) {
     [StockQuotes, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testNoInputOutputStruct();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         StockQuotes result = {};
@@ -86,7 +119,7 @@ function testNoInputOutputArray() returns (StockNames|string) {
     [StockNames, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testNoInputOutputArray();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         StockNames result = {};
@@ -102,7 +135,7 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
     (grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputStructNoOutput(quote);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got No Response : ");
         _ = unionResp;
@@ -127,19 +160,20 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testInputNestedStruct(Person req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
+        io:println(payload);
         [result, resHeaders] = payload;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
     remote function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ([Person, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = Person.convert(result);
+        var value = typedesc<Person>.constructFrom(result);
         if (value is Person) {
             return [value, resHeaders];
         } else {
@@ -148,11 +182,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testInputStructOutputStruct(StockRequest req, grpc:Headers? headers = ()) returns ([StockQuote, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = StockQuote.convert(result);
+        var value = typedesc<StockQuote>.constructFrom(result);
         if (value is StockQuote) {
             return [value, resHeaders];
         } else {
@@ -161,8 +195,8 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testInputStructNoOutput(StockQuote req, grpc:Headers? headers = ()) returns ((grpc:Headers)|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
         [_, resHeaders] = payload;
         return resHeaders;
@@ -170,11 +204,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testNoInputOutputStruct(grpc:Headers? headers = ()) returns ([StockQuotes, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = StockQuotes.convert(result);
+        var value = typedesc<StockQuotes>.constructFrom(result);
         if (value is StockQuotes) {
             return [value, resHeaders];
         } else {
@@ -184,11 +218,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testNoInputOutputArray(grpc:Headers? headers = ()) returns ([StockNames, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = StockNames.convert(result);
+        var value = typedesc<StockNames>.constructFrom(result);
         if (value is StockNames) {
             return [value, resHeaders];
         } else {
@@ -214,33 +248,33 @@ public type HelloWorldClient client object {
 
     remote function testInputNestedStruct(Person req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, msgListener,
-            headers = headers);
+         headers);
     }
 
     remote function testOutputNestedStruct(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, msgListener,
-            headers = headers);
+            headers);
     }
 
     remote function testInputStructOutputStruct(StockRequest req, service msgListener, grpc:Headers? headers = ()) returns (error
                 ?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, msgListener,
-            headers = headers);
+            headers);
     }
 
     remote function testInputStructNoOutput(StockQuote req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, msgListener,
-            headers = headers);
+            headers);
     }
 
     remote function testNoInputOutputStruct(Empty req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, msgListener,
-            headers = headers);
+            headers);
     }
 
     remote function testNoInputOutputArray(Empty req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, msgListener,
-            headers = headers);
+            headers);
     }
 };
 

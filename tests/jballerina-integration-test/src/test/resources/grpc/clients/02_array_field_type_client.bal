@@ -20,10 +20,41 @@ HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
 public function main() {
-    string[] bol = ["A", "B", "S"];
-    TestString testbol = {values: bol};
-    var resp = testStringArrayInput(testbol);
-    io:println(resp);
+
+    TestInt testInt = {values: [1, 2, 3]};
+    var resp1 = testIntArrayInput(testInt);
+    io:println(resp1);
+
+    TestString testbol = {values: ["A", "B", "S"]};
+    var resp2 = testStringArrayInput(testbol);
+    io:println(resp2);
+
+    TestFloat testFloat = {values: [1.1, 1.2, 1.3, 1.4]};
+    var resp3 = testFloatArrayInput(testFloat);
+    io:println(resp3);
+
+    TestBoolean testBol = {values: [true, false, true]};
+    var resp4 = testBooleanArrayInput(testBol);
+    io:println(resp4);
+
+    TestStruct testStruct = {values: [{name: "A"}, {name: "B"}, {name: "C"}]};
+    var resp5 = testStructArrayInput(testStruct);
+    io:println(resp5);
+
+    var resp6 = testIntArrayOutput();
+    io:println(resp6);
+
+    var resp7 = testStringArrayOutput();
+    io:println(resp7);
+
+    var resp8 = testFloatArrayOutput();
+    io:println(resp8);
+
+    var resp9 = testBooleanArrayOutput();
+    io:println(resp9);
+
+    var resp10 = testStructArrayOutput();
+    io:println(resp10);
 }
 
 function testIntArrayInput(TestInt req) returns (int|string) {
@@ -32,7 +63,7 @@ function testIntArrayInput(TestInt req) returns (int|string) {
     [int, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testIntArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         int result = 0;
@@ -48,7 +79,7 @@ function testStringArrayInput(TestString req) returns (string) {
     [string, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testStringArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -64,7 +95,7 @@ function testFloatArrayInput(TestFloat req) returns (float|string) {
     [float, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testFloatArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         float result;
@@ -80,7 +111,7 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     [boolean, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testBooleanArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         boolean result;
@@ -96,7 +127,7 @@ function testStructArrayInput(TestStruct req) returns (string) {
     [string, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testStructArrayInput(req);
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -111,7 +142,7 @@ function testIntArrayOutput() returns (TestInt|string) {
     [TestInt, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testIntArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         TestInt result;
@@ -126,7 +157,7 @@ function testStringArrayOutput() returns (TestString|string) {
     [TestString, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testStringArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         TestString result;
@@ -141,7 +172,7 @@ function testFloatArrayOutput() returns (TestFloat|string) {
     [TestFloat, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testFloatArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         TestFloat result;
@@ -156,7 +187,7 @@ function testBooleanArrayOutput() returns (TestBoolean|string) {
     [TestBoolean, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testBooleanArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         TestBoolean result;
@@ -171,7 +202,7 @@ function testStructArrayOutput() returns (TestStruct|string) {
     [TestStruct, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testStructArrayOutput();
     io:println(unionResp);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
         TestStruct result;
@@ -197,12 +228,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testIntArrayInput(TestInt req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices
-        .HelloWorld3/testIntArrayInput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = int.convert(result);
+        var value = typedesc<int>.constructFrom(result);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -211,19 +241,19 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testStringArrayInput(TestString req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
     remote function testFloatArrayInput(TestFloat req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = float.convert(result);
+        var value = typedesc<float>.constructFrom(result);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -232,11 +262,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testBooleanArrayInput(TestBoolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = boolean.convert(result);
+        var value = typedesc<boolean>.constructFrom(result);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -245,20 +275,20 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function testStructArrayInput(TestStruct req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 
     remote function testIntArrayOutput(grpc:Headers? headers = ()) returns ([TestInt, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, headers = headers);
-        any result =();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, headers);
+        anydata result =();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = TestInt.convert(result);
+        var value = typedesc<TestInt>.constructFrom(result);
         if (value is TestInt) {
             return [value, resHeaders];
         } else {
@@ -268,11 +298,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testStringArrayOutput(grpc:Headers? headers = ()) returns ([TestString, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = TestString.convert(result);
+        var value = typedesc<TestString>.constructFrom(result);
         if (value is TestString) {
             return [value, resHeaders];
         } else {
@@ -282,11 +312,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testFloatArrayOutput(grpc:Headers? headers = ()) returns ([TestFloat, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = TestFloat.convert(result);
+        var value = typedesc<TestFloat>.constructFrom(result);
         if (value is TestFloat) {
             return [value, resHeaders];
         } else {
@@ -296,11 +326,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testBooleanArrayOutput(grpc:Headers? headers = ()) returns ([TestBoolean, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = TestBoolean.convert(result);
+        var value = typedesc<TestBoolean>.constructFrom(result);
         if (value is TestBoolean) {
             return [value, resHeaders];
         } else {
@@ -310,11 +340,11 @@ public type HelloWorldBlockingClient client object {
 
     remote function testStructArrayOutput(grpc:Headers? headers = ()) returns ([TestStruct, grpc:Headers]|error) {
         Empty req = {};
-        [any, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, headers = headers);
-        any result = ();
+        [anydata, grpc:Headers] payload = check self.grpcClient->blockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = TestStruct.convert(result);
+        var value = typedesc<TestStruct>.constructFrom(result);
         if (value is TestStruct) {
             return [value, resHeaders];
         } else {
@@ -339,48 +369,48 @@ public type HelloWorldClient client object {
     }
 
     remote function testIntArrayInput(TestInt req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayInput", req, msgListener, headers);
     }
 
     remote function testStringArrayInput(TestString req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayInput", req, msgListener, headers);
     }
 
     remote function testFloatArrayInput(TestFloat req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayInput", req, msgListener, headers);
     }
 
     remote function testBooleanArrayInput(TestBoolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayInput", req, msgListener, headers);
     }
 
     remote function testStructArrayInput(TestStruct req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayInput", req, msgListener, headers);
     }
 
     remote function testIntArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testIntArrayOutput", req, msgListener, headers);
     }
 
     remote function testStringArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStringArrayOutput", req, msgListener, headers);
     }
 
     remote function testFloatArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testFloatArrayOutput", req, msgListener, headers);
     }
 
     remote function testBooleanArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testBooleanArrayOutput", req, msgListener, headers);
     }
 
     remote function testStructArrayOutput(service msgListener, grpc:Headers? headers = ()) returns (error?) {
         Empty req = {};
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld3/testStructArrayOutput", req, msgListener, headers);
     }
 };
 

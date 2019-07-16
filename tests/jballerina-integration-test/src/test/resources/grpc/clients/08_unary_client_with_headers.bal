@@ -20,15 +20,23 @@ import ballerina/io;
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
+public function main() {
+    string resp1 = testUnaryBlockingClient("WSO2");
+    io:println(resp1);
+
+    string resp2 = testBlockingHeader("WSO2");
+    io:println(resp2);
+}
+
 function testUnaryBlockingClient(string name) returns (string) {
 
     //Working with custom headers
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
@@ -47,9 +55,9 @@ function testBlockingHeader(string name) returns (string) {
     grpc:Headers headers = new;
     headers.setEntry("x-id", "0987654321");
     // Executing unary blocking call
-    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
+    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
     if (unionResp is error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string>unionResp.detail().message);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
@@ -78,11 +86,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld101/hello", req, headers = headers);
-        any result = ();
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld101/hello", req, headers);
+        anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 };
 
@@ -103,7 +111,7 @@ public type HelloWorldClient client object {
     }
 
     remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error|()) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld101/hello", req, msgListener, headers);
     }
 };
 

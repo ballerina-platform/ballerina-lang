@@ -24,6 +24,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
@@ -244,7 +246,8 @@ public class ServicesBuilderUtils {
         } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
             return new BArrayType(BTypes.typeByte);
         } else {
-            return BTypes.typeMap;
+            return new BRecordType(protoType, new BPackage(null, null,
+                    null), 0, false);
         }
     }
 

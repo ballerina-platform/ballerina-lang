@@ -17,6 +17,11 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
+public function main() {
+    string resp = testClientStreaming(["A", "B", "C"]);
+    io:println(resp);
+}
+
 string response = "";
 int total = 0;
 function testClientStreaming(string[] args) returns (string) {
@@ -27,7 +32,7 @@ function testClientStreaming(string[] args) returns (string) {
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is error) {
-        io:println("Error from Connector: " + res.reason() + " - " + <string>res.detail().message);
+        io:println("Error from Connector: " + res.reason() + " - " + <string> res.detail()["message"]);
     } else {
         ep = res;
     }
@@ -36,7 +41,7 @@ function testClientStreaming(string[] args) returns (string) {
     foreach var greet in args {
         error? err = ep->send(greet);
         if (err is error) {
-            io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+            io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
         }
     }
     checkpanic ep->complete();
@@ -66,7 +71,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
     }
 
     // Resource registered to receive server completed message.
@@ -93,7 +98,7 @@ public type HelloWorldClient client object {
     }
 
     remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
-        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers = headers);
+        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers);
     }
 };
 

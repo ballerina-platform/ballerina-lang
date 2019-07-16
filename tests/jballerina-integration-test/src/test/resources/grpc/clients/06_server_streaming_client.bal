@@ -18,6 +18,11 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
+public function main() {
+    int resp1 = testServerStreaming("WSO2");
+    io:println(resp1);
+}
+
 int total = 0;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
@@ -26,7 +31,7 @@ function testServerStreaming(string name) returns int {
     // Executing unary non-blocking call registering server message listener.
     error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
     if (result is error) {
-        io:println("Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
+        io:println("Error from Connector: " + result.reason() + " - " + <string> result.detail()["message"]);
         return total;
     } else {
         io:println("Connected successfully");
@@ -57,7 +62,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
     }
 
     // Resource registered to receive server completed message.
@@ -84,7 +89,7 @@ public type HelloWorldClient client object {
     }
 
     remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers);
     }
 };
 

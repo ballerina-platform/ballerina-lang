@@ -54,7 +54,7 @@ public function testOneofFieldValue() returns string {
     Request1 request = {name:first, other:age};
     var result = blockingEp->hello(request);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         Response1 resp = {message:""};
         [resp, _] = result;
@@ -67,13 +67,13 @@ public function testDoubleFieldValue() returns string {
     ZZZ zzz = {value:oneA};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneA) {
-            return string.convert(val.one_a);
+            return val.one_a.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -84,13 +84,13 @@ public function testFloatFieldValue() returns string {
     ZZZ zzz = {value:oneB};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneB) {
-            return string.convert(val.one_b);
+            return val.one_b.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -101,13 +101,13 @@ public function testInt64FieldValue() returns string {
     ZZZ zzz = {value:oneC};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneC) {
-            return string.convert(val.one_c);
+            return val.one_c.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -118,13 +118,13 @@ public function testUInt64FieldValue() returns string {
     ZZZ zzz = {value:oneD};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneD) {
-            return string.convert(val.one_d);
+            return val.one_d.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -135,13 +135,13 @@ public function testInt32FieldValue() returns string {
     ZZZ zzz = {value:oneE};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneE) {
-            return string.convert(val.one_e);
+            return val.one_e.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -152,13 +152,13 @@ public function testFixed64FieldValue() returns string {
     ZZZ zzz = {value:oneF};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneF) {
-            return string.convert(val.one_f);
+            return val.one_f.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -169,13 +169,13 @@ public function testFixed32FieldValue() returns string {
     ZZZ zzz = {value:oneG};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneG) {
-            return string.convert(val.one_g);
+            return val.one_g.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -186,13 +186,13 @@ public function testBolFieldValue() returns string {
     ZZZ zzz = {value:oneH};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneH) {
-            return string.convert(val.one_h);
+            return val.one_h.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -203,13 +203,13 @@ public function testStringFieldValue() returns string {
     ZZZ zzz = {value:oneI};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneI) {
-            return <string>val.one_i;
+            return val.one_i.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -221,7 +221,7 @@ public function testMessageFieldValue() returns string {
     ZZZ zzz = {value:oneJ};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -235,18 +235,19 @@ public function testMessageFieldValue() returns string {
 
 public function testBytesFieldValue() returns string {
     string statement = "Lion in Town.";
-    byte[] bytes = statement.toByteArray("UTF-8");
+    byte[] bytes = statement.toBytes();
     ZZZ_OneK oneK = {one_k:bytes};
     ZZZ zzz = {value:oneK};
     var result = blockingEp->testOneofField(zzz);
     if (result is error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string>result.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
         [resp, _] = result;
         Value val = resp.value;
         if (val is ZZZ_OneK) {
-            return string.convert(val.one_k == bytes);
+            boolean bResp = val.one_k == bytes;
+            return bResp.toString();
         }
         return ERROR_MESSAGE;
     }
@@ -268,11 +269,11 @@ public type OneofFieldServiceBlockingClient client object {
 
     remote function hello(Request1 req, grpc:Headers? headers = ()) returns ([Response1, grpc:Headers]|error) {
 
-        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers);
         grpc:Headers resHeaders = new;
-        any result = ();
+        anydata result = ();
         [result, resHeaders] = payload;
-        var value = Response1.convert(result);
+        var value = typedesc<Response1>.constructFrom(result);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
@@ -283,11 +284,11 @@ public type OneofFieldServiceBlockingClient client object {
 
     remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ([ZZZ, grpc:Headers]|error) {
 
-        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers);
         grpc:Headers resHeaders = new;
-        any result = ();
+        anydata result = ();
         [result, resHeaders] = payload;
-        var value = ZZZ.convert(result);
+        var value = typedesc<ZZZ>.constructFrom(result);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
@@ -314,12 +315,12 @@ public type OneofFieldServiceClient client object {
 
     remote function hello(Request1 req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
-        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers);
     }
 
     remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
 
-        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers);
     }
 };
 

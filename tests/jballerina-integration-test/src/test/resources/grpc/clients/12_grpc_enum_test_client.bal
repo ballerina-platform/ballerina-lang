@@ -27,7 +27,7 @@ function testEnum() returns (string) {
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
     if (addResponse is error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string>addResponse.detail().message);
+        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
     } else {
         string result = "";
         [result, _] = addResponse;
@@ -50,11 +50,11 @@ public type testEnumServiceBlockingClient client object {
     }
 
     remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers = headers);
+        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = unionResp;
-        return [string.convert(result), resHeaders];
+        return [result.toString(), resHeaders];
     }
 };
 
@@ -73,7 +73,7 @@ public type testEnumServiceClient client object {
     }
 
     remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers);
     }
 };
 
