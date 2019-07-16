@@ -40,7 +40,8 @@ public class FunctionPointersTest {
     @BeforeClass
     public void setup() {
         fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers.bal");
-        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda", "private-function-pointers");
+        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda/FunctionPointersProject",
+                "private-function-pointers");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
     }
