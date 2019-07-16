@@ -36,7 +36,7 @@ function testCanHandleHttpBearerAuth() returns boolean {
     return <@untainted> handler.canHandle(inRequest);
 }
 
-function testHandleHttpBearerAuthFailure() returns boolean|error {
+function testHandleHttpBearerAuthFailure() returns @tainted boolean|error {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
@@ -45,7 +45,7 @@ function testHandleHttpBearerAuthFailure() returns boolean|error {
     return handler.process(inRequest);
 }
 
-function testHandleHttpBearerAuth() returns boolean|error {
+function testHandleHttpBearerAuth() returns @tainted boolean|error {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();

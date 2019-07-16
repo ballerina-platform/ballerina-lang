@@ -391,7 +391,7 @@ function testXmlWithNull() returns xml {
     return ret;
 }
 
-function testToXmlWithinTransaction() returns [string, int] {
+function testToXmlWithinTransaction() returns @tainted [string, int] {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -417,7 +417,7 @@ function testToXmlWithinTransaction() returns [string, int] {
     return [resultXml, returnValue];
 }
 // TODO: #16033
-function testToJsonWithinTransaction() returns [string, int] {
+function testToJsonWithinTransaction() returns @tainted [string, int] {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -1536,7 +1536,7 @@ function testToJsonAndSetAsChildElement() returns @tainted json {
     return j;
 }
 
-function testToJsonAndLengthof() returns [int, int] {
+function testToJsonAndLengthof() returns @tainted [int, int] {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",

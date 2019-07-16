@@ -59,7 +59,7 @@ function testSetHeaderAndGetMediaType() returns @tainted string {
 }
 
 //Content-disposition tests
-function testSetContentDispositionToEntity() returns string {
+function testSetContentDispositionToEntity() returns @tainted string {
     mime:Entity entity = new;
     entity.setContentDisposition(getDispositionTestObj());
     mime:ContentDisposition disposition = entity.getContentDisposition();
@@ -72,7 +72,7 @@ function testSetContentDispositionAndGetValueAsHeader() returns @tainted string 
     return entity.getHeader(mime:CONTENT_DISPOSITION);
 }
 
-function testSetHeaderAndGetContentDisposition() returns string {
+function testSetHeaderAndGetContentDisposition() returns @tainted string {
     mime:Entity entity = new;
     entity.setHeader(mime:CONTENT_DISPOSITION, "inline;name=\"test\";filename=\"test_file.xml\"");
     mime:ContentDisposition receivedDisposition = entity.getContentDisposition();

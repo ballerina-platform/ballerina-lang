@@ -30,7 +30,7 @@ type ResultCustomers2 record {
     string LASTNAME;
 };
 
-function testSelectData() returns string {
+function testSelectData() returns @tainted string {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
