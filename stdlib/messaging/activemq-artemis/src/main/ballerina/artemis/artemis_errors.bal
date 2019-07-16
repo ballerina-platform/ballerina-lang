@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const ARTEMIS_ERROR = "{ballerina/artemis}ArtemisError";
-public type ArtemisError error<ARTEMIS_ERROR, Detail>;
+public const ARTEMIS_ERROR = "{ballerina/artemis}Error";
+public type Error error<ARTEMIS_ERROR, Detail>;
