@@ -110,8 +110,20 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
+  public BallerinaListDestructuringStatement getListDestructuringStatement() {
+    return findChildByClass(BallerinaListDestructuringStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaLockStatement getLockStatement() {
     return findChildByClass(BallerinaLockStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaMatchStatement getMatchStatement() {
+    return findChildByClass(BallerinaMatchStatement.class);
   }
 
   @Override
@@ -184,18 +196,6 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
   @Nullable
   public BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement() {
     return findChildByClass(BallerinaWorkerSendAsyncStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaMatchStatement getMatchStatement() {
-    return findChildByClass(BallerinaMatchStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTupleDestructuringStatement getTupleDestructuringStatement() {
-    return findChildByClass(BallerinaTupleDestructuringStatement.class);
   }
 
 }

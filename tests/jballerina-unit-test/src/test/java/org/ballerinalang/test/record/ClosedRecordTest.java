@@ -185,18 +185,6 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
 
-    @Test(description = "Test nil-able function pointer invocation")
-    public void testNilableFuncPtrInvocation() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation");
-        Assert.assertEquals(returns[0].stringValue(), "Bob White");
-    }
-
-    @Test(description = "Test nil-able function pointer invocation")
-    public void testNilableFuncPtrInvocation2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNilableFuncPtrInvocation2");
-        Assert.assertNull(returns[0]);
-    }
-
     @Test
     public void testAmbiguityResolution() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAmbiguityResolution");
@@ -290,8 +278,16 @@ public class ClosedRecordTest {
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
-
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'string?'", 28, 16);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'string', found 'string?'", 33, 16);
+        String errMsg1 = "function invocation on type 'function (string,string) returns (string)?' is not supported";
+        String errMsg2 = "incompatible types: expected 'string?', found 'other'";
+        int indx = 0;
+        BAssertUtil.validateError(result, indx++, errMsg1, 28, 17);
+        BAssertUtil.validateError(result, indx++, errMsg2, 28, 17);
+        BAssertUtil.validateError(result, indx++, errMsg1, 33, 17);
+        BAssertUtil.validateError(result, indx++, errMsg2, 33, 17);
+        BAssertUtil.validateError(result, indx++, errMsg1, 47, 17);
+        BAssertUtil.validateError(result, indx++, errMsg2, 47, 17);
+        BAssertUtil.validateError(result, indx++, errMsg1, 52, 17);
+        BAssertUtil.validateError(result, indx, errMsg2, 52, 17);
     }
 }

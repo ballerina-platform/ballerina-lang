@@ -3,7 +3,8 @@ import ballerina/internal;
 
 function remove () returns (json) {
     json j = {"name":{"fname":"Jack", "lname":"Taylor"}, "state":"CA", "age":20};
-    _ = j.remove("name");
+    map<json> jm = <map<json>> j;
+    _ = jm.remove("name");
     return j;
 }
 
@@ -16,49 +17,47 @@ function testParse (string jsonStr) returns @tainted (json | error) {
     return reader.readJson();
 }
 
-function testGetKeys () returns [string[]?, string[]?, string[]?, string[]?] {
-    json j1 = {fname:"Jhon", lname:"Doe", age:40};
-    json j2 = ["cat", "dog", "horse"];
-    json j3 = "Hello";
-    json j4 = 5;
-    return [j1.getKeys(), j2.getKeys(), j3.getKeys(), j4.getKeys()];
+function testGetKeys () returns (string[]) {
+    json j = {fname:"Jhon", lname:"Doe", age:40};
+    map<json> jm = <map<json>> j;
+    return jm.keys();
 }
 
-function testToXML (json msg) returns (xml | error?) {
-    return msg.toXML({});
-}
-
-function testToXMLStringValue () returns (xml | error?) {
-    json j = "value";
-    return j.toXML({});
-}
-
-function testToXMLBooleanValue () returns (xml | error?) {
-    json j = true;
-    return j.toXML({});
-}
-
-function testToXMLString (json msg) returns (string) {
-    var x = msg.toXML({});
-    string retVal = "";
-    if (x is xml) {
-        retVal = io:sprintf("%s", x);
-    }
-    return retVal;
-}
-
-function testToXMLWithXMLSequence (json msg) returns (string) {
-    var x = msg.toXML({});
-    string retVal = "";
-    if (x is xml) {
-        retVal = io:sprintf("%s", x);
-    }
-    return retVal;
-}
-
-function testToXMLWithOptions (json msg) returns (xml | error?) {
-    return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
-}
+//function testToXML (json msg) returns (xml | error?) {
+//    return msg.toXML({});
+//}
+//
+//function testToXMLStringValue () returns (xml | error?) {
+//    json j = "value";
+//    return j.toXML({});
+//}
+//
+//function testToXMLBooleanValue () returns (xml | error?) {
+//    json j = true;
+//    return j.toXML({});
+//}
+//
+//function testToXMLString (json msg) returns (string) {
+//    var x = msg.toXML({});
+//    string retVal = "";
+//    if (x is xml) {
+//        retVal = io:sprintf("%s", x);
+//    }
+//    return retVal;
+//}
+//
+//function testToXMLWithXMLSequence (json msg) returns (string) {
+//    var x = msg.toXML({});
+//    string retVal = "";
+//    if (x is xml) {
+//        retVal = io:sprintf("%s", x);
+//    }
+//    return retVal;
+//}
+//
+//function testToXMLWithOptions (json msg) returns (xml | error?) {
+//    return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
+//}
 
 function testStringToJSONConversion() returns @tainted (json | error) {
     string s = "{\"foo\": \"bar\"}";

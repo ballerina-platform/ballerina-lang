@@ -6,7 +6,7 @@
   "source": "resource/source/completionBeforeUnderscore1.bal",
   "items": [
     {
-      "label": "openReadableFile(string path)((ballerina/io:ReadableByteChannel|error))",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "openWritableFile(string path)(ballerina/io:WritableByteChannel)",
+      "label": "openWritableFile(string path)(io:WritableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
+      "label": "createReadableChannel(byte[] content)(io:ReadableByteChannel)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "openReadableCsvFile(string path)((ballerina/io:ReadableCSVChannel|error))",
+      "label": "openReadableCsvFile(string path)((io:ReadableCSVChannel|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "openWritableCsvFile(string path)(ballerina/io:WritableCSVChannel)",
+      "label": "openWritableCsvFile(string path)(io:WritableCSVChannel)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

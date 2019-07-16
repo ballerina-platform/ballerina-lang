@@ -30,7 +30,7 @@ public interface BallerinaField extends PsiElement {
   PsiElement getMul();
 
   @Nullable
-  PsiElement getNot();
+  PsiElement getOptionalFieldAccess();
 
   @Nullable
   PsiElement getIdentifier();

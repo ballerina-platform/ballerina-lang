@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.psi.impl;
 
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.OrderRootType;
@@ -27,25 +26,16 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
-import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
-import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
-import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageName;
-import io.ballerina.plugins.idea.psi.BallerinaReturnType;
-import io.ballerina.plugins.idea.psi.BallerinaTupleTypeName;
-import io.ballerina.plugins.idea.psi.BallerinaTypeName;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -71,7 +61,6 @@ public class BallerinaPsiImplUtil {
         BUILTIN_VARIABLE_TYPES.add("xml");
     }
 
-    public static final String LOCAL_PACKAGE_PLACEHOLDER = "$LOCAL_PROJECT$";
     // Since instances of "com.intellij.openapi.project.Project" returns system-independant paths for project directory
     // File.seperator should not be used
     private static final String FILE_SEPARATOR = "/";
@@ -112,31 +101,6 @@ public class BallerinaPsiImplUtil {
         return nameReference.getPackageReference() == null;
     }
 
-    @NotNull
-    public static String formatBallerinaFunctionParameters(@Nullable BallerinaFormalParameterList parameterList) {
-        if (parameterList == null) {
-            return "()";
-        }
-        // Todo - Update formatting logic.
-        // Todo - Format anonymous structs correctly.
-        return "(" + parameterList.getText().replaceAll("\n", "").replaceAll("\\s+", " ") + ")";
-    }
-
-    @Nullable
-    public static String formatBallerinaFunctionReturnType(@Nullable BallerinaReturnType ballerinaReturnType) {
-        if (ballerinaReturnType == null) {
-            return null;
-        }
-        BallerinaTypeName typeName = ballerinaReturnType.getTypeName();
-        if (typeName instanceof BallerinaTupleTypeName) {
-            List<BallerinaTypeName> typeNameList = ((BallerinaTupleTypeName) typeName).getTypeNameList();
-            if (!typeNameList.isEmpty()) {
-                return typeNameList.get(0).getText();
-            }
-        }
-        return typeName.getText();
-    }
-
     /**
      * Finds a file in the project SDK.
      *
@@ -159,15 +123,6 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
-    }
-
-    @Nullable
-    public static VirtualFile getSDKSrcRoot(@NotNull Project project, @Nullable Module module) {
-        LinkedHashSet<VirtualFile> sources = BallerinaSdkUtils.getSourcesPathsToLookup(project, module);
-        if (sources.isEmpty()) {
-            return null;
-        }
-        return ContainerUtil.getFirstItem(sources);
     }
 
     /**
@@ -221,19 +176,5 @@ public class BallerinaPsiImplUtil {
         }
         int index = filePath.indexOf(FILE_SEPARATOR);
         return filePath.substring(index + 1);
-    }
-
-    public static boolean isAlreadyImported(@NotNull List<BallerinaImportDeclaration> allImportsInPackage,
-            @NotNull String currentPackageName) {
-        for (BallerinaImportDeclaration ballerinaImportDeclaration : allImportsInPackage) {
-            BallerinaCompletePackageName completePackageName = ballerinaImportDeclaration.getCompletePackageName();
-            if (completePackageName == null) {
-                continue;
-            }
-            if (completePackageName.getText().equalsIgnoreCase(currentPackageName)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

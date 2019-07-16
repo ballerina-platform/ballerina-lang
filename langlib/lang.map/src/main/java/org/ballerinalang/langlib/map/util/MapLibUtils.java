@@ -56,6 +56,7 @@ public class MapLibUtils {
         for (BField f : fields) {
             typeSet.add(f.type);
         }
+        typeSet.add(recordType.restFieldType);
 
         return typeSet.size() == 1 ? typeSet.iterator().next() : new BUnionType(typeSet.toArray(emptyTypeArr));
     }

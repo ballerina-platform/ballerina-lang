@@ -20,13 +20,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jdbc",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cache",
       "kind": "Module",
       "detail": "Package",
@@ -244,10 +237,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jms",
+      "label": "socket",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "jms",
+      "insertText": "socket",
       "insertTextFormat": "Snippet"
     }
   ]

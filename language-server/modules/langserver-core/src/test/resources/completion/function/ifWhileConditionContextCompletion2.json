@@ -95,7 +95,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
+      "label": "queryTableWithJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, table\u003crecord {}\u003e joinTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -265,7 +265,7 @@
       }
     },
     {
-      "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
+      "label": "queryTableWithoutJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -511,7 +511,7 @@
       }
     },
     {
-      "label": "setAttributes(map attributes)",
+      "label": "setAttributes(map\u003cany\u003e attributes)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -603,7 +603,7 @@
       }
     },
     {
-      "label": "toJSON($anonType$builtin$11 options)(json)",
+      "label": "toJSON(record {\nstring attributePrefix;\nboolean preserveNamespaces;\n} options)(json)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -751,6 +751,16 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "ArgsData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "keys()(string[])",
@@ -941,7 +951,7 @@
       }
     },
     {
-      "label": "toXML($anonType$builtin$0 options)((xml|error))",
+      "label": "toXML(record {\nstring attributePrefix;\nstring arrayEntryTag;\n} options)((xml|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -1009,7 +1019,7 @@
       }
     },
     {
-      "label": "add(any data)(error?)",
+      "label": "add(any data)((error|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -1163,6 +1173,50 @@
       }
     },
     {
+      "label": "ballerinax/jdbc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jdbc",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jdbc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jms;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
@@ -1203,28 +1257,6 @@
             }
           },
           "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/jdbc",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },
@@ -1911,10 +1943,10 @@
       ]
     },
     {
-      "label": "ballerina/jms",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "jms",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1928,7 +1960,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jms;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     }

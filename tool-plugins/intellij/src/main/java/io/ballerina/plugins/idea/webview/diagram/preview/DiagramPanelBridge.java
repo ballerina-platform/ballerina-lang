@@ -29,6 +29,7 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpoint;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
+import io.ballerina.plugins.idea.extensions.server.ModulesResponse;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.editor.EditorEventManagerBase;
@@ -60,6 +61,22 @@ public class DiagramPanelBridge {
             // Requests AST from the language server.
             BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
             BallerinaASTResponse astResponse = editorManager.getAST();
+
+            // Returns BallerinaASTResponse as a JSON string.
+            return new Gson().toJson(astResponse);
+        } catch (Exception e) {
+            LOG.warn("Error occurred when handling diagram update.", e);
+            return new Gson().toJson(new BallerinaASTResponse(null, false));
+        }
+    }
+
+    public String getProjectAst(String eventData) {
+        try {
+            JsonParser parser = new JsonParser();
+            JsonObject sourceParams = parser.parse(eventData).getAsJsonObject();
+            String sourceRoot = sourceParams.get("sourceRoot").getAsString();
+            BallerinaEditorEventManager editorManager = getEditorManagerFor(myProject, myFile);
+            ModulesResponse astResponse = editorManager.getProjectAST(sourceRoot);
 
             // Returns BallerinaASTResponse as a JSON string.
             return new Gson().toJson(astResponse);

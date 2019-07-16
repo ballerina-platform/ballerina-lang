@@ -497,7 +497,21 @@ public class FormattingSourceGen {
 
         if ("Identifier".equals(kind)) {
             if (node.has("literal") && node.get("literal").getAsBoolean()) {
-                node.addProperty("valueWithBar", "^\"" + node.get("value").getAsString() + "\"");
+                // Re arrange unescaped delimiter identifiers.
+                String[] words = node.get("value").getAsString().split(" ");
+                StringBuilder valueWithBar = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i == 0) {
+                        valueWithBar.append("'").append(words[i]);
+                    } else {
+                        if (words[i].equals("")) {
+                            valueWithBar.append("\\").append(" ");
+                        } else {
+                            valueWithBar.append("\\ ").append(words[i]);
+                        }
+                    }
+                }
+                node.addProperty("valueWithBar", valueWithBar.toString());
             } else {
                 node.addProperty("valueWithBar", node.get("value").getAsString());
             }
@@ -553,6 +567,13 @@ public class FormattingSourceGen {
                     .get("kind").getAsString().equals("EndpointType")) {
                 node.getAsJsonObject("variable").addProperty("endpoint", true);
                 node.addProperty("endpoint", true);
+            }
+
+            // If variable def(worker) is in a fork but this is the node added to expand the scope
+            // Skip generating the source from this node.
+            if (node.has("isInFork") && node.get("isInFork").getAsBoolean()
+                    && !parentKind.equals("ForkJoin")) {
+                node.addProperty("skip", true);
             }
         }
 

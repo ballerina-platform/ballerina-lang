@@ -166,8 +166,8 @@ function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     [int, Age] yearAndAge3 = [2002, {age: 22, format: "Z"}];
     Child ch3 = {name: "D", yearAndAge: yearAndAge3};
     map<anydata> m = {};
-    {name: m.var1, yearAndAge: [m["var2"], _]} = ch3;
-    return [m.var1, m.var2];
+    {name: m["var1"], yearAndAge: [m["var2"], _]} = ch3;
+    return [m["var1"], m["var2"]];
 }
 
 type Object object {
