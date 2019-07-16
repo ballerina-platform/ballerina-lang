@@ -37,7 +37,6 @@ import java.util.Map;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnLangLibChange" })
 public class ErrorVariableReferenceTest {
     private CompileResult result, resultNegative;
 
