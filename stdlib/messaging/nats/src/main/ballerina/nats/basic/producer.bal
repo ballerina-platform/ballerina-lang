@@ -42,7 +42,7 @@ public type Producer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted, replyTo = ());
+            return self.externPublish(subject, converted);
         }
     }
 
@@ -57,9 +57,9 @@ public type Producer client object {
     public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
-            return prepareError("Error in data conversion", err = converted);
+            return prepareError("Error in data conversion", converted);
         } else {
-            return self.externRequest(subject, converted, duration = duration);
+            return self.externRequest(subject, converted, duration);
         }
     }
 

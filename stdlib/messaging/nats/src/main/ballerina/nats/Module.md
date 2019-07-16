@@ -22,7 +22,7 @@ nats:Connection connection = new("nats://localhost:4222");
 
 2. Connect to one or more servers with a custom configuration
 ```ballerina
-nats:Connection connection = new("nats://serverone:4222, nats://servertwo:4222",  config = config);
+nats:Connection connection = new("nats://serverone:4222, nats://servertwo:4222",  config);
 ```
 
 ### Publishing messages
@@ -32,7 +32,7 @@ APIs to publish messages to each server.
 
 #### Publishing messages to the NATS server
 
-Once connected, publishing is accomplished via one of the below three methods.
+Once connected, publishing is accomplished via one of the below two methods.
 
 1. Publish with the subject and the message content.
 ```ballerina
@@ -40,13 +40,7 @@ nats:Producer producer = new(connection);
 error? result = producer->publish(subject, "hello world");
 ```
 
-2. Publish with the subject, message content, and a subject for the receiver to reply to.
-```ballerina
-nats:Producer producer = new(connection);
-error? result = producer->publish(subject, "hello world", replyTo = "replyTo");
-```
-
-3. Publish as a request that expects a reply.
+2. Publish as a request that expects a reply.
 ```ballerina
 nats:Producer producer = new(connection);
 nats:Message|error reqReply = producer->request(subject, "hello world", 5000);

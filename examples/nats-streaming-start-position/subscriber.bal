@@ -1,5 +1,4 @@
 import ballerina/encoding;
-import ballerina/io;
 import ballerina/log;
 import ballerina/nats;
 
@@ -17,7 +16,7 @@ listener nats:StreamingListener lis = new(conn);
 service receiveNewOnly on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to service receiveNewOnly: "
+       log:printInfo("Message Received to service receiveNewOnly: "
         + encoding:byteArrayToString(message.getData()));
     }
 
@@ -36,7 +35,7 @@ service receiveNewOnly on lis {
 service receiveFromBegining on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to service receiveFromBegining: "
+       log:printInfo("Message Received to service receiveFromBegining: "
         + encoding:byteArrayToString(message.getData()));
     }
 
@@ -55,7 +54,7 @@ service receiveFromBegining on lis {
 service receiveFromLastReceived on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to service receiveFromLastReceived: "
+       log:printInfo("Message Received to service receiveFromLastReceived: "
         + encoding:byteArrayToString(message.getData()));
     }
 
@@ -75,7 +74,7 @@ service receiveFromLastReceived on lis {
 service receiveFromGivenIndex on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to service receiveFromGivenIndex: "
+       log:printInfo("Message Received to service receiveFromGivenIndex: "
         + encoding:byteArrayToString(message.getData()));
     }
 
@@ -95,7 +94,7 @@ service receiveFromGivenIndex on lis {
 service receiveSinceTimeDelta on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to service receiveSinceTimeDelta: "
+       log:printInfo("Message Received to service receiveSinceTimeDelta: "
         + encoding:byteArrayToString(message.getData()));
     }
 

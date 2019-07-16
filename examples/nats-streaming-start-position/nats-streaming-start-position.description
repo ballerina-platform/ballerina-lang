@@ -9,5 +9,3 @@
 // 3. A historical offset from the current server date/time
 //    (e.g., the last 30 seconds).
 // 4. A specific message sequence number
-
-
