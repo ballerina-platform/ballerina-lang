@@ -64,7 +64,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
-import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;

@@ -61,7 +61,7 @@ public class H2ClientActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
@@ -141,7 +141,7 @@ public class H2ClientActionsTest {
     private void assertInitTestReturnValues(BValue[] returns) {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }

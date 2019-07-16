@@ -40,13 +40,13 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDataIterator;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
-import org.ballerinax.jdbc.SQLTransactionContext;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.table.BCursorTable;
+import org.ballerinax.jdbc.table.SQLDataIterator;
+import org.ballerinax.jdbc.transaction.SQLTransactionContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedReader;
@@ -446,7 +446,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-    protected void handleErrorOnTransaction(Strand strand) {
+    void handleErrorOnTransaction(Strand strand) {
         TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
         if (transactionLocalContext == null) {
             return;
@@ -1573,14 +1573,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.DECIMAL };
         case TypeTags.STRING_TAG:
-            arrayLength = (int) ((ArrayValue) value).size();
+            arrayLength = ((ArrayValue) value).size();
             arrayData = new String[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
                 arrayData[i] = ((ArrayValue) value).getString(i);
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.VARCHAR };
         case TypeTags.BOOLEAN_TAG:
-            arrayLength = (int) ((ArrayValue) value).size();
+            arrayLength = ((ArrayValue) value).size();
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
                 arrayData[i] = ((ArrayValue) value).getBoolean(i);

@@ -22,7 +22,7 @@ service pushTextFailure on new http:WebSocketListener(9089) {
         error? err1 = caller->close(timeoutInSecs = 0);
         var err = caller->pushText("hey");
         if (err is error) {
-            io:println(err.detail().message);
+            io:println(err.detail()["message"]);
         }
     }
 }
