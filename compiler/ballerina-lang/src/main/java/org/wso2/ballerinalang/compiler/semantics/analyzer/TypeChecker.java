@@ -4162,8 +4162,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
             if (isMapConstIndexAccess(accessExpr)) {
-                if (!isResolvedConst(accessExpr) &&
-                        accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                if (!isResolvedConst(accessExpr) && accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
                     // Error will be logged later on for invalid keys
                     return ((BMapType) type).constraint;
                 }

@@ -31,6 +31,6 @@ type B record {
 
 function testInvalidOptionalFieldAccesOnLhs() {
     B m = { y: 34 };
-        m?.x += "qwer";
+    m?.x += "qwer";
     m?.y += 1;
 }
