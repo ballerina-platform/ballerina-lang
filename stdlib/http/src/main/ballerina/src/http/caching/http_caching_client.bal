@@ -330,7 +330,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Request req, string httpMethod, string path,
+function getCachedResponse(@tainted HttpCache cache, HttpClient httpClient, @tainted Request req, string httpMethod, string path,
                            boolean isShared, boolean forwardRequest) returns @tainted Response|ClientError {
     time:Time currentT = time:currentTime();
     req.parseCacheControlHeader();
@@ -515,7 +515,7 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.1
-function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) returns int {
+function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) returns @tainted int {
     // TODO: Ensure that duplicate directives are not counted towards freshness lifetime.
     var responseCacheControl = cachedResponse.cacheControl;
     if (responseCacheControl is ResponseCacheControl) {
@@ -735,7 +735,7 @@ function updateResponseTimestamps(Response response, int requestedTime, int rece
     response.receivedTime = receivedTime;
 }
 
-function getDateValue(Response inboundResponse) returns int {
+function getDateValue(Response inboundResponse) returns @tainted int {
     // Based on https://tools.ietf.org/html/rfc7231#section-7.1.1.2
     if (!inboundResponse.hasHeader(DATE)) {
         log:printDebug("Date header not found. Using current time for the Date header.");

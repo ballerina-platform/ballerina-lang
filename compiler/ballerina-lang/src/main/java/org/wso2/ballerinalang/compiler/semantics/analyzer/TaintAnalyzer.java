@@ -2082,7 +2082,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                     continue;
                 }
-                taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, paramTaintedStatusList));
+                taintTable.put(paramIndex, new TaintRecord(TaintedStatus.TAINTED, paramTaintedStatusList));
             }
             invokableNode.symbol.taintTable = taintTable;
         }
@@ -2324,6 +2324,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(reqArgIndex, invocationExpr, argExpr,
                         argTaintedStatusList);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
+                    invokableSymbol.taintTable = taintTable; // restore taint table.
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;
@@ -2352,6 +2353,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invocationExpr,
                             argExpr, argTaintedStatusList);
                     if (argumentAnalysisResult == TaintedStatus.IGNORED) {
+                        invokableSymbol.taintTable = taintTable; // restore taint table.
                         return;
                     } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                         returnTaintedStatus = TaintedStatus.TAINTED;
@@ -2371,6 +2373,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invocationExpr, argExpr,
                         argTaintedStatusList);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
+                    invokableSymbol.taintTable = taintTable; // restore taint table.
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
                     returnTaintedStatus = TaintedStatus.TAINTED;

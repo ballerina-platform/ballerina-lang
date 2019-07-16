@@ -580,4 +580,13 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to closure variable 'test'", 22, 9);
     }
+
+    @Test
+    public void testLangLibFunctionTaintPropagationNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/lang-lib-function-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 17, 16);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 23, 16);
+    }
 }

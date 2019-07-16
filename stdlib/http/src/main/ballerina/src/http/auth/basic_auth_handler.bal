@@ -50,7 +50,7 @@ public type BasicAuthHandler object {
     #
     # + req - The request object.
     # + return - Returns `true` if it is possible to authenticate with Basic Auth. Else, returns `false` or the `error` in case of an error.
-    public function process(Request req) returns boolean|error {
+    public function process(Request req) returns @tainted boolean|error {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(5, headerValue.length());
         credential = credential.trim();
