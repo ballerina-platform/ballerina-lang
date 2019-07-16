@@ -18,12 +18,9 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,17 +42,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
                                         structType = "StreamingProducer",
                                         structPackage = "ballerina/nats"),
                    isPublic = true)
-public class Publish implements NativeCallableUnit {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public class Publish {
 
     public static Object externPublish(Strand strand, ObjectValue publisher, String subject, Object data) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher

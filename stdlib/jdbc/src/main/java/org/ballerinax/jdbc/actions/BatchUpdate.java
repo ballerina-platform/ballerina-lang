@@ -35,7 +35,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
  * @since 0.8.6
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeBatchUpdate"
 )
 public class BatchUpdate extends BlockingNativeCallableUnit {

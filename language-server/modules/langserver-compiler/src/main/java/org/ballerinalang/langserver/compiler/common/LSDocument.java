@@ -123,7 +123,7 @@ public class LSDocument {
      * @return True if this file has project repo, False otherwise
      */
     public boolean hasProjectRepo() {
-        return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
+        return RepoUtils.isBallerinaProject(Paths.get(sourceRoot));
     }
 
     /**

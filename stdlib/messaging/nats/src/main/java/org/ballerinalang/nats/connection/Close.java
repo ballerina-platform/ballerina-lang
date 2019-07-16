@@ -19,8 +19,6 @@
 package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -48,17 +46,10 @@ import java.util.concurrent.atomic.AtomicInteger;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
+public class Close {
 
     private static final Logger LOG = LoggerFactory.getLogger(Close.class);
     private static PrintStream console = System.out;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
         int clientCount = ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).get();

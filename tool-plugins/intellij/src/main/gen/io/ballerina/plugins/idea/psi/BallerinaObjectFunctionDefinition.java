@@ -33,19 +33,13 @@ public interface BallerinaObjectFunctionDefinition extends PsiElement {
   BallerinaCallableUnitSignature getCallableUnitSignature();
 
   @Nullable
-  BallerinaDeprecatedAttachment getDeprecatedAttachment();
+  BallerinaExternalFunctionBody getExternalFunctionBody();
 
   @Nullable
   BallerinaDocumentationString getDocumentationString();
 
   @Nullable
-  PsiElement getAssign();
-
-  @Nullable
   PsiElement getSemicolon();
-
-  @Nullable
-  PsiElement getExternal();
 
   @NotNull
   PsiElement getFunction();

@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -225,6 +226,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
@@ -261,6 +263,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
     private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
+    private static final String CONSTRUCT_FROM = "constructFrom";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -285,6 +288,7 @@ public class Desugar extends BLangNodeVisitor {
     private int transactionIndex = 0;
     private int recordCount = 0;
     private int errorCount = 0;
+    private int annonVarCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -1166,18 +1170,25 @@ public class Desugar extends BLangNodeVisitor {
 
         }
         if (parentErrorVariable.restDetail != null && !parentErrorVariable.restDetail.name.value.equals(IGNORE.value)) {
+            DiagnosticPos pos = parentErrorVariable.restDetail.pos;
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
-                    parentErrorVariable.restDetail.pos, detailTempVarDef.var.symbol);
+                    pos, detailTempVarDef.var.symbol);
             List<String> keysToRemove = parentErrorVariable.detail.stream()
                     .map(detail -> detail.key.getValue())
                     .collect(Collectors.toList());
-            BLangInvocation filterInvoke = addRestMapSetupCode(detailVarRef, parentErrorVariable.pos, keysToRemove);
-            if (detailVarRef.type.getKind() == TypeKind.MAP) {
-                BLangInvocation stampInvoke = visitStampInvocation(filterInvoke, parentErrorVariable.restDetail.type,
-                        parentErrorVariable.restDetail.pos);
-                filterInvoke = stampInvoke;
-            }
-            createAndAddBoundRestDetailDef(parentErrorVariable, parentBlockStmt, filterInvoke);
+
+            BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
+                    parentErrorVariable.restDetail.type, parentBlockStmt);
+            BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
+            variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
+                    parentErrorVariable.restDetail.name.value,
+                    filteredDetail.type,
+                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
+                    parentErrorVariable.restDetail.symbol);
+            BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos,
+                    ASTBuilderUtil.createVariableRef(pos, parentErrorVariable.restDetail.symbol),
+                    ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol));
+            parentBlockStmt.addStatement(assignmentStmt);
         }
         rewrite(parentBlockStmt, env);
     }
@@ -1199,49 +1210,149 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariableDef(pos, errorVar);
     }
 
-    private BLangInvocation addRestMapSetupCode(BLangSimpleVarRef detailVarRef, DiagnosticPos pos,
-                                                List<String> keysToRemove) {
+    private BLangSimpleVariable generateRestFilter(BLangSimpleVarRef detailVarRef, DiagnosticPos pos,
+                                                   List<String> keysToRemove, BType targetType,
+                                                   BLangBlockStmt parentBlockStmt) {
+        // restVar = (<map<T>>error.detail())
+        //                           .entries()
+        //                           .filter([key, val] => isKeyTakenLambdaInvoke())
+        //                           .map([key, val] => val);
+        //                           .constructFrom(errorDetail);
 
-        // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
-        BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(keysToRemove, pos);
+        BLangExpression typeCastExpr = addConversionExprIfRequired(detailVarRef, targetType);
 
-        // Create filter iterator operation
-        BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
+        int restNum = annonVarCount++;
+        String name = "$detail$" + restNum;
+        BLangSimpleVariable detailMap = defVariable(pos, targetType, parentBlockStmt, typeCastExpr, name);
 
-        filterIterator.iterableOperationInvocation = true;
-        filterIterator.argExprs.add(lambdaFunction);
-        filterIterator.requiredArgs.add(lambdaFunction);
-        // Variable reference to the 1st variable of this block. i.e. the map ..
-        filterIterator.expr = detailVarRef;
+        BLangInvocation entriesInvocation = generateMapEntriesInvocation(pos, typeCastExpr, detailMap);
+        String entriesVarName = "$details$entries$" + restNum;
+        BType entriesType = new BMapType(TypeTags.MAP,
+                new BTupleType(Arrays.asList(symTable.stringType, ((BMapType) targetType).constraint)), null);
+        BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
+                addConversionExprIfRequired(entriesInvocation, entriesType),
+                entriesVarName);
 
-        BTupleType collectionType = new BTupleType(Lists.of(symTable.stringType, symTable.pureType));
-        filterIterator.type = new BIntermediateCollectionType(collectionType);
+        BLangLambdaFunction filter = createFuncToFilterOutRestParam(keysToRemove, pos);
 
-        IterableContext iterableContext = new IterableContext(filterIterator.expr, env);
-        iterableContext.foreachTypes = collectionType.tupleTypes;
+        BLangInvocation filterInvocation = generateMapFilterInvocation(pos, entriesInvocationVar, filter);
+        String filteredEntriesName = "$filtered$detail$entries" + restNum;
+        BLangSimpleVariable filteredVar = defVariable(pos, entriesType, parentBlockStmt, filterInvocation,
+                filteredEntriesName);
 
-        filterIterator.iContext = iterableContext;
+        String filteredVarName = "$detail$filtered" + restNum;
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos);
+        BLangInvocation mapInvocation = generateMapMapInvocation(pos, filteredVar, backToMapLambda);
+        BLangSimpleVariable filtered = defVariable(pos, targetType, parentBlockStmt,
+                mapInvocation,
+                filteredVarName);
 
-        iterableContext.resultType = symTable.detailType;
-        Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
-        filterOperation.pos = pos;
-        filterOperation.collectionType = filterOperation.expectedType = iterableContext.resultType;
-        filterOperation.inputType = filterOperation.outputType = collectionType;
-        iterableContext.operations.add(filterOperation);
-
-        return filterIterator;
+        String filteredRestVarName = "$restVar$" + restNum;
+        BLangInvocation constructed = generateConstructFromInvocation(pos, targetType, filtered.symbol);
+        BLangSimpleVariable x = defVariable(pos, targetType, parentBlockStmt,
+                addConversionExprIfRequired(constructed, targetType),
+                filteredRestVarName);
+        return x;
     }
 
-    private BLangSimpleVariableDef createAndAddBoundRestDetailDef(BLangErrorVariable parentErrorVariable,
-                                                                  BLangBlockStmt parentBlockStmt,
-                                                                  BLangExpression expression) {
-        BLangSimpleVariableDef errorDetailVar = createVarDef(
-                parentErrorVariable.restDetail.name.value,
-                parentErrorVariable.restDetail.type,
-                expression,
-                parentErrorVariable.restDetail.pos);
-        parentBlockStmt.addStatement(errorDetailVar);
-        return errorDetailVar;
+    private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr,
+                                                         BLangSimpleVariable detailMap) {
+        BLangInvocation invocationNode = createInvocationNode("entries", new ArrayList<>(), typeCastExpr.type);
+
+        invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, detailMap.symbol);
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typeCastExpr.type, names.fromString("entries"));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, detailMap.symbol));
+        invocationNode.type = invocationNode.symbol.type.getReturnType();
+        return invocationNode;
+    }
+
+    private BLangInvocation generateMapMapInvocation(DiagnosticPos pos, BLangSimpleVariable filteredVar,
+                                                     BLangLambdaFunction backToMapLambda) {
+        BLangInvocation invocationNode = createInvocationNode("map", new ArrayList<>(), filteredVar.type);
+
+        invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, filteredVar.symbol);
+        invocationNode.symbol = symResolver.lookupLangLibMethod(filteredVar.type, names.fromString("map"));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, filteredVar.symbol));
+        invocationNode.type = invocationNode.symbol.type.getReturnType();
+        BLangInvocation mapInvocation = invocationNode;
+        mapInvocation.requiredArgs.add(backToMapLambda);
+        return mapInvocation;
+    }
+
+    private BLangLambdaFunction generateEntriesToMapLambda(DiagnosticPos pos) {
+        // var.map([key, val] => val)
+
+        String anonfuncName = "$anonGetValFunc$" + lambdaFunctionCount++;
+        BLangFunction function = ASTBuilderUtil.createFunction(pos, anonfuncName);
+
+        BVarSymbol keyValSymbol = new BVarSymbol(0, names.fromString("$lambdaArg$0"), this.env.scope.owner.pkgID,
+                getStringAnyTupleType(), this.env.scope.owner);
+
+        BLangSimpleVariable inputParameter = ASTBuilderUtil.createVariable(pos, null, getStringAnyTupleType(),
+                null, keyValSymbol);
+        function.requiredParams.add(inputParameter);
+
+        BLangValueType anyType = new BLangValueType();
+        anyType.typeKind = TypeKind.ANY;
+        anyType.type = symTable.anyType;
+        function.returnTypeNode = anyType;
+
+        BLangBlockStmt functionBlock = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        function.body = functionBlock;
+
+        BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
+                symTable.anyType, keyValSymbol, ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 1));
+        BLangSimpleVariableDef tupSecondElem = createVarDef("val", indexBasesAccessExpr.type,
+                indexBasesAccessExpr, pos);
+        functionBlock.addStatement(tupSecondElem);
+
+        // Create return stmt.
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, functionBlock);
+        returnStmt.expr = ASTBuilderUtil.createVariableRef(pos, tupSecondElem.var.symbol);
+
+        // Create function symbol before visiting desugar phase for the function
+        BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
+                new Name(function.name.value), env.enclPkg.packageID, function.type, env.enclEnv.enclVarSym, true);
+        functionSymbol.retType = function.returnTypeNode.type;
+        functionSymbol.params = function.requiredParams.stream()
+                .map(param -> param.symbol)
+                .collect(Collectors.toList());
+        functionSymbol.scope = env.scope;
+        functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
+                symTable.anyType, null);
+        function.symbol = functionSymbol;
+        rewrite(function, env);
+        env.enclPkg.addFunction(function);
+
+        // Create and return a lambda function
+        return createLambdaFunction(function, functionSymbol);
+    }
+
+    private BLangInvocation generateMapFilterInvocation(DiagnosticPos pos,
+                                                        BLangSimpleVariable entriesInvocationVar,
+                                                        BLangLambdaFunction filter) {
+        BLangInvocation invocationNode = createInvocationNode("filter", new ArrayList<>(), entriesInvocationVar.type);
+
+        invocationNode.expr = ASTBuilderUtil.createVariableRef(pos, entriesInvocationVar.symbol);
+        invocationNode.symbol = symResolver.lookupLangLibMethod(entriesInvocationVar.type, names.fromString("filter"));
+        invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, entriesInvocationVar.symbol));
+        invocationNode.type = invocationNode.symbol.type.getReturnType();
+        BLangInvocation filterInvoke = invocationNode;
+        filterInvoke.requiredArgs.add(filter);
+
+        return filterInvoke;
+    }
+
+    private BLangSimpleVariable defVariable(DiagnosticPos pos, BType varType, BLangBlockStmt parentBlockStmt,
+                                            BLangExpression expression, String name) {
+        Name varName = names.fromString(name);
+        BLangSimpleVariable detailMap = ASTBuilderUtil.createVariable(pos, name,
+                varType, expression,
+                new BVarSymbol(Flags.PUBLIC, varName, env.enclPkg.packageID, varType, env.scope.owner));
+        BLangSimpleVariableDef constructedMap = ASTBuilderUtil.createVariableDef(pos, detailMap);
+        parentBlockStmt.addStatement(constructedMap);
+        env.scope.define(varName, detailMap.symbol);
+        return detailMap;
     }
 
     private void createAndAddBoundVariableDef(BLangBlockStmt parentBlockStmt,
@@ -1324,13 +1435,16 @@ public class Desugar extends BLangNodeVisitor {
                 ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), detailType);
         detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
-            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, parentIndexBasedAccess.type);
+            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
+            detailInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
+                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
+            detailInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
         } else {
             detailInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
+            detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
+                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
+            detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
         }
-        detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
-                                                                  names.fromString(ERROR_DETAIL_FUNCTION_NAME));
-        detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
         detailInvocation.type = detailInvocation.symbol.type.getReturnType();
         return detailInvocation;
     }
@@ -1343,17 +1457,35 @@ public class Desugar extends BLangNodeVisitor {
         reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
         if (parentIndexBasedAccess != null) {
             reasonInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
-            reasonInvocation.symbol = symResolver.resolveBuiltinOperator(
-                    names.fromString(ERROR_REASON_FUNCTION_NAME), parentIndexBasedAccess.type);
+            reasonInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
+                    names.fromString(ERROR_REASON_FUNCTION_NAME));
+            reasonInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
         } else {
             reasonInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+            reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
+                                                                      names.fromString(ERROR_REASON_FUNCTION_NAME));
+            reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
         }
 
-        reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
-                                                                  names.fromString(ERROR_REASON_FUNCTION_NAME));
-        reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
         reasonInvocation.type = reasonInvocation.symbol.type.getReturnType();
         return reasonInvocation;
+    }
+
+    private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
+                                                            BType targetType,
+                                                            BVarSymbol source) {
+        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
+        BLangInvocation invocationNode = createInvocationNode(CONSTRUCT_FROM, new ArrayList<>(), typedescType);
+
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = targetType;
+        typedescExpr.type = typedescType;
+
+        invocationNode.expr = typedescExpr;
+        invocationNode.symbol = symResolver.lookupLangLibMethod(typedescType, names.fromString(CONSTRUCT_FROM));
+        invocationNode.requiredArgs = Lists.of(typedescExpr, ASTBuilderUtil.createVariableRef(pos, source));
+        invocationNode.type = BUnionType.create(null, targetType, symTable.errorType);
+        return invocationNode;
     }
 
     private BLangLambdaFunction createFuncToFilterOutRestParam(BLangRecordVarRef recordVarRef, DiagnosticPos pos) {
@@ -1932,21 +2064,14 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(parentErrorVarRef.restVar.pos,
                     detailTempVarDef.var.symbol);
 
-            BLangExpression restDetailExpr;
-            if (!extractedKeys.isEmpty()) {
-                BLangInvocation filterInvoke = addRestMapSetupCode(detailVarRef, parentErrorVarRef.restVar.pos,
-                        extractedKeys);
-                restDetailExpr = filterInvoke;
-            } else {
-                restDetailExpr = detailVarRef;
-            }
-
-            BLangExpression stamped = visitCloneAndStampInvocation(restDetailExpr, parentErrorVarRef.restVar.type);
-
+            BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVarRef.restVar.pos,
+                    extractedKeys,
+                    parentErrorVarRef.restVar.type, parentBlockStmt);
             BLangAssignment restAssignment = ASTBuilderUtil.createAssignmentStmt(parentErrorVarRef.restVar.pos,
                     parentBlockStmt);
             restAssignment.varRef = parentErrorVarRef.restVar;
-            restAssignment.expr = stamped;
+            restAssignment.expr = ASTBuilderUtil.createVariableRef(parentErrorVarRef.restVar.pos,
+                    filteredDetail.symbol);
         }
 
         BErrorType errorType = (BErrorType) parentErrorVarRef.type;
@@ -4929,6 +5054,10 @@ public class Desugar extends BLangNodeVisitor {
         BOperatorSymbol conversionSymbol;
         if (types.isValueType(lhsType)) {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
+        } else if (lhsType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(lhsType, TypeTags.ERROR)) {
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, symTable.errorType, symTable.errorType, false,
+                                                                true, InstructionCodes.NOP, null, null);
+            lhsType = symTable.errorType;
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
                                                                 InstructionCodes.NOP, null, null);

@@ -18,12 +18,9 @@
 package org.ballerinalang.nats.streaming.message;
 
 import io.nats.streaming.Message;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,16 +37,7 @@ import java.io.IOException;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "StreamingMessage", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Ack implements NativeCallableUnit {
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public class Ack {
 
     public static Object ack(Strand strand, ObjectValue message) {
         Message streamingMessage = (Message) message.getNativeData(Constants.NATS_STREAMING_MSG);

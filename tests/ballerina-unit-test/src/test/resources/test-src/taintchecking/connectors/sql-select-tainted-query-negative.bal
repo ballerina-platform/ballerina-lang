@@ -1,4 +1,4 @@
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 public function main(string... args) {
     testSelectWithTaintedQueryNegative(...args);

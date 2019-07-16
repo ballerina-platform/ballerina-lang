@@ -95,8 +95,26 @@ function functionWithNoRestParam(int x, string y, float f = 1.1, boolean b = tru
 }
 
 function requiredParamTest() {
+    functionWithNoRestParam(100); // not enough arguments in call to 'functionWithNoRestParam()'
+    functionWithNoRestParam("string"); // not enough arguments in call to 'functionWithNoRestParam()'
+    functionWithNoRestParam("string", 100); // incompatible types
+    functionWithNoRestParam(100, "string");
+    functionWithNoRestParam(100, "string", 2.2);
+    functionWithNoRestParam(100, "string", false); // incompatible types: expected 'float', found 'boolean'
+    functionWithNoRestParam(100, "string", 2.2, false);
+    functionWithNoRestParam(100, "string", false, 2.2); // incompatible types:
     functionWithNoRestParam(); // not enough arguments in call to 'functionWithNoRestParam()'
     functionWithNoRestParam(f = 1.2); // not enough arguments in call to 'functionWithNoRestParam()'
     functionWithNoRestParam(b = false, f = 1.2); // missing required parameter 'x' in call to 'functionWithNoRestParam'()
     // missing required parameter 'y' in call to 'functionWithNoRestParam'()
+}
+
+function testDefaultExprEvaluation() {
+    functionWithNoRestParam(1, "2", f = getFloat());
+    functionWithNoRestParam(1, f = getFloat()); // missing required parameter 'y' in call to 'functionWithNoRestParam'()
+    functionWithNoRestParam(1, f = getFloat(2.2)); // too many arguments in call to 'getFloat()'
+}
+
+function getFloat() returns float {
+    return 25.0;
 }

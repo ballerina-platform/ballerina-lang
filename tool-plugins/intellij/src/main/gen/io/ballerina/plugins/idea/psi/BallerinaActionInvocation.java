@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaActionInvocation extends PsiElement {
 
   @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
+  @NotNull
   BallerinaFunctionInvocation getFunctionInvocation();
 
   @NotNull
