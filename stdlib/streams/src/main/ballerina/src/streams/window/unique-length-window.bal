@@ -130,8 +130,8 @@ public type UniqueLengthWindow object {
                         streamEventChunk.insertBeforeCurrent(oldEvent);
                         oldEvent.timestamp = currentTime;
                     } else {
-                        StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != ()) {
+                        any? firstEvent = self.expiredEventChunk.removeFirst();
+                        if (firstEvent is StreamEvent) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);

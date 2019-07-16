@@ -121,8 +121,8 @@ public type TimeLengthWindow object {
                         self.count += 1;
                         self.expiredEventChunk.addLast(clonedEvent);
                     } else {
-                        StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != ()) {
+                        any? firstEvent = self.expiredEventChunk.removeFirst();
+                        if (firstEvent is StreamEvent) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
@@ -132,7 +132,6 @@ public type TimeLengthWindow object {
                 } else {
                     streamEventChunk.removeCurrent();
                 }
-
             }
         }
 

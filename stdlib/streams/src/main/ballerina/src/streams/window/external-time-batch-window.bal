@@ -376,7 +376,7 @@ public type ExternalTimeBatchWindow object {
             }
         }
 
-        if (self.expiredEventChunk != ()) {
+        if (self.expiredEventChunk.isEmpty()) {
             self.expiredEventChunk.clear();
         }
 
