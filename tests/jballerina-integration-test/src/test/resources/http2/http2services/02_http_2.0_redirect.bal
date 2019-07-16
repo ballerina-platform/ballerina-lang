@@ -69,7 +69,7 @@ service testRedirect on serviceEndpoint1 {
                 value = response.getHeader(http:LOCATION);
             }
             value = value + ":" + response.resolvedRequestedURI;
-            checkpanic caller->respond(untaint value);
+            checkpanic caller->respond(<@untainted> value);
         } else {
             io:println("Connector error!");
         }
@@ -85,9 +85,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -104,9 +104,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -123,9 +123,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -142,9 +142,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -161,9 +161,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -180,9 +180,9 @@ service testRedirect on serviceEndpoint1 {
             var value = response.getTextPayload();
             if (value is string) {
                 value = value + ":" + response.resolvedRequestedURI;
-                checkpanic caller->respond(untaint value);
+                checkpanic caller->respond(<@untainted> value);
             } else {
-                panic value;
+                panic <error>value;
             }
         } else {
             io:println("Connector error!");
@@ -275,8 +275,10 @@ service redirect1 on serviceEndpoint2 {
     }
     resource function processQP(http:Caller caller, http:Request req) {
         map<string[]> paramsMap = req.getQueryParams();
-        string returnVal = paramsMap["key"][0] + ":" + paramsMap["lang"][0];
-        checkpanic caller->respond(untaint returnVal);
+        string[]? val1 = paramsMap["key"];
+        string[]? val2 = paramsMap["lang"];
+        string returnVal = (val1 is string[] ? val1[0] : "") + ":" + (val2 is string[] ? val2[0] : "");
+        checkpanic caller->respond(<@untainted> returnVal);
     }
 }
 

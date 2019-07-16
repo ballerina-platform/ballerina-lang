@@ -35,8 +35,8 @@ service simple6 on new http:Listener(9096) {
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[PATH1] = path1;
         wsServiceEp.attributes[PATH2] = path2;
-        wsServiceEp.attributes[QUERY1] = req.getQueryParams()["q1"][0];
-        wsServiceEp.attributes[QUERY2] = req.getQueryParams()["q2"][0];
+        wsServiceEp.attributes[QUERY1] = req.getQueryParamValue("q1");
+        wsServiceEp.attributes[QUERY2] = req.getQueryParamValue("q2");
     }
 }
 

@@ -1,0 +1,5 @@
+// This sample demonstrates creating a durable subscription
+// in the NATS Streaming server. Regular subscriptions remember
+// their position while the client is connected. If the client
+// disconnects, the position is lost. Durable subscriptions
+// remember their position even if the client is disconnected.
