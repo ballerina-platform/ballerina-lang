@@ -6,7 +6,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -20,13 +20,13 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         {{#unless inputType}}Empty req = {};{{/unless}}
         var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers);
         grpc:Headers resHeaders = new;
-        {{#if outputType}}any result = ();
+        {{#if outputType}}anydata result = ();
         [result, resHeaders] = payload;
         {{#not_equal outputType "string"}}var value = typedesc<{{outputType}}>.constructFrom(result);
         if (value is {{outputType}}) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
             return err;
         }{{/not_equal}}{{#equals outputType "string"}}return (result.toString(), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
         return resHeaders;{{/if}}
