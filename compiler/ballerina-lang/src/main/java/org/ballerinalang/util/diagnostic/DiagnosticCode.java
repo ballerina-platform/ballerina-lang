@@ -234,6 +234,8 @@ public enum DiagnosticCode {
     OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD(
             "operation.does.not.support.optional.field.access.for.field"),
     OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT("operation.does.not.support.index.access.for.assignment"),
+    ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS("error.binding.pattern.does.not.support.field.access"),
+    ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS("error.binding.pattern.does.not.support.index.access"),
     INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("invalid.index.expr.struct.field.access"),
     INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("invalid.index.expr.tuple.field.access"),
     INVALID_TUPLE_INDEX_EXPR("invalid.tuple.index.expr"),

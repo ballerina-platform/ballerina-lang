@@ -1731,21 +1731,40 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .collect(Collectors.toMap(field -> field.name.value, field -> field));
         for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
             BField matchedDetailItem = fields.get(detailItem.name.value);
+            BType matchedType;
             if (matchedDetailItem == null) {
-                dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
-                return;
+                if (rhsDetailType.sealed) {
+                    dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
+                    return;
+                } else {
+                    matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
+                }
+            } else {
+                matchedType = matchedDetailItem.type;
             }
 
-            if (!types.isAssignable(matchedDetailItem.type, detailItem.expr.type)) {
+            if (!types.isAssignable(matchedType, detailItem.expr.type)) {
                 dlog.error(detailItem.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                        detailItem.expr.type, matchedDetailItem.type);
+                        detailItem.expr.type, matchedType);
             }
-            checkErrorDetailRefItem(matchedDetailItem.pos, rhsPos, detailItem, matchedDetailItem.type);
+            checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
         }
-        if (lhsRef.restVar != null) {
-            lhsRef.restVar.type = rhsDetailType.restFieldType;
+        if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
+            BMapType expRestType = new BMapType(TypeTags.MAP, rhsDetailType.restFieldType, null);
+            if (lhsRef.restVar.type.tag != TypeTags.MAP
+                    || !types.isAssignable(rhsDetailType.restFieldType, ((BMapType) lhsRef.restVar.type).constraint)) {
+                dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type, expRestType);
+                return;
+            }
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
+    }
+
+    private boolean isIgnoreVar(BLangErrorVarRef lhsRef) {
+        if (lhsRef.restVar != null && lhsRef.restVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return ((BLangSimpleVarRef) lhsRef.restVar).variableName.value.equals(Names.IGNORE.value);
+        }
+        return false;
     }
 
     private void checkErrorDetailRefItem(DiagnosticPos pos, DiagnosticPos rhsPos, BLangNamedArgsExpression detailItem,
