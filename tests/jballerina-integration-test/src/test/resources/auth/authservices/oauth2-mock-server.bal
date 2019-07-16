@@ -36,9 +36,13 @@ const string HEADER_BEARER = "header";
 const string BODY_BEARER = "body";
 const string NO_BEARER = "none";
 
+const string ACCESS_GRANTED = "access_granted";
+const string ACCESS_DENIED = "access_denied";
 const string INVALID_CLIENT = "invalid_client";
 const string INVALID_REQUEST = "invalid_request";
 const string INVALID_GRANT = "invalid_grant";
+const string UNAUTHORIZED_CLIENT = "unauthorized_client";
+const string AUTHORIZATION_HEADER_NOT_PROVIDED = "authorization_header_not_provided";
 
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
 string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toBytes()));
@@ -382,8 +386,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
-            json errMsg = { "error": "unauthorized_client" };
-            res.setPayload(errMsg);
+            res.setPayload(UNAUTHORIZED_CLIENT);
         }
     } else {
         // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
@@ -431,19 +434,16 @@ service foo on apiEndpoint {
                 }
             }
             if (tokenAvailable) {
-                json payload = { "success": "access_granted" };
-                res.setPayload(payload);
+                res.setPayload(ACCESS_GRANTED);
                 checkpanic caller->respond(res);
             } else {
                 res.statusCode = http:UNAUTHORIZED_401;
-                json payload = { "error": "access_denied" };
-                res.setPayload(payload);
+                res.setPayload(ACCESS_DENIED);
                 checkpanic caller->respond(res);
             }
         } else {
             res.statusCode = http:UNAUTHORIZED_401;
-            json payload = { "error": "authorization_header_not_provided" };
-            res.setPayload(payload);
+            res.setPayload(AUTHORIZATION_HEADER_NOT_PROVIDED);
             checkpanic caller->respond(res);
         }
     }

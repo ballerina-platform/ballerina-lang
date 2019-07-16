@@ -295,12 +295,15 @@ service echo18 on listener18 {
             http:Response errResponse = new;
             errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
             var cause = e.detail()?.cause;
-            if (cause is oauth2:Error) {
-                json errMsg = { message: <string>cause.detail()?.message };
-                errResponse.setPayload(errMsg);
+            if (cause is error) {
+                var innerCause = cause.detail()?.cause;
+                while(innerCause is error) {
+                    cause = innerCause;
+                    innerCause = innerCause.detail()?.cause;
+                }
+                errResponse.setPayload(<string>cause.detail()?.message);
             } else {
-                json errMsg = { message: <string>e.detail()?.message };
-                errResponse.setPayload(errMsg);
+                errResponse.setPayload(<string>e.detail()?.message);
             }
             checkpanic caller->respond(errResponse);
         }
