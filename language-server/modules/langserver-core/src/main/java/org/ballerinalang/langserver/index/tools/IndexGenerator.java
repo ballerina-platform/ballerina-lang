@@ -54,7 +54,7 @@ public class IndexGenerator {
     private static final Logger logger = LoggerFactory.getLogger(IndexGenerator.class);
 
     private List<BPackageSymbol> getBLangPackages() {
-        List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
+//        List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
 //        List<String> packages = new ArrayList<>();
 //                Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", /*"jdbc",*/
 //                "encoding", "file", "filepath", "grpc", "http", "internal", "io", /*"jms",*/ "jwt", "ldap",
