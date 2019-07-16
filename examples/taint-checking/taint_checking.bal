@@ -1,4 +1,4 @@
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 // The `@sensitive` annotation can be used with the parameters of user-defined functions. This allow users to restrict
 // passing untrusted (tainted) data into a security sensitive parameter.
