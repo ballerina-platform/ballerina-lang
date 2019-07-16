@@ -1,0 +1,2 @@
+org.ballerinalang.nats.streaming.NatsStreamingSubscriberServiceCompilerPlugin
+org.ballerinalang.nats.basic.NatsBasicConsumerServiceCompilerPlugin
