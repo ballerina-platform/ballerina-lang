@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/runtime;
 
 listener http:Listener failoverEP06 = new(9314, { httpVersion: "2.0" });
 
@@ -18,6 +19,9 @@ http:FailoverClient foBackendEP06 = new({
     ]
 });
 
+@http:ServiceConfig {
+    basePath: "/fo"
+}
 service failoverDemoService06 on failoverEP06 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
@@ -25,12 +29,12 @@ service failoverDemoService06 on failoverEP06 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP06.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP06->submit("/", "GET", request);
+        var backendRes = foBackendEP06->submit("GET", "/", request);
         if (backendRes is http:HttpFuture) {
             var response = foBackendEP06->getResponse(backendRes);
             if (response is http:Response) {
                 string responseMessage = "Failover start index is : " + startIndex;
-                var responseToCaller = caller->respond(response);
+                var responseToCaller = caller->respond(responseMessage);
                 handleResponseToCaller(responseToCaller);
             } else {
                 sendErrorResponse(caller, <error>response);

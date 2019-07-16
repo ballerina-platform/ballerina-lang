@@ -617,9 +617,8 @@ public type SubscriptionDetails record {|
 |};
 
 function retrieveSubscriberServiceAnnotations(service serviceType) returns SubscriberServiceConfiguration? {
-    any annotData = reflect:getServiceAnnotations(serviceType, WEBSUB_MODULE_NAME,
-                                             ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
-    return <SubscriberServiceConfiguration?> annotData;
+    typedesc<any> serviceTypedesc = typeof serviceType;
+    return serviceTypedesc.@SubscriberServiceConfig;
 }
 
 # Record to represent a WebSub content delivery.

@@ -43,7 +43,7 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
-        var err = caller->accepted(message = response);
+        var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);
         }
@@ -88,7 +88,7 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            json j = <json> json.convert(details[0]);
+            json j = <json> typedesc<json>.constructFrom(details[0]);
             var err = caller->respond(j);
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);
@@ -101,7 +101,7 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index] = topic;
                 index += 1;
             }
-            json j = <json> json.convert(allTopics);
+            json j = <json> typedesc<json>.constructFrom(allTopics);
             var err = caller->respond(j);
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);
@@ -118,7 +118,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
-        var err = caller->accepted(message = response);
+        var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);
         }
@@ -208,7 +208,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 }
 
 function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(new http:Listener(9191), hubConfiguration = { remotePublish : { enabled : true }});
+    var result = websub:startHub(new http:Listener(9191), { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

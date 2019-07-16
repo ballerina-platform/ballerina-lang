@@ -34,7 +34,7 @@ function isWindowsReservedName(string path) returns boolean {
     return false;
 }
 
-function buildWindowsPath(string... parts) returns string|error {
+function buildWindowsPath(string... parts) returns string|Error {
     int count = parts.length();
     if (count <= 0) {
         return "";
@@ -125,7 +125,7 @@ function buildWindowsPath(string... parts) returns string|error {
 	return normalizedHead + pathSeparator + normalizedTail;
 }
 
-function getWindowsRoot(string input) returns [string, int]|error {
+function getWindowsRoot(string input) returns [string, int]|Error {
     int length = input.length();
     int offset = 0;
     string root = "";
@@ -136,23 +136,18 @@ function getWindowsRoot(string input) returns [string, int]|error {
         if (isSlash(c0) && isSlash(c1)) {
             boolean unc = check isUNC(input);
             if (!unc) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Invalid UNC path: " + input);
-                return err;
+                return prepareError(message = "Invalid UNC path: " + input);
             }
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Hostname is missing in UNC path:
-                " + input);
-                return err;
+                return prepareError(message = "Hostname is missing in UNC path: " + input);
             }
             string host = input.substring(offset, next);  //host
             offset = check nextNonSlashIndex(input, next, length);
             next = check nextSlashIndex(input, offset, length);
             if (offset == next) {
-                error err = error("{ballerina/filepath}INVALID_UNC_PATH", message = "Sharename is missing in UNC path:
-                " + input);
-                return err;
+                return prepareError(message = "Sharename is missing in UNC path: " + input);
             }
             //TODO remove dot from expression. added because of formatting issue #13872.
             root = "\\\\" + host + "\\" + input.substring(offset, next) + "\\";
@@ -183,7 +178,7 @@ function getWindowsRoot(string input) returns [string, int]|error {
     return [root, offset];
 }
 
-function getWindowsOffsetIndex(string path) returns int[]|error {
+function getWindowsOffsetIndex(string path) returns int[]|Error {
     int[] offsetIndexes = [];
     int index = 0;
     int count = 0;
@@ -222,7 +217,7 @@ function isWindowsSlash(string c) returns boolean {
 #
 # + path - string path value
 # + return - windows volumn length
-function getVolumnNameLength(string path) returns int|error {
+function getVolumnNameLength(string path) returns int|Error {
     if path.length() < 2 {
         return 0;
     }
@@ -268,7 +263,7 @@ function getVolumnNameLength(string path) returns int|error {
     return 0;
 }
 
-function parseWindowsPath(string path, int off) returns string|error {
+function parseWindowsPath(string path, int off) returns string|Error {
     string normalizedPath = "";
     int length = path.length();
     int offset = check nextNonSlashIndex(path, off, length);
