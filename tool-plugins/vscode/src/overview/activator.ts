@@ -50,6 +50,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				const { moduleName, constructName } = construct;
 				rpcHandler.invokeRemoteMethod("selectConstruct", [moduleName, constructName], () => {});
 			}
+			overviewPanel.reveal();
 		} else {
 			// If Project Overview is not yet opened open it and show the selected construct
 			openWebView(context, langClient, construct);
