@@ -71,7 +71,7 @@ public type ChannelReader object {
     public function readByteArray(int len) returns byte[] {
         var [arr, arrLen] = check self.byteChannel.read(len);
         if(arrLen != len){
-            error err = error("Unable to read " + len + " bytes");
+            error err = error("Unable to read " + len.toString() + " bytes");
             panic err;
         }
         return <@untainted> arr;

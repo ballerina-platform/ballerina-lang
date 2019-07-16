@@ -515,7 +515,7 @@ public function parseVarKind(BirChannelReader reader) returns VarKind {
         return ret;
     } 
 
-    error err = error("unknown var kind tag " + b);
+    error err = error("unknown var kind tag " + b.toString());
     panic err;
 }
 
@@ -528,7 +528,7 @@ public function parseVarScope(BirChannelReader reader) returns VarScope {
         VarScope glob = VAR_SCOPE_GLOBAL;
         return glob;
     }
-    error err = error("unknown var scope tag " + b);
+    error err = error("unknown var scope tag " + b.toString());
     panic err;
 }
 

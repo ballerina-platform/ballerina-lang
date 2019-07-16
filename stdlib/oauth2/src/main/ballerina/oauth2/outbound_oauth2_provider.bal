@@ -581,9 +581,10 @@ function extractAccessTokenFromResponse(http:Response response, @tainted CachedT
     } else {
         var payload = response.getTextPayload();
         if (payload is string) {
-            return prepareError("Received an invalid response. StatusCode: " + response.statusCode + " Payload: " + payload);
+            return prepareError("Received an invalid response. StatusCode: " + response.statusCode.toString() +
+                                " Payload: " + payload);
         } else {
-            return prepareError("Received an invalid response. StatusCode: " + response.statusCode, payload);
+            return prepareError("Received an invalid response. StatusCode: " + response.statusCode.toString(), payload);
         }
     }
 }

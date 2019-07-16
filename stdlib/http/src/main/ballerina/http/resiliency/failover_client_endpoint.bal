@@ -417,19 +417,20 @@ function populateGenericFailoverActionError (ClientError?[] failoverActionErr, C
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, failover error
 // will be generated with last response status code and generic failover response.
 function populateFailoverErrorHttpStatusCodes (Response inResponse, ClientError?[] failoverActionErr, int index) {
-    string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
-        inResponse.reasonPhrase;
+    string failoverMessage = "Endpoint " + index.toString() + " returned response is: " +
+                                inResponse.statusCode.toString() + " " + inResponse.reasonPhrase;
     FailoverActionFailedError httpActionErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = failoverMessage);
     failoverActionErr[index] = httpActionErr;
 }
 
 function populateErrorsFromLastResponse (Response inResponse, ClientError?[] failoverActionErr, int index)
                                                                             returns (ClientError) {
-    string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
+    string message = "Last endpoint returned response: " + inResponse.statusCode.toString() + " " +
+                        inResponse.reasonPhrase;
     FailoverActionFailedError lastHttpConnectorErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = message);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
-                                + inResponse.statusCode + " " + inResponse.reasonPhrase;
+                                + inResponse.statusCode.toString() + " " + inResponse.reasonPhrase;
     FailoverAllEndpointsFailedError actionError =
                     error(FAILOVER_ALL_ENDPOINTS_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;

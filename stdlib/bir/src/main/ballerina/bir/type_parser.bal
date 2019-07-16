@@ -73,7 +73,7 @@ public type TypeParser object {
         if (unparsedBytes is byte[]){
             self.reader = {buf: unparsedBytes};
         } else {
-            error err = error(cpI + " is not a shape CP.");
+            error err = error(cpI.toString() + " is not a shape CP.");
             panic err;
         }
 
@@ -160,7 +160,7 @@ public type TypeParser object {
             return <BTypeHandle> {};
         }
 
-        error err = error("Unknown type tag :" + typeTag);
+        error err = error("Unknown type tag :" + typeTag.toString());
         panic err;
     }
 
@@ -362,7 +362,7 @@ public type TypeParser object {
         } else if (b == 3) {
             return "UNSEALED";
         }
-        error err = error("unknown array state tag " + b);
+        error err = error("unknown array state tag " + b.toString());
         panic err;
     }
 
