@@ -1722,7 +1722,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // reason is a record
+        // Wrong error detail type in error type def, error already emitted  to dlog.
+        if (rhsErrorType.detailType.tag != TypeTags.RECORD) {
+            return;
+        }
         BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
         Map<String, BField> fields = rhsDetailType.fields.stream()
                 .collect(Collectors.toMap(field -> field.name.value, field -> field));

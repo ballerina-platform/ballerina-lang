@@ -263,7 +263,7 @@ public class SQLActionsTest {
         BValueArray retValue = (BValueArray) returns[0];
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
-        Assert.assertEquals(returns[1], null);
+        Assert.assertNull(returns[1]);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -411,8 +411,8 @@ public class SQLActionsTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     ".*Invalid update of record field: modification not allowed on frozen value.*")
-    public void testUpdateReslt() {
-        BRunUtil.invoke(resultNegative, "testUpdateReslt");
+    public void testUpdateResult() {
+        BRunUtil.invoke(resultNegative, "testUpdateResult");
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed parameter array update")

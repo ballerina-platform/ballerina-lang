@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native implementation of lang.map:forEach(map<Type>, function).
+ * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).
  *
  * @since 1.0
  */

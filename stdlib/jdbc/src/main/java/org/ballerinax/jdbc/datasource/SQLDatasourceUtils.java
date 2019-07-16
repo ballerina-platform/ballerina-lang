@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.datasource;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
@@ -52,7 +53,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Class contains utility methods for SQL Connector operations.
+ * Class contains utility methods for JDBC Client operations.
  *
  * @since 0.8.0
  */
@@ -198,10 +199,9 @@ public class SQLDatasourceUtils {
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withJdbcUrl("")
-                .withPoolOptions(poolOptionsWrapper).withJdbcUrl(url).withUsername(username).withPassword(password)
-                .withDbName("").withDbOptionsMap(dbOptions).withIsGlobalDatasource(userProvidedPoolOptionsNotPresent)
-                .build();
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
+                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
+                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
         return createSQLClient(sqlDatasourceParams);
     }
@@ -226,7 +226,7 @@ public class SQLDatasourceUtils {
         return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
     }
 
-    public static ErrorValue getSQLDatabaseError(DatabaseException exception) {
+    static ErrorValue getSQLDatabaseError(DatabaseException exception) {
         return getSQLDatabaseError(exception, "");
     }
 

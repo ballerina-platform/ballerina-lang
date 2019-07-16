@@ -58,7 +58,7 @@ service Ecommerce on serviceEndpoint5 {
     resource function productsInfo(http:Caller caller, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + <@untainted> prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService->get(<@untainted> reqPath, message = clientRequest);
+        var clientResponse = productsService->get(<@untainted> reqPath, clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -95,7 +95,7 @@ service Ecommerce on serviceEndpoint5 {
     }
     resource function ordersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService->get("/orderservice/orders", message = clientRequest);
+        var clientResponse = productsService->get("/orderservice/orders", clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -123,7 +123,7 @@ service Ecommerce on serviceEndpoint5 {
     }
     resource function customersInfo(http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService->get("/customerservice/customers", message = clientRequest);
+        var clientResponse = productsService->get("/customerservice/customers", clientRequest);
         if (clientResponse is http:Response) {
             checkpanic caller->respond(clientResponse);
         } else {
@@ -174,7 +174,7 @@ service OrderMgtService on serviceEndpoint5 {
 }
 service productmgt on serviceEndpoint5 {
 
-    map<any> productsMap = populateSampleProducts();
+    map<anydata> productsMap = populateSampleProducts();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -211,8 +211,8 @@ service productmgt on serviceEndpoint5 {
     }
 }
 
-function populateSampleProducts() returns (map<any>) {
-    map<any> productsMap = {};
+function populateSampleProducts() returns (map<anydata>) {
+    map<anydata> productsMap = {};
     json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
     json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
     json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};

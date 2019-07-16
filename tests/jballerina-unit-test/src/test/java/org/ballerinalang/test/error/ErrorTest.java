@@ -237,7 +237,7 @@ public class ErrorTest {
                                   "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
         BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', expected a subtype of " 
                 + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 40, 33);
-        BAssertUtil.validateError(negativeCompileResult, 4,"invalid error detail type 'boolean', expected a subtype " 
+        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean', expected a subtype "
                 + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 36);
         BAssertUtil.validateError(negativeCompileResult, 5,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
@@ -247,9 +247,9 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 43);
         BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 42);
         BAssertUtil.validateError(negativeCompileResult, 10,
-                "cannot infer reason type from error constructor: 'UserDefErrorOne'", 55, 27);
+                "cannot infer reason from error constructor: 'UserDefErrorOne'", 55, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
-                "cannot infer reason type from error constructor: 'MyError'", 56, 19);
+                "cannot infer reason from error constructor: 'MyError'", 56, 19);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {

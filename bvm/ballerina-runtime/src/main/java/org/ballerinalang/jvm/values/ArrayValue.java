@@ -226,6 +226,9 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
+        if (refValues == null) {
+            return getValue(index);
+        }
         return refValues[(int) index];
     }
 

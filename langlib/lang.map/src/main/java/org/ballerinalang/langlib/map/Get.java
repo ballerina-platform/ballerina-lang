@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.map:get(map<Type>, string).
+ * Native implementation of lang.map:get(map&lt;Type&gt;, string).
  *
  * @since 1.0
  */
