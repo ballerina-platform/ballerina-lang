@@ -16,7 +16,7 @@
       "label": "annotation",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertText": "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};",
       "insertTextFormat": "Snippet"
     },
     {

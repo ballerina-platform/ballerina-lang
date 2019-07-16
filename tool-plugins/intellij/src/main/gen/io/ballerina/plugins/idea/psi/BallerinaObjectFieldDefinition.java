@@ -33,9 +33,6 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   BallerinaTypeName getTypeName();
 
   @Nullable
-  BallerinaDeprecatedAttachment getDeprecatedAttachment();
-
-  @Nullable
   PsiElement getAssign();
 
   @Nullable

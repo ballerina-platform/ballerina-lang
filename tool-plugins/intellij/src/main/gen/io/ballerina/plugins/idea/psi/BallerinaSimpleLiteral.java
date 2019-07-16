@@ -27,13 +27,13 @@ public interface BallerinaSimpleLiteral extends PsiElement {
   BallerinaBlobLiteral getBlobLiteral();
 
   @Nullable
-  BallerinaEmptyTupleLiteral getEmptyTupleLiteral();
-
-  @Nullable
   BallerinaFloatingPointLiteral getFloatingPointLiteral();
 
   @Nullable
   BallerinaIntegerLiteral getIntegerLiteral();
+
+  @Nullable
+  BallerinaNilLiteral getNilLiteral();
 
   @Nullable
   PsiElement getBooleanLiteral();
@@ -46,8 +46,5 @@ public interface BallerinaSimpleLiteral extends PsiElement {
 
   @Nullable
   PsiElement getSub();
-
-  @Nullable
-  PsiElement getSymbolicStringLiteral();
 
 }

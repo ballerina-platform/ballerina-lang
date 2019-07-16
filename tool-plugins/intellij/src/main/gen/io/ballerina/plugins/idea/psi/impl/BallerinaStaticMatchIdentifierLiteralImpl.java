@@ -26,7 +26,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStaticMatchIdentifierLiteralImpl extends BallerinaStaticMatchLiteralsImpl implements BallerinaStaticMatchIdentifierLiteral {
+public class BallerinaStaticMatchIdentifierLiteralImpl extends BallerinaStaticMatchLiteralImpl implements BallerinaStaticMatchIdentifierLiteral {
 
   public BallerinaStaticMatchIdentifierLiteralImpl(@NotNull ASTNode node) {
     super(node);

@@ -215,22 +215,6 @@ public class FunctionPointersTest {
     }
 
     @Test
-    public void testFunctionPointerNullCheck() {
-        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-null-check.bal");
-        BValue[] returns = BRunUtil.invoke(result, "checkFunctionPointerNullEqual");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-
-        returns = BRunUtil.invoke(result, "checkFunctionPointerNullNotEqual");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-    }
-
-    @Test
     public void testFunctionPointerAsFuncParam() {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAsFuncParam");
         Assert.assertNotNull(returns[0] instanceof BInteger);

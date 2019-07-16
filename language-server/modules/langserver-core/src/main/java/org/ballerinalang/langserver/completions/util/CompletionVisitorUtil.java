@@ -248,6 +248,24 @@ public class CompletionVisitorUtil {
     }
 
     /**
+     * Get the function parameters ordered according to the position.
+     *
+     * @param function BLangFUnction node
+     * @return {@link List} List of ordered item nodes
+     */
+    public static List<BLangNode> getFunctionParamsOrdered(BLangFunction function) {
+        List<BLangNode> nodes = new ArrayList<>();
+//        nodes.addAll(function.defaultableParams);
+        nodes.addAll(function.requiredParams);
+        if (function.restParam != null) {
+            nodes.add(function.restParam);
+        }
+        nodes.sort(Comparator.comparing(node -> node.getPosition().getStartLine()));
+
+        return nodes;
+    }
+
+    /**
      * Check whether the cursor is within the invocation arguments.
      *
      * @param node BLang node to evaluate

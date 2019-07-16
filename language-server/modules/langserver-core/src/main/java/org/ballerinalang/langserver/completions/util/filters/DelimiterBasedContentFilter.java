@@ -41,7 +41,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -72,7 +71,6 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
         List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
-        boolean isWorkerReceive = BallerinaParser.LARROW == delimiter;
         boolean isActionInvocation = BallerinaParser.RARROW == delimiter
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
         boolean isWorkerSend = !isActionInvocation && BallerinaParser.RARROW == delimiter;
@@ -80,12 +78,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || isActionInvocation) {
             returnSymbolsInfoList.addAll(FilterUtils.filterVariableEntriesOnDelimiter(ctx, symbolToken, delimiter,
                     defaultTokens, defaultTokenTypes.lastIndexOf(delimiter)));
-        } else if (isWorkerSend || isWorkerReceive) {
-            List<SymbolInfo> filteredList = visibleSymbols.stream()
-                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.type instanceof BFutureType
-                    && ((BFutureType) symbolInfo.getScopeEntry().symbol.type).workerDerivative)
-                    .collect(Collectors.toList());
-            returnSymbolsInfoList.addAll(filteredList);
+        } else if (isWorkerSend) {
+            returnSymbolsInfoList.addAll(CommonUtil.getWorkerSymbols(ctx));
         } else if (BallerinaParser.COLON == delimiter) {
             // We are filtering the package functions, actions and the types
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList = this.getActionsFunctionsAndTypes(ctx,
