@@ -14,7 +14,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 public type Customer record {
     int customerId;

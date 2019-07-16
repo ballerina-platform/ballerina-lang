@@ -16,7 +16,7 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/system;
 
 listener http:Listener participant2EP02 = new(8890);

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/time;
 
 type NonNillableInt record {
