@@ -130,7 +130,7 @@ public type InboundCustomAuthHandler object {
         return self.authProvider.authenticate(credential);
     }
 
-    public function canHandle(http:Request req) returns @tainted boolean {
+    public function canProcess(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
         return internal:hasPrefix(customAuthHeader, "Custom");
     }

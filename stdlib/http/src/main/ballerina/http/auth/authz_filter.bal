@@ -68,8 +68,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (scopes is string[]) {
         if (scopes.length() > 0) {
-            var canHandleResponse = authzHandler.canHandle(request);
-            if (canHandleResponse is boolean && canHandleResponse) {
+            var canProcessResponse = authzHandler.canProcess(request);
+            if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
                     authorized = authzHandler.process(principal.username,context.serviceName, context.resourceName,
                                                     request.method, scopes);
@@ -77,7 +77,7 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
                     authorized = false;
                 }
             } else {
-                authorized = canHandleResponse;
+                authorized = canProcessResponse;
             }
         } else {
             // scopes are not defined, no need to authorize
@@ -85,8 +85,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
         }
     } else {
         if (scopes[0].length() > 0) {
-            var canHandleResponse = authzHandler.canHandle(request);
-            if (canHandleResponse is boolean && canHandleResponse) {
+            var canProcessResponse = authzHandler.canProcess(request);
+            if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
                  authorized = authzHandler.process(principal.username,
                                     context.serviceName, context.resourceName, request.method, scopes);
@@ -94,7 +94,7 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
                     authorized = false;
                 }
             } else {
-                authorized = canHandleResponse;
+                authorized = canProcessResponse;
             }
         }
     }

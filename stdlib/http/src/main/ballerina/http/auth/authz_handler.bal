@@ -37,7 +37,7 @@ public type AuthzHandler object {
     #
     # + req - `Request` instance
     # + return - `true` if can be authorized, else `false`, or `error` if error occurred
-    function canHandle(Request req) returns boolean|error {
+    function canProcess(Request req) returns boolean|error {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
             if (principal.username.length() == 0) {

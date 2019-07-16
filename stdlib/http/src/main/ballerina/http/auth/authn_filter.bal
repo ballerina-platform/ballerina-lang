@@ -74,8 +74,8 @@ function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandl
 function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request) returns boolean|error {
     error? err = ();
     foreach InboundAuthHandler authHandler in authHandlers {
-        boolean canHandleResponse = authHandler.canHandle(request);
-        if (canHandleResponse) {
+        boolean canProcessResponse = authHandler.canProcess(request);
+        if (canProcessResponse) {
             var handleResponse = authHandler.process(request);
             if (handleResponse is boolean) {
                 if (handleResponse) {
