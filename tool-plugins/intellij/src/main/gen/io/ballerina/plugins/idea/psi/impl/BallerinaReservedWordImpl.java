@@ -56,6 +56,12 @@ public class BallerinaReservedWordImpl extends ASTWrapperPsiElement implements B
 
   @Override
   @Nullable
+  public PsiElement getError() {
+    return findChildByType(ERROR);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getForeach() {
     return findChildByType(FOREACH);
   }

@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -168,6 +169,20 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.visit(foreach.body, foreach);
+    }
+
+    @Override
+    public void visit(BLangTransaction transactionNode) {
+        this.visit(transactionNode.transactionBody, transactionNode.transactionBody);
+        if (transactionNode.onRetryBody != null) {
+            this.visit(transactionNode.onRetryBody, transactionNode.onRetryBody);
+        }
+        if (transactionNode.committedBody != null) {
+            this.visit(transactionNode.committedBody, transactionNode.committedBody);
+        }
+        if (transactionNode.abortedBody != null) {
+            this.visit(transactionNode.abortedBody, transactionNode.abortedBody);
+        }
     }
 
     /**

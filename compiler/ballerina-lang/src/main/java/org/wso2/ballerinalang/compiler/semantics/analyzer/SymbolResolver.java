@@ -292,12 +292,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol resolveBinaryOperator(OperatorKind opKind,
                                          BType lhsType,
                                          BType rhsType) {
-        BSymbol bSymbol = resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
-        if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = getBinaryOpForNullChecks(opKind, lhsType, rhsType);
-        }
-
-        return bSymbol;
+        return resolveOperator(names.fromString(opKind.value()), Lists.of(lhsType, rhsType));
     }
 
     public BSymbol resolveBuiltinOperator(Name method, BType... args) {

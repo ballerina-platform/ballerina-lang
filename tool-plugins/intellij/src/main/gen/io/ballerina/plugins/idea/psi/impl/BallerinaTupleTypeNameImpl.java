@@ -42,6 +42,12 @@ public class BallerinaTupleTypeNameImpl extends BallerinaTypeNameImpl implements
   }
 
   @Override
+  @Nullable
+  public BallerinaTupleRestDescriptor getTupleRestDescriptor() {
+    return findChildByClass(BallerinaTupleRestDescriptor.class);
+  }
+
+  @Override
   @NotNull
   public List<BallerinaTypeName> getTypeNameList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeName.class);
@@ -49,14 +55,14 @@ public class BallerinaTupleTypeNameImpl extends BallerinaTypeNameImpl implements
 
   @Override
   @NotNull
-  public PsiElement getLeftParenthesis() {
-    return findNotNullChildByType(LEFT_PARENTHESIS);
+  public PsiElement getLeftBracket() {
+    return findNotNullChildByType(LEFT_BRACKET);
   }
 
   @Override
-  @NotNull
-  public PsiElement getRightParenthesis() {
-    return findNotNullChildByType(RIGHT_PARENTHESIS);
+  @Nullable
+  public PsiElement getRightBracket() {
+    return findChildByType(RIGHT_BRACKET);
   }
 
 }

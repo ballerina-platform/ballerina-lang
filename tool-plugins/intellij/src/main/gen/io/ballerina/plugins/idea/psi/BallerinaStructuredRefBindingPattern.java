@@ -24,9 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaStructuredRefBindingPattern extends PsiElement {
 
   @Nullable
-  BallerinaRecordRefBindingPattern getRecordRefBindingPattern();
+  BallerinaListRefBindingPattern getListRefBindingPattern();
 
   @Nullable
-  BallerinaTupleRefBindingPattern getTupleRefBindingPattern();
+  BallerinaRecordRefBindingPattern getRecordRefBindingPattern();
 
 }

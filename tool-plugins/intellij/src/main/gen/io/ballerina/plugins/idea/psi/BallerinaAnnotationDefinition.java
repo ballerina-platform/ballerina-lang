@@ -31,19 +31,19 @@ public interface BallerinaAnnotationDefinition extends BallerinaTopLevelDefiniti
   BallerinaTypeName getTypeName();
 
   @Nullable
-  PsiElement getGt();
-
-  @Nullable
-  PsiElement getLt();
-
-  @Nullable
   PsiElement getSemicolon();
 
   @NotNull
   PsiElement getAnnotation();
 
   @Nullable
+  PsiElement getConst();
+
+  @Nullable
   PsiElement getIdentifier();
+
+  @Nullable
+  PsiElement getOn();
 
   @Nullable
   PsiElement getPublic();

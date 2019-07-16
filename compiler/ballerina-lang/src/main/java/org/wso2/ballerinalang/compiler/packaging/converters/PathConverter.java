@@ -25,6 +25,7 @@ import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
@@ -119,11 +120,15 @@ public class PathConverter implements Converter<Path> {
         if (pkgId.version.value.isEmpty() && !pkgId.orgName.equals(Names.BUILTIN_ORG)
                 && !pkgId.orgName.equals(Names.ANON_ORG)) {
             Manifest manifest = TomlParserUtils.getManifest(root);
-            pkgId.version = new Name(manifest.getVersion());
+            pkgId.version = new Name(manifest.getProject().getVersion());
         }
     
-        if (Files.isRegularFile(path)) {
+        if (!ProjectDirs.isProject(root) && Files.isRegularFile(path)) {
             return Stream.of(new FileSystemSourceInput(path, root.resolve(Paths.get(pkgId.name.value))));
+        } else if (Files.isRegularFile(path)) {
+            return Stream.of(new FileSystemSourceInput(path,
+                             root.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                 .resolve(Paths.get(pkgId.name.value))));
         } else {
             return Stream.of();
         }

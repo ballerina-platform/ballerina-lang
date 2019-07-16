@@ -4,10 +4,5 @@ type Employee record <fold text='{...}'>{
     float salary;
 }</fold>;
 
-record <fold text='{...}'>{
-    string accessToken;
-    string clientId;
-    string clientSecret;
-    string refreshToken;
-    string refreshUrl;
-}</fold> z;
+record <fold text='{...}'>{ int first_field; int second_field; string third_field; }</fold> rec =
+    wait {first_field: 1, second_field: 2, third_field: 3};
