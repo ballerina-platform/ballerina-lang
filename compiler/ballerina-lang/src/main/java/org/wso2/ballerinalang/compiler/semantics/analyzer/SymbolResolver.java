@@ -473,32 +473,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.invalidUsageSymbol;
     }
 
-    private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
-                                             BType rhsType) {
-        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
-            return symTable.notFoundSymbol;
-        }
-
-        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
-        if (lhsType.tag == TypeTags.NIL &&
-                (rhsType.tag == TypeTags.OBJECT ||
-                        rhsType.tag == TypeTags.RECORD ||
-                        rhsType.tag == TypeTags.INVOKABLE)) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
-        if ((lhsType.tag == TypeTags.OBJECT ||
-                lhsType.tag == TypeTags.RECORD ||
-                lhsType.tag == TypeTags.INVOKABLE)
-                && rhsType.tag == TypeTags.NIL) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
-        return symTable.notFoundSymbol;
-    }
-
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
         int opcode;
         if (opKind == OperatorKind.REF_EQUAL) {
