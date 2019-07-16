@@ -67,7 +67,7 @@ public class CompileCommandTest extends CommandTest {
         Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
     }
 
-    @Test(description = "Test Compile Command in a Project")
+    @Test(description = "Test Compile Command in a Project", enabled = false)
     public void testCompileCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
@@ -115,7 +115,7 @@ public class CompileCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"})
+    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())
@@ -198,7 +198,7 @@ public class CompileCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testCompileCommand"})
+    @Test(dependsOnMethods = {"testCompileCommand"}, enabled = false)
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
