@@ -47,7 +47,7 @@ public class URIConverter implements Converter<URI> {
             ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.BIR_GEN); // TODO check phase
     private final URI base;
     private boolean isBuild = true;
-    private PrintStream outStream = System.err;
+    private PrintStream errStream = System.err;
 
     public URIConverter(URI base) {
         this.base = URI.create(base.toString() + "/modules/");
@@ -123,7 +123,7 @@ public class URIConverter implements Converter<URI> {
             if (execute.isPresent()) {
                 String errorMessage = execute.get().getMessage();
                 if (!errorMessage.trim().equals("")) {
-                    outStream.println(errorMessage);
+                    errStream.println(errorMessage);
                 }
                 return Stream.of();
             } else {
@@ -131,7 +131,7 @@ public class URIConverter implements Converter<URI> {
                 return patten.convertToSources(binaryRepo.getConverterInstance(), moduleID);
             }
         } catch (Exception e) {
-            outStream.println(e.getMessage());
+            errStream.println(e.getMessage());
         }
         return Stream.of();
     }
