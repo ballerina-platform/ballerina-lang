@@ -33,7 +33,7 @@ public class MapConstantNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "map-literal-constant-negative.bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 68);
+        Assert.assertEquals(compileResult.getErrorCount(), 69);
 
         String expectedErrMsg = "expression is not a constant expression";
 
@@ -127,5 +127,8 @@ public class MapConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 3, 31);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset += 2, 24);
         BAssertUtil.validateError(compileResult, index++, expectedErrMsg, offset, 34);
+
+        // Test invalid update via compund assignment
+        BAssertUtil.validateError(compileResult, index, "cannot update constant value", 193, 5);
     }
 }

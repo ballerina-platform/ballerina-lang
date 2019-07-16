@@ -185,3 +185,10 @@ function getNilValue() returns () {
 function getKey() returns string {
     return "key";
 }
+
+// Const map update via compound assignment
+const map<string> m = { one: "hello", two: "world" };
+
+function testInvalidUpdate() {
+    m["one"] += " world";
+}
