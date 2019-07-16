@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerinax/jdbc",
+      "label": "ballerinax/java.jdbc",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerinax/jdbc",
+      "insertText": "ballerinax/java.jdbc",
       "insertTextFormat": "Snippet"
     },
     {

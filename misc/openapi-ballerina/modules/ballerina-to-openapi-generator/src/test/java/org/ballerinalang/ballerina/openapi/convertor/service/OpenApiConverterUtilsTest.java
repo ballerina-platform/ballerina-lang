@@ -300,7 +300,7 @@ public class OpenApiConverterUtilsTest {
         }
     }
 
-    @Test(description = "Test OAS definition generation when input ballerina service is invalid")
+    @Test(description = "Test OAS definition generation when input ballerina service is invalid", enabled = false)
     public void testServiceWithTypo() {
         try {
             String oasDef = OpenApiConverterUtils.generateOAS3Definitions(invalidEchoServiceBal, null);

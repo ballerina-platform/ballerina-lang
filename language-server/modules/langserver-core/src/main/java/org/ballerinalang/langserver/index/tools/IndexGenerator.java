@@ -18,8 +18,6 @@
 package org.ballerinalang.langserver.index.tools;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -34,7 +32,6 @@ import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
-import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -42,14 +39,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

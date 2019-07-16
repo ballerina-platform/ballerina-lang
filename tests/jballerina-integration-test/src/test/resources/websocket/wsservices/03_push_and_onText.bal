@@ -55,7 +55,7 @@ type Person record {|
 service onTextRecord on new http:WebSocketListener(9083) {
 
     resource function onText(http:WebSocketCaller caller, Person data) {
-        var personData = json.convert(data);
+        var personData = json.constructFrom(data);
         if (personData is error) {
              panic personData;
         } else {

@@ -229,7 +229,7 @@ service testService_1 on testEP {
                     }
                 } else {
                     error err = secondResponse;
-                    secondVal = <string> err.detail().["message"];
+                    secondVal = <string> err.detail()["message"];
                 }
 
                 var result2 = firstResponse.getTextPayload();
