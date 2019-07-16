@@ -899,7 +899,7 @@ function testDateTimeInParameters() returns int[] {
     return returnValues;
 }
 
-function testDateTimeNullInValues() returns string {
+function testDateTimeNullInValues() returns @tainted string {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -925,7 +925,7 @@ function testDateTimeNullInValues() returns string {
     return data;
 }
 
-function testComplexTypeRetrieval() returns [string, string, string, string] {
+function testComplexTypeRetrieval() returns @tainted [string, string, string, string] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
