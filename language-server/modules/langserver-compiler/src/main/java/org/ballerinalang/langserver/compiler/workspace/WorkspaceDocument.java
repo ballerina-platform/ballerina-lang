@@ -100,6 +100,9 @@ public class WorkspaceDocument {
         int trailingNewLines = oldText.substring(trimmedTextStart + trimmedOldText.length())
                 .replaceAll("\\r?\\n", " ").length();
         List<String> oldTextLines = new ArrayList<>(Arrays.asList(oldText.split(LINE_SEPARATOR_SPLIT)));
+        if (oldTextLines.isEmpty()) {
+            oldTextLines.add("");
+        }
         oldTextLines.addAll(Collections.nCopies(trailingNewLines, ""));
         Position start = range.getStart();
         Position end = range.getEnd();

@@ -49,12 +49,12 @@ function testCreateDateTime() returns (string) {
     return timeValue;
 }
 
-function testCreateDateTimeWithInvalidZone() returns string|error {
+function testCreateDateTimeWithInvalidZone() returns string|time:Error {
     var retTime = time:createTime(2017, 3, 28, 23, 42, 45, 554, "TEST");
-    if (retTime is time:Time) {
-        return time:toString(retTime);
-    } else {
+    if (retTime is time:Error) {
         return retTime;
+    } else {
+        return time:toString(retTime);
     }
 }
 
@@ -232,38 +232,38 @@ function testManualTimeCreateWithInvalidZone() returns (int) {
     return time:getYear(time);
 }
 
-function testParseTimenvalidPattern() returns [int, string, int]|error {
+function testParseTimenvalidPattern() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "test");
     int timeValue = 0;
     string zoneId = "";
     int zoneoffset = 0;
-    if (timeRet is time:Time) {
+    if (timeRet is time:Error) {
+        return timeRet;
+    } else {
         timeValue = timeRet.time;
         zoneId = timeRet.zone.id;
         zoneoffset = timeRet.zone.offset;
         return [timeValue, zoneId, zoneoffset];
-    } else {
-        return timeRet;
     }
 
 }
 
-function testParseTimenFormatMismatch() returns [int, string, int]|error {
+function testParseTimenFormatMismatch() returns [int, string, int]|time:Error {
     var timeRet = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
     int timeValue = 0;
     string zoneId = "";
     int zoneoffset = 0;
-    if (timeRet is time:Time) {
+    if (timeRet is time:Error) {
+        return timeRet;
+    } else {
         timeValue = timeRet.time;
         zoneId = timeRet.zone.id;
         zoneoffset = timeRet.zone.offset;
         return [timeValue, zoneId, zoneoffset];
-    } else {
-        return timeRet;
     }
 }
 
-function testFormatTimeInvalidPattern() returns (string|error) {
+function testFormatTimeInvalidPattern() returns string|time:Error {
     time:TimeZone zoneValue = {id:"America/Panama"};
     time:Time time = { time: 1498488382444, zone: zoneValue };
     return time:format(time, "test");

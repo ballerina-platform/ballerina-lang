@@ -6,7 +6,7 @@
   "source": "function/source/actionInvocationSuggestion1.bal",
   "items": [
     {
-      "label": "post(string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:Response|error))",
+      "label": "post(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "head(string path)((ballerina/http:Response|error))",
+      "label": "head(string path)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "put(string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:Response|error))",
+      "label": "put(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "execute(string httpVerb, string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:Response|error))",
+      "label": "execute(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "patch(string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:Response|error))",
+      "label": "patch(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "label": "delete(string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:Response|error))",
+      "label": "delete(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -108,7 +108,7 @@
       }
     },
     {
-      "label": "get(string path)((ballerina/http:Response|error))",
+      "label": "get(string path)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -125,7 +125,7 @@
       }
     },
     {
-      "label": "options(string path)((ballerina/http:Response|error))",
+      "label": "options(string path)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "forward(string path, http:Request request)((ballerina/http:Response|error))",
+      "label": "forward(string path, http:Request request)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "submit(string httpVerb, string path, (ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)((ballerina/http:HttpFuture|error))",
+      "label": "submit(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:HttpFuture|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -176,7 +176,7 @@
       }
     },
     {
-      "label": "getResponse(http:HttpFuture httpFuture)((ballerina/http:Response|error))",
+      "label": "getResponse(http:HttpFuture httpFuture)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -210,7 +210,7 @@
       }
     },
     {
-      "label": "getNextPromise(http:HttpFuture httpFuture)((ballerina/http:PushPromise|error))",
+      "label": "getNextPromise(http:HttpFuture httpFuture)((http:PushPromise|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -227,7 +227,7 @@
       }
     },
     {
-      "label": "getPromisedResponse(http:PushPromise promise)((ballerina/http:Response|error))",
+      "label": "getPromisedResponse(http:PushPromise promise)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

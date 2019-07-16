@@ -19,8 +19,6 @@ package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.SubscriptionOptions;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
@@ -28,7 +26,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,7 +49,7 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
                                         structType = "StreamingListener",
                                         structPackage = "ballerina/nats"),
                    isPublic = true)
-public class Subscribe implements NativeCallableUnit {
+public class Subscribe {
     private static final String STREAMING_SUBSCRIPTION_CONFIG = "StreamingSubscriptionConfig";
     private static final String SUBJECT_ANNOTATION_FIELD = "subject";
     private static final String QUEUE_NAME_ANNOTATION_FIELD = "queueName";
@@ -62,16 +59,6 @@ public class Subscribe implements NativeCallableUnit {
     private static final String SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD = "subscriptionTimeoutInSeconds";
     private static final String MANUAL_ACK_ANNOTATION_FIELD = "manualAck";
     private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
 
     public static void subscribe(Strand strand, ObjectValue streamingListener) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingListener

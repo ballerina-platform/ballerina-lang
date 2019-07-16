@@ -23,3 +23,14 @@ function testInvalidObjectLvExpr() {
     a.y = 1;
     a["x"] = "hello";
 }
+
+type B record {
+    string x = "world";
+    int y?;
+};
+
+function testInvalidOptionalFieldAccesOnLhs() {
+    B m = { y: 34 };
+    m?.x += "qwer";
+    m?.y += 1;
+}

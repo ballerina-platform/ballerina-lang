@@ -20,8 +20,6 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -51,16 +49,9 @@ import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
                 structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Register extends BlockingNativeCallableUnit {
+public class Register {
 
     private static final PrintStream console;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
                                   Object annotationData) {
