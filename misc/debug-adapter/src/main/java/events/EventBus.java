@@ -36,13 +36,19 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
+import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +56,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * Listens and publishes events from JVM.
@@ -73,6 +81,19 @@ public class EventBus {
 
     public void setDebuggee(VirtualMachine debuggee) {
         this.debuggee = debuggee;
+//        InputStream inputStream = debuggee.process().getInputStream();
+//
+//        CompletableFuture.runAsync(() -> {
+//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+//            String read;
+//            try {
+//                while ((read = bufferedReader.readLine()) != null) {
+//                    sendOutput(read);
+//                }
+//            } catch (IOException e) {
+//
+//            }
+//        });
     }
 
     public VirtualMachine getDebuggee() {
@@ -211,6 +232,7 @@ public class EventBus {
     public void startListening(String sourceRoot, String packageName) {
         this.sourceRoot = sourceRoot;
         this.packageName = packageName;
+
         CompletableFuture.runAsync(() -> {
                     while (true) {
                         try {

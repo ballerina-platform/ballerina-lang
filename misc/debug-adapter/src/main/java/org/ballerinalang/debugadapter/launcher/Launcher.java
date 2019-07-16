@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.launcher;
 
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
+import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
@@ -52,6 +53,9 @@ public class Launcher {
             org.eclipse.lsp4j.jsonrpc.Launcher<IDebugProtocolClient> serverLauncher = DSPLauncher.createServerLauncher(
                     jBallerinaDebugServer, is, os);
             IDebugProtocolClient client = serverLauncher.getRemoteProxy();
+            OutputEventArguments outputEventArguments = new OutputEventArguments();
+            outputEventArguments.setOutput("Debug server started");
+            client.output(outputEventArguments);
             jBallerinaDebugServer.connect(client);
             serverLauncher.startListening();
 

@@ -130,11 +130,6 @@
                                 "description": "Remote debug server host",
                                 "default": "127.0.0.1"
                             },
-                            "port": {
-                                "type": "integer",
-                                "description": "Remote debug server port",
-                                "default": 5000
-                            },
                             "script": {
                                 "type": "string",
                                 "default": "${file}"

@@ -82,6 +82,12 @@ const debugConfigProvider: DebugConfigurationProvider = {
             }
         }
 
+        // const ballerinaPath = session.configuration['ballerina.home'];
+        // const ballerinaExec = `${ballerinaPath}/bin/jballerina`;
+        // const balProcess = child_process.spawn(ballerinaExec, 
+        //     ['run', '--debug', session.configuration.debuggeePort, session.configuration.script]);
+
+
         return config;
     }
     
@@ -117,23 +123,7 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable <DebugAdapterDescriptor> {
         return new Promise(function(resolve, reject) {
-            // launch debugger
-
-            // TODO: update this code to ballerina launch
-            const ballerinaPath = session.configuration['ballerina.home'];
-            const ballerinaExec = `${ballerinaPath}/bin/jballerina`;
-            const balProcess = child_process.spawn(ballerinaExec, 
-                ['run', '--debug', session.configuration.debuggeePort, session.configuration.script]);
-
-            balProcess.stdout.on('data', (data) => {
-                if (data.toString().includes('Listening for transport dt_socket')) {
-                    BallerinaDebugAdapterDescriptorFactory.launchAdapter(resolve, reject);
-                }
-                console.log(data.toString())
-            });
-            balProcess.stderr.on('data', (data) => {
-                console.log(data.toString())
-            });
+            BallerinaDebugAdapterDescriptorFactory.launchAdapter(resolve, reject);
         });
     }
     static launchAdapter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
