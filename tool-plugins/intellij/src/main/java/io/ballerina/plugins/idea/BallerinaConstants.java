@@ -39,7 +39,7 @@ public class BallerinaConstants {
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     @NonNls
-    public static final String BALLERINA_EXECUTABLE_NAME = "jballerina";
+    public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
 
     @NonNls
     public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
