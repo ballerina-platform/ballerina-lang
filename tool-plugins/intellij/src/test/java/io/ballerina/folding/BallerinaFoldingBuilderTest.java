@@ -48,11 +48,9 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         doTest();
     }
 
-    // Todo - Enable after implementation
-
-    //    public void testRecord() {
-    //        doTest();
-    //    }
+    public void testRecord() {
+        doTest();
+    }
 
     public void testWorker() {
         doTest();

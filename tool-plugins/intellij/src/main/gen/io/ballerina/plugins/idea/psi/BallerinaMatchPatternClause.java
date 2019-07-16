@@ -24,9 +24,12 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaMatchPatternClause extends PsiElement {
 
   @Nullable
-  BallerinaStaticMatchPattern getStaticMatchPattern();
+  BallerinaErrorMatchPatternClause getErrorMatchPatternClause();
 
   @Nullable
-  BallerinaVarMatchPattern getVarMatchPattern();
+  BallerinaStaticMatchPatternClause getStaticMatchPatternClause();
+
+  @Nullable
+  BallerinaVarMatchPatternClause getVarMatchPatternClause();
 
 }
