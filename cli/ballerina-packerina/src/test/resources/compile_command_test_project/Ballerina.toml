@@ -1,0 +1,35 @@
+[project]
+org-name= "jo"
+version= "0.1.0"
+
+license= ["Apache 2.0"]
+authors= ["<auther-name>"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+
+[dependencies]
+
+
+[platform]
+target = "java"
+
+  [[platform.libraries]]
+  artafactId = "toml4j"
+  version = "0.7.2"
+  path = "libs/toml4j.jar"
+  groupId = "com.moandjiezana.toml"
+  module = "mymodule"
+
+  [[platform.libraries]]
+  artafactId = "swagger"
+  version = "0.7.2"
+  path = "libs/swagger.jar"
+  groupId = "swagger.io"
+  module = [ "mymodule", "module2"]
+
+  [[platform.libraries]]
+  artafactId = "json"
+  version = "0.7.2"
+  path = "libs/json.jar"
+  groupId = "json.org"
