@@ -36,8 +36,8 @@ public class Http2GenericScenarioTestCase extends Http2BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
-        Assert.assertEquals(responseData, "Call to backend failed due to:Connection refused: " +
-                "localhost/127.0.0.1:12345--Call to backend failed due to:Connection refused: " +
-                "localhost/127.0.0.1:12345");
+        Assert.assertEquals(responseData,
+                            "Call to backend failed due to:Something wrong with the connection--Call to backend " +
+                                    "failed due to:Something wrong with the connection");
     }
 }

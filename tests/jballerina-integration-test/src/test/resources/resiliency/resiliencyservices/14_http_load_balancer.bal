@@ -78,9 +78,10 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -100,9 +101,10 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -122,9 +124,10 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -144,9 +147,10 @@ service loadBalancerDemoService on new http:Listener(9313) {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = response;
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string> response.detail().message);
+            outResponse.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);
@@ -238,24 +242,22 @@ public type CustomLoadBalancerRule object {
     # + loadBalanceClientsArray - Array of HTTP clients which needs to be load balanced
     # + return - Choosen `CallerActions` from the algorithm or an `error` for a failure in
     #            the algorithm implementation
-    public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|error;
-};
-
-public function CustomLoadBalancerRule.getNextClient(http:Client?[] loadBalanceClientsArray)
-                                          returns http:Client|error {
-    http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
-    if (self.index >= loadBalanceClientsArray.length()) {
-        error err = error("Provided index is doesn't match with the targets.");
-        return err;
-    }
-    lock {
-        if (self.index == (loadBalanceClientsArray.length() - 1)) {
-            httpClient = <http:Client>loadBalanceClientsArray[self.index];
-            self.index = 0;
-        } else {
-            httpClient = <http:Client>loadBalanceClientsArray[self.index];
-            self.index += 1;
+    public function getNextClient(http:Client?[] loadBalanceClientsArray) returns http:Client|http:ClientError {
+        http:Client httpClient = <http:Client>loadBalanceClientsArray[self.index];
+        if (self.index >= loadBalanceClientsArray.length()) {
+            http:AllLoadBalanceEndpointsFailedError err = error(http:ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
+                                                        message = "Provided index is doesn't match with the targets.");
+            return err;
         }
+        lock {
+            if (self.index == (loadBalanceClientsArray.length() - 1)) {
+                httpClient = <http:Client>loadBalanceClientsArray[self.index];
+                self.index = 0;
+            } else {
+                httpClient = <http:Client>loadBalanceClientsArray[self.index];
+                self.index += 1;
+            }
+        }
+        return httpClient;
     }
-    return httpClient;
-}
+};
