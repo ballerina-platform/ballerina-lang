@@ -27,7 +27,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public function absolute(@untainted string path) returns string|error = external;
+public function absolute(@untainted string path) returns string|Error = external;
 
 # Returns path separator of underline operating system.
 #
@@ -50,7 +50,7 @@ public function getPathListSeparator() returns string {
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
-public function isAbsolute(string path) returns boolean|error {
+public function isAbsolute(string path) returns boolean|Error {
     if (path.length() <= 0) {
         return false;
     }
@@ -67,7 +67,7 @@ public function isAbsolute(string path) returns boolean|error {
 #
 # + path - String value of file path.
 # + return - Returns the name of the file
-public function filename(string path) returns string|error {
+public function filename(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
@@ -93,7 +93,7 @@ public function filename(string path) returns string|error {
 #
 # + path - String value of file path.
 # + return - Path of parent folder or error occurred while getting parent directory
-public function parent(string path) returns string|error {
+public function parent(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
@@ -120,7 +120,7 @@ public function parent(string path) returns string|error {
 #
 # + path - String value of file path.
 # + return - Normalized file path
-public function normalize(string path) returns string|error {
+public function normalize(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
@@ -203,7 +203,7 @@ public function normalize(string path) returns string|error {
 #
 # + path - String value of file path.
 # + return - String array of part components
-public function split(string path) returns string[]|error {
+public function split(string path) returns string[]|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
     int count = offsetIndexes.length();
@@ -229,7 +229,7 @@ public function split(string path) returns string[]|error {
 #
 # + parts - String values of file path parts.
 # + return - String value of file path.
-public function build(string... parts) returns string|error {
+public function build(string... parts) returns string|Error {
     if (isWindows) {
         return check buildWindowsPath(...parts);
     } else {
@@ -256,7 +256,7 @@ public function isReservedName(string name) returns boolean {
 #
 # + path - String value of file path.
 # + return - Returns the extension of the file. Empty string if no extension.
-public function extension(string path) returns string|error {
+public function extension(string path) returns string|Error {
     string validatedPath = check parse(path);
     int count = validatedPath.length();
     if (count == 0) {
@@ -283,7 +283,7 @@ public function extension(string path) returns string|error {
 # + base - String value of the base file path.
 # + target - String value of the target file path.
 # + return - Returns the extension of the file. Empty string if no extension.
-public function relative(string base, string target) returns string|error {
+public function relative(string base, string target) returns string|Error {
     string cleanBase = check normalize(base);
     string cleanTarget = check normalize(target);
     if (isSamePath(cleanBase, cleanTarget)) {
@@ -296,9 +296,7 @@ public function relative(string base, string target) returns string|error {
     int targetOffset;
     [targetRoot, targetOffset] = check getRoot(cleanTarget);
     if (!isSamePath(baseRoot, targetRoot)) {
-        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", message = "Can't make: " + target
-        + " relative to " + base);
-        return err;
+        return prepareError(message = "Can't make: " + target + " relative to " + base);
     }
     int b0 = baseOffset;
     int bi = baseOffset;
@@ -326,9 +324,7 @@ public function relative(string base, string target) returns string|error {
         t0 = ti;
     }
     if (cleanBase.substring(b0, bi) == "..") {
-        error err = error("{ballerina/filepath}RELATIVE_PATH_ERROR", message = "Can't make: " + target
-        + " relative to " + base);
-        return err;
+        return prepareError(message = "Can't make: " + target + " relative to " + base);
     }
     if (b0 != bl) {
         string remainder = cleanBase.substring(b0, bl);
@@ -355,7 +351,7 @@ public function relative(string base, string target) returns string|error {
 #
 # + path - String value of file path.
 # + return - Resolved file path
-public function resolve(@untainted string path) returns string|error = external;
+public function resolve(@untainted string path) returns string|Error = external;
 
 # Reports whether all of filename matches the provided pattern, not just a substring.
 # An error is returned if the pattern is malformed.
@@ -363,13 +359,13 @@ public function resolve(@untainted string path) returns string|error = external;
 # + path - String value of the file path.
 # + pattern - String value of the target file path.
 # + return - True if filename of the path matches with the pattern, else false
-public function matches(string path, string pattern) returns boolean|error = external;
+public function matches(string path, string pattern) returns boolean|Error = external;
 
 # Parses the give path and remove redundent slashes.
 #
 # + input - string path value
 # + return - parsed path,error if given path is invalid.
-function parse(string input) returns string|error {
+function parse(string input) returns string|Error {
     if (input.length() <= 0) {
         return input;
     }
@@ -397,7 +393,7 @@ function parse(string input) returns string|error {
     }
 }
 
-function getRoot(string input) returns [string,int]|error {
+function getRoot(string input) returns [string,int]|Error {
     if (isWindows) {
         return getWindowsRoot(input);
     } else {
@@ -413,7 +409,7 @@ function isSlash(string c) returns boolean {
     }
 }
 
-function nextNonSlashIndex(string path, int offset, int end) returns int|error {
+function nextNonSlashIndex(string path, int offset, int end) returns int|Error {
     int off = offset;
     while(off < end && isSlash(check charAt(path, off))) {
         off = off + 1;
@@ -421,7 +417,7 @@ function nextNonSlashIndex(string path, int offset, int end) returns int|error {
     return off;
 }
 
-function nextSlashIndex(string path, int offset, int end) returns int|error {
+function nextSlashIndex(string path, int offset, int end) returns int|Error {
     int off = offset;
     while(off < end && !isSlash(check charAt(path, off))) {
         off = off + 1;
@@ -440,7 +436,7 @@ function isLetter(string c) returns boolean {
     }
 }
 
-function isUNC(string path) returns boolean|error {
+function isUNC(string path) returns boolean|Error {
     return check getVolumnNameLength(path) > 2;
 }
 
@@ -448,7 +444,7 @@ function isEmpty(string path) returns boolean {
     return path.length() == 0;
 }
 
-function getOffsetIndexes(string path) returns int[]|error {
+function getOffsetIndexes(string path) returns int[]|Error {
     if (isWindows) {
         return check getWindowsOffsetIndex(path);
     } else {
@@ -456,12 +452,11 @@ function getOffsetIndexes(string path) returns int[]|error {
     }
 }
 
-function charAt(string input, int index) returns string|error {
+function charAt(string input, int index) returns string|Error {
     int length = input.length();
     if (index > length) {
-        error err = error("{ballerina/filepath}INVALID_OPERATION",
-            message = io:sprintf("Character index %d is greater then path string length %d", index, length));
-        return err;
+        return prepareError(message = io:sprintf("Character index %d is greater then path string length %d",
+        index, length));
     }
     return input.substring(index, index + 1);
 }
