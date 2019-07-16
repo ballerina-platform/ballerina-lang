@@ -1393,4 +1393,32 @@ public class TableTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Hello");
     }
+
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTableWithStmt() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTableWithStmt");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 400.25);
+        Assert.assertEquals(returns[3].stringValue(), "John");
+    }
+
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTableWithIndex() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTableWithIndex");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), ",1,2,3");
+        Assert.assertEquals(returns[1].stringValue(), ",0,1,2");
+    }
+
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTable() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTable");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 400.25);
+        Assert.assertEquals(returns[3].stringValue(), "John");
+    }
 }
