@@ -65,7 +65,7 @@ public class BuildCommandTest extends CommandTest {
         Files.walkFileTree(Paths.get(uri), new CompileCommandTest.Copy(Paths.get(uri), projectDirectory));
     }
 
-    @Test(description = "Test Build Command in a Project")
+    @Test(description = "Test Build Command in a Project", enabled = false)
     public void testBuildCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
@@ -204,7 +204,7 @@ public class BuildCommandTest extends CommandTest {
                 });
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"})
+    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
         Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
