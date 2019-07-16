@@ -23,13 +23,16 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTupleTypeName extends BallerinaTypeName {
 
+  @Nullable
+  BallerinaTupleRestDescriptor getTupleRestDescriptor();
+
   @NotNull
   List<BallerinaTypeName> getTypeNameList();
 
   @NotNull
-  PsiElement getLeftParenthesis();
+  PsiElement getLeftBracket();
 
-  @NotNull
-  PsiElement getRightParenthesis();
+  @Nullable
+  PsiElement getRightBracket();
 
 }

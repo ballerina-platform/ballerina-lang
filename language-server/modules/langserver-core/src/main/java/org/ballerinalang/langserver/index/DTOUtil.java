@@ -117,7 +117,7 @@ public class DTOUtil {
      * @return {@link BFunctionSymbolDTO}     Generated DTO
      */
     public static BFunctionSymbolDTO getFunctionDTO(int pkgId, int objectId, BInvokableSymbol bInvokableSymbol) {
-        CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol);
+        CompletionItem completionItem = BFunctionCompletionItemBuilder.build(bInvokableSymbol, null);
         boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         boolean isAction = (bInvokableSymbol.flags & Flags.REMOTE) == Flags.REMOTE;

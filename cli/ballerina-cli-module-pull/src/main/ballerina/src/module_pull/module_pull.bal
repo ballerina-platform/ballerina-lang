@@ -305,9 +305,8 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         if (readCount <= startVal) {
             completed = true;
         }
-        if (dest != ()) {
-            numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
-        }
+        numberOfBytesWritten = checkpanic writeBytes(dest, readContent, startVal);
+        
         totalCount = totalCount + readCount;
         float percentage = totalCount / baloSize;
         noOfBytesRead = totalCount + "/" + baloSize;

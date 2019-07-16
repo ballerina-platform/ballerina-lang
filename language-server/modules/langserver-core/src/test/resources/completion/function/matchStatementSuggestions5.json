@@ -9,7 +9,7 @@
       "label": "xmlns",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "190",
+      "sortText": "110",
       "insertText": "xmlns \"${1}\" as ${2:ns};",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "error",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "190",
+      "sortText": "110",
       "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "190",
+      "sortText": "110",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
       "label": "channel",
       "kind": "Keyword",
       "detail": "Channel",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "channel",
       "insertTextFormat": "Snippet"
     },
@@ -127,7 +127,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|int|boolean)"
         }
       },
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "bar(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -139,12 +139,12 @@
       "label": "xml",
       "kind": "Keyword",
       "detail": "Xml",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
+      "label": "queryTableWithJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, table\u003crecord {}\u003e joinTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -153,7 +153,7 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _joinTable_  \n    The table which is joined with \u0027fromTable\u0027  \n  \n- _parameters_  \n    liternal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$8\u003e"
         }
       },
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "queryTableWithJoinClause(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -168,7 +168,7 @@
       "documentation": {
         "left": "TableConfig represents properties used during table initialization.\n"
       },
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "TableConfig",
       "insertTextFormat": "Snippet"
     },
@@ -176,12 +176,12 @@
       "label": "byte",
       "kind": "Keyword",
       "detail": "Byte",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
+      "label": "queryTableWithoutJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -190,7 +190,7 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nExecute the given sql query to fetch the records and return as a new in memory table.\n  \n  \n---    \n**Parameters**  \n- _sqlQuery_  \n    The query to execute  \n  \n- _fromTable_  \n    The table on which the query is executed  \n  \n- _parameters_  \n    literal parameters to be passed to prepared statement \u0027sqlQuery\u0027  \n  \n- _retType_  \n    return type of the resultant table instance  \n  \n  \n**Return**  \ntable\u003c$anonType$builtin$10\u003e"
         }
       },
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "queryTableWithoutJoinClause(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -202,7 +202,7 @@
       "label": "Person",
       "kind": "Class",
       "detail": "Record",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "Person",
       "insertTextFormat": "Snippet"
     },
@@ -216,7 +216,7 @@
           "value": "**Package:** _ballerina/builtin_  \n  \nCreates the forever runtime.\n  \n  \n---    \n**Parameters**  \n- _streamQuery_  \n    The siddhi query by which the siddhi app runtime is created  \n  \n- _inStreamRefs_  \n    References of the input streams in the forever  \n  \n- _inTableRefs_  \n    References of the input tables in the forever  \n  \n- _outStreamRefs_  \n    References of the output streams in the forever  \n  \n- _outTableRefs_  \n    References of the output tables in the forever  \n  \n- _funcPointers_  \n    References of the functions to invoke as the streaming action  \n"
         }
       },
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "startForever(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -228,7 +228,7 @@
       "label": "stream",
       "kind": "Keyword",
       "detail": "Stream",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -236,7 +236,7 @@
       "label": "AbstractListener",
       "kind": "Class",
       "detail": "Object",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "AbstractListener",
       "insertTextFormat": "Snippet"
     },
@@ -244,7 +244,7 @@
       "label": "map",
       "kind": "Keyword",
       "detail": "Map",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -252,7 +252,7 @@
       "label": "table",
       "kind": "Keyword",
       "detail": "Table",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -260,7 +260,7 @@
       "label": "anydata",
       "kind": "Keyword",
       "detail": "Anydata",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -268,7 +268,7 @@
       "label": "i",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "i",
       "insertTextFormat": "Snippet"
     },
@@ -276,7 +276,7 @@
       "label": "p",
       "kind": "Variable",
       "detail": "Person",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "p",
       "insertTextFormat": "Snippet"
     },
@@ -284,7 +284,7 @@
       "label": "future",
       "kind": "Keyword",
       "detail": "Future",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -292,7 +292,7 @@
       "label": "typedesc",
       "kind": "Keyword",
       "detail": "Typedesc",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -300,15 +300,26 @@
       "label": "float",
       "kind": "Keyword",
       "detail": "Float",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ArgsData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "sortText": "120",
+      "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "null",
       "kind": "Keyword",
       "detail": "Nil",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
@@ -316,7 +327,7 @@
       "label": "decimal",
       "kind": "Keyword",
       "detail": "Decimal",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -324,7 +335,7 @@
       "label": "string",
       "kind": "Keyword",
       "detail": "String",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -332,7 +343,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -340,7 +351,7 @@
       "label": "var5",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "var5",
       "insertTextFormat": "Snippet"
     },
@@ -348,7 +359,7 @@
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -356,7 +367,7 @@
       "label": "var4",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "var4",
       "insertTextFormat": "Snippet"
     },
@@ -364,7 +375,7 @@
       "label": "var2",
       "kind": "Variable",
       "detail": "[string,int,boolean]",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "var2",
       "insertTextFormat": "Snippet"
     },
@@ -372,7 +383,7 @@
       "label": "var1",
       "kind": "Variable",
       "detail": "(string|int|boolean)",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "var1",
       "insertTextFormat": "Snippet"
     },
@@ -380,7 +391,7 @@
       "label": "any",
       "kind": "Keyword",
       "detail": "Any",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -388,7 +399,7 @@
       "label": "int",
       "kind": "Keyword",
       "detail": "Int",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -396,7 +407,7 @@
       "label": "boolean",
       "kind": "Keyword",
       "detail": "Boolean",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -404,7 +415,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Service",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -423,6 +434,52 @@
       "sortText": "140",
       "insertText": "io",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/jdbc",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "jdbc",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jdbc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jms;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/jwt",
@@ -467,29 +524,6 @@
             }
           },
           "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/jdbc",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },
@@ -1161,11 +1195,11 @@
       ]
     },
     {
-      "label": "ballerina/jms",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "jms",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1179,7 +1213,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jms;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },
@@ -1187,7 +1221,7 @@
       "label": "i - typeguard i",
       "kind": "Snippet",
       "detail": "Destructure the variable i with typeguard",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "if (i is string) {\n\t${1}\n} else if (i is int) {\n\t${2}\n} else {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -1195,7 +1229,7 @@
       "label": "var1 - typeguard var1",
       "kind": "Snippet",
       "detail": "Destructure the variable var1 with typeguard",
-      "sortText": "110",
+      "sortText": "120",
       "insertText": "if (var1 is string) {\n\t${1}\n} else if (var1 is int) {\n\t${2}\n} else {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     }
