@@ -48,7 +48,7 @@ public class Update extends BlockingNativeCallableUnit {
             ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, (ArrayValue) keyColumns,
-                parameters);
+                parameters, strand);
         return updateStatement.execute();
     }
 }

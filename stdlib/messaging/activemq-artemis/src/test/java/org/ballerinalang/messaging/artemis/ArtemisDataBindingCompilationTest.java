@@ -36,7 +36,7 @@ public class ArtemisDataBindingCompilationTest {
     @Test(description = "Successfully compiling Artemis services", enabled = false)
     public void testValidService() {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("artemis_success.bal").toAbsolutePath()
-                                                                   .toString());
+                .toString());
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
@@ -44,25 +44,38 @@ public class ArtemisDataBindingCompilationTest {
     @Test(description = "Unsupported type int[]")
     public void testUnsupportedTypeInResource() {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("unsupported_type.bal")
-                                                                   .toAbsolutePath().toString());
+                .toAbsolutePath().toString());
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for xyz resource in service : The second parameter " +
-                                          "should be a string, json, xml, byte[], map or a record type",
-                                  27, 5);
+                "Invalid resource signature for onMessage resource in service : " +
+                        "The second parameter " +
+                        "should be a string, json, xml, byte[], map or a record type",
+                27, 5);
     }
 
     @Test(description = "Unsupported map type map<int[]>")
     public void testUnsupportedMapTypeInResource() {
         CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("unsupported_map_type.bal")
-                                                                   .toAbsolutePath().toString());
+                .toAbsolutePath().toString());
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for xyz resource in service : The second parameter " +
-                                          "should be a map of string, int, float, byte, boolean or byte[]",
-                                  27, 5);
+                "Invalid resource signature for onMessage resource in service :" +
+                        " The second parameter " +
+                        "should be a map of string, int, float, byte, boolean or byte[]",
+                27, 5);
+    }
+
+    @Test(description = "Mandatory onError resource")
+    public void testMandatoryOnErrorResource() {
+        CompileResult compileResult = BCompileUtil.compile(TEST_PATH.resolve("mandatory_on_error_resource.bal")
+                .toAbsolutePath().toString());
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(compileResult, 0,
+                "onError resource function is not found",
+                27, 5);
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult) {

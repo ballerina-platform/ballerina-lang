@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.UninstallUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;

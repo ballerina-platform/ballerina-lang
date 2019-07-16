@@ -36,6 +36,12 @@ import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
+
+export interface ConstructIdentifier {
+    moduleName: string;
+    constructName: string;
+}
+
 export class BallerinaExtension {
 
     public ballerinaHome: string;
@@ -43,6 +49,7 @@ export class BallerinaExtension {
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
+    private projectTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
 
     constructor() {
         this.ballerinaHome = '';
@@ -401,6 +408,16 @@ export class BallerinaExtension {
 
     private overrideBallerinaHome(): boolean {
         return <boolean>workspace.getConfiguration().get(OVERRIDE_BALLERINA_HOME);
+    }
+
+    public projectTreeElementClicked(construct: ConstructIdentifier): void {
+        this.projectTreeElementClickedCallbacks.forEach((callback) => {
+            callback(construct);
+        });
+    }
+
+    public onProjectTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
+        this.projectTreeElementClickedCallbacks.push(callback);
     }
 }
 

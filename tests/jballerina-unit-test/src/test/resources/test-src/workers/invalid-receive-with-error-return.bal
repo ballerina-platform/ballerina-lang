@@ -4,8 +4,8 @@ import ballerina/io;
 type TrxError error<string, TrxErrorData>;
 
 type TrxErrorData record {|
-    string message = "";
-    error? cause = ();
+    string message?;
+    error cause?;
     string data = "";
 |};
 

@@ -24,8 +24,6 @@ import { Button, Divider } from "semantic-ui-react";
 
 import { ExpandMode, OpenApiContext, OpenApiContextProvider } from "./components/context/open-api-context";
 
-import { EVENTS } from "./components/utils/constants";
-
 import OpenApiInfo from "./components/info/info";
 import AddOpenApiPath from "./paths/add-path";
 import OpenApiPathList from "./paths/paths-list";
@@ -95,8 +93,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
     }
 
     public render() {
-        const { openApiJson } = this.props;
-        const { showOpenApiAddPath, expandMode } = this.state;
+        const { showOpenApiAddPath, expandMode, openApiJson } = this.state;
 
         const appContext: OpenApiContext = {
             expandMode,
@@ -214,7 +211,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             }
 
             if (onDidChange) {
-                onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
+                // onDidChange(EVENTS.ADD_RESOURCE, this.state.openApiJson);
             }
 
         } else {
@@ -272,11 +269,11 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
         }), () => {
 
             if (onDidAddOperation) {
-                onDidAddOperation(operation, this.state.openApiJson);
+                // onDidAddOperation(operation, this.state.openApiJson);
             }
 
             if (onDidChange) {
-                onDidChange(EVENTS.ADD_OPERATION, this.state.openApiJson);
+                // onDidChange(EVENTS.ADD_OPERATION, this.state.openApiJson);
             }
 
         });
@@ -355,11 +352,11 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             }), () => {
 
                 if (onDidAddParameter) {
-                    onDidAddParameter(parameter, this.state.openApiJson);
+                    // onDidAddParameter(parameter, this.state.openApiJson);
                 }
 
                 if (onDidChange) {
-                    onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
+                    // onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
 
             });
@@ -393,11 +390,11 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             }), () => {
 
                 if (onDidAddParameter) {
-                    onDidAddParameter(parameter, this.state.openApiJson);
+                    // onDidAddParameter(parameter, this.state.openApiJson);
                 }
 
                 if (onDidChange) {
-                    onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
+                    // onDidChange(EVENTS.ADD_PARAMETER, this.state.openApiJson);
                 }
 
             });
@@ -420,7 +417,7 @@ class OpenApiVisualizer extends React.Component<OpenApiProps, OpenApiState> {
             openApiJson,
         }), () => {
             if (onDidChange) {
-                onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
+                // onDidChange(EVENTS.ON_INLINE_CHANGE, this.state.openApiJson);
             }
         });
 

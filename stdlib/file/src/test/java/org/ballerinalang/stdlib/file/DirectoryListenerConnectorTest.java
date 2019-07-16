@@ -117,7 +117,7 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource param count.")
     public void testNegativeWithoutInvalidParamCount() {
         try {
-            BCompileUtil.compileAndSetup(testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").
                     toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
@@ -161,7 +161,7 @@ public class DirectoryListenerConnectorTest {
             Files.createFile(Paths.get("src", "test", "resources", "fs", "file.txt"));
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-not-folder.bal").toString());
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(45, 45 + 58);
+            String actualMsg = e.getMessage().substring(41, 45 + 54);
             String expectedErrorMsg = "Unable to find a directory: src/test/resources/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
@@ -172,7 +172,7 @@ public class DirectoryListenerConnectorTest {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-folder-exist.bal").toString());
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(45, 45 + 38);
+            String actualMsg = e.getMessage().substring(41, 45 + 34);
             String expectedErrorMsg = "Folder does not exist: hello/ballerina";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
         }
@@ -183,7 +183,7 @@ public class DirectoryListenerConnectorTest {
         try {
             BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-missing-variable.bal").toString());
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(45, 45 + 21);
+            String actualMsg = e.getMessage().substring(41, 45 + 17);
             String expectedErrorMsg = "'path' field is empty";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
         }

@@ -21,7 +21,7 @@ listener jms:TopicListener subscriberEndpoint = new({
         providerUrl: "amqp://admin:admin@carbon/carbon?"
             + "brokerlist='tcp://localhost:5672'",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "BallerinaTopic");
+    }, "BallerinaTopic");
 
 service jmsConsumer on subscriberEndpoint {
     resource function xyz(jms:QueueReceiverCaller consumer, jms:Message message) returns error? {

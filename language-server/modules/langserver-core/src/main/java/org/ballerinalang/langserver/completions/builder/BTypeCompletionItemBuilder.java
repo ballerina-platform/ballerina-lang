@@ -67,8 +67,7 @@ public class BTypeCompletionItemBuilder {
         } else if (bSymbol.type instanceof BFiniteType || bSymbol.type instanceof BUnionType) {
             // enums
             item.setKind(CompletionItemKind.Enum);
-        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG) &&
-                bSymbol.pkgID.name.equals(Names.BUILTIN_PACKAGE)) {
+        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             // keyword
             item.setKind(CompletionItemKind.Keyword);
         } else {

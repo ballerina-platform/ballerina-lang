@@ -2,7 +2,6 @@ lexer grammar BallerinaLexer;
 
 @members {
     boolean inStringTemplate = false;
-    boolean inDeprecatedTemplate = false;
     boolean inSiddhi = false;
     boolean inTableSqlQuery = false;
     boolean inSiddhiInsertQuery = false;
@@ -32,11 +31,12 @@ REMOTE      : 'remote' ;
 XMLNS       : 'xmlns' ;
 RETURNS     : 'returns' ;
 VERSION     : 'version' ;
-DEPRECATED  : 'deprecated' ;
 CHANNEL     : 'channel' ;
 ABSTRACT    : 'abstract' ;
 CLIENT      : 'client' ;
 CONST       : 'const' ;
+TYPEOF      : 'typeof';
+SOURCE      : 'source' ;
 
 FROM        : 'from' { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -96,6 +96,7 @@ TYPE_DESC       : 'typedesc' ;
 TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
+TYPE_HANDLE     : 'handle' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
@@ -158,6 +159,12 @@ RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
+
+OPTIONAL_FIELD_ACCESS   : '?.' ;
+
+// Delimiters
+LEFT_CLOSED_RECORD_DELIMITER     : '{|' ;
+RIGHT_CLOSED_RECORD_DELIMITER    : '|}' ;
 
 // Documentation markdown
 
@@ -225,6 +232,9 @@ COMPOUND_LOGICAL_SHIFT   : '>>>=' ;
 // CLOSED_RANGE - ELLIPSIS
 HALF_OPEN_RANGE   : '..<' ;
 
+// Annotation Access.
+ANNOTATION_ACCESS   : '.@' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral
     ;
@@ -289,8 +299,8 @@ HexadecimalFloatingPointLiteral
     ;
 
 DecimalFloatingPointNumber
-    :   DecimalNumeral ExponentPart
-    |   DottedDecimalNumber ExponentPart?
+    :   DecimalNumeral ExponentPart DecimalFloatSelector?
+    |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
 fragment
@@ -311,6 +321,11 @@ SignedInteger
 fragment
 Sign
     :   [+-]
+    ;
+
+fragment
+DecimalFloatSelector
+    : [dDfF]
     ;
 
 fragment
@@ -359,49 +374,115 @@ StringCharacter
     ;
 
 // §3.10.6 Escape Sequences for Character and String Literals
+
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
     |   UnicodeEscape
     ;
+
 fragment
 UnicodeEscape
     :   '\\' 'u' HexDigit HexDigit HexDigit HexDigit
     ;
+
 // Blob Literal
+
 Base16BlobLiteral
     :   'base16' WS* BACKTICK HexGroup* WS* BACKTICK
     ;
+
 fragment
 HexGroup
     :   WS* HexDigit WS* HexDigit
     ;
+
 Base64BlobLiteral
     :   'base64' WS* BACKTICK Base64Group* PaddedBase64Group? WS* BACKTICK
     ;
+
 fragment
 Base64Group
     :   WS* Base64Char WS* Base64Char WS* Base64Char WS* Base64Char
     ;
+
 fragment
 PaddedBase64Group
     :   WS* Base64Char WS* Base64Char WS* Base64Char WS* PaddingChar
     |   WS* Base64Char WS* Base64Char WS* PaddingChar WS* PaddingChar
     ;
+
 fragment
 Base64Char
     :   [a-zA-Z0-9+/]
     ;
+
 fragment
 PaddingChar : '=';
+
 // §3.10.7 The Null Literal
+
 NullLiteral
     :   'null'
     ;
+
 Identifier
-    :   (Letter LetterOrDigit*)
-    |   IdentifierLiteral
+    :   UnquotedIdentifier
+    |   QuotedIdentifier
     ;
+
+fragment
+UnquotedIdentifier
+    :   IdentifierInitialChar IdentifierFollowingChar*
+    ;
+
+fragment
+QuotedIdentifier
+    :   '\'' QuotedIdentifierChar+
+    ;
+
+fragment
+QuotedIdentifierChar
+    :   IdentifierFollowingChar
+    |   QuotedIdentifierEscape
+    |   StringNumericEscape
+    ;
+
+// IdentifierInitialChar :=  AsciiLetter | _ | UnicodeIdentifierChar
+// UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar )
+// AsciiChar := 0x0 .. 0x7F
+// UnicodeNonIdentifierChar := UnicodePrivateUseChar | UnicodePatternWhiteSpaceChar | UnicodePatternSyntaxChar
+// UnicodePrivateUseChar := 0xE000 .. 0xF8FF | 0xF0000 .. 0xFFFFD | 0x100000 .. 0x10FFFD
+// UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029
+// UnicodePatternSyntaxChar := character with Unicode property Pattern_Syntax=True (http://unicode.org/reports/tr31/tr31-2.html#Pattern_Syntax)
+fragment
+IdentifierInitialChar
+    : [a-zA-Z_]
+    // Negates ( AsciiChar | UnicodeNonIdentifierChar )
+    | ~ [\u0000-\u007F\uE000-\uF8FF\u200E\u200F\u2028\u2029\u00A1-\u00A7\u00A9\u00AB-\u00AC\u00AE\u00B0-\u00B1\u00B6-\u00B7\u00BB\u00BF\u00D7\u00F7\u2010-\u2027\u2030-\u205E\u2190-\u2BFF\u3001-\u3003\u3008-\u3020\u3030\uFD3E-\uFD3F\uFE45-\uFE46\uDB80-\uDBBF\uDBC0-\uDBFF\uDC00-\uDFFF]
+    ;
+
+fragment
+IdentifierFollowingChar
+    :   IdentifierInitialChar
+    |   DIGIT
+    ;
+
+// QuotedIdentifierEscape := \ ^ ( AsciiLetter | 0x9 | 0xA | 0xD | UnicodePatternWhiteSpaceChar )
+// AsciiLetter := A .. Z | a .. z
+// UnicodePatternWhiteSpaceChar := 0x200E | 0x200F | 0x2028 | 0x2029
+fragment
+QuotedIdentifierEscape
+    :   '\\' ~([a-zA-Z]|'\u0009'|'\u000A'|'\u000D'|'\u200E'|'\u200F'|'\u2028'|'\u2029')
+    ;
+
+fragment
+StringNumericEscape
+    :   '\\' [|"\\/]
+    |   '\\\\' [btnfr]
+    |   UnicodeEscape
+    ;
+
 fragment
 Letter
     :   [a-zA-Z_] // these are the "letters" below 0x7F
@@ -410,6 +491,7 @@ Letter
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
+
 fragment
 LetterOrDigit
     :   [a-zA-Z0-9_] // these are the "letters or digits" below 0x7F
@@ -418,49 +500,39 @@ LetterOrDigit
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
+
 XMLLiteralStart
     :   TYPE_XML WS* BACKTICK   { inStringTemplate = true; } -> pushMode(XML)
     ;
+
 StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inStringTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
+
 DocumentationLineStart
     :   HASH DocumentationSpace? -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
+
 ParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION_PARAM)
     ;
+
 ReturnParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
-DeprecatedTemplateStart
-    :   DEPRECATED WS* LEFT_BRACE   { inDeprecatedTemplate = true; } -> pushMode(DEPRECATED_TEMPLATE)
-    ;
+
 // Whitespace and comments
+
 WS
     :   [ \t]+ -> channel(HIDDEN)
     ;
+
 NEW_LINE
     :   [\r\n\u000C]+ -> channel(HIDDEN)
     ;
+
 LINE_COMMENT
     :   '//' ~[\r\n]*   -> channel(HIDDEN)
-    ;
-
-fragment
-IdentifierLiteral
-    :   '^"' IdentifierLiteralChar+ '"' ;
-
-fragment
-IdentifierLiteralChar
-    :   ~[|"\\\b\f\n\r\t]
-    |   IdentifierLiteralEscapeSequence
-    ;
-fragment
-IdentifierLiteralEscapeSequence
-    :   '\\' [|"\\/]
-    |   '\\\\' [btnfr]
-    |   UnicodeEscape
     ;
 
 mode MARKDOWN_DOCUMENTATION;
@@ -610,17 +682,22 @@ XMLTemplateText
     ;
 
 XMLText
-    :   XMLBracesSequence* (XMLTextChar XMLBracesSequence*)+
-    |   XMLBracesSequence (XMLTextChar XMLBracesSequence?)*
-    |   XMLBracesSequence+
+    :   XMLTextChar+
     ;
 
 fragment
 XMLTextChar
-    :   ~[<&$`{}]
+    :   ~[<&$`{]
     |   '\\' [`]
     |   XML_WS
     |   XMLEscapedSequence
+    |   DollarSequence
+    |   XMLBracesSequence
+    ;
+
+fragment
+DollarSequence
+    :  '$'+ LookAheadTokenIsNotOpenBrace
     ;
 
 fragment
@@ -713,44 +790,59 @@ fragment
 XMLDoubleQuotedStringChar
     :   ~[$<"{}\\]
     |   XMLEscapedSequence
+    |   DollarSequence
     ;
+
+
 // Everything inside a single-quoted xml string (e.g: attribute values)
 mode SINGLE_QUOTED_XML_STRING;
+
 SINGLE_QUOTE_END
     :   SINGLE_QUOTE    -> popMode
     ;
+
 XMLSingleQuotedTemplateString
     :   XMLSingleQuotedString? INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
+
 XMLSingleQuotedString
     :   XMLBracesSequence? (XMLSingleQuotedStringChar XMLBracesSequence?)+
     |   XMLBracesSequence (XMLSingleQuotedStringChar XMLBracesSequence?)*
     ;
+
 fragment
 XMLSingleQuotedStringChar
     :   ~[$<'{}\\]
     |   XMLEscapedSequence
     ;
+
 mode XML_PI;
+
 fragment
 XML_PI_END
     :   XML_TAG_SPECIAL_CLOSE
     ;
+
 XMLPIText
     :   XMLPITextFragment XML_PI_END    -> popMode
     ;
+
 XMLPITemplateText
     :   XMLPITextFragment INTERPOLATION_START    -> pushMode(DEFAULT_MODE)
     ;
+
 fragment
 XMLPITextFragment
     :   XMLPIAllowedSequence? (XMLPIChar XMLPIAllowedSequence?)*
     ;
+
 fragment
 XMLPIChar
     :   ~[${}?>]
     |   XMLEscapedSequence
     ;
+
+
 fragment
 XMLPIAllowedSequence
     :   XMLBracesSequence
@@ -758,26 +850,35 @@ XMLPIAllowedSequence
     |   (XMLBracesSequence XMLPISpecialSequence)+ XMLBracesSequence?
     |   (XMLPISpecialSequence XMLBracesSequence)+ XMLPISpecialSequence?
     ;
+
 fragment
 XMLPISpecialSequence
     :   '>'+
     |   '>'* '?'+
     ;
+
+
 // Everything inside an XML comment
 mode XML_COMMENT;
+
+
 XML_COMMENT_END
     :   '-->'                                               -> popMode
     ;
+
 XMLCommentTemplateText
     :   XMLCommentTextFragment INTERPOLATION_START          -> pushMode(DEFAULT_MODE)
     ;
+
 fragment
 XMLCommentTextFragment
     :   XMLCommentAllowedSequence? (XMLCommentChar XMLCommentAllowedSequence?)*
     ;
+
 XMLCommentText
     :   XMLCommentAllowedSequence? (XMLCommentChar+ XMLCommentAllowedSequence?)
     ;
+
 fragment
 XMLCommentChar
     :   ~[>${\-]
@@ -786,10 +887,12 @@ XMLCommentChar
     |   '\\' [`]
     |   '$' LookAheadTokenIsNotOpenBrace
     ;
+
 fragment
 LookAheadTokenIsNotOpenBrace
     : {_input.LA(1) != '{'}?
     ;
+
 fragment
 XMLCommentAllowedSequence
     :   XMLBracesSequence
@@ -797,103 +900,86 @@ XMLCommentAllowedSequence
     |   (XMLBracesSequence XMLCommentSpecialSequence)+ XMLBracesSequence?
     |   (XMLCommentSpecialSequence XMLBracesSequence)+ XMLCommentSpecialSequence?
     ;
+
 fragment
 XMLCommentSpecialSequence
     :   '>'+
     |   '>'? '-' LookAheadTokenIsNotHypen
     ;
+
 fragment
 LookAheadTokenIsNotHypen
     : {_input.LA(1) != '-'}?
     ;
+
 mode TRIPLE_BACKTICK_INLINE_CODE;
+
 TripleBackTickInlineCodeEnd
     :   BACKTICK BACKTICK BACKTICK              -> popMode
     ;
+
 TripleBackTickInlineCode
     :   TripleBackTickInlineCodeChar+
     ;
+
 fragment
 TripleBackTickInlineCodeChar
     :   ~[`]
     |   [`] ~[`]
     |   [`] [`] ~[`]
     ;
+
 mode DOUBLE_BACKTICK_INLINE_CODE;
+
 DoubleBackTickInlineCodeEnd
     :   BACKTICK BACKTICK                       -> popMode
     ;
+
 DoubleBackTickInlineCode
     :   DoubleBackTickInlineCodeChar+
     ;
+
 fragment
 DoubleBackTickInlineCodeChar
     :   ~[`]
     |   [`] ~[`]
     ;
+
 mode SINGLE_BACKTICK_INLINE_CODE;
+
 SingleBackTickInlineCodeEnd
     :   BACKTICK                                -> popMode
     ;
+
 SingleBackTickInlineCode
     :   SingleBackTickInlineCodeChar+
     ;
+
 fragment
 SingleBackTickInlineCodeChar
     :   ~[`]
     ;
-// Todo - Remove after finalizing the new deprecated annotation
-mode DEPRECATED_TEMPLATE;
-DeprecatedTemplateEnd
-    :   RIGHT_BRACE { inDeprecatedTemplate = false; }                         -> popMode
-    ;
-SBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick                                                     -> pushMode(SINGLE_BACKTICK_INLINE_CODE)
-    ;
-DBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick                                  -> pushMode(DOUBLE_BACKTICK_INLINE_CODE)
-    ;
-TBDeprecatedInlineCodeStart
-    :   DeprecatedBackTick DeprecatedBackTick DeprecatedBackTick               -> pushMode(TRIPLE_BACKTICK_INLINE_CODE)
-    ;
-DeprecatedTemplateText
-    :   DeprecatedValidCharSequence? (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)+
-    |   DeprecatedValidCharSequence (DeprecatedTemplateStringChar DeprecatedValidCharSequence?)*
-    ;
-fragment
-DeprecatedTemplateStringChar
-    :   ~[`{}\\]
-    |   '\\' [{}`]
-    |   WS
-    |   DeprecatedEscapedSequence
-    ;
-fragment
-DeprecatedBackTick
-    :   '`'
-    ;
-fragment
-DeprecatedEscapedSequence
-    :   '\\\\'
-    ;
-fragment
-DeprecatedValidCharSequence
-    :   '\\' ~'\\'
-    ;
+
 mode STRING_TEMPLATE;
+
 StringTemplateLiteralEnd
     :   '`' { inStringTemplate = false; }          -> popMode
     ;
+
 StringTemplateExpressionStart
     :   StringTemplateText? INTERPOLATION_START            -> pushMode(DEFAULT_MODE)
     ;
+
 StringTemplateText
     :   StringTemplateValidCharSequence+ DOLLAR*
     |   DOLLAR+
     ;
+
 fragment
 DOLLAR
     :   '$'
     ;
+
 fragment
 StringTemplateValidCharSequence
     :   ~[`$\\]
@@ -901,6 +987,7 @@ StringTemplateValidCharSequence
     |   WS
     |   StringLiteralEscapedSequence
     ;
+
 fragment
 StringLiteralEscapedSequence
     :   DOLLAR* '\\' [\\'"btnfr`{]

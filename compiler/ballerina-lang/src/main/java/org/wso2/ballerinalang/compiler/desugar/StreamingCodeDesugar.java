@@ -728,7 +728,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangInvocation selectWithGroupByInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(selectClause.pos, groupBySelectInvokableSymbol, args, symResolver);
         selectWithGroupByInvocation.argExprs = args;
-        selectWithGroupByInvocation.namedArgs.add(ASTBuilderUtil.createNamedArg(SCOPE_NAME_ARG_NAME,
+        selectWithGroupByInvocation.requiredArgs.add(ASTBuilderUtil.createNamedArg(SCOPE_NAME_ARG_NAME,
                 ASTBuilderUtil.createLiteral(selectClause.pos, symTable.stringType, getScopeName())));
 
         // streams:Select variable name
@@ -1051,7 +1051,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         if (conditionExpr != null) {
             BLangNamedArgsExpression conditionNamedArgExpression =
                     ASTBuilderUtil.createNamedArg(ON_CONDITION_NAMED_ARG_NAME, conditionExpr);
-            createJoinInvocation.namedArgs.add(conditionNamedArgExpression);
+            createJoinInvocation.requiredArgs.add(conditionNamedArgExpression);
             createJoinInvocation.argExprs.add(conditionNamedArgExpression);
         }
 
@@ -1299,7 +1299,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
                 //these should be added after type-checking
                 invocation.argExprs.add(nextProcPointer);
-                invocation.namedArgs.add(nextProcPointer);
+                invocation.requiredArgs.add(nextProcPointer);
 
                 BLangSimpleVariableDef windowDef = createVariableDef(invocation, windowInvokableType,
                         windowInvokableTypeVarSymbol, window.pos, WINDOW_FUNC_REFERENCE + lhsOrRhsWindow,

@@ -62,7 +62,9 @@ public class SourcePruner {
                 BallerinaParser.XMLNS, BallerinaParser.SERVICE, BallerinaParser.PUBLIC, BallerinaParser.PRIVATE,
                 BallerinaParser.REMOTE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.ANNOTATION,
                 BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER,
-                BallerinaParser.RESOURCE, BallerinaParser.LISTENER, BallerinaParser.MATCH
+                BallerinaParser.RESOURCE, BallerinaParser.LISTENER, BallerinaParser.MATCH, BallerinaParser.IF,
+                BallerinaParser.WHILE, BallerinaParser.FOREACH, BallerinaParser.BREAK, BallerinaParser.BREAK,
+                BallerinaParser.FORK, BallerinaParser.THROW, BallerinaParser.TRANSACTION
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,

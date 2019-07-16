@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,10 +47,13 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitMaxs extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        int maxStack = (int) context.getIntArgument(0);
-        int maxLocal = (int) context.getIntArgument(1);
-        mv.visitMaxs(maxStack, maxLocal);
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
+
+    public static void visitMaxs(Strand strand, ObjectValue oMv, long maxStack, long maxLocal) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        mv.visitMaxs(((int) maxStack), (int) maxLocal);
     }
 }

@@ -501,7 +501,7 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
+        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "mod");
         Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
 
@@ -660,7 +660,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
+    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnBootstrappedJVMCodegen")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
