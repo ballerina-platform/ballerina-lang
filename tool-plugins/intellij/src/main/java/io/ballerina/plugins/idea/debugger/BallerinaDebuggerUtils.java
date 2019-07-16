@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 public class BallerinaDebuggerUtils {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^version\\s*=\\s*\"(\\d+\\.\\d+\\.\\d+)\"");
-    private static final Pattern ORG_NAME_PATTERN = Pattern.compile("^org-name\\s*=\\s*\"(.*)\"");
+    private static final Pattern ORG_NAME_PATTERN = Pattern.compile("^orgName\\s*=\\s*\"(.*)\"");
 
     static String getOrgName(@NotNull Project project) {
         return readConfig(project, null, ORG_NAME_PATTERN);

@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
@@ -68,4 +68,3 @@ createBalo {
 }
 
 description = 'Ballerina - ActiveMQ Artemis'
-

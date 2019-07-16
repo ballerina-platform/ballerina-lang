@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.ArrayList;
@@ -42,10 +43,10 @@ public class AnnotationConfigsProcessor {
      * @param acceptor   {@link BiConsumer} annotations acceptor
      */
     public static void visitAnnotation(BLangAnnotationAttachment annotation,
-                                       BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
+                                       BiConsumer<BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
         if (annotation.expr instanceof BLangRecordLiteral) {
             BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : record.keyValuePairs) {
+            for (BLangRecordKeyValue keyValue : record.keyValuePairs) {
                 BLangRecordLiteral.BLangRecordKey key = keyValue.key;
                 if (key.expr instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) key.expr;
@@ -58,12 +59,12 @@ public class AnnotationConfigsProcessor {
     /**
      * Visit each records for the provided annotations acceptor.
      *
-     * @param records  list of {@link BLangRecordLiteral.BLangRecordKeyValue}
+     * @param records  list of {@link BLangRecordKeyValue}
      * @param acceptor {@link BiConsumer} annotations acceptor
      */
-    public static void visitRecords(List<BLangRecordLiteral.BLangRecordKeyValue> records,
-                                    BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : records) {
+    public static void visitRecords(List<BLangRecordKeyValue> records,
+                                    BiConsumer<BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
+        for (BLangRecordKeyValue keyValue : records) {
             BLangRecordLiteral.BLangRecordKey key = keyValue.key;
             if (key.expr instanceof BLangSimpleVarRef) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) key.expr;
