@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const ARTEMIS_ERROR = "{ballerina/artemis}Error";
-public type Error error<ARTEMIS_ERROR, Detail>;
+public const CACHE_ERROR = "{ballerina/cache}Error";
+public type Error error<CACHE_ERROR, Detail>;

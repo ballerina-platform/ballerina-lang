@@ -19,8 +19,6 @@
 package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
@@ -45,13 +43,7 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Producer", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Publish extends BlockingNativeCallableUnit {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-    }
+public class Publish {
 
     public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
                                  Object replyTo) {

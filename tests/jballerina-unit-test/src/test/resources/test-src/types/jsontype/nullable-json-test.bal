@@ -1,6 +1,5 @@
-function testFieldAccessOfNullableJSON() returns (json) {
-    json j1 = foo().name;
-    return j1;
+function testFieldAccessOfNullableJSON() returns (json|error) {
+    return foo().name;
 }
 
 function foo() returns (json) {

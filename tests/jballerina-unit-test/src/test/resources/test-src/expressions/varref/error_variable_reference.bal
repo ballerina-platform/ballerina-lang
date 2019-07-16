@@ -160,7 +160,7 @@ function testErrorInRecordWithDestructure() returns [int, string, anydata|error]
     map<anydata|error> detail;
     { x, e: error (reason, ... detail) } = b;
 
-    return [x, reason, detail.message];
+    return [x, reason, detail["message"]];
 }
 
 function testErrorInRecordWithDestructure2() returns [int, string, anydata|error, anydata|error] {
@@ -181,8 +181,8 @@ function testBasicErrorVariableWithFieldBasedRef() returns map<anydata|error> {
 
     map<anydata|error> results = {};
 
-    error (results.res1, ...results.rec) = err1;
-    error (results.res2, message = results.message, fatal = results.fatal) = err1;
+    error (results["res1"], ...results["rec"]) = err1;
+    error (results["res2"], message = results["message"], fatal = results["fatal"]) = err1;
 
     return results;
 }

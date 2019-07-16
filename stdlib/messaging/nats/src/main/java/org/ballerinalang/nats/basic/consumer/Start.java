@@ -18,8 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -42,7 +40,7 @@ import static org.ballerinalang.nats.Constants.COUNTDOWN_LATCH;
                 structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
+public class Start {
     private static CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public static void start(Strand strand, ObjectValue listenerObject) {
@@ -56,10 +54,5 @@ public class Start extends BlockingNativeCallableUnit {
                 Thread.currentThread().interrupt();
             }
         }).start();
-    }
-
-    @Override
-    public void execute(Context context) {
-
     }
 }

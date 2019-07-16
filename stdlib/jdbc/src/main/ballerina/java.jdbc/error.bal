@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const DATABASE_ERROR_REASON = "{ballerinax/jdbc}DatabaseError";
+public const DATABASE_ERROR_REASON = "{ballerinax/java.jdbc}DatabaseError";
 
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
 # database resource clean-up and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
-public const APPLICATION_ERROR_REASON = "{ballerinax/jdbc}ApplicationError";
+public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
 
 # Represents the error which is related to Non SQL errors
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;

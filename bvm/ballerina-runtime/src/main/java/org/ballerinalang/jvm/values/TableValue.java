@@ -284,7 +284,7 @@ public class TableValue implements RefValue, CollectionValue {
     }
 
     public DecimalValue getDecimal(int columnIndex) {
-        throw new UnsupportedOperationException();
+        return iterator.getDecimal(columnIndex);
     }
 
     public List<ColumnDefinition> getColumnDefs() {
