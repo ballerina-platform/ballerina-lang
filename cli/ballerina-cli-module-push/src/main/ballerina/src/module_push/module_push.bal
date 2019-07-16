@@ -36,8 +36,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
 
     if (response is error) {
         error e = response;
-        io:println(e.reason());
-        panic createError("connection to the remote host failed : " + e.reason());
+        panic createError("connection to the remote host failed : " + <string>e.detail().msg);
     } else {
         string statusCode = response.statusCode.toString();
         if (internal:hasPrefix(statusCode, "5")) {
