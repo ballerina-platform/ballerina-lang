@@ -657,7 +657,7 @@ public abstract class BIRNode {
      *
      * @since 1.0.0
      */
-    public static abstract class BIRDocumentableNode extends BIRNode {
+    public abstract static class BIRDocumentableNode extends BIRNode {
         public MarkdownDocAttachment markdownDocAttachment;
 
         public BIRDocumentableNode(DiagnosticPos pos) {

@@ -376,14 +376,7 @@ public class BIRPackageSymbolEnter {
         // set taint table to the function symbol
         readTaintTable(invokableSymbol, dataInStream);
 
-        int docLength = dataInStream.readInt();
-        byte[] docBytes = new byte[docLength];
-        int noOfBytesRead = dataInStream.read(docBytes);
-        if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
-        }
-
-        defineMarkDownDocAttachment(invokableSymbol, docBytes);
+        defineMarkDownDocAttachment(invokableSymbol, readDocBytes(dataInStream));
 
         dataInStream.skip(dataInStream.readLong()); // read and skip method body
 
@@ -406,12 +399,7 @@ public class BIRPackageSymbolEnter {
         int flags = dataInStream.readInt();
         boolean isLabel = dataInStream.readByte() == 1;
 
-        int docLength = dataInStream.readInt();
-        byte[] docBytes = new byte[docLength];
-        int noOfBytesRead = dataInStream.read(docBytes);
-        if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
-        }
+        byte[] docBytes = readDocBytes(dataInStream);
 
         BType type = readBType(dataInStream);
 
@@ -463,7 +451,7 @@ public class BIRPackageSymbolEnter {
         for (int i = 0; i < paramLength; i++) {
             int nameCPIndex = dataInStream.readInt();
             int paramDescCPIndex = dataInStream.readInt();
-            String name = nameCPIndex >= 0 ? getStringCPEntryValue(nameCPIndex ) : null;
+            String name = nameCPIndex >= 0 ? getStringCPEntryValue(nameCPIndex) : null;
             String description = paramDescCPIndex >= 0 ? getStringCPEntryValue(paramDescCPIndex) : null;
             MarkdownDocAttachment.Parameter parameter = new MarkdownDocAttachment.Parameter(name, description);
             markdownDocAttachment.parameters.add(parameter);
@@ -528,12 +516,7 @@ public class BIRPackageSymbolEnter {
         String constantName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
-        int docLength = dataInStream.readInt();
-        byte[] docBytes = new byte[docLength];
-        int noOfBytesRead = dataInStream.read(docBytes);
-        if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
-        }
+        byte[] docBytes = readDocBytes(dataInStream);
 
         BType type = readBType(dataInStream);
         Scope enclScope = this.env.pkgSymbol.scope;
@@ -591,12 +574,7 @@ public class BIRPackageSymbolEnter {
         String varName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
-        int docLength = dataInStream.readInt();
-        byte[] docBytes = new byte[docLength];
-        int noOfBytesRead = dataInStream.read(docBytes);
-        if (docLength != noOfBytesRead) {
-            throw new RuntimeException("Failed to read Markdown Documenation");
-        }
+        byte[] docBytes = readDocBytes(dataInStream);
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
@@ -819,9 +797,15 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         int fieldFlags = inputStream.readInt();
+
+                        byte[] docBytes = readDocBytes(inputStream);
+
                         BType fieldType = readTypeFromCp();
+
                         BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 recordSymbol.pkgID, fieldType, recordSymbol.scope.owner);
+
+                        defineMarkDownDocAttachment(varSymbol, docBytes);
 
                         BField structField = new BField(varSymbol.name, null, varSymbol);
                         recordType.fields.add(structField);
@@ -1012,14 +996,18 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < fieldCount; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         int fieldFlags = inputStream.readInt();
+
+                        byte[] docBytes = readDocBytes(inputStream);
+
                         BType fieldType = readTypeFromCp();
                         BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
                                 objectSymbol.pkgID, fieldType, objectSymbol.scope.owner);
 
+                        defineMarkDownDocAttachment(objectVarSymbol, docBytes);
+
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
                         objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
-//                        setDocumentation(varSymbol, attrData); // TODO fix
                     }
                     boolean constructorPresent = inputStream.readBoolean();
                     if (constructorPresent) {
@@ -1060,6 +1048,16 @@ public class BIRPackageSymbolEnter {
             inputStream.readInt();
             readTypeFromCp();
         }
+    }
+
+    private byte[] readDocBytes(DataInputStream inputStream) throws IOException {
+        int docLength = inputStream.readInt();
+        byte[] docBytes = new byte[docLength];
+        int noOfBytesRead = inputStream.read(docBytes);
+        if (docLength != noOfBytesRead) {
+            throw new RuntimeException("Failed to read Markdown Documenation");
+        }
+        return docBytes;
     }
 
     private PackageID getPackageId(int pkgCPIndex) {

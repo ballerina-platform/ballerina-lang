@@ -292,6 +292,8 @@ public class BIRGen extends BLangNodeVisitor {
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
                     funcSymbol.receiverSymbol.type, names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
 
+            birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
+
             int defaultableParamsCount = 0;
             birFunc.argsCount = funcSymbol.params.size() + defaultableParamsCount +
                     (funcSymbol.restParam != null ? 1 : 0);
