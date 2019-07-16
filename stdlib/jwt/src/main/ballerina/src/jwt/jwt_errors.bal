@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const JWT_ERROR = "{ballerina/jwt}JwtError";
+public const JWT_ERROR = "{ballerina/jwt}Error";
 public type Error error<JWT_ERROR, Detail>;

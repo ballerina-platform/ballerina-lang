@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 /**
  * Test cases for verifying the equivalency/assignability rules for closed records.
@@ -89,11 +90,11 @@ public class ClosedRecordEquivalencyRulesTest {
         assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
     }
 
-    @Test(description = "RHS and LHS closed with RHS optional fields corresponding to LHS optional fields",
-          expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*cannot find key 'age'.*")
+    @Test(description = "RHS and LHS closed with RHS optional fields corresponding to LHS optional fields")
     public void testCRToCROptFieldToOptField2() {
-        BRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField2");
+        BValue[] returns = BRunUtil.invoke(closedRecToClosedRec, "testOptFieldToOptField2");
+        assertEquals(returns[0].stringValue(), "{name:\"John Doe\", age:25}");
+        assertNull(returns[1]);
     }
 
     @Test(description = "RHS and LHS closed with RHS type being a public typedesc")

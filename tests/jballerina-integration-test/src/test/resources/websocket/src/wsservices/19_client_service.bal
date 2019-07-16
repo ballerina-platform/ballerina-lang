@@ -29,7 +29,8 @@ service clientFailure200 on new http:WebSocketListener(9200) {
              REMOTE_BACKEND_URL200);
         var returnVal = wsEp->pushText("Client worked");
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 
@@ -37,14 +38,15 @@ service clientFailure200 on new http:WebSocketListener(9200) {
         http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
-             panic returnVal;
+            error returnValError = returnVal;
+            panic returnValError;
         }
     }
 
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         http:WebSocketClient wsClientEp = new(
             REMOTE_BACKEND_URL200,
-            config = {callbackService: callback200});
+            {callbackService: callback200});
     }
 }
 service callback200 = @http:WebSocketServiceConfig {} service {

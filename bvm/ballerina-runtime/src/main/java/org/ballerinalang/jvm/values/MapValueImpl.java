@@ -519,6 +519,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public void freezeDirect() {
+        if (isFrozen()) {
+            return;
+        }
         this.freezeStatus.setFrozen();
         this.values().forEach(val -> {
             if (val instanceof RefValue) {

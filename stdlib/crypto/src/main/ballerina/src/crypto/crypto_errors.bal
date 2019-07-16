@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const CRYPTO_ERROR = "{ballerina/crypto}CryptoError";
+public const CRYPTO_ERROR = "{ballerina/crypto}Error";
 public type Error error<CRYPTO_ERROR, Detail>;

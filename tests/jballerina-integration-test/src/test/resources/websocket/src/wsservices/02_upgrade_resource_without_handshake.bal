@@ -22,8 +22,8 @@ service upgradeService = @http:WebSocketServiceConfig {} service {
 
     resource function onOpen(http:WebSocketCaller caller) {
         var returnVal = caller->pushText("Handshake check");
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 };

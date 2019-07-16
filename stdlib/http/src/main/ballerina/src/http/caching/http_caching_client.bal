@@ -100,7 +100,7 @@ public type HttpCachingClient client object {
             error clientError = httpSecureClient;
             panic <error> httpSecureClient;
         }
-        self.cache = createHttpCache("http-cache", cacheConfig);
+        self.cache = new HttpCache(cacheConfig);
     }
 
     # Responses returned for POST requests are not cacheable. Therefore, the requests are simply directed to the

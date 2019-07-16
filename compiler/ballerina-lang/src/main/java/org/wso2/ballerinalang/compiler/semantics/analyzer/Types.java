@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -1720,12 +1721,17 @@ public class Types {
                     .stream()
                     .map(fs -> t.fields.stream()
                             .anyMatch(ft -> fs.name.equals(ft.name)
-                                    && isSameType(fs.type, ft.type, this.unresolvedTypes)))
+                                    && isSameType(fs.type, ft.type, this.unresolvedTypes)
+                                    && hasSameOptionalFlag(fs.symbol, ft.symbol)))
                     .anyMatch(foundSameType -> !foundSameType);
             if (notSameType) {
                 return false;
             }
             return isSameType(source.restFieldType, t.restFieldType, unresolvedTypes);
+        }
+
+        private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
+            return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
         }
 
         @Override

@@ -51,7 +51,7 @@ service publisher on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_ONE);
-        var err = caller->accepted(message = response);
+        var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
         }
@@ -74,7 +74,7 @@ service publisher on publisherServiceEP {
         }
 
         http:Response response = new;
-        err = caller->accepted(message = response);
+        err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on notify request", err);
         }
@@ -89,7 +89,7 @@ service publisherTwo on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_PERSISTENCE_TOPIC_TWO);
-        var err = caller->accepted(message = response);
+        var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
         }
@@ -111,7 +111,7 @@ service publisherTwo on publisherServiceEP {
         }
 
         http:Response response = new;
-        err = caller->accepted(message = response);
+        err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on notify request", err);
         }
@@ -126,7 +126,7 @@ service publisherThree on publisherServiceEP {
         http:Response response = new;
         // Add a link header indicating the hub and topic
         websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
-        var err = caller->accepted(message = response);
+        var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on discovery", err);
         }
@@ -147,7 +147,7 @@ service publisherThree on publisherServiceEP {
         }
 
         http:Response response = new;
-        err = caller->accepted(message = response);
+        err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on notify request", err);
         }
@@ -199,8 +199,7 @@ function startWebSubHub() returns websub:WebSubHub {
                 password: "ballerina"
             }
         }
-    }),
-    hubConfiguration = { remotePublish : { enabled : true }});
+    }), { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {
