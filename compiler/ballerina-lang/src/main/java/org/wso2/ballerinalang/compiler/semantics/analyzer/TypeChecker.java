@@ -2793,7 +2793,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean checkNoArgErrorCtorInvocation(BErrorType errorType, DiagnosticPos pos) {
         if (errorType.reasonType.tag != TypeTags.FINITE) {
             dlog.error(pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
-                    expType.tsymbol.name);
+                    errorType.ctorSymbol.name);
             resultType = symTable.semanticError;
             return true;
         } else {

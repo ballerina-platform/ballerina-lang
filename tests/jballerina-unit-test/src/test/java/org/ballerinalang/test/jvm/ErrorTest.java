@@ -43,8 +43,8 @@ public class ErrorTest {
     }
 
     @Test(description = "Test panic an error", expectedExceptions = RuntimeException.class, 
-          expectedExceptionsMessageRegExp = "error: reason foo 2 \\{\"message\":\"int value\"\\}\n\tat foo\\(errors" 
-                  + ".bal:46\\)\n\t   testPanic\\(errors.bal:18\\)")
+          expectedExceptionsMessageRegExp = "error: reason foo 2 message=int value\n\tat foo\\(errors"
+                  + ".bal:47\\)\n\t   testPanic\\(errors.bal:19\\)")
     public void testPanic() {
             BRunUtil.invoke(compileResult, "testPanic", new BValue[] { new BInteger(0) });
     }

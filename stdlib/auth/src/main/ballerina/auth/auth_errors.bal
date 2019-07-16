@@ -19,5 +19,5 @@ type Detail record {
     error cause?;
 };
 
-public const AUTH_ERROR = "{ballerina/auth}AuthError";
+public const AUTH_ERROR = "{ballerina/auth}Error";
 public type Error error<AUTH_ERROR, Detail>;
