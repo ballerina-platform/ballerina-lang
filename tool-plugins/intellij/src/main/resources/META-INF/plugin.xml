@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.991.1</version>
+    <version>1.0.0-alpha</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,8 +10,10 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Fix highlighting for new xml syntax.</li>
-        <li>Various bug fixes and improvements in Lsp4IntelliJ language client library.</li>
+        <li>Added ballerina sequence diagram view and editing support. </li>
+        <li>Added language server based in-place renaming support. </li>
+        <li>Added language server based signature-help. </li>
+        <li>Added Debugger Adaptor Protocol Support. </li>
       </ul>
     ]]>
     </change-notes>
