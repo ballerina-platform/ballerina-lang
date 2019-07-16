@@ -92,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -100,6 +101,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
@@ -737,6 +739,21 @@ public class SymbolResolver extends BLangNodeVisitor {
                 break;
             case TypeTags.XML:
                 bSymbol = lookupLangLibMethodInModule(symTable.langXmlModuleSymbol, name);
+                break;
+            case TypeTags.UNION:
+                Iterator<BType> itr = ((BUnionType) type).getMemberTypes().iterator();
+
+                if (!itr.hasNext()) {
+                    throw new IllegalArgumentException(
+                            format("Union type '%s' does not have member types", type.toString()));
+                }
+
+                BType member = itr.next();
+                if (types.isSubTypeOfBaseType(type, member.tag)) {
+                    bSymbol = lookupLangLibMethod(member, name);
+                } else {
+                    bSymbol = symTable.notFoundSymbol;
+                }
                 break;
             default:
                 bSymbol = symTable.notFoundSymbol;
