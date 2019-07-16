@@ -290,14 +290,16 @@ service echo18 on listener18 {
         if (backendResponse is http:Response) {
             checkpanic caller->respond(backendResponse);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = backendResponse;
             http:Response errResponse = new;
             errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            var cause = backendResponse.detail().cause;
+            var cause = e.detail()?.cause;
             if (cause is oauth2:Error) {
-                json errMsg = { message: <string>cause.detail().message };
+                json errMsg = { message: <string>cause.detail()?.message };
                 errResponse.setPayload(errMsg);
             } else {
-                json errMsg = { message: <string>backendResponse.detail().message };
+                json errMsg = { message: <string>e.detail()?.message };
                 errResponse.setPayload(errMsg);
             }
             checkpanic caller->respond(errResponse);

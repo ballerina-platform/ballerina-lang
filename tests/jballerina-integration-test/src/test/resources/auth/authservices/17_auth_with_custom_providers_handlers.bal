@@ -18,6 +18,7 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
 import ballerina/runtime;
 
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
@@ -51,8 +52,10 @@ service passthrough on listener17_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + <string>e.detail()?.message };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -121,7 +124,7 @@ public type InboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function handle(http:Request req) returns boolean|error {
+    public function process(http:Request req) returns boolean|error {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
         string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
         return self.authProvider.authenticate(credential);
@@ -129,7 +132,7 @@ public type InboundCustomAuthHandler object {
 
     public function canHandle(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-        return customAuthHeader.hasPrefix("Custom");
+        return internal:hasPrefix(customAuthHeader, "Custom");
     }
 };
 
@@ -143,10 +146,12 @@ public type InboundCustomAuthProvider object {
         string token = "4ddb0c25";
         boolean authenticated = crypto:crc32b(credential) == token;
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = token;
-            principal.username = token;
-            principal.scopes = [credential];
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = token;
+                principal.username = token;
+                principal.scopes = [credential];
+            }
         }
         return authenticated;
     }
@@ -164,7 +169,7 @@ public type OutboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function prepare(http:Request req) returns http:Request|error {
+    public function prepare(http:Request req) returns http:Request|http:ClientError {
         string token = check self.authProvider.generateToken();
         req.setHeader(http:AUTH_HEADER, "Custom " + token);
         return req;
