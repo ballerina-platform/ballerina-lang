@@ -42,22 +42,22 @@
             <!--<package name="org.ballerinalang.test.action.*"/>-->
             <package name="org.ballerinalang.test.imports.*"/>
             <!--<package name="org.ballerinalang.test.parser.*"/>-->
-            <!--<package name="org.ballerinalang.test.closures.*"/>-->
+            <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.dataflow.*"/>-->
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
             <!--<package name="org.ballerinalang.test.structs.*"/>-->
-            <!--<package name="org.ballerinalang.test.jvm.*"/>-->
+            <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.main.function.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
-            <!--<package name="org.ballerinalang.test.types.any.*"/>-->
+            <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
-            <!--<package name="org.ballerinalang.test.types.finite.*"/>-->
+            <package name="org.ballerinalang.test.types.finite.*"/>
             <!--<package name="org.ballerinalang.test.types.map.*"/>-->
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
@@ -65,7 +65,7 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
             <package name="org.ballerinalang.test.types.tuples.*"/>
-            <!--<package name="org.ballerinalang.test.types.anydata.*"/>-->
+            <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
@@ -81,15 +81,14 @@
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
             <!--<package name="org.ballerinalang.test.statements.variabledef.*"/>-->
-            <!--<package name="org.ballerinalang.test.statements.matchstmt.*"/>-->
+            <package name="org.ballerinalang.test.statements.matchstmt.*"/>
             <!--<package name="org.ballerinalang.test.types.json.*"/>-->
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
-            <!--<package name="org.ballerinalang.test.types.globalvar.*"/>-->
+            <package name="org.ballerinalang.test.types.globalvar.*"/>
             <!--<package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.conversion.*"/>-->
-            <!--<package name="org.ballerinalang.test.expressions.access.*"/>-->
+            <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.access.*"/>
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
@@ -105,7 +104,6 @@
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
             <!--<package name="org.ballerinalang.test.endpoint.*" />-->
-            <!--<package name="org.ballerinalang.test.enum.*" />-->
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
@@ -116,20 +114,15 @@
             <!--<package name="org.ballerinalang.test.balo.*"/>-->
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.varref.*"/>-->
+            <package name="org.ballerinalang.test.expressions.varref.*"/>
             <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
-            <!--<package name="org.ballerinalang.test.taintchecking.*"/>-->
+            <package name="org.ballerinalang.test.taintchecking.*"/>
             <!--<package name="org.ballerinalang.test.statements.transaction.*"/> -->
+            <package name="org.ballerinalang.test.functions.*"/>
         </packages>
 
         <classes>
-            <!--<class name="org.ballerinalang.test.functions.FunctionSignatureTest" >-->
-                <!--<methods>-->
-                    <!--<exclude name="testOptionalArgsInNativeFunc" />-->
-                <!--</methods>-->
-            <!--</class>-->
-            <!--<class name="org.ballerinalang.test.functions.FunctionsWithDefaultableArguments" />-->
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
                 <!--<methods>-->
@@ -140,7 +133,6 @@
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
-            <!--<class name="org.ballerinalang.test.functions.TransactionLocalParticipantFunctionTest"/>-->
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
                 <methods>
                     <exclude name="testAsyncNonNativeBasic6" />

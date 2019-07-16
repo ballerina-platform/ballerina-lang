@@ -405,7 +405,7 @@ function populateGenericFailoverActionError (ClientError?[] failoverActionErr, C
     failoverActionErr[index] = httpActionErr;
     error err = httpActionErr;
     string? lastErrorMsg = err.detail()?.message;
-    string failoverMessage = "All the failover endpoints failed. Last error was ";
+    string failoverMessage = "All the failover endpoints failed. Last error was: ";
     if (lastErrorMsg is string) {
         failoverMessage = failoverMessage + lastErrorMsg;
     }
@@ -570,7 +570,7 @@ function handleError(ClientError err, int initialIndex, int noOfEndpoints, int i
                                                                                         returns [int, ClientError?] {
     ClientError? httpConnectorErr = ();
     // err is the error received instead of a Response. We wrap it to a `ClientError` here.
-    string invalidResponseMessage = "An error received while retrieving the response.";
+    string invalidResponseMessage = "An error received while retrieving the response";
     FailoverActionFailedError actionError = error(FAILOVER_ENDPOINT_ACTION_FAILED,
                                                     message = invalidResponseMessage, cause = err);
     int currentIndex = index;

@@ -35,6 +35,7 @@ import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -45,6 +46,7 @@ import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -270,17 +272,17 @@ public class XMLFactory {
     }
 
     /**
-     * Converts a {@link BTable} to {@link XMLValue}.
+     * Converts a {@link org.ballerinalang.jvm.values.TableValue} to {@link XMLValue}.
      *
-     * @param table {@link BTable} to convert
+     * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
-    // @SuppressWarnings("rawtypes")
-    // public static XMLValue tableToXML(BTable table) {
-    // OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-    // omSourcedElement.init(new TableOMDataSource(table, null, null));
-    // return new XMLItem(omSourcedElement);
-    // }
+    @SuppressWarnings("rawtypes")
+    public static XMLValue tableToXML(TableValue table) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new TableOMDataSource(table, null, null));
+        return new XMLItem(omSourcedElement);
+    }
 
     /**
      * Create an element type XMLValue.

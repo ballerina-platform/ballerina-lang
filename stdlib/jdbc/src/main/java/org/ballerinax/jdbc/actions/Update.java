@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.UpdateStatement;
 
@@ -34,7 +34,7 @@ import org.ballerinax.jdbc.statement.UpdateStatement;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeUpdate"
 )
 public class Update extends BlockingNativeCallableUnit {

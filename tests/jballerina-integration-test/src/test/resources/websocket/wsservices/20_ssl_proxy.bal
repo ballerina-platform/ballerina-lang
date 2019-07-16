@@ -53,7 +53,7 @@ service on new http:WebSocketListener(9077) {
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
+        var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is error) {
             panic returnVal;
         }
@@ -79,7 +79,7 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
 
     resource function onClose(http:WebSocketClient wsEp, int statusCode, string reason) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
-        var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
+        var returnVal = serviceEp->close(statusCode, reason);
         if (returnVal is error) {
             panic returnVal;
         }

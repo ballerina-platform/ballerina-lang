@@ -44,7 +44,7 @@ service clientFailure200 on new http:WebSocketListener(9200) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         http:WebSocketClient wsClientEp = new(
             REMOTE_BACKEND_URL200,
-            config = {callbackService: callback200});
+            {callbackService: callback200});
     }
 }
 service callback200 = @http:WebSocketServiceConfig {} service {

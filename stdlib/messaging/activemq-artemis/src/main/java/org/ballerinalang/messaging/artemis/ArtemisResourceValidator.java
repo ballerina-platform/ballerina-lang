@@ -80,10 +80,10 @@ public class ArtemisResourceValidator {
                         + resource.getName().getValue() +
                         " resource: The first parameter should be an artemis:Message");
             }
-            if (!"ballerina/artemis:ArtemisError".equals(paramDetails.get(1).type.toString())) {
+            if (!"ballerina/artemis:Error".equals(paramDetails.get(1).type.toString())) {
                 dlog.logDiagnostic(ERROR, resource.pos, String.format(
                         "Invalid resource signature for %s resource in service : The second parameter should be " +
-                                "artemis:ArtemisError",
+                                "artemis:Error",
                         resource.getName().getValue()));
             }
         }
@@ -146,7 +146,7 @@ public class ArtemisResourceValidator {
         boolean flag = true;
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(ERROR, resource.pos, "onError resource only accepts the " +
-                    "parameters artemis:Message and artemis:ArtemisError");
+                    "parameters artemis:Message and artemis:Error");
             flag = false;
         }
         return flag;

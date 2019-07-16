@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.statement.BatchUpdateStatement;
 import org.ballerinax.jdbc.statement.SQLStatement;
 
@@ -35,7 +35,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
  * @since 0.8.6
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeBatchUpdate"
 )
 public class BatchUpdate extends BlockingNativeCallableUnit {

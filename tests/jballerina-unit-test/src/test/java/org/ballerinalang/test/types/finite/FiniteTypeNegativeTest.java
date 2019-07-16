@@ -38,7 +38,7 @@ public class FiniteTypeNegativeTest {
         validateError(result, 0,
                       "incompatible types: expected 'function (string) returns (int)', found 'function (int) returns " +
                               "(int)'", 20, 19);
-        validateError(result, 1, "incompatible types: expected 'string', found 'int'", 23, 21);
+        validateError(result, 1, "incompatible types: expected 'string', found 'int'", 23, 16);
         validateError(result, 2,
                       "incompatible types: expected 'function (string) returns (int)', found 'function (string) " +
                               "returns (string)'", 27, 19);
