@@ -68,7 +68,7 @@ function runtimeNestedTransactions(boolean trapError) returns string {
             if (res is string) {
                 ss += res;
             } else {
-                ss += " trapped[err: " + <string>res.detail().message + "]";
+                ss += " trapped[err: " + <string>res.detail()["message"] + "]";
             }
         } else {
             var res = functionWithATransactionStmt();
@@ -111,7 +111,7 @@ function runtimeNestedTransactionsError() returns string {
     if (res is string) {
         ss += res;
     } else {
-        ss += " [err: " + <string>res.detail().message + "]";
+        ss += " [err: " + <string>res.detail()["message"] + "]";
     }
     return ss;
 }
