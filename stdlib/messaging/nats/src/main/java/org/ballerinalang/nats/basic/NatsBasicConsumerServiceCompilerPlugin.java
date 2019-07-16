@@ -86,7 +86,7 @@ public class NatsBasicConsumerServiceCompilerPlugin extends AbstractNatsConsumer
             BLangFunction resourceFunction) {
         String errorMessage =  "Invalid resource signature for the %s resource function in %s service. "
                 + "Expected first parameter (required) type is nats:Message and the expected "
-                + "second paramter (optional) type is "
+                + "second parameter (optional) type is "
                 + "byte[] | boolean | string | int | float | decimal | xml | json | record {}";
         return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
     }
@@ -96,7 +96,7 @@ public class NatsBasicConsumerServiceCompilerPlugin extends AbstractNatsConsumer
             BLangFunction resourceFunction) {
         String errorMessage = "Invalid resource signature for the %s resource function in %s service. "
                 + "Expected first parameter (required) type is nats:Message and the expected "
-                + "second paramter (required) type is error";
+                + "second parameter (required) type is error";
         return String.format(errorMessage, resourceFunction.getName().getValue(), serviceNode.getName().getValue());
     }
 }

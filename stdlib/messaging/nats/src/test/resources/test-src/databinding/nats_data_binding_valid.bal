@@ -97,7 +97,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingXmlConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, xml data) {
-         io:println("Received Message - service: " + string.convert(data));
+         io:println("Received Message - service: " + data.toString());
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {
@@ -123,9 +123,9 @@ service dataBindingJsonConsumerService on lis {
  }
  service dataBindingRecordConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, Entry data) {
-          json | error val = json.convert(data);
+          json | error val = typedesc<json>.constructFrom(data);
           if (val is json) {
-             io:println("Received Message - service: " + checkpanic string.convert(val));
+             io:println("Received Message - service: " + val.toString());
           }
      }
 

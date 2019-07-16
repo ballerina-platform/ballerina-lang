@@ -19,23 +19,23 @@ public type Content byte[] | boolean | string | int | float | decimal | xml | js
 public function convertData(Content data) returns string | byte[] | error {
     string | byte[] | error converted;
     if (data is boolean) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is string) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is int) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is float) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is decimal) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is xml) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is json) {
-        converted = string.convert(data);
+        converted = data.toString();
     } else if (data is record{}) {
-        json | error jsonConverted = json.convert(data);
+        json | error jsonConverted = typedesc<json>.constructFrom(data);
         if (jsonConverted is json) {
-            converted = string.convert(jsonConverted);
+            converted = jsonConverted.toString();
         } else {
             converted = jsonConverted;
         }

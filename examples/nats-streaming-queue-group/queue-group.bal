@@ -1,5 +1,4 @@
 import ballerina/encoding;
-import ballerina/io;
 import ballerina/log;
 import ballerina/nats;
 
@@ -19,7 +18,7 @@ listener nats:StreamingListener lis = new(conn);
 service firstQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to first queue group member: " + encoding:byteArrayToString(message.getData()));
+       log:printInfo("Message Received to first queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -38,7 +37,7 @@ service firstQueueGroupMember on lis {
 service secondQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to second queue group member: " + encoding:byteArrayToString(message.getData()));
+       log:printInfo("Message Received to second queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
@@ -57,7 +56,7 @@ service secondQueueGroupMember on lis {
 service thridQueueGroupMember on lis {
     resource function onMessage(nats:StreamingMessage message) {
        // Prints the incoming message in the console.
-       io:println("Message Received to third queue group member: " + encoding:byteArrayToString(message.getData()));
+       log:printInfo("Message Received to third queue group member: " + encoding:byteArrayToString(message.getData()));
     }
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {

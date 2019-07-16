@@ -41,11 +41,6 @@ import java.nio.charset.StandardCharsets;
  * Utilities for producing and consuming via NATS sever.
  */
 public class Utils {
-    /**
-     * Message which will be propagated.
-     */
-    private static final String MESSAGE = "message";
-
 
     public static ErrorValue createNatsError(String nuid, String detailedErrorMessage) {
         MapValue<String, Object> errorDetailRecord = BallerinaValues

@@ -19,7 +19,7 @@
 # + message - the error message.
 # + cause - cause of the error.
 type Detail record {
-    string message;
+    string message?;
     error cause?;
 };
 
