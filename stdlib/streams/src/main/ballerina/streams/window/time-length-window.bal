@@ -215,7 +215,7 @@ public type TimeLengthWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeLength(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
     return timeLengthWindow1;

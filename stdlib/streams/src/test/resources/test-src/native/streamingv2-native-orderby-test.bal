@@ -95,7 +95,7 @@ function foo() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            TeacherOutput t = <TeacherOutput>TeacherOutput.stamp(m.clone());
+            TeacherOutput t = <TeacherOutput>TeacherOutput.constructFrom(m);
             outputStream.publish(t);
         }
     };

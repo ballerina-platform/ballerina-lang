@@ -67,7 +67,7 @@ function testSelectQuery() {
 
     forever {
         from inputStream
-        select inputStream.name.toUpper() as upperCaseName, math:absInt(inputStream.age) as absoluteAge
+        select inputStream.name.toUpperAscii() as upperCaseName, math:absInt(inputStream.age) as absoluteAge
         => (TeacherOutput[] teachers) {
             foreach var t in teachers {
                 outputStream.publish(t);

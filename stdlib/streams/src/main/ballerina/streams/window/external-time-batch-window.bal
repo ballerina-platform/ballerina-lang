@@ -354,10 +354,9 @@ public type ExternalTimeBatchWindow object {
         self.currentEventChunk.addLast(clonedEvent);
         StreamEvent? evnt = self.resetEvent;
         if (evnt is ()) {
-            evnt = currStreamEvent.copy();
-            if (evnt is StreamEvent) {
-                evnt.eventType = RESET;
-            }
+            var resetEvent = currStreamEvent.copy();
+            resetEvent.eventType = RESET;
+            self.resetEvent = resetEvent;
         }
     }
 
@@ -514,7 +513,7 @@ public type ExternalTimeBatchWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function externalTimeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function externalTimeBatch(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                                   returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;
