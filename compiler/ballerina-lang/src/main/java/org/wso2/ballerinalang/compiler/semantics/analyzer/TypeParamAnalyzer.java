@@ -306,6 +306,9 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.ERROR) {
                     findTypeParamInError((BErrorType) expType, (BErrorType) actualType, env, resolvedTypes, result);
                 }
+                if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
+                    findTypeParamInError((BErrorType) expType, symTable.errorType, env, resolvedTypes, result);
+                }
                 return;
             case TypeTags.TYPEDESC:
                 if (actualType.tag == TypeTags.TYPEDESC) {
