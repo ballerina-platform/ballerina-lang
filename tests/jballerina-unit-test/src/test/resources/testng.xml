@@ -89,7 +89,6 @@
             <!--<package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
             <!--<package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>-->
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.access.*"/>-->
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.access.*"/>
             <package name="org.ballerinalang.test.expressions.binaryoperations.*"/>
