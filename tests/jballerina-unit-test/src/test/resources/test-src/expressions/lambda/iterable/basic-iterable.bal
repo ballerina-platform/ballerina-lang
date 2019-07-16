@@ -198,7 +198,7 @@ function testInExpression() returns [string, int] {
     output = "";
     string[] s = ["abc", "cd", "pqr"];
     float[] r = [1.1, -2.2, 3.3, 4.4];
-    appendAny("total count " + s.filter(function (string ss) returns boolean {return ss.length() == 3;}).length());
+    appendAny("total count " + s.filter(function (string ss) returns boolean {return ss.length() == 3;}).length().toString());
     int i = s.length() + r.length();
     return [output, i];
 }

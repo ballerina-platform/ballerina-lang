@@ -12,19 +12,19 @@ function addNeg(int i) {
 }
 
 function concatInt(int index, int value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value.toString()  + " ";
 }
 
 function concatFloat(int index, float value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value.toString() + " ";
 }
 
 function concatString(int index, string value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value + " ";
 }
 
 function concatBoolean(int index, boolean value) {
-    output = output + index + ":" + value + " ";
+    output = output + index.toString() + ":" + value.toString() + " ";
 }
 
 type person record {
@@ -33,7 +33,7 @@ type person record {
 };
 
 function concatPerson(int index, person value) {
-    output = output + index + ":" + "name=" +  value.name + ",age=" + value.age + " ";
+    output = output + index.toString() + ":" + "name=" +  value.name + ",age=" + value.age.toString() + " ";
 }
 
 function testIntArrayWithArityOne() returns int {
@@ -172,7 +172,7 @@ function testArrayInsertInForeach() returns string {
     int i = 0;
     foreach var v in sArray {
         int j = i + 5;
-        sArray[j] = "d" + j;
+        sArray[j] = "d" + j.toString();
         concatString(i, v);
         i += 1;
     }
@@ -230,9 +230,9 @@ function testArrayWithNullElements() returns string {
     int i = 0;
     foreach var v in sArray {
         if v is string {
-            output = output + i + ":" + v + " ";
+            output = output + i.toString() + ":" + v.toString() + " ";
         } else {
-           output = output + i + ": ";
+           output = output + i.toString() + ": ";
         }
         i += 1;
     }

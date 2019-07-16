@@ -154,7 +154,7 @@ public class ClosureTest {
     @Test(description = "Test closure with object attached function pointer references")
     public void testClosureWithObjectAttachedFuncPointerReferences() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test20");
-        Assert.assertEquals((returns[0]).stringValue(), "16.3Ballerina !!!");
+        Assert.assertEquals((returns[0]).stringValue(), "7.354Ballerina !!!");
     }
 
     @Test(description = "Test closure with different type args references")

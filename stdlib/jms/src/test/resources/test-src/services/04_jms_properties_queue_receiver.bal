@@ -24,19 +24,19 @@ service jmsListener3 on queueConsumer3 {
         var messageText = message.getTextMessageContent();
         var booleanVal = message.getBooleanProperty("booleanProp");
         if (booleanVal is boolean) {
-             msgVal += "booleanVal:" + <@untainted> booleanVal;
+             msgVal += "booleanVal:" + <@untainted> booleanVal.toString();
         } else {
              panic booleanVal;
         }
         var intVal = message.getIntProperty("intProp");
         if (intVal is int) {
-             msgVal += "|intVal:" + <@untainted> intVal;
+             msgVal += "|intVal:" + <@untainted> intVal.toString();
         } else {
              panic intVal;
         }
         var floatVal = message.getFloatProperty("floatProp");
         if (floatVal is float) {
-             msgVal += "|floatVal:" + <@untainted> floatVal;
+             msgVal += "|floatVal:" + <@untainted> floatVal.toString();
         } else {
              panic floatVal;
         }

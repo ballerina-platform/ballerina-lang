@@ -26,7 +26,7 @@ listener socket:Listener server = new(59152);
 service echoServer on server {
 
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort.toString());
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -37,7 +37,7 @@ service echoServer on server {
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
             } else {
-                log:printInfo("Client close: " + caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort.toString());
             }
         } else {
             log:printError("Error on echo server read", <error> result);
@@ -52,7 +52,7 @@ service echoServer on server {
 service helloServer on new socket:Listener(59153) {
 
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort.toString());
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -88,7 +88,7 @@ function process(any|error result, socket:Caller caller) {
         if (length > 0) {
             totalLength = totalLength + <@untainted> length;
         } else {
-            log:printInfo("Client close: " + caller.remotePort);
+            log:printInfo("Client close: " + caller.remotePort.toString());
             return;
         }
     } else if (result is error) {
@@ -99,7 +99,7 @@ function process(any|error result, socket:Caller caller) {
 service BlockingReadServer on new socket:Listener(59154) {
 
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort.toString());
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -110,7 +110,7 @@ service BlockingReadServer on new socket:Listener(59154) {
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
             } else {
-                log:printInfo("Client close: " + caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort.toString());
             }
         } else {
             log:printError("Error while read data", <error> result);
@@ -125,7 +125,7 @@ service BlockingReadServer on new socket:Listener(59154) {
 service errorServer on new socket:Listener(59155) {
 
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort.toString());
     }
 
     resource function onReadReady(socket:Caller caller) returns error? {
@@ -136,7 +136,7 @@ service errorServer on new socket:Listener(59155) {
                 error e = error("Error while on read");
                 panic e;
             } else {
-                log:printInfo("Client close: " + caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort.toString());
             }
         } else {
             log:printError("Error on error server read", <error> result);

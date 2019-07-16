@@ -20,7 +20,7 @@ function testStructuredMatchPatternsBasic1() returns string {
     [string, int, float] a = ["S", 23, 5.6];
 
     match a {
-        var [s, i, f] => return "Matched Values : " + s + ", " + i + ", " + f;
+        var [s, i, f] => return "Matched Values : " + s + ", " + i.toString() + ", " + f.toString();
     }
 
     return "Default";
@@ -30,7 +30,7 @@ function testStructuredMatchPatternsBasic2() returns string {
     [string, [int, float]] a = ["S", [23, 5.6]];
 
     match a {
-        var [s, [i, f]] => return "Matched Values : " + s + ", " + i + ", " + f;
+        var [s, [i, f]] => return "Matched Values : " + s + ", " + i.toString() + ", " + f.toString();
     }
 
     return "Default";
