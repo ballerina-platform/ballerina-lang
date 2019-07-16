@@ -34,11 +34,9 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
  */
 public class BaloRepo implements Repo<Path> {
     ZipConverter zipConverter;
-    Path repoLocation;
     
     public BaloRepo(Path repo) {
         this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
-        this.repoLocation = repo;
     }
     
     @Override

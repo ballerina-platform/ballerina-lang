@@ -120,7 +120,8 @@ public class PushUtils {
         } else {
             try {
                 Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
-                        .filter(baloFile -> baloFile.getFileName().toString().startsWith(moduleName + "-"))
+                        .filter(baloFile -> null != baloFile.getFileName() &&
+                                            baloFile.getFileName().toString().startsWith(moduleName + "-"))
                         .findFirst();
                 
                 if (moduleBaloFile.isPresent()) {
