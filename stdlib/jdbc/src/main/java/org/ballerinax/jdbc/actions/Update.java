@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.UpdateStatement;
 
@@ -44,11 +44,9 @@ public class Update extends BlockingNativeCallableUnit {
         //TODO: #16033
     }
 
-    public static Object nativeUpdate(Strand strand, ObjectValue client, String query, Object keyColumns,
-            ArrayValue parameters) {
+    public static Object nativeUpdate(Strand strand, ObjectValue client, String query, ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, (ArrayValue) keyColumns,
-                parameters, strand);
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters, strand);
         return updateStatement.execute();
     }
 }

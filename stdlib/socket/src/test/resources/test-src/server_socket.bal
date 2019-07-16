@@ -103,7 +103,7 @@ service BlockingReadServer on new socket:Listener(59154) {
     }
 
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read(18);
+        var result = caller->read(length = 18);
         if (result is [byte[], int]) {
             var [content, length] = result;
             if (length > 0) {

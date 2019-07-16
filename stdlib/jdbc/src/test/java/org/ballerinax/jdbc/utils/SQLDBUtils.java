@@ -118,7 +118,7 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        InputStream is = null;
+        InputStream is;
         String fileAsString = null;
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {

@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.map:reduce(map<Type>, function, Type1).
+ * Native implementation of lang.map:reduce(map&lt;Type&gt;, function, Type1).
  *
  * @since 1.0
  */

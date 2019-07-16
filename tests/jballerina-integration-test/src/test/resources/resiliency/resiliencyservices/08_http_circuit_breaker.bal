@@ -61,9 +61,10 @@ service circuitbreaker01 on circuitBreakerEP01 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            string errCause = <string> backendRes.detail().message;
+            string errCause = <string> err.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
