@@ -108,6 +108,7 @@ public class LauncherUtils {
     private static final int EXIT_CODE_GENERAL_ERROR = 1;
     private static final int EXIT_CODE_SUCCESS = 0;
 
+    private static PrintStream outStream = System.out;
     private static PrintStream errStream = System.err;
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, Map<String, String> runtimeParams,
@@ -427,8 +428,11 @@ public class LauncherUtils {
         }
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage entryPkgNode = compiler.compile(source);
-
+        outStream.println("Compiling source");
+        BLangPackage entryPkgNode = compiler.compile(source, true);
+        if (entryPkgNode.diagCollector.hasErrors()) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
         String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                 "ballerina.home is not set");
         JBallerinaInMemoryClassLoader classLoader;
