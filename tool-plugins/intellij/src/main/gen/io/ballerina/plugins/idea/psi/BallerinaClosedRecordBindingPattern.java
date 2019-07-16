@@ -27,9 +27,9 @@ public interface BallerinaClosedRecordBindingPattern extends PsiElement {
   List<BallerinaFieldBindingPattern> getFieldBindingPatternList();
 
   @NotNull
-  PsiElement getLeftBrace();
+  PsiElement getLeftClosedRecordDelimiter();
 
   @Nullable
-  PsiElement getRightBrace();
+  PsiElement getRightClosedRecordDelimiter();
 
 }

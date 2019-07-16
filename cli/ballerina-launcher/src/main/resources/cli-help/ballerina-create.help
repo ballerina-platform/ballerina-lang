@@ -1,0 +1,30 @@
+NAME
+    Ballerina create - Create a Ballerina module in a project
+
+SYNOPSIS
+    ballerina create <module-name> [-t|--template <template-name>]
+
+DESCRIPTION
+     Ballerina create will initialize a new module in a Ballerina
+     project. The command should be run inside a Ballerina project.
+
+     You can also select different templates for the module.
+
+OPTIONS
+     -t
+     --template
+          Create a module using a predefined template. The 
+          default template is a module with a main.
+     -l
+     --list
+          List available templates.
+
+
+EXAMPLES
+     Create a module with a main
+     $ ballerina create mainmodule
+
+     Create a module with a service
+     $ ballerina create myservice --template service
+     
+

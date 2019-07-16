@@ -7,7 +7,8 @@ export class ExpandContext {
     public expandedSubTreeDocUri: string = ""; // The uri of the bal file where the definition is in
     public expandableNode: Invocation;
     public labelWidth: number = 0;
-    public collapsed: boolean = false;
+    public collapsed: boolean = true;
+    public skipDepthCheck: boolean = false;
 
     constructor(expandableNode: Invocation, expandedSubTree: BalFunction, uri: string) {
         this.expandableNode = expandableNode;

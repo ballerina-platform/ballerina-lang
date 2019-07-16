@@ -23,12 +23,16 @@ import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.PrintStream;
+import java.util.Optional;
+
 /**
  * This class provides util methods when searching for Ballerina modules in the central.
  *
  * @since 0.95.2
  */
 public class SearchUtils {
+    private static final PrintStream ERROR_STREAM = System.err;
     
     /**
      * Search for modules in central.
@@ -39,8 +43,9 @@ public class SearchUtils {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        executor.executeFunction("packaging_search/packaging_search.balx", RepoUtils.getRemoteRepoURL(),
-                                 query, proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                                 RepoUtils.getTerminalWidth());
+        Optional<RuntimeException> executionResult = executor.executeMainFunction("module_search",
+                RepoUtils.getRemoteRepoURL(), query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                proxy.getPassword(), RepoUtils.getTerminalWidth());
+        executionResult.ifPresent(e -> ERROR_STREAM.println(e.getMessage()));
     }
 }

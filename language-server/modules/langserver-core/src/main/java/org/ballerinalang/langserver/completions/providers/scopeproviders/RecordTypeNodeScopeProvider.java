@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
@@ -32,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -48,17 +52,27 @@ public class RecordTypeNodeScopeProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
+        ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        
+        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+            return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
+        }
+        
         if (invocationOrDelimiterTokenType > -1) {
             Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
                     .get(DelimiterBasedContentFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(eitherList, context));
-        } else {
-            List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
-                    .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
-            completionItems.addAll(this.getPackagesCompletionItems(context));
+            return completionItems;
         }
+        List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+                .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        
         return completionItems;
     }
 }
