@@ -182,7 +182,9 @@ public type Cache object {
     # + key - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
-        var tempVar = self.entries.remove(key);
+        if (self.entries.hasKey(key)) {
+            var tempVar = self.entries.remove(key);
+        }
     }
 
     # Returns all keys from current cache.

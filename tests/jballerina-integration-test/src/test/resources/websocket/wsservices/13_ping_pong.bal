@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 
 final string strData2 = "data";
-final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
+final byte[] APPLICATION_DATA3 = strData2.toBytes();
 
 service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
 

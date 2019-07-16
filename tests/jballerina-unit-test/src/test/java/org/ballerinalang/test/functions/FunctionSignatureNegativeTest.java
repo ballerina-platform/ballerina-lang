@@ -73,9 +73,11 @@ public class FunctionSignatureNegativeTest {
     }
 
     @Test
-    public void testExternFunctionWithBody() {
-        CompileResult result = BCompileUtil.compile("test-src/functions/extern-function-with-body.bal");
-        BAssertUtil.validateError(result, 0, "external function 'foo' cannot have a body", 5, 1);
+    public void testOutsideObjectMethodDefinition() {
+
+        CompileResult result = BCompileUtil.compile("test-src/functions" +
+                "/function_with_outside_object_method_definition.bal");
+        BAssertUtil.validateError(result, 0, "outside object method definitions are not allowed", 5, 1);
     }
 
     @Test

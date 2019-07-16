@@ -62,7 +62,7 @@ public type WebSocketClient client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -92,8 +92,8 @@ public type WebSocketClient client object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
-    public remote function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60)
-    returns WebSocketError? {
+    public remote function close(public int? statusCode = 1000, public string? reason = (),
+        public int timeoutInSecs = 60) returns WebSocketError? {
         return self.conn.close(statusCode = statusCode, reason = reason, timeoutInSecs = timeoutInSecs);
     }
 

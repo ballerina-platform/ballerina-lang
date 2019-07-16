@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/'lang\.int as ints;
 
 function testPrint1() {
     io:println("Hello");
@@ -126,11 +127,11 @@ function testReturningInMatch() returns string? {
 }
 
 function testReturnsDuringValidCheck() returns error? {
-    int x = check int.convert("15");
+    int x = <int>ints:fromString("15");
 }
 
 function testValidCheckWithExplicitReturn() returns error? {
-    int x = check int.convert("15");
+    int x = <int>ints:fromString("15");
     return;
 }
 
@@ -232,16 +233,16 @@ function testNilableUnion() returns int|string|OpenPerson|() {
 function testNilableUnionArray() returns (int|string|OpenPerson)?[]? {
 }
 
-function testNilableTuple() returns (int, string, OpenPerson)? {
+function testNilableTuple() returns [int, string, OpenPerson]? {
 }
 
-function testNilableTupleArray() returns (int, string, OpenPerson)[]? {
+function testNilableTupleArray() returns [int, string, OpenPerson][]? {
 }
 
-function testNilableTypedesc() returns typedesc? {
+function testNilableTypedesc() returns typedesc<any>? {
 }
 
-function testNilableTypedescArray() returns typedesc[]? {
+function testNilableTypedescArray() returns typedesc<any>[]? {
 }
 
 function testNilableStream() returns stream<ClosedPerson>? {

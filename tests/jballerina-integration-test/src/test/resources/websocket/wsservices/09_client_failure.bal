@@ -28,16 +28,15 @@ service clientFailure on new http:WebSocketListener(9091) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp;
         globalServerCaller = <@untainted> wsEp;
-        wsClientEp = new(REMOTE_BACKEND_URL1, config = { callbackService: errorHandlingService });
+        wsClientEp = new(REMOTE_BACKEND_URL1, { callbackService: errorHandlingService });
     }
 }
 service errorHandlingService = @http:WebSocketServiceConfig {} service {
     resource function onError(http:WebSocketClient caller, error err) {
         http:WebSocketCaller? serverCaller = globalServerCaller;
         if (serverCaller is http:WebSocketCaller) {
-            var closeErr = serverCaller->close(statusCode = 1011, reason = <string>err.detail().message,
-            timeoutInSecs = 0);
-            log:printError("Failed during closing the connection", err = <error> closeErr);
+            var closeErr = serverCaller->close(1011, <string>err.detail()["message"], 0);
+            log:printError("Failed during closing the connection", closeErr);
         } else {
             log:printError("serverCaller has not been set");
         }
