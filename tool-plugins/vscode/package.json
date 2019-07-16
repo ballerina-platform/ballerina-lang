@@ -246,6 +246,14 @@
             {
                 "command": "ballerina.showTraces",
                 "title": "Ballerina: Show Network logs"
+            },
+            {
+                "command": "ballerina.refreshProjectTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
             }
         ],
         "menus": {
@@ -276,6 +284,13 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showAPIEditor",
                     "group": "navigation"
+                }
+            ],
+            "view/title": [
+                {
+                  "command": "ballerina.refreshProjectTree",
+                  "when": "view == ballerinaProjectTree",
+                  "group": "navigation"
                 }
             ]
         }
