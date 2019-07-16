@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * This is a dummy test that ensures @BeforeGroups runs before the actual test classes. When there is @BeforeClass in a
+ * test, it happens to run before @BeforeGroups. This class will run before any other test classes ensuring that
+ * the annotation @BeforeGroups runs before other tests.
+ */
 @Test(groups = "artemis-test")
 public class ArtemisDummyTestCase {
     @BeforeClass
@@ -31,7 +36,7 @@ public class ArtemisDummyTestCase {
     }
 
     @Test(description = "dummy test to trigger before groups")
-    public void dummyTest() throws BallerinaTestException {
+    public void dummyTest() {
         Assert.assertTrue(true);
     }
 

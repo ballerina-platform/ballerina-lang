@@ -42,7 +42,7 @@ public class LocalTransactionTest {
     @BeforeClass
     public void setup() throws URISyntaxException {
         TestUtils.prepareBalo(this);
-        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis");
+        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis", "src");
         producerResult = BCompileUtil.compile(sourcePath.resolve("producers").resolve("transaction_producer.bal")
                                                       .toAbsolutePath().toString());
         consumerResult = BCompileUtil.compile(sourcePath.resolve("consumers").resolve("transaction_consumer.bal")

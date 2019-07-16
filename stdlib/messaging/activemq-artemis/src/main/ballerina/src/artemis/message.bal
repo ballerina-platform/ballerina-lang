@@ -32,7 +32,7 @@ public type Message client object {
         } else {
             self.configuration = {};
         }
-        if(!self.created) {
+        if (!self.created) {
             self.initCreation(data);
         }
     }

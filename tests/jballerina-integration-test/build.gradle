@@ -170,8 +170,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-
-    dependsOn createBre
 }
 
 clean.doFirst {

@@ -311,10 +311,8 @@ class ArtemisMessageHandler implements MessageHandler {
         AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
         if (resourceName.equals(attachedFunctions[0].getName())) {
             return attachedFunctions[0];
-        } else if (attachedFunctions.length > 1) {
-            if (resourceName.equals(attachedFunctions[1].getName())) {
-                return attachedFunctions[1];
-            }
+        } else if (attachedFunctions.length > 1 && resourceName.equals(attachedFunctions[1].getName())) {
+            return attachedFunctions[1];
         }
         return null;
     }
