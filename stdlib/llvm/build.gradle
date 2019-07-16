@@ -16,15 +16,20 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
     implementation 'org.bytedeco.javacpp-presets:llvm-platform'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - LLVM Binding'

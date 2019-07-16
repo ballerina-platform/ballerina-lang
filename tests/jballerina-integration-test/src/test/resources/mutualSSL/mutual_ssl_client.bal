@@ -42,7 +42,7 @@ http:ClientEndpointConfig mutualSslClientConf = {
 };
 
 public function main() {
-    http:Client httpClient = new("https://localhost:9116", config = mutualSslClientConf );
+    http:Client httpClient = new("https://localhost:9116", mutualSslClientConf );
     var resp = httpClient->get("/echo/");
     if (resp is http:Response) {
         var payload = resp.getTextPayload();

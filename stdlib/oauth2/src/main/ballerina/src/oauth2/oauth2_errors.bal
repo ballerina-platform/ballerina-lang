@@ -20,4 +20,4 @@ type Detail record {
 };
 
 public const OAUTH2_ERROR = "{ballerina/oauth2}OAuth2Error";
-public type OAuth2Error error<OAUTH2_ERROR, Detail>;
+public type Error error<OAUTH2_ERROR, Detail>;

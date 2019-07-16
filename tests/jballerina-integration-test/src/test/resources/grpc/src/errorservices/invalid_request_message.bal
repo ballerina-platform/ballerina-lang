@@ -15,7 +15,7 @@
 // under the License.
 import ballerina/grpc;
 
-listener grpc:Listener server1 = new (9090, config = {
+listener grpc:Listener server1 = new (9090, {
     host:"localhost"
 });
 

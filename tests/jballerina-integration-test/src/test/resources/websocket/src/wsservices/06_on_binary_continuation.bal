@@ -21,13 +21,13 @@ byte[] content = [];
 service onBinaryContinuation on new http:WebSocketListener(9088) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         if (finalFrame) {
-            appendToArray(untaint data, content);
+            appendToArray(<@untainted> data, content);
             var returnVal = caller->pushBinary(content);
             if (returnVal is error) {
                  panic returnVal;
             }
         } else {
-            appendToArray(untaint data, content);
+            appendToArray(<@untainted> data, content);
         }
     }
 }

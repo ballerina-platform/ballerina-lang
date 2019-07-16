@@ -17,6 +17,8 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
+import ballerina/'lang\.int as lint;
+import ballerina/internal;
 
 # This functions pulls a module from ballerina central.
 #
@@ -29,15 +31,16 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string ur
     http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
-    req.setFileAsPayload(baloPath, contentType = mime:APPLICATION_OCTET_STREAM);
+    req.setFileAsPayload(baloPath, mime:APPLICATION_OCTET_STREAM);
     http:Response|error response = httpEndpoint->post("", req);
 
     if (response is error) {
-        io:println(response);
-        panic createError("connection to the remote host failed : " + <string>response.detail().msg);
+        error e = response;
+        io:println(e.reason());
+        panic createError("connection to the remote host failed : " + e.reason());
     } else {
-        string statusCode = string.convert(response.statusCode);
-        if (statusCode.hasPrefix("5")) {
+        string statusCode = response.statusCode.toString();
+        if (internal:hasPrefix(statusCode, "5")) {
             panic createError("error occured in remote registry. url: " + url);
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
@@ -67,7 +70,7 @@ public function main(string... args) {
     string pathToBalo = args[6];
     string outputLog = args[7];
     if (proxyHost != "" && proxyPortAsString != "") {
-        int|error proxyPort = int.convert(proxyPortAsString);
+        int|error proxyPort = lint:fromString(proxyPortAsString);
         if (proxyPort is int) {
             http:Client|error result = trap defineEndpointWithProxy(urlWithModulePath, proxyHost, proxyPort, proxyUsername, proxyPassword);
             if (result is http:Client) {
@@ -96,7 +99,7 @@ public function main(string... args) {
 # + password - Password of the proxy
 # + return - Endpoint defined
 function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client {
-    http:Client httpEndpoint = new(url, config = {
+    http:Client httpEndpoint = new(url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -115,7 +118,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy (string url) returns http:Client{
-    http:Client httpEndpoint = new(url, config = {
+    http:Client httpEndpoint = new(url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

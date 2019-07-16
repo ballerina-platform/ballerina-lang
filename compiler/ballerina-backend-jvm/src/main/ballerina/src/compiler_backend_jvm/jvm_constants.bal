@@ -274,7 +274,7 @@ const string SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
 const string ERROR_TYPE = "org/ballerinalang/jvm/types/BErrorType";
 const string TUPLE_TYPE = "org/ballerinalang/jvm/types/BTupleType";
 const string FUNCTION_TYPE = "org/ballerinalang/jvm/types/BFunctionType";
-const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedesc";
+const string TYPEDESC_TYPE = "org/ballerinalang/jvm/types/BTypedescType";
 const string BFIELD = "org/ballerinalang/jvm/types/BField";
 const string ATTACHED_FUNCTION = "org/ballerinalang/jvm/types/AttachedFunction";
 const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
@@ -305,7 +305,7 @@ const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
 const string BALLERINA = "ballerina";
-const string BUILT_IN_PACKAGE_NAME = "builtin";
+const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 
 // scheduler related constants

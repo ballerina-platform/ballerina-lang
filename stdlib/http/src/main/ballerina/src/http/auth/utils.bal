@@ -163,8 +163,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 # + return - Returns the resource-level and service-level authentication annotations.
 function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
-    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, moduleName = ANN_MODULE,
-                                                 RESOURCE_ANN_NAME);
+    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, RESOURCE_ANN_NAME,
+                                                    ANN_MODULE);
     ServiceResourceAuth? resourceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
@@ -175,7 +175,7 @@ function getServiceResourceAuthConfig(FilterContext context) returns [ServiceRes
     //HttpServiceConfig? serviceConfig = serviceTypedesc.@ballerina/http:ServiceConfig;
     //ServiceResourceAuth? serviceLevelAuthAnn = serviceConfig is () ? () : serviceConfig["auth"];
 
-    annData = reflect:getServiceAnnotations(context.serviceRef, moduleName = ANN_MODULE, SERVICE_ANN_NAME);
+    annData = reflect:getServiceAnnotations(context.serviceRef, SERVICE_ANN_NAME, ANN_MODULE);
     ServiceResourceAuth? serviceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
@@ -211,13 +211,32 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
     return headerMap;
 }
 
-# Logs, prepares, and returns the `error`.
+# Logs, prepares, and returns the `AuthenticationError`.
 #
 # + message -The error message.
 # + err - The `error` instance.
-# + return - Returns the prepared `error` instance.
-function prepareError(string message, error? err = ()) returns error {
+# + return - Returns the prepared `AuthenticationError` instance.
+function prepareAuthenticationError(string message, error? err = ()) returns AuthenticationError {
     log:printDebug(function () returns string { return message; });
-    error preparedError = error(HTTP_ERROR_CODE, message = message, reason = err.reason());
+    if (err is error) {
+        AuthenticationError preparedError = error(AUTHN_FAILED, message = message, cause = err);
+        return preparedError;
+    }
+    AuthenticationError preparedError = error(AUTHN_FAILED, message = message);
+    return preparedError;
+}
+
+# Logs, prepares, and returns the `AuthorizationError`.
+#
+# + message -The error message.
+# + err - The `error` instance.
+# + return - Returns the prepared `AuthorizationError` instance.
+function prepareAuthorizationError(string message, error? err = ()) returns AuthorizationError {
+    log:printDebug(function () returns string { return message; });
+    if (err is error) {
+        AuthorizationError preparedError = error(AUTHZ_FAILED, message = message, cause = err);
+        return preparedError;
+    }
+    AuthorizationError preparedError = error(AUTHZ_FAILED, message = message);
     return preparedError;
 }

@@ -26,43 +26,57 @@ function initReadableChannel(string filePath, string encoding, string recordSepa
         return byteChannel;
     } else {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
+        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
     }
 }
 
 function initWritableChannel(string filePath, string encoding, string recordSeparator,
-                             string fieldSeparator) returns io:IOError? {
+                             string fieldSeparator) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fs = fieldSeparator, rs = recordSeparator);
+    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
 }
 
 
 function nextRecord() returns @tainted string[]|error {
-    var result = rch.getNext();
-    if (result is string[]) {
-        return result;
-    } else if (result is error) {
-        return result;
-    } else {
-        error e = error("Record channel not initialized properly");
-        return e;
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        var result = cha.getNext();
+        if (result is string[]) {
+            return result;
+        } else {
+            return result;
+        }
     }
+    error e = error("Record channel not initialized properly");
+    return e;
 }
 
 function writeRecord(string[] fields) {
-    var result = wch.write(fields);
+    var cha = wch;
+    if(cha is io:WritableTextRecordChannel){
+        var result = cha.write(fields);
+    }
 }
 
 function closeReadableChannel() {
-    var err = rch.close();
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        var err = cha.close();
+    }
 }
 
 function closeWritableChannel() {
-    var err = wch.close();
+    var cha = wch;
+    if(cha is io:WritableTextRecordChannel) {
+        var err = cha.close();
+    }
 }
 
 
 function hasNextRecord() returns boolean? {
-    return rch.hasNext();
+    var cha = rch;
+    if(cha is io:ReadableTextRecordChannel) {
+        return cha.hasNext();
+    }
 }

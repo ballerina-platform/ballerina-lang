@@ -18,6 +18,9 @@ import ballerina/filepath;
 import ballerina/http;
 import ballerina/io;
 import ballerina/system;
+import ballerina/'lang\.int as lint;
+import ballerina/'lang\.string as lstring;
+import ballerina/internal;
 
 const int MAX_INT_VALUE = 2147483647;
 const string VERSION_REGEX = "(\\d+\\.)(\\d+\\.)(\\d+)";
@@ -68,8 +71,8 @@ public function main(string... args) {
     string proxyPassword = args[6];
     string terminalWidth = args[7];
     string versionRange = args[8];
-    isBuild = <@untainted> boolean.convert(args[9]);
-    boolean nightlyBuild = <@untainted> boolean.convert(args[10]);
+    isBuild = <@untainted> args[9] == "true";
+    boolean nightlyBuild = <@untainted> args[10] == "true";
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -77,7 +80,7 @@ public function main(string... args) {
 
     if (host != "" && strPort != "") {
         // validate port
-        int|error port = int.convert(strPort);
+        int|error port = lint:fromString(strPort);
         if (port is error) {
             panic createError("invalid port : " + strPort);
         } else {
@@ -112,17 +115,18 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
-    http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, message=req);
+    http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
-        panic createError("connection to the remote host failed : " + <string>httpResponse.detail().msg);
+        error e = httpResponse;
+        panic createError("connection to the remote host failed : " + e.reason());
     } else {
-        string statusCode = string.convert(httpResponse.statusCode);
-        if (statusCode.hasPrefix("5")) {
+        string statusCode = httpResponse.statusCode.toString();
+        if (internal:hasPrefix(statusCode, "5")) {
             panic createError("remote registry failed for url:" + url);
         } else if (statusCode != "200") {
             var resp = httpResponse.getJsonPayload();
             if (resp is json) {
-                if (statusCode == "404" && isBuild && resp.message.toString().contains("module not found")) {
+                if (statusCode == "404" && isBuild && internal:contains(resp.message.toString(), "module not found")) {
                     // To ignore printing the error
                     panic createError("");
                 } else {
@@ -137,7 +141,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
             if (httpResponse.hasHeader("content-length")) {
                 contentLengthHeader = httpResponse.getHeader("content-length");
-                baloSize = <@untainted> checkpanic int.convert(contentLengthHeader);
+                baloSize = <@untainted> checkpanic lint:fromString(contentLengthHeader);
             } else {
                 panic createError("module size information is missing from remote repository. please retry.");
             }
@@ -149,12 +153,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 resolvedURI = url;
             }
 
-            string [] uriParts = resolvedURI.split("/");
+            string [] uriParts = internal:split(resolvedURI,"/");
             string moduleVersion = uriParts[uriParts.length() - 3];
-            boolean valid = checkpanic moduleVersion.matches(VERSION_REGEX);
+            boolean valid = internal:matches(moduleVersion, VERSION_REGEX);
 
             if (valid) {
-                string moduleName = modulePath.substring(modulePath.lastIndexOf("/") + 1, modulePath.length());
+                string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
                 string baloFile = moduleName + ".balo";
 
                 // adding version to the module path
@@ -166,7 +170,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError("module already exists in the home repository");
                 }
 
-                string|error createBaloFile = system:createDir(baloCacheWithModulePath, parentDirs = true);
+                string|error createBaloFile = system:createDir(baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -175,16 +179,18 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
                 string toAndFrom = " [central.ballerina.io -> home repo]";
                 int rightMargin = 3;
-                int width = (checkpanic int.convert(terminalWidth)) - rightMargin;
+                int width = (checkpanic lint:fromString(terminalWidth)) - rightMargin;
                 copy(baloSize, sourceChannel, wch, modulePathWithVersion, toAndFrom, width);
 
                 var destChannelClose = wch.close();
                 if (destChannelClose is error) {
-                    panic createError("error occurred while closing the channel: " + destChannelClose.reason());
+                    error e = destChannelClose;
+                    panic createError("error occurred while closing the channel: " + e.reason());
                 } else {
                     var srcChannelClose = sourceChannel.close();
                     if (srcChannelClose is error) {
-                        panic createError("error occurred while closing the channel: " + srcChannelClose.reason());
+                        error e = srcChannelClose;
+                        panic createError("error occurred while closing the channel: " + e.reason());
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
@@ -213,7 +219,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 # + password - Password of the proxy
 # + return - Endpoint defined
 public function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client {
-    http:Client httpEndpointWithProxy = new(url, config = {
+    http:Client httpEndpointWithProxy = new(url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -233,7 +239,7 @@ public function defineEndpointWithProxy(string url, string hostname, int port, s
 # + url - URL to be invoked
 # + return - Endpoint defined
 function defineEndpointWithoutProxy(string url) returns http:Client{
-    http:Client httpEndpointWithoutProxy = new(url, config = {
+    http:Client httpEndpointWithoutProxy = new(url, {
         secureSocket:{
             trustStore:{
                 path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -358,14 +364,16 @@ function closeChannel(io:ReadableByteChannel|io:WritableByteChannel byteChannel)
     if (byteChannel is io:ReadableByteChannel) {
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+            error e = channelCloseError;
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
         } else {
             return;
         }
     } else  {
         var channelCloseError = byteChannel.close();
         if (channelCloseError is error) {
-            io:println(logFormatter.formatLog("Error occured while closing the channel: " + channelCloseError.reason()));
+            error e = channelCloseError;
+            io:println(logFormatter.formatLog("Error occured while closing the channel: " + e.reason()));
         } else {
             return;
         }

@@ -37,13 +37,15 @@ public type Filter object {
         int index = 0;
         foreach var ev in streamEvents {
             StreamEvent event = <StreamEvent> ev;
-            if (self.conditionFunc.call(event.data)) {
+            function (map<anydata>) returns boolean cFunction = self.conditionFunc;
+            if (cFunction(event.data)) {
                 newStreamEventArr[index] = event;
                 index += 1;
             }
         }
         if (index > 0) {
-            self.nextProcessorPointer.call(newStreamEventArr);
+            function (StreamEvent?[]) processorPointer = self.nextProcessorPointer;
+            processorPointer(newStreamEventArr);
         }
     }
 };

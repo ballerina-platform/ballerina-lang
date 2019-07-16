@@ -551,7 +551,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
-        invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
         BSymbol owner = this.env.scope.owner;
         if (owner.kind == SymbolKind.FUNCTION) {

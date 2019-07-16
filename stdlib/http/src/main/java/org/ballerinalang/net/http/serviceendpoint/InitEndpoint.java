@@ -92,7 +92,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             resetRegistry(serviceEndpoint);
             return null;
         } catch (Exception e) {
-            return HttpUtil.getError(e.getMessage());
+            return HttpUtil.createHttpError(e.getMessage());
         }
     }
 }
