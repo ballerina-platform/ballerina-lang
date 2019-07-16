@@ -24,9 +24,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         this.ballerinaExtInstance = balExt;
         this.langClient = balExt.langClient;
 
-        vscode.workspace.onDidOpenTextDocument((document) => {
-            if (document.languageId === "ballerina") {
-                this.refresh(document);
+        vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
+            if (!activatedTextEditor) {
+                return;
+            }
+
+            if (activatedTextEditor.document.languageId === "ballerina") {
+                this.refresh(activatedTextEditor.document);
             }
         });
 
