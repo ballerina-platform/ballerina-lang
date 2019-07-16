@@ -88,3 +88,63 @@ function testMapMemberAccessInvalidTypes() {
     string? s2 = e["name"];
     int|string s3 = e[s];
 }
+
+function testMemberAccessOnNillableMappingInvalidType() {
+    map<string>? m = { "one": "1", "two": "2" };
+    string index = "two";
+    string s1 = m["one"];
+    string s2 = m[index];
+
+    map<map<int>>? m2 = { one: { two: 2 } };
+    map<int> in1 = m2["one"];
+    int in2 = m2["one"]["two"];
+    int in3 = m2[index]["three"];
+
+    Employee? e = { name: "Bill" };
+    string s3 = e["name"];
+    boolean s4 = e[index];
+}
+
+type Baz record {
+    string x;
+    int y?;
+};
+
+type Qux record {
+    string x;
+    boolean y;
+    float z = 1.0;
+};
+
+function testMemberAccessOnRecordUnionInvalidType() {
+    Baz b = { x: "hello", y: 11 };
+    Baz|Qux bq = b;
+    string index = "x";
+
+    int x = bq["x"];
+    int x2 = bq[index];
+    int|boolean y = bq["y"];
+    float z = bq["z"];
+    string w = bq[index][index];
+}
+
+function testMemberAccessOnMapUnionInvalidType() {
+    map<string> b = { x: "hello", y: "world" };
+    map<string>|map<map<float>|xml> bq = b;
+    string index = "x";
+
+    string x = bq["x"];
+    string x2 = bq[index];
+    string w = bq[index][index];
+}
+
+function testMemberAccessOnMappingUnionInvalidType() {
+    Baz b = { x: "hello", y: 11 };
+    Baz|map<int>|map<map<float>> bq = b;
+    string index = "x";
+
+    string x = bq["x"];
+    int x2 = bq[index];
+    map<float>? y = bq["y"];
+    anydata z = bq["z"][index];
+}

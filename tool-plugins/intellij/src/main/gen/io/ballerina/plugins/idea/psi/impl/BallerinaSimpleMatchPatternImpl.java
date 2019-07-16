@@ -43,9 +43,15 @@ public class BallerinaSimpleMatchPatternImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
+  @Nullable
+  public PsiElement getQuotedStringLiteral() {
+    return findChildByType(QUOTED_STRING_LITERAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
+    return findChildByType(IDENTIFIER);
   }
 
   @Override

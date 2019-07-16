@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function main(typedesc t, int|typedesc i = 1, FooObject... f) returns string {
+function main(typedesc<any> t, int|typedesc<any> i = 1, FooObject... f) returns string {
     return "invalid";
 }
 

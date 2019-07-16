@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaReturnTypeImpl extends ASTWrapperPsiElement implements BallerinaReturnType {
+public class BallerinaHandleTypeNameImpl extends ASTWrapperPsiElement implements BallerinaHandleTypeName {
 
-  public BallerinaReturnTypeImpl(@NotNull ASTNode node) {
+  public BallerinaHandleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitReturnType(this);
+    visitor.visitHandleTypeName(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,14 +44,8 @@ public class BallerinaReturnTypeImpl extends ASTWrapperPsiElement implements Bal
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaTypeName getTypeName() {
-    return findNotNullChildByClass(BallerinaTypeName.class);
+  public PsiElement getHandle() {
+    return findNotNullChildByType(HANDLE);
   }
 
 }

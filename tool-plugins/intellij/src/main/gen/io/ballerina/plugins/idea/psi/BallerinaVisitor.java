@@ -452,6 +452,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitHandleTypeName(@NotNull BallerinaHandleTypeName o) {
+    visitPsiElement(o);
+  }
+
   public void visitHavingClause(@NotNull BallerinaHavingClause o) {
     visitPsiElement(o);
   }
@@ -776,10 +780,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitReturnType(@NotNull BallerinaReturnType o) {
-    visitPsiElement(o);
-  }
-
   public void visitSealedLiteral(@NotNull BallerinaSealedLiteral o) {
     visitPsiElement(o);
   }
@@ -1022,6 +1022,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitTypeDefinition(@NotNull BallerinaTypeDefinition o) {
     visitTopLevelDefinition(o);
+  }
+
+  public void visitTypeDescReferenceTypeName(@NotNull BallerinaTypeDescReferenceTypeName o) {
+    visitPsiElement(o);
   }
 
   public void visitTypeDescTypeName(@NotNull BallerinaTypeDescTypeName o) {

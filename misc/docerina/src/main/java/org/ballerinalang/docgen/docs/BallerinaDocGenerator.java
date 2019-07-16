@@ -544,7 +544,8 @@ public class BallerinaDocGenerator {
     //        PackageLoader pkgLoader = PackageLoader.getInstance(context);
     //        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
     //        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-    //        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+    //        return codeAnalyzer.analyze(semAnalyzer
+    //        .analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
     //                Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
     //    }
 

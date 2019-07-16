@@ -60,9 +60,9 @@ public class BallerinaTupleTypeNameImpl extends BallerinaTypeNameImpl implements
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRightBracket() {
-    return findNotNullChildByType(RIGHT_BRACKET);
+    return findChildByType(RIGHT_BRACKET);
   }
 
 }

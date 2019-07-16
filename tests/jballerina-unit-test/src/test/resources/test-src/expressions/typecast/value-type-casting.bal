@@ -1,3 +1,6 @@
+import ballerina/'lang\.int as ints;
+import ballerina/'lang\.float as floats;
+
 function intToFloat (int value) returns (float) {
     float result;
     result = <float>value;
@@ -6,13 +9,7 @@ function intToFloat (int value) returns (float) {
 
 function intToString (int value) returns (string) {
     string result;
-    result = string.convert(value);
-    return result;
-}
-
-function intToBoolean (int value) returns (boolean) {
-    boolean result;
-    result = boolean.convert(value);
+    result = value.toString();
     return result;
 }
 
@@ -30,13 +27,7 @@ function floatToInt (float value) returns (int) {
 
 function floatToString(float value) returns (string) {
     string result;
-    result = string.convert(value);
-    return result;
-}
-
-function floatToBoolean (float value) returns (boolean) {
-    boolean result;
-    result = boolean.convert(value);
+    result = value.toString();
     return result;
 }
 
@@ -48,19 +39,13 @@ function floatToAny (float value) returns (any) {
 
 function stringToInt(string value) returns (int|error) {
     int result;
-    result = check int.convert(value);
+    result = check ints:fromString(value);
     return result;
 }
 
 function stringToFloat(string value) returns (float|error) {
     float result;
-    result = check float.convert(value);
-    return result;
-}
-
-function stringToBoolean(string value) returns (boolean) {
-    boolean result;
-    result = boolean.convert(value);
+    result = check floats:fromString(value);
     return result;
 }
 
@@ -70,21 +55,9 @@ function stringToAny(string value) returns (any) {
     return result;
 }
 
-function booleanToInt(boolean value) returns (int) {
-    int result;
-    result = int.convert(value);
-    return result;
-}
-
-function booleanToFloat(boolean value) returns (float) {
-    float result;
-    result = float.convert(value);
-    return result;
-}
-
 function booleanToString(boolean value) returns (string) {
     string result;
-    result = string.convert(value);
+    result = value.toString();
     return result;
 }
 
