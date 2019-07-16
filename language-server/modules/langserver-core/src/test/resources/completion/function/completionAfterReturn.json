@@ -170,7 +170,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerinax/jdbc;\n"
+          "newText": "import ballerinax/java.jdbc;\n"
         }
       ]
     },

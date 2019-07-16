@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 public function main() {
     jdbc:Client testDB = new({
