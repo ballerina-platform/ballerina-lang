@@ -266,7 +266,7 @@ function genJMethodForBFunc(bir:Function func,
             if (localVar.kind is bir:LocalVarKind) {
                 string? startBBID = localVar.meta?.startBBID;
                 string? endBBID = localVar.meta?.endBBID;
-                int? insOffset = localVar.meta.insOffset;
+                int? insOffset = localVar.meta?.insOffset;
                 if (startBBID is string && insOffset is int) {
                     startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset);
                 }
@@ -274,8 +274,11 @@ function genJMethodForBFunc(bir:Function func,
                     endLabel = labelGen.getLabel(funcName + endBBID + "beforeTerm");
                 }
             }
-            mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue),
-                startLabel, endLabel, indexMap.getIndex(localVar));
+            string? metaVarName = localVar.meta?.name;
+            if (metaVarName is string) {
+                mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
+                                startLabel, endLabel, indexMap.getIndex(localVar));
+            }
         }
         k = k + 1;
     }
