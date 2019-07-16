@@ -387,12 +387,12 @@ public class TableLiteralSyntaxTest {
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
         Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, " +
-                        "{\"id\":2, \"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}]");
+                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, "
+                        + "{\"id\":2, \"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}]");
         Assert.assertEquals((returns[1]).stringValue(),
-                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, {\"id\":2, " +
-                        "\"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, " +
-                        "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
+                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, {\"id\":2, "
+                + "\"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, "
+                + "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
 
