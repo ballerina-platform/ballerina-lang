@@ -1,8 +1,8 @@
 function test1(){
     int;
 
-    typedesc x = int;
-    typedesc y = int;
+    typedesc<any> x = int;
+    typedesc<any> y = int;
     if (x === y) {
         i = 5;
     }
