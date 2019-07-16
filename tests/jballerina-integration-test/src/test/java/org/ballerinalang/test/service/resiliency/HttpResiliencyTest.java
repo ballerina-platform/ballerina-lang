@@ -213,8 +213,8 @@ public class HttpResiliencyTest extends BaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
-        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9305, INDEX_SERVICE_PATH)
-                , REQUEST_PAYLOAD_STRING, headers);
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance
+                        .getServiceURLHttp(9305, INDEX_SERVICE_PATH), REQUEST_PAYLOAD_STRING, headers);
         Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
@@ -303,8 +303,8 @@ public class HttpResiliencyTest extends BaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Failover start index is : 0", "Message content mismatched");
-        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9314, INDEX_SERVICE_PATH)
-                , REQUEST_PAYLOAD_STRING, headers);
+        HttpResponse secondResponse = HttpClientRequest.doPost(serverInstance
+                        .getServiceURLHttp(9314,INDEX_SERVICE_PATH), REQUEST_PAYLOAD_STRING, headers);
         Assert.assertEquals(secondResponse.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(secondResponse.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
