@@ -17,10 +17,11 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-public function main() {
-    string resp = testClientStreaming(["A", "B", "C"]);
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testClientStreaming(["A", "B", "C"]);
+//    io:println(resp);
+//}
 
 string response = "";
 int total = 0;

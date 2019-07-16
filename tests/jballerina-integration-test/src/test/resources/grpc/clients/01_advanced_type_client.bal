@@ -19,38 +19,39 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9091");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-public function main() {
-    Person p = {
-        name : "Danesh"
-    };
-    string resp1 = testInputNestedStruct(p);
-    io:println(resp1);
-
-    var resp2 = testOutputNestedStruct("WSO2");
-    io:println(resp2);
-
-    StockRequest sp = {
-        name: "GOOGL"
-    };
-    var resp3 = testInputStructOutputStruct(sp);
-    io:println(resp3);
-
-    var resp4 = testNoInputOutputStruct();
-    io:println(resp4);
-
-    var resp5 = testNoInputOutputArray();
-    io:println(resp5);
-
-    StockQuote sq = {
-        symbol: "IBM",
-        name: "IBM",
-        last: 0.0,
-        low: 0.0,
-        high: 0.0
-    };
-    var resp6 = testInputStructNoOutput(sq);
-    io:println(resp6);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    Person p = {
+//        name : "Danesh"
+//    };
+//    string resp1 = testInputNestedStruct(p);
+//    io:println(resp1);
+//
+//    var resp2 = testOutputNestedStruct("WSO2");
+//    io:println(resp2);
+//
+//    StockRequest sp = {
+//        name: "GOOGL"
+//    };
+//    var resp3 = testInputStructOutputStruct(sp);
+//    io:println(resp3);
+//
+//    var resp4 = testNoInputOutputStruct();
+//    io:println(resp4);
+//
+//    var resp5 = testNoInputOutputArray();
+//    io:println(resp5);
+//
+//    StockQuote sq = {
+//        symbol: "IBM",
+//        name: "IBM",
+//        last: 0.0,
+//        low: 0.0,
+//        high: 0.0
+//    };
+//    var resp6 = testInputStructNoOutput(sq);
+//    io:println(resp6);
+//}
 
 function testInputNestedStruct(Person p) returns (string) {
     io:println("testInputNestedStruct: input:");

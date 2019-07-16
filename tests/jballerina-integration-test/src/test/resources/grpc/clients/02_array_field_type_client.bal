@@ -19,43 +19,44 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-public function main() {
-
-    TestInt testInt = {values: [1, 2, 3]};
-    var resp1 = testIntArrayInput(testInt);
-    io:println(resp1);
-
-    TestString testbol = {values: ["A", "B", "S"]};
-    var resp2 = testStringArrayInput(testbol);
-    io:println(resp2);
-
-    TestFloat testFloat = {values: [1.1, 1.2, 1.3, 1.4]};
-    var resp3 = testFloatArrayInput(testFloat);
-    io:println(resp3);
-
-    TestBoolean testBol = {values: [true, false, true]};
-    var resp4 = testBooleanArrayInput(testBol);
-    io:println(resp4);
-
-    TestStruct testStruct = {values: [{name: "A"}, {name: "B"}, {name: "C"}]};
-    var resp5 = testStructArrayInput(testStruct);
-    io:println(resp5);
-
-    var resp6 = testIntArrayOutput();
-    io:println(resp6);
-
-    var resp7 = testStringArrayOutput();
-    io:println(resp7);
-
-    var resp8 = testFloatArrayOutput();
-    io:println(resp8);
-
-    var resp9 = testBooleanArrayOutput();
-    io:println(resp9);
-
-    var resp10 = testStructArrayOutput();
-    io:println(resp10);
-}
+// Enable when you need to test locally.
+//public function main() {
+//
+//    TestInt testInt = {values: [1, 2, 3]};
+//    var resp1 = testIntArrayInput(testInt);
+//    io:println(resp1);
+//
+//    TestString testbol = {values: ["A", "B", "S"]};
+//    var resp2 = testStringArrayInput(testbol);
+//    io:println(resp2);
+//
+//    TestFloat testFloat = {values: [1.1, 1.2, 1.3, 1.4]};
+//    var resp3 = testFloatArrayInput(testFloat);
+//    io:println(resp3);
+//
+//    TestBoolean testBol = {values: [true, false, true]};
+//    var resp4 = testBooleanArrayInput(testBol);
+//    io:println(resp4);
+//
+//    TestStruct testStruct = {values: [{name: "A"}, {name: "B"}, {name: "C"}]};
+//    var resp5 = testStructArrayInput(testStruct);
+//    io:println(resp5);
+//
+//    var resp6 = testIntArrayOutput();
+//    io:println(resp6);
+//
+//    var resp7 = testStringArrayOutput();
+//    io:println(resp7);
+//
+//    var resp8 = testFloatArrayOutput();
+//    io:println(resp8);
+//
+//    var resp9 = testBooleanArrayOutput();
+//    io:println(resp9);
+//
+//    var resp10 = testStructArrayOutput();
+//    io:println(resp10);
+//}
 
 function testIntArrayInput(TestInt req) returns (int|string) {
     io:println("testIntArrayInput: input:");

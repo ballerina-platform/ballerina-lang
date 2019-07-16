@@ -18,10 +18,11 @@ import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string resp1 = testUnarySecuredBlockingWithCerts();
-    io:println(resp1);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp1 = testUnarySecuredBlockingWithCerts();
+//    io:println(resp1);
+//}
 
 function testUnarySecuredBlockingWithCerts() returns (string) {
     grpcMutualSslServiceBlockingClient helloWorldBlockingEp = new ("https://localhost:9100", {

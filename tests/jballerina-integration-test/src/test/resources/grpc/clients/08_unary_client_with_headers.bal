@@ -20,13 +20,14 @@ import ballerina/io;
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-public function main() {
-    string resp1 = testUnaryBlockingClient("WSO2");
-    io:println(resp1);
-
-    string resp2 = testBlockingHeader("WSO2");
-    io:println(resp2);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp1 = testUnaryBlockingClient("WSO2");
+//    io:println(resp1);
+//
+//    string resp2 = testBlockingHeader("WSO2");
+//    io:println(resp2);
+//}
 
 function testUnaryBlockingClient(string name) returns (string) {
 

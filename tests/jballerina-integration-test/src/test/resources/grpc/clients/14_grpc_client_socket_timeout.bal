@@ -17,10 +17,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string resp = testClientSocketTimeout();
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testClientSocketTimeout();
+//    io:println(resp);
+//}
 
 public function testClientSocketTimeout() returns string {
     // Client endpoint configuration

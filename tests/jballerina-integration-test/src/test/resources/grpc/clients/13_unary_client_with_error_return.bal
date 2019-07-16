@@ -16,10 +16,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string resp = testErrorResponse("WSO2");
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testErrorResponse("WSO2");
+//    io:println(resp);
+//}
 
 public function testErrorResponse(string name) returns string {
     // Client endpoint configuration

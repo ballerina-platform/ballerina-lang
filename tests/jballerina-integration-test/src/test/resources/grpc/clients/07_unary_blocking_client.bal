@@ -19,21 +19,22 @@ import ballerina/io;
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9097");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 
-public function main() {
-    string resp1 = testUnaryBlockingClient("A");
-    io:println("1. " + resp1);
-    int resp2 = testUnaryBlockingIntClient(10);
-    io:println("2. " + resp2);
-    float resp3 = testUnaryBlockingFloatClient(8.345);
-    io:println("3. " + resp3);
-    boolean resp4 = testUnaryBlockingBoolClient(true);
-    io:println("4. " + resp4);
-    var resp5 = testResponseInsideMatch("WSO2");
-    io:println(resp5);
-    Response resp6 = testUnaryBlockingStructClient({name: "Danesh", message: "OK", age:25});
-    io:print("7. ");
-    io:println(resp6);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp1 = testUnaryBlockingClient("A");
+//    io:println("1. " + resp1);
+//    int resp2 = testUnaryBlockingIntClient(10);
+//    io:println("2. " + resp2);
+//    float resp3 = testUnaryBlockingFloatClient(8.345);
+//    io:println("3. " + resp3);
+//    boolean resp4 = testUnaryBlockingBoolClient(true);
+//    io:println("4. " + resp4);
+//    var resp5 = testResponseInsideMatch("WSO2");
+//    io:println(resp5);
+//    Response resp6 = testUnaryBlockingStructClient({name: "Danesh", message: "OK", age:25});
+//    io:print("7. ");
+//    io:println(resp6);
+//}
 
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);

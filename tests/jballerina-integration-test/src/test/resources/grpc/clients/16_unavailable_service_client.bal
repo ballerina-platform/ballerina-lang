@@ -18,10 +18,11 @@ import ballerina/io;
 
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9106");
 
-public function main() {
-    string resp = testUnaryBlockingClient("WSO2");
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testUnaryBlockingClient("WSO2");
+//    io:println(resp);
+//}
 
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);

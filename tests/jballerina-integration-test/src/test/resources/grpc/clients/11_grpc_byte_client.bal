@@ -17,10 +17,11 @@
 import ballerina/io;
 import ballerina/grpc;
 
-public function main() {
-    string response = testByteArray();
-    io:println(response);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string response = testByteArray();
+//    io:println(response);
+//}
 
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");

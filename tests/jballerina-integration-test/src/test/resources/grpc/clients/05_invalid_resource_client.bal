@@ -18,16 +18,17 @@ import ballerina/io;
 
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
 
-public function main() {
-    string resp1 = testInvalidRemoteMethod("WSO2");
-    io:println(resp1);
-    int resp2 = testInvalidInputParameter(100);
-    io:println(resp2);
-    var resp3 = testInvalidOutputResponse(1.0);
-    io:println(resp3);
-    var resp4 = testNonExistenceRemoteMethod(true);
-    io:println(resp4);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp1 = testInvalidRemoteMethod("WSO2");
+//    io:println(resp1);
+//    int resp2 = testInvalidInputParameter(100);
+//    io:println(resp2);
+//    var resp3 = testInvalidOutputResponse(1.0);
+//    io:println(resp3);
+//    var resp4 = testNonExistenceRemoteMethod(true);
+//    io:println(resp4);
+//}
 
 function testInvalidRemoteMethod(string name) returns (string) {
     [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);

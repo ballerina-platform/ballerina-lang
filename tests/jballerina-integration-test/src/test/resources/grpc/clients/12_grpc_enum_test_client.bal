@@ -16,10 +16,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string resp = testEnum();
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testEnum();
+//    io:println(resp);
+//}
 
 function testEnum() returns (string) {
     testEnumServiceBlockingClient blockingEp = new ("http://localhost:9102");

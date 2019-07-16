@@ -21,11 +21,11 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 boolean respReceived = false;
 boolean eofReceived = false;
 
-
-public function main() {
-    boolean a = testUnaryNonBlockingClient();
-    io:println(a);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    boolean a = testUnaryNonBlockingClient();
+//    io:println(a);
+//}
 
 function testUnaryNonBlockingClient() returns boolean {
     // Client endpoint configuration

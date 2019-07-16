@@ -18,10 +18,11 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-public function main() {
-    int resp1 = testServerStreaming("WSO2");
-    io:println(resp1);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    int resp1 = testServerStreaming("WSO2");
+//    io:println(resp1);
+//}
 
 int total = 0;
 function testServerStreaming(string name) returns int {

@@ -16,10 +16,11 @@
 import ballerina/grpc;
 import ballerina/io;
 
-public function main() {
-    string resp = testUnarySecuredBlocking();
-    io:println(resp);
-}
+// Enable when you need to test locally.
+//public function main() {
+//    string resp = testUnarySecuredBlocking();
+//    io:println(resp);
+//}
 
 function testUnarySecuredBlocking() returns (string) {
     HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9099", {
