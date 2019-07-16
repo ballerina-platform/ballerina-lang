@@ -48,7 +48,7 @@ service failoverDemoService05 on failoverEP05 {
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = string.convert(foBackendEP05.succeededEndpointIndex);
+        string startIndex = foBackendEP05.succeededEndpointIndex.toString();
         var backendRes = foBackendEP05->forward("/", request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
@@ -57,9 +57,10 @@ service failoverDemoService05 on failoverEP05 {
                 log:printError("Error sending response", responseToCaller);
             }
         } else {
+            error err = backendRes;
             http:Response response = new;
             response.statusCode = 500;
-            response.setPayload(<string> backendRes.detail().message);
+            response.setPayload(<string> err.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", responseToCaller);

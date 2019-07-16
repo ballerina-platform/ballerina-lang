@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, map<string>>;
-type SMA error <string, map<anydata>>;
+type SMS error <string, record {| string...; |}>;
+type SMA error <string, record {| string|boolean...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
@@ -100,4 +100,15 @@ function testErrorInRecordWithDestructure2() {
     string? message;
     anydata|error extra;
     { x, e: error (reason, message = message, extra = extra) } = b;
+}
+
+function testBasicErrorVariableWithIndexBasedRef() returns map<anydata|error> {
+    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
+
+    map<map<anydata|error>> results = {};
+
+    error (results["res1"]["reason"], ...results["rec"]) = err1;
+    error (results["res2"]["reason"], message = results["detail"]["message"], fatal = results["detail"]["fatal"]) = err1;
+
+    return results;
 }

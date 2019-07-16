@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/time;
 
 type ResultDatesWithNillableStringType record {
@@ -126,8 +126,8 @@ function testMappingToNillableTypeFields() returns @tainted [int?, int?, float?,
     });
 
     var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
+        boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
+        binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
 
     int? int_type = ();
     int? long_type = ();
@@ -189,7 +189,7 @@ function testMappingToNillableTypeFieldsBlob() returns @tainted byte[]? {
     return blob_type;
 }
 
-function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, int, int, int]|error {
+function testMappingDatesToNillableTimeType() returns @tainted [int, int, int, int, int, int, int, int]|error {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -234,16 +234,23 @@ function testMappingDatesToNillableTimeType() returns [int, int, int, int, int, 
         while (dt.hasNext()) {
             var rs = dt.getNext();
             if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = rs.DATE_TYPE.time ?: -1;
-                timeRetrieved = rs.TIME_TYPE.time ?: -1;
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time ?: -1;
-                datetimeRetrieved = rs.DATETIME_TYPE.time ?: -1;
+                dateRetrieved = getTimeIntFromTimeRecord(rs.DATE_TYPE);
+                timeRetrieved = getTimeIntFromTimeRecord(rs.TIME_TYPE);
+                timestampRetrieved = getTimeIntFromTimeRecord(rs.TIMESTAMP_TYPE);
+                datetimeRetrieved = getTimeIntFromTimeRecord(rs.DATETIME_TYPE);
             }
         }
     }
     checkpanic testDB.stop();
     return [dateInserted, dateRetrieved, timeInserted, timeRetrieved, timestampInserted, timestampRetrieved,
     datetimeInserted, datetimeRetrieved];
+}
+
+function getTimeIntFromTimeRecord(time:Time? timeRec) returns int {
+    if (timeRec is time:Time) {
+        return timeRec.time;
+    }
+    return -1;
 }
 
 function testMappingDatesToNillableIntType(int datein, int timein, int timestampin) returns @tainted

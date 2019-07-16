@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/runtime;
 
 listener http:Listener failoverEP06 = new(9314, { httpVersion: "2.0" });
 
@@ -18,25 +19,28 @@ http:FailoverClient foBackendEP06 = new({
     ]
 });
 
+@http:ServiceConfig {
+    basePath: "/fo"
+}
 service failoverDemoService06 on failoverEP06 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/index"
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
-        string startIndex = string.convert(foBackendEP06.succeededEndpointIndex);
-        var backendRes = foBackendEP06->submit("/", "GET", request);
+        string startIndex = foBackendEP06.succeededEndpointIndex.toString();
+        var backendRes = foBackendEP06->submit("GET", "/", request);
         if (backendRes is http:HttpFuture) {
             var response = foBackendEP06->getResponse(backendRes);
             if (response is http:Response) {
                 string responseMessage = "Failover start index is : " + startIndex;
-                var responseToCaller = caller->respond(response);
+                var responseToCaller = caller->respond(responseMessage);
                 handleResponseToCaller(responseToCaller);
             } else {
-                sendErrorResponse(caller, response);
+                sendErrorResponse(caller, <error>response);
             }
         } else {
-            sendErrorResponse(caller, backendRes);
+            sendErrorResponse(caller, <error>backendRes);
         }
     }
 }
@@ -106,7 +110,7 @@ function handleResponseToCaller(error? responseToCaller) {
 function sendErrorResponse(http:Caller caller, error e) {
     http:Response response = new;
     response.statusCode = 500;
-    response.setPayload(<string>e.detail().message);
+    response.setPayload(<string>e.detail()?.message);
     var respondToCaller = caller->respond(response);
     handleResponseToCaller(respondToCaller);
 }

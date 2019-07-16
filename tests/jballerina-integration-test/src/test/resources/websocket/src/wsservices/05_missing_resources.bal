@@ -22,8 +22,8 @@ import ballerina/http;
 service onlyOnBinary on new http:WebSocketListener(9086) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushBinary(data);
-        if (returnVal is error) {
-           panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }
@@ -31,8 +31,8 @@ service onlyOnBinary on new http:WebSocketListener(9086) {
 service onlyOnText on new http:WebSocketListener(9087) {
     resource function onText(http:WebSocketCaller caller, string data) {
         var returnVal = caller->pushText(data);
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 }

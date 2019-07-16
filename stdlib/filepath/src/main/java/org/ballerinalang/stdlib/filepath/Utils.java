@@ -18,10 +18,13 @@
 
 package org.ballerinalang.stdlib.filepath;
 
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A utility class for OS Path related tasks.
@@ -31,7 +34,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class Utils {
 
     static final String UNKNOWN_MESSAGE = "Unknown Error";
-    static final String UNKNOWN_REASON = "UNKNOWN";
 
     /**
      * Returns error record for input reason. Error type is generic ballerina error type. This utility to construct
@@ -43,31 +45,33 @@ public class Utils {
      * @return Ballerina error object.
      */
     public static ErrorValue getPathError(String reason, Throwable error) {
-        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : UNKNOWN_MESSAGE;
-        return getPathError(reason, errorMsg);
+        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : reason;
+        return getPathError(errorMsg);
     }
 
     /**
      * Returns error record for input reason and details. Error type is generic ballerina error type. This utility to
      * construct error struct from message.
      *
-     * @param reason  Reason for creating the error object. If the reason is null, value "UNKNOWN" is set by default.
      * @param details Java throwable object to capture description of error struct. If throwable object is null,
      *                "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getPathError(String reason, String details) {
-        MapValue<String, Object> refData = new MapValueImpl<>(BTypes.typeError.detailType);
-        if (reason != null) {
-            reason = Constants.ERROR_REASON_PREFIX + reason;
+    private static ErrorValue getPathError(String details) {
+        return BallerinaErrors.createError(Constants.FILEPATH_ERROR_CODE, populateFilepathErrorRecord(details));
+    }
+
+    private static MapValue populateFilepathErrorRecord(String message) {
+        Map<String, Object> valueMap = new HashMap<>();
+        if (message != null) {
+            valueMap.put(Constants.ERROR_MESSAGE, message);
         } else {
-            reason = Constants.ERROR_REASON_PREFIX + UNKNOWN_REASON;
+            valueMap.put(Constants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
         }
-        if (details != null) {
-            refData.put("message", details);
-        } else {
-            refData.put("message", UNKNOWN_MESSAGE);
-        }
-        return new ErrorValue(BTypes.typeError, reason, refData);
+        return BallerinaValues.createRecordValue(Constants.PACKAGE_PATH,
+                Constants.ERROR_DETAILS, valueMap);
+    }
+
+    private Utils() {
     }
 }

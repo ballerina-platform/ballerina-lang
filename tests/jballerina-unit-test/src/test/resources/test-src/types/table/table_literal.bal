@@ -59,6 +59,11 @@ type ResultCount record {
     int COUNTVAL;
 };
 
+type Order record {
+    int id;
+    string name;
+};
+
 table<Person> dt1 = table{};
 table<Company> dt2 = table{};
 
@@ -590,6 +595,21 @@ function testRemoveWithInvalidParamType() returns string {
     return returnStr;
 }
 
+function testRemoveOpAnonymousFilter() returns table<Order> {
+    table<Order> orderTable = table {
+        { id, name },
+        [
+            {1, "BTC"},
+            {2, "LTC"}
+        ]
+    };
+
+    int invalid = 0;
+    var s = orderTable.remove(function (Order ord) returns boolean {
+                        return ord.id > invalid;
+                    });
+    return orderTable;
+}
 
 function getPersonId(Person p) returns (int) {
     return p.id;
