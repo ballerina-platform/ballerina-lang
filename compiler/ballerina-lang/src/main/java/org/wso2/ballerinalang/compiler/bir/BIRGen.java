@@ -275,6 +275,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
 
+        typeDef.setMarkdownDocAttachment(astTypeDefinition.symbol.markdownDocumentation);
+
         // Write referenced functions, if this is an abstract-object
         if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
                 !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.ABSTRACT)) {
@@ -318,6 +320,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type,
                                                   constantValue);
         birConstant.constValue = constantValue;
+
+        birConstant.setMarkdownDocAttachment(astConstant.symbol.markdownDocumentation);
 
         // Add the constant to the package.
         this.env.enclPkg.constants.add(birConstant);
@@ -363,6 +367,8 @@ public class BIRGen extends BLangNodeVisitor {
                     astFunc.receiver != null ? astFunc.receiver.type : null, workerName,
                     astFunc.sendsToThis.size(), taintTable);
         }
+
+        birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);
 
         //create channelDetails array
         int i = 0;
@@ -721,6 +727,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, name,
                                                                   VarScope.GLOBAL, VarKind.GLOBAL);
+
+        birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
+
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.env.globalVarMap.put(varNode.symbol, birVarDcl);

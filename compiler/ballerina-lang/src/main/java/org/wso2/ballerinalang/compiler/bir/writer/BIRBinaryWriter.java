@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -152,6 +153,8 @@ public class BIRBinaryWriter {
             // Flags
             buf.writeInt(birGlobalVar.flags);
 
+            writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
+
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
         }
@@ -165,7 +168,33 @@ public class BIRBinaryWriter {
         // Flags
         buf.writeInt(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
+        // write documentation
+        writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
         writeType(buf, typeDef.type);
+    }
+
+    private void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
+        ByteBuf birbuf = Unpooled.buffer();
+        if (markdownDocAttachment == null) {
+            birbuf .writeBoolean(false);
+        } else {
+            birbuf.writeBoolean(true);
+
+            birbuf.writeInt(markdownDocAttachment.description == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.description));
+            birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            birbuf.writeInt(markdownDocAttachment.parameters.size());
+            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
+                birbuf.writeInt(parameter.name == null ? -1
+                        : addStringCPEntry(parameter.name));
+                birbuf.writeInt(parameter.description == null ? -1
+                        : addStringCPEntry(parameter.description));
+            }
+        }
+        int length = birbuf.nioBuffer().limit();
+        buf.writeInt(length);
+        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void writeFunctions(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
@@ -210,6 +239,8 @@ public class BIRBinaryWriter {
         }
 
         writeTaintTable(buf, birFunction.taintTable);
+
+        writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
@@ -313,6 +344,9 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
+
+        writeMarkdownDocAttachment(buf, birConstant.markdownDocAttachment);
+
         writeType(buf, birConstant.type);
 
         // write the length of the conctant value, so that it can be skipped.
