@@ -19,6 +19,7 @@ package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
 
@@ -34,6 +35,8 @@ public interface InvocationNode extends VariableReferenceNode, AnnotatableNode {
     IdentifierNode getName();
 
     List<? extends ExpressionNode> getArgumentExpressions();
+
+    List<? extends ExpressionNode> getRequiredArgs();
 
     ExpressionNode getExpression();
 
