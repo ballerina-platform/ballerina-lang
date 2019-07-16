@@ -37,7 +37,7 @@ public class RepoTest {
 
         Patten prospect = subject.calculate(pkg);
 
-        Assert.assertEquals(prospect.toString(), "$/this.pkg/**~resources/*.bal");
+        Assert.assertEquals(prospect.toString(), "$/src/this.pkg/**~resources/*.bal");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class RepoTest {
 
         Patten prospect = subject.calculate(pkg);
 
-        Assert.assertEquals(prospect.toString(), "$/this.pkg/**~test~resources/*.bal");
+        Assert.assertEquals(prospect.toString(), "$/src/this.pkg/**~test~resources/*.bal");
     }
 
     @Test
