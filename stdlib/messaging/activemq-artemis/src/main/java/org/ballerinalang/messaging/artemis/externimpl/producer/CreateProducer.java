@@ -23,8 +23,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -52,13 +50,9 @@ import org.slf4j.LoggerFactory;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class CreateProducer extends BlockingNativeCallableUnit {
+public class CreateProducer {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateProducer.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void createProducer(Strand strand, ObjectValue producerObj, String addressStr,
                                       MapValue<String, Object> configObj, long rateArg) {
@@ -83,11 +77,14 @@ public class CreateProducer extends BlockingNativeCallableUnit {
             }
             ClientProducer producer = session.createProducer(addressName, rate);
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                      sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
+                    sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
             ArtemisUtils.throwException("Error occurred while creating the producer.", ex, logger);
         }
+    }
+
+    private CreateProducer() {
     }
 }

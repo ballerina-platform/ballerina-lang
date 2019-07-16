@@ -99,6 +99,6 @@ function test2() returns int {
 
 function test3() returns string {
     var foo = testVariableShadowingInCurrentScope2(9);
-    string a = foo.call(3.4);
+    string a = foo(3.4);
     return a;
 }

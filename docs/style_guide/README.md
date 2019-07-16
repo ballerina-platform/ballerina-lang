@@ -1,49 +1,48 @@
-# Ballerina style guide
+# Ballerina Style Guide
 
-Ballerina Style Guide aims at maintaining a standard coding style among Ballerina community. Therefore, Ballerina IDE plugins and tools follow this guide when providing code formatting and other features. 
+The Ballerina Style Guide aims at maintaining a standard coding style among the Ballerina community. Therefore, the code formatting tools are based on this guide.
 
-You can follow your own coding style when writing Ballerina source code and plugins and tools can be configured to match your coding style.
+You can follow your own coding style when writing Ballerina source code. Also, plugins and tools can be configured to match your coding style.
 
 ### Indentation and line length
 * Use four spaces (not tabs) for each level of indentation.
-* Keep the maximum length of a line as 120 characters. 
+* Keep the maximum length of a line to 120 characters. 
 
-> Note: tools and plugins should be able to configure to use tabs when indenting and change the number of maximum characters for line length.
+> **Note:** You can configure tools and plugins to use tabs when indenting and to change the number of maximum characters of the line length.
 
 ### Line spacing
 
 * Use only a single space to separate keywords, types, and identifiers. 
    
-    Dos
+    **Do's**
     ```ballerina
     public function getFullName() returns string {
         string fullName = "john doe";
         return fullName;
     }
     ```
-    Don'ts
+    **Don'ts**
     ```ballerina
     public   function   getFullName()   returns   string {
         string   fullName = "john doe";
         return     fullName;
     }
     ```
-  Few exceptions for this rule are
+  Few exceptions for this rule are:
   - Do not keep spaces around a type when it is enclosed using angle brackets `<string>`. 
       
       Example,
       ```ballerina
       map<string> names = {};
       ```
-  - Do not keep spaces between the type and opening bracket in the array definition `string[]`.
+  - Do not keep spaces between the type and the opening bracket in the array definition `string[]`.
       
       Example,
       ```ballerina
       string[] names = [];
       
       ```
-* If its a list of values separated by commas, add only a single space after each comma 
-  and don't add spaces before the comma.
+* If it is a list of values separated by commas, add only a single space after each comma and don't add spaces before the comma.
   
   Example,
     ```ballerina
@@ -83,12 +82,12 @@ Separate both statements and top level definitions by zero or one blank lines.
   function setAge(int age) {}
   ```
   
- > Note: tools and plugins should be able to configure to change the number of minimum and maximum blank lines used when formatting. 
+ > **Note:** You can configure tools and plugins to change the number of minimum and maximum blank lines used when formatting. 
  
 ### Blocks
-* Opening curly braces of a block should be place inline.
+* Opening curly braces of a block should be placed inline.
   
-  Dos
+  **Do's**
   ```ballerina
   if (true) {
   
@@ -98,7 +97,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   
   }
   ```
-  Don'ts
+  **Don'ts**
   ```ballerina
   if (true)
   {
@@ -110,7 +109,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   
   }
   ```
-* Add a single space before opening the curly braces. 
+* Add a single space before the opening curly braces. 
 
   Example,
   ```ballerina
@@ -127,7 +126,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   function func1() {}
   ``` 
 * Indent all the statements inside a block to be at the same level.
-* Indent the closing brace of a block to align with the starting position of the block statement.
+* Indent the closing brace of a block to align it with the starting position of the block statement.
 
   Example,
   
@@ -153,6 +152,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   setValue("value");
   ```
 * To define an empty parentheses, do not keep spaces between the opening and closing parentheses `()`.
+  
   Example,
   ```ballerina
   int | () result = getResult();
@@ -203,7 +203,7 @@ Separate both statements and top level definitions by zero or one blank lines.
   string s2 =
       getPersonNameWithUpperCaseLetters();
   ``` 
-* If a line exceeds the max line length, start from the end of the line and come toward the start of the line until finding a point, which matches the above rules, to break the line.
+* If a line exceeds the max line length, start from the end of the line and come towards the start of the line until you find a point, which matches the above rules to break the line.
 * Indent split lines with relation to the starting position of the statement or definition.
   
   Example,
@@ -219,9 +219,9 @@ Separate both statements and top level definitions by zero or one blank lines.
       ...
   }
   ```  
-* However, if you cannot add the type casting expression or statement with the constrained type in a single line 
+* However, if you cannot add the type-casting expression or statement with the constrained type in a single line 
   due to it exceeding the max line length, 
-    - Move the casting type with the operators to a new line.
+    - move the casting type with the operators to a new line.
   
       Example,
       ```ballerina
@@ -229,7 +229,7 @@ Separate both statements and top level definitions by zero or one blank lines.
           <string>json.name;
       ```
   
-    - Keep the constrained type on the same line by splitting the statement from a point before the constraint type.
+    - keep the constrained type on the same line by splitting the statement from a point before the constraint type.
       
       Example,
       ```ballerina

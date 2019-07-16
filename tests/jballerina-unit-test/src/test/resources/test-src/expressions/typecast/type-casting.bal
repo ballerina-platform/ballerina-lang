@@ -1,3 +1,5 @@
+import ballerina/'lang\.int as ints;
+import ballerina/'lang\.float as floats;
 
 function floattoint(float value) returns (int) {
     int result;
@@ -21,7 +23,7 @@ function inttofloat(int value) returns (float) {
 function stringtoint(string value) returns int|error {
     int result;
     //string to int should be a unsafe conversion
-    result = check int.convert(value);
+    result = check ints:fromString(value);
     return result;
 }
 
@@ -29,34 +31,34 @@ function testJsonIntToString() returns string|error {
     json j = 5;
     int value;
     value = check trap <int>j;
-    return string.convert(value);
+    return value.toString();
 }
 
 function stringtofloat(string value) returns float|error {
     float result;
     //string to float should be a conversion
-    result = check float.convert(value);
+    result = check floats:fromString(value);
     return result;
 }
 
 function inttostring(int value) returns (string) {
     string result;
     //int to string should be a conversion
-    result = string.convert(value);
+    result = value.toString();
     return result;
 }
 
 function floattostring(float value) returns (string) {
     string result;
     //float to string should be a conversion
-    result = string.convert(value);
+    result = value.toString();
     return result;
 }
 
 function booleantostring(boolean value) returns (string) {
     string result;
     //boolean to string should be a conversion
-    result = string.convert(value);
+    result = value.toString();
     return result;
 }
 
@@ -70,7 +72,7 @@ function anyjsontostring() returns (string) {
     json j = {"a":"b"};
     any value = j;
     string result;
-    result = string.convert(value);
+    result = value.toString();
     return result;
 }
 
@@ -83,7 +85,7 @@ function testJsonToStringCast() returns string|error {
 
 function testJSONObjectToStringCast() returns string|error {
     json j = {"foo":"bar"};
-    var value = string.convert(j);
+    var value = j.toString();
     //TODO : Handle error
 
     return value;
@@ -202,40 +204,33 @@ function testMapToAny() returns (any) {
     return m;
 }
 
-function testBooleanInJsonToInt() returns int|error {
-    json j = true;
-    int value;
-    value = check int.convert(j);
-    return value;
-}
-
 function testIncompatibleJsonToInt() returns int|error {
     json j = "hello";
     int value;
-    value = check int.convert(j);
+    value = check ints:fromString(j.toString());
     return value;
 }
 
 function testIntInJsonToFloat() returns float|error {
     json j = 7;
     float value;
-    value = check float.convert(j);
+    value = check floats:fromString(j.toString());
     return value;
 }
 
 function testIncompatibleJsonToFloat() returns float|error {
     json j = "hello";
     float value;
-    value = check float.convert(j);
+    value = check floats:fromString(j.toString());
     return value;
 }
 
-function testIncompatibleJsonToBoolean() returns boolean|error {
-    json j = "hello";
-    boolean value;
-    value = check boolean.convert(j);
-    return value;
-}
+//function testIncompatibleJsonToBoolean() returns boolean|error {
+//    json j = "hello";
+//    boolean value;
+//    value = check boolean.convert(j);
+//    return value;
+//}
 
 type Address record {
     string city;
@@ -318,9 +313,9 @@ function testAnyStructToJson() returns json {
 }
 
 function testAnyNullToJson() returns json|error {
-    any a = ();
+    anydata a = ();
     json value;
-    value = check json.convert(a);
+    value = check typedesc<json>.constructFrom(a);
     return value;
 }
 
@@ -370,7 +365,7 @@ function testCompatibleStructForceCasting() returns A|error {
 
 function testInCompatibleStructForceCasting() returns A|error {
     B b = {x: "x-valueof-b"};
-    A a = check A.convert(b);
+    A a = check typedesc<A>.constructFrom(b);
 
     //TODO Handle error
 
@@ -471,7 +466,7 @@ function testAnyToMapWithErrors() returns (map<any> | error) {
 function testAnyNullToString() returns string {
     any a = ();
     string s;
-    s = string.convert(a);
+    s = a.toString();
     return s;
 }
 

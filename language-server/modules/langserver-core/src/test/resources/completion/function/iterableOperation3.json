@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "toJSON($anonType$builtin$11 options)(json)",
+      "label": "toJSON(record {\nstring attributePrefix;\nboolean preserveNamespaces;\n} options)(json)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -227,7 +227,7 @@
       }
     },
     {
-      "label": "setAttributes(map attributes)",
+      "label": "setAttributes(map\u003cany\u003e attributes)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

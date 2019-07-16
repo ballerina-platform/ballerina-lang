@@ -163,7 +163,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
         oasEditorPanel = window.createWebviewPanel(
             'ballerinaOASEditor',
             'Ballerina API Designer - ' + selectedService,
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
+            { viewColumn: ViewColumn.One, preserveFocus: true } ,
             getCommonWebViewOptions()
         );
     }

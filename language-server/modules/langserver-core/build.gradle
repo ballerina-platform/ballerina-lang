@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.all {
     resolutionStrategy {
@@ -45,7 +46,7 @@ dependencies {
     // Standard libs
     implementation project(':ballerina-auth')
     implementation project(':ballerina-bir')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
@@ -70,7 +71,7 @@ dependencies {
     implementation project(':ballerina-openapi')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-socket')
-    implementation project(':ballerina-streams')
+//    implementation project(':ballerina-streams')
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
@@ -93,7 +94,7 @@ dependencies {
     implementation 'commons-io:commons-io'
     
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -121,7 +122,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-socket', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
+//    baloImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')

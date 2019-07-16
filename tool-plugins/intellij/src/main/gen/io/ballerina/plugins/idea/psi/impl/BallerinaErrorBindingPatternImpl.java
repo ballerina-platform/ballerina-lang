@@ -43,15 +43,15 @@ public class BallerinaErrorBindingPatternImpl extends ASTWrapperPsiElement imple
   }
 
   @Override
-  @Nullable
-  public BallerinaRecordBindingPattern getRecordBindingPattern() {
-    return findChildByClass(BallerinaRecordBindingPattern.class);
+  @NotNull
+  public List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaErrorDetailBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
+  public BallerinaErrorRestBindingPattern getErrorRestBindingPattern() {
+    return findChildByClass(BallerinaErrorRestBindingPattern.class);
   }
 
   @Override
@@ -70,6 +70,12 @@ public class BallerinaErrorBindingPatternImpl extends ASTWrapperPsiElement imple
   @NotNull
   public PsiElement getError() {
     return findNotNullChildByType(ERROR);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
 }

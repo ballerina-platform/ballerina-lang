@@ -41,7 +41,7 @@ function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic YW1pbGE6cHFy";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
-    return handler.handle(inRequest);
+    return handler.process(inRequest);
 }
 
 function testHandleHttpBasicAuth() returns boolean|error {
@@ -50,7 +50,7 @@ function testHandleHttpBasicAuth() returns boolean|error {
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic aXN1cnU6eHh4";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
-    return handler.handle(inRequest);
+    return handler.process(inRequest);
 }
 
 function createRequest() returns http:Request {
@@ -65,7 +65,7 @@ public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|error {
+    public function authenticate(string credential) returns boolean|auth:Error {
         return credential == "aXN1cnU6eHh4";
     }
 };

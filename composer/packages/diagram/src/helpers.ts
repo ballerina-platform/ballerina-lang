@@ -28,10 +28,12 @@ export const renderStaticDiagram = (args: StaticDiagramArgs) => {
 
 export const renderOverview = (args: EditableDiagramArgs) => {
     const overviewProps = {
+        docUri: args.editorProps.docUri,
         fitToWidthOrHeight: true,
+        initialSelectedConstruct: args.editorProps.initialSelectedConstruct,
         langClient: args.editorProps.langClient,
         mode: DiagramMode.DEFAULT,
-        sourceRoot: args.editorProps.docUri,
+        sourceRootUri: args.editorProps.sourceRootUri,
         zoom: 1,
     };
     const OverviewElement = createElement(Overview, overviewProps);

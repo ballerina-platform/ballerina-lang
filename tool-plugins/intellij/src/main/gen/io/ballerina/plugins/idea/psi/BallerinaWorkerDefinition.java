@@ -24,6 +24,9 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 
 public interface BallerinaWorkerDefinition extends BallerinaTopLevelDefinition {
 
+  @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
   @Nullable
   BallerinaReturnParameter getReturnParameter();
 

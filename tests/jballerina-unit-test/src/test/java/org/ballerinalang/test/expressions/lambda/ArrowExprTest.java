@@ -219,7 +219,7 @@ public class ArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found 'string'", 24, 24);
+                "incompatible types: expected 'boolean', found 'string'", 24, 19);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '2' but found '1'", 29, 58);
         BAssertUtil.validateError(resultNegative, i++,

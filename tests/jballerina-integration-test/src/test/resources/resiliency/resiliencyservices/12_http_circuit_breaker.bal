@@ -35,7 +35,7 @@ http:ClientEndpointConfig conf05 = {
     timeoutMillis: 2000
 };
 
-http:Client backendClientEP05 = new("http://localhost:8091", config = conf05);
+http:Client backendClientEP05 = new("http://localhost:8091", conf05);
 
 @http:ServiceConfig {
     basePath: "/cb"
@@ -50,7 +50,7 @@ service circuitbreaker05 on circuitBreakerEP05 {
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -59,7 +59,7 @@ service circuitbreaker05 on circuitBreakerEP05 {
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }
@@ -77,7 +77,7 @@ service statuscodeservice on new http:Listener(8091) {
         res.setPayload("Service unavailable.");
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {
-            log:printError("Error sending response from mock service", err = responseToCaller);
+            log:printError("Error sending response from mock service", responseToCaller);
         }
     }
 }

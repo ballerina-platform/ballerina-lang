@@ -47,14 +47,9 @@ public class Select extends BlockingNativeCallableUnit {
 
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {
-        //TODO: JBalMigration: once default params are supported fix this
-        ////TODO: #16033
-        boolean loadSQLTableToMemory = false;
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        //        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        //        return (String) bConnector.getNativeData(Constants.CONNECTOR_ID_KEY);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
-                (TypedescValue) recordType, loadSQLTableToMemory);
+                (TypedescValue) recordType, strand);
         return selectStatement.execute();
     }
 }

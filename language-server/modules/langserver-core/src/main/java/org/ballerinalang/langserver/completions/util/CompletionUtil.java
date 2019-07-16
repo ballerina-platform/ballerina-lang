@@ -100,8 +100,9 @@ public class CompletionUtil {
      */
     private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<Integer> invocationTokens = Arrays.asList(BallerinaParser.COLON, BallerinaParser.DOT,
-                BallerinaParser.RARROW, BallerinaParser.LARROW, BallerinaParser.NOT);
+        List<Integer> invocationTokens = Arrays.asList(
+                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT
+        );
         context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
         if (lhsTokens == null) {
             return;

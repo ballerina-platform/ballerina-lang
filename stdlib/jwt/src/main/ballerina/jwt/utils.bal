@@ -19,16 +19,18 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
-# Constant for the auth error code.
-public const JWT_ERROR_CODE = "{ballerina/jwt}JWTError";
-
-# Log, prepare and return the `error`.
+# Log and prepare `error` as a `Error`.
 #
 # + message - Error message
 # + err - `error` instance
-# + return - Prepared `error` instance
-function prepareError(string message, error? err = ()) returns error {
-    log:printError(message, err = err);
-    error preparedError = error(JWT_ERROR_CODE, message = message, reason = err.reason());
-    return preparedError;
+# + return - Prepared `Error` instance
+function prepareError(string message, error? err = ()) returns Error {
+    log:printError(message, err);
+    Error jwtError;
+    if (err is error) {
+        jwtError = error(JWT_ERROR, message = message, cause = err);
+    } else {
+        jwtError = error(JWT_ERROR, message = message);
+    }
+    return jwtError;
 }

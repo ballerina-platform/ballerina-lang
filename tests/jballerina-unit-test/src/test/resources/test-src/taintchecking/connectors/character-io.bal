@@ -7,7 +7,7 @@ public function main (string... args) {
     io:ReadableByteChannel rbh = checkpanic io:openReadableFile(filePath);
     io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
-    io:WritableByteChannel wbh = io:openWritableFile(filePath);
+    io:WritableByteChannel wbh = checkpanic io:openWritableFile(filePath);
     io:WritableCharacterChannel wch = new io:WritableCharacterChannel(wbh, "UTF-8");
 
     var writeOutput = wch.write(chars, 0);
@@ -15,7 +15,8 @@ public function main (string... args) {
     if (readOutput is string) {
         testFunction(readOutput, readOutput);
     } else {
-        panic readOutput;
+        error err = readOutput;
+        panic err;
     }
 }
 

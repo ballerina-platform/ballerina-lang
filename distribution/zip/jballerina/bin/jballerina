@@ -151,9 +151,9 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
 	exit 1
     else
 	if [ -n "$JAVA_OPTS" ]; then
-	  echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable."
+	  echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
 	fi
-	JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
+	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
 	echo "Please start the remote debugging client to continue..."
     fi
 fi
@@ -247,7 +247,6 @@ else
         $JAVA_OPTS \
         -classpath "$BALLERINA_CLASSPATH" \
         -Dballerina.home=$BALLERINA_HOME \
-        -Dballerina.bootstrap.home="$BALLERINA_HOME/bre/bootstrap" \
         -Dballerina.version=${project.version} \
         -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
         -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \

@@ -2,7 +2,7 @@ import ballerina/observe;
 
 function testMaxSummary() returns (float) {
     map<string> tags = { "method": "POST" };
-    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    observe:Gauge gauge = new("response_size", "Size of a response.", tags);
     gauge.setValue(1.0);
     gauge.setValue(2.0);
     gauge.setValue(3.0);
@@ -16,7 +16,7 @@ function testMaxSummary() returns (float) {
 
 function testMeanSummary() returns (float) {
     map<string> tags = { "method": "UPDATE" };
-    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    observe:Gauge gauge = new("response_size", "Size of a response.", tags);
     gauge.setValue(1.0);
     gauge.setValue(2.0);
     gauge.setValue(3.0);
@@ -30,7 +30,7 @@ function testMeanSummary() returns (float) {
 
 function testPercentileSummary() returns (observe:PercentileValue[]?) {
     map<string> tags = { "method": "DELETE" };
-    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    observe:Gauge gauge = new("response_size", "Size of a response.", tags);
     gauge.setValue(1.0);
     gauge.setValue(2.0);
     gauge.setValue(3.0);
@@ -47,11 +47,11 @@ function testPercentileSummary() returns (observe:PercentileValue[]?) {
 
 function testValueSummary() returns (float) {
     map<string> tags = { "method": "DELETE" };
-    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    observe:Gauge gauge = new("response_size", "Size of a response.", tags);
     gauge.increment();
-    gauge.increment(amount = 1000.0);
+    gauge.increment(1000.0);
     gauge.decrement();
-    gauge.decrement(amount = 500.0);
+    gauge.decrement(500.0);
     return gauge.getValue();
 }
 
@@ -71,6 +71,6 @@ function testSummaryWithoutTags() returns (float) {
 function registerAndIncrement() returns (float) {
     observe:Gauge gauge = new("register_response_size");
     checkpanic gauge.register();
-    gauge.increment(amount = 1);
+    gauge.increment(1);
     return gauge.getValue();
 }

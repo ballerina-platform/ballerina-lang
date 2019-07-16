@@ -17,10 +17,12 @@
  */
 package org.ballerinax.jdbc.table;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
@@ -46,7 +48,8 @@ public class BCursorTable extends TableValue {
     }
 
     public int length() {
-        throw new BallerinaException("The row count of a table returned from a database cannot be provided");
+        throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                "The row count of a table returned from a database cannot be provided");
     }
 
     protected boolean isIteratorGenerationConditionMet() {
@@ -58,8 +61,19 @@ public class BCursorTable extends TableValue {
         return false;
     }
 
+    public Object performAddOperation(MapValueImpl<String, Object> data) {
+        throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                "data cannot be added to a table returned from a database");
+    }
+
+    public Object performRemoveOperation() {
+        throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                "data cannot be deleted from a table returned from a database");
+    }
+
     @Override
     public Object copy(Map<Object, Object> refs) {
-        throw new BallerinaException("A table returned from a database can not be cloned");
+        throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                "A table returned from a database can not be cloned");
     }
 }

@@ -652,15 +652,23 @@ type InstructionGenerator object {
         self.loadVar(mapLoadIns.keyOp.variableDcl);
 
         if (varRefType is bir:BJSONType) {
-            self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
-                    io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
-        } else if (mapLoadIns.except) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "getOrThrow",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            if (mapLoadIns.optionalFieldAccess) {
+                self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
+                        io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+            } else {
+                self.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
+                        io:sprintf("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+            }
         } else {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
-                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            if (mapLoadIns.fillingRead) {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "fillAndGet",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "get",
+                                        io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), true);
+            }
         }
 
         // store in the target reg
@@ -743,15 +751,12 @@ type InstructionGenerator object {
     # + inst - field access instruction
     function generateArrayValueLoad(bir:FieldAccess inst) {
         self.loadVar(inst.rhsOp.variableDcl);
+        self.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         self.loadVar(inst.keyOp.variableDcl);
         bir:BType bType = inst.lhsOp.variableDcl.typeValue;
 
         bir:BType varRefType = inst.rhsOp.variableDcl.typeValue;
-        if (varRefType is bir:BJSONType ||
-                (varRefType is bir:BArrayType && varRefType.eType  is bir:BJSONType)) {
-            self.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getArrayElement",
-                        io:sprintf("(L%s;J)L%s;", OBJECT, OBJECT), false);
-        } else if (varRefType is bir:BTupleType) {
+        if (varRefType is bir:BTupleType) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
             addUnboxInsn(self.mv, bType);
         } else if (bType is bir:BTypeInt) {
@@ -791,9 +796,9 @@ type InstructionGenerator object {
         // load source value
         self.loadVar(typeCastIns.rhsOp.variableDcl);
         if (typeCastIns.checkType) {
-            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+            generateCheckCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         } else {
-            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.lhsOp.typeValue);
+            generateCast(self.mv, typeCastIns.rhsOp.typeValue, typeCastIns.castType);
         }
         self.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
@@ -847,7 +852,7 @@ type InstructionGenerator object {
         bir:BType returnType = inst.lhsOp.typeValue;
         boolean isVoid = false;
         if (returnType is bir:BInvokableType) {
-            isVoid = returnType.retType is bir:BTypeNil;
+            isVoid = returnType?.retType is bir:BTypeNil;
         } else {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
@@ -869,7 +874,7 @@ type InstructionGenerator object {
         }
 
         self.storeToVar(inst.lhsOp.variableDcl);
-        lambdas[lambdaName] = (inst, methodClass);
+        lambdas[lambdaName] = inst;
     }
 
     function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
@@ -1084,7 +1089,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
@@ -1096,6 +1101,8 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         mv.visitVarInsn(LLOAD, valueIndex);
     } else if (bType is bir:BTypeByte) {
         mv.visitVarInsn(ILOAD, valueIndex);
+        mv.visitInsn(I2B);
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
     } else if (bType is bir:BTypeFloat) {
         mv.visitVarInsn(DLOAD, valueIndex);
     } else if (bType is bir:BTypeBoolean) {
@@ -1120,6 +1127,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BXMLType ||
                 bType is bir:BInvokableType ||
                 bType is bir:BFiniteType ||
+                bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
     } else {
@@ -1139,7 +1147,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl?.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
@@ -1175,6 +1183,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BXMLType ||
                     bType is bir:BInvokableType ||
                     bType is bir:BFiniteType ||
+                    bType is bir:BTypeHandle ||
                     bType is bir:BTypeDesc) {
         mv.visitVarInsn(ASTORE, valueIndex);
     } else {

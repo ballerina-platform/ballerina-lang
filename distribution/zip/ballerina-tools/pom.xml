@@ -226,6 +226,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-xslt</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-bir</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -462,6 +468,7 @@
                                 ballerina-transactions,
                                 ballerina-utils,
                                 ballerina-websub,
+                                ballerina-xslt,
                                 ballerina-jwt,
                                 ballerina-ldap,
                                 ballerina-oauth2,
@@ -674,6 +681,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-websub-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-xslt-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

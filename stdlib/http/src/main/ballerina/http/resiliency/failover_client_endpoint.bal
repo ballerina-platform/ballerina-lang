@@ -77,8 +77,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function post(string path, RequestMessage message) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function post(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_POST, self);
         if (result is HttpFuture) {
@@ -93,8 +93,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -109,8 +109,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function patch(string path, RequestMessage message) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PATCH, self);
         if (result is HttpFuture) {
@@ -125,8 +125,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function put(string path, RequestMessage message) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function put(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_PUT, self);
         if (result is HttpFuture) {
@@ -141,8 +141,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -156,8 +156,8 @@ public type FailoverClient client object {
     #
     # + path - Resource path
     # + request - An HTTP request
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function forward(string path, Request request) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function forward(string path, Request request) returns Response|ClientError {
         var result = performFailoverAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -172,9 +172,9 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
     public remote function execute(string httpVerb, string path, RequestMessage message) returns
-                                                                                        @tainted Response|error {
+                                                                                       Response|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, httpVerb, self);
         if (result is HttpFuture) {
@@ -189,8 +189,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -205,8 +205,8 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `error` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|error {
+    # + return - The response or an `http:ClientError` if failed to fulfill the request
+    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
@@ -224,9 +224,9 @@ public type FailoverClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission
+    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
     #            fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns @tainted HttpFuture|error {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = buildRequest(message);
         var result = performExecuteAction(path, req, "SUBMIT", self, verb = httpVerb);
         if (result is Response) {
@@ -239,8 +239,8 @@ public type FailoverClient client object {
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `error` if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|error {
+    # + return - An HTTP response message, or an `ClientError` if the invocation fails
+    public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Client foClient = getLastSuceededClientEP(self);
         return foClient->getResponse(httpFuture);
     }
@@ -256,18 +256,20 @@ public type FailoverClient client object {
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
-        error err = error("Unsupported action for Failover client.");
+    # + return - An HTTP Push Promise message, or an `ClientError` if the invocation fails
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
+        string message = "Failover client not supported for getNextPromise action";
+        UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
         return err;
     }
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|error {
-        error err = error("Unsupported action for Failover client.");
+    # + return - A promised HTTP `Response` message, or an `ClientError` if the invocation fails
+    public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
+        string message = "Failover client not supported for getPromisedResponse action";
+        UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
         return err;
     }
 
@@ -283,14 +285,15 @@ public type FailoverClient client object {
 // of the http verb and invokes the perform action method.
 // `verb` is used for HTTP `submit()` method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                                    @tainted FailoverClient failoverClient, string verb = "") returns @tainted HttpResponse|error {
+                                   FailoverClient failoverClient, string verb = "") returns HttpResponse|ClientError {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performFailoverAction(path, request, connectorAction, failoverClient, verb = verb);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                        @tainted FailoverClient failoverClient, string verb = "") returns @tainted HttpResponse|error {
+                                        FailoverClient failoverClient, string verb = "")
+                                        returns HttpResponse|ClientError {
 
     Client foClient = getLastSuceededClientEP(failoverClient);
     FailoverInferredConfig failoverInferredConfig = failoverClient.failoverInferredConfig;
@@ -327,10 +330,10 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             int httpStatusCode = endpointResponse.statusCode;
             // Check whether HTTP status code of the response falls into configured `failoverCodes`
             if (failoverCodeIndex[httpStatusCode]) {
-                error? result = ();
+                ClientError? result = ();
                 [currentIndex, result] = handleResponseWithErrorCode(endpointResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
-                if (result is error) {
+                if (result is ClientError) {
                     return result;
                 }
             } else {
@@ -348,10 +351,10 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                 int httpStatusCode = futureResponse.statusCode;
                 // Check whether HTTP status code of the response falls into configured `failoverCodes`
                 if (failoverCodeIndex[httpStatusCode]) {
-                    error? result = ();
+                    ClientError? result = ();
                     [currentIndex, result] = handleResponseWithErrorCode(futureResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
-                    if (result is error) {
+                    if (result is ClientError) {
                         return result;
                     }
                 } else {
@@ -361,20 +364,20 @@ function performFailoverAction (string path, Request request, HttpOperation requ
                     break;
                 }
             } else {
-                error? httpConnectorErr = ();
+                ClientError? httpConnectorErr = ();
                 [currentIndex, httpConnectorErr] = handleError(futureResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
 
-                if (httpConnectorErr is error) {
+                if (httpConnectorErr is ClientError) {
                     return httpConnectorErr;
                 }
             }
         } else {
-            error? httpConnectorErr = ();
+            ClientError? httpConnectorErr = ();
             [currentIndex, httpConnectorErr] = handleError(endpointResponse, initialIndex, noOfEndpoints,
                                                                                 currentIndex, failoverActionErrData);
 
-            if (httpConnectorErr is error) {
+            if (httpConnectorErr is ClientError) {
                 return httpConnectorErr;
             }
         }
@@ -396,32 +399,39 @@ function performFailoverAction (string path, Request request, HttpOperation requ
 }
 
 // Populates generic error specific to Failover connector by including all the errors returned from endpoints.
-function populateGenericFailoverActionError (error?[] failoverActionErr, error httpActionErr, int index)
-           returns (error) {
+function populateGenericFailoverActionError (ClientError?[] failoverActionErr, ClientError httpActionErr, int index)
+                                                                                        returns ClientError {
+
     failoverActionErr[index] = httpActionErr;
-    string lastErrorMsg = <string> httpActionErr.detail().message;
-    string failoverMessage = "All the failover endpoints failed. Last error was " + lastErrorMsg;
-    error actionError = error(HTTP_ERROR_CODE, message = failoverMessage, failoverErrors = failoverActionErr);
+    error err = httpActionErr;
+    string? lastErrorMsg = err.detail()?.message;
+    string failoverMessage = "All the failover endpoints failed. Last error was ";
+    if (lastErrorMsg is string) {
+        failoverMessage = failoverMessage + lastErrorMsg;
+    }
+    FailoverActionFailedError actionError =
+                error(FAILOVER_ENDPOINT_ACTION_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;
 }
 
 // If leaf endpoint returns a response with status code configured to retry in the failover connector, failover error
 // will be generated with last response status code and generic failover response.
-function populateFailoverErrorHttpStatusCodes (Response inResponse, error?[] failoverActionErr, int index) {
+function populateFailoverErrorHttpStatusCodes (Response inResponse, ClientError?[] failoverActionErr, int index) {
     string failoverMessage = "Endpoint " + index + " returned response is: " + inResponse.statusCode + " " +
         inResponse.reasonPhrase;
-    error httpActionErr = error(HTTP_ERROR_CODE, message = failoverMessage);
+    FailoverActionFailedError httpActionErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = failoverMessage);
     failoverActionErr[index] = httpActionErr;
 }
 
-function populateErrorsFromLastResponse (Response inResponse, error?[] failoverActionErr, int index)
-                                                                            returns (error) {
+function populateErrorsFromLastResponse (Response inResponse, ClientError?[] failoverActionErr, int index)
+                                                                            returns (ClientError) {
     string message = "Last endpoint returned response: " + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    error lastHttpConnectorErr = error(HTTP_ERROR_CODE, message = message);
+    FailoverActionFailedError lastHttpConnectorErr = error(FAILOVER_ENDPOINT_ACTION_FAILED, message = message);
     failoverActionErr[index] = lastHttpConnectorErr;
     string failoverMessage = "All the failover endpoints failed. Last endpoint returned response is: "
                                 + inResponse.statusCode + " " + inResponse.reasonPhrase;
-    error actionError = error(HTTP_ERROR_CODE, message = failoverMessage, failoverErrors = failoverActionErr);
+    FailoverAllEndpointsFailedError actionError =
+                    error(FAILOVER_ALL_ENDPOINTS_FAILED, message = failoverMessage, failoverErrors = failoverActionErr);
     return actionError;
 }
 
@@ -484,14 +494,15 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
 }
 
 function createFailoverHttpClientArray(FailoverClientEndpointConfiguration failoverClientConfig)
-    returns Client?[]|error {
+                                                                            returns Client?[]|error {
+
     Client clientEp;
     Client?[] httpClients = [];
     int i = 0;
 
     foreach var target in failoverClientConfig.targets {
         ClientEndpointConfig epConfig = createClientEPConfigFromFailoverEPConfig(failoverClientConfig, target);
-        clientEp = new(target.url, config = epConfig);
+        clientEp = new(target.url, epConfig);
         httpClients[i] = clientEp;
         i += 1;
     }
@@ -505,15 +516,16 @@ function getLastSuceededClientEP(FailoverClient failoverClient) returns Client {
         // We dont have to check this again as we already check for the response when we get the future.
         return lastSuccessClient;
     } else {
+        // This should not happen as we only fill Client objects to the Clients array
         error err = error("Unexpected type found for failover client");
         panic err;
     }
 }
 
 function handleResponseWithErrorCode(Response response, int initialIndex, int noOfEndpoints, int index,
-                                                            error?[] failoverActionErrData) returns [int, error?] {
+                                                        error?[] failoverActionErrData) returns [int, ClientError?] {
 
-    error? resultError = ();
+    ClientError? resultError = ();
     int currentIndex = index;
     // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
     // endpoint configured in the failover endpoints gave the response where its HTTP status code
@@ -554,9 +566,13 @@ function handleResponseWithErrorCode(Response response, int initialIndex, int no
     return [currentIndex, resultError];
 }
 
-function handleError(error response, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
-                                                                                                returns [int, error?] {
-    error? httpConnectorErr = ();
+function handleError(ClientError err, int initialIndex, int noOfEndpoints, int index, error?[] failoverActionErrData)
+                                                                                        returns [int, ClientError?] {
+    ClientError? httpConnectorErr = ();
+    // err is the error received instead of a Response. We wrap it to a `ClientError` here.
+    string invalidResponseMessage = "An error received while retrieving the response.";
+    FailoverActionFailedError actionError = error(FAILOVER_ENDPOINT_ACTION_FAILED,
+                                                    message = invalidResponseMessage, cause = err);
     int currentIndex = index;
     // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
     // endpoint configured in the failover endpoints gave the erroneous response.
@@ -564,12 +580,12 @@ function handleError(error response, int initialIndex, int noOfEndpoints, int in
         if (noOfEndpoints > currentIndex) {
             // If the execution lands here, that means there are endpoints that haven't tried out by
             // failover endpoint. Hence error will be collected to generate final response.
-            failoverActionErrData[currentIndex - 1] = response;
+            failoverActionErrData[currentIndex - 1] = err;
         } else {
             // If the execution lands here, that means all the endpoints has been tried out and final
             // endpoint gave an erroneous response. Therefore appropriate error message needs to be
             //  generated and should return it to the client.
-            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, response, currentIndex - 1);
+            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, actionError, currentIndex - 1);
         }
     } else {
         // If execution reaches here, that means failover has not started with the default starting index.
@@ -578,16 +594,16 @@ function handleError(error response, int initialIndex, int noOfEndpoints, int in
             // If the execution lands here, that means all the endpoints has been tried out and final
             // endpoint gave an erroneous response. Therefore appropriate error message needs to be
             //  generated and should return it to the client.
-            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, response, currentIndex - 1);
+            httpConnectorErr = populateGenericFailoverActionError(failoverActionErrData, actionError, currentIndex - 1);
         } else if (noOfEndpoints == currentIndex) {
             // If the execution lands here, that means the last endpoint has been tried out and endpoint gave
             // a erroneous response. Since failover resumed from the last succeeded endpoint we need try out
             // remaining endpoints. Therefore currentIndex need to be reset.
-            failoverActionErrData[currentIndex - 1] = response;
+            failoverActionErrData[currentIndex - 1] = err;
             currentIndex = DEFAULT_FAILOVER_EP_STARTING_INDEX;
         } else if (noOfEndpoints > currentIndex) {
             // Collect the error to generate final response.
-            failoverActionErrData[currentIndex - 1] = response;
+            failoverActionErrData[currentIndex - 1] = err;
         }
     }
     return [currentIndex, httpConnectorErr];

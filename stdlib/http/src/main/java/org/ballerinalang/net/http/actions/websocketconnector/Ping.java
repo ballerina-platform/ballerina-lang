@@ -17,13 +17,10 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -47,11 +44,7 @@ import java.nio.ByteBuffer;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class Ping implements NativeCallableUnit {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
+public class Ping {
 
     public static Object ping(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
@@ -69,8 +62,6 @@ public class Ping implements NativeCallableUnit {
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private Ping() {
     }
 }

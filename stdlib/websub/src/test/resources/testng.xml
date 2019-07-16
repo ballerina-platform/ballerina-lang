@@ -21,8 +21,9 @@
 
 <suite name="ballerina-test-suite">
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
-            <!-- <package name="org.ballerinalang.net.websub.*"/> -->
+             <package name="org.ballerinalang.net.websub.*"/>
         </packages>
     </test>
 </suite>

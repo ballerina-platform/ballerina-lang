@@ -20,43 +20,47 @@ import ballerina/runtime;
 
 # Represents Ballerina configuration for LDAP based auth provider.
 #
-# + ldapConnectionConfig - LDAP connection configurations
 # + instanceId - Endpoint instance id
+# + ldapConnection - LDAP connection
+# + ldapConnectionConfig - LDAP connection configurations
 public type InboundLdapAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public LdapConnectionConfig ldapConnectionConfig;
     public string instanceId;
+    public LdapConnection ldapConnection;
+    public LdapConnectionConfig ldapConnectionConfig;
 
     # Create an LDAP auth store with the given configurations.
     #
     # + ldapConnectionConfig -  LDAP connection configurations
     # + instanceId - Endpoint instance id
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
-        self.ldapConnectionConfig = ldapConnectionConfig;
         self.instanceId = instanceId;
-        initLdapConnectionContext(self, instanceId);
+        self.ldapConnectionConfig = ldapConnectionConfig;
+        self.ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
     }
 
     # Authenticate with username and password.
     #
     # + credential - Credential value
-    # + return - `true` if authentication is successful, otherwise `false` or `error` occurred while extracting credentials
-    public function authenticate(string credential) returns boolean|error {
+    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` occurred while extracting credentials
+    public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
         }
         string username;
         string password;
         [username, password] = check auth:extractUsernameAndPassword(credential);
-        boolean authenticated = doAuthenticate(self, username, password);
+        boolean authenticated = doAuthenticate(self.ldapConnection, username, password);
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-            // By default set userId as username.
-            principal.username = username;
-            principal.scopes = getLdapScopes(self, username);
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
+                // By default set userId as username.
+                principal.username = username;
+                principal.scopes = getGroups(self.ldapConnection, username);
+            }
         }
         return authenticated;
     }
@@ -119,23 +123,28 @@ public type SecureClientSocket record {|
     string trustedCertFile = "";
 |};
 
+public type LdapConnection record {|
+|};
+
 # Reads the scope(s) for the user with the given username.
 #
-# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
+# + ldapConnection - `LdapConnection` instance
 # + username - Username
 # + return - Array of groups for the user denoted by the username
-function getLdapScopes(InboundLdapAuthProvider ldapAuthProvider, string username) returns string[] = external;
+public function getGroups(LdapConnection ldapConnection, string username) returns string[] = external;
 
 # Authenticate with username and password.
 #
-# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
+# + ldapConnection - `LdapConnection` instance
 # + username - Username
 # + password - Password
 # + return - true if authentication is a success, else false
-function doAuthenticate(InboundLdapAuthProvider ldapAuthProvider, string username, string password) returns boolean = external;
+public function doAuthenticate(LdapConnection ldapConnection, string username, string password) returns boolean = external;
 
 # Initailizes LDAP connection context.
 #
-# + ldapAuthProvider - `InboundLdapAuthProvider` provider object
+# + ldapConnectionConfig - `LdapConnectionConfig` instance
 # + instanceId - Unique id generated to identify an endpoint
-function initLdapConnectionContext(InboundLdapAuthProvider ldapAuthProvider, string instanceId) = external;
+# + return - `LdapConnection` instance
+public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
+                                          returns LdapConnection = external;

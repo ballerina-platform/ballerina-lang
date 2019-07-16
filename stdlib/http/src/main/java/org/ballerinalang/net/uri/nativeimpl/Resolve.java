@@ -77,7 +77,7 @@ public class Resolve extends BlockingNativeCallableUnit {
             }
             return uri.toString();
         } catch (URISyntaxException e) {
-            return HttpUtil.getError("Error occurred while resolving uri. " + e.getMessage());
+            return HttpUtil.createHttpError("Error occurred while resolving uri. " + e.getMessage());
         }
     }
 }

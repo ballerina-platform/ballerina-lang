@@ -143,7 +143,7 @@ public abstract class AbstractTestTemplate implements TestTemplate {
      * @return True if secure service, False otherwise
      */
     protected boolean isSecureService(BLangTypeInit init) {
-        for (BLangExpression expression : init.initInvocation.namedArgs) {
+        for (BLangExpression expression : init.initInvocation.argExprs) {
             if (expression instanceof BLangNamedArgsExpression) {
                 BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
                 if (namedArgsExpression.name.value.equals("config") &&

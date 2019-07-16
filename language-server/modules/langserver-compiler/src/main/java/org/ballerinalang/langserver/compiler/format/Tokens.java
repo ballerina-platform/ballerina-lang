@@ -112,4 +112,5 @@ public class Tokens {
     public static final String UNTAINT = "untaint";
     public static final String NEW = "new";
     public static final String FLUSH = "flush";
+    public static final String FORK = "fork";
 }

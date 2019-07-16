@@ -61,9 +61,9 @@ public class BallerinaCallableUnitSignatureImpl extends ASTWrapperPsiElement imp
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
