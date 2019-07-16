@@ -370,7 +370,8 @@ public class FreezeAndIsFrozenTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as frozen");
     }
 
-    @Test(description = "test a map of type not purtestAdditionToFrozenInnerJsonely anydata, a combination of anydata and non-anydata")
+    @Test(description = "test a map of type not purtestAdditionToFrozenInnerJsonely anydata, a combination of anydata" +
+            " and non-anydata")
     public void testValidComplexMapFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testValidComplexMapFreeze", new BValue[0]);
         Assert.assertEquals(returns.length, 2);

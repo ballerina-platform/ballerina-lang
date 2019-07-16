@@ -1,5 +1,6 @@
 import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
     Invocation, Return, Service, VariableDef, Visitor } from "@ballerina/ast-model";
+import * as _ from "lodash";
 import { FunctionViewState, StmntViewState } from "../../view-model/index";
 
 const currentState: {
@@ -34,10 +35,10 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        if (node.parent.viewState.hidden !== false) {
-            // if its already set to false that means its already checked for visibility
-            node.parent.viewState.hidden = true;
-        }
+        // if (node.parent.viewState.hidden !== false) {
+        //     // if its already set to false that means its already checked for visibility
+        //     node.parent.viewState.hidden = true;
+        // }
         currentState.blocks.push(node.parent);
         currentState.currentBlock = node.parent;
     },
@@ -47,23 +48,10 @@ export const visitor: Visitor = {
         const { blocks } = currentState;
         currentState.currentBlock = blocks.length > 0 ? blocks[blocks.length - 1] : undefined;
 
+        // If a child block is visible then the parent block should also be visible
         if (visitedNode && !visitedNode.viewState.hidden && currentState.currentBlock) {
             currentState.currentBlock.viewState.hidden = false;
         }
-
-        let hiddenSet = false;
-
-        node.statements.forEach((stmt) => {
-            if (stmt.viewState.hidden) {
-                if (!hiddenSet) {
-                    hiddenSet = true;
-                    stmt.viewState.hidden = false;
-                    stmt.viewState.hiddenBlock = true;
-                }
-            } else {
-                hiddenSet = false;
-            }
-        });
     },
 
     beginVisitVariableDef(node: VariableDef) {
@@ -129,5 +117,5 @@ export const visitor: Visitor = {
                 }
             }
         }
-    }
+    },
 };

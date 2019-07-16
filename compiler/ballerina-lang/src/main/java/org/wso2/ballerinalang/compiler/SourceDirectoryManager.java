@@ -77,8 +77,8 @@ public class SourceDirectoryManager {
         } else {
             manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
         }
-        if (manifest.getVersion().isEmpty()) {
-            manifest.setVersion(Names.DEFAULT_VERSION.getValue());
+        if (manifest.getProject().getVersion().isEmpty()) {
+            manifest.getProject().setVersion(Names.DEFAULT_VERSION.getValue());
         }
         return manifest;
     }
@@ -87,7 +87,7 @@ public class SourceDirectoryManager {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         Manifest manifest = getManifest();
         Name orgName = getOrgName(manifest);
-        Name version = new Name(manifest.getVersion());
+        Name version = new Name(manifest.getProject().getVersion());
 
         //Check for built-in packages
         if (orgName.equals(Names.BUILTIN_ORG)) {
@@ -96,7 +96,7 @@ public class SourceDirectoryManager {
 
         //Check for source files
         if (sourceFileNames.contains(sourcePackage)) {
-            if (manifest.getName() != null && !manifest.getName().isEmpty()) {
+            if (manifest.getProject().getOrgName() != null && !manifest.getProject().getOrgName().isEmpty()) {
                 return new PackageID(orgName, sourcePackage, version);
             }
             return new PackageID(sourcePackage);
@@ -139,8 +139,8 @@ public class SourceDirectoryManager {
     }
 
     private Name getOrgName(Manifest manifest) {
-        return manifest.getName() == null || manifest.getName().isEmpty() ?
-                Names.ANON_ORG : names.fromString(manifest.getName());
+        return manifest.getProject().getOrgName() == null || manifest.getProject().getOrgName().isEmpty() ?
+                Names.ANON_ORG : names.fromString(manifest.getProject().getOrgName());
     }
 
     /**

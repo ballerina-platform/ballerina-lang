@@ -23,8 +23,11 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaReturnParameter extends PsiElement {
 
+  @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
   @Nullable
-  BallerinaReturnType getReturnType();
+  BallerinaTypeName getTypeName();
 
   @NotNull
   PsiElement getReturns();

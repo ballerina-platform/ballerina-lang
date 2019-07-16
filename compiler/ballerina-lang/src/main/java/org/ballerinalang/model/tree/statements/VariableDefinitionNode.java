@@ -29,5 +29,7 @@ public interface VariableDefinitionNode extends StatementNode {
     VariableNode getVariable();
     
     void setVariable(VariableNode var);
-    
+
+    // TODO: remove this and apply it as a flag set.
+    boolean getIsInFork();
 }

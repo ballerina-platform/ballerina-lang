@@ -43,6 +43,12 @@ public class BallerinaVariableReferenceExpressionImpl extends BallerinaExpressio
 
   @Override
   @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
+  @NotNull
   public BallerinaVariableReference getVariableReference() {
     return findNotNullChildByClass(BallerinaVariableReference.class);
   }

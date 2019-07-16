@@ -26,7 +26,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStaticMatchOrExpressionImpl extends BallerinaStaticMatchLiteralsImpl implements BallerinaStaticMatchOrExpression {
+public class BallerinaStaticMatchOrExpressionImpl extends BallerinaStaticMatchLiteralImpl implements BallerinaStaticMatchOrExpression {
 
   public BallerinaStaticMatchOrExpressionImpl(@NotNull ASTNode node) {
     super(node);
@@ -43,8 +43,8 @@ public class BallerinaStaticMatchOrExpressionImpl extends BallerinaStaticMatchLi
 
   @Override
   @NotNull
-  public List<BallerinaStaticMatchLiterals> getStaticMatchLiteralsList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStaticMatchLiterals.class);
+  public List<BallerinaStaticMatchLiteral> getStaticMatchLiteralList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStaticMatchLiteral.class);
   }
 
   @Override

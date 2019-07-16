@@ -136,6 +136,7 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
                     <text x={x} y={y}
                         onClick={() => {
                             expandContext.collapsed = false;
+                            expandContext.skipDepthCheck = true;
                             update();
                         }}>
                         {getCodePoint("down")}

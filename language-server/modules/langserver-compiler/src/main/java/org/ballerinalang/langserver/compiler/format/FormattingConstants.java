@@ -55,4 +55,6 @@ public class FormattingConstants {
     public static final String TYPE = "type";
     public static final String NAME = "name";
     public static final String EXPRESSIONS = "expressions";
+    public static final String WORKERS = "workers";
+    public static final String IS_VAR_EXISTS = "isVarExists";
 }
