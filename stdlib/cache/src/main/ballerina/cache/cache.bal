@@ -289,7 +289,9 @@ function runCacheExpiry() returns error? {
 
     // We iterate though all empty cache keys and remove them from the `cacheMap`.
     foreach var emptyCacheKey in emptyCacheKeys {
-        var tempVar = cacheMap.remove(emptyCacheKey);
+        if (cacheMap.hasKey(emptyCacheKey)) {
+            var tempVar = cacheMap.remove(emptyCacheKey);
+        }
     }
     return ();
 }

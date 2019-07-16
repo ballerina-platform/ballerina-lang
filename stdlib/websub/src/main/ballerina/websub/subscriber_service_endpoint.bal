@@ -35,7 +35,7 @@ public type Listener object {
     private http:Listener? serviceEndpoint = ();
 
     public function __init(int port, SubscriberServiceEndpointConfiguration? config = ()) {
-        self.init(port, sseEpConfig =  config);
+        self.init(port, config);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -84,7 +84,7 @@ public type Listener object {
     function sendSubscriptionRequests() {
         map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
 
-        foreach var subscriptionDetails in subscriptionDetailsArray {
+        foreach map<any> subscriptionDetails in subscriptionDetailsArray {
             if (subscriptionDetails.keys().length() == 0) {
                 continue;
             }
