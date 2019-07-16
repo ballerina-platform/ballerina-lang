@@ -39,7 +39,7 @@ service generalCases on ep {
         var result1 = priorOn->submit("GET", "/bogusResource", serviceReq);
         var result2 = priorOff->submit("GET", "/bogusResource", serviceReq);
         string response = handleResponse(result1) + "--" + handleResponse(result2);
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted> response);
     }
 }
 
@@ -48,7 +48,10 @@ function handleResponse(http:HttpFuture|error result) returns string {
     if (result is http:HttpFuture) {
         response = "Call succeeded";
     } else {
-        response = "Call to backend failed due to:" + <string>result.detail().message;
+        error err = result;
+        string? errMsg = <string> err.detail()?.message;
+        string reply = errMsg is string ? <@untainted string> errMsg : "client call";
+        response = "Call to backend failed due to:" + reply;
     }
     return response;
 }

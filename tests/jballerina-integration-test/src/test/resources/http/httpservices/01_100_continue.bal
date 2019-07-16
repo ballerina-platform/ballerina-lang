@@ -83,16 +83,18 @@ service helloContinue on new http:Listener(9090) {
                 if (result is string) {
                     replyMsg += " Key:" + contentDisposition.name + " Value: " + result;
                 } else {
-                    replyMsg += " Key:" + contentDisposition.name + " Value: " + result.reason();
+                    replyMsg += <string> " Key:" + contentDisposition.name + " Value: " + result.detail()["message"];
                 }
                 i += 1;
             }
             var responseError = caller->respond(<@untainted> replyMsg);
             if (responseError is error) {
-                log:printError(responseError.reason(), responseError);
+                error err = responseError;
+                log:printError(<string> err.detail()["message"], responseError);
             }
         } else {
-            log:printError(bodyParts.reason(), bodyParts);
+            error err = bodyParts;
+            log:printError(<string> err.detail()["message"], bodyParts);
         }
     }
 
@@ -111,7 +113,8 @@ service helloContinue on new http:Listener(9090) {
                 log:printError("Error sending response", responseError);
             }
         } else {
-            log:printError(res.reason(), res);
+            error err = res;
+            log:printError(<string> err.detail()["message"], res);
         }
     }
 }

@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/'lang\.error as lang;
 
 function testPanic(int y) returns int|error {
     int|error x = foo(y);
@@ -58,14 +59,13 @@ public function bar(int|error x) returns int|error {
 }
 
 public function testSelfReferencingError() returns error {
-    MyError cause = error("root cause", msg = "root cause msg");
-    MyError e = error("actual error", msg = "actual error msg", cause = cause);
+    MyError cause = error("root cause", message = "root cause msg");
+    MyError e = error("actual error", message = "actual error msg", cause = cause);
     return e;
 }
 
 type MyError error<string, MyErrorData>;
 
 type MyErrorData record {|
-    string msg = "";
-    MyError? cause = ();
+    *lang:Detail;
 |};

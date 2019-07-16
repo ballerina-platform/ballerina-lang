@@ -36,7 +36,7 @@ service circuitbreaker07 on circuitBreakerEP07 {
         if (cbTrialRequestCount == 3) {
             runtime:sleep(3000);
         }
-        var backendFuture = backendClientEP07->submit("GET", "/hello07", untaint request);
+        var backendFuture = backendClientEP07->submit("GET", "/hello07", request);
         if (backendFuture is http:HttpFuture) {
             var backendRes = backendClientEP07->getResponse(backendFuture);
             if (backendRes is http:Response) {
@@ -45,10 +45,10 @@ service circuitbreaker07 on circuitBreakerEP07 {
                     log:printError("Error sending response", responseToCaller);
                 }
             } else {
-                sendCBErrorResponse(caller, backendRes);
+                sendCBErrorResponse(caller, <error>backendRes);
             }
         } else {
-            sendCBErrorResponse(caller, backendFuture);
+            sendCBErrorResponse(caller, <error>backendFuture);
         }
     }
 }
@@ -80,7 +80,7 @@ service helloService07 on new http:Listener(8095) {
 function sendCBErrorResponse(http:Caller caller, error e) {
     http:Response response = new;
     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-    string errCause = <string> e.detail().message;
+    string errCause = <string> e.detail()?.message;
     response.setPayload(errCause);
     var responseToCaller = caller->respond(response);
     if (responseToCaller is error) {

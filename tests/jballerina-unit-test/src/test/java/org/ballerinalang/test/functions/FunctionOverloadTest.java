@@ -54,13 +54,4 @@ public class FunctionOverloadTest {
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 10);
     }
 
-    @Test(description = "Test if providing defaultable parameter as required argument produces readable error")
-    public void testDefaultableProvidedAsRequired() {
-        CompileResult compile = BCompileUtil.compile("test-src/functions/defaultable-provided-as-required.bal");
-        Assert.assertEquals(compile.getErrorCount(), 2);
-        String expectedErrMsg = "defaultable parameter expected. defaultable parameters should be passed as key-value" +
-                " pairs";
-        BAssertUtil.validateError(compile, 0, expectedErrMsg, 6, 5);
-        BAssertUtil.validateError(compile, 1, expectedErrMsg, 7, 5);
-    }
 }
