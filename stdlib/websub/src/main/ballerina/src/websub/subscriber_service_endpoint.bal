@@ -132,7 +132,8 @@ public type Listener object {
                             panic <error> topicDecodeResponse;
                         }
                         hub = retHub;
-                        subscriptionDetails["target"] = [retHub, retTopic];
+                        [string, string] hubAndTopic = [retHub, retTopic];
+                        subscriptionDetails["target"] = hubAndTopic;
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
@@ -250,9 +251,9 @@ function retrieveHubAndTopicUrl(string resourceUrl) returns @tainted [string, st
 # + hub - The hub to which the subscription request is to be sent
 # + subscriptionClientConfig - The configuration for subscription client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
+function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig,
+                                              map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
-
     [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
     string callback = <string>subscriptionDetails["callback"];
 
