@@ -86,7 +86,8 @@ public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test global variable reference cycle via function")
     public void inFunctionGlobalReferenceCauseCycle() {
-        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj/src/globalcycle", "viafunc");
+        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj/src/globalcycle",
+                "viafunc");
 
         Assert.assertTrue(cycle.getDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +

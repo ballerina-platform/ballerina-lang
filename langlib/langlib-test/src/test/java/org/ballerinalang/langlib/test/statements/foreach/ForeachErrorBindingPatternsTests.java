@@ -73,12 +73,14 @@ public class ForeachErrorBindingPatternsTests {
         BAssertUtil.validateError(negative, i++,
                 "invalid error variable; expecting an error type but found '$anonType$3?' in type definition", 30, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'map<string>', found 'string?'", 59, 25);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'", 63, 28);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'",
+                63, 28);
         BAssertUtil.validateError(negative, i++,
                 "invalid error variable; expecting an error type but found '$anonType$16?' in type definition", 75, 17);
         BAssertUtil.validateError(negative, i++,
                 "incompatible types: expected 'map<string>', found 'string?'", 106, 25);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'", 110, 28);
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'",
+                110, 28);
         BAssertUtil.validateError(negative, i++,
                 "invalid error binding pattern with type '$anonType$28'",
                 125, 17);
