@@ -52,7 +52,7 @@ public function main() {
     myBatchType[][] dataBatch = [];
     int i = 0;
 
-    if(students is json[]) {
+    if (students is json[]) {
         foreach (var studentData in students) {
             string name = studentData.firstname.toString();
             int age = <int>studentData.age;
