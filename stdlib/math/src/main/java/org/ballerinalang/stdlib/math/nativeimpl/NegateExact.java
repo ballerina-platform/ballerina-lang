@@ -17,18 +17,15 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.stdlib.math.nativeimpl.org.ballerinalang.stdlib.math.Constant.MATH_ERROR_CODE;
-import static org.ballerinalang.stdlib.math.nativeimpl.org.ballerinalang.stdlib.math.Constant.OVERFLOW_ERROR_MSG;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_ERROR_CODE;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.OVERFLOW_ERROR_MSG;
 
 /**
  * Extern function ballerina.math:negateExact.
@@ -42,12 +39,7 @@ import static org.ballerinalang.stdlib.math.nativeimpl.org.ballerinalang.stdlib.
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class NegateExact extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        long value = ctx.getIntArgument(0);
-        ctx.setReturnValues(new BInteger(Math.negateExact(value)));
-    }
+public class NegateExact {
 
     public static Object negateExact(Strand strand, long value) {
         try {

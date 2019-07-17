@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -36,11 +34,7 @@ import java.io.UnsupportedEncodingException;
         orgName = "ballerina", packageName = "encoding",
         functionName = "byteArrayToString", isPublic = true
 )
-public class ByteArrayToString extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ByteArrayToString {
 
     public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
         try {
