@@ -60,6 +60,11 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     }
 
     @Override
+    public BLangVariableReference getRestVar() {
+        return this.restVar;
+    }
+
+    @Override
     public String toString() {
         return "error (" + reason + ", " + detail + ")";
     }

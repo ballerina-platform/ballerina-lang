@@ -6,6 +6,30 @@
   "source": "toplevel/source/importStatement1.bal",
   "items": [
     {
+      "label": "ballerinax/jdbc",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerinax/jdbc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "110",
+      "insertText": "ballerinax/",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "120",
+      "insertText": "ballerinax/jms",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
@@ -27,14 +51,6 @@
       "detail": "Package",
       "sortText": "120",
       "insertText": "ballerina/crypto",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerinax/java.jdbc",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "120",
-      "insertText": "ballerinax/java.jdbc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -286,11 +302,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/jms",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/jms",
+      "insertText": "ballerina/socket",
       "insertTextFormat": "Snippet"
     }
   ]

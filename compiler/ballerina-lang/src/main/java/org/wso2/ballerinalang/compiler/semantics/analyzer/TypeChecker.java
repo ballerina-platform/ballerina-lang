@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -150,6 +151,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1234,14 +1236,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangFieldBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
+                unresolvedReference = true;
                 continue;
             } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangIndexBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+                unresolvedReference = true;
                 continue;
             }
 
@@ -1341,25 +1341,6 @@ public class TypeChecker extends BLangNodeVisitor {
             unresolvedReference = true;
         }
         return unresolvedReference;
-    }
-
-    private boolean checkIndexBasedAccessExpr(BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
-        Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
-        if (fSym != null) {
-            if (fSym.type.getKind() == TypeKind.MAP) {
-                BType constraint = ((BMapType) fSym.type).constraint;
-                checkExpr(detailItem, this.env, constraint);
-                return false;
-            } else {
-                if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, fSym.type);
-                } else {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING, fSym.type);
-                }
-            }
-        }
-        return true;
     }
 
     @Override
@@ -3118,7 +3099,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
-            if (i == 0 && arg.typeChecked) {
+            if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 types.checkType(arg.pos, arg.type, expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.type, expectedType);
             }
@@ -3731,6 +3712,29 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
             fieldAccessExpr.originalType = actualType;
+        } else if (varRefType.tag == TypeTags.STREAM || varRefType.tag == TypeTags.TABLE) {
+
+            BType constraint =  (fieldAccessExpr.expr.type.tag == TypeTags.STREAM ?
+                                                    ((BStreamType) fieldAccessExpr.expr.type).constraint :
+                                                    ((BTableType) fieldAccessExpr.expr.type).constraint);
+
+            if (constraint.tag != TypeTags.RECORD) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
+                return symTable.semanticError;
+            }
+
+            Optional<BField> fieldType =
+                    ((BRecordType) constraint).fields.stream().filter(field -> field.name.value.equals(fieldName.value))
+                            .findFirst();
+
+            if (fieldType.isPresent()) {
+                actualType = fieldType.get().type;
+            } else {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           varRefType.tsymbol.type.getKind().typeName(), varRefType);
+                return symTable.semanticError;
+            }
+
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }

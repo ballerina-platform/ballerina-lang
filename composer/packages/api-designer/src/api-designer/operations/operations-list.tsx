@@ -85,7 +85,7 @@ class OpenApiOperation extends React.Component<OpenApiOperationProp, OpenApiOper
             <Accordion>
                 {Object.keys(pathItem).sort().map((openApiOperation, index) => {
                     return(
-                        <React.Fragment>
+                        <React.Fragment key={openApiOperation}>
                             <Accordion.Title
                                 active={activeOpIndex.includes(index)}
                                 index={index}

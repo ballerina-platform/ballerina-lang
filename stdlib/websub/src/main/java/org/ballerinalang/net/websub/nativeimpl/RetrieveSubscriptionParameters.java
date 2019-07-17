@@ -21,6 +21,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -81,7 +82,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
         Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
                                         .getServicesByHost(DEFAULT_HOST).values().toArray();
-        ArrayValue subscriptionDetailArray = new ArrayValue(new BMapType(BTypes.typeAny));
+        ArrayValue subscriptionDetailArray = new ArrayValue(new BArrayType(new BMapType(BTypes.typeAny)));
 
         for (int index = 0; index < webSubHttpServices.length; index++) {
             WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];

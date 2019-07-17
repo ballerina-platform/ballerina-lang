@@ -17,13 +17,57 @@
  
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    birJar
+    bir
+    birJarCompile { transitive false }
+}
+
 dependencies {
+
+    bir project(path: ':ballerina-utils',  configuration: 'bir')
+    bir project(path: ':ballerina-io',  configuration: 'bir')
+
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
+    testCompile 'com.moandjiezana.toml:toml4j'
+
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+}
+
+task createBirCache {
+    dependsOn configurations.bir
+
+    doLast {
+        configurations.bir.each { artifact ->
+            copy {
+                from artifact
+                into "$buildDir/bir-cache/"
+            }
+        }
+    }
+
+    inputs.files configurations.bir
+    outputs.dir "$buildDir/bir-cache"
+    outputs.cacheIf { false }
+}
+
+test {
+    dependsOn createBirCache
+    dependsOn configurations.birJar
+    dependsOn configurations.birJarCompile
+
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    doFirst {
+        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
+    }
 }
 
 description = 'Ballerina - Packerina'
