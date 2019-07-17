@@ -63,7 +63,7 @@ public type SortWindow object {
         if(!(parameters.length() >= 3 && parameters.length() % 2 == 1)) {
             error err = error("Sort window should have three or more odd no of" +
                 "parameters (<int> windowLength, <string> attribute1, <string> order1, " +
-                "<string> attribute2, <string> order2, ...), but found " + parameters.length()
+                "<string> attribute2, <string> order2, ...), but found " + parameters.length().toString()
                 + " input attributes" );
             panic err;
         }
@@ -79,6 +79,7 @@ public type SortWindow object {
         int i = 1;
         while(i < parameters.length()) {
             any nextParameter = parameters[i];
+            int intParameter;
             if(nextParameter is string) {
                 if (i % 2 == 1) {
                     self.fields[self.fields.length()] = nextParameter;
@@ -86,21 +87,25 @@ public type SortWindow object {
                     if (nextParameter == ASCENDING || nextParameter == DESCENDING) {
                         self.sortTypes[self.sortTypes.length()] = nextParameter;
                     } else {
-                        error err = error("Expected ascending or descending at parameter " + (i + 1) +
+                        intParameter = i + 1;
+                        error err = error("Expected ascending or descending at parameter " + intParameter.toString() +
                             " of sort window");
                         panic err;
                     }
                 }
             } else if(nextParameter is int) {
-                error err = error("Expected string parameter at parameter " + (i + 1) +
+                intParameter = i + 1;
+                error err = error("Expected string parameter at parameter " + intParameter.toString() +
                     " of sort window, but found <int>");
                 panic err;
             } else if(nextParameter is float) {
-                error err = error("Expected string parameter at parameter " + (i + 1) +
+                intParameter = i + 1;
+                error err = error("Expected string parameter at parameter " + intParameter.toString() +
                     " of sort window, but found <float>");
                 panic err;
             } else if(nextParameter is boolean) {
-                error err = error("Expected string parameter at parameter " + (i + 1) +
+                intParameter = i + 1;
+                error err = error("Expected string parameter at parameter " + intParameter.toString() +
                     " of sort window, but found <boolean>");
                 panic err;
             } else {

@@ -14,7 +14,7 @@ function concatString (string value) {
 }
 
 function concatIntString (int i, string v) {
-    output = output + i + ":" + v + " ";
+    output = output + i.toString() + ":" + v + " ";
 }
 
 function testXMLWithArityOne () returns (string) {

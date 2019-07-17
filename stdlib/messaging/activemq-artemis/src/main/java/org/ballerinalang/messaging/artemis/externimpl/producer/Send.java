@@ -61,8 +61,8 @@ public class Send {
         try {
             ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
             ClientMessage message = (ClientMessage) data.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
-            ArtemisTransactionContext transactionContext =
-                    (ArtemisTransactionContext) producerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+            ArtemisTransactionContext transactionContext = (ArtemisTransactionContext) ((ObjectValue) producerObj.get(
+                    ArtemisConstants.SESSION)).getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
             // Having to use the blocking function because of an issue in Artemis:
             // https://issues.apache.org/jira/browse/ARTEMIS-2325
             producer.send(message);

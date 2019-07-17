@@ -114,7 +114,7 @@ public type RequestCacheControl object {
         }
 
         if (self.maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + self.maxAge;
+            directives[i] = MAX_AGE + "=" + self.maxAge.toString();
             i = i + 1;
         }
 
@@ -122,12 +122,12 @@ public type RequestCacheControl object {
             directives[i] = MAX_STALE;
             i = i + 1;
         } else if (self.maxStale >= 0) {
-            directives[i] = MAX_STALE + "=" + self.maxStale;
+            directives[i] = MAX_STALE + "=" + self.maxStale.toString();
             i = i + 1;
         }
 
         if (self.minFresh >= 0) {
-            directives[i] = MIN_FRESH + "=" + self.minFresh;
+            directives[i] = MIN_FRESH + "=" + self.minFresh.toString();
             i = i + 1;
         }
 
@@ -202,12 +202,12 @@ public type ResponseCacheControl object {
         }
 
         if (self.maxAge >= 0) {
-            directives[i] = MAX_AGE + "=" + self.maxAge;
+            directives[i] = MAX_AGE + "=" + self.maxAge.toString();
             i = i + 1;
         }
 
         if (self.sMaxAge >= 0) {
-            directives[i] = S_MAX_AGE + "=" + self.sMaxAge;
+            directives[i] = S_MAX_AGE + "=" + self.sMaxAge.toString();
             i = i + 1;
         }
 

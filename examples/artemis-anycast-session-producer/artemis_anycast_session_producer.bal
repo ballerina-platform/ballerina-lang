@@ -15,8 +15,7 @@ public function main() {
     // content.
     artemis:Message msg = new(session, mapContent);
     // Creates a producer to the "hello" address using the Session object.
-    artemis:Producer prod = new(session, "queue1", 
-        addressConfig = {autoCreated:false});
+    artemis:Producer prod = new(session, "queue1", { autoCreated:false });
 
     // Sends the message as a string to the Artemis server.
     error? err = prod->send(msg);

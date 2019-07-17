@@ -65,14 +65,14 @@ public class ArtemisUtils {
      */
     public static ErrorValue getError(String errMsg) {
         return BallerinaErrors.createError(ArtemisConstants.ARTEMIS_ERROR_CODE,
-                createArtemisErrorRecord(errMsg));
+                                           createArtemisErrorRecord(errMsg));
     }
 
     private static MapValue<String, Object> createArtemisErrorRecord(String errorMessage) {
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(ArtemisConstants.ARTEMIS_ERROR_MESSAGE, errorMessage);
         return BallerinaValues.createRecordValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                ArtemisConstants.ARTEMIS_ERROR_DETAILS, valueMap);
+                                                 ArtemisConstants.ARTEMIS_ERROR_DETAILS, valueMap);
     }
 
     /**
@@ -117,7 +117,7 @@ public class ArtemisUtils {
             return Math.toIntExact(longVal);
         } catch (ArithmeticException e) {
             logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}", name,
-                    Integer.MAX_VALUE, name, Integer.MAX_VALUE);
+                        Integer.MAX_VALUE, name, Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
     }
@@ -170,7 +170,6 @@ public class ArtemisUtils {
      * @throws ActiveMQException on session closure failure
      */
     public static void closeIfAnonymousSession(ObjectValue obj) throws ActiveMQException {
-        @SuppressWarnings(ArtemisConstants.UNCHECKED)
         ObjectValue sessionObj = obj.getObjectValue(ArtemisConstants.SESSION);
         boolean anonymousSession = sessionObj.getBooleanValue("anonymousSession");
         if (anonymousSession) {
@@ -205,12 +204,12 @@ public class ArtemisUtils {
             if (!queueQuery.isExists()) {
                 if (!temporary) {
                     session.createQueue(addressName, getRoutingTypeFromString(routingType),
-                            simpleQueueName, simpleQueueFilter, durable, true, maxConsumers,
-                            purgeOnNoConsumers, exclusive, lastValue);
+                                        simpleQueueName, simpleQueueFilter, durable, true, maxConsumers,
+                                        purgeOnNoConsumers, exclusive, lastValue);
                 } else {
                     session.createTemporaryQueue(addressName, getRoutingTypeFromString(routingType),
-                            simpleQueueName, simpleQueueFilter, maxConsumers,
-                            purgeOnNoConsumers, exclusive, lastValue);
+                                                 simpleQueueName, simpleQueueFilter, maxConsumers,
+                                                 purgeOnNoConsumers, exclusive, lastValue);
                 }
             } else {
                 logger.warn(
@@ -239,14 +238,22 @@ public class ArtemisUtils {
         return new ArrayValue(bytes);
     }
 
-    public static void populateMessageObj(ClientMessage clientMessage, Object transactionContext,
-                                          ObjectValue messageObj) {
+    public static ObjectValue createAndGetMessageObj(ClientMessage clientMessage, ObjectValue sessionObj,
+                                                     Object msgContent) {
+        ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
+                                                                   ArtemisConstants.MESSAGE_OBJ, sessionObj,
+                                                                   msgContent, null);
+        ArtemisUtils.populateMessageObj(clientMessage, messageObj);
+        return messageObj;
+    }
+
+    private static void populateMessageObj(ClientMessage clientMessage, ObjectValue messageObj) {
         @SuppressWarnings(ArtemisConstants.UNCHECKED)
         MapValue<String, Object> messageConfigObj = (MapValue<String, Object>) messageObj.get(
                 ArtemisConstants.MESSAGE_CONFIG);
         populateMessageConfigObj(clientMessage, messageConfigObj);
 
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT, transactionContext);
+        messageObj.set(ArtemisConstants.CREATED, true);
         messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, clientMessage);
     }
 
