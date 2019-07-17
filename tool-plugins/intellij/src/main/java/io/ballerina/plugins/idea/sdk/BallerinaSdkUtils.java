@@ -328,21 +328,22 @@ public class BallerinaSdkUtils {
      */
     public static String searchForBallerinaProjectRoot(String currentPath, String root) {
 
-        if (currentPath.equals(root) || currentPath.isEmpty() || root.isEmpty()) {
+        if (currentPath.isEmpty() || root.isEmpty()) {
             return "";
         }
+
         File currentDir = new File(currentPath);
         File[] files = currentDir.listFiles();
         if (files != null) {
             for (File f : files) {
                 // Searches for the ballerina config file (Ballerina.toml).
-                if (f.isDirectory() && f.getName().equals(BALLERINA_CONFIG_FILE_NAME)) {
+                if (f.isFile() && f.getName().equals(BALLERINA_CONFIG_FILE_NAME)) {
                     return currentDir.getAbsolutePath();
                 }
             }
         }
 
-        if (currentDir.getParentFile() == null) {
+        if (currentPath.equals(root) || currentDir.getParentFile() == null) {
             return "";
         }
         return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
