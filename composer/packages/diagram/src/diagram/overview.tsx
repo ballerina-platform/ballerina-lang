@@ -65,7 +65,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
-            maxInvocationDepth: 0,
+            maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
