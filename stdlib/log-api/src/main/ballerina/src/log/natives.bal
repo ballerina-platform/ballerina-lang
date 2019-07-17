@@ -24,7 +24,7 @@ public function printDebug(string | (function() returns (string)) msg) = externa
 #
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(string | (function() returns (string)) msg, error? err = ()) = external;
+public function printError(string | (function() returns (string)) msg, public error? err = ()) = external;
 
 # Logs the specified message at INFO level.
 #
