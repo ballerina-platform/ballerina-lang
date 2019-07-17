@@ -14,9 +14,23 @@
  * limitations under the License.
  *
  */
-
+ 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
+
+    dependencies {
+        testRuntime project(':ballerina-jvm')
+        testRuntime project(':ballerina-bir')
+        testRuntime project(':ballerina-backend-jvm')
+
+        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
+        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
+    }
+}
 
 configurations {
     balRuntime
@@ -112,6 +126,7 @@ dependencies {
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')
+    testCompile project(':ballerina-activemq-artemis')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec-http'
@@ -139,7 +154,6 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 
 test {
     // make sure ballerina zip is built before test run
-    dependsOn ":ballerina:build"
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'
     
@@ -155,8 +169,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-
-    dependsOn createBre
 }
 
 clean.doFirst {

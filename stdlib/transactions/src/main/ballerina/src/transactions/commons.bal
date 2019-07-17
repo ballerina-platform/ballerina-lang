@@ -173,13 +173,13 @@ function respondToBadRequest(http:Caller ep, string msg) {
 
 function getCoordinatorProtocolAt(string protocolName, string transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
-    return "http://" + coordinatorHost + ":" + coordinatorPort + initiator2pcCoordinatorBasePath + "/" +
+    return "http://" + coordinatorHost + ":" + coordinatorPort.toString() + initiator2pcCoordinatorBasePath + "/" +
         transactionBlockId;
 }
 
 function getParticipantProtocolAt(string protocolName, string transactionBlockId) returns string {
     //TODO: protocolName is unused for the moment
-    return "http://" + coordinatorHost + ":" + coordinatorPort + participant2pcCoordinatorBasePath + "/" +
+    return "http://" + coordinatorHost + ":" + coordinatorPort.toString() + participant2pcCoordinatorBasePath + "/" +
         transactionBlockId;
 }
 
@@ -205,8 +205,8 @@ function createTransactionContext(string coordinationType, string transactionBlo
             transactionId:txnId,
             transactionBlockId:transactionBlockId,
             coordinationType:coordinationType,
-            registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort + initiatorCoordinatorBasePath + "/" +
-                transactionBlockId + registrationPath
+            registerAtURL:"http://" + coordinatorHost + ":" + coordinatorPort.toString() +
+                initiatorCoordinatorBasePath + "/" + transactionBlockId + registrationPath
         };
         log:printInfo("Created transaction: " + txnId);
         return txnContext;

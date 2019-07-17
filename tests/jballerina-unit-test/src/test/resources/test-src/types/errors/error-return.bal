@@ -23,13 +23,13 @@ function testReturnError() returns [string, string, string, string]|error {
     // Special identifier "=?" will be used to ignore values.
 
     quoteValue = check getQuote("FOO");
-    a = "FOO:" + quoteValue;
+    a = "FOO:" + quoteValue.toString();
 
     // Ignore error.
     var r = getQuote("QUX");
 
     if (r is float) {
-        b = "QUX:" + r;
+        b = "QUX:" + r.toString();
     } else {
         b = "QUX:ERROR";
     }
@@ -39,16 +39,16 @@ function testReturnError() returns [string, string, string, string]|error {
     var q = getQuote("BAZ");
 
     if (q is float) {
-        c = "BAZ:" + quoteValue;
+        c = "BAZ:" + quoteValue.toString();
     } else {
         quoteValue = 0.0;
-        c = "BAZ:" + quoteValue;
+        c = "BAZ:" + quoteValue.toString();
     }
 
     var p = getQuote("BAR");
 
     if (p is float) {
-        d = "BAR:" + p;
+        d = "BAR:" + p.toString();
     } else {
         quoteValue = 0.0;
         d = "BAR:ERROR";

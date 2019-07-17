@@ -11,7 +11,7 @@ function func1 (int a, int b) returns (int) {
 function test2 () returns (string) {
     function (int , int ) returns (string) sumFunction = function (int a, int b) returns (string) {
                                        int value =  a + b;
-                                       return "sum is " + value;
+                                       return "sum is " + value.toString();
                                    };
     return sumFunction(1,2);
 }
@@ -49,7 +49,7 @@ function test5Callee() returns (function (string, float) returns (string)){
 }
 
 function test5Ref(string a, float b) returns (string){
-    string c = a + b;
+    string c = a + b.toString();
     return c;
 }
 
@@ -78,7 +78,7 @@ function funcWithArrayParams (string[] a) returns (int) {
 }
 
 public function getCount(function (int , int ) returns (int) sumFunction, string first, string last) returns string {
-    return first + ": " + sumFunction(4, 2) + " " + last;
+    return first + ": " + sumFunction(4, 2).toString() + " " + last;
 }
 
 function testFunctionPointerAsFuncParam() returns [int, string] {

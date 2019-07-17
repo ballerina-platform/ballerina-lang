@@ -53,14 +53,15 @@ public class Receive {
 
     public static Object receive(Strand strand, ObjectValue consumerObj, long timeoutInMilliSeconds) {
         ClientConsumer consumer = (ClientConsumer) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_CONSUMER);
-        ArtemisTransactionContext transactionContext =
-                (ArtemisTransactionContext) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
         boolean autoAck = (boolean) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_AUTO_ACK);
         try {
             ClientMessage clientMessage = consumer.receive(timeoutInMilliSeconds);
             ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
                     ArtemisConstants.MESSAGE_OBJ);
-            ArtemisUtils.populateMessageObj(clientMessage, transactionContext, messageObj);
+            ObjectValue sessionObj = (ObjectValue) consumerObj.get(ArtemisConstants.SESSION);
+            ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj, messageObj);
+            ArtemisTransactionContext transactionContext =
+                    (ArtemisTransactionContext) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
             if (autoAck) {
                 clientMessage.acknowledge();
                 if (transactionContext != null) {

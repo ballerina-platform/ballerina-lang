@@ -16,39 +16,39 @@ type Data3 record {
 };
 
 function concatIntString(int i, string s) {
-    output = output + i + ":" + s + " ";
+    output = output + i.toString() + ":" + s + " ";
 }
 
 function concatIntStringFloat(int i, string s, float f) {
-    output = output + i + ":" + s + ":" + f + " ";
+    output = output + i.toString() + ":" + s + ":" + f.toString() + " ";
 }
 
 function concatIntIntString(int i1, int i2, string s) {
-    output = output + i1 + ":" + i2 + ":" + s + " ";
+    output = output + i1.toString() + ":" + i2.toString() + ":" + s + " ";
 }
 
 function concatStringIntString(int s1, int i, string s2) {
-    output = output + s1 + ":" + i + ":" + s2 + " ";
+    output = output + s1.toString() + ":" + i.toString() + ":" + s2 + " ";
 }
 
 function concatIntStringAny(int i, any a) {
-    output = output + i + ":" + a.toString() + " ";
+    output = output + i.toString() + ":" + a.toString() + " ";
 }
 
 function concatIntStringIntString(int i1, int i2, string s2) {
-    output = output + i1 + ":" + i2 + ":" + s2 + " ";
+    output = output + i1.toString() + ":" + i2.toString() + ":" + s2 + " ";
 }
 
 function concatIntStringIntStringFloat(int i1, int i2, string s2, float f) {
-    output = output + i1 + ":" + i2 + ":" + s2 + ":" + f + " ";
+    output = output + i1.toString() + ":" + i2.toString() + ":" + s2 + ":" + f.toString() + " ";
 }
 
 function concatIntStringIntIntString(int i1, int i2, int i3, string s2) {
-    output = output + i1 + ":" + i2 + ":" + i3 + ":" + s2 + " ";
+    output = output + i1.toString() + ":" + i2.toString() + ":" + i3.toString() + ":" + s2 + " ";
 }
 
 function concatIntStringAnyIntString(int i1, any a, int i2, string s2) {
-    output = output + i1 + ":" + a.toString() + ":" + i2 + ":" + s2 + " ";
+    output = output + i1.toString() + ":" + a.toString() + ":" + i2.toString() + ":" + s2 + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

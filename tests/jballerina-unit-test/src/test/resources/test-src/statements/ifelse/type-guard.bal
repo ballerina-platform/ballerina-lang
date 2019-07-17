@@ -231,7 +231,7 @@ function testTypeGuardInElse_6() returns string {
             return "string: " + y;
         } else {
             int i = y;
-            return "int: " + i;
+            return "int: " + i.toString();
         }
     }
 }
@@ -248,7 +248,7 @@ function testTypeGuardInElse_7() returns string {
             return "string: " + y;
         } else {
             int i = y;
-            return "int: " + i;
+            return "int: " + i.toString();
         }
     }
 }
@@ -333,14 +333,14 @@ function testTypeGuardNegation(int|string|boolean x) returns string {
     if!(x is int) {
         if !(x is string) {
             boolean y = x;
-            return "boolean: " + y;
+            return "boolean: " + y.toString();
         } else {
             string y = x;
             return "string: " + y;
         }
     } else {
         int y = x;
-        return "int: " + x;
+        return "int: " + x.toString();
     }
 }
 
@@ -348,15 +348,15 @@ function testTypeGuardsWithBinaryOps(int|string|boolean|float x) returns string 
     if ((x is int|string && x is int) || (x is boolean)) {
         if (x is boolean) {
             boolean y = x;
-            return "boolean: " + y;
+            return "boolean: " + y.toString();
         } else {
             int y = x;
-            return "int: " + y;
+            return "int: " + y.toString();
         }
     } else {
         if (x is float) {
             float y = x;
-            return "float: " + y;
+            return "float: " + y.toString();
         } else {
             string y = x;
             return "string: " + y;
@@ -411,7 +411,7 @@ function testTypeGuardsWithError() returns string {
     if (e is error) {
         if (e is CustomError) {
             CustomError ce = e;
-            return "status: " + ce.detail().status;
+            return "status: " + ce.detail().status.toString();
         } else {
             return "not a custom error";
         }
@@ -442,15 +442,15 @@ function testTypeNarrowingWithClosures() returns string {
                         return -1;
                     }
                 };
-        return "int: "+ y();
+        return "int: "+ y().toString();
     }
 }
 
 function testTypeGuardsWithBinaryAnd(string|int x) returns string {
     if (x is int && x < 5) {
-        return "int: " + x + " is < 5";
+        return "int: " + x.toString() + " is < 5";
     } else if (x is int) {
-        return "int: " + x + " is >= 5";
+        return "int: " + x.toString() + " is >= 5";
     } else {
         return "string: " + x;
     }
@@ -463,15 +463,15 @@ function testTypeGuardsWithBinaryOpsInTernary(int|string|boolean|float x) return
 }
 
 function booleanToString(boolean a) returns string {
-    return "boolean: " + a;
+    return "boolean: " + a.toString();
 }
 
 function intToString(int a) returns string {
-    return "int: " + a;
+    return "int: " + a.toString();
 }
 
 function floatToString(float a) returns string {
-    return "float: " + a;
+    return "float: " + a.toString();
 }
 
 public function testUpdatingTypeNarrowedVar_1() returns string {
@@ -480,13 +480,13 @@ public function testUpdatingTypeNarrowedVar_1() returns string {
         x = "hello";   // update the var with a type outside of narrowed types
         if (x is int) {
             int z = x;
-            return "int: " + z;
+            return "int: " + z.toString();
         } else if (x is string) {
             string z = x;
             return "string: " + z;
         } else {
             boolean z = x;
-            return "boolean: " + z;
+            return "boolean: " + z.toString();
         }
     } else {
         string z = x;
@@ -501,7 +501,7 @@ public function testUpdatingTypeNarrowedVar_2(int|string|boolean a) returns stri
             x = -1;
         }
         int z = x;
-        return "int: " + z;
+        return "int: " + z.toString();
     }
 
     return "not an int";
@@ -516,17 +516,17 @@ public function testUpdatingTypeNarrowedVar_3() returns string {
 
         if (x is int) {
             int z = x;
-            return "int: " + z;
+            return "int: " + z.toString();
         } else if (x is string) {
             string z = x;
             return "string: " + z;
         } else {
             boolean z = x;
-            return "boolean: " + z;
+            return "boolean: " + z.toString();
         }
     } else {
         string z = x;
-        return "outer string: " + z;
+        return "outer string: " + z.toString();
     }
 }
 

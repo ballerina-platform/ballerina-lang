@@ -20,8 +20,6 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -49,11 +47,7 @@ import java.util.Objects;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class BasicNack extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class BasicNack {
 
     public static Object basicNack(Strand strand, ObjectValue messageObjectValue, Object multiple, Object requeue) {
         boolean defaultMultiple = false;
@@ -89,5 +83,8 @@ public class BasicNack extends BlockingNativeCallableUnit {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
         }
         return null;
+    }
+
+    private BasicNack() {
     }
 }

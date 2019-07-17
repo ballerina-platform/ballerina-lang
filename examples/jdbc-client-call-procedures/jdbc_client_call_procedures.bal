@@ -4,12 +4,12 @@ import ballerinax/java.jdbc;
 // Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/testdb",
-        username: "test",
-        password: "test",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
+});
 
 // This is the `type` created to represent a data row.
 type Student record {
@@ -56,7 +56,7 @@ public function main() {
     } else {
         error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>err.detail().message);
+                + <string> err.detail()["message"]);
     }
 
     // Here stored procedure with OUT and INOUT parameters is invoked.
@@ -76,7 +76,7 @@ public function main() {
     } else {
         error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>err.detail().message);
+                + <string> err.detail()["message"]);
     }
 
     checkData();
@@ -99,7 +99,7 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string>err.detail().message);
+        io:println(message + " failed: " + <string> err.detail()["message"]);
     }
 }
 
@@ -116,6 +116,6 @@ function checkData() {
     } else {
         error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>err.detail().message);
+                + <string> err.detail()["message"]);
     }
 }
