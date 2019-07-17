@@ -224,6 +224,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
+        // Check if the rest param is a closure var
+        if (funcNode.symbol.restParam != null && funcNode.symbol.restParam.closure) {
+            if (funcNode.mapSymbol == null) {
+                createFunctionMap(funcNode, funcEnv);
+            }
+            addToFunctionMap(funcNode, funcEnv, position, funcNode.symbol.restParam,
+                             funcNode.symbol.restParam.type);
+            position++;
+        }
+
         // For attached functions add the receiver to the function map if it has been exposed as a closure.
         BLangSimpleVariable receiver = funcNode.receiver;
         if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {

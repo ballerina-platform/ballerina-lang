@@ -1040,6 +1040,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 || invocationExpr.symbol.name.value.startsWith(Constants.WORKER_LAMBDA_VAR_PREFIX))) {
             //TODO: Remove "WORKER_LAMBDA_VAR_PREFIX" check after worker interaction analysis is in place.
             analyzeBuiltInMethodInvocation(invocationExpr);
+        } else if (isLangLibFunction(invocationExpr)) {
+            analyzeLangLibFunctionInvocation(invocationExpr);
         } else if (invocationExpr.symbol != null) {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -1079,6 +1081,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 analyzeInvocation(invocationExpr);
             }
         }
+    }
+
+    private void analyzeLangLibFunctionInvocation(BLangInvocation invocationExpr) {
+        for (BLangExpression requiredArg : invocationExpr.requiredArgs) {
+            requiredArg.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                return;
+            }
+        }
+        for (BLangExpression expression : invocationExpr.restArgs) {
+            expression.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                return;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
+    private boolean isLangLibFunction(BLangInvocation invocationExpr) {
+        return invocationExpr.symbol.pkgID.orgName.value.equals("ballerina")
+                && invocationExpr.symbol.pkgID.name.value.startsWith("lang.");
     }
 
     private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {

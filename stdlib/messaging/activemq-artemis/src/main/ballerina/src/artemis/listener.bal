@@ -111,8 +111,10 @@ public type QueueConfiguration record {|
 
 # Representation of the ActiveMQ Artemis client consumer to make blocking receive calls.
 public type Consumer client object {
+    private Session session;
     function __init(Session sessObj, QueueConfiguration config, boolean autoAck, string? filter)
     returns error? {
+        self.session = sessObj;
         check self.createConsumer(sessObj, config, autoAck, filter);
     }
 

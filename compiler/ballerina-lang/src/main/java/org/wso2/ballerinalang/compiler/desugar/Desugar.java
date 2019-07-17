@@ -716,6 +716,12 @@ public class Desugar extends BLangNodeVisitor {
                                                             getParticipantFunctionName(funcNode), SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                                                                        getTransactionBlockId());
+        if (!funcNode.body.stmts.isEmpty()) {
+            // We need to add cast to any type for function return statement since $anonTrxParticipantFunc$ return 
+            // any|error.
+            BLangReturn bLangReturn = (BLangReturn) funcNode.body.stmts.get(funcNode.body.stmts.size() - 1);
+            bLangReturn.expr = addConversionExprIfRequired(bLangReturn.expr, trxReturnNode.type);
+        }
         BLangLambdaFunction trxMainFunc = createLambdaFunction(funcNode.pos, "$anonTrxParticipantFunc$",
                                                                Collections.emptyList(),
                                                                trxReturnNode, funcNode.body);
@@ -2443,9 +2449,11 @@ public class Desugar extends BLangNodeVisitor {
         */
         DiagnosticPos returnStmtPos = new DiagnosticPos(invPos.src,
                                                         invPos.eLine, invPos.eLine, invPos.sCol, invPos.sCol);
-        BLangStatement statement = transactionNode.transactionBody.stmts
-                .get(transactionNode.transactionBody.stmts.size() - 1);
-        if (!(statement.getKind() == NodeKind.ABORT) && !(statement.getKind() == NodeKind.ABORT)) {
+        BLangStatement statement = null;
+        if (!transactionNode.transactionBody.stmts.isEmpty()) {
+            statement = transactionNode.transactionBody.stmts.get(transactionNode.transactionBody.stmts.size() - 1);
+        }
+        if (statement == null || !(statement.getKind() == NodeKind.ABORT) && !(statement.getKind() == NodeKind.ABORT)) {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(returnStmtPos, trxReturnType, 0L);
             transactionNode.transactionBody.addStatement(returnStmt);
         }
@@ -4138,7 +4146,13 @@ public class Desugar extends BLangNodeVisitor {
         }
         args.add(getSQLStatementParameters(tableQueryExpression));
         args.add(getReturnType(tableQueryExpression));
-        return createInvocationNode(functionName, args, retType);
+        BInvokableSymbol symbol =
+                (BInvokableSymbol) symTable.langTableModuleSymbol.scope.lookup(names.fromString(functionName)).symbol;
+        BLangInvocation invocation =
+                ASTBuilderUtil.createInvocationExprForMethod(tableQueryExpression.pos, symbol, args, symResolver);
+        invocation.argExprs = args;
+        invocation.type = retType;
+        return invocation;
     }
 
     private BLangInvocation createInvocationNode(String functionName, List<BLangExpression> args, BType retType) {

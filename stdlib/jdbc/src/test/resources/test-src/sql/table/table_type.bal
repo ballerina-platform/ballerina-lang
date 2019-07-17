@@ -1536,7 +1536,7 @@ function testToJsonAndSetAsChildElement() returns @tainted json {
     return j;
 }
 
-function testToJsonAndLengthof() returns [int, int] {
+function testToJsonAndLengthof() returns @tainted [int, int] {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",

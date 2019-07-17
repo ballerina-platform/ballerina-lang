@@ -16,7 +16,7 @@ function sqrtTest (float val) returns (float) {
     return math:sqrt(val);
 }
 
-function randomInRangeTest (int a, int b) returns (int) {
+function randomInRangeTest (int a, int b) returns (int|math:Error) {
     return math:randomInRange(a, b);
 }
 
@@ -72,11 +72,11 @@ function floorTest (float value) returns (float) {
     return math:floor(value);
 }
 
-function floorDivTest (int a, int b) returns (int) {
+function floorDivTest (int a, int b) returns (int|math:Error) {
     return math:floorDiv(a, b);
 }
 
-function floorModTest (int a, int b) returns (int) {
+function floorModTest (int a, int b) returns (int|math:Error) {
     return math:floorMod(a, b);
 }
 
@@ -104,7 +104,7 @@ function log1pTest (float value) returns (float) {
     return math:log1p(value);
 }
 
-function negateExactTest (int value) returns (int) {
+function negateExactTest (int value) returns (int|math:Error) {
     return math:negateExact(value);
 }
 

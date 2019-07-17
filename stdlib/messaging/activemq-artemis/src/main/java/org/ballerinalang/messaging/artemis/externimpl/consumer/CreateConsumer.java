@@ -74,8 +74,6 @@ public class CreateConsumer {
             ArtemisUtils.getClientConsumer(consumerObj, session, ArtemisUtils.getStringFromObjOrNull(consumerFilter),
                     queueName, addressName, autoCreated, routingType, temporary, queueFilter,
                     durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, logger);
-            consumerObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                    sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
             consumerObj.addNativeData(ArtemisConstants.ARTEMIS_AUTO_ACK, autoAck);
             session.start();
         } catch (ActiveMQException e) {

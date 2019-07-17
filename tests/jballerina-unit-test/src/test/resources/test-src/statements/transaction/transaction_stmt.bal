@@ -1,6 +1,6 @@
 public type TrxErrorData record {|
     string message = "";
-    error? cause = ();
+    error cause?;
     string data = "";
 |};
 
@@ -231,7 +231,7 @@ function testTransactionStmtWithConstRetryFailed2() returns (string) {
     if (result is string) {
         a = result;
     } else {
-        a = a + <string>result.detail().message;
+        a = a + <string>result.detail()["message"];
     }
     a = a + " end";
     return a;

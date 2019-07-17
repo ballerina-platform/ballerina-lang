@@ -39,14 +39,14 @@ public class ArtemisTestCommons extends BaseTest {
     private EmbeddedActiveMQ embeddedBroker;
 
     protected static BServerInstance serverInstance;
+    protected Path testsPath = Paths.get("src", "test", "resources", "messaging", "artemis", "src");
+    protected Path producersPath = testsPath.resolve("producers");
 
     @BeforeGroups(value = "artemis-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        Path path = Paths.get("src", "test", "resources", "messaging", "artemis");
-
         // Start broker
         embeddedBroker = new EmbeddedActiveMQ();
-        String brokerXML = path.resolve("configfiles").resolve("broker.xml").toUri().toString();
+        String brokerXML = testsPath.resolve("configfiles").resolve("broker.xml").toUri().toString();
         embeddedBroker.setConfigResourcePath(brokerXML);
         try {
             embeddedBroker.start();
@@ -56,7 +56,7 @@ public class ArtemisTestCommons extends BaseTest {
 
         // Start Ballerina server
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(path.toAbsolutePath().toString(), "consumers", new String[]{"--experimental"},
+        serverInstance.startServer(testsPath.toAbsolutePath().toString(), "consumers", new String[]{"--experimental"},
                                    new int[]{});
     }
 

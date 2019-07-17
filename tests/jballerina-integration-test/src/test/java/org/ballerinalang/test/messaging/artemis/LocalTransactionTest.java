@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.messaging.artemis;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -42,7 +42,7 @@ public class LocalTransactionTest {
     @BeforeClass
     public void setup() throws URISyntaxException {
         TestUtils.prepareBalo(this);
-        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis");
+        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis", "src");
         producerResult = BCompileUtil.compile(sourcePath.resolve("producers").resolve("transaction_producer.bal")
                                                       .toAbsolutePath().toString());
         consumerResult = BCompileUtil.compile(sourcePath.resolve("consumers").resolve("transaction_consumer.bal")
