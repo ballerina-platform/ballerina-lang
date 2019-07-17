@@ -98,7 +98,7 @@ public class FormatUtil {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String sourceRoot = LSCompilerUtil.projectRoot(filePath.toAbsolutePath());
+                    String sourceRoot = LSCompilerUtil.getProjectRoot(filePath.toAbsolutePath());
                     String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
                             filePath.toAbsolutePath().toString());
                     if ("".equals(packageName)) {
