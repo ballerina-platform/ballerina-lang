@@ -17,16 +17,13 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;

@@ -28,12 +28,17 @@ import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
+import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionClosureError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
+import static org.ballerinalang.net.http.WebSocketUtil.getRemoteUrl;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -49,6 +54,8 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
         )
 )
 public class Close {
+
+    private static final PrintStream console = System.out;
 
     public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
@@ -110,8 +117,8 @@ public class Close {
         });
     }
 
-    private static void waitForTimeout(NonBlockingCallback callback, int timeoutInSecs,
-                                       CountDownLatch latch) {
+    private static void waitForTimeout(NonBlockingCallback callback, int timeoutInSecs, CountDownLatch latch,
+                                       WebSocketOpenConnectionInfo connectionInfo) {
         try {
             if (timeoutInSecs < 0) {
                 latch.await();

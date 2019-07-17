@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -53,9 +54,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_CONNECTOR;
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.COUNT_DOWN_LATCH;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsGenericError;
 import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
+import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
 import static org.ballerinalang.net.http.WebSocketConstants.FULL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_COUNT;
+import static org.ballerinalang.net.http.WebSocketConstants.MAX_RETRY_INTERVAL;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECTING;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
+import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_INTERVAL;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_DECAY;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
 
@@ -307,11 +320,11 @@ public class WebSocketUtil {
                         readyOnConnect, countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
-                throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
+                throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+            throw new WebSocketException("Error occurred: " + e.getMessage());
         }
     }
 
