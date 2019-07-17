@@ -98,7 +98,7 @@ service publisher on publisherServiceEP {
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach var topic in availableTopics {
-                allTopics["Topic_" + index] = topic;
+                allTopics["Topic_" + index.toString()] = topic;
                 index += 1;
             }
             json j = <json> typedesc<json>.constructFrom(allTopics);
