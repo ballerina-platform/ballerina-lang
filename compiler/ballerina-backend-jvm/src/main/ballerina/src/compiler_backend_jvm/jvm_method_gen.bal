@@ -1174,6 +1174,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         errorGen.printStackTraceFromFutureValue(mv);
         mv.visitInsn(POP);
 
+        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Runtime", "getRuntime", "()Ljava/lang/Runtime;", false);
+        mv.visitInsn(ICONST_1);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Runtime", "exit", "(I)V", false);
+        
         // At this point we are done executing all the functions including asyncs
         if (!isVoidFunction) {
             // store future value
