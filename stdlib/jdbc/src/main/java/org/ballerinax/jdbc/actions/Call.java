@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.statement.CallStatement;
 import org.ballerinax.jdbc.statement.SQLStatement;
 
@@ -34,7 +34,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeCall"
 )
 public class Call extends BlockingNativeCallableUnit {
@@ -48,7 +48,7 @@ public class Call extends BlockingNativeCallableUnit {
             ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
-                parameters);
+                parameters, strand);
         return callStatement.execute();
     }
 }

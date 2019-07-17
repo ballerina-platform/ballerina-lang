@@ -50,14 +50,14 @@ public class BallerinaClosedRecordBindingPatternImpl extends ASTWrapperPsiElemen
 
   @Override
   @NotNull
-  public PsiElement getLeftBrace() {
-    return findNotNullChildByType(LEFT_BRACE);
+  public PsiElement getLeftClosedRecordDelimiter() {
+    return findNotNullChildByType(LEFT_CLOSED_RECORD_DELIMITER);
   }
 
   @Override
   @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public PsiElement getRightClosedRecordDelimiter() {
+    return findChildByType(RIGHT_CLOSED_RECORD_DELIMITER);
   }
 
 }

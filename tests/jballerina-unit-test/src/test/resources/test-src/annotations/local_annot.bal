@@ -42,7 +42,7 @@ public function testAnnotEvaluation() returns boolean[6] {
     boolean v4 = b2 is map<string> && b2["strOne"] == "one" && b2["two"] == u2;
 
     // Annots of the original service returned should not have changed.
-    typedesc t = typeof c1;
+    typedesc<any> t = typeof c1;
     map<int>? m1 = t.@t1;
     map<string>? m2 = <map<string>?> reflect:getResourceAnnotations(c1, "res", "t2");
 
@@ -67,7 +67,7 @@ function getAnnotsAndService() returns [map<int>?, map<string>?, service] {
         }
     };
 
-    typedesc t = typeof ser;
+    typedesc<any> t = typeof ser;
     map<int>? m1 = t.@t1;
     map<string>? m2 = <map<string>?> reflect:getResourceAnnotations(ser, "res", "t2");
     return [m1, m2, ser];

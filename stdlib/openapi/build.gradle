@@ -16,19 +16,24 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-http')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-log-api')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-io')
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - OpenApi'

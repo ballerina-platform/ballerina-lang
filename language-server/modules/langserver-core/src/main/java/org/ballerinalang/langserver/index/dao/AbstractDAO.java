@@ -82,7 +82,7 @@ abstract class AbstractDAO<T> {
      * Get a single entry from dto.
      * 
      * @param dto           Entry ID to retrieve
-     * @return {@link T}    Retrieved entry
+     * @return list of T    Retrieved entry
      * @throws LSIndexException Exception while retrieving entry from index
      */
     public abstract List<T> get(T dto) throws LSIndexException;

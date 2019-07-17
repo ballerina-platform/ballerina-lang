@@ -13,7 +13,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 jdbc:PoolOptions properties = { maximumPoolSize: 1,
     idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,
@@ -210,14 +210,14 @@ function testConnectionFailure() {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
             retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": <string> tableOrError.detail()["message"] };
     }
     return retVal;
 }

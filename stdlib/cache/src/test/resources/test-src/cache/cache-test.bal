@@ -2,7 +2,7 @@ import ballerina/cache;
 import ballerina/runtime;
 
 function testCreateCache(int timeOut, int capacity, float evictionFactor) returns int {
-    cache:Cache cache = new(expiryTimeMillis = timeOut, capacity = capacity, evictionFactor = evictionFactor);
+    cache:Cache cache =  new(timeOut, capacity, evictionFactor);
     return cache.size();
 }
 
@@ -33,7 +33,7 @@ function testRemove(string key, string value) returns (int) {
 }
 
 function testCacheEviction1() returns [string[], int] {
-    cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
+    cache:Cache cache =  new(20000, 10, 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
     cache.put("B", "B");
@@ -59,7 +59,7 @@ function testCacheEviction1() returns [string[], int] {
 }
 
 function testCacheEviction2() returns [string[], int] {
-    cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
+    cache:Cache cache =  new(20000, 10, 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
     cache.put("B", "B");
@@ -87,7 +87,7 @@ function testCacheEviction2() returns [string[], int] {
 }
 
 function testCacheEviction3() returns [string[], int] {
-    cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 10, evictionFactor = 0.2);
+    cache:Cache cache =  new(20000, 10, 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
     cache.put("B", "B");
@@ -117,7 +117,7 @@ function testCacheEviction3() returns [string[], int] {
 }
 
 function testCacheEviction4() returns [string[], int] {
-    cache:Cache cache = new(expiryTimeMillis = 20000, capacity = 5, evictionFactor = 0.2);
+    cache:Cache cache =  new(20000, 5, 0.2);
     cache.put("A", "A");
     runtime:sleep(20);
     cache.put("B", "B");
@@ -142,7 +142,7 @@ function testCacheEviction4() returns [string[], int] {
 }
 
 function testExpiredCacheAccess() returns (int) {
-    cache:Cache cache = new(expiryTimeMillis = 1000);
+    cache:Cache cache = new(1000, 100, 0.25);
     cache.put("A", "A");
     runtime:sleep(2000);
     _ = cache.get("A");
@@ -150,25 +150,25 @@ function testExpiredCacheAccess() returns (int) {
 }
 
 function testCreateCacheWithZeroExpiryTime() {
-    cache:Cache c = new(expiryTimeMillis = 0);
+    cache:Cache c = new(0, 100, 0.25);
 }
 
 function testCreateCacheWithNegativeExpiryTime() {
-    cache:Cache c = new(expiryTimeMillis = -10);
+    cache:Cache c = new(-10, 100, 0.25);
 }
 
 function testCreateCacheWithZeroCapacity() {
-    cache:Cache c = new(capacity = 0);
+    cache:Cache c = new(900000, 0, 0.25);
 }
 
 function testCreateCacheWithNegativeCapacity() {
-    cache:Cache c = new(capacity = -95);
+    cache:Cache c = new(900000, -95, 0.25);
 }
 
 function testCreateCacheWithZeroEvictionFactor() {
-    cache:Cache c = new(evictionFactor = 0.0);
+    cache:Cache c = new(900000, 100, 0.0);
 }
 
 function testCreateCacheWithInvalidEvictionFactor() {
-    cache:Cache c = new(evictionFactor = 1.1);
+    cache:Cache c = new(900000, 100, 1.1);
 }

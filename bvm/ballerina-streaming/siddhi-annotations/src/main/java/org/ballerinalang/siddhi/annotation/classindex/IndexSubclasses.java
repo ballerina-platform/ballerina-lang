@@ -20,30 +20,34 @@
 
 package org.ballerinalang.siddhi.annotation.classindex;
 
+import org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.xml.bind.JAXBContext;
+
 /**
  * Index all subclasses of the annotated class or package.
  * <p>
- * During compilation {@link org.ballerinalang.siddhi.annotation.classindex.processor.ClassIndexProcessor}
+ * During compilation {@link ClassIndexProcessor}
  * creates a resource files listing all classes
  * extending annotated class or located inside annotated package.
  * </p>
  * <p>
  * You can retrieve the list at runtime using either
- * {@link org.ballerinalang.siddhi.annotation.classindex.ClassIndex#getSubclasses(Class)}
- * or {@link org.ballerinalang.siddhi.annotation.classindex.ClassIndex#getPackageClasses(String)}.
+ * {@link ClassIndex#getSubclasses(Class)}
+ * or {@link ClassIndex#getPackageClasses(String)}.
  * </p>
  * <p>
  * For subclasses of the annotated class the resource file name is compatible with
  * what {@link java.util.ServiceLoader} expects. So if all the subclasses have a zero-argument constructor
  * you can use {@link java.util.ServiceLoader}. For subclasses of given package index file is named
  * "jaxb.index", it is located inside the package folder and it's format is compatible with
- * what {@link javax.xml.bind.JAXBContext#newInstance(String) } expects.
+ * what {@link JAXBContext#newInstance(String) } expects.
  * </p>
  */
 @Documented
@@ -54,7 +58,7 @@ public @interface IndexSubclasses {
      * Specifies whether to store Javadoc for runtime retrieval.
      * <p>
      * You can retrieve the stored Javadoc summary using
-     * {@link org.ballerinalang.siddhi.annotation.classindex.ClassIndex#getClassSummary(Class)}.
+     * {@link ClassIndex#getClassSummary(Class)}.
      * </p>
      * @return true of false
      */

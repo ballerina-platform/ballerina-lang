@@ -62,12 +62,6 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
 
   @Override
   @Nullable
-  public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
-    return findChildByClass(BallerinaDeprecatedAttachment.class);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getAssign() {
     return findChildByType(ASSIGN);
   }

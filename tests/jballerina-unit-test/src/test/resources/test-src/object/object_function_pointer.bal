@@ -45,5 +45,5 @@ function testObjectFunctionPointer() returns int {
     Window win = new LengthWindow();
     (function () returns int) pointer = () => win.process();
     win = new SampleWindow();
-    return pointer.call();
+    return pointer();
 }

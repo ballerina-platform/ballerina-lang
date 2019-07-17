@@ -119,17 +119,17 @@ public class MatchStatementStaticPatternsTest {
         int i = -1;
         String msg = "Value is ";
         Assert.assertEquals(results.getString(++i), msg + ": 15");
-        Assert.assertEquals(results.getString(++i), msg + ": (12, \"Ballerina\")");
-        Assert.assertEquals(results.getString(++i), msg + ": (12, \"Ballerina\")");
-        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Ballerina\")");
-        Assert.assertEquals(results.getString(++i), msg + ": (20, \"Ballerina\")");
-        Assert.assertEquals(results.getString(++i), msg + ": (20, \"Balo\")");
-        Assert.assertEquals(results.getString(++i), "Default Value is : (20, \"NothingToMatch\")");
-        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Bal\", 100)");
-        Assert.assertEquals(results.getString(++i), "Default Value is : (15, \"Bal\", 200, 230)");
-        Assert.assertEquals(results.getString(++i), msg + ": (15, \"Bal\", \"Ballerina\", 5678, \"Test\")");
+        Assert.assertEquals(results.getString(++i), msg + ": 12 Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 12 Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 15 Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 20 Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 20 Balo");
+        Assert.assertEquals(results.getString(++i), "Default Value is : 20 NothingToMatch");
+        Assert.assertEquals(results.getString(++i), msg + ": 15 Bal 100");
+        Assert.assertEquals(results.getString(++i), "Default Value is : 15 Bal 200 230");
+        Assert.assertEquals(results.getString(++i), msg + ": 15 Bal Ballerina 5678 Test");
         Assert.assertEquals(results.getString(++i),
-                "Default Value is : (15, \"Bal\", \"Ballerina\", 5678, \"NothingToMatch\")");
+                "Default Value is : 15 Bal Ballerina 5678 NothingToMatch");
     }
 
     @Test(description = "Test static patterns with or conditions 3")
@@ -143,18 +143,18 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\", z:true}");
-        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - x=12 y=Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - x=10 y=B");
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - x=12 y=Ballerina z=true");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - x=10 z=Ballerina");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
+                ": 5th pattern - x=15 y=John x=12 y=Ballerina Snow z=15.1");
         Assert.assertEquals(results.getString(++i),
-                "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
+                "Value is Default pattern - x=15 y=Stark x=12 y=Ballerina Sansa z=15.1");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
+                ": 3rd pattern - x=15 y=Stark x=12 y=Ballerina z=true Sansa z=15.1");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
+                ": 3rd pattern - x=40 y=Tyrion x=12 y=Ballerina Lanister z=56.9");
         Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
     }
@@ -170,18 +170,18 @@ public class MatchStatementStaticPatternsTest {
 
         int i = -1;
         String msg = "Value is ";
-        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - {x:12, y:\"Ballerina\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - {\"x\":10, \"y\":\"B\"}");
-        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - {x:12, y:\"Ballerina\", z:true}");
-        Assert.assertEquals(results.getString(++i), "Value is Default pattern - {\"x\":10, \"z\":\"Ballerina\"}");
+        Assert.assertEquals(results.getString(++i), msg + ": 2nd pattern - x=12 y=Ballerina");
+        Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - x=10 y=B");
+        Assert.assertEquals(results.getString(++i), msg + ": 1st pattern - x=12 y=Ballerina z=true");
+        Assert.assertEquals(results.getString(++i), "Value is Default pattern - x=10 z=Ballerina");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 5th pattern - {x:15, y:(\"John\", {x:12, y:\"Ballerina\"}, \"Snow\"), z:15.1}");
+                ": 5th pattern - x=15 y=John x=12 y=Ballerina Snow z=15.1");
         Assert.assertEquals(results.getString(++i),
-                "Value is Default pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\"}, \"Sansa\"), z:15.1}");
+                "Value is Default pattern - x=15 y=Stark x=12 y=Ballerina Sansa z=15.1");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {x:15, y:(\"Stark\", {x:12, y:\"Ballerina\", z:true}, \"Sansa\"), z:15.1}");
+                ": 3rd pattern - x=15 y=Stark x=12 y=Ballerina z=true Sansa z=15.1");
         Assert.assertEquals(results.getString(++i), msg +
-                ": 3rd pattern - {x:40, y:(\"Tyrion\", {x:12, y:\"Ballerina\"}, \"Lanister\"), z:56.9}");
+                ": 3rd pattern - x=40 y=Tyrion x=12 y=Ballerina Lanister z=56.9");
         Assert.assertEquals(results.getString(++i), msg + ": 4th pattern - 16");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 12");
         Assert.assertEquals(results.getString(++i), "Value is Default pattern - 7.8");

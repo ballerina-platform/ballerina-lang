@@ -722,14 +722,14 @@ function testFiniteTypeAsFiniteTypeFalse() returns boolean {
 }
 
 function testIntersectingUnionTrue() returns [boolean, boolean] {
-    string|int|typedesc x = 1;
+    string|int|typedesc<any> x = 1;
     return [x is int|boolean, x is json];
 }
 
-function testIntersectingUnionFalse() returns [boolean, boolean] {
-    string|int|typedesc x = int;
-    return [x is int|boolean, x is anydata];
-}
+//function testIntersectingUnionFalse() returns [boolean, boolean] {
+//    string|int|typedesc<any> x = int;
+//    return [x is int|boolean, x is anydata];
+//}
 
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";

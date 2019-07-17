@@ -91,7 +91,7 @@ class OpenApiPathList extends React.Component<OpenApiPathProps, OpenApiPathState
                         <Accordion fluid styled>
                             {Object.keys(paths).sort().map((openApiResource, index) => {
                                 return(
-                                    <React.Fragment>
+                                    <React.Fragment key={openApiResource}>
                                         <Accordion.Title
                                             active={activeIndex.includes(index)}
                                             index={index}

@@ -35,13 +35,12 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -205,7 +204,7 @@ public class LSCompilerUtil {
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.TAINT_ANALYZE);
+                documentManager, CompilerPhase.COMPILER_PLUGIN);
     }
 
     /**
@@ -214,42 +213,9 @@ public class LSCompilerUtil {
      * @param parentDir current parent directory
      * @return {@link String} project root | null
      */
-    public static String findProjectRoot(String parentDir) {
-        return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
-    }
-
     @CheckForNull
-    public static String findProjectRoot(String parentDir, Path balHomePath) {
-        if (parentDir == null) {
-            return null;
-        }
-        Path pathWithDotBal = null;
-        boolean pathWithDotBalExists = false;
-
-        // Go to top till you find a project directory or ballerina home
-        while (!pathWithDotBalExists && parentDir != null) {
-            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-            pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
-            if (!pathWithDotBalExists) {
-                Path parentsParent = Paths.get(parentDir).getParent();
-                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
-            }
-        }
-
-        boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
-
-        // Check if you find ballerina home if so return null.
-        if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
-            return null;
-        }
-
-        // Else return the project directory.
-        if (pathWithDotBalExists) {
-            return parentDir;
-        } else {
-            // If no directory found return null.
-            return null;
-        }
+    public static String findProjectRoot(String parentDir) {
+        return ProjectDirs.findProjectRoot(Paths.get(parentDir)).toString();
     }
 
     private static boolean isSameFile(Path path1, Path path2) {

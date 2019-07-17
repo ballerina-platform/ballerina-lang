@@ -19,9 +19,9 @@ type RecType0 record {
     string name;
 };
 
-function typeDescOfARecord() returns typedesc {
+function typeDescOfARecord() returns typedesc<any> {
     RecType0 i = { name: "theName"};
-    typedesc td0 = typeof i;
+    typedesc<any> td0 = typeof i;
     return td0;
 }
 
@@ -35,13 +35,13 @@ type Obj0 object {
     }
 };
 
-function typeDescOrAObject() returns typedesc {
+function typeDescOrAObject() returns typedesc<any> {
     Obj0 o = new("name", 42);
     return typeof o;
 }
 
 function typeDescOfLiterals() returns
-    [typedesc, typedesc, typedesc, typedesc, typedesc, typedesc, typedesc] {
+    [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] {
     var a = typeof 1;
     var b = typeof 2.0;
     var c = typeof 2.1f;
@@ -53,7 +53,7 @@ function typeDescOfLiterals() returns
 }
 
 function typeDescOfExpressionsOfLiterals() returns
-    [typedesc, typedesc] {
+    [typedesc<any>, typedesc<any>] {
     int i = 0;
     int j = 4;
     int k = 4;
@@ -62,25 +62,25 @@ function typeDescOfExpressionsOfLiterals() returns
     return [typeof (i+j*k), typeof (f*ff)];
 }
 
-function takesATypedescParam(typedesc param) returns typedesc {
+function takesATypedescParam(typedesc<any> param) returns typedesc<any> {
     return param;
 }
 
-function passTypeofToAFunction() returns typedesc {
-    typedesc t = typeof 22;
+function passTypeofToAFunction() returns typedesc<any> {
+    typedesc<any> t = typeof 22;
     var t1 = takesATypedescParam(t);
     var t2 = takesATypedescParam(typeof 33);
     return t1;
 }
 
-function takeTypeofAsRestParams(typedesc... xs) returns typedesc[] {
+function takeTypeofAsRestParams(typedesc<any>... xs) returns typedesc<any>[] {
     return xs;
 }
 
-function passTypeofAsRestParams() returns typedesc[] {
+function passTypeofAsRestParams() returns typedesc<any>[] {
     return takeTypeofAsRestParams(typeof 22, typeof 33, typeof 33.33);
 }
 
-function returnTypeOfInt() returns typedesc {
+function returnTypeOfInt() returns typedesc<any> {
     return typeof (5 + 1);
 }

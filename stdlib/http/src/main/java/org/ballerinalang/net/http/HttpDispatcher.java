@@ -46,10 +46,8 @@ import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
@@ -148,9 +146,6 @@ public class HttpDispatcher {
 
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   MapValue endpointConfig) {
-        //TODO Think of keeping struct type globally rather than creating for each request
-        ObjectValue listenerEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
-                9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
         ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
         ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -158,7 +153,6 @@ public class HttpDispatcher {
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
-        listenerEndpoint.addNativeData(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 

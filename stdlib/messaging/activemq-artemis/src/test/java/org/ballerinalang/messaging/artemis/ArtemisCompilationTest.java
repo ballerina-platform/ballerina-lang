@@ -46,8 +46,9 @@ public class ArtemisCompilationTest {
     public void testMoreResourcesInService() {
         CompileResult compileResult = getCompileResult("artemis_more_resources.bal");
 
-        assertExpectedDiagnosticsLength(compileResult);
-        BAssertUtil.validateError(compileResult, 0, "Only one resource is allowed in the service", 24, 1);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 2);
+        BAssertUtil.validateError(compileResult, 0, "Only onMessage and onError resources " +
+                "are allowed in the service", 24, 1);
     }
 
     @Test(description = "More than expected number of annotations for the service", enabled = false)
@@ -65,7 +66,7 @@ public class ArtemisCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                                  "There has to be an artemis:ServiceConfig annotation declared for service", 19, 1);
+                "There has to be an artemis:ServiceConfig annotation declared for service", 19, 1);
     }
 
     @Test(description = "Resource returns can only be error or nil")
@@ -82,8 +83,8 @@ public class ArtemisCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onMsg resource: Unexpected parameter count(expected" +
-                                          " parameter count 1 or 2)", 25, 5);
+                "onMessage resource only accepts artemis:Message as the first parameter and string, json, " +
+                        "xml, byte[], map or a record type as the second parameter", 25, 5);
     }
 
     @Test(description = "Resource with multiple resource parameters")
@@ -92,8 +93,8 @@ public class ArtemisCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onMsg resource: Unexpected parameter count(expected" +
-                                          " parameter count 1 or 2)", 25, 5);
+                "onMessage resource only accepts artemis:Message as the first parameter and string, json, xml, " +
+                        "byte[], map or a record type as the second parameter", 25, 5);
     }
 
     @Test(description = "Invalid resource parameters")
@@ -103,7 +104,52 @@ public class ArtemisCompilationTest {
         assertExpectedDiagnosticsLength(compileResult);
         BAssertUtil.validateError(
                 compileResult, 0,
-                "Invalid resource signature for xyz resource: The first parameter should be an artemis:Message", 25, 5);
+                "Invalid resource signature for onMessage resource: The first parameter should be an artemis:Message",
+                25, 5);
+    }
+
+    @Test(description = "Invalid onError resource")
+    public void testInvalidErrorResource() {
+        CompileResult compileResult = getCompileResult("artemis_invalid_on_error_resource.bal");
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(
+                compileResult, 0,
+                "Invalid resource signature for onError resource in service : The second parameter should be " +
+                        "artemis:Error", 28, 5);
+    }
+
+    @Test(description = "Invalid resource names")
+    public void testInvalidResourceNames() {
+        CompileResult compileResult = getCompileResult("artemis_invalid_resource_names.bal");
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(
+                compileResult, 0,
+                "Invalid resource name xyz in service, only onMessage and onError are allowed",
+                28, 5);
+    }
+
+    @Test(description = "Mandatory onMessage resource")
+    public void testMandatoryOnMessage() {
+        CompileResult compileResult = getCompileResult("artemis_mandatory_on_message_resource.bal");
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(
+                compileResult, 0,
+                "There has to be onMessage resource declared for the service",
+                24, 1);
+    }
+
+    @Test(description = "No resource functions")
+    public void testNoResources() {
+        CompileResult compileResult = getCompileResult("artemis_no_resources.bal");
+
+        assertExpectedDiagnosticsLength(compileResult);
+        BAssertUtil.validateError(
+                compileResult, 0,
+                "There has to be at least one resource function declared for the service",
+                24, 1);
     }
 
     private CompileResult getCompileResult(String s) {

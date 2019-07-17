@@ -17,17 +17,21 @@
  */
 package org.ballerinalang.toml.parser;
 
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.toml.antlr4.TomlProcessor;
+import com.moandjiezana.toml.Toml;
+import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Manifest Processor which processes the toml file parsed and populate the Manifest POJO.
@@ -37,6 +41,7 @@ import java.io.InputStream;
 public class ManifestProcessor {
 
     private static final CompilerContext.Key<ManifestProcessor> MANIFEST_PROC_KEY = new CompilerContext.Key<>();
+    private static final PrintStream ERR_STREAM = System.err;
     private final Manifest manifest;
 
     public static ManifestProcessor getInstance(CompilerContext context) {
@@ -56,7 +61,7 @@ public class ManifestProcessor {
     }
 
     public Manifest getManifest() {
-        return manifest;
+        return this.manifest;
     }
 
     /**
@@ -67,8 +72,10 @@ public class ManifestProcessor {
      * @throws IOException exception if the file cannot be found
      */
     public static Manifest parseTomlContentFromFile(String fileName) throws IOException {
-        ANTLRFileStream in = new ANTLRFileStream(fileName);
-        return getManifest(in);
+        InputStream targetStream = new FileInputStream(fileName);
+        Manifest manifest = parseTomlContentAsStream(targetStream);
+        validateManifestDependencies(manifest);
+        return manifest;
     }
 
     /**
@@ -78,8 +85,11 @@ public class ManifestProcessor {
      * @return manifest object
      */
     public static Manifest parseTomlContentFromString(String content) {
-        ANTLRInputStream in = new ANTLRInputStream(content);
-        return getManifest(in);
+        Toml toml = new Toml().read(content);
+        Manifest manifest = toml.to(Manifest.class);
+        manifest.getProject().setOrgName(toml.getString("project.org-name"));
+        validateManifestDependencies(manifest);
+        return manifest;
     }
 
     /**
@@ -89,24 +99,42 @@ public class ManifestProcessor {
      * @return manifest object
      */
     public static Manifest parseTomlContentAsStream(InputStream inputStream) {
-        ANTLRInputStream in = null;
         try {
-            in = new ANTLRInputStream(inputStream);
-        } catch (IOException ignore) {
+            Toml toml = new Toml().read(inputStream);
+            Manifest manifest = toml.to(Manifest.class);
+            manifest.getProject().setOrgName(toml.getString("project.org-name"));
+            validateManifestDependencies(manifest);
+            return manifest;
+        } catch (IllegalStateException ise) {
+            ERR_STREAM.println("error occurred parsing Ballerina.toml: " +
+                               ise.getMessage().toLowerCase(Locale.getDefault()));
         }
-        return getManifest(in);
+        return new Manifest();
     }
-
-    /**
-     * Get the manifest object by passing the ballerina toml file.
-     *
-     * @param charStream toml file content as a char stream
-     * @return manifest object
-     */
-    private static Manifest getManifest(CharStream charStream) {
-        Manifest manifest = new Manifest();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new ManifestBuildListener(manifest), TomlProcessor.parseTomlContent(charStream, "Ballerina.toml"));
-        return manifest;
+    
+    private static void validateManifestDependencies(Manifest manifest) {
+        for (Map.Entry<String, Object> dependency : manifest.getDependenciesAsObjectMap().entrySet()) {
+            DependencyMetadata metadata = new DependencyMetadata();
+            if (dependency.getValue() instanceof String) {
+                metadata.setVersion((String) dependency.getValue());
+            } else if (dependency.getValue() instanceof Map) {
+                Map metadataMap = (Map) dependency.getValue();
+                if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
+                    metadata.setVersion((String) metadataMap.get("version"));
+                }
+    
+                if (metadataMap.keySet().contains("path") &&  metadataMap.get("path") instanceof String) {
+                    metadata.setPath((String) metadataMap.get("path"));
+        
+                    Path dependencyBaloPath = Paths.get(metadata.getPath());
+                    if (!Files.exists(dependencyBaloPath)) {
+                        ERR_STREAM.println("balo file for dependency '" + dependency.getKey() + "' does not exists: " +
+                                           dependencyBaloPath.toAbsolutePath());
+                    }
+                }
+            } else {
+                ERR_STREAM.println("invalid dependency metadata found for: " + dependency.getKey());
+            }
+        }
     }
 }

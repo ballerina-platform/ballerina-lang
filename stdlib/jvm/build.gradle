@@ -16,6 +16,7 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations {
     genBalo
@@ -28,7 +29,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')

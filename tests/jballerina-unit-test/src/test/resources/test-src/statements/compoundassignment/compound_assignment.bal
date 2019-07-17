@@ -266,3 +266,27 @@ function xmlCompoundAssignment() returns (xml){
     z += blah;
     return z;
 }
+
+function testCompoundAssignmentAdditionRecordElementRecursive() returns int {
+    Company ibm = {};
+    ibm["count"] = 100;
+    ibm["count"] += ibm["count"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionRecordElements() returns int {
+    Company ibm = { count: 100 };
+    ibm["count2"] = 400;
+    ibm["count"] += ibm["count2"];
+    return ibm["count"];
+}
+
+function testCompoundAssignmentAdditionWithRecordAccess() returns int {
+    Company ibm = {};
+    ibm["count"] = 100;
+    int[] arr = [];
+    arr[0] = 200;
+    int x = 5;
+    x += (ibm["count"] + arr[0]);
+    return x;
+}

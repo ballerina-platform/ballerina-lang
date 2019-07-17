@@ -17,8 +17,10 @@
  */
 package org.ballerinalang.jvm.types;
 
-import java.util.ArrayList;
+import org.ballerinalang.jvm.util.Flags;
+
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
@@ -52,12 +54,25 @@ public class BTypes {
             null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
+    public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
+            null), 0, false);
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
-            null, null), typeString, typeMap);
-    public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
+            null, null), typeString, typeErrorDetail);
+    public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
+    public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
+    public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
 
     static {
-        typeError.detailType = new BMapType(typePureType);
+        HashMap<String, BField> fields = new HashMap<>();
+        fields.put(TypeConstants.DETAIL_MESSAGE, new BField(typeString, TypeConstants.DETAIL_MESSAGE,
+                Flags.OPTIONAL + Flags.PUBLIC));
+        fields.put(TypeConstants.DETAIL_CAUSE, new BField(typeError, TypeConstants.DETAIL_CAUSE,
+                Flags.OPTIONAL + Flags.PUBLIC));
+        typeErrorDetail.setFields(fields);
+        BType[] restFieldType = new BType[2];
+        restFieldType[0] = BTypes.typeAnydata;
+        restFieldType[1] = BTypes.typeError;
+        typeErrorDetail.restFieldType = new BUnionType(restFieldType);
     }
     
     private BTypes() {

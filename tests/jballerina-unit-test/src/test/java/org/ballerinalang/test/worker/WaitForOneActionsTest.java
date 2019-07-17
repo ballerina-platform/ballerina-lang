@@ -90,7 +90,7 @@ public class WaitForOneActionsTest {
     }
 
     @Test (expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: err from panic .*")
     public void waitTest8() {
         BRunUtil.invoke(result, "waitTest8");
     }

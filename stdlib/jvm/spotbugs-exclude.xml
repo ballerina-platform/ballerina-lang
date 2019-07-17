@@ -28,4 +28,7 @@
         <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS" />
         <Class name="org.ballerinalang.nativeimpl.jvm.methodvisitor.VisitLookupSwitchInsn" />
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.nativeimpl.jvm.tests" />
+    </Match>
 </FindBugsFilter>

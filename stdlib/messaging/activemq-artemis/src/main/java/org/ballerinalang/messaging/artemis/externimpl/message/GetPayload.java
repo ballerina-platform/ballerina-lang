@@ -25,8 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -64,11 +62,7 @@ import java.util.Map;
                 )
         }
 )
-public class GetPayload extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetPayload {
 
     public static Object getPayload(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
@@ -113,5 +107,8 @@ public class GetPayload extends BlockingNativeCallableUnit {
             return new MapValueImpl<>(new BMapType(BTypes.typeBoolean));
         }
         return null;
+    }
+
+    private GetPayload() {
     }
 }

@@ -6,7 +6,7 @@
   "source": "annotation/source/annotationBodyCompletion3.bal",
   "items": [
     {
-      "label": "queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table\u003c$anonType$builtin$8\u003e)",
+      "label": "queryTableWithJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, table\u003crecord {}\u003e joinTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table\u003c$anonType$builtin$10\u003e)",
+      "label": "queryTableWithoutJoinClause(string sqlQuery, table\u003crecord {}\u003e fromTable, any parameters, any retType)(table\u003crecord {}\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -95,6 +95,50 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerinax/jdbc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jdbc",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jdbc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerinax/jms",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jms",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/jms;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/jwt",
       "kind": "Module",
       "detail": "Package",
@@ -135,28 +179,6 @@
             }
           },
           "newText": "import ballerina/crypto;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/jdbc",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/jdbc;\n"
         }
       ]
     },
@@ -799,10 +821,10 @@
       ]
     },
     {
-      "label": "ballerina/jms",
+      "label": "ballerina/socket",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "jms",
+      "insertText": "socket",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -816,7 +838,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jms;\n"
+          "newText": "import ballerina/socket;\n"
         }
       ]
     },

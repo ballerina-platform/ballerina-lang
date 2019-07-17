@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.ListUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import picocli.CommandLine;
 
@@ -29,8 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.ballerinalang.launcher.LauncherUtils.createLauncherException;
 import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * This class represents the "ballerina list" command.

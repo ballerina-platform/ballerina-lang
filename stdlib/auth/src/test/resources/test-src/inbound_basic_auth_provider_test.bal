@@ -91,6 +91,6 @@ function testAuthenticationPlainNegative() returns boolean|error {
 
 function authenticate(string usernameAndPassword) returns boolean|error {
     auth:InboundBasicAuthProvider basicAuthProvider = new(());
-    string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
+    string credential = encoding:encodeBase64(usernameAndPassword.toBytes());
     return basicAuthProvider.authenticate(credential);
 }
