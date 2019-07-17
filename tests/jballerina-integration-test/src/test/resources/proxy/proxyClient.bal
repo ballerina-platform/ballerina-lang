@@ -25,7 +25,7 @@ http:ClientEndpointConfig clientEPConfig  = {
 };
 
 public function main (string... args) {
-    http:Client clientEP = new("http://localhost:9218", config = clientEPConfig);
+    http:Client clientEP = new("http://localhost:9218", clientEPConfig);
     http:Request req = new;
     var resp = clientEP->post("/proxy/server", req);
     if (resp is http:Response) {
@@ -33,9 +33,11 @@ public function main (string... args) {
         if (payload is string) {
             io:println(payload);
         } else {
-            io:println(<string> payload.detail().message);
+            error err = payload;
+            io:println(<string> err.detail()["message"]);
         }
     } else {
-        io:println(<string> resp.detail().message);
+        error err = resp;
+        io:println(<string> err.detail()["message"]);
     }
 }

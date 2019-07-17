@@ -82,7 +82,7 @@ public class LockFileWriter {
      *
      * @param packageSymbol package symbol
      */
-    void addEntryPkg(BPackageSymbol packageSymbol) {
+    public void addEntryPkg(BPackageSymbol packageSymbol) {
         String entryPkg = packageSymbol.pkgID.name.value;
         if (packageSymbol.pkgID.isUnnamed) {
             entryPkg = packageSymbol.pkgID.sourceFileName.value;
@@ -151,9 +151,9 @@ public class LockFileWriter {
         return new StringBuilder()
                 .append("[" + LockFileConstants.LOCK_FILE_PROJECT + "]").append("\n")
                 .append(LockFileConstants.LOCK_FILE_PACKAGE_NAME).append(" = ")
-                .append(String.format("\"%s\"", manifest.getName())).append("\n")
+                .append(String.format("\"%s\"", manifest.getProject().getOrgName())).append("\n")
                 .append(LockFileConstants.LOCK_FILE_PACKAGE_VERSION).append(" = ")
-                .append(String.format("\"%s\"", manifest.getVersion())).append("\n")
+                .append(String.format("\"%s\"", manifest.getProject().getVersion())).append("\n")
                 .append(LockFileConstants.LOCK_FILE_VERSION).append(" = ")
                 .append(String.format("\"%s\"", "1")).append("\n")
                 .append(LockFileConstants.BALLERINA_VERSION).append(" = ")
@@ -169,7 +169,7 @@ public class LockFileWriter {
      *
      * @param manifest manifest object
      */
-    void writeLockFile(Manifest manifest) {
+    public void writeLockFile(Manifest manifest) {
         List<StringBuilder> builderList = new ArrayList<>();
         for (LockFilePackage lockFilePackage : ballerinaLockPackages.values()) {
 
@@ -210,9 +210,8 @@ public class LockFileWriter {
             builderList.add(builder);
         }
 
-        Path ballerinaLockFilePath = this.sourceDirectory.getPath().resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                                                         .resolve(Paths.get(LockFileConstants
-                                                                                    .LOCK_FILE_NAME));
+        Path ballerinaLockFilePath = this.sourceDirectory.getPath()
+                                         .resolve(Paths.get(ProjectDirConstants.LOCK_FILE_NAME));
         builderList.add(0, generateProjectDesc(manifest));
 
         StringBuilder sb = new StringBuilder(builderList.size() * 10);

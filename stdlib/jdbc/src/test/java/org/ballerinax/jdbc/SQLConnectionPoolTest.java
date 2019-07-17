@@ -84,7 +84,7 @@ public class SQLConnectionPoolTest {
     public void testGlobalConnectionPoolsMultipleDestinations() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations");
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         BValueArray jsonArray1 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(0)));
         BValueArray jsonArray2 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(1)));
         for (int i = 0; i < 10; i++) {

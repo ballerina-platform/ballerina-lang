@@ -39,7 +39,7 @@ public class ObjectInitializerTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile(this, "test-src/object", "init");
+        compileResult = BCompileUtil.compile(this, "test-src/object/ObjectProject", "init");
     }
 
     @Test(description = "Test object initializers that are in the same package")
@@ -68,7 +68,7 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test negative object initializers scenarios")
     public void testInvalidStructLiteralKey() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object", "init.negative");
+        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "init.negative");
         Assert.assertEquals(result.getErrorCount(), 1);
         validateError(result, 0, "attempt to refer to non-accessible symbol 'student.__init'", 5, 21);
 
@@ -91,7 +91,7 @@ public class ObjectInitializerTest {
                       63, 5);
         validateError(result, 6,
                       "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
-                              "'(error|error)'",
+                              "'(FooErr|BarErr)'",
                       85, 5);
     }
 
@@ -164,6 +164,6 @@ public class ObjectInitializerTest {
 
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
         Assert.assertEquals(((BError) returns[0]).getReason(), "failed to create Person object");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{\"f\":\"foo\"}");
+        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(), "{f:\"foo\"}");
     }
 }

@@ -420,7 +420,7 @@ public class LauncherUtils {
         String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
 
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -454,7 +454,7 @@ public class LauncherUtils {
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             return BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             return compile(fullPath.getParent(), fullPath.getFileName(), offline, siddhiRuntimeFlag, experimentalFlag);
         } else if (Files.isDirectory(sourceRootPath)) {
             return compileModule(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag,
@@ -503,11 +503,11 @@ public class LauncherUtils {
     private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
                                                 String srcPathStr) {
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             // running a bal file, no other packages
             return fullPath.getFileName().toString();
         } else if (Files.isDirectory(sourceRootPath)) {
-            if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
                 throw createLauncherException("you are trying to run a module that is not inside " +
                         "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then run the module.");
@@ -582,7 +582,7 @@ public class LauncherUtils {
                                              boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,
                                              Path fullPath) {
         ProgramFile programFile;
-        if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+        if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
             throw createLauncherException("you are trying to run a module that is not inside " +
                     "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                     "project and then run the module.");

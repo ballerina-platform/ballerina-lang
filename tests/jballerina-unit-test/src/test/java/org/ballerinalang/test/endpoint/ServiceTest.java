@@ -49,8 +49,8 @@ public class ServiceTest {
 
     @Test
     public void testMultipleServiceTest() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("test-src/endpoint/new/service_multiple.bal");
-        final BValue[] result = BRunUtil.invokeStateful(compileResult, "test1");
+        CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/new/service_multiple.bal");
+        final BValue[] result = BRunUtil.invoke(compileResult, "test1");
         Assert.assertEquals(result.length, 2, "expected two return type");
         Assert.assertNotNull(result[0]);
         Assert.assertNotNull(result[1]);

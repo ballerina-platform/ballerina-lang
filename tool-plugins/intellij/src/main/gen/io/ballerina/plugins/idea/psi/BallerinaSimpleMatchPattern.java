@@ -23,7 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaSimpleMatchPattern extends PsiElement {
 
-  @NotNull
+  @Nullable
+  PsiElement getQuotedStringLiteral();
+
+  @Nullable
   PsiElement getIdentifier();
 
   @Nullable

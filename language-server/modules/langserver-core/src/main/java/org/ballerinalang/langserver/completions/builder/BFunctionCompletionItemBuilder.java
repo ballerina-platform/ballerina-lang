@@ -65,6 +65,7 @@ public final class BFunctionCompletionItemBuilder {
      * Creates and returns a completion item.
      *
      * @param bSymbol BSymbol
+     * @param context LS context
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(BInvokableSymbol bSymbol, LSContext context) {
@@ -97,7 +98,8 @@ public final class BFunctionCompletionItemBuilder {
         MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
         List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
-        List<BVarSymbol> defaultParams = bInvokableSymbol.getDefaultableParameters();
+        List<BVarSymbol> defaultParams = bInvokableSymbol.getParameters().stream()
+                .filter(varSymbol -> varSymbol.defaultableParam).collect(Collectors.toList());
 
         MarkupContent docMarkupContent = new MarkupContent();
 
@@ -113,10 +115,9 @@ public final class BFunctionCompletionItemBuilder {
                             .findFirst();
                     String paramDescription = "- _" + parameter.getName() + "_" + CommonUtil.MD_LINE_SEPARATOR
                             + "    " + parameter.getDescription() + CommonUtil.MD_LINE_SEPARATOR;
-                    if (defaultVal.isPresent() && defaultVal.get().defaultValue != null) {
-                        return paramDescription + "Default Value: " + defaultVal.get().defaultValue.getValue();
+                    if (defaultVal.isPresent()) {
+                        return paramDescription + "(Default Parameter)";
                     }
-
                     return paramDescription;
                 })
                 .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR));

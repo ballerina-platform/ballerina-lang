@@ -1,10 +1,10 @@
 import ballerina/io;
-
+import ballerina/'lang\.int as landlib;
 public function main (string... args) returns error? {
     string filePath = args[0];
     string chars = args[0];
 
-    var intArg = int.convert(args[0]);
+    var intArg = landlib:fromString(args[0]);
     if (intArg is int) {
         io:ReadableByteChannel rbh = checkpanic io:openReadableFile(filePath);
         io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
@@ -17,7 +17,8 @@ public function main (string... args) returns error? {
         if (readOutput is string) {
             testFunction(readOutput, readOutput);
         } else {
-            panic readOutput;
+            error err = readOutput;
+            panic err;
         }
     } else {
         panic intArg;

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/io;
 
 @http:ServiceConfig {

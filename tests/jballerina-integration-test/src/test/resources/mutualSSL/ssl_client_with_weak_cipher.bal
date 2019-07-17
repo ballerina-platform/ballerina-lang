@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 public function main(string... args) {
-    http:Client clientEP = new(args[0], config = {
+    http:Client clientEP = new(args[0], {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -38,9 +38,11 @@ public function main(string... args) {
         if (payload is string) {
             io:println(payload);
         } else {
-            io:println(<string> payload.detail().message);
+            error err = payload;
+            io:println(<string> err.detail()["message"]);
         }
     } else {
-        io:println(<string> resp.detail().message);
+        error err = resp;
+        io:println(<string> err.detail()["message"]);
     }
 }

@@ -275,7 +275,7 @@ public class SealedArrayTest {
                 "matched float array", "Couldn't match unsealed array type");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNegativeSealedArrays() {
         Assert.assertEquals(resultNegative.getErrorCount(), 24);
         int i = 0;
@@ -357,8 +357,8 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"failed to set element to json: array " +
-                            "index out of range: index: 4, size: 3\"\\}.*")
+                    "error: \\{ballerina\\}IndexOutOfRange message=failed to set element to json: message=array index" +
+                            " out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -371,7 +371,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*error:.*failed to set element to json: array index out of range: index: 3, size: 3.*")
+                    ".*message=failed to set element to json: message=array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }

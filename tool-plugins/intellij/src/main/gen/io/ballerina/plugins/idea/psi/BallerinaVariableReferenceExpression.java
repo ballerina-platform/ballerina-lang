@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaVariableReferenceExpression extends BallerinaExpression {
 
   @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
+  @NotNull
   BallerinaVariableReference getVariableReference();
 
   @Nullable

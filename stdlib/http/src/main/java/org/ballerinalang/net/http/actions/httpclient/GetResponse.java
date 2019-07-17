@@ -66,7 +66,7 @@ public class GetResponse extends AbstractHTTPAction {
                 setHttpConnectorListener(new ResponseListener(dataContext));
     }
 
-    public static void getResponse(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getResponse(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
                                                   null);
@@ -76,6 +76,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
         clientConnector.getResponse(responseHandle).
                 setHttpConnectorListener(new ResponseListener(dataContext));
+        return null;
     }
 
     private static class BResponseListener implements HttpConnectorListener {
@@ -113,7 +114,8 @@ public class GetResponse extends AbstractHTTPAction {
         }
 
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil.getError(throwable);
+            ErrorValue httpConnectorError = HttpUtil
+                    .createHttpError(throwable.getMessage());
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

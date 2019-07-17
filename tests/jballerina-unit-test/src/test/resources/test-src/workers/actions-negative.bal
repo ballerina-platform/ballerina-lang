@@ -115,7 +115,7 @@ function invalidReceiveUsage() {
 }
 
 function print(string str) {
-    string result = str.toUpper();
+    string result = str.toUpperAscii();
 }
 
 function getId() returns int {

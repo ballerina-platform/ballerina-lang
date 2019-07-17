@@ -11,7 +11,9 @@ function testClosedIntRange(int startValue, int endValue) returns int[] {
 function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    int[] rangeAsArray = startValue ... endValue;
+    abstract object {
+        public function next () returns (record {| int value; |}?);
+    } rangeAsArray = startValue ... endValue;
     foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;
@@ -32,7 +34,9 @@ function testHalfOpenIntRange(int startValue, int endValue) returns int[] {
 function testHalfOpenIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
-    int[] rangeAsArray = startValue ..< endValue;
+    abstract object {
+        public function next () returns (record {| int value; |}?);
+    } rangeAsArray = startValue ..< endValue;
     foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;

@@ -104,6 +104,7 @@ function renderDiagram(context: ExtensionContext,
                         diagram.selectConstruct({
                             moduleName: args[0],
                             constructName: args[1],
+                            subConstructName: args[2],
                         });
                         return Promise.resolve({});
                     });

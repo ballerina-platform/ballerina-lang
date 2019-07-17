@@ -2,10 +2,12 @@ import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/internal;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setPayload(<@untainted string> err.detail().message);
+    string? errMsg = err.detail()?.message;
+    response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -124,7 +126,9 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else {
-            response.setPayload(<@untainted string>bodyParts.detail().message);
+            error err = bodyParts;
+            string? errMsg = err.detail()?.message;
+            response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing body parts");
         }
         checkpanic caller->respond(response);
     }
@@ -154,7 +158,7 @@ service test on mockEP {
 function handleNestedParts(mime:Entity parentPart) returns @tainted string {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
-    if (contentTypeOfParent.hasPrefix("multipart/")) {
+    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             int i = 0;
@@ -198,7 +202,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
-                return encoding:byteArrayToString(payload, encoding = mime:DEFAULT_CHARSET);
+                return encoding:byteArrayToString(payload, mime:DEFAULT_CHARSET);
             } else {
                 return "Error in getting byte[] payload";
             }
@@ -210,7 +214,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
 }
 
 //Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue(json fieldValue) returns string {
+function extractFieldValue(json|error fieldValue) returns string {
     if (fieldValue is string) {
         return fieldValue;
     } else {

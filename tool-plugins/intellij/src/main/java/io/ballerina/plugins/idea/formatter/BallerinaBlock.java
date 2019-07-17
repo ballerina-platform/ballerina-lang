@@ -160,8 +160,7 @@ public class BallerinaBlock extends AbstractBlock {
                 myAlignmentMap.put(myNode, alignment);
             }
         } else if (
-                (childElementType == BallerinaTypes.RETURNS || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER
-                        || childElementType == BallerinaTypes.RETURN_TYPE)
+                (childElementType == BallerinaTypes.RETURNS || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER)
                         && parentElementType == BallerinaTypes.RETURN_PARAMETER) {
             if (myAlignmentMap.containsKey(myNode)) {
                 alignment = myAlignmentMap.get(myNode);
@@ -238,11 +237,8 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (childElementType == BallerinaTypes.RETURN_PARAMETER) {
             return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.RETURN_TYPE) {
-            return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if ((childElementType == BallerinaTypes.TUPLE_TYPE_NAME
-                || childElementType == BallerinaTypes.UNION_TYPE_NAME) && (parentElementType
-                == BallerinaTypes.RETURN_TYPE)) {
+                || childElementType == BallerinaTypes.UNION_TYPE_NAME)) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (parentElementType == BallerinaTypes.MATCH_PATTERN_CLAUSE) {
             return Indent.getNormalIndent();

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/time;
 
 type NonNillableInt record {
@@ -137,79 +137,79 @@ type ResultMapNillableTypeNonNillableElements record {
     string[]? STRING_ARRAY;
 };
 
-function testAssignNilToNonNillableInt() returns string {
+function testAssignNilToNonNillableInt() returns @tainted string {
     return testAssignNilToNonNillableField("int_type", NonNillableInt);
 }
 
-function testAssignNilToNonNillableLong() returns string {
+function testAssignNilToNonNillableLong() returns @tainted string {
     return testAssignNilToNonNillableField("long_type", NonNillableLong);
 }
 
-function testAssignNilToNonNillableFloat() returns string {
+function testAssignNilToNonNillableFloat() returns @tainted string {
     return testAssignNilToNonNillableField("float_type", NonNillableFloat);
 }
 
-function testAssignNilToNonNillableDouble() returns string {
+function testAssignNilToNonNillableDouble() returns @tainted string {
     return testAssignNilToNonNillableField("double_type", NonNillableDouble);
 }
 
-function testAssignNilToNonNillableBoolean() returns string {
+function testAssignNilToNonNillableBoolean() returns @tainted string {
     return testAssignNilToNonNillableField("boolean_type", NonNillableBoolean);
 }
 
-function testAssignNilToNonNillableString() returns string {
+function testAssignNilToNonNillableString() returns @tainted string {
     return testAssignNilToNonNillableField("string_type", NonNillableString);
 }
 
-function testAssignNilToNonNillableNumeric() returns string {
+function testAssignNilToNonNillableNumeric() returns @tainted string {
     return testAssignNilToNonNillableField("numeric_type", NonNillableNumeric);
 }
 
-function testAssignNilToNonNillableTinyInt() returns string {
+function testAssignNilToNonNillableTinyInt() returns @tainted string {
     return testAssignNilToNonNillableField("tinyint_type", NonNillableTinyInt);
 }
 
-function testAssignNilToNonNillableSmallint() returns string {
+function testAssignNilToNonNillableSmallint() returns @tainted string {
     return testAssignNilToNonNillableField("smallint_type", NonNillableSmallInt);
 }
 
-function testAssignNilToNonNillableDecimal() returns string {
+function testAssignNilToNonNillableDecimal() returns @tainted string {
     return testAssignNilToNonNillableField("decimal_type", NonNillableDecimal);
 }
 
-function testAssignNilToNonNillableReal() returns string {
+function testAssignNilToNonNillableReal() returns @tainted string {
     return testAssignNilToNonNillableField("real_type", NonNillableReal);
 }
 
-function testAssignNilToNonNillableClob() returns string {
+function testAssignNilToNonNillableClob() returns @tainted string {
     return testAssignNilToNonNillableField("clob_type", NonNillableClob);
 }
 
-function testAssignNilToNonNillableBlob() returns string {
+function testAssignNilToNonNillableBlob() returns @tainted string {
     return testAssignNilToNonNillableField("blob_type", NonNillableBlob);
 }
 
-function testAssignNilToNonNillableBinary() returns string {
+function testAssignNilToNonNillableBinary() returns @tainted string {
     return testAssignNilToNonNillableField("binary_type", NonNillableBinary);
 }
 
-function testAssignNilToNonNillableDate() returns string {
+function testAssignNilToNonNillableDate() returns @tainted string {
     return testAssignNilToNonNillableField("date_type", NonNillableDate);
 }
 
-function testAssignNilToNonNillableTime() returns string {
+function testAssignNilToNonNillableTime() returns @tainted string {
     return testAssignNilToNonNillableField("time_type", NonNillableTime);
 }
 
-function testAssignNilToNonNillableDateTime() returns string {
+function testAssignNilToNonNillableDateTime() returns @tainted string {
     return testAssignNilToNonNillableField("datetime_type", NonNillableDateTime);
 }
 
-function testAssignNilToNonNillableTimeStamp() returns string {
+function testAssignNilToNonNillableTimeStamp() returns @tainted string {
     return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc recordType) returns string {
+function testAssignNilToNonNillableField(string field, typedesc<record{}> recordType) returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -231,7 +231,7 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string>ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -239,79 +239,79 @@ function testAssignNilToNonNillableField(string field, typedesc recordType) retu
     return errorMessage;
 }
 
-function testAssignToInvalidUnionInt() returns string {
+function testAssignToInvalidUnionInt() returns @tainted string {
     return testAssignToInvalidUnionField("int_type");
 }
 
-function testAssignToInvalidUnionLong() returns string {
+function testAssignToInvalidUnionLong() returns @tainted string {
     return testAssignToInvalidUnionField("long_type");
 }
 
-function testAssignToInvalidUnionFloat() returns string {
+function testAssignToInvalidUnionFloat() returns @tainted string {
     return testAssignToInvalidUnionField("float_type");
 }
 
-function testAssignToInvalidUnionDouble() returns string {
+function testAssignToInvalidUnionDouble() returns @tainted string {
     return testAssignToInvalidUnionField("double_type");
 }
 
-function testAssignToInvalidUnionBoolean() returns string {
+function testAssignToInvalidUnionBoolean() returns @tainted string {
     return testAssignToInvalidUnionField("boolean_type");
 }
 
-function testAssignToInvalidUnionString() returns string {
+function testAssignToInvalidUnionString() returns @tainted string {
     return testAssignToInvalidUnionField("string_type");
 }
 
-function testAssignToInvalidUnionNumeric() returns string {
+function testAssignToInvalidUnionNumeric() returns @tainted string {
     return testAssignToInvalidUnionField("numeric_type");
 }
 
-function testAssignToInvalidUnionTinyInt() returns string {
+function testAssignToInvalidUnionTinyInt() returns @tainted string {
     return testAssignToInvalidUnionField("tinyint_type");
 }
 
-function testAssignToInvalidUnionSmallint() returns string {
+function testAssignToInvalidUnionSmallint() returns @tainted string {
     return testAssignToInvalidUnionField("smallint_type");
 }
 
-function testAssignToInvalidUnionDecimal() returns string {
+function testAssignToInvalidUnionDecimal() returns @tainted string {
     return testAssignToInvalidUnionField("decimal_type");
 }
 
-function testAssignToInvalidUnionReal() returns string {
+function testAssignToInvalidUnionReal() returns @tainted string {
     return testAssignToInvalidUnionField("real_type");
 }
 
-function testAssignToInvalidUnionClob() returns string {
+function testAssignToInvalidUnionClob() returns @tainted string {
     return testAssignToInvalidUnionField("clob_type");
 }
 
-function testAssignToInvalidUnionBlob() returns string {
+function testAssignToInvalidUnionBlob() returns @tainted string {
     return testAssignToInvalidUnionField("blob_type");
 }
 
-function testAssignToInvalidUnionBinary() returns string {
+function testAssignToInvalidUnionBinary() returns @tainted string {
     return testAssignToInvalidUnionField("binary_type");
 }
 
-function testAssignToInvalidUnionDate() returns string {
+function testAssignToInvalidUnionDate() returns @tainted string {
     return testAssignToInvalidUnionField("date_type");
 }
 
-function testAssignToInvalidUnionTime() returns string {
+function testAssignToInvalidUnionTime() returns @tainted string {
     return testAssignToInvalidUnionField("time_type");
 }
 
-function testAssignToInvalidUnionDateTime() returns string {
+function testAssignToInvalidUnionDateTime() returns @tainted string {
     return testAssignToInvalidUnionField("datetime_type");
 }
 
-function testAssignToInvalidUnionTimeStamp() returns string {
+function testAssignToInvalidUnionTimeStamp() returns @tainted string {
     return testAssignToInvalidUnionField("timestamp_type");
 }
 
-function testAssignNullArrayToNonNillableWithNonNillableElements() returns string {
+function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -326,7 +326,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns strin
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -334,7 +334,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns strin
     return errorMessage;
 }
 
-function testAssignNullArrayToNonNillableTypeWithNillableElements() returns string {
+function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -349,7 +349,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns stri
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -357,7 +357,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns stri
     return errorMessage;
 }
 
-function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns string {
+function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -372,7 +372,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -380,7 +380,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
     return errorMessage;
 }
 
-function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns string {
+function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -395,7 +395,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }
@@ -403,7 +403,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
     return errorMessage;
 }
 
-function testAssignInvalidUnionArray() returns string {
+function testAssignInvalidUnionArray() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -416,7 +416,7 @@ function testAssignInvalidUnionArray() returns string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.reason();
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -424,7 +424,7 @@ function testAssignInvalidUnionArray() returns string {
     return message;
 }
 
-function testAssignInvalidUnionArrayElement() returns string {
+function testAssignInvalidUnionArrayElement() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -437,7 +437,7 @@ function testAssignInvalidUnionArrayElement() returns string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.reason();
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -445,7 +445,7 @@ function testAssignInvalidUnionArrayElement() returns string {
     return message;
 }
 
-function testAssignInvalidUnionArray2() returns string {
+function testAssignInvalidUnionArray2() returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -458,7 +458,7 @@ function testAssignInvalidUnionArray2() returns string {
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                message = <string>ret.reason();
+                message = <string>ret.detail()["message"];
             }
         }
     }
@@ -466,7 +466,7 @@ function testAssignInvalidUnionArray2() returns string {
     return message;
 }
 
-function testAssignToInvalidUnionField(string field) returns string {
+function testAssignToInvalidUnionField(string field) returns @tainted string {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
@@ -491,7 +491,7 @@ function testAssignToInvalidUnionField(string field) returns string {
         while (dt.hasNext()) {
             var ret = trap <InvalidUnion>dt.getNext();
             if (ret is error) {
-                errorMessage = ret.reason();
+                errorMessage = <string> ret.detail()["message"];
             }
         }
     }

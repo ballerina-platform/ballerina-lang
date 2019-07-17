@@ -24,25 +24,32 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         this.ballerinaExtInstance = balExt;
         this.langClient = balExt.langClient;
 
-        vscode.workspace.onDidOpenTextDocument((document) => {
-            if (document.languageId === "ballerina") {
-                this.currentFilePath = document.fileName;
-                this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
-    
-                this._onDidChangeTreeData.fire();
+        vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
+            if (!activatedTextEditor) {
+                return;
+            }
+
+            if (activatedTextEditor.document.languageId === "ballerina") {
+                this.refresh(activatedTextEditor.document);
+            }
+        });
+
+        vscode.commands.registerCommand("ballerina.refreshProjectTree", (moduleName, constructName) => {
+            if (vscode.window.activeTextEditor) {
+                this.refresh(vscode.window.activeTextEditor.document);
             }
         });
 
         if (vscode.window.activeTextEditor) {
-            this.currentFilePath = vscode.window.activeTextEditor.document.fileName;
-            this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
-
-            this._onDidChangeTreeData.fire();
+            this.refresh(vscode.window.activeTextEditor.document);
         }
     }
 
-    refresh(): void {
-		this._onDidChangeTreeData.fire();
+    private refresh(document: vscode.TextDocument): void {
+		this.currentFilePath = document.fileName;
+        this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
+
+        this._onDidChangeTreeData.fire();
 	}
 
     getTreeItem(element: ProjectTreeElement): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -157,6 +164,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     if (element[child] && Object.keys(element[child]).length > 0) {
                         collapseMode = vscode.TreeItemCollapsibleState.Collapsed;
                     }
+
                     elementTree.push(new ProjectTreeElement(child, collapseMode, {
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
@@ -167,10 +175,14 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                 let treeObj = this.getTreeForKey(element, parentEl.label);
                 if (Object.keys(treeObj).length !== 0) {
                     Object.keys(treeObj).map(child => {
+                        let args = [key, child];
+                        if (parentEl.command && parentEl.command.arguments) {
+                            args = [...parentEl.command.arguments, child];
+                        }
                         elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
                             command: "ballerina.executeTreeElement",
                             title: "Execute Tree Command",
-                            arguments: [key, child]
+                            arguments: args,
                         }));
                     });
                 }

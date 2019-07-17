@@ -255,7 +255,7 @@ public class CompletionVisitorUtil {
      */
     public static List<BLangNode> getFunctionParamsOrdered(BLangFunction function) {
         List<BLangNode> nodes = new ArrayList<>();
-        nodes.addAll(function.defaultableParams);
+//        nodes.addAll(function.defaultableParams);
         nodes.addAll(function.requiredParams);
         if (function.restParam != null) {
             nodes.add(function.restParam);
@@ -270,6 +270,7 @@ public class CompletionVisitorUtil {
      *
      * @param node BLang node to evaluate
      * @param lsContext Language server operation context
+     * @return {@link Boolean} within the argument
      */
     public static boolean withinInvocationArguments(BLangNode node, LSContext lsContext) {
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();

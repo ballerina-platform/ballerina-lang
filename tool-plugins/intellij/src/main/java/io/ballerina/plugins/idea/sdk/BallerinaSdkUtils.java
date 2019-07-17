@@ -60,6 +60,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXECUTABLE_
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_PORJECT_CACHE_FOLDER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
 import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
 import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
@@ -401,6 +402,34 @@ public class BallerinaSdkUtils {
             BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
             return CachedValueProvider.Result.create(getInnerSdkSrcDir(sdkService, null), sdkService);
         });
+    }
+
+    /**
+     * Searches for a ballerina project using outward recursion starting from the file directory, until the given root
+     * directory is found. Returns and empty string if unable to detect any ballerina project under the current intellij
+     * project source root.
+     */
+    public static String searchForBallerinaProjectRoot(String currentPath, String root) {
+
+        if (currentPath.equals(root) || currentPath.isEmpty() || root.isEmpty()) {
+            return "";
+        }
+        File currentDir = new File(currentPath);
+        File[] files = currentDir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                //skips the .ballerina folder in the user home directory.
+                if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home")) && f
+                        .getName().equals(BALLERINA_PORJECT_CACHE_FOLDER_NAME)) {
+                    return currentDir.getAbsolutePath();
+                }
+            }
+        }
+
+        if (currentDir.getParentFile() == null) {
+            return "";
+        }
+        return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
     }
 
     @Nullable
