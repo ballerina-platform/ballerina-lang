@@ -74,8 +74,12 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
                     + moduleArgs.get(1) + " <OpenApiContract>");
         }
 
-        final String projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
-        final Path moduleDirectory = Paths.get(projectRoot + "/" + moduleArgs.get(0));
+        final Path projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+        if (projectRoot == null) {
+            // TODO: Better throw a meaningful exception
+            return;
+        }
+        final Path moduleDirectory = projectRoot.resolve(moduleArgs.get(0));
         final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();

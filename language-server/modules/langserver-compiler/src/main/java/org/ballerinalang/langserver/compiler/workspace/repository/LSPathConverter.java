@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -50,6 +51,12 @@ public class LSPathConverter extends PathConverter {
             id.version = new Name(manifest.getProject().getVersion());
         }
         // Returns an In-memory source entry with backing-off capability to read from the FileSystem
-        return Stream.of(new LSInMemorySourceEntry(path, this.start(), id, documentManager));
+        Path moduleRoot;
+        if (LSCompilerUtil.isBallerinaProject(this.start().toString())) {
+            moduleRoot = this.start().resolve("src");
+        } else {
+            moduleRoot = this.start();
+        }
+        return Stream.of(new LSInMemorySourceEntry(path, moduleRoot, id, documentManager));
     }
 }

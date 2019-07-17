@@ -137,7 +137,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Initialize AST node view state
         ASTUtil.traversNode(ast, initVisitor);
         setProjectAST(projectAst);
-        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? 0 : this.props.maxInvocationDepth);
+        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? -1 : this.props.maxInvocationDepth);
         ASTUtil.traversNode(ast, invocationVisitor);
         if (this.props.mode === DiagramMode.INTERACTION) {
             ASTUtil.traversNode(ast, interactionModeVisitor);
