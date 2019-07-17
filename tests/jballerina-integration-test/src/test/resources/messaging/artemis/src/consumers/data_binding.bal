@@ -16,6 +16,7 @@
 
 import ballerina/artemis;
 import ballerina/io;
+import ballerina/log;
 
 @artemis:ServiceConfig {
     queueConfig: {
@@ -23,9 +24,13 @@ import ballerina/io;
     }
 }
 service artemisConsumer on artemisListener {
-    resource function xyz(artemis:Message message, string data) returns error? {
+    resource function onMessage(artemis:Message message, string data) returns error? {
         io:print("string data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -35,9 +40,13 @@ service artemisConsumer on artemisListener {
     }
 }
 service artemisConsumer2 on artemisListener {
-    resource function xyz(artemis:Message message, json data) returns error? {
+    resource function onMessage(artemis:Message message, json data) returns error? {
         io:print("json data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -47,8 +56,12 @@ service artemisConsumer2 on artemisListener {
     }
 }
 service artemisConsumer3 on artemisListener {
-    resource function xyz(artemis:Message message, xml data) returns error? {
+    resource function onMessage(artemis:Message message, xml data) returns error? {
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -63,9 +76,13 @@ type Person record {|
     }
 }
 service artemisConsumer4 on artemisListener {
-    resource function xyz(artemis:Message message, Person data) returns error? {
+    resource function onMessage(artemis:Message message, Person data) returns error? {
         io:print("person data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -75,9 +92,13 @@ service artemisConsumer4 on artemisListener {
     }
 }
 service artemisConsumer6 on artemisListener {
-    resource function xyz(artemis:Message message, byte[] data) returns error? {
+    resource function onMessage(artemis:Message message, byte[] data) returns error? {
         io:print("byte[] data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -87,9 +108,13 @@ service artemisConsumer6 on artemisListener {
     }
 }
 service artemisConsumer7 on artemisListener {
-    resource function xyz(artemis:Message message, map<string> data) returns error? {
+    resource function onMessage(artemis:Message message, map<string> data) returns error? {
         io:print("map<string> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -99,9 +124,13 @@ service artemisConsumer7 on artemisListener {
     }
 }
 service artemisConsumer8 on artemisListener {
-    resource function xyz(artemis:Message message, map<int> data) returns error? {
+    resource function onMessage(artemis:Message message, map<int> data) returns error? {
         io:print("map<int> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -111,9 +140,13 @@ service artemisConsumer8 on artemisListener {
     }
 }
 service artemisConsumer9 on artemisListener {
-    resource function xyz(artemis:Message message, map<float> data) returns error? {
+    resource function onMessage(artemis:Message message, map<float> data) returns error? {
         io:print("map<float> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -123,9 +156,13 @@ service artemisConsumer9 on artemisListener {
     }
 }
 service artemisConsumer10 on artemisListener {
-    resource function xyz(artemis:Message message, map<byte> data) returns error? {
+    resource function onMessage(artemis:Message message, map<byte> data) returns error? {
         io:print("map<byte> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -135,9 +172,13 @@ service artemisConsumer10 on artemisListener {
     }
 }
 service artemisConsumer11 on artemisListener {
-    resource function xyz(artemis:Message message, map<byte[]> data) returns error? {
+    resource function onMessage(artemis:Message message, map<byte[]> data) returns error? {
         io:print("map<byte[]> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }
 
@@ -147,8 +188,12 @@ service artemisConsumer11 on artemisListener {
     }
 }
 service artemisConsumer12 on artemisListener {
-    resource function xyz(artemis:Message message, map<boolean> data) returns error? {
+    resource function onMessage(artemis:Message message, map<boolean> data) returns error? {
         io:print("map<boolean> data ");
         io:println(data);
+    }
+
+    resource function onError(artemis:Message message, artemis:Error err) {
+         log:printError(err.detail().message);
     }
 }

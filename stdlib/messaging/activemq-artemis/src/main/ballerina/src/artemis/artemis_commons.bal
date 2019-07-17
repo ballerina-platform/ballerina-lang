@@ -53,5 +53,5 @@ type MessageContent io:ReadableByteChannel | int | float | byte | boolean | stri
 boolean | byte[]> | xml | json | byte[];
 
 function parseUrl(EndpointConfiguration config) returns string {
-    return "tcp://" + config.host + ":" + config.port;
+    return "tcp://" + config.host + ":" + config.port.toString();
 }

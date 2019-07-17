@@ -223,11 +223,11 @@ function testObjectEquivalency() returns [string, string] {
     string s2 = "";
 
     if(z is X1) {
-        s1 = "values: " + z.p + ", " + z.q;
+        s1 = "values: " + z.p.toString() + ", " + z.q;
     }
 
     if (z is Y1) {
-        s2 = "values: " + z.p + ", " + z.q + ", " + z.r;
+        s2 = "values: " + z.p.toString() + ", " + z.q + ", " + z.r.toString();
     }
 
     return [s1, s2];

@@ -30,7 +30,8 @@ function testStructuredMatchPatternsBasic1() returns string {
             integer += 1;
             a += 1;
             b += 1;
-            return "Matched Values : " + s + ", " + integer + ", " + a + ", " + b + ", " + c;
+            return "Matched Values : " + s + ", " + integer.toString() + ", " + a.toString() + ", " + b.toString() +
+                    ", " + c.toString();
         }
     }
 
@@ -55,8 +56,8 @@ function testStructuredMatchPatternsBasic2() returns string {
     match tuple {
         var [{s, i, f}, [i2, {b, f: {s: s2, i: i3, f: f2}}], b2] => {
             i3 += 1;
-            return "Matched Values : " + s + ", " + i + ", " + f + ", " + i2 + ", " +
-                                <int> b + ", " + s2 + ", " + i3 + ", " + f2 + ", " + <int>b2;
+            return "Matched Values : " + s + ", " + i.toString() + ", " + f.toString() + ", " + i2.toString() + ", " +
+                        b.toString() + ", " + s2 + ", " + i3.toString() + ", " + f2.toString() + ", " + b2.toString();
         }
     }
 

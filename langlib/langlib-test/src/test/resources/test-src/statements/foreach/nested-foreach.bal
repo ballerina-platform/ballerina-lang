@@ -5,11 +5,11 @@ float[] fdata = [10.0, 11.0, 12.0];
 string output = "";
 
 function concatIntString(int i, string s) {
-    output = output + i + ":" + s + " ";
+    output = output + i.toString() + ":" + s + " ";
 }
 
 function concatIntStringFloat(int i, string s, float f) {
-    output = output + i + ":" + s + ":" + f + " ";
+    output = output + i.toString() + ":" + s + ":" + f.toString() + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

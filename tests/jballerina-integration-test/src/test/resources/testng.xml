@@ -266,13 +266,15 @@
         </classes>
     </test>
 
-<!--    <test name="artemis-test" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="artemis-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisDummyTestCase"/>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
+<!--        <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
+            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
+        </classes>
+    </test>
 </suite>

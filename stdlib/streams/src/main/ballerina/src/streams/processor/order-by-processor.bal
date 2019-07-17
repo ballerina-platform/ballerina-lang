@@ -184,7 +184,7 @@ public type MergeSort object {
                     return self.callNextSortFunc(x, y, c, fieldIndex + 1);
                 } else {
                     error err = error("Values to be orderred contain non-string values in fieldIndex: " +
-                        fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                        fieldIndex.toString() + ", sortType: " + self.sortTypes[fieldIndex]);
                     panic err;
                 }
             } else if (xFieldFuncResult is (int|float)) {
@@ -199,12 +199,12 @@ public type MergeSort object {
                     return self.callNextSortFunc(x, y, c, fieldIndex + 1);
                 } else {
                     error err = error("Values to be orderred contain non-number values in fieldIndex: " +
-                        fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                        fieldIndex.toString() + ", sortType: " + self.sortTypes[fieldIndex]);
                     panic err;
                 }
             } else {
                 error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
-                     " + fieldIndex + ", sortType: " + self.sortTypes[fieldIndex]);
+                     " + fieldIndex.toString() + ", sortType: " + self.sortTypes[fieldIndex]);
                 panic err;
             }
         } else {

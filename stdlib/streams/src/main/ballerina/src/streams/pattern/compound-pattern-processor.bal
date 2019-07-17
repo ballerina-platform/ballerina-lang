@@ -202,7 +202,7 @@ public type CompoundPatternProcessor object {
         alias = alias + ")";
         int? withinTime = self.withinTimeMillis;
         if (withinTime is int) {
-            alias += " within " + withinTime + "ms ";
+            alias += " within " + withinTime.toString() + "ms ";
         }
         return alias;
     }

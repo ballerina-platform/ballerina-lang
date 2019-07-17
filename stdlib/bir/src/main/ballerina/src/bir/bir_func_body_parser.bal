@@ -576,7 +576,7 @@ public type FuncBodyParser object {
             Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVarName, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
-        error err = error("term instruction kind " + kindTag + " not impl.");
+        error err = error("term instruction kind " + kindTag.toString() + " not impl.");
         panic err;
     }
 
@@ -646,7 +646,7 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_BITWISE_UNSIGNED_RIGHT_SHIFT) {
             kind = BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
         } else {
-            error err = error("instrucion kind " + kindTag + " not impl.");
+            error err = error("instrucion kind " + kindTag.toString() + " not impl.");
             panic err;
         }
 
@@ -662,7 +662,7 @@ public type FuncBodyParser object {
         if(typeDef is TypeDef){
             return typeDef;
         } else {
-            error err = error("can't find type def for index : " + defIndex);
+            error err = error("can't find type def for index : " + defIndex.toString());
             panic err;
         }
     }

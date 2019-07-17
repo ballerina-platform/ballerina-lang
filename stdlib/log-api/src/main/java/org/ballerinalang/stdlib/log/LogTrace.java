@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.log;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,9 +36,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         isPublic = true
 )
 public class LogTrace extends AbstractLogFunction {
-
-    public void execute(Context ctx) {
-    }
 
     public static void printTrace(Strand strand, Object msg) {
         String packagePath = getPackagePath();

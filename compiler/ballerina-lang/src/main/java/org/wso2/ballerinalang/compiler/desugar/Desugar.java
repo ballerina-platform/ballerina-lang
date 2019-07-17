@@ -261,6 +261,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String BASE_64 = "base64";
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
+    private static final String TO_STRING_FUNCTION_NAME = "toString";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CONSTRUCT_FROM = "constructFrom";
 
@@ -1398,6 +1399,41 @@ public class Desugar extends BLangNodeVisitor {
             bLangIndexBasedAccess.originalType = symTable.pureType;
         }
         return detailEntryVar;
+    }
+
+    private BLangExpression constructStringTemplateConcatExpression(List<BLangExpression> exprs) {
+        BLangExpression concatExpr = null;
+        BLangExpression currentExpr;
+        for (BLangExpression expr : exprs) {
+            currentExpr = expr;
+            if (expr.type.tag != TypeTags.STRING && expr.type.tag != TypeTags.XML) {
+                currentExpr = getToStringInvocationOnExpr(expr);
+            }
+
+            if (concatExpr == null) {
+                concatExpr = currentExpr;
+                continue;
+            }
+
+            concatExpr =
+                    ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
+                                                    concatExpr.type.tag == TypeTags.XML ||
+                                                            currentExpr.type.tag == TypeTags.XML ?
+                                                            symTable.xmlType : symTable.stringType,
+                                                    OperatorKind.ADD, null);
+        }
+        return concatExpr;
+    }
+
+    private BLangInvocation getToStringInvocationOnExpr(BLangExpression expression) {
+        BInvokableSymbol symbol = (BInvokableSymbol) symTable.langValueModuleSymbol.scope
+                .lookup(names.fromString(TO_STRING_FUNCTION_NAME)).symbol;
+
+        List<BLangExpression> requiredArgs = new ArrayList<BLangExpression>() {{
+            add(addConversionExprIfRequired(expression, symbol.params.get(0).type));
+        }};
+        return ASTBuilderUtil.createInvocationExprMethod(expression.pos, symbol, requiredArgs, new ArrayList<>(),
+                                                         symResolver);
     }
 
     // TODO: Move the logic on binding patterns to a seperate class
@@ -3629,32 +3665,35 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
+        xmlTextLiteral.concatExpr = rewriteExpr(constructStringTemplateConcatExpression(xmlTextLiteral.textFragments));
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
+        xmlCommentLiteral.concatExpr = rewriteExpr(
+                constructStringTemplateConcatExpression(xmlCommentLiteral.textFragments));
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
         xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
-        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
+        xmlProcInsLiteral.dataConcatExpr =
+                rewriteExpr(constructStringTemplateConcatExpression(xmlProcInsLiteral.dataFragments));
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
+        xmlQuotedString.concatExpr = rewriteExpr(
+                constructStringTemplateConcatExpression(xmlQuotedString.textFragments));
         result = xmlQuotedString;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        result = rewriteExpr(stringTemplateLiteral.concatExpr);
+        result = rewriteExpr(constructStringTemplateConcatExpression(stringTemplateLiteral.exprs));
     }
 
     @Override

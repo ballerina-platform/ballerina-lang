@@ -69,7 +69,7 @@ public type ExternalTimeWindow object {
             }
         } else {
             error err = error("ExternalTime window should only have two parameters (<string> timestamp, <int> " +
-                "windowTime), but found " + parameters.length() + " input attributes");
+                "windowTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
