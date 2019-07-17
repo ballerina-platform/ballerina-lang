@@ -200,7 +200,7 @@ function testInExpression() returns [string, int] {
                                                 strArr[5] = "stu";
                                                 return str.length() == 3;
                                             })
-                                  .length());
+                                  .length().toString());
 
     int i = strArr.length() + floatArr.length();
     return [str, i];

@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.nio.file.Path;
@@ -66,7 +67,7 @@ public class SourceDirectoryManager {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         return Stream.concat(sourceFileNames.stream().map(this::getPackageID),
-                             packageNames.stream().map(this::getPackageID)
+                packageNames.stream().map(this::getPackageID)
         );
     }
 
@@ -150,6 +151,12 @@ public class SourceDirectoryManager {
      * @return true if ballerina sources exists, else false
      */
     boolean checkIfSourcesExists(String pkg) {
-        return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath().resolve(pkg));
+        // Check if it is a valid ballerina project.
+        if (ProjectDirs.isProject(this.sourceDirectory.getPath())) {
+            return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath()
+                    .resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(pkg));
+        } else {
+            return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath().resolve(pkg));
+        }
     }
 }

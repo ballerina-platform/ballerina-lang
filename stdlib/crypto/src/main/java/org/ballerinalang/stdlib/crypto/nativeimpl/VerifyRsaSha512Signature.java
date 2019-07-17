@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -36,11 +34,7 @@ import java.security.PublicKey;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "verifyRsaSha512Signature")
-public class VerifyRsaSha512Signature extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class VerifyRsaSha512Signature {
 
     public static Object verifyRsaSha512Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
                                                   MapValue<?, ?> publicKey) {

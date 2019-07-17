@@ -71,7 +71,7 @@ public type ConstPoolParser object {
         } else if (cpType == 7){
             self.parseType();
         } else {
-            error err = error("cp type " + cpType + " not supported.:");
+            error err = error("cp type " + cpType.toString() + " not supported.:");
             panic err;
         }
     }

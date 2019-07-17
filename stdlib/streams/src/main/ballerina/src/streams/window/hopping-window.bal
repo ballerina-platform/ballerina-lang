@@ -80,7 +80,7 @@ public type HoppingWindow object {
             }
         } else {
             error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
-                "hoppingTime), but found " + parameters.length() + " input attributes");
+                "hoppingTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

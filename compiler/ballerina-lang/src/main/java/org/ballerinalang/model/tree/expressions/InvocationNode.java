@@ -35,6 +35,8 @@ public interface InvocationNode extends VariableReferenceNode, AnnotatableNode {
 
     List<? extends ExpressionNode> getArgumentExpressions();
 
+    List<? extends ExpressionNode> getRequiredArgs();
+
     ExpressionNode getExpression();
 
     boolean isIterableOperation();

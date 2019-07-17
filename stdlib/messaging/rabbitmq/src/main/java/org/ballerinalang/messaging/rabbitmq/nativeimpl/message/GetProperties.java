@@ -19,8 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import com.rabbitmq.client.AMQP;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.Strand;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.MapValue;
@@ -45,12 +43,8 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetProperties extends BlockingNativeCallableUnit {
+public class GetProperties {
 
-    @Override
-    public void execute(Context context) {
-
-    }
 
     public static Object getProperties(Strand strand, ObjectValue messageObjectValue) {
         AMQP.BasicProperties basicProperties =
@@ -71,5 +65,8 @@ public class GetProperties extends BlockingNativeCallableUnit {
         values[2] = contentEncoding;
         values[3] = correlationId;
         return BallerinaValues.createRecord(properties, values);
+    }
+
+    private GetProperties() {
     }
 }

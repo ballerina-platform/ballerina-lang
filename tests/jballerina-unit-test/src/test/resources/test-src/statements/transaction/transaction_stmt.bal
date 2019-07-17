@@ -20,7 +20,7 @@ function testTransactionStmt(int i) returns (string) {
     } else {
         a = a + <string>result.reason();
     }
-    a = a + " rc:" + attemptCount + " end";
+    a = a + " rc:" + attemptCount.toString() + " end";
     return a;
 }
 
@@ -125,7 +125,7 @@ function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (strin
     } else {
         a = a + result.reason();
     }
-    a = a + " rc:" + attemptCount + " end";
+    a = a + " rc:" + attemptCount.toString() + " end";
     return a;
 }
 
@@ -205,7 +205,7 @@ function testTransactionStmtWithConstRetryFailed() returns (string) {
     } else {
         a += result.reason();
     }
-    a = a + " rc:" + attemptCount + " end";
+    a = a + " rc:" + attemptCount.toString() + " end";
     return a;
 }
 

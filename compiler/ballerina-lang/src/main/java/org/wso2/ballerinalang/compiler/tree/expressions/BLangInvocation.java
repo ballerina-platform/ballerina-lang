@@ -85,6 +85,11 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     }
 
     @Override
+    public List<? extends ExpressionNode> getRequiredArgs() {
+        return this.requiredArgs;
+    }
+
+    @Override
     public BLangExpression getExpression() {
         return expr;
     }

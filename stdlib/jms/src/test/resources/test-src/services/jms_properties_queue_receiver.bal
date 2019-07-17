@@ -18,15 +18,15 @@ service jmsListener3 on queueConsumer3 {
         var messageText = message.getPayload();
         var booleanVal = message.getProperty("booleanProp");
         if (booleanVal is boolean) {
-             msgVal += "booleanVal:" + <@untainted> booleanVal;
+             msgVal += "booleanVal:" + <@untainted> booleanVal.toString();
         }
         var intVal = message.getProperty("intProp");
         if (intVal is int) {
-             msgVal += "|intVal:" + <@untainted> intVal;
+             msgVal += "|intVal:" + <@untainted> intVal.toString();
         }
         var floatVal = message.getProperty("floatProp");
         if (floatVal is float) {
-             msgVal += "|floatVal:" + <@untainted> floatVal;
+             msgVal += "|floatVal:" + <@untainted> floatVal.toString();
         }
         var stringProp = message.getProperty("stringProp");
         if (stringProp is string) {

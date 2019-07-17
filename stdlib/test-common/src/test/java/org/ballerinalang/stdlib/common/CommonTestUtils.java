@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.common;
 
 import org.apache.commons.logging.Log;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 
@@ -43,7 +43,7 @@ public class CommonTestUtils {
      * @return the absolute path.
      */
     public static String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
-        URL fileResource = BServiceUtil.class.getClassLoader().getResource(relativePath);
+        URL fileResource = BCompileUtil.class.getClassLoader().getResource(relativePath);
         String pathValue = "";
         if (null != fileResource) {
             Path path = Paths.get(fileResource.toURI());

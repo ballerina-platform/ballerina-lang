@@ -151,6 +151,7 @@ public class CommandUtil {
      * @param documentManager  Document manager
      * @param lsCompiler       LS Compiler
      * @return {@link Command}  Test Generation command
+     * @throws LSCompilerException LS Compiler Exception
      */
     public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                          CodeActionParams params,
@@ -222,8 +223,8 @@ public class CommandUtil {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                               diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(uri);
-            String sourceRoot = LSCompilerUtil.getSourceRoot(sourceDocument.getPath());
-            sourceDocument.setSourceRoot(sourceRoot);
+            String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
+            sourceDocument.setProjectRootRoot(sourceRoot);
             List<BallerinaPackage> packagesList = new ArrayList<>();
             Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                     .forEach(packagesList::addAll);

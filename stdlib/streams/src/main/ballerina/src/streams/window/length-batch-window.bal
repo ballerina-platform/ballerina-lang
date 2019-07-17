@@ -64,7 +64,7 @@ public type LengthBatchWindow object {
             }
         } else {
             error err = error("LengthBatch window should only have one parameter (<int> " +
-                "windowBatchLength), but found " + parameters.length() + " input attributes");
+                "windowBatchLength), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

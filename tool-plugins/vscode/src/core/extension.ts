@@ -40,6 +40,7 @@ import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEB
 export interface ConstructIdentifier {
     moduleName: string;
     constructName: string;
+    subConstructName?: string;
 }
 
 export class BallerinaExtension {

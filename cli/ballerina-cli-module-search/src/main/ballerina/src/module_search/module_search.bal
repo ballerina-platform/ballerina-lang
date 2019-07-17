@@ -267,7 +267,7 @@ public function main(string... args) {
                 httpEndpoint = result;
                 search(httpEndpoint, args[0], args[1], args[6]);
             } else {
-                io:println("failed to resolve host : " + host + " with port " + port);
+                io:println("failed to resolve host : " + host + " with port " + port.toString());
                 return;
             }
         } else {

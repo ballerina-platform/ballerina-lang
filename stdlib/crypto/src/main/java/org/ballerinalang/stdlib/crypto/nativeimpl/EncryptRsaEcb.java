@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -37,11 +35,7 @@ import java.security.PublicKey;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptRsaEcb", isPublic = true)
-public class EncryptRsaEcb extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class EncryptRsaEcb {
 
     public static Object encryptRsaEcb(Strand strand, ArrayValue inputValue, Object keyUnion, Object padding) {
         byte[] input = inputValue.getBytes();
