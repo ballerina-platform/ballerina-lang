@@ -44,7 +44,6 @@ public class WebSubSubscriberConstants {
 
     public static final String ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
     public static final String ANN_WEBSUB_ATTR_TARGET = "target";
-    public static final String ANN_WEBSUB_ATTR_TOPIC = "topic";
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
     public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
