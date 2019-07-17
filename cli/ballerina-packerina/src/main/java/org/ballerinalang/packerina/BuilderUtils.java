@@ -141,27 +141,38 @@ public class BuilderUtils {
                     targetDirectory, Optional.of(Paths.get(targetDir)), false);
 
             // If package is a ballerina file do not write executables.
-            if (isSingleFile) {
-                return;
-            }
             // Create executable jar files.
-            if (bLangPackage.symbol.entryPointExists) {
+            if (bLangPackage.symbol.entryPointExists && !isSingleFile) {
                 outStream.println();
                 outStream.println("Generating Executables");
                 assembleExecutable(bLangPackage, sourceRootPath);
             } else {
-                throw new BLangCompilerException("package `" + packageName + "` do not have an entry point");
+                if (!isSingleFile) {
+                    throw new BLangCompilerException("package `" + packageName + "` do not have an entry point");
+                }
             }
+    
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            processorServiceLoader.forEach(plugin -> {
+                String execJarName;
+                Path execFilePath;
+                if (!isSingleFile) {
+                    execJarName = bLangPackage.packageID.name.value + ProjectDirConstants.EXEC_SUFFIX +
+                                  ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+                    execFilePath = sourceRootPath
+                            .resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                            .resolve(ProjectDirConstants.BIN_DIR_NAME)
+                            .resolve(execJarName);
+                } else {
+                    execFilePath = sourceRootPath.resolve(packageName.replaceAll(".bal", "") +
+                                                          ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+                }
+
+                plugin.codeGenerated(bLangPackage.packageID, execFilePath);
+            });
+    
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
-        }
-
-        if (skiptests) {
-            outStream.println();
-            compiler.write(bLangPackage, targetPath);
-        } else {
-            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
-            compiler.write(bLangPackage, targetPath);
         }
     }
 
