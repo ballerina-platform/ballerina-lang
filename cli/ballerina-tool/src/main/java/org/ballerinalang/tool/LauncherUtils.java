@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
@@ -509,33 +510,14 @@ public class LauncherUtils {
                 !RepoUtils.isBallerinaProject(sourceRootPath)) {
             // running a bal file, no other packages
             return fullPath.getFileName().toString();
-        } else if (Files.isDirectory(sourceRootPath)) {
-            if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
-                throw createLauncherException("you are trying to run a module that is not inside " +
-                        "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
-                        "project and then run the module.");
-            }
-
-            if (Files.exists(fullPath)) {
-                if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                    throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                            BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                            "'ballerina run' command.");
-                }
-            } else {
-                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
-            }
-            // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
-            // To differentiate between top level bals and bals inside modules we need to check if the parent of the
-            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
-            if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                    sourcePath.getParent() != null) {
-                throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
-                        "project. Try running 'ballerina run <module-name>'");
-            }
+        } else if (!ProjectDirs.isProject(sourceRootPath)) {
+            throw createLauncherException("you are trying to run a module that is not inside " +
+                    "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                    "project and then run the module.");
+        } else if (ProjectDirs.isModuleExist(sourceRootPath, srcPathStr)) {
             return sourcePath.toString();
         } else {
-            throw createLauncherException("unexpected error while getting init class name from source in " +
+            throw createLauncherException("Module not found :" +
                     sourcePath);
         }
     }
