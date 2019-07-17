@@ -35,8 +35,8 @@ service simple6 on new http:Listener(9096) {
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
         wsServiceEp.attributes[PATH1] = path1;
         wsServiceEp.attributes[PATH2] = path2;
-        wsServiceEp.attributes[QUERY1] = req.getQueryParams()["q1"][0];
-        wsServiceEp.attributes[QUERY2] = req.getQueryParams()["q2"][0];
+        wsServiceEp.attributes[QUERY1] = req.getQueryParamValue("q1");
+        wsServiceEp.attributes[QUERY2] = req.getQueryParamValue("q2");
     }
 }
 
@@ -51,8 +51,8 @@ service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
             string msg = string `path-params: ${path1}, ${path2}; query-params: ${query1}, ${query2}`;
             var returnVal = wsEp->pushText(msg);
-            if(returnVal is error) {
-                panic returnVal;
+            if(returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
     }

@@ -461,19 +461,19 @@ function checkMapEqualityPositive() returns boolean {
     boolean equals = m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
 
     m1["one"] = 1;
-    m2.one = 1;
+    m2["one"] = 1;
     m2["two"] = "two";
     m1["two"] = "two";
     m1["three"] = 3.0;
     m2["three"] = 3.0;
 
-    m3.last = "last";
+    m3["last"] = "last";
     m3["a"] = "a";
-    m4.a = "a";
+    m4["a"] = "a";
     m4["last"] = "last";
 
     m5["one"] = 1.0;
-    m6.one = 1.0;
+    m6["one"] = 1.0;
 
     equals = equals && m1 == m2 && !(m1 != m2) && m3 == m4 && !(m3 != m4);
     return equals;
@@ -483,14 +483,14 @@ function checkMapEqualityNegative() returns boolean {
     map<anydata> m1 = {};
     map<anydata> m2 = {};
 
-    m1.one = "hi";
-    m2.one = "hello";
+    m1["one"] = "hi";
+    m2["one"] = "hello";
 
     map<int> m3 = {};
     map<int> m4 = {};
 
-    m3.one = 1;
-    m4.two = 2;
+    m3["one"] = 1;
+    m4["two"] = 2;
 
     return m1 == m2 || !(m1 != m2) || m3 == m4 || !(m3 != m4);
 }
@@ -505,9 +505,9 @@ function checkComplexMapEqualityPositive() returns boolean {
     m1["one"] = m3;
 
     map<[boolean, float]|int> m4 = {};
-    m4.one = [true, 3.8];
-    m4.two = [false, 13.8];
-    m2.one = m4;
+    m4["one"] = [true, 3.8];
+    m4["two"] = [false, 13.8];
+    m2["one"] = m4;
 
     return equals && m1 == m2 && !(m1 != m2);
 }
@@ -517,10 +517,10 @@ function checkComplexMapEqualityNegative() returns boolean {
     map<map<[boolean, float]|int>> m2 = {};
 
     map<[boolean, string|float]> m3 = { one: [true, "3.8"], two: [false, 13.8] };
-    m1.x = m3;
+    m1["x"] = m3;
 
     map<[boolean, float]|int> m4 = { one: [true, 3.8], two: [false, 13.8] };
-    m2.x = m4;
+    m2["x"] = m4;
 
     return m1 == m2 || !(m1 != m2);
 }
@@ -583,8 +583,8 @@ function checkUnionConstrainedMapsPositive() returns boolean {
         two: ["hello", 21.1]
     };
     m5 = m7;
-    m6.two = ["hello", 21.1];
-    m6.one = ["hi", 100.0];
+    m6["two"] = ["hello", 21.1];
+    m6["one"] = ["hi", 100.0];
 
     return equals && m5 == m6 && !(m5 != m6);
 }
@@ -610,8 +610,8 @@ function checkUnionConstrainedMapsNegative() returns boolean {
         two: ["hello", 21]
     };
     m3 = m5;
-    m4.two = ["hello", 21.1];
-    m4.one = ["hi", 100.0];
+    m4["two"] = ["hello", 21.1];
+    m4["one"] = ["hi", 100.0];
 
     return equals || m3 == m4 || !(m3 != m4);
 }
@@ -734,10 +734,10 @@ function testIntByteEqualityPositive() returns boolean {
 
     equals = equals && (g == h) && !(g != h);
 
-    g.one = [100, true];
-    h.two = [1, false];
-    h.one = [100, true];
-    g.two = [1, false];
+    g["one"] = [100, true];
+    h["two"] = [1, false];
+    h["one"] = [100, true];
+    g["two"] = [1, false];
 
     return equals && (g == h) && !(g != h);
 }
@@ -766,10 +766,10 @@ function testIntByteEqualityNegative() returns boolean {
     map<[int, boolean]> g = {};
     map<[byte, boolean]> h = {};
 
-    g.one = [10, true];
-    h.two = [1, false];
-    h.one = [100, true];
-    g.two = [1, false];
+    g["one"] = [10, true];
+    h["two"] = [1, false];
+    h["one"] = [100, true];
+    g["two"] = [1, false];
 
     return equals && (g == h) && !(g != h);
 }
@@ -914,10 +914,10 @@ public function testSelfAndCyclicReferencingMapEqualityPositive() returns boolea
 
     map<anydata> q = { one: 1 };
     map<anydata> r = { one: 1 };
-    q.r = r;
-    r.q = q;
-    r.r = r;
-    q.q = q;
+    q["r"] = r;
+    r["q"] = q;
+    r["r"] = r;
+    q["q"] = q;
 
     return equals && isEqual(q, r);
 }
@@ -943,65 +943,65 @@ public function testSelfAndCyclicReferencingMapEqualityNegative() returns boolea
     map<anydata> q = { one: 1 };
     map<anydata> r = { one: 1 };
     map<anydata> s = { one: 2 };
-    q.r = r;
-    r.q = q;
-    r.r = r;
-    q.q = s;
+    q["r"] = r;
+    r["q"] = q;
+    r["r"] = r;
+    q["q"] = s;
 
     return equals || isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingJsonEqualityPositive() returns boolean {
-    json m = { "3": "three", "0": 0 };
+    map<json> m = { "3": "three", "0": 0 };
     m["1"] = m;
 
-    json n = { "0": 0, "3": "three" };
+    map<json> n = { "0": 0, "3": "three" };
     n["1"] = n;
 
     boolean equals = isEqual(m, n);
 
-    json o = { "0": 0 };
+    map<json> o = { "0": 0 };
     o["1"] = m;
 
-    json p = { "0": 0 };
+    map<json> p = { "0": 0 };
     p["1"] = n;
 
     equals = equals && o == p && !(o != p);
 
-    json q = { one: 1 };
-    json r = { one: 1 };
-    q.r = r;
-    r.q = q;
-    r.r = r;
-    q.q = q;
+    map<json> q = { one: 1 };
+    map<json> r = { one: 1 };
+    q["r"] = r;
+    r["q"] = q;
+    r["r"] = r;
+    q["q"] = q;
 
     return equals && isEqual(q, r);
 }
 
 public function testSelfAndCyclicReferencingJsonEqualityNegative() returns boolean {
-    json m = { "3": "three", "0": 0 };
+    map<json> m = { "3": "three", "0": 0 };
     m["1"] = m;
 
-    json n = { "0": 0, "3": "three" };
+    map<json> n = { "0": 0, "3": "three" };
     n["2"] = n;
 
     boolean equals = m == n || !(n != m);
 
     n["1"] = m;
-    json o = { "0": 0 };
+    map<json> o = { "0": 0 };
     o["1"] = m;
 
-    json p = { "0": "zero" };
+    map<json> p = { "0": "zero" };
     p["1"] = n;
 
     equals = equals || o == p || !(o != p);
 
-    json q = { one: 1, t: 2 };
-    json r = { one: 1, t: 23 };
-    q.r = r;
-    r.q = q;
-    r.r = r;
-    q.q = q;
+    map<json> q = { one: 1, t: 2 };
+    map<json> r = { one: 1, t: 23 };
+    q["r"] = r;
+    r["q"] = q;
+    r["r"] = r;
+    q["q"] = q;
 
     return equals || isEqual(q, r);
 }

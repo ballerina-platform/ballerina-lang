@@ -13,13 +13,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 type ResultCount record {
     int COUNTVAL;
 };
 
-function testXATransactonSuccess() returns @tainted [int, int] {
+function testXATransactionSuccess() returns @tainted [int, int] {
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
@@ -54,7 +54,7 @@ function testXATransactonSuccess() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonSuccessWithDataSource() returns @tainted [int, int] {
+function testXATransactionSuccessWithDataSource() returns @tainted [int, int] {
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
@@ -88,7 +88,7 @@ function testXATransactonSuccessWithDataSource() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonSuccessWithH2Client() returns @tainted [int, int] {
+function testXATransactionSuccessWithH2Client() returns @tainted [int, int] {
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
@@ -122,7 +122,7 @@ function testXATransactonSuccessWithH2Client() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonFailed1() returns @tainted [int, int] {
+function testXATransactionFailed1() returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
@@ -138,7 +138,7 @@ function testXATransactonFailed1() returns @tainted [int, int] {
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    var e = trap testXATransactonFailed1Helper(testDB1, testDB2);
+    var e = trap testXATransactionFailed1Helper(testDB1, testDB2);
 
     int count1;
     int count2;
@@ -154,7 +154,7 @@ function testXATransactonFailed1() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
+function testXATransactionFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
         _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
                                     values (2, 'John', 1000, 'UK')");
@@ -162,7 +162,7 @@ function testXATransactonFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2)
     }
 }
 
-function testXATransactonFailed2() returns @tainted [int, int] {
+function testXATransactionFailed2() returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
@@ -177,7 +177,7 @@ function testXATransactonFailed2() returns @tainted [int, int] {
         password: "",
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
-    var e = trap testXATransactonFailed2Helper(testDB1, testDB2);
+    var e = trap testXATransactionFailed2Helper(testDB1, testDB2);
     //check whether update action is performed
     var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 2", ResultCount);
     int count1 = getTableCountValColumn(dt1);
@@ -190,7 +190,7 @@ function testXATransactonFailed2() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
+function testXATransactionFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
         _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn)
                                     values (2, 'John', 1000, 'UK')");
@@ -198,7 +198,7 @@ function testXATransactonFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2)
     }
 }
 
-function testXATransactonRetry() returns @tainted [int, int] {
+function testXATransactionRetry() returns @tainted [int, int] {
 
     jdbc:Client testDB1 = new({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
@@ -214,7 +214,7 @@ function testXATransactonRetry() returns @tainted [int, int] {
         poolOptions: { maximumPoolSize: 1, isXA: true }
     });
 
-    testXATransactonRetryHelper(testDB1, testDB2);
+    testXATransactionRetryHelper(testDB1, testDB2);
     //check whether update action is performed
     var dt1 = testDB1->select("Select COUNT(*) as countval from Customers where customerId = 4", ResultCount);
     int count1 = getTableCountValColumn(dt1);
@@ -227,7 +227,7 @@ function testXATransactonRetry() returns @tainted [int, int] {
     return [count1, count2];
 }
 
-function testXATransactonRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) {
+function testXATransactionRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) {
     int i = 0;
     transaction {
         if (i == 2) {

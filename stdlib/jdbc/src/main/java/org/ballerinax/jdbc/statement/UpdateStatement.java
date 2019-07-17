@@ -27,8 +27,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
@@ -51,16 +51,14 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final ArrayValue keyColumns;
     private final ArrayValue parameters;
 
-    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                           ArrayValue keyColumns, ArrayValue parameters, Strand strand) {
+    public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
+                           Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
         this.query = query;
-        this.keyColumns = keyColumns;
         this.parameters = parameters;
     }
 
@@ -78,24 +76,11 @@ public class UpdateStatement extends AbstractSQLStatement {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-            int keyColumnCount = 0;
-            if (keyColumns != null) {
-                keyColumnCount = keyColumns.size();
-            }
-            if (keyColumnCount > 0) {
-                String[] columnArray = new String[keyColumnCount];
-                for (int i = 0; i < keyColumnCount; i++) {
-                    columnArray[i] = keyColumns.getString(i);
-                }
-                stmt = conn.prepareStatement(processedQuery, columnArray);
-            } else {
-                stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
-            }
+            stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
             createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             int count = stmt.executeUpdate();
             rs = stmt.getGeneratedKeys();
-            /*The result set contains the auto generated keys. There can be multiple auto generated columns
-            in a table.*/
+            //This result set contains the auto generated keys.
             MapValue<String, Object> generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);

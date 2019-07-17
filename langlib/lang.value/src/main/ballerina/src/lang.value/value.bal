@@ -62,6 +62,10 @@ public function clone(anydataType value) returns anydataType = external;
 # defined in the Ballerina Language Specification.
 public function cloneReadOnly(anydataType value) returns anydataType = external;
 
+# Tests whether `v` is read-only, i.e. immutable
+# Returns true if read-only, false otherwise.
+public function isReadOnly(anydataType value) returns boolean = external;
+
 # Return the string that represents `v` in JSON format.
 public function toJsonString(json v) returns string = external;
 

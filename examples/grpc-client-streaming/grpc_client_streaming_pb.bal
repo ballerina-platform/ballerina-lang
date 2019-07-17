@@ -7,7 +7,7 @@ public type HelloWorldClient client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
                                                             getDescriptorMap());
         if (result is error) {
@@ -21,7 +21,7 @@ public type HelloWorldClient client object {
                                     grpc:Headers? headers = ())
                         returns (grpc:StreamingClient|error)  {
         return self.grpcClient->streamingExecute("HelloWorld/lotsOfGreetings",
-                                                msgListener, headers = headers);
+                                                msgListener, headers);
     }
 };
 

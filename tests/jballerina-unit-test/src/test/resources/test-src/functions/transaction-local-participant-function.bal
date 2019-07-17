@@ -107,7 +107,7 @@ function initiatorWithLocalNonParticipantError() returns string {
         if (t is string) {
             s += t;
         } else {
-            s += " trapped:[" + <string>t.detail().message + "]";
+            s += " trapped:[" + <string>t.detail()["message"] + "]";
         }
         s += " last-line";
     } onretry {

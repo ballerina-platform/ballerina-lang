@@ -150,7 +150,7 @@ public type LengthWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function length(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function length(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                             returns Window {
     LengthWindow lengthWindow1 = new(nextProcessPointer, windowParameters);
     return lengthWindow1;

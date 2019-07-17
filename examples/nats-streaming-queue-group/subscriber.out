@@ -1,0 +1,10 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+# `queue-group.bal` contains three services belonging to the same
+# queue group.
+# When several messages are published, it can be noticed that
+# each message is received by only one queue group member.
+$ ballerina run queue-group.bal
+Message Received to third queue group member: First Message
+Message Received to second queue group member: Second Message
+Message Received to first queue group member: Third Message

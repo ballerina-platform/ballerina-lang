@@ -206,7 +206,7 @@ public type ExternalTimeWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function externalTime(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function externalTime(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                         returns Window {
 
     ExternalTimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);

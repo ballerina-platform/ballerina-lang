@@ -168,7 +168,9 @@ public type FollowedByProcessor object {
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching partial states from this processor.
-        var removed = self.partialStates.remove(streamEvent.getEventId());
+        if (self.partialStates.hasKey(streamEvent.getEventId())) {
+            var removed = self.partialStates.remove(streamEvent.getEventId());
+        }
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
         while (self.stateEvents.hasNext()) {

@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.session;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -40,16 +38,12 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitEndpoint {
 
     public static void initEndpoint(Strand strand, ObjectValue sessionObj, ObjectValue connectionObj) {
         MapValue sessionConfig = sessionObj.getMapValue(JmsConstants.SESSION_CONFIG);
@@ -59,4 +53,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         sessionObj.addNativeData(JmsConstants.JMS_SESSION, session);
     }
 
+    private InitEndpoint() {
+    }
 }

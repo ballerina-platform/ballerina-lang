@@ -83,8 +83,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     private static final String INTERNAL_HUB_NOTIFICATION_LOG_THREE = "WebSub Notification Received by Three: " +
             "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
-    private static final String QUERY_PARAM_LOG = "Query Params: {\"fooVal\":[\"barVal\"], \"topic\":[\"http://one" +
-            ".websub.topic.com\"]}";
+    private static final String QUERY_PARAM_LOG = "Query Params: fooVal=barVal topic=http://one.websub.topic.com";
 
     private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [unsubscribe], Topic [http://one.websub.topic.com]";

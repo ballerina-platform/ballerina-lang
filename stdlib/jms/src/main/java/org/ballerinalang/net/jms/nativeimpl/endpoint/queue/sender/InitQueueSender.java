@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -45,7 +43,7 @@ import javax.jms.Session;
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "initQueueSender",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_SENDER_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
@@ -54,11 +52,7 @@ import javax.jms.Session;
                 @Argument(name = "destination", type = TypeKind.OBJECT)
         }
 )
-public class InitQueueSender extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitQueueSender {
 
     public static void initQueueSender(Strand strand, ObjectValue queueSenderObj, ObjectValue sessionObj, Object dest) {
         Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
@@ -83,5 +77,8 @@ public class InitQueueSender extends BlockingNativeCallableUnit {
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error creating queue sender.", e);
         }
+    }
+
+    private InitQueueSender() {
     }
 }

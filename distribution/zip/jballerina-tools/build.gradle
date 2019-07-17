@@ -94,6 +94,7 @@ dependencies {
     dist project(':openapi-ballerina:openapi-validator')
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
+    dist project(':protobuf-ballerina')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
@@ -413,7 +414,6 @@ project.afterEvaluate {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId 'jballerina-ext-build'
             artifact source: createZip, extension: 'zip'
         }
     }
