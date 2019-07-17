@@ -24,6 +24,10 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 
 import java.util.ArrayList;
@@ -37,6 +41,7 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        BLangNode bLangNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
 
         // Populate If Statement template
         completionItems.add(Snippet.STMT_IF.get().build(context));
@@ -60,8 +65,11 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         completionItems.add(Snippet.STMT_TRANSACTION.get().build(context));
         // Populate Match statement template
         completionItems.add(Snippet.STMT_MATCH.get().build(context));
-        // Populate Worker Declaration statement template
-        completionItems.add(Snippet.DEF_WORKER.get().build(context));
+        if (bLangNode instanceof BLangBlockStmt
+                && (bLangNode.parent instanceof BLangFunction || bLangNode.parent instanceof BLangForkJoin)) {
+            // Populate Worker Declaration statement template
+            completionItems.add(Snippet.DEF_WORKER.get().build(context));
+        }
         
         if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0 
                 && !context.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {

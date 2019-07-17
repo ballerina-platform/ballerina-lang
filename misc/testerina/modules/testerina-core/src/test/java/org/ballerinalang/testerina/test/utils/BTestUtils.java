@@ -18,11 +18,11 @@ package org.ballerinalang.testerina.test.utils;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -48,7 +48,7 @@ public class BTestUtils {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static org.ballerinalang.launcher.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
+    public static org.ballerinalang.tool.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
         return BCompileUtil.compile(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
     }
 

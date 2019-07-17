@@ -32,7 +32,7 @@ public interface BallerinaCallableUnitSignature extends PsiElement {
   @Nullable
   BallerinaReturnParameter getReturnParameter();
 
-  @Nullable
+  @NotNull
   PsiElement getLeftParenthesis();
 
   @Nullable

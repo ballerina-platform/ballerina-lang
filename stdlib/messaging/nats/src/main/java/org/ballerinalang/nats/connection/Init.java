@@ -22,8 +22,6 @@ import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
@@ -75,7 +73,7 @@ import static org.ballerinalang.nats.Constants.SERVICE_LIST;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/nats"),
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class Init {
 
     private static final String RECONNECT_WAIT = "reconnectWaitInSeconds";
     private static final String SERVER_URL_SEPARATOR = ",";
@@ -87,13 +85,6 @@ public class Init extends BlockingNativeCallableUnit {
     private static final String INBOX_PREFIX = "inboxPrefix";
     private static final String NO_ECHO = "noEcho";
     private static final String ENABLE_ERROR_LISTENER = "enableErrorListener";
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void init(Strand strand, ObjectValue connectionObject, String urlString,
                             MapValue connectionConfig) {

@@ -108,6 +108,13 @@ public class BallerinaErrors {
         return createError("ballerina: " + errorMsg);
     }
 
+    public static Object handleResourceError(Object returnValue) {
+        if (returnValue instanceof ErrorValue) {
+            throw (ErrorValue) returnValue;
+        }
+        return returnValue;
+    }
+
     public static ArrayValue generateCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();

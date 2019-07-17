@@ -83,6 +83,7 @@ dependencies {
     dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
     dist 'com.google.code.gson:gson:2.7'
     dist 'com.google.guava:guava:19.0'
+    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'com.github.jknack:handlebars:4.0.6'
     dist 'jaxen:jaxen:1.1.6'
     dist 'io.netty:netty-buffer:4.1.34.Final'
@@ -244,7 +245,6 @@ dependencies {
     dist project(':ballerina-io')
     dist project(':ballerina-jms')
     dist project(':ballerina-lang')
-    dist project(':ballerina-launcher')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
     dist project(':ballerina-math')
@@ -262,6 +262,7 @@ dependencies {
     dist project(':ballerina-system')
     dist project(':ballerina-task')
     dist project(':ballerina-time')
+    dist project(':ballerina-tool')
     dist project(':ballerina-transactions')
     dist project(':ballerina-java')
     dist project(':ballerina-websub')

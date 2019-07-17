@@ -1234,14 +1234,12 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangFieldBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_FIELD_ACCESS);
+                unresolvedReference = true;
                 continue;
             } else if (refItem.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                if (checkIndexBasedAccessExpr(detailItem, (BLangIndexBasedAccess) refItem)) {
-                    unresolvedReference = true;
-                }
+                dlog.error(detailItem.pos, DiagnosticCode.ERROR_BINDING_PATTERN_DOES_NOT_SUPPORT_INDEX_ACCESS);
+                unresolvedReference = true;
                 continue;
             }
 
@@ -1341,25 +1339,6 @@ public class TypeChecker extends BLangNodeVisitor {
             unresolvedReference = true;
         }
         return unresolvedReference;
-    }
-
-    private boolean checkIndexBasedAccessExpr(BLangNamedArgsExpression detailItem, BLangAccessExpression refItem) {
-        Name exprName = names.fromIdNode(((BLangSimpleVarRef) refItem.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
-        if (fSym != null) {
-            if (fSym.type.getKind() == TypeKind.MAP) {
-                BType constraint = ((BMapType) fSym.type).constraint;
-                checkExpr(detailItem, this.env, constraint);
-                return false;
-            } else {
-                if (refItem.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, fSym.type);
-                } else {
-                    dlog.error(detailItem.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING, fSym.type);
-                }
-            }
-        }
-        return true;
     }
 
     @Override
@@ -3036,7 +3015,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         // can not provide a named arg, if the arg is not public and the caller is not from same package
                         dlog.error(expr.pos, DiagnosticCode.NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG,
                                 ((BLangNamedArgsExpression) expr).name.value, iExpr.toString());
-                        return symTable.semanticError;
                     }
                     foundNamedArg = true;
                     if (i < parameterCount) {
@@ -3044,7 +3022,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     } else {
                         // can not provide a rest parameters as named args
                         dlog.error(expr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                        return symTable.semanticError;
                     }
                     i++;
                     break;
@@ -3058,7 +3035,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 default: // positional args
                     if (foundNamedArg) {
                         dlog.error(expr.pos, DiagnosticCode.POSITIONAL_ARG_DEFINED_AFTER_NAMED_ARG);
-                        return symTable.semanticError;
                     }
                     if (i < parameterCount) {
                         iExpr.requiredArgs.add(expr);
@@ -3070,11 +3046,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        return checkInvocationArgs(iExpr, paramTypes, parameterCount, vararg);
+        return checkInvocationArgs(iExpr, paramTypes, vararg);
     }
 
-    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, int requiredParamsCount,
-                                      BLangExpression vararg) {
+    private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
         BType actualType = symTable.semanticError;
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
@@ -3086,8 +3061,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        // checkRequiredArgs(iExpr.requiredArgs, paramTypes);
-        // checkNamedArgs(iExpr.namedArgs, invokableSymbol.defaultableParams);
         checkRestArgs(iExpr.restArgs, vararg, invokableSymbol.restParam);
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, invokableSymbol.type.getReturnType());
 
@@ -3104,42 +3077,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
-    private void checkRequiredArgs(List<BLangExpression> requiredArgExprs, List<BType> requiredParamTypes) {
-        for (int i = 0; i < requiredArgExprs.size(); i++) {
-            BType expectedType = requiredParamTypes.get(i);
-            // Special case handling for the first param because for parameterized invocations, we have added the
-            // value on which the function is invoked as the first param of the function call. If we run checkExpr()
-            // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
-            // function call error.
-            if (i == 0 && requiredArgExprs.get(i).typeChecked) {
-                types.checkType(requiredArgExprs.get(i).pos, requiredArgExprs.get(i).type, expectedType,
-                        DiagnosticCode.INCOMPATIBLE_TYPES);
-                BLangExpression expr = requiredArgExprs.get(i);
-                types.setImplicitCastExpr(expr, expr.type, expectedType);
-            } else {
-                checkExpr(requiredArgExprs.get(i), this.env, expectedType);
-            }
-            typeParamAnalyzer.checkForTypeParamsInArg(requiredArgExprs.get(i).type, env, expectedType);
-        }
-    }
-
-    private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
-        for (BLangExpression expr : namedArgExprs) {
-            BLangIdentifier argName = ((NamedArgNode) expr).getName();
-            BVarSymbol varSym = defaultableParams.stream()
-                    .filter(param -> param.getName().value.equals(argName.value))
-                    .findAny()
-                    .orElse(null);
-            if (varSym == null) {
-                dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
-                break;
-            }
-
-            checkExpr(expr, this.env, varSym.type);
-            typeParamAnalyzer.checkForTypeParamsInArg(expr.type, env, varSym.type);
-        }
-    }
-
     private void checkNonRestArgs(List<BVarSymbol> nonRestParams, BLangInvocation iExpr, List<BType> paramTypes) {
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
         List<BVarSymbol> requiredParams = nonRestParams.stream()
@@ -3149,7 +3086,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (nonRestArgs.size() < requiredParams.size()) {
             // make sure all the required parameters are given.
             dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
-            return;
         }
 
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();

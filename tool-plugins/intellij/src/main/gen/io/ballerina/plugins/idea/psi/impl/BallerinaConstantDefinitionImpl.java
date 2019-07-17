@@ -44,8 +44,8 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return findNotNullChildByClass(BallerinaExpression.class);
+  public BallerinaConstantExpression getConstantExpression() {
+    return findNotNullChildByClass(BallerinaConstantExpression.class);
   }
 
   @Override

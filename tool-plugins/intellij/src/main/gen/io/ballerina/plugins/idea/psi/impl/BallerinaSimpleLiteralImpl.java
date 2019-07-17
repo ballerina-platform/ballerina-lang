@@ -50,12 +50,6 @@ public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements 
 
   @Override
   @Nullable
-  public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return findChildByClass(BallerinaEmptyTupleLiteral.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaFloatingPointLiteral getFloatingPointLiteral() {
     return findChildByClass(BallerinaFloatingPointLiteral.class);
   }
@@ -64,6 +58,12 @@ public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements 
   @Nullable
   public BallerinaIntegerLiteral getIntegerLiteral() {
     return findChildByClass(BallerinaIntegerLiteral.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaNilLiteral getNilLiteral() {
+    return findChildByClass(BallerinaNilLiteral.class);
   }
 
   @Override
@@ -88,12 +88,6 @@ public class BallerinaSimpleLiteralImpl extends ASTWrapperPsiElement implements 
   @Nullable
   public PsiElement getSub() {
     return findChildByType(SUB);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSymbolicStringLiteral() {
-    return findChildByType(SYMBOLIC_STRING_LITERAL);
   }
 
 }
