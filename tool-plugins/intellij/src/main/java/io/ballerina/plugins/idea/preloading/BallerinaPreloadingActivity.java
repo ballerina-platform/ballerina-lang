@@ -123,8 +123,10 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             }
             return success;
         } else {
-            ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage("Auto-Detection Failed",
-                    MessageType.WARNING));
+            if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                ApplicationManager.getApplication().invokeLater(() ->
+                        notifier.showMessage("Auto-Detection Failed", MessageType.WARNING));
+            }
         }
         return false;
     }

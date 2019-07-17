@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.inspections;
 
 import com.google.common.base.Strings;
 import com.intellij.ProjectTopics;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -40,6 +41,9 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Provides a notifications if a non Ballerina SDK is added to a Ballerina project or a module.
@@ -88,6 +92,10 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         Module module = ModuleUtilCore.findModuleForPsiElement(psiFile);
         if (module == null) {
+            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+            if (Strings.isNullOrEmpty(sdkHomePath)) {
+                return createMissingSdkPanel(myProject, null);
+            }
             return null;
         }
 
@@ -104,9 +112,20 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
     @NotNull
     private static EditorNotificationPanel createMissingSdkPanel(@NotNull Project project, @Nullable Module module) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText(ProjectBundle.message("project.sdk.not.defined") + ". Some of the plugin features are disabled.");
-        panel.createActionLabel(ProjectBundle.message("project.sdk.setup"),
-                () -> BallerinaSdkService.getInstance(project).chooseAndSetSdk(module));
+        panel.setText("Ballerina plugin could not detect a Ballerina SDK. Some of the plugin features are disabled.\n");
+        if (module != null) {
+            panel.createActionLabel(ProjectBundle.message("project.sdk.setup"),
+                    () -> BallerinaSdkService.getInstance(project).chooseAndSetSdk(module));
+        }
+        panel.createActionLabel("Install Ballerina Distribution",
+                () -> {
+                    try {
+                        URI ballerinaDownloadUri = new URI("https://ballerina.io/downloads/");
+                        BrowserUtil.browse(ballerinaDownloadUri);
+                    } catch (URISyntaxException e) {
+                        // Todo
+                    }
+                });
         return panel;
     }
 }

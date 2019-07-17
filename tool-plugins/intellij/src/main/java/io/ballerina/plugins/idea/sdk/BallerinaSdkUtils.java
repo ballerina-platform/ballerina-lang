@@ -39,6 +39,7 @@ import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
+import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
@@ -220,6 +221,12 @@ public class BallerinaSdkUtils {
      * @return an empty string if it fails to auto-detect the ballerina home automatically.
      */
     public static String autoDetectSdk() {
+
+        // Checks for the user-configured settings.
+        if (!BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+            return "";
+        }
+
         String ballerinaPath = "";
         String platform = OSUtils.getOperatingSystem();
         switch (platform) {
