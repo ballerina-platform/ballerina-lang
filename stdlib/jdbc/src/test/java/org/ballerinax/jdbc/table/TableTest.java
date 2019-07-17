@@ -1266,8 +1266,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    // #16033 TODO: Enable once table SQL features are working
-    @Test(enabled = false)
+    @Test
     public void testSelectQueryWithCursorTable() {
         BValue[] retVal = BRunUtil.invoke(result, "testSelectQueryWithCursorTable");
         Assert.assertTrue(retVal[0] instanceof BError);
@@ -1275,8 +1274,7 @@ public class TableTest {
                 .contains("Table query over a cursor table not supported"));
     }
 
-    // #16033 TODO: Enable once table SQL features are working
-    @Test(enabled = false)
+    @Test
     public void testJoinQueryWithCursorTable() {
         BValue[] retVal = BRunUtil.invoke(result, "testJoinQueryWithCursorTable");
         Assert.assertTrue(retVal[0] instanceof BError);
