@@ -129,8 +129,10 @@ public class BuilderUtils {
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                     "ballerina.home is not set");
 
+            String targetDir = Files.isDirectory(Paths.get(targetPath)) ? targetPath : ".";
+
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                    targetDirectory, Optional.of(Paths.get(targetDir)), dumpBIR);
 
             // If package is a ballerina file do not write executables.
             if (isSingleFile) {
