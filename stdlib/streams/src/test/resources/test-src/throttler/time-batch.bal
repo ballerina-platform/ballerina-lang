@@ -94,7 +94,9 @@ public type TimeBatch object {
         }
 
         if (streamEvents.length() > 0) {
-            self.nextProcessPointer.call(streamEvents);
+            function (streams:StreamEvent?[]) nextProcessor =
+                    <function (streams:StreamEvent?[])>self.nextProcessPointer;
+            nextProcessor(streamEvents);
         }
     }
 
