@@ -45,10 +45,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionInvocationNode;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 
 /**
@@ -99,7 +100,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
 
         BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
@@ -108,7 +109,8 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         }
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        String variableName = CommonUtil.generateVariableName(1, functionNode, compilerContext);
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(functionNode, compilerContext);
+        String variableName = CommonUtil.generateVariableName(functionNode, nameEntries);
 
         if (packageNode == null) {
             throw new LSCommandExecutorException("Package node cannot be null");
