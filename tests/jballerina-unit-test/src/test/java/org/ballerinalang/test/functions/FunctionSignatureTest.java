@@ -42,7 +42,7 @@ public class FunctionSignatureTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/functions/different-function-signatures.bal");
-        pkgResult = BCompileUtil.compile(this, "test-src/functions/", "a.b");
+        pkgResult = BCompileUtil.compile(this, "test-src/functions/TestProj", "a.b");
     }
 
     @Test

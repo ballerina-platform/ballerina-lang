@@ -46,7 +46,7 @@ public class NativeConversionTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
-        packageResult = BCompileUtil.compile(this, "test-src/expressions/conversion/", "a.b");
+        packageResult = BCompileUtil.compile(this, "test-src/expressions/conversion/TestProj", "a.b");
     }
 
     @Test
