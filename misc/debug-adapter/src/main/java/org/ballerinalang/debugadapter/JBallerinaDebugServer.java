@@ -126,7 +126,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             sourceRoot = args.get("sourceRoot").toString();
             String ballerinaHome = args.get("ballerina.home").toString();
-            String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "jballerina";
+            String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
             String balFile = args.get("script").toString();
 
             String packageName = args.get("package") == null ? "" : args.get("package").toString();
