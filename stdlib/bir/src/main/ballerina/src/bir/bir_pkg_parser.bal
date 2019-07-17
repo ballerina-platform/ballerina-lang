@@ -70,6 +70,9 @@ public type PackageParser object {
         while i < numConstants {
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
+
+            skipMarkDownDocAttachement(self.reader); 
+
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
@@ -153,6 +156,8 @@ public type PackageParser object {
 
         int taintLength = self.reader.readInt64();
         _ = self.reader.readByteArray(<@untainted> taintLength); // read and ignore taint table
+        
+        skipMarkDownDocAttachement(self.reader); 
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
@@ -367,6 +372,9 @@ public type PackageParser object {
         string name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
+        
+        skipMarkDownDocAttachement(self.reader); 
+        
         var bType = self.reader.readTypeCpRef();
         return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
     }
@@ -379,6 +387,7 @@ public type PackageParser object {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
+            skipMarkDownDocAttachement(self.reader); 
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[startIndex + i] = dcl;
@@ -481,6 +490,11 @@ public type PackageParser object {
     }
 
 };
+
+function skipMarkDownDocAttachement(BirChannelReader reader) {
+    int docLength = reader.readInt32();
+    _ = reader.readByteArray(<@untainted> docLength);
+}
 
 function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata {
     anydata value;

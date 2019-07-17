@@ -121,8 +121,8 @@ public type TimeLengthWindow object {
                         self.count += 1;
                         self.expiredEventChunk.addLast(clonedEvent);
                     } else {
-                        StreamEvent firstEvent = getStreamEvent(self.expiredEventChunk.removeFirst());
-                        if (firstEvent != ()) {
+                        any? firstEvent = self.expiredEventChunk.removeFirst();
+                        if (firstEvent is StreamEvent) {
                             firstEvent.timestamp = currentTime;
                             streamEventChunk.insertBeforeCurrent(firstEvent);
                             self.expiredEventChunk.addLast(clonedEvent);
@@ -132,7 +132,6 @@ public type TimeLengthWindow object {
                 } else {
                     streamEventChunk.removeCurrent();
                 }
-
             }
         }
 
@@ -215,7 +214,7 @@ public type TimeLengthWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeLength(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeLength(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                     returns Window {
     TimeLengthWindow timeLengthWindow1 = new(nextProcessPointer, windowParameters);
     return timeLengthWindow1;

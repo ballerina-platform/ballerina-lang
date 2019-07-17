@@ -255,46 +255,57 @@ service echo18 on listener18 {
         path: "/oauth2/{testCase}"
     }
     resource function test(http:Caller caller, http:Request req, string testCase) {
-        http:Response|error resp = new;
+        http:Response|error backendResponse = new;
         http:Request request = new;
         if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
-            resp = clientEP1->post("/foo/bar", request);
+            backendResponse = clientEP1->post("/foo/bar", request);
         } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_INVALID_CREDENTIALS") {
-            resp = clientEP2->post("/foo/bar", request);
+            backendResponse = clientEP2->post("/foo/bar", request);
         } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_VALID_CREDENTIALS") {
-            resp = clientEP3->post("/foo/bar", request);
+            backendResponse = clientEP3->post("/foo/bar", request);
         } else if (testCase == "CLIENT_CREDENTIALS_GRANT_TYPE_WITH_POST_BODY_BEARER_AND_INVALID_CREDENTIALS") {
-            resp = clientEP4->post("/foo/bar", request);
+            backendResponse = clientEP4->post("/foo/bar", request);
         } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS") {
-            resp = clientEP5->post("/foo/bar", request);
+            backendResponse = clientEP5->post("/foo/bar", request);
         } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_VALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-            resp = clientEP6->post("/foo/bar", request);
+            backendResponse = clientEP6->post("/foo/bar", request);
         } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-            resp = clientEP7->post("/foo/bar", request);
+            backendResponse = clientEP7->post("/foo/bar", request);
         } else if (testCase == "PASSWORD_GRANT_TYPE_WITH_NO_BEARER_AND_VALID_CREDENTIALS") {
-            resp = clientEP8->post("/foo/bar", request);
+            backendResponse = clientEP8->post("/foo/bar", request);
         }else if (testCase == "DIRECT_TOKEN_WITH_VALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
-            resp = clientEP9->post("/foo/bar", request);
+            backendResponse = clientEP9->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG") {
-            resp = clientEP10->post("/foo/bar", request);
+            backendResponse = clientEP10->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG") {
-            resp = clientEP11->post("/foo/bar", request);
+            backendResponse = clientEP11->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
-            resp = clientEP12->post("/foo/bar", request);
+            backendResponse = clientEP12->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE") {
-            resp = clientEP13->post("/foo/bar", request);
+            backendResponse = clientEP13->post("/foo/bar", request);
         } else if (testCase == "DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_INVALID_REFRESH_CONFIG") {
-            resp = clientEP14->post("/foo/bar", request);
+            backendResponse = clientEP14->post("/foo/bar", request);
         }
 
-        if (resp is http:Response) {
-            checkpanic caller->respond(resp);
+        if (backendResponse is http:Response) {
+            checkpanic caller->respond(backendResponse);
         } else {
-            http:Response res = new;
-            res.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            json errMsg = { message: <string>resp.detail().message };
-            res.setPayload(errMsg);
-            checkpanic caller->respond(res);
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = backendResponse;
+            http:Response errResponse = new;
+            errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            var cause = e.detail()?.cause;
+            if (cause is error) {
+                var innerCause = cause.detail()?.cause;
+                while(innerCause is error) {
+                    cause = innerCause;
+                    innerCause = innerCause.detail()?.cause;
+                }
+                errResponse.setPayload(<string>cause.detail()?.message);
+            } else {
+                errResponse.setPayload(<string>e.detail()?.message);
+            }
+            checkpanic caller->respond(errResponse);
         }
     }
 }

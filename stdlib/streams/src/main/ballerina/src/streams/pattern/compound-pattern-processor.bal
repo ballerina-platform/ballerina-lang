@@ -213,7 +213,7 @@ public type CompoundPatternProcessor object {
 # + withinTimeMillis - time from initial state to current state
 #
 # + return - A `CompoundPatternProcessor` instance.
-public function createCompoundPatternProcessor(int? withinTimeMillis = ()) returns CompoundPatternProcessor {
+public function createCompoundPatternProcessor(public int? withinTimeMillis = ()) returns CompoundPatternProcessor {
     CompoundPatternProcessor compoundPatternProcessor = new(withinTimeMillis);
     return compoundPatternProcessor;
 }

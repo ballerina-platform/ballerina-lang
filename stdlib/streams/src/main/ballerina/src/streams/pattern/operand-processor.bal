@@ -175,7 +175,7 @@ public type OperandProcessor object {
 # + return - A `OperandProcessor` instance.
 public function createOperandProcessor(string alias,
                                        (function (map<anydata> stateData) returns boolean)? onConditionFunc,
-                                       int minOccurs = 1, int maxOccurs = 1)
+                                       public int minOccurs = 1, public int maxOccurs = 1)
                     returns OperandProcessor {
     OperandProcessor operandProcessor = new(alias, onConditionFunc, minOccurs, maxOccurs);
     return operandProcessor;

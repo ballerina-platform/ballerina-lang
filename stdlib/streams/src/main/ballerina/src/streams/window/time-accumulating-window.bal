@@ -203,7 +203,7 @@ public type TimeAccumulatingWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeAccum(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeAccum(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                          returns Window {
     TimeAccumulatingWindow timeAccumulatingWindow1 = new(nextProcessPointer, windowParameters);
     return timeAccumulatingWindow1;
