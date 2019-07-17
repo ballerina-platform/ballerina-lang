@@ -274,6 +274,7 @@ public class WebSocketUtil {
     private static void establishWebSocketConnection(WebSocketClientConnector clientConnector,
                                                      ObjectValue webSocketClient, WebSocketService wsService) {
         WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
         boolean readyOnConnect = ((MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG)).getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -331,6 +332,7 @@ public class WebSocketUtil {
         ObjectValue clientEndpointConfig = connectionInfo.getWebSocketEndpoint();
         MapValue<String, Object> reconnectConfig = clientEndpointConfig.getMapValue(CLIENT_ENDPOINT_CONFIG).
                 getMapValue(RETRY_CONFIG);
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
         WebSocketClientConnector clientConnector = (WebSocketClientConnector) clientEndpointConfig
                 .getNativeData(CLIENT_CONNECTOR);
         int reconnectInterval = getIntegerValue(reconnectConfig.getIntValue(RECONNECT_INTERVAL));
@@ -406,7 +408,7 @@ public class WebSocketUtil {
                     getArrayValue(WebSocketConstants.TARGETS_URLS);
             int targetsUrlIndex = getIntegerValue(Long.valueOf(webSocketClient.getNativeData(TARGET_URL_INDEX).
                     toString()));
-            return targets.getString(targetsUrlIndex - 1);
+            return targets.getString(targetsUrlIndex - 1L);
         } else {
             return webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
         }

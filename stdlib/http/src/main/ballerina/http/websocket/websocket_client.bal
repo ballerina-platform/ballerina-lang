@@ -133,7 +133,7 @@ public type WebSocketClientEndpointConfig record {|
 # Configuration for the websocket reconnect
 #
 # + maxCount - The maximum number of reconnection attempts that will be made before giving up. If null,
-#                   reconnection attempts will be continue to be made forever.
+#                   reconnection attempts will continue to be made forever.
 # + interval - The number of milliseconds to delay before attempting to reconnect.
 # + decay - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
 #                persist.
