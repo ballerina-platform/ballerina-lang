@@ -69,11 +69,14 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 34);
 
         // text with multi type expressions
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 16, 59);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'map'",
+                                  16, 59);
 
         // text with invalid multi type expressions
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 28,
-                51);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: expected '(int|float|decimal|string|boolean)', found 'xml'",
+                                  28, 51);
 
         // namespace conflict with package import
         BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);

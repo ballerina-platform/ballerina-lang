@@ -788,32 +788,33 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.textFragments.forEach(this::rewriteExpr);
         xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
+        xmlCommentLiteral.textFragments.forEach(this::rewriteExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
         xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
-        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
+        xmlProcInsLiteral.dataFragments.forEach(this::rewriteExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
+        xmlQuotedString.textFragments.forEach(this::rewriteExpr);
         result = xmlQuotedString;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.concatExpr = rewriteExpr(stringTemplateLiteral.concatExpr);
+        stringTemplateLiteral.exprs.forEach(this::rewriteExpr);
         result = stringTemplateLiteral;
     }
 

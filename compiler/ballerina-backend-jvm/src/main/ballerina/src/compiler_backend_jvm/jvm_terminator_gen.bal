@@ -412,7 +412,7 @@ type TerminatorGenerator object {
             paramIndex += 1;
         }
 
-        string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex + "$";
+        string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex.toString() + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string lookupKey = "";
         if (attachedType is bir:BObjectType) {

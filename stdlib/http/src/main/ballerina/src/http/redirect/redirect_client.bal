@@ -278,7 +278,7 @@ function checkRedirectEligibility(HttpResponse|ClientError response, string reso
 //Check the response status for redirect eligibility.
 function isRedirectResponse(int statusCode) returns boolean {
     log:printDebug(function() returns string {
-        return "Response Code : " + statusCode;
+        return "Response Code : " + statusCode.toString();
     });
     return (statusCode == 300 || statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 305 ||
         statusCode == 307 || statusCode == 308);
@@ -295,7 +295,7 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
     } else {
         currentCount += 1;
         log:printDebug(function() returns string {
-            return "Redirect count : " + currentCount;
+            return "Redirect count : " + currentCount.toString();
         });
         redirectClient.currentRedirectCount = currentCount;
         var redirectMethod = getRedirectMethod(httpVerb, response);

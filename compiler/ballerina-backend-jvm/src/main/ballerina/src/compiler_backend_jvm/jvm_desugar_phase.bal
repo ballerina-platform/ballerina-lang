@@ -28,7 +28,7 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
         index += 1;
         if (localVar is bir:FunctionParam) {
             // An additional boolean arg is gen for each function parameter.
-            string argName = "%syn" + nameIndex;
+            string argName = "%syn" + nameIndex.toString();
             nameIndex += 1;
             bir:FunctionParam booleanVar = { kind: bir:VAR_KIND_ARG, name: { value: argName }, typeValue: "boolean", hasDefaultExpr: false };
             updatedVars[index] = booleanVar;

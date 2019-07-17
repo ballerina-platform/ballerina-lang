@@ -55,7 +55,7 @@ type InitiatorClientEP client object {
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {
             error err = error("Registration for transaction: " + transactionId + " failed response code: "
-                + statusCode);
+                + statusCode.toString());
             return err;
         }
         json resPayload = check res.getJsonPayload();

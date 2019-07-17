@@ -4,7 +4,7 @@ function testAmbiguousFunctionInvocation() {
 }
 
 function ambiguousFuncTest(int val) {
-    string result = val + "abc";
+    string result = val.toString() + "abc";
 }
 
 function testUndefinedFunction() {

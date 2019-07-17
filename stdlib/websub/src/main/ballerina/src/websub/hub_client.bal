@@ -227,7 +227,7 @@ function buildSubscriptionChangeRequest(@untainted string mode,
             body = body + "&" + HUB_SECRET + "=" + subscriptionChangeRequest.secret;
         }
         if (subscriptionChangeRequest.leaseSeconds != 0) {
-            body = body + "&" + HUB_LEASE_SECONDS + "=" + subscriptionChangeRequest.leaseSeconds;
+            body = body + "&" + HUB_LEASE_SECONDS + "=" + subscriptionChangeRequest.leaseSeconds.toString();
         }
     }
     request.setTextPayload(body);
@@ -283,7 +283,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
         } else {
             if (responseStatusCode != http:ACCEPTED_202) {
                 log:printDebug("Subscription request considered successful for non 202 status code: "
-                                + responseStatusCode);
+                                + responseStatusCode.toString());
             }
             SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:response};
             return subscriptionChangeResponse;

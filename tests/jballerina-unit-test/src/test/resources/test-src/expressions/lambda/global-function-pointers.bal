@@ -1,7 +1,7 @@
 function (string a, int b) returns (string) glf1 = foo;
 
 function (string a, boolean b) returns (string) glf2 = function (string a, boolean b) returns (string) {
-                                                               return a + b;
+                                                               return a + b.toString();
                                                            };
 
 function (string, int) returns (string) glf3 = function (string a, int b) returns (string) {
@@ -9,12 +9,12 @@ function (string, int) returns (string) glf3 = function (string a, int b) return
 };
 
 function foo (string x, int y) returns (string) {
-    string result = x + y;
+    string result = x + y.toString();
     return result;
 }
 
 function fooReverse (string x, int y) returns (string) {
-    string result = y + x;
+    string result = y.toString() + x;
     return result;
 }
 
@@ -36,7 +36,7 @@ function test3() returns [string, string, string] {
 }
 
 function bar (string x, boolean y) returns (string) {
-    string result = y + x;
+    string result = y.toString() + x;
     return result;
 }
 
