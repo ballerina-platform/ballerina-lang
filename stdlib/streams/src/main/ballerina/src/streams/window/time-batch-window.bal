@@ -210,7 +210,7 @@ public type TimeBatchWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeBatch(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                   returns Window {
     TimeBatchWindow timeBatchWindow = new(nextProcessPointer, windowParameters);
     return timeBatchWindow;

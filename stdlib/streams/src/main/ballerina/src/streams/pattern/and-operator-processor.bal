@@ -172,7 +172,7 @@ public type AndOperatorProcessor object {
         } else {
             // promoted from rhs means, it can be a partial rhs state or a completed state.
             if (self.lhsPartialStates.hasKey(stateEvent.getEventId())) {
-                var rhsRemoved = self.rhsPartialStates.remove(stateEvent.getEventId());
+                var rhsRemoved = self.lhsPartialStates.remove(stateEvent.getEventId());
                 self.stateEvents.addLast(stateEvent);
             } else {
                 self.rhsPartialStates[stateEvent.getEventId()] = stateEvent;
@@ -189,9 +189,13 @@ public type AndOperatorProcessor object {
         any|error removed;
         string pAlias = <string>processorAlias;
         if (pAlias == self.lhsAlias) {
-            removed = self.lhsPartialStates.remove(stateEvent.getEventId());
+            if (self.lhsPartialStates.hasKey(stateEvent.getEventId())) {
+                removed = self.lhsPartialStates.remove(stateEvent.getEventId());
+            }
         } else {
-            removed = self.rhsPartialStates.remove(stateEvent.getEventId());
+            if (self.rhsPartialStates.hasKey(stateEvent.getEventId())) {
+                removed = self.rhsPartialStates.remove(stateEvent.getEventId());
+            }
         }
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
@@ -213,8 +217,12 @@ public type AndOperatorProcessor object {
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
         // remove matching partial states from this processor.
-        var removed = self.lhsPartialStates.remove(streamEvent.getEventId());
-        removed = self.rhsPartialStates.remove(streamEvent.getEventId());
+        if (self.lhsPartialStates.hasKey(streamEvent.getEventId())) {
+            var removed = self.lhsPartialStates.remove(streamEvent.getEventId());
+        }
+        if (self.rhsPartialStates.hasKey(streamEvent.getEventId())) {
+            var removed = self.rhsPartialStates.remove(streamEvent.getEventId());
+        }
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
         while (self.stateEvents.hasNext()) {

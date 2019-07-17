@@ -43,8 +43,8 @@ public function random() returns float = external;
 #
 # + startRange - Range start value
 # + endRange - Range end value
-# + return - Random value
-public function randomInRange(int startRange, int endRange) returns int = external;
+# + return - Random value or `Error` if start range is greater than the end range
+public function randomInRange(int startRange, int endRange) returns int|Error = external;
 
 # Returns rounded positive square root of the given value.
 #
@@ -138,15 +138,15 @@ public function floor(float val) returns float = external;
 #
 # + a - The dividend
 # + b - The divisor
-# + return - The result
-public function floorDiv(int a, int b) returns int = external;
+# + return - The result or `Error` if b is 0
+public function floorDiv(int a, int b) returns int|Error = external;
 
 # Returns the floor modulus of the long arguments.
 #
 # + a - The dividend
 # + b - The divisor
-# + return - The result
-public function floorMod(int a, int b) returns int = external;
+# + return - The result or `Error` if b is 0
+public function floorMod(int a, int b) returns int|Error = external;
 
 # Returns the unbiased exponent used in the representation of a float.
 #
@@ -193,8 +193,8 @@ public function log1p(float val) returns float = external;
 # Returns the negation of the argument.
 #
 # + val - The value to negate
-# + return - The result
-public function negateExact(int val) returns int = external;
+# + return - The result or `Error` if overflow occurred
+public function negateExact(int val) returns int|Error = external;
 
 # Returns the floating-point number adjacent to the first argument in the direction of the second argument.
 #

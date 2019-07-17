@@ -15,7 +15,7 @@ service {{serviceName}}MessageListener = service {
     }
 
     resource function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string>err.detail().message);
+        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
     }
 
     resource function onComplete() {

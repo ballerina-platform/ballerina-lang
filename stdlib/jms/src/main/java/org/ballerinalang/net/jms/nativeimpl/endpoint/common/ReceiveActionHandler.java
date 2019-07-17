@@ -19,9 +19,9 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -47,10 +47,8 @@ public class ReceiveActionHandler {
 //            sessionConnector.handleTransactionBlock(context);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (message != null) {
-                ObjectValue messageBObject = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                                                               JmsConstants.MESSAGE_OBJ_NAME);
-                messageBObject.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, message);
-                return messageBObject;
+                return JmsUtils.createAndPopulateMessageObject(message, (ObjectValue) connectorBObject
+                        .getNativeData(JmsConstants.SESSION_OBJECT));
             }
         } catch (JMSException e) {
             return BallerinaAdapter.getError("Message receiving failed.", e);

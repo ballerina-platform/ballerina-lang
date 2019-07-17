@@ -251,7 +251,7 @@ public type TimeOrderWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeOrder(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                   returns Window {
 
     TimeOrderWindow timeOrderWindow = new(nextProcessPointer, windowParameters);

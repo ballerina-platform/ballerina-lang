@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -35,16 +33,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "registerListener",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class RegisterMessageListener extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class RegisterMessageListener {
 
     public static Object registerListener(Strand strand, ObjectValue queueListener, ObjectValue serviceObj) {
         return MessageListenerHandler.createAndRegister(strand, queueListener, serviceObj);
