@@ -124,8 +124,6 @@ public class CreateMessage {
             Channel channel = (Channel) streamObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             message.setBodyInputStream(channel.getInputStream());
         }
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
         messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, message);
     }
 

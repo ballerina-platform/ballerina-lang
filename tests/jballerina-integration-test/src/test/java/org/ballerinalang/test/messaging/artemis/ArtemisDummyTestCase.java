@@ -18,28 +18,29 @@
 
 package org.ballerinalang.test.messaging.artemis;
 
-import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
- * Includes util functions for tests.
+ * This is a dummy test that ensures @BeforeGroups runs before the actual test classes. When there is @BeforeClass in a
+ * test, it happens to run before @BeforeGroups. This class will run before any other test classes ensuring that
+ * the annotation @BeforeGroups runs before other tests.
  */
-public class ArtemisTestUtils {
-    private static final int TIMEOUT_IN_SECS = 10;
+@Test(groups = "artemis-test")
+public class ArtemisDummyTestCase {
+    @BeforeClass
+    public void setup() throws BallerinaTestException {
+    }
 
-    public static void testSend(CompileResult result, String expectedLog, String functionName,
-                                BServerInstance serverInstance) {
-        LogLeecher logLeecher = new LogLeecher(expectedLog);
-        serverInstance.addLogLeecher(logLeecher);
-        BRunUtil.invoke(result, functionName);
-        try {
-            logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
-        } catch (BallerinaTestException e) {
-            Assert.fail();
-        }
+    @Test(description = "dummy test to trigger before groups")
+    public void dummyTest() {
+        Assert.assertTrue(true);
+    }
+
+    @AfterClass
+    private void teardown() throws Exception {
     }
 }
