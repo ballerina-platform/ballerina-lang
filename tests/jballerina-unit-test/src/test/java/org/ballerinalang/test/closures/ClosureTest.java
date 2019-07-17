@@ -254,4 +254,16 @@ public class ClosureTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "laterInitCapture");
         Assert.assertEquals(((BString) returns[0]).stringValue(), "aa");
     }
+
+    @Test(description = "Test closure capture of rest params")
+    public void testRestParamsAsClosureVars() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars");
+        Assert.assertEquals(returns[0].stringValue(), "Hello, From, Ballerina");
+    }
+
+    @Test(description = "Test closure capture of rest params")
+    public void testRestParamsAsClosureVars2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
+    }
 }
