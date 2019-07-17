@@ -89,14 +89,14 @@ public function main(string... args) {
                 panic createError("failed to resolve host : " + host + " with port " + port);
             } else {
                 httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
+        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
     }
 }
 
