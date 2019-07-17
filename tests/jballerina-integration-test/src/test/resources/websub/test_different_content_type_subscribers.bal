@@ -24,8 +24,7 @@ listener websub:Listener websubEP = new websub:Listener(8282);
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    hub: "http://localhost:9191/websub/hub",
-    topic: "http://one.websub.topic.com",
+    target: ["http://localhost:9191/websub/hub", "http://one.websub.topic.com"],
     leaseSeconds: 3000,
     secret: "Kslk30SNF2AChs2"
 }
@@ -59,8 +58,7 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
     subscribeOnStartUp:true,
-    hub: "http://localhost:9191/websub/hub",
-    topic: "http://one.websub.topic.com",
+    target: ["http://localhost:9191/websub/hub", "http://one.websub.topic.com"],
     leaseSeconds: 1000
 }
 service websubSubscriberTwo on websubEP {

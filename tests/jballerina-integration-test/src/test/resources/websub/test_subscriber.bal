@@ -25,8 +25,7 @@ listener websub:Listener websubEP = new websub:Listener(8181, { host: "0.0.0.0" 
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    topic: "http://one.websub.topic.com",
-    hub: config:getAsString("test.hub.url")
+    target: [config:getAsString("test.hub.url"), "http://one.websub.topic.com"]
 }
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
@@ -38,8 +37,7 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
     subscribeOnStartUp:true,
-    topic: "http://one.websub.topic.com",
-    hub: config:getAsString("test.hub.url"),
+    target: [config:getAsString("test.hub.url"), "http://one.websub.topic.com"],
     leaseSeconds: 3650,
     secret: "Kslk30SNF2AChs2"
 }
@@ -68,8 +66,7 @@ string subscriberThreeTopic = "http://one.websub.topic.com";
 @websub:SubscriberServiceConfig {
     path:"/websubThree",
     subscribeOnStartUp:true,
-    topic: subscriberThreeTopic,
-    hub: config:getAsString("test.hub.url"),
+    target: [config:getAsString("test.hub.url"), subscriberThreeTopic],
     leaseSeconds: 300,
     callback: "http://localhost:8181/websubThree?topic=" + subscriberThreeTopic + "&fooVal=barVal",
     secret: "Xaskdnfe234"
