@@ -41,14 +41,14 @@
             <package name="org.ballerinalang.test.annotations.*"/>
             <!--<package name="org.ballerinalang.test.action.*"/>-->
             <package name="org.ballerinalang.test.imports.*"/>
-            <package name="org.ballerinalang.test.parser.*"/>
+            <!--<package name="org.ballerinalang.test.parser.*"/>-->
             <package name="org.ballerinalang.test.closures.*"/>
             <!--<package name="org.ballerinalang.test.dataflow.*"/>-->
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
-            <!--<package name="org.ballerinalang.test.structs.*"/>-->
+            <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -63,7 +63,7 @@
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
-            <package name="org.ballerinalang.test.types.typedesc.*"/>
+            <!--<package name="org.ballerinalang.test.types.typedesc.*"/>-->
             <package name="org.ballerinalang.test.types.tuples.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.statements.arrays.*"/>
@@ -87,7 +87,7 @@
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <!--<package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
-            <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
+            <!--<package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>-->
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
             <package name="org.ballerinalang.test.expressions.access.*"/>

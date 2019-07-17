@@ -73,7 +73,7 @@ function testStructExpressionAsIndex () returns string? {
     dpt["employees"][0]["family"]["children"][0] = "emily";
     dpt["employees"][0]["family"]["noOfChildren"] = 1;
 
-    return dpt["employees"][0]["family"]["children"][(dpt["employees"][0]["family"]["noOfChildren"] ?: 1) - 1];
+    return dpt["employees"][0]["family"]["children"][(dpt["employees"][0]["family"]["noOfChildren"]) - 1];
 }
 
 function testDefaultVal () returns [string?, string?, int?] {
