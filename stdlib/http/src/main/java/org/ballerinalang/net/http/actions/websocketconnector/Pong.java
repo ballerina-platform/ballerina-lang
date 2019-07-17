@@ -33,6 +33,9 @@ import org.ballerinalang.net.http.WebSocketUtil;
 
 import java.nio.ByteBuffer;
 
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
+
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -46,30 +49,24 @@ import java.nio.ByteBuffer;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class Pong implements NativeCallableUnit {
+public class Pong {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
-    public static Object pong(Strand strand, ObjectValue wsConnection, byte[] binaryData) {
+    public static Object pong(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
+            ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future, connectionInfo);
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
+            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private Pong() {
     }
 }

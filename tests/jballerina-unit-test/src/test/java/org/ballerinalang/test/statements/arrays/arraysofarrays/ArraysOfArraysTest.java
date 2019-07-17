@@ -152,6 +152,22 @@ public class ArraysOfArraysTest {
         Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("name").stringValue(), "ballerina");
     }
 
+    @Test(description = "Test multi-dimension array unions")
+    public void testArrayUnion() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testArrayUnion", args);
+        Assert.assertEquals(((BValueArray) (((BValueArray) returns[0]).getRefValue(0))).getBoolean(0), 0);
+        Assert.assertEquals(((BValueArray) (((BValueArray) returns[1]).getRefValue(0))).getString(0), "scope1");
+    }
+
+    @Test(description = "Test multi-dimension array unions with objects")
+    public void testObjectArrayUnion() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testObjectArrayUnion", args);
+        Assert.assertEquals(((BMap) (((BValueArray) returns[0]).getRefValue(0))).get("fooId1").stringValue(), "Foo1");
+        Assert.assertEquals(((BMap) (((BValueArray) returns[0]).getRefValue(0))).get("fooId2").stringValue(), "Foo2");
+    }
+
     private static byte[] hexStringToByteArray(String str) {
         int len = str.length();
         byte[] data = new byte[len / 2];

@@ -228,6 +228,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
         int pkgIndex = addPkgCPEntry(calleePkg);
+        buf.writeBoolean(birAsyncCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
         buf.writeInt(birAsyncCall.args.size());
@@ -351,7 +352,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
         if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
-            buf.writeBoolean(birFieldAccess.except);
+            buf.writeBoolean(birFieldAccess.optionalFieldAccess);
+            buf.writeBoolean(birFieldAccess.fillingRead);
         }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
@@ -363,6 +365,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
+        writeType(birTypeCast.type);
+        buf.writeBoolean(birTypeCast.checkTypes);
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {

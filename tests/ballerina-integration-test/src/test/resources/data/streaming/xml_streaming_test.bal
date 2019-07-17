@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/h2;
+import ballerinax/java.jdbc;
 import ballerina/log;
 
-h2:Client testDB = new({
-    path: "../../tempdb/",
-    name: "STREAMING_XML_TEST_DB",
+jdbc:Client testDB = new({
+    url: "jdbc:h2:file:../../tempdb/STREAMING_XML_TEST_DB",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 1 },

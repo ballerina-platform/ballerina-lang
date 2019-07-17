@@ -43,17 +43,22 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test invalid rest field type")
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
-
-        assertEquals(result.getErrorCount(), 7);
-
         String expectedErrMsg = "incompatible types: expected 'string', ";
-        validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
-        validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
-        validateError(result, 2, "invalid literal for type '(anydata|error)'", 17, 36);
-        validateError(result, 3, "unknown type 'Animal'", 21, 5);
-        validateError(result, 4, "incompatible types: expected '(anydata|error)', found 'Bar'", 30, 18);
-        validateError(result, 5, "incompatible types: expected 'anydata', found 'error'", 44, 14);
-        validateError(result, 6, "incompatible types: expected 'anydata', found 'error'", 45, 14);
+        int indx = 0;
+
+        validateError(result, indx++, expectedErrMsg + "found 'int'", 8, 45);
+        validateError(result, indx++, expectedErrMsg + "found 'boolean'", 8, 57);
+        validateError(result, indx++, "invalid usage of record literal with type 'anydata'", 17, 36);
+        validateError(result, indx++, "unknown type 'Animal'", 21, 5);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'Bar'", 30, 21);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 48, 17);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 49, 17);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 52, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
+        validateError(result, indx++,
+                      "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
+                      58, 26);
+        assertEquals(result.getErrorCount(), indx);
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
@@ -78,8 +83,25 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        validateError(compileResult, 0, "incompatible types: expected 'string', found 'string?'", 28, 16);
-        validateError(compileResult, 1, "incompatible types: expected 'string', found 'string?'", 33, 16);
+        int indx = 0;
+
+        validateError(compileResult, indx++,
+                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
+                      28, 17);
+        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 28, 17);
+        validateError(compileResult, indx++,
+                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
+                      33, 17);
+        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 33, 17);
+        validateError(compileResult, indx++,
+                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
+                      47, 17);
+        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 47, 17);
+        validateError(compileResult, indx++,
+                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
+                      53, 17);
+        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 53, 17);
+        assertEquals(compileResult.getErrorCount(), indx);
     }
 
     @Test(description = "Test ambiguity resolution")
@@ -103,13 +125,14 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test uninitialized record access")
     public void testUninitRecordAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
-        assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
         validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
+        validateError(compileResult, index++, "operator '?:' cannot be applied to type 'string'", 25, 12);
         validateError(compileResult, index++, "variable 'p' is not initialized", 25, 12);
         validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);
-        validateError(compileResult, index, "variable 'p4' is not initialized", 52, 12);
+        validateError(compileResult, index++, "variable 'p4' is not initialized", 52, 12);
+        assertEquals(compileResult.getErrorCount(), index);
     }
 }

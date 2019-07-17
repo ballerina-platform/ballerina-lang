@@ -137,6 +137,27 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (!(other instanceof BIRVariableDcl)) {
+                return false;
+            }
+
+            BIRVariableDcl otherVarDecl = (BIRVariableDcl) other;
+
+            // Here we assume names are unique.
+            return this.name.equals(otherVarDecl.name);
+        }
+        
+        @Override
+        public String toString() {
+            return name.toString();
+        }
     }
 
     /**
@@ -146,10 +167,12 @@ public abstract class BIRNode {
      */
     public static class BIRParameter extends BIRNode {
         public Name name;
+        public int flags;
 
-        public BIRParameter(DiagnosticPos pos, Name name) {
+        public BIRParameter(DiagnosticPos pos, Name name, int flags) {
             super(pos);
             this.name = name;
+            this.flags = flags;
         }
 
         @Override
@@ -237,11 +260,6 @@ public abstract class BIRNode {
         public List<BIRParameter> requiredParams;
 
         /**
-         * List of defaultable parameters.
-         */
-        public List<BIRParameter> defaultParams;
-
-        /**
          * Type of the receiver. This is an optional field.
          */
         public BType receiverType;
@@ -308,7 +326,6 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.parameters = new LinkedHashMap<>();
             this.requiredParams = new ArrayList<>();
-            this.defaultParams = new ArrayList<>();
             this.receiverType = receiverType;
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
@@ -530,6 +547,7 @@ public abstract class BIRNode {
      */
     public static class BIRAnnotationAttachment extends BIRNode {
 
+        public PackageID packageID;
         public Name annotTagRef;
 
         // The length == 0 means that the value of this attachment is 'true'
@@ -549,27 +567,57 @@ public abstract class BIRNode {
     }
 
     /**
-     * Represents the record value of an annotation attachment.
+     * Represents one value in an annotation attachment.
      *
      * @since 1.0.0
      */
-    public static class BIRAnnotationValue {
-        public Map<String, BIRAnnotationValueEntry> annotValEntryMap;
+    public abstract static class BIRAnnotationValue {
+        public BType type;
 
-        public BIRAnnotationValue(Map<String, BIRAnnotationValueEntry> annotValEntryMap) {
-            this.annotValEntryMap = annotValEntryMap;
+        public BIRAnnotationValue(BType type) {
+            this.type = type;
         }
     }
 
     /**
-     * Represent one key/value pair entry in an annotation attachment value.
+     * Represent a literal value in an annotation attachment value.
      *
      * @since 1.0.0
      */
-    public static class BIRAnnotationValueEntry extends ConstValue {
+    public static class BIRAnnotationLiteralValue extends BIRAnnotationValue {
+        public Object value;
 
-        public BIRAnnotationValueEntry(Object value, BType type) {
-            super(value, type);
+        public BIRAnnotationLiteralValue(BType type, Object value) {
+            super(type);
+            this.value = value;
+        }
+    }
+
+    /**
+     * Represent a record value in an annotation attachment value.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationRecordValue extends BIRAnnotationValue {
+        public Map<String, BIRAnnotationValue> annotValueEntryMap;
+
+        public BIRAnnotationRecordValue(BType type, Map<String, BIRAnnotationValue> annotValueEntryMap) {
+            super(type);
+            this.annotValueEntryMap = annotValueEntryMap;
+        }
+    }
+
+    /**
+     * Represent a record value in an annotation attachment value.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRAnnotationArrayValue extends BIRAnnotationValue {
+        public BIRAnnotationValue[] annotArrayValue;
+
+        public BIRAnnotationArrayValue(BType type, BIRAnnotationValue[] annotArrayValue) {
+            super(type);
+            this.annotArrayValue = annotArrayValue;
         }
     }
 

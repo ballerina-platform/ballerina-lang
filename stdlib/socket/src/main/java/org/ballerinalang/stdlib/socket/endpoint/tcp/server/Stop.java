@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,22 +47,20 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Stop extends BlockingNativeCallableUnit {
+public class Stop {
     private static final Logger log = LoggerFactory.getLogger(Stop.class);
 
-    @Override
-    public void execute(Context context) {
+    public static Object stop(Strand strand, ObjectValue listener) {
         try {
-            Struct listenerEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            ServerSocketChannel channel = (ServerSocketChannel) listenerEndpoint.getNativeData(SERVER_SOCKET_KEY);
+            ServerSocketChannel channel = (ServerSocketChannel) listener.getNativeData(SERVER_SOCKET_KEY);
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.unRegisterChannel(channel);
             channel.close();
             selectorManager.stop();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to stop the socket listener: " + e.getMessage()));
+            return SocketUtils.createSocketError("Unable to stop the socket listener: " + e.getMessage());
         }
+        return null;
     }
 }

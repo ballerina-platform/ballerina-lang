@@ -17,29 +17,23 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
-import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketUtil.getRemoteUrl;
-import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionClosureError;
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -54,12 +48,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class Close implements NativeCallableUnit {
-    private static final PrintStream console = System.out;
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
+public class Close {
 
     public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
@@ -71,7 +60,7 @@ public class Close implements NativeCallableUnit {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             ChannelFuture closeFuture =
                     initiateConnectionClosure(strand, callback, (int) statusCode, reason, connectionInfo,
-                                              countDownLatch);
+                            countDownLatch);
             waitForTimeout(callback, (int) timeoutInSecs, countDownLatch, connectionInfo);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
@@ -79,7 +68,7 @@ public class Close implements NativeCallableUnit {
             });
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
+            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
@@ -107,9 +96,9 @@ public class Close implements NativeCallableUnit {
                         //TODO Temp fix to get return values. Remove
                         console.println("Attempt maximum retry but couldn't connect to the server: " +
                                 getRemoteUrl(connectionInfo));
-                        strand.setReturnValues(HttpUtil.getError(cause));
+                        strand.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
                         //TODO remove this call back
-                        callback.setReturnValues(HttpUtil.getError(cause));
+                        callback.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
                     }
                 }
             } else {
@@ -122,7 +111,7 @@ public class Close implements NativeCallableUnit {
     }
 
     private static void waitForTimeout(NonBlockingCallback callback, int timeoutInSecs,
-                                       CountDownLatch latch, WebSocketOpenConnectionInfo connectionInfo) {
+                                       CountDownLatch latch) {
         try {
             if (timeoutInSecs < 0) {
                 latch.await();
@@ -139,20 +128,19 @@ public class Close implements NativeCallableUnit {
                                     "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                                     timeoutInSecs);
                             //TODO remove this call back
-                            callback.setReturnValues(HttpUtil.getError(errMsg));
+                            callback.setReturnValues(createWebSocketError(WsConnectionClosureError, errMsg));
                         }
                     }
                 }
             }
         } catch (InterruptedException err) {
             //TODO remove this call back
-            callback.setReturnValues(HttpUtil.getError("Connection interrupted while closing the connection"));
+            callback.setReturnValues(createWebSocketError(WsConnectionClosureError,
+                    "Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();
         }
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private Close() {
     }
 }

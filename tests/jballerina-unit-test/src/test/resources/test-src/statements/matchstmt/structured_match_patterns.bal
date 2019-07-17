@@ -19,14 +19,14 @@ import ballerina/io;
 type Foo record {
     string s;
     int i;
-    (float, int, boolean) fib;
+    [float, int, boolean] fib;
 };
 
 function testStructuredMatchPatternsBasic1() returns string {
-    Foo foo = {s: "S", i: 23, fib: (5.6, 3, true)};
+    Foo foo = {s: "S", i: 23, fib: [5.6, 3, true]};
 
     match foo {
-        var {s, i: integer, fib: (a, b, c)} => {
+        var {s, i: integer, fib: [a, b, c]} => {
             integer += 1;
             a += 1;
             b += 1;
@@ -51,9 +51,9 @@ type Bar record {
 function testStructuredMatchPatternsBasic2() returns string {
     Foo2 foo = {s: "S", i: 23, f: 5.6};
     Bar bar = {b: 12, f: foo};
-    (Foo2, (int, Bar), byte) tuple = (foo, (100, bar), 200);
+    [Foo2, [int, Bar], byte] tuple = [foo, [100, bar], 200];
     match tuple {
-        var ({s, i, f}, (i2, {b, f: {s: s2, i: i3, f: f2}}), b2) => {
+        var [{s, i, f}, [i2, {b, f: {s: s2, i: i3, f: f2}}], b2] => {
             i3 += 1;
             return "Matched Values : " + s + ", " + i + ", " + f + ", " + i2 + ", " +
                                 <int> b + ", " + s2 + ", " + i3 + ", " + f2 + ", " + <int>b2;

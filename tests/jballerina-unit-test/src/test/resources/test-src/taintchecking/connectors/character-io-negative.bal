@@ -1,15 +1,15 @@
 import ballerina/io;
-
+import ballerina/'lang\.int as landlib;
 public function main (string... args) returns error? {
     string filePath = args[0];
     string chars = args[0];
 
-    var intArg = int.convert(args[0]);
+    var intArg = landlib:fromString(args[0]);
     if (intArg is int) {
         io:ReadableByteChannel rbh = checkpanic io:openReadableFile(filePath);
         io:ReadableCharacterChannel rch = new io:ReadableCharacterChannel(rbh, "UTF-8");
 
-        io:WritableByteChannel wbh = io:openWritableFile(filePath);
+        io:WritableByteChannel wbh = checkpanic io:openWritableFile(filePath);
         io:WritableCharacterChannel wch = new io:WritableCharacterChannel(wbh, "UTF-8");
 
         var writeOutput = wch.write(chars, 0);
@@ -17,7 +17,8 @@ public function main (string... args) returns error? {
         if (readOutput is string) {
             testFunction(readOutput, readOutput);
         } else {
-            panic readOutput;
+            error err = readOutput;
+            panic err;
         }
     } else {
         panic intArg;
@@ -25,7 +26,7 @@ public function main (string... args) returns error? {
     return ();
 }
 
-public function testFunction (@sensitive string sensitiveValue, string anyValue) {
+public function testFunction (@untainted string untaintedValue, string anyValue) {
 
 }
 

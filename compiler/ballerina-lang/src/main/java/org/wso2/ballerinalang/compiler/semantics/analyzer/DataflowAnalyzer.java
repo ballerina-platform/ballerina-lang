@@ -302,6 +302,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangExpression attachedExpr : service.attachedExprs) {
             analyzeNode(attachedExpr, env);
         }
+
+        service.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
+        service.resourceFunctions.forEach(function -> analyzeNode(function, env));
         this.currDependentSymbol.pop();
     }
 
@@ -548,7 +551,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
-        invocationExpr.namedArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
         BSymbol owner = this.env.scope.owner;
         if (owner.kind == SymbolKind.FUNCTION) {
@@ -1043,10 +1045,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        BLangService serviceNode = serviceConstructorExpr.serviceNode;
-        serviceNode.annAttachments.forEach(bLangAnnotationAttachment ->
-                                                   analyzeNode(bLangAnnotationAttachment.expr, env));
-        serviceNode.resourceFunctions.forEach(function -> analyzeNode(function, env));
+        if (this.currDependentSymbol.peek() != null) {
+            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.type.tsymbol);
+        }
+
+        addDependency(serviceConstructorExpr.type.tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
     @Override

@@ -16,6 +16,7 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -24,7 +25,7 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
@@ -41,7 +42,6 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
 
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 }

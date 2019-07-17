@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.982.0
  */
+@Test(groups = { "brokenOnLangLibChange" })
 public class XMLIterationTest {
 
     private CompileResult result, negative;

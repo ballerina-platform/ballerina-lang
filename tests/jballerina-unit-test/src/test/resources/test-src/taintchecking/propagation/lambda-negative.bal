@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function secureFunction (@sensitive string secureIn, string insecureIn) {
+public function secureFunction (@untainted string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }
 
@@ -25,5 +25,5 @@ public function main (string... args) {
         return r;
     };
 
-    secureFunction(testLambda.call(args[0], args[0]), testLambda.call(args[0], args[0]));
+    secureFunction(testLambda(args[0], args[0]), testLambda(args[0], args[0]));
 }

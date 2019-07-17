@@ -80,7 +80,7 @@ public class SignatureHelpTest {
                 {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
                 {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
                 {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
-                {"endpointActions.json", "endpointActions.bal"},
+//                {"endpointActions.json", "endpointActions.bal"},
                 {"signatureWithinResources.json", "signatureWithinResources.bal"},
                 {"signatureWithinIfElse1.json", "signatureWithinIfElse1.bal"},
                 {"signatureWithinIfElse2.json", "signatureWithinIfElse2.bal"},
@@ -91,6 +91,7 @@ public class SignatureHelpTest {
                 {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
                 {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
+                {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"}
         };
     }
 

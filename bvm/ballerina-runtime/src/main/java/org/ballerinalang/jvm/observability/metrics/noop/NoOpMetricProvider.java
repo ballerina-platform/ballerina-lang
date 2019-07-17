@@ -29,7 +29,6 @@ import java.util.function.ToDoubleFunction;
 /**
  * Provide No-Op implementations of metrics.
  */
-//@JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class NoOpMetricProvider implements MetricProvider {
 
     @Override

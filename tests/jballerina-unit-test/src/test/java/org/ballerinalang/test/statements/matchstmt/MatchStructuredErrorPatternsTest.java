@@ -70,7 +70,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[++i].stringValue(), msg + "error : Error Code");
     }
 
-    @Test(description = "Test basics of structured pattern match statement 1")
+    @Test(description = "Test basics of structured pattern match statement 1", groups = "brokenOnLangLibChange")
     public void testBasicErrorMatch4() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorMatch4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -143,7 +143,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
     }
 
-    @Test(description = "TestMatchingErrorRestParameter")
+    @Test(description = "TestMatchingErrorRestParameter", groups = "brokenOnLangLibChange")
     public void testErrorRestParameterMatch() {
         BInteger[] args0 = { new BInteger(0) };
         BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
@@ -168,6 +168,14 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns.length, 1);
         int i = -1;
         Assert.assertEquals(returns[++i].stringValue(), "Error Code:Msg");
+    }
+
+    @Test(description = "Test error const reason match pattern")
+    public void testErrorConstReasonMatchPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorConstReasonMatchPattern", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        int i = -1;
+        Assert.assertEquals(returns[++i].stringValue(), "Const reason:Msg");
     }
 
     @Test(description = "Test pattern will not be matched 2")

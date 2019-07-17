@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
@@ -44,7 +45,9 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.definition.LSReferencesException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -69,6 +72,12 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -80,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.BufferedReader;
@@ -96,10 +106,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
+import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
 /**
  * Utilities for the command related operations.
@@ -251,13 +265,41 @@ public class CommandUtil {
             action.setCommand(new Command(commandTitle, CreateVariableExecutor.COMMAND, args));
             action.setDiagnostics(diagnostics);
             actions.add(action);
-
-            commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-            action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, IgnoreReturnExecutor.COMMAND, args));
-            action.setDiagnostics(diagnostics);
-            actions.add(action);
+            try {
+                SymbolReferencesModel.Reference referenceAtCursor = getReferenceAtCursor(context, uri, position);
+                BSymbol symbolAtCursor = referenceAtCursor.getSymbol();
+                if (symbolAtCursor instanceof BInvokableSymbol) {
+                    BType returnType = ((BInvokableSymbol) symbolAtCursor).retType;
+                    boolean hasError = false;
+                    if (returnType instanceof BErrorType) {
+                        hasError = true;
+                    } else if (returnType instanceof BUnionType) {
+                        BUnionType unionType = (BUnionType) returnType;
+                        hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+                        // Add type guard code action
+                        List<TextEdit> edits = getTypeGuardCodeActionEdits(context, uri, referenceAtCursor, unionType);
+                        commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE,
+                                                     symbolAtCursor.name);
+                        action = new CodeAction(commandTitle);
+                        action.setKind(CodeActionKind.QuickFix);
+                        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+                        action.setDiagnostics(diagnostics);
+                        actions.add(action);
+                    }
+                    // Add ignore return value code action
+                    if (!hasError) {
+                        commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
+                        action = new CodeAction(commandTitle);
+                        action.setKind(CodeActionKind.QuickFix);
+                        action.setCommand(new Command(commandTitle, IgnoreReturnExecutor.COMMAND, args));
+                        action.setDiagnostics(diagnostics);
+                        actions.add(action);
+                    }
+                }
+            } catch (LSReferencesException | WorkspaceDocumentException | IOException e) {
+                // ignore
+            }
         } else if (isUnresolvedPackage(diagnosticMessage)) {
             Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
                     diagnosticMessage.toLowerCase(Locale.ROOT)
@@ -388,6 +430,59 @@ public class CommandUtil {
         return actions;
     }
 
+    private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
+                                                              SymbolReferencesModel.Reference referenceAtCursor,
+                                                              BUnionType unionType)
+            throws WorkspaceDocumentException, IOException {
+        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        BLangNode bLangNode = referenceAtCursor.getbLangNode();
+        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
+        Range newTextRange = new Range(startPos, endPosWithSemiColon);
+
+        List<TextEdit> edits = new ArrayList<>();
+        String spaces = StringUtils.repeat(' ', bLangNode.pos.sCol - 1);
+        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
+        String content = getContentOfRange(docManager, uri, new Range(startPos, endPos));
+        boolean hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+
+        // Check is binary union type with error type
+        if (unionType.getMemberTypes().size() == 2 && hasError) {
+            unionType.getMemberTypes().stream()
+                    .filter(s -> !(s instanceof BErrorType))
+                    .findFirst()
+                    .ifPresent(bType -> {
+                        if (bType instanceof BNilType) {
+                            // if (foo() is error) {...}
+                            String newText = String.format("if (%s is error) {%s}", content, padding);
+                            edits.add(new TextEdit(newTextRange, newText));
+                        } else {
+                            // if (foo() is int) {...} else {...}
+                            String type = CommonUtil.getBTypeName(bType, context);
+                            String newText = String.format("if (%s is %s) {%s} else {%s}",
+                                                           content, type, padding, padding);
+                            edits.add(new TextEdit(newTextRange, newText));
+                        }
+                    });
+        } else {
+            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            String varName = CommonUtil.generateVariableName(1, bLangNode, compilerContext);
+            List<BType> members = new ArrayList<>((unionType).getMemberTypes());
+            String typeDef = CommonUtil.getBTypeName(unionType, context);
+            String newText = String.format("%s %s = %s;%s", typeDef, varName, content, LINE_SEPARATOR);
+            newText += spaces + IntStream.range(0, members.size() - 1)
+                    .mapToObj(value -> {
+                        String bTypeName = CommonUtil.getBTypeName(members.get(value), context);
+                        return String.format("if (%s is %s) {%s}", varName, bTypeName, padding);
+                    })
+                    .collect(Collectors.joining(" else "));
+            newText += String.format(" else {%s}", padding);
+            edits.add(new TextEdit(newTextRange, newText));
+        }
+        return edits;
+    }
+
     private static String extractTypeName(LSContext context, Matcher matcher, String foundType, List<TextEdit> edits) {
         if (matcher.find() && matcher.groupCount() > 2) {
             String orgName = matcher.group(1);
@@ -416,7 +511,7 @@ public class CommandUtil {
      */
     public static String getObjectConstructorSnippet(List<BLangSimpleVariable> fields, int baseOffset) {
         StringJoiner funcFields = new StringJoiner(", ");
-        StringJoiner funcBody = new StringJoiner(CommonUtil.LINE_SEPARATOR);
+        StringJoiner funcBody = new StringJoiner(LINE_SEPARATOR);
         String offsetStr = String.join("", Collections.nCopies(baseOffset, " "));
         fields.stream()
                 .filter(bField -> ((bField.symbol.flags & Flags.PUBLIC) != Flags.PUBLIC))
@@ -425,8 +520,8 @@ public class CommandUtil {
                     funcBody.add(offsetStr + "    self." + var.name.value + " = " + var.name.value + ";");
                 });
 
-        return offsetStr + "public function __init(" + funcFields.toString() + ") {" + CommonUtil.LINE_SEPARATOR +
-                funcBody.toString() + CommonUtil.LINE_SEPARATOR + offsetStr + "}" + CommonUtil.LINE_SEPARATOR;
+        return offsetStr + "public function __init(" + funcFields.toString() + ") {" + LINE_SEPARATOR +
+                funcBody.toString() + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
     }
 
     /**
@@ -568,10 +663,11 @@ public class CommandUtil {
         Node result = null;
         TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
         while (next != null) {
-            int sLine = next.getPosition().getStartLine();
-            int eLine = next.getPosition().getEndLine();
-            int sCol = next.getPosition().getStartColumn();
-            int eCol = next.getPosition().getEndColumn();
+            org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition nextPosition = next.getPosition();
+            int sLine = nextPosition.getStartLine();
+            int eLine = nextPosition.getEndLine();
+            int sCol = nextPosition.getStartColumn();
+            int eCol = nextPosition.getEndColumn();
             if ((line > sLine || (line == sLine && column >= sCol)) &&
                     (line < eLine || (line == eLine && column <= eCol))) {
                 result = next;

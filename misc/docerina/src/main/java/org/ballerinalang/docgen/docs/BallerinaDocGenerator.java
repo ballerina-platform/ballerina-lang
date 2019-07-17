@@ -47,15 +47,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
@@ -486,7 +481,7 @@ public class BallerinaDocGenerator {
             System.setProperty("skipNatives", "true");
         }
 
-        BLangPackage bLangPackage;
+        BLangPackage bLangPackage = null;
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
@@ -500,9 +495,7 @@ public class BallerinaDocGenerator {
         Compiler compiler = Compiler.getInstance(context);
 
         // TODO: Remove this and the related constants once these are properly handled in the core
-        if (absolutePkgPath.endsWith(BAL_BUILTIN.toString())) {
-            bLangPackage = loadBuiltInPackage(context);
-        } else {
+        if (!absolutePkgPath.endsWith(BAL_BUILTIN.toString())) {
             // compile the given package
             Path fileOrPackageName = packagePath.getFileName();
             bLangPackage = compiler.compile(fileOrPackageName == null ? packagePath.toString() : fileOrPackageName
@@ -538,20 +531,22 @@ public class BallerinaDocGenerator {
         return false;
     }
 
-    private static BLangPackage loadBuiltInPackage(CompilerContext context) {
-        SymbolTable symbolTable = SymbolTable.getInstance(context);
-        // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(context);
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-        return builtInPkg;
-    }
+    //
+    //    private static BLangPackage loadBuiltInPackage(CompilerContext context) {
+    //        SymbolTable symbolTable = SymbolTable.getInstance(context);
+    //        // Load built-in packages.
+    //        BLangPackage builtInPkg = getBuiltInPackage(context);
+    //        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+    //        return builtInPkg;
+    //    }
 
-    private static BLangPackage getBuiltInPackage(CompilerContext context) {
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
-                Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
-    }
+    //    private static BLangPackage getBuiltInPackage(CompilerContext context) {
+    //        PackageLoader pkgLoader = PackageLoader.getInstance(context);
+    //        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
+    //        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
+    //        return codeAnalyzer.analyze(semAnalyzer
+    //        .analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+    //                Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
+    //    }
 
 }

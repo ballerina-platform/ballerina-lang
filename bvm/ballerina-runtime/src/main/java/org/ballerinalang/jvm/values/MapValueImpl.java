@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -157,6 +156,55 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return super.get(key);
         } finally {
             readLock.unlock();
+        }
+    }
+
+    /**
+     * Retrieve the value for the given key from map. If the key does not exist, but there exists a filler value for
+     * the expected type, a new value will be created and added and then returned.
+     * A {@link BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     *
+     * @param key key used to get the value
+     * @return value associated with the key
+     */
+    public V fillAndGet(Object key) {
+        writeLock.lock();
+        try {
+            if (containsKey(key)) {
+                return super.get(key);
+            }
+
+            BType expectedType = null;
+
+            // The type should be a record or map for filling read.
+            if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType recordType = (BRecordType) this.type;
+                Map fields = recordType.getFields();
+                if (fields.containsKey(key)) {
+                    expectedType = ((BField) fields.get(key)).type;
+                } else {
+                    if (recordType.sealed) {
+                        // Panic if this record type does not contain a key by the specified name.
+                        throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                                          "cannot find key '" + key + "'");
+                    }
+                    expectedType = recordType.restFieldType;
+                }
+            } else {
+                expectedType = ((BMapType) this.type).getConstrainedType();
+            }
+
+            if (!TypeChecker.hasFillerValue(expectedType)) {
+                // Panic if the field does not have a filler value.
+                throw BallerinaErrors.createError(BallerinaErrorReasons.KEY_NOT_FOUND_ERROR,
+                                                  "cannot find key '" + key + "'");
+            }
+
+            Object value = expectedType.getZeroValue();
+            this.put((K) key, (V) value);
+            return (V) value;
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -349,22 +397,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        MapValueImpl<K, V> copy = (MapValueImpl<K, V>) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
     @Override
     public String stringValue() {
         readLock.lock();
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        StringJoiner sj = new StringJoiner(" ");
         try {
             switch (type.getTag()) {
-                case TypeTags.OBJECT_TYPE_TAG:
-                    for (Map.Entry<String, BField> field : ((BStructureType) this.type).getFields().entrySet()) {
-                        if (!Flags.isFlagOn(field.getValue().flags, Flags.PUBLIC)) {
-                            continue;
-                        }
-                        String fieldName = field.getKey();
-                        V fieldVal = get((K) fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
-                    break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 case TypeTags.MAP_TAG:
@@ -374,12 +422,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     }
                     // Fallthrough
                 default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
                     for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                        String key;
-                        key = keySeparator + kvEntry.getKey() + keySeparator;
+                        K key = kvEntry.getKey();
                         V value = kvEntry.getValue();
-                        sj.add(key + ":" + getStringValue(value));
+                        sj.add(key + "=" + getStringValue(value));
                     }
                     break;
             }
@@ -467,6 +513,23 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        if (isFrozen()) {
+            return;
+        }
+        this.freezeStatus.setFrozen();
+        this.values().forEach(val -> {
+            if (val instanceof RefValue) {
+                ((RefValue) val).freezeDirect();
+            }
+        });
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -480,8 +543,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private String getStringValue(Object value) {
         if (value == null) {
             return null;
-        } else if (value instanceof String) {
-            return "\"" + value.toString() + "\"";
         } else {
             return value.toString();
         }

@@ -24,7 +24,10 @@ package org.ballerinalang.packerina.cmd;
  */
 public class Constants {
     static final String BUILD_COMMAND = "build";
+    static final String COMPILE_COMMAND = "compile";
     static final String INIT_COMMAND = "init";
+    static final String NEW_COMMAND = "new";
+    static final String CREATE_COMMAND = "create";
     static final String INSTALL_COMMAND = "install";
     static final String LIST_COMMAND = "list";
     static final String PULL_COMMAND = "pull";

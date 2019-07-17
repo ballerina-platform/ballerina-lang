@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.launcher.util.BFileUtil;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
@@ -33,13 +34,11 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -75,7 +74,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
@@ -386,12 +384,6 @@ public class LauncherUtils {
                                                   + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOnly = !programFile.isMainEPAvailable();
-
-        // Load launcher listeners
-        ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
-
         int exitCode;
         try {
             exitCode = executeCompiledProgram(programFile, args);
@@ -400,8 +392,6 @@ public class LauncherUtils {
         }
 
         BLangProgramRunner.resumeStates(programFile);
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
         if (exitCode != 0 || !programFile.isServiceEPAvailable()) {
             try {
                 ThreadPoolFactory.getInstance().getWorkerExecutor().shutdown();
@@ -430,7 +420,7 @@ public class LauncherUtils {
         String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
 
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -464,7 +454,7 @@ public class LauncherUtils {
         if (srcPathStr.endsWith(BLANG_EXEC_FILE_SUFFIX)) {
             return BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             return compile(fullPath.getParent(), fullPath.getFileName(), offline, siddhiRuntimeFlag, experimentalFlag);
         } else if (Files.isDirectory(sourceRootPath)) {
             return compileModule(sourceRootPath, sourcePath, offline, siddhiRuntimeFlag, experimentalFlag,
@@ -496,16 +486,7 @@ public class LauncherUtils {
         try {
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-
-            // TODO: add validation
-            boolean runServicesOnly = false;
-
-            // Load launcher listeners
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
             mainMethod.invoke(null, (Object) args);
-            listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
             if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
                 Runtime.getRuntime().exit(0);
             }
@@ -522,11 +503,11 @@ public class LauncherUtils {
     private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
                                                 String srcPathStr) {
         if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                !RepoUtils.isBallerinaProject(sourceRootPath)) {
             // running a bal file, no other packages
             return fullPath.getFileName().toString();
         } else if (Files.isDirectory(sourceRootPath)) {
-            if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+            if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
                 throw createLauncherException("you are trying to run a module that is not inside " +
                         "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                         "project and then run the module.");
@@ -566,16 +547,7 @@ public class LauncherUtils {
             initClassName = getModuleInitClassName(sourcePath);
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-
-            // TODO: add validation
-            boolean runServicesOnly = false;
-
-            // Load launcher listeners
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(runServicesOnly));
             mainMethod.invoke(null, (Object) args);
-            listeners.forEach(listener -> listener.afterRunProgram(runServicesOnly));
-
             if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
                 Runtime.getRuntime().exit(0);
             }
@@ -610,7 +582,7 @@ public class LauncherUtils {
                                              boolean siddhiRuntimeFlag, boolean experimentalFlag, String srcPathStr,
                                              Path fullPath) {
         ProgramFile programFile;
-        if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+        if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
             throw createLauncherException("you are trying to run a module that is not inside " +
                     "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
                     "project and then run the module.");

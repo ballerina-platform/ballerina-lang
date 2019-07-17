@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -41,6 +42,8 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     public List<BLangErrorDetailEntry> detail;
     public BLangSimpleVariable restDetail;
     public BLangInvocation detailExpr;
+    public boolean reasonVarPrefixAvailable;
+    public BLangLiteral reasonMatchConst;
 
     public BLangErrorVariable() {
         this.annAttachments = new ArrayList<>();
@@ -56,6 +59,11 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
     @Override
     public List<BLangErrorDetailEntry> getDetail() {
         return detail;
+    }
+
+    @Override
+    public BLangSimpleVariable getRestDetail() {
+        return this.restDetail;
     }
 
     @Override

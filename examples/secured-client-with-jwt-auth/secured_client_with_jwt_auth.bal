@@ -50,7 +50,7 @@ public function main() {
 // authentication.
 jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
     issuer: "ballerina",
-    audience: ["ballerina.io"],
+    audience: "ballerina.io",
     certificateAlias: "ballerina",
     trustStore: {
         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",

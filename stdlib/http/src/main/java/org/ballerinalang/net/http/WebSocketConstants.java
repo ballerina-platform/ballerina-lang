@@ -97,6 +97,10 @@ public class WebSocketConstants {
     public static final String COUNT_DOWN_LATCH = "countDownLatch";
     public static final String CLIENT_CONNECTOR = "clientConnector";
 
+    public static final String WEBSOCKET_ERROR_CODE = "{" + FULL_PACKAGE_HTTP + "}WebSocketError";
+    public static final String WEBSOCKET_ERROR_DETAILS = "Detail";
+    public static final String WEBSOCKET_ERROR = "WebSocket Error: ";
+
     // WebSocketConnector
     public static final String CONNECTOR_IS_READY_FIELD = "isReady";
 
@@ -109,5 +113,29 @@ public class WebSocketConstants {
     public static final String UNCHECKED = "unchecked";
 
     private WebSocketConstants() {
+    }
+
+    /**
+     * Specifies the error code for webSocket module.
+     */
+    public enum ErrorCode {
+
+        WsConnectionClosureError("{ballerina/http}WsConnectionClosureError"),
+        WsInvalidHandshakeError("{ballerina/http}WsInvalidHandshakeError"),
+        WsPayloadTooBigError("{ballerina/http}WsPayloadTooBigError"),
+        WsProtocolError("{ballerina/http}WsProtocolError"),
+        WsConnectionError("{ballerina/http}WsConnectionError"),
+        WsInvalidContinuationFrameError("{ballerina/http}WsInvalidContinuationFrameError"),
+        WsGenericError("{ballerina/http}WsGenericError");
+
+        private String errorCode;
+
+        ErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String errorCode() {
+            return errorCode;
+        }
     }
 }

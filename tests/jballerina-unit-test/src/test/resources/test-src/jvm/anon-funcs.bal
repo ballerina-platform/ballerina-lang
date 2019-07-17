@@ -4,7 +4,7 @@ function testAnonFunc() returns string {
                 function (string x, string y) returns (string) {
                     return x + y;
                 };
-    return anonFunction.call("Hello ", "World.!!!");
+    return anonFunction("Hello ", "World.!!!");
 }
 
 function testFPPassing() returns int {
@@ -13,11 +13,11 @@ function testFPPassing() returns int {
                         string z = y + y;
                     };
     var fp = useFp(anonFunction);
-    return fp.call(10, 20);
+    return fp(10, 20);
 }
 
 function useFp(function (int, string) fp) returns (function (int, int) returns (int)) {
-    fp.call(10, "y");
+    fp(10, "y");
     function (int, int) returns (int) fp2 =
                         function (int x, int y) returns (int) {
                             return x * y;
@@ -27,7 +27,7 @@ function useFp(function (int, string) fp) returns (function (int, int) returns (
 
 function testBasicClosure() returns int {
     var foo = basicClosure();
-    return foo.call(3);
+    return foo(3);
 
 }
 
@@ -47,7 +47,7 @@ function basicClosure() returns (function (int) returns int) {
 
 function testMultilevelClosure() returns int {
      var bar = multilevelClosure();
-     return bar.call(5);
+     return bar(5);
 }
 
 function multilevelClosure() returns (function (int) returns int) {
@@ -63,9 +63,9 @@ function multilevelClosure() returns (function (int) returns int) {
                 b = b + 1;
                 return x + y + z + a + b + c;
             };
-            return func3.call(8) + y + x;
+            return func3(8) + y + x;
         };
-        return func2.call(4) + x;
+        return func2(4) + x;
     };
     return func1;
 }

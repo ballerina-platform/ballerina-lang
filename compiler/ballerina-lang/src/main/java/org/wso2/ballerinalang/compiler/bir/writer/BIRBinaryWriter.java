@@ -22,9 +22,11 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationLiteralValue;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationRecordValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValueEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -191,11 +193,7 @@ public class BIRBinaryWriter {
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
-        }
-
-        buf.writeInt(birFunction.defaultParams.size());
-        for (BIRParameter parameter : birFunction.defaultParams) {
-            buf.writeInt(addStringCPEntry(parameter.name.value));
+            buf.writeInt(parameter.flags);
         }
 
         // TODO find a better way
@@ -403,7 +401,7 @@ public class BIRBinaryWriter {
                                       BIRInstructionWriter insWriter,
                                       BIRAnnotationAttachment annotAttachment) {
         // Write module information of the annotation attachment
-        annotBuf.writeInt(insWriter.addPkgCPEntry(annotAttachment.pos.getSource().pkgID));
+        annotBuf.writeInt(insWriter.addPkgCPEntry(annotAttachment.packageID));
         // Write position
         insWriter.writePosition(annotBuf, annotAttachment.pos);
         annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTagRef.value));
@@ -413,17 +411,31 @@ public class BIRBinaryWriter {
     private void writeAnnotAttachValues(ByteBuf annotBuf, List<BIRAnnotationValue> annotValues) {
         annotBuf.writeInt(annotValues.size());
         for (BIRAnnotationValue annotValue : annotValues) {
-            writeAnnotAttachValueEntries(annotBuf, annotValue.annotValEntryMap);
+            writeAnnotAttachValue(annotBuf, annotValue);
         }
     }
 
-    private void writeAnnotAttachValueEntries(ByteBuf annotBuf,
-                                              Map<String, BIRAnnotationValueEntry> entryMap) {
-        annotBuf.writeInt(entryMap.size());
-        for (Map.Entry<String, BIRAnnotationValueEntry> annotValueEntry : entryMap.entrySet()) {
-            annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
-            BIRAnnotationValueEntry valueEntry = annotValueEntry.getValue();
-            writeConstValue(annotBuf, valueEntry);
+    private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
+        if (annotValue.type.tag == TypeTags.ARRAY) {
+            writeType(annotBuf, annotValue.type);
+            BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;
+            annotBuf.writeInt(annotArrayValue.annotArrayValue.length);
+            for (BIRAnnotationValue annotValueEntry : annotArrayValue.annotArrayValue) {
+                writeAnnotAttachValue(annotBuf, annotValueEntry);
+            }
+
+        } else if (annotValue.type.tag == TypeTags.RECORD || annotValue.type.tag == TypeTags.MAP) {
+            writeType(annotBuf, annotValue.type);
+            BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotValue;
+            annotBuf.writeInt(annotRecValue.annotValueEntryMap.size());
+            for (Map.Entry<String, BIRAnnotationValue> annotValueEntry : annotRecValue.annotValueEntryMap.entrySet()) {
+                annotBuf.writeInt(addStringCPEntry(annotValueEntry.getKey()));
+                writeAnnotAttachValue(annotBuf, annotValueEntry.getValue());
+            }
+        } else {
+            // This has to be a value type with a literal value.
+            BIRAnnotationLiteralValue annotLiteralValue = (BIRAnnotationLiteralValue) annotValue;
+            writeConstValue(annotBuf, new ConstValue(annotLiteralValue.value, annotLiteralValue.type));
         }
     }
 }

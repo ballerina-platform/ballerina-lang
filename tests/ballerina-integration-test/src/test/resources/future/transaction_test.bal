@@ -1,4 +1,4 @@
-import ballerina/h2;
+import ballerinax/java.jdbc;
 import ballerina/io;
 import ballerina/runtime;
 
@@ -6,9 +6,8 @@ channel<string> strChn = new;
 channel<int> intChn = new;
 string trx = "start";
 
-h2:Client testDB = new({
-    path: "./target/tempdb/",
-    name: "TEST_SQL_CONNECTOR_TR",
+jdbc:Client testDB = new({
+    url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
     username: "SA",
     password: "",
     poolOptions: { maximumPoolSize: 1 }

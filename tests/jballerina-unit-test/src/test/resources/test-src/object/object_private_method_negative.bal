@@ -21,7 +21,10 @@ public type Person object {
         self.salary = salary;
     }
 
-    private function decrementAndUpdateSalary(int amount) returns int;
+    private function decrementAndUpdateSalary(int amount) returns int {
+        self.salary -= amount;
+        return self.salary;
+    }
 
     private function incrementSalary(int amount) {
         self.salary += amount;
@@ -35,18 +38,7 @@ public type Person object {
     public function decrementAndGetSalary(int amount) returns int {
         return self.decrementAndUpdateSalary(amount);
     }
-
-    function decrementAndGetSalaryOuterMethod(int amount) returns int;
 };
-
-private function Person.decrementAndUpdateSalary(int amount) returns int {
-    self.salary -= amount;
-    return self.salary;
-}
-
-function Person.decrementAndGetSalaryOuterMethod(int amount) returns int {
-    return self.decrementAndUpdateSalary(amount);
-}
 
 function testPrivateMethodAccess() {
     Person person = new(10000);

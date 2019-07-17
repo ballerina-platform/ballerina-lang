@@ -5,9 +5,9 @@ public function main (string... args) {
         return r;
     };
 
-    secureFunction(testLambda.call("Hello ", "world.!!!"), testLambda.call("Hello ", "world.!!!"));
+    secureFunction(testLambda("Hello ", "world.!!!"), testLambda("Hello ", "world.!!!"));
 }
 
-public function secureFunction (@sensitive string secureIn, string insecureIn) {
+public function secureFunction (@untainted string secureIn, string insecureIn) {
     string data = secureIn + insecureIn;
 }

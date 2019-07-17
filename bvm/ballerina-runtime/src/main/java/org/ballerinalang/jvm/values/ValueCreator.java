@@ -35,7 +35,7 @@ public abstract class ValueCreator {
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
 
     public static void addValueCreator(String key, ValueCreator valueCreater) {
-        if (runtimeValueCreators.containsKey(key)) {
+        if (!key.equals(".") && runtimeValueCreators.containsKey(key)) {
             // silently fail
             return;
         }

@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,12 +68,27 @@ public class TaintRecord {
      */
     public static class TaintError {
         public DiagnosticPos pos;
-        public String paramName;
+        public List<String> paramName;
         public DiagnosticCode diagnosticCode;
 
         public TaintError(DiagnosticPos pos, String paramName, DiagnosticCode diagnosticCode) {
             this.pos = pos;
+            this.paramName = new ArrayList<>(1);
+            this.paramName.add(paramName);
+            this.diagnosticCode = diagnosticCode;
+        }
+
+        public TaintError(DiagnosticPos pos, List<String> paramName, DiagnosticCode diagnosticCode) {
+            this.pos = pos;
             this.paramName = paramName;
+            this.diagnosticCode = diagnosticCode;
+        }
+
+        public TaintError(DiagnosticPos pos, String paramName, String paramName2, DiagnosticCode diagnosticCode) {
+            this.pos = pos;
+            this.paramName = new ArrayList<>(1);
+            this.paramName.add(paramName);
+            this.paramName.add(paramName2);
             this.diagnosticCode = diagnosticCode;
         }
 
@@ -103,5 +119,12 @@ public class TaintRecord {
             result = 31 * result + diagnosticCode.hashCode();
             return result;
         }
+    }
+
+    /**
+     * Represent the taintedness annotation in function return type.
+     */
+    public enum TaintAnnotation {
+        NON, TAINTED, UNTAINTED
     }
 }

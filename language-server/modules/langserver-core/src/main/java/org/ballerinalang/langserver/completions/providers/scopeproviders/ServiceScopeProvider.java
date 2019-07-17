@@ -29,9 +29,9 @@ import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -59,8 +59,7 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             return this.getCompletionItemsAfterOnKeyword(ctx);
         }
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        if (lhsTokens != null && !lhsTokens.isEmpty()
-                && lhsTokens.get(lhsTokens.size() - 1).getType() == BallerinaParser.AT) {
+        if (this.isAnnotationAttachmentContext(ctx)) {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 
@@ -78,6 +77,8 @@ public class ServiceScopeProvider extends LSCompletionProvider {
         completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
 
+        ItemSorters.get(BLangService.class).sortItems(ctx, completionItems);
+
         return completionItems;
     }
 
@@ -91,6 +92,9 @@ public class ServiceScopeProvider extends LSCompletionProvider {
         int line = cursorPos.getLine();
         int col = cursorPos.getCharacter();
         List<BLangExpression> attachedExprs = service.attachedExprs;
+        if (attachedExprs.isEmpty()) {
+            return false;
+        }
         BLangExpression firstExpr = attachedExprs.get(0);
         BLangExpression lastExpr = CommonUtil.getLastItem(attachedExprs);
         DiagnosticPos firstExprPos = CommonUtil.toZeroBasedPosition(firstExpr.pos);

@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -91,7 +92,7 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
     private final int numThreads;
-    private static final Set<SchedulerItem> COMPLETED = Collections.emptySet();
+    private Semaphore mainBlockSem;
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
@@ -166,10 +167,16 @@ public class Scheduler {
             debugLogger.setDaemon(true);
             debugLogger.start();
         }
+        this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
         }
         this.runSafely();
+        try {
+            this.mainBlockSem.acquire();
+        } catch (InterruptedException e) {
+            logger.error("Error while waiting for poison to work", e);
+        }
     }
 
     /**
@@ -196,6 +203,7 @@ public class Scheduler {
             }
 
             if (item == POISON_PILL) {
+                this.mainBlockSem.release();
                 break;
             }
 
@@ -231,13 +239,13 @@ public class Scheduler {
                     } else {
                         item.blockedOn().forEach(blockedOn -> {
                             synchronized (blockedOn) {
-                                Set<SchedulerItem> blocked = blockedList.get(blockedOn);
-                                if (blocked == COMPLETED) {
+                                if (blockedOn.completed) {
                                     if (DEBUG) {
                                         debugLog(item + " blocked and freed on " + blockedOn.hashCode());
                                     }
                                     reschedule(item);
                                 } else {
+                                    Set<SchedulerItem> blocked = blockedList.get(blockedOn);
                                     if (blocked == null) {
                                         blocked = new HashSet<>();
                                         blockedList.put(blockedOn, blocked);
@@ -273,16 +281,17 @@ public class Scheduler {
                     }
 
                     Strand justCompleted = item.future.strand;
+                    assert !justCompleted.completed : "Can't be completed twice";
+
                     Set<SchedulerItem> blockedOnJustCompleted;
                     if (DEBUG) {
                         debugLog(item + " completed");
                     }
                     synchronized (justCompleted) {
                         cleanUp(justCompleted);
-                        blockedOnJustCompleted = blockedList.put(justCompleted, COMPLETED);
+                        justCompleted.completed = true;
+                        blockedOnJustCompleted = blockedList.remove(justCompleted);
                     }
-
-                    assert blockedOnJustCompleted != COMPLETED : "Can't be completed twice";
 
                     if (blockedOnJustCompleted != null) {
                         for (SchedulerItem blockedItem : blockedOnJustCompleted) {

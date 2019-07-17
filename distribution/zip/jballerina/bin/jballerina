@@ -142,9 +142,9 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
 	exit 1
     else
 	if [ -n "$JAVA_OPTS" ]; then
-	  echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable."
+	  echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
 	fi
-	JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
+	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
 	echo "Please start the remote debugging client to continue..."
     fi
 fi
@@ -200,20 +200,50 @@ fi
 # classpath locations, e.g. AWS Lambda function libraries.
 BALLERINA_CLASSPATH=$BALLERINA_CLASSPATH:$BALLERINA_CLASSPATH_EXT
 
-$JAVACMD \
-	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
-	-Xms256m -Xmx1024m \
-	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
-	$JAVA_OPTS \
-	-classpath "$BALLERINA_CLASSPATH" \
-	-Dballerina.home=$BALLERINA_HOME \
-	-Dballerina.bootstrap.home="$BALLERINA_HOME/bre/bootstrap" \
-	-Dballerina.version=${project.version} \
-	-Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
-	-Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
-	-Denable.nonblocking=false \
-	-Djava.security.egd=file:/dev/./urandom \
-	-Dfile.encoding=UTF8 \
-	-Dballerina.target=jvm \
-	org.ballerinalang.launcher.Main "$@"
+if [[ $1 == "native-img" ]]; then
+    if [[ ! -z "${GRAALVM_HOME}" ]]; then
+        $GRAALVM_HOME/bin/java -cp "$BALLERINA_CLASSPATH" com.hpe.kraal.MainKt \
+            --excludePackages="ballerina" \
+            --excludeClasses="___init" $2 &&
+        $GRAALVM_HOME/bin/native-image \
+            -H:+PrintAOTCompilation \
+            -H:+PrintClassInitialization \
+            -H:+PrintFeatures \
+            -H:+PrintStaticTruffleBoundaries \
+            -H:+StackTrace \
+            -H:+TraceLoggingFeature \
+            -H:+ReportExceptionStackTraces \
+            -J-Djava.util.concurrent.ForkJoinPool.common.parallelism=1 \
+            -H:InitialCollectionPolicy=com.oracle.svm.core.genscavenge.CollectionPolicy\$BySpaceAndTime \
+            -H:+AddAllCharsets \
+            -H:EnableURLProtocols=http,https \
+            -H:-UseServiceLoaderFeature \
+            --initialize-at-build-time=org.h2.Driver \
+            --enable-all-security-services \
+            --allow-incomplete-classpath \
+            --report-unsupported-elements-at-runtime \
+            --no-fallback \
+            --no-server \
+            -cp "$BALLERINA_CLASSPATH" \
+            -jar $2
+    else
+        echo "Please set GRAALVM_HOME for native image generation"
+    fi
+else
+    $JAVACMD \
+        -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
+        -Xms256m -Xmx1024m \
+        -XX:+HeapDumpOnOutOfMemoryError \
+        -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
+        $JAVA_OPTS \
+        -classpath "$BALLERINA_CLASSPATH" \
+        -Dballerina.home=$BALLERINA_HOME \
+        -Dballerina.version=${project.version} \
+        -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
+        -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
+        -Denable.nonblocking=false \
+        -Djava.security.egd=file:/dev/./urandom \
+        -Dfile.encoding=UTF8 \
+        -Dballerina.target=jvm \
+        org.ballerinalang.tool.Main "$@"
+fi

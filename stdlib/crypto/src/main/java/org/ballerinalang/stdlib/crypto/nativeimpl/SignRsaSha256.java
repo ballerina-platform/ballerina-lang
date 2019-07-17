@@ -50,7 +50,7 @@ public class SignRsaSha256 extends BlockingNativeCallableUnit {
             PrivateKey key = (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
             return new ArrayValue(CryptoUtils.sign("SHA256withRSA", key, input));
         } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("invalid uninitialized key");
+            return CryptoUtils.createCryptoError("Uninitialized private key");
         }
     }
 }

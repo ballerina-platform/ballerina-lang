@@ -35,4 +35,22 @@ public class BIROperand extends BIRNode {
     public void accept(BIRVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof BIROperand)) {
+            return false;
+        }
+
+        return this.variableDcl.equals(((BIROperand) other).variableDcl);
+    }
+
+    @Override
+    public String toString() {
+        return variableDcl.toString();
+    }
 }

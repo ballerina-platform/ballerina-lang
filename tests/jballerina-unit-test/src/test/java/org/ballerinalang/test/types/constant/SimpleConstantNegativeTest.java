@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  */
 public class SimpleConstantNegativeTest {
 
-    @Test
+    @Test(enabled = false)
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");

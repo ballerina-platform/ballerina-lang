@@ -1,9 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run --experimental channels_workers.bal
-w1 Waiting for a message...
-Sent message from w3
-Sent message from w2
-w1 Received message: <msg><name>ballerina</name><worker>w2</worker></msg>
-w1 Waiting for a null key message...
-w1 Received message: <msg><name>ballerina</name><worker>w3</worker></msg>

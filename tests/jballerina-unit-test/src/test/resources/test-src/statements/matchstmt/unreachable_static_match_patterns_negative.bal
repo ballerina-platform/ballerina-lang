@@ -35,12 +35,12 @@ function recordTypes() returns string {
 }
 
 function tupleTypes() returns string {
-    (string, int) t1 = ("A", 12);
+    [string, int] t1 = ["A", 12];
     match t1 {
-        ("A", 15) => return "T";
-        ("A", 15) => return "T"; // unreachable pattern
-        ("B", 15) => return "T";
-        ("B", 15) => return "T"; // unreachable pattern
+        ["A", 15] => return "T";
+        ["A", 15] => return "T"; // unreachable pattern
+        ["B", 15] => return "T";
+        ["B", 15] => return "T"; // unreachable pattern
     }
 
     return "Fail";
@@ -50,11 +50,11 @@ function simpleTypes() returns string {
     anydata k = 10;
     match k {
         15 => return "T";
-        (12, 15) => return "T";
+        [12, 15] => return "T";
         20 => return "T";
         20 => return "T"; // unreachable pattern
         15 => return "T"; // unreachable pattern
-        (12, 15) => return "T"; // unreachable pattern
+        [12, 15] => return "T"; // unreachable pattern
     }
 
     return "Fail";
@@ -64,7 +64,7 @@ function unreachableCode() returns string {
     anydata k = 10;
     match k {
         15 => return "T";
-        (12, 15) => return "T";
+        [12, 15] => return "T";
         _ => return "T";
     }
 
@@ -132,10 +132,10 @@ function testUnreachableUnionStaticPatterns() returns string {
     }
 
     match a {
-        "Ballerina"|true|("Ballerina", true) => return "1";
-        { x: "Ballerina", y: true }|("Bal", "Lang") => return "2";
+        "Ballerina"|true|["Ballerina", true] => return "1";
+        { x: "Ballerina", y: true }|["Bal", "Lang"] => return "2";
         { x: "Ballerina", y: false } => return "3";
-        false|("Ballerina", true) => return "4"; // unreachable
+        false|["Ballerina", true] => return "4"; // unreachable
         12|{ x: "Ballerina", y: true } => return "3"; // unreachable
     }
 
