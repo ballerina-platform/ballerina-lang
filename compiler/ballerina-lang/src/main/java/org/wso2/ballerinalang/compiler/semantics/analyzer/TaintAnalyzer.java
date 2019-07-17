@@ -1084,7 +1084,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeLangLibFunctionInvocation(BLangInvocation invocationExpr) {
+        invocationExpr.requiredArgs.forEach(expression -> expression.accept(this));
         invocationExpr.argExprs.forEach(expression -> expression.accept(this));
+        invocationExpr.restArgs.forEach(expression -> expression.accept(this));
     }
 
     private boolean isLangLibFunction(BLangInvocation invocationExpr) {
