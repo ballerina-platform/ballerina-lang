@@ -11,15 +11,15 @@ json jdata = {
 };
 
 function concatIntString(int i, string s) {
-    output = output + i + ":" + s + " ";
+    output = output + i.toString() + ":" + s + " ";
 }
 
 function concatIntJson(int i, json j) {
-    output = output + i + ":" + j.toString() + " ";
+    output = output + i.toString() + ":" + j.toString() + " ";
 }
 
 function concatIntStringAny(int i, anydata a) {
-    output = output + i + ":" + a.toString() + " ";
+    output = output + i.toString() + ":" + a.toString() + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

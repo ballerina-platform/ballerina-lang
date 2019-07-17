@@ -30,7 +30,7 @@ function testArrayWithErrors() returns [string, string, string] {
     foreach var error(reason, message = message, fatal = fatal) in errorArray {
         result1 += reason + ":";
         result1 += <string> message + ":";
-        result1 += fatal + ":";
+        result1 += fatal.toString() + ":";
     }
 
     string result2 = "";
@@ -38,7 +38,7 @@ function testArrayWithErrors() returns [string, string, string] {
         result2 += reason2 + ":";
         any temp2 = message;
         result2 += <string> message1 + ":";
-        result2 += fatal1 + ":";
+        result2 += fatal1.toString() + ":";
     }
 
     string result3 = "";
@@ -62,7 +62,7 @@ function testMapWithErrors() returns [string, string, string] {
     foreach var error(reason, message = message, fatal = fatal) in errMap {
         result1 += reason + ":";
         result1 += <string> message + ":";
-        result1 += fatal + ":";
+        result1 += fatal.toString() + ":";
     }
 
     string result2 = "";
@@ -71,7 +71,7 @@ function testMapWithErrors() returns [string, string, string] {
         any temp2 = message1;
         if (temp2 is string|boolean|()) {
             result2 += <string> message1 + ":";
-            result2 += fatal1 + ":";
+            result2 += fatal1.toString() + ":";
         }
     }
 

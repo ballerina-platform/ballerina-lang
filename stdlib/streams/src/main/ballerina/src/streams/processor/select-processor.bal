@@ -64,7 +64,7 @@ public type Select object {
                 } else {
                     int i = 0;
                     foreach var aggregator in self.aggregatorArr {
-                        string snapshotableKey = self.scopeName + groupbyKey + "$" + i;
+                        string snapshotableKey = self.scopeName + groupbyKey + "$" + i.toString();
                         Aggregator clone = aggregator.copy();
                         restoreState(snapshotableKey, clone);
                         registerSnapshotable(snapshotableKey, clone);

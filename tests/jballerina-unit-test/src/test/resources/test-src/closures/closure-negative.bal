@@ -32,7 +32,7 @@ function testDifferentArgs(int a) returns (function (float) returns (function (f
             string str = "Plain";
             if (!booOuter && booInner) {
                 fOut = 4.6;
-                str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
+                str = innerInt.toString() + "InnerInt" + outerInt.toString() + fOut.toString() + "InnerFloat" + fIn.toString() + "Ballerina !!!";
             }
             return str;
         };
@@ -57,14 +57,14 @@ function testVariableShadowingInClosure(int a) returns function (float) returns 
             boo = false;
             b = a + <int>f + b;
         }
-        string s = "Out" + b;
+        string s = "Out" + b.toString();
 
         var fooIn = function (float f, boolean boo) returns (string) {
             if (a > 8 && !boo) {
                 int a = 6;
                 b = a + <int>f + b;
             }
-            return s + "In" + b + "Ballerina!!!";
+            return s + "In" + b.toString() + "Ballerina!!!";
         };
         return fooIn;
     };

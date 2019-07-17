@@ -5,15 +5,15 @@ function concatString (string value) {
 }
 
 function concatIntString (int i, string v) {
-    output = output + i + ":" + v + " ";
+    output = output + i.toString() + ":" + v + " ";
 }
 
 function concatInt (int i) {
-    output = output + i + " ";
+    output = output + i.toString() + " ";
 }
 
 function concatTwoInts (int i, int j) {
-    output = output + i + ":" + j + " ";
+    output = output + i.toString() + ":" + j.toString() + " ";
 }
 
 type Week record {

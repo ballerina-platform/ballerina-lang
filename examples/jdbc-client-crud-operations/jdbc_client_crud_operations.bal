@@ -1,15 +1,15 @@
 import ballerina/io;
 import ballerinax/java.jdbc;
 
-// Client for MySQL database. This client can be used with any JDBC
+// JDBC Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/testdb",
-        username: "test",
-        password: "test",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
+});
 
 // This is the `type` created to represent a data row.
 type Student record {
@@ -80,14 +80,12 @@ public function main() {
                         (age, name) values (?, ?)", age, name);
     if (retWithKey is jdbc:UpdateResult) {
         int count = retWithKey.updatedRowCount;
-        int|error generatedKey = typedesc<int>.constructFrom(retWithKey.generatedKeys["GENERATED_KEY"]);
+        int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
         io:println("Inserted row count: " + count);
-        if (generatedKey is int) {
-            io:println("Generated key: " + generatedKey);
-        }
+        io:println("Generated key: " + generatedKey);
     } else {
         error err = retWithKey;
-        io:println("Insert to table failed: " + <string>err.detail()["message"]);
+        io:println("Insert failed: " + <string> err.detail()["message"]);
     }
 
     // Select data using the `select` remote function. The `select` remote
@@ -112,7 +110,7 @@ public function main() {
     } else {
         error err = selectRet;
         io:println("Select data from student table failed: "
-                + <string>err.detail()["message"]);
+                + <string> err.detail()["message"]);
     }
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
@@ -126,6 +124,6 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string>err.detail()["message"]);
+        io:println(message + " failed: " + <string> err.detail()["message"]);
     }
 }

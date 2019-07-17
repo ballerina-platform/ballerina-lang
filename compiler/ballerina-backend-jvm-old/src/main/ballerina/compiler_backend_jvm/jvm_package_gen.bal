@@ -375,10 +375,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         bir:Function startFunc = <bir:Function>functions[1];
         functionName = startFunc.name.value;
 
-        if (functionName == getModuleStartFuncName(module)) {
-            class.functions[1] = startFunc;
-            count += 1;
-        }
+        class.functions[1] = startFunc;
+        count += 1;
 
         // Generate classes for other functions.
         while (count < funcSize) {

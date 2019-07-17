@@ -258,7 +258,7 @@ function testClosureWithTupleTypes([string, float, string] g) returns (function 
     return function (string x, [string, float, string] y) returns (string) {
        var [i, j, k] = y;
        var [l, m, n] = g;
-       return x + i + j + k + l + m + n;
+       return x + i + j.toString() + k + l + m.toString() + n.toString();
     };
 }
 
@@ -284,7 +284,7 @@ function testClosureWithTupleTypesOrder([string, float, string] g) returns (func
        var [d, e, f] = y;
        var [i1, j1, k1] = r;
 
-       return x + a + b + c + d + e + f + i1 + j1 + k1;
+       return x + a + b.toString() + c + d + e.toString() + f + i1 + j1.toString() + k1;
     };
 }
 
@@ -325,7 +325,7 @@ type Person object {
     function getAttachedFn() returns string {
         int b = 4;
         var foo = function (float w) returns (string) {
-           return self.name + w + "K" + b + self.age;
+           return self.name + w.toString() + "K" + b.toString() + self.age.toString();
         };
         return foo(7.4);
     }
@@ -333,7 +333,7 @@ type Person object {
     function getAttachedFP() returns function (float) returns (string) {
         int b = 4;
         var foo = function (float w) returns (string) {
-            return w + self.year + b + "Ballerina !!!";
+            return w.toString() + self.year.toString() + b.toString() + "Ballerina !!!";
         };
         return foo;
     }
@@ -359,7 +359,8 @@ function testDifferentArgs() returns (function (float) returns (function (float)
         var innerFoo = function (float fIn) returns (string) {
             string str = "Plain";
             if (!booOuter && booInner) {
-                str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
+                str = innerInt.toString() + "InnerInt" + outerInt.toString() + fOut.toString() + "InnerFloat" +
+                        fIn.toString() + "Ballerina !!!";
             }
             return str;
         };
@@ -386,7 +387,7 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
         if (a > 8) {
             b = a + <int>f + b;
         }
-        return "Ballerina" + b;
+        return "Ballerina" + b.toString();
     };
     return foo;
 }
@@ -411,13 +412,13 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
         if (a > 8) {
             b = a + <int>f + b;
         }
-        string s = "Out" + b;
+        string s = "Out" + b.toString();
 
         var fooIn = function (float f, boolean boo) returns (string) {
             if (a > 8 && !boo) {
                 b = a + <int>f + b;
             }
-            return s + "In" + b + "Ballerina!!!";
+            return s + "In" + b.toString() + "Ballerina!!!";
         };
         return fooIn;
     };
@@ -446,19 +447,19 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
         if (a > 8) {
             b = a + <int>f + b;
         }
-        string sOut = "OutMost" + b;
+        string sOut = "OutMost" + b.toString();
 
         var fooOut = function (float f) returns (function (float, boolean) returns (string)) {
             if (a == 9) {
                 b = a + <int>f + b;
             }
-            string s = sOut + "Out" + b;
+            string s = sOut + "Out" + b.toString();
 
             var fooIn = function (float f, boolean boo) returns (string) {
                 if (a > 8 && !boo) {
                     b = a + <int>f + b;
                 }
-                return s + "In" + b + "Ballerina!!!";
+                return s + "In" + b.toString() + "Ballerina!!!";
             };
             return fooIn;
         };
@@ -484,14 +485,14 @@ function testVariableShadowingInClosure4() returns (function (float) returns (fu
     boolean boo = true;
 
     var fooOutMost = function (float f) returns (function (float) returns (function (float, boolean) returns (string))) {
-        string sOut = "OutMost" + b + a;
+        string sOut = "OutMost" + b.toString() + a.toString();
 
         var fooOut = function (float f) returns (function (float, boolean) returns (string)) {
-            string s = sOut + "Out" + b + a;
+            string s = sOut + "Out" + b.toString() + a.toString();
 
             var fooIn = function (float f, boolean boo) returns (string) {
                 b = a + <int>f + b;
-                return s + "In" + b + "Ballerina!!!";
+                return s + "In" + b.toString() + "Ballerina!!!";
             };
             return fooIn;
         };
