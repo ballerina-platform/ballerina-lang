@@ -428,8 +428,7 @@ public class LauncherUtils {
         }
 
         Compiler compiler = Compiler.getInstance(context);
-        outStream.println("Compiling source");
-        BLangPackage entryPkgNode = compiler.compile(source, true);
+        BLangPackage entryPkgNode = compiler.compile(source);
         if (entryPkgNode.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
