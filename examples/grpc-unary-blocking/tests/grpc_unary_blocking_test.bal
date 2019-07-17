@@ -12,14 +12,14 @@ function testUnaryBlockingService() {
     headers.setEntry("client_header_key", "Request Header Value");
 
     // Executes unary blocking call with headers.
-    var unionResp = blockingEp->hello("WSO2", headers = headers);
+    var unionResp = blockingEp->hello("WSO2", headers);
     if (unionResp is error) {
-        string errorMsg = "Error from Connector: " + unionResp.reason() + " - " + <string>unionResp.detail().message;
+        string errorMsg = "Error from Connector: " + unionResp.reason() + " - " + <string> unionResp.detail()["message"];
         test:assertFail(msg = errorMsg);
     } else {
         string result;
         grpc:Headers resHeaders;
-        (result, resHeaders) = unionResp;
+        [result, resHeaders] = unionResp;
         string expected = "Hello WSO2";
         test:assertEquals(result, expected);
         string headerValue = resHeaders.get("server_header_key") ?: "none";

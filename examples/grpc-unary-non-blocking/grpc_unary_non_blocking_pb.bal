@@ -7,7 +7,7 @@ public type HelloWorldBlockingClient client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("blocking", ROOT_DESCRIPTOR,
                                                             getDescriptorMap());
         if (result is error) {
@@ -22,11 +22,11 @@ public type HelloWorldBlockingClient client object {
                                         returns ((string, grpc:Headers)|error) {
         var payload = check self.grpcClient->blockingExecute(
                                                  "service.HelloWorld/hello", req,
-                                                 headers = headers);
+                                                 headers);
         grpc:Headers resHeaders = new;
         any result = ();
-        (result, resHeaders) = payload;
-        return (string.convert(result), resHeaders);
+        [result, resHeaders] = payload;
+        return [result.toString(), resHeaders];
     }
 
 };
@@ -37,7 +37,7 @@ public type HelloWorldClient client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
                                                             getDescriptorMap());
         if (result is error) {
@@ -51,7 +51,7 @@ public type HelloWorldClient client object {
     remote function hello(string req, service msgListener,
                                     grpc:Headers? headers = ()) returns (error?) {
         return self.grpcClient->nonBlockingExecute("service.HelloWorld/hello",
-                                            req, msgListener, headers = headers);
+                                            req, msgListener, headers);
     }
 
 };

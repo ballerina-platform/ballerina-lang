@@ -122,6 +122,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
+    private SemanticAnalyzer semanticAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -139,6 +140,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -431,6 +433,27 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+ //TODO:
+//        fieldAccessExpr.expr.accept(this);
+//        if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM || fieldAccessExpr.expr.type.tag == TypeTags.TABLE) {
+//            BRecordType constraint = (BRecordType) (fieldAccessExpr.expr.type.tag == TypeTags.STREAM ?
+//                                                    ((BStreamType) fieldAccessExpr.expr.type).constraint :
+//                                                    ((BTableType) fieldAccessExpr.expr.type).constraint);
+//            SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(fieldAccessExpr, env);
+//            symbolEnter.defineTypeNarrowedSymbol(fieldAccessExpr.pos, targetEnv,
+//                                                 (BVarSymbol) ((BLangVariableReference) fieldAccessExpr.expr).symbol,
+//                                                 constraint);
+//            fieldAccessExpr.expr.typeChecked = false;
+//            typeChecker.checkExpr(fieldAccessExpr, targetEnv);
+//            if (constraint.fields.stream()
+//                    .noneMatch(bField -> bField.name.value.equals(fieldAccessExpr.field.value))) {
+//                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, fieldAccessExpr.field
+//                        .value);
+//            }
+//        } else {
+//            typeChecker.checkExpr(fieldAccessExpr, env);
+//        }
+
         if (isSiddhiRuntimeEnabled) {
             fieldAccessExpr.expr.accept(this);
         } else {

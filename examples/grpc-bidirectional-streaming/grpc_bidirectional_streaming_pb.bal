@@ -7,7 +7,7 @@ public type ChatClient client object {
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
                                                             getDescriptorMap());
         if (result is error) {
@@ -20,7 +20,7 @@ public type ChatClient client object {
     remote function chat(service msgListener, grpc:Headers? headers = ())
                         returns (grpc:StreamingClient|error)  {
         return self.grpcClient->streamingExecute("Chat/chat",
-                                                msgListener, headers = headers);
+                                                msgListener, headers);
     }
 };
 

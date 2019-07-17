@@ -13,7 +13,7 @@ service Chat on new grpc:Listener(9090) {
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
         log:printInfo(string `${caller.getId()} connected to chat`);
-        self.consMap[string.convert(caller.getId())] = caller;
+        self.consMap[caller.getId().toString()] = caller;
     }
 
     //This `resource` is triggered when the caller sends a request message to the `service`.
@@ -21,13 +21,12 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         log:printInfo("Server received message: " + msg);
-        foreach var con in self.consMap {
-            string callerId;
-            (callerId, ep) = con;
+        foreach var [callerId, connection] in self.consMap.entries() {
+            ep = connection;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
-                            + <string>err.detail().message);
+                            + <string> err.detail()["message"]);
             } else {
                 log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }
@@ -37,7 +36,7 @@ service Chat on new grpc:Listener(9090) {
     //This `resource` is triggered when the server receives an error message from the caller.
     resource function onError(grpc:Caller caller, error err) {
         log:printError("Error from Connector: " + err.reason() + " - "
-                + <string>err.detail().message);
+                + <string> err.detail()["message"]);
     }
 
     //This `resource` is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
@@ -46,13 +45,12 @@ service Chat on new grpc:Listener(9090) {
         string msg = string `${caller.getId()} left the chat`;
         log:printInfo(msg);
         var v = self.consMap.remove(string.convert(caller.getId()));
-        foreach var con in self.consMap {
-            string callerId;
-            (callerId, ep) = con;
+        foreach var [callerId, connection] in self.consMap.entries() {
+            ep = connection;
             error? err = ep->send(msg);
             if (err is error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
-                        + <string>err.detail().message);
+                        + <string> err.detail()["message"]);
             } else {
                 log:printInfo("Server message to caller " + callerId + " sent successfully.");
             }

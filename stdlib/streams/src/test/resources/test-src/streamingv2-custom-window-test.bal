@@ -35,13 +35,15 @@ public type CustomWindow object {
     public function process(streams:StreamEvent?[] streamEvents) {
         streams:StreamEvent?[] outputEvents = [];
         foreach var event in streamEvents {
-            event.addAttribute("status", "single");
-            event.addAttribute("phoneNo", "123456");
-            outputEvents[outputEvents.length()] = event;
+            if (event is streams:StreamEvent) {
+                event.addAttribute("status", "single");
+                event.addAttribute("phoneNo", "123456");
+                outputEvents[outputEvents.length()] = event;
+            }
         }
         any nextProcessFuncPointer = self.nextProcessPointer;
         if (nextProcessFuncPointer is function (streams:StreamEvent?[])) {
-            nextProcessFuncPointer.call(outputEvents);
+            nextProcessFuncPointer(outputEvents);
         }
     }
 
@@ -56,7 +58,7 @@ public type CustomWindow object {
 };
 
 public function customWindow(any[] windowParameters,
-                            function (streams:StreamEvent[])? nextProcessPointer = ()) returns streams:Window {
+                            function (streams:StreamEvent?[])? nextProcessPointer = ()) returns streams:Window {
     CustomWindow customWindow1 = new(nextProcessPointer, windowParameters);
     return customWindow1;
 }

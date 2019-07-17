@@ -6,7 +6,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config = config);
+        grpc:Client c = new(url, config);
         error? result = c.initStub("{{stubType}}", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is error) {
             panic result;
@@ -16,29 +16,29 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
     }
 
 {{#blockingFunctions}}
-    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}({{outputType}}, grpc:Headers){{else}}grpc:Headers{{/if}}|error) {
+    remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers = headers);
+        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers);
         grpc:Headers resHeaders = new;
-        {{#if outputType}}any result = ();
-        (result, resHeaders) = payload;
-        {{#not_equal outputType "string"}}var value = {{outputType}}.convert(result);
+        {{#if outputType}}anydata result = ();
+        [result, resHeaders] = payload;
+        {{#not_equal outputType "string"}}var value = typedesc<{{outputType}}>.constructFrom(result);
         if (value is {{outputType}}) {
-            return (value, resHeaders);
+            return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", {"message": value.reason()});
+            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
             return err;
-        }{{/not_equal}}{{#equals outputType "string"}}return ({{outputType}}.convert(result), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
+        }{{/not_equal}}{{#equals outputType "string"}}return (result.toString(), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
     remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers = headers);
+        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers);
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
     remote function {{methodName}}(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error)  {
-        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers = headers);
+        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers);
     }{{/streamingFunctions}}
 };
 {{/stubList}}{{#messageList}}

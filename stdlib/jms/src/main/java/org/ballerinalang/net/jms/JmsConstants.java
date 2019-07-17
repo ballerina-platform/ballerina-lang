@@ -38,9 +38,10 @@ public class JmsConstants {
 
     public static final String BALLERINAX = "ballerinax";
     public static final String VERSION = "0.0.0";
-    public static final String JMS = "jms";
-    public static final String JMS_VERSION = JMS + BLOCK_SEPARATOR + VERSION;
-    public static final String PROTOCOL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + JMS;
+    public static final String JAVA_JMS = "java.jms";
+    public static final String JMS_VERSION = JAVA_JMS + BLOCK_SEPARATOR + VERSION;
+    public static final String PROTOCOL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + JAVA_JMS;
+    public static final String PROTOCOL_INTERNAL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + "java_jms";
     public static final String PROTOCOL_PACKAGE_JMS_WITH_VERSION = BALLERINAX + ORG_NAME_SEPARATOR + JMS_VERSION;
 
     // Others
@@ -88,9 +89,38 @@ public class JmsConstants {
     // Consumer fields
     public static final String CONSUMER_ACTIONS = "consumerActions";
 
-    // Destination fields
-    public static final String DESTINATION_NAME = "destinationName";
-    public static final String DESTINATION_TYPE = "destinationType";
+    // Message fields
+    public static final String SESSION_FIELD_NAME = "session";
+    public static final String MESSAGE_TYPE_FIELD_NAME = "msgType";
+
+    // Message types
+    public static final String MESSAGE = "MESSAGE";
+    public static final String TEXT_MESSAGE = "TEXT_MESSAGE";
+    public static final String BYTES_MESSAGE = "BYTES_MESSAGE";
+    public static final String STREAM_MESSAGE = "STREAM_MESSAGE";
+    public static final String MAP_MESSAGE = "MAP_MESSAGE";
+
+    // JMS headers
+    public static final String CUSTOM_HEADERS = "CustomHeaders";
+    public static final String REPLY_TO_FIELD = "replyTo";
+    public static final String CORRELATION_ID_FIELD = "correlationId";
+    public static final String HEADERS = "Headers";
+    public static final String TYPE_FIELD = "jmsType";
+
+    // Destination types
+    public static final String DESTINATION_TYPE_QUEUE = "queue";
+    public static final String DESTINATION_TYPE_TOPIC = "topic";
+
+
+    // The data types for Stream or Byte message types
+    public static final String INT = "INT";
+    public static final String FLOAT = "FLOAT";
+    public static final String BYTE = "BYTE";
+    public static final String BOOLEAN = "BOOLEAN";
+    public static final String STRING = "STRING";
+    public static final String XML = "XML";
+    public static final String JSON = "JSON";
+    public static final String BYTES = "BYTES";
 
     // Native objects
     public static final String JMS_CONNECTION = "jms_connection_object";
@@ -102,6 +132,8 @@ public class JmsConstants {
 
     // Used to keep the session wrapper
     public static final String SESSION_CONNECTOR_OBJECT = "jms_session_connector_object";
+
+    public static final String SESSION_OBJECT = "session_object";
 
     public static final String CONFIG_FILE_PATH = "configFilePath";
 
@@ -144,8 +176,6 @@ public class JmsConstants {
 
     public static final String NON_DAEMON_THREAD_RUNNING = "non-daemon-thread-running.";
     public static final String ARTEMIS_ICF = "artemis";
-
-    // Warning suppression
 
     private static Map<String, String> mappingParameters;
 

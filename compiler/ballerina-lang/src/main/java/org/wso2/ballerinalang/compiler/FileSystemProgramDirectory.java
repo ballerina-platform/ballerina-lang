@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
@@ -73,15 +74,18 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public List<String> getSourceFileNames() {
+        List<String> fileNames = Collections.emptyList();
         if (!Files.isDirectory(programDirPath)) {
-            return Collections.emptyList();
+            return fileNames;
         }
         try {
-            return Files.list(programDirPath)
-                    .map(ProjectDirs::getLastComp)
-                    .filter(ProjectDirs::isSourceFile)
-                    .map(Path::toString)
-                    .collect(Collectors.toList());
+            try (Stream<Path> stream = Files.list(programDirPath)) {
+                fileNames = stream.map(ProjectDirs::getLastComp)
+                        .filter(ProjectDirs::isSourceFile)
+                        .map(Path::toString)
+                        .collect(Collectors.toList());
+            }
+            return fileNames;
         } catch (SecurityException | AccessDeniedException e) {
             throw new BLangCompilerException("permission denied: " + programDirPath.toString());
         } catch (IOException e) {

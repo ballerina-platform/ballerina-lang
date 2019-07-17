@@ -64,13 +64,15 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> getLatestVersion(Path path, PackageID packageID) {
         if (Files.isDirectory(path)) {
             try {
-                List<Path> pathList = Files.list(path)
-                                           .map(SortablePath::new)
-                                           .filter(SortablePath::valid)
-                                           .sorted(Comparator.reverseOrder())
-                                           .limit(1)
-                                           .map(SortablePath::getPath)
-                                           .collect(Collectors.toList());
+                List<Path> pathList;
+                try (Stream<Path> stream = Files.list(path)) {
+                    pathList = stream.map(SortablePath::new)
+                            .filter(SortablePath::valid)
+                            .sorted(Comparator.reverseOrder())
+                            .limit(1)
+                            .map(SortablePath::getPath)
+                            .collect(Collectors.toList());
+                }
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                             && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
