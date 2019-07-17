@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.testerina.core;
 
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
