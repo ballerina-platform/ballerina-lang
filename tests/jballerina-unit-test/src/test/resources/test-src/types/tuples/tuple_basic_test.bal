@@ -56,13 +56,13 @@ function testFunctionInvocation() returns (string) {
 
 function testTuples (string x, [string, float, string] y) returns (string) {
     var [i, j, k] = y;
-    return x + i + j + k;
+    return x + i + j.toString() + k;
 }
 
 function testFunctionReturnValue() returns (string) {
     [string, float, string] x = testReturnTuples("x");
     var [i, j, k] = x;
-    return i + j + k;
+    return i + j.toString() + k;
 }
 
 function testReturnTuples (string a) returns ([string, float, string]) {

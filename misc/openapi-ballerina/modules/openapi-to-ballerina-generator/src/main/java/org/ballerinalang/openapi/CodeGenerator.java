@@ -25,7 +25,6 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
-import com.google.common.base.Strings;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.StringUtils;

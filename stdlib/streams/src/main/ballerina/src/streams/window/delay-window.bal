@@ -65,7 +65,7 @@ public type DelayWindow object {
             }
         } else {
             error err = error("Delay window should only have one parameter (<int> " +
-                "delayTime), but found " + parameters.length() + " input attributes");
+                "delayTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

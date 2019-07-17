@@ -38,7 +38,7 @@ function testAnonObjectAsPkgVar() returns (string) {
     person = new (fname = "sameera", lname = "jaya");
     person.lname = person.lname + "soma";
     person.age = 100;
-    return person.fname + ":" + person.lname + ":" + person.age;
+    return person.fname + ":" + person.lname + ":" + person.age.toString();
 }
 
 type employee object {

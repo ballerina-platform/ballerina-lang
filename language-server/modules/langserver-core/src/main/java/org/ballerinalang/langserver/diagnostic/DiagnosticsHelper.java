@@ -143,7 +143,10 @@ public class DiagnosticsHelper {
             if (ballerinaProject) {
                 diagnosticRoot = diagnosticRoot.resolve("src");
             }
-            String fileURI = diagnosticRoot.resolve(moduleName).resolve(fileName).toUri().toString() + "";
+            if (!".".equals(moduleName)) {
+                diagnosticRoot = diagnosticRoot.resolve(moduleName);
+            }
+            String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<>());

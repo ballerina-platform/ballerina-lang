@@ -99,6 +99,7 @@ public class ArtemisConstants {
     public static final String TIME_STAMP = "timeStamp";
     public static final String PRIORITY = "priority";
     public static final String MESSAGE_CONFIG = "configuration";
+    public static final String CREATED = "created";
 
     // Field names for Producer
     public static final String RATE = "rate";

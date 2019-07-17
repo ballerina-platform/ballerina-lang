@@ -152,7 +152,7 @@ function testDecrementOperatorStructElement() returns (int){
 function testStringIntCompoundAssignmentAddition() returns (string){
     int x = 5;
     string a = "test";
-    a += x;
+    a += x.toString();
     return a;
 }
 

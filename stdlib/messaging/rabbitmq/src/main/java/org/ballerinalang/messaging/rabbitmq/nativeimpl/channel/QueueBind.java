@@ -19,8 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -46,11 +44,7 @@ import java.io.IOException;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class QueueBind extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class QueueBind {
 
     public static Object queueBind(Strand strand, ObjectValue channelObjectValue, String queueName,
                                    String exchangeName, String bindingKey) {
@@ -67,5 +61,8 @@ public class QueueBind extends BlockingNativeCallableUnit {
                     + "I/O exception while binding the queue; " + exception.getMessage());
         }
         return null;
+    }
+
+    private QueueBind() {
     }
 }

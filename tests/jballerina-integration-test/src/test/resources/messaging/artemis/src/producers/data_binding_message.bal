@@ -20,36 +20,36 @@ artemis:EndpointConfiguration config = {host: "localhost", port: 61616};
 artemis:AddressConfiguration addressConfig = {autoCreated:false};
 
 public function testSendString() {
-    artemis:Producer prod = new(config , "queue1", addressConfig = addressConfig);
+    artemis:Producer prod = new(config , "queue1", addressConfig);
     var err = prod->send("Hello World");
 }
 
 public function testSendJson() {
-    artemis:Producer prod = new(config, "queue2", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue2", addressConfig);
     json name = {"name": "Riyafa"};
     var err = prod->send(name);
 }
 
 public function testSendXml() {
-    artemis:Producer prod = new(config, "queue3", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue3", addressConfig);
      xml book = xml `<book>The Lost World</book>`;
     var err = prod->send(book);
 }
 
 public function testSendRecord() {
-    artemis:Producer prod = new(config, "queue4", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue4", addressConfig);
     json person = {"name": "John", "age":20};
     var err = prod->send(person);
 }
 
 public function testSendByteArray() {
-    artemis:Producer prod = new(config, "queue6", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue6", addressConfig);
     byte[6] msg = [1, 2, 2, 3, 3, 2];
     var err = prod->send(msg);
 }
 
 public function testSendMapString() {
-    artemis:Producer prod = new(config, "queue7", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue7", addressConfig);
     map<string> msg = {
         "name": "Riyafa",
         "hello": "world"
@@ -58,7 +58,7 @@ public function testSendMapString() {
 }
 
 public function testSendMapInt() {
-    artemis:Producer prod = new(config, "queue8", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue8", addressConfig);
     map<int> msg = {
         "num": 1,
         "num2": 2
@@ -67,7 +67,7 @@ public function testSendMapInt() {
 }
 
 public function testSendMapFloat() {
-    artemis:Producer prod = new(config, "queue9", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue9", addressConfig);
     map<float> msg = {
         "numf1": 1.1,
         "numf2": 1.2
@@ -76,7 +76,7 @@ public function testSendMapFloat() {
 }
 
 public function testSendMapByte() {
-    artemis:Producer prod = new(config, "queue10", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue10", addressConfig);
    map<byte> msg = {
         "byte1": 1,
         "byte2": 7
@@ -85,7 +85,7 @@ public function testSendMapByte() {
 }
 
 public function testSendMapByteArray() {
-    artemis:Producer prod = new(config, "queue11", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue11", addressConfig);
     byte[3] array1 = [1, 2, 3];
     byte[1] array2 = [5];
     map<byte[]> msg = {
@@ -96,7 +96,7 @@ public function testSendMapByteArray() {
 }
 
 public function testSendMapBoolean() {
-    artemis:Producer prod = new(config, "queue12", addressConfig = addressConfig);
+    artemis:Producer prod = new(config, "queue12", addressConfig);
     map<boolean> msg = {
         "first": true,
         "second": false

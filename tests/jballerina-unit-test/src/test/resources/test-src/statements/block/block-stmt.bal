@@ -82,7 +82,7 @@ function testVariableShadowingInCurrentScope2(int a) returns function (float) re
         if (a > 8) {
             b = a + <int>f + b;
         }
-        return "K" + b;
+        return "K" + b.toString();
     };
     return foo;
 }
