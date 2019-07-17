@@ -266,7 +266,7 @@ public class WorkerTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertEquals(((BInteger) returns[0]).intValue(), 18);
         } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("error: future is already cancelled {}"));
+            Assert.assertTrue(e.getMessage().contains("error: future is already cancelled"));
         }
     }
 
