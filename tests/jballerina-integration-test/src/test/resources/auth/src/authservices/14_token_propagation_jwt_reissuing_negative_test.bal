@@ -72,10 +72,8 @@ service passthroughService14 on listener14_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
