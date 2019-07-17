@@ -18,22 +18,22 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/http;
 
-function testCanHandleHttpBearerAuthWithoutHeader() returns @tainted boolean {
+function testCanProcessHttpBearerAuthWithoutHeader() returns @tainted boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "123Bearer xxxxxx";
     inRequest.setHeader("123Authorization", bearerAuthHeaderValue);
-    return handler.canHandle(inRequest);
+    return handler.canProcess(inRequest);
 }
 
-function testCanHandleHttpBearerAuth() returns boolean {
+function testCanProcessHttpBearerAuth() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "Bearer xxxxxx";
     inRequest.setHeader("Authorization", bearerAuthHeaderValue);
-    return <@untainted> handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
 function testHandleHttpBearerAuthFailure() returns boolean|error {

@@ -211,15 +211,22 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
                                @tainted CachedToken tokenCache, boolean updateRequest)
                                returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
-        return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
+        if (authConfig.retryRequest) {
+            return getAuthTokenForOAuth2PasswordGrant(authConfig, tokenCache);
+        }
     } else if (authConfig is ClientCredentialsGrantConfig) {
-        return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
+        if (authConfig.retryRequest) {
+            return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, tokenCache);
+        }
     } else {
         if (updateRequest) {
             authConfig.accessToken = EMPTY_STRING;
         }
-        return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
+        if (authConfig.retryRequest) {
+            return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
+        }
     }
+    return prepareError("Failed to get the access token since retry request is set as false.");
 }
 
 # Process the auth token for OAuth2 password grant.
@@ -581,10 +588,9 @@ function extractAccessTokenFromResponse(http:Response response, @tainted CachedT
     } else {
         var payload = response.getTextPayload();
         if (payload is string) {
-            return prepareError("Received an invalid response. StatusCode: " + response.statusCode.toString() +
-                                " Payload: " + payload);
+            return prepareError("Received an invalid response with status-code: " + response.statusCode.toString() + "; and payload: " + payload);
         } else {
-            return prepareError("Received an invalid response. StatusCode: " + response.statusCode.toString(), payload);
+            return prepareError("Received an invalid response with status-code: " + response.statusCode.toString(), payload);
         }
     }
 }

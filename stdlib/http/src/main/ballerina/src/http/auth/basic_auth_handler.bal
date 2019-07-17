@@ -38,7 +38,7 @@ public type BasicAuthHandler object {
     #
     # + req - The request object.
     # + return - Returns `true` if authentication is successful. Else, returns `false`.
-    public function canHandle(Request req) returns @tainted boolean {
+    public function canProcess(Request req) returns @tainted boolean {
         if (req.hasHeader(AUTH_HEADER)) {
             string headerValue = extractAuthorizationHeaderValue(req);
             return internal:hasPrefix(headerValue, auth:AUTH_SCHEME_BASIC);
@@ -49,14 +49,20 @@ public type BasicAuthHandler object {
     # Authenticates the incoming request with the use of the credentials passed as the Basic Auth header.
     #
     # + req - The request object.
-    # + return - Returns `true` if it is possible to authenticate with Basic Auth. Else, returns `false` or the `error` in case of an error.
-    public function process(Request req) returns boolean|error {
+    # + return - Returns `true` if it is possible to authenticate with Basic Auth. Else, returns `false` or
+    # the `AuthenticationError` in case of an error.
+    public function process(Request req) returns boolean|AuthenticationError {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(5, headerValue.length());
         credential = credential.trim();
         var authProvider = self.authProvider;
         if (authProvider is auth:InboundAuthProvider) {
-            return authProvider.authenticate(credential);
+            var authenticationResult = authProvider.authenticate(credential);
+            if (authenticationResult is boolean) {
+                return authenticationResult;
+            } else {
+                return prepareAuthenticationError("Failed to authenticate with basic auth hanndler.", authenticationResult);
+            }
         } else {
             return prepareAuthenticationError("Outbound auth provider is configured for inbound authentication.");
         }
@@ -65,13 +71,17 @@ public type BasicAuthHandler object {
     # Prepares the request with the Basic Auth header.
     #
     # + req - The`Request` instance.
-    # + return - Returns the updated `Request` instance or the`ClientError` in case of an error.
-    public function prepare(Request req) returns Request|ClientError {
+    # + return - Returns the updated `Request` instance or the`AuthenticationError` in case of an error.
+    public function prepare(Request req) returns Request|AuthenticationError {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
-            string token = check authProvider.generateToken();
-            req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
-            return req;
+            var token = authProvider.generateToken();
+            if (token is string) {
+                req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
+                return req;
+            } else {
+                return prepareAuthenticationError("Failed to prepare request at basic auth handler.", token);
+            }
         } else {
             return prepareAuthenticationError("Inbound auth provider is configured for outbound authentication.");
         }
@@ -81,15 +91,18 @@ public type BasicAuthHandler object {
     #
     # req - The `Request` instance.
     # resp - The `Response` instance.
-    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be done.
-    public function inspect(Request req, Response resp) returns Request|error? {
+    # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error,
+    # or `()` if nothing is to be returned.
+    public function inspect(Request req, Response resp) returns Request|AuthenticationError? {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {
             map<anydata> headerMap = createResponseHeaderMap(resp);
-            string? token = check authProvider.inspect(headerMap);
+            var token = authProvider.inspect(headerMap);
             if (token is string) {
                 req.setHeader(AUTH_HEADER, auth:AUTH_SCHEME_BASIC + token);
                 return req;
+            } else if (token is auth:Error) {
+                return prepareAuthenticationError("Failed to inspect at basic auth handler.", token);
             }
             return ();
         } else {
