@@ -53,7 +53,10 @@ function testTableLiteralDataAndAdd2() returns (int) {
     checkpanic t1.add(p4);
     checkpanic t1.add(p5);
 
-    int count = t1.count();
+    int count = 0;
+    foreach var v in t1 {
+        count = count + 1;
+    }
     return count;
 }
 
@@ -63,7 +66,10 @@ function testTableLiteralDataWithInit() returns (int) {
         [1, 1]
     };
 
-    int count = t1.count();
+    int count = 0;
+    foreach var v in t1 {
+        count = count + 1;
+    }
     return count;
 }
 
@@ -79,7 +85,10 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
     checkpanic t1.add(p4);
     checkpanic t1.add(p5);
 
-    int count = t1.count();
+    int count = 0;
+    foreach var v in t1 {
+        count = count + 1;
+    }
     return count;
 }
 
@@ -87,7 +96,7 @@ function testUnknownTableType() {
     table<Student> t1 = table {};
 }
 
-function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
+function testTableRemoveInvalidFunctionPointer() returns [int, json] | error {
     Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
@@ -102,9 +111,9 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) | error {
     if (res is int) {
         count = res;
     }
-    json j = check json.convert(dt);
+    json j = check typedesc<json>.constructFrom(dt);
 
-    return (count, j);
+    return [count, j];
 }
 
 type SubjectInvalid record {
