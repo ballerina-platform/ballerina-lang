@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 string msgVal = "";
 listener jms:QueueListener queueConsumer5 = new({

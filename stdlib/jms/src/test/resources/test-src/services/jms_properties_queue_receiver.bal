@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 string msgVal = "";
 jms:Connection conn3 = new ({

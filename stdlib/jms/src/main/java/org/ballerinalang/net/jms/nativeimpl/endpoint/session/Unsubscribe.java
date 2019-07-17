@@ -34,7 +34,7 @@ import javax.jms.Session;
  * Unsubscribe a durable subscriber.
  */
 @BallerinaFunction(orgName = JmsConstants.BALLERINAX,
-                   packageName = JmsConstants.JMS,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "unsubscribe",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.SESSION_OBJ_NAME,

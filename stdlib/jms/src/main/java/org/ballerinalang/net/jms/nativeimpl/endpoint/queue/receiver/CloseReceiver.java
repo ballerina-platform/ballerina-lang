@@ -32,7 +32,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "closeQueueReceiver",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)

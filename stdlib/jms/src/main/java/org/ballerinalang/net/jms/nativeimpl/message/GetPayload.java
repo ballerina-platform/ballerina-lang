@@ -55,7 +55,7 @@ import javax.jms.TextMessage;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "getPayload",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)

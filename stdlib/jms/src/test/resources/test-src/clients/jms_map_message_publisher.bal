@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 jms:Connection jmsConnection = new({
         initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",

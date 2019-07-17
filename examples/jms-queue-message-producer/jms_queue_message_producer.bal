@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/io;
 
 // Initializes a JMS connection with the provider.  This example uses
@@ -25,7 +25,7 @@ public function main() {
     if (msg is jms:Message) {
         var err = msg.setPayload("Hello from Ballerina");
         if (err is error) {
-            io:println("Unable to set payload" , err.reason());
+            io:println("Unable to set payload", err.reason());
         }
         // This sends the Ballerina message to the JMS provider.
         var returnVal = queueSender->send(msg);

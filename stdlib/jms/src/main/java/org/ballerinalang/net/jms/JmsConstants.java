@@ -38,9 +38,10 @@ public class JmsConstants {
 
     public static final String BALLERINAX = "ballerinax";
     public static final String VERSION = "0.0.0";
-    public static final String JMS = "jms";
-    public static final String JMS_VERSION = JMS + BLOCK_SEPARATOR + VERSION;
-    public static final String PROTOCOL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + JMS;
+    public static final String JAVA_JMS = "java.jms";
+    public static final String JMS_VERSION = JAVA_JMS + BLOCK_SEPARATOR + VERSION;
+    public static final String PROTOCOL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + JAVA_JMS;
+    public static final String PROTOCOL_INTERNAL_PACKAGE_JMS = BALLERINAX + ORG_NAME_SEPARATOR + "java_jms";
     public static final String PROTOCOL_PACKAGE_JMS_WITH_VERSION = BALLERINAX + ORG_NAME_SEPARATOR + JMS_VERSION;
 
     // Others

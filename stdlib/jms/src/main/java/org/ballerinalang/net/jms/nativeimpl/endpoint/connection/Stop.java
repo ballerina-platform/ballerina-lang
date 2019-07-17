@@ -36,7 +36,7 @@ import javax.jms.JMSException;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),

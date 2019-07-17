@@ -22,7 +22,7 @@ initialized. For other endpoints, the developer must explicitly provide a proper
 Following is a simple listener program that consumes messages from a Ballerina Message Broker queue named `MyQueue`.
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
@@ -51,7 +51,7 @@ service jmsListener on consumerEP {
 Following is a simple topic publisher program that sends messages to a Ballerina Message Broker topic named `MyTopic`.
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Create a topic publisher.
@@ -80,7 +80,7 @@ public function main(string... args) {
 Following is a listener program that explicitly initializes a JMS session to be used in the consumer.
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider.
@@ -120,7 +120,7 @@ Following is a queue sender program that explicitly initializes a JMS session to
 
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider.
@@ -155,7 +155,7 @@ public function main(string... args) {
 Following is a topic subscriber program that subscribes to a particular JMS topic.
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 jms:Connection conn = new({
@@ -186,7 +186,7 @@ service jmsListener on subscriberEndpoint {
 Following is a topic producer program that publishes to a particular JMS topic.
 
 ```ballerina
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 jms:Connection jmsConnection = new({

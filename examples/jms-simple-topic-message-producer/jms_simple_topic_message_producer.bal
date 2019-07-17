@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/io;
 
 // Create a topic publisher.  This example makes use of the ActiveMQ'

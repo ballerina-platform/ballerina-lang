@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/io;
 
 string msgVal = "";

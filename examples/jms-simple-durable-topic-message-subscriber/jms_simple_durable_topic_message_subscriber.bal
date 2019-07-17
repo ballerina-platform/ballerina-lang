@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // This creates a simple durable topic subscriber.  This example makes use of

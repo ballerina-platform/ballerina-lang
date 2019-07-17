@@ -31,7 +31,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
  * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
 @BallerinaFunction(orgName = JmsConstants.BALLERINAX,
-                   packageName = JmsConstants.JMS,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,

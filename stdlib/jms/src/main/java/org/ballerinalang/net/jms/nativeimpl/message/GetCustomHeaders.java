@@ -40,7 +40,7 @@ import javax.jms.Message;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "getCustomHeaders",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.MESSAGE_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
@@ -51,7 +51,7 @@ public class GetCustomHeaders {
         Message message = JmsUtils.getJMSMessage(msgObj);
         try {
             MapValue<String, Object> headersRecord = BallerinaValues.createRecordValue(
-                    JmsConstants.PROTOCOL_PACKAGE_JMS, JmsConstants.CUSTOM_HEADERS);
+                    JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS, JmsConstants.CUSTOM_HEADERS);
 
             Destination destination = message.getJMSReplyTo();
             if (destination != null) {

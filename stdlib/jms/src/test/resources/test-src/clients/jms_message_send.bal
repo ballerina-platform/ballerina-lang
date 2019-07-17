@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 jms:Connection jmsConnection = new ({
         initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",

@@ -42,7 +42,7 @@ import javax.jms.Session;
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "createQueueReceiver",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)

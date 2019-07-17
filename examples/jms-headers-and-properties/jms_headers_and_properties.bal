@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Initializes a JMS connection with the provider.

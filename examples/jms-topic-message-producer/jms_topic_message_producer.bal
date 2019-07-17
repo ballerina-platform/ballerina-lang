@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/io;
 
 // Initialize a JMS connection with the provider. This example uses

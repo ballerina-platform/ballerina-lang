@@ -224,12 +224,12 @@ public class JmsUtils {
     public static ObjectValue populateAndGetDestinationObj(Destination destination) throws JMSException {
         ObjectValue destObj;
         if (destination instanceof Queue) {
-            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
                                                         JmsConstants.JMS_DESTINATION_OBJ_NAME,
                                                         ((Queue) destination).getQueueName(),
                                                         JmsConstants.DESTINATION_TYPE_QUEUE);
         } else {
-            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
                                                         JmsConstants.JMS_DESTINATION_OBJ_NAME,
                                                         ((Topic) destination).getTopicName(),
                                                         JmsConstants.DESTINATION_TYPE_QUEUE);
@@ -251,7 +251,7 @@ public class JmsUtils {
         } else {
             msgType = JmsConstants.MESSAGE;
         }
-        ObjectValue messageObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
+        ObjectValue messageObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
                                                                    JmsConstants.MESSAGE_OBJ_NAME, sessionObj, msgType);
         messageObj.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
         return messageObj;

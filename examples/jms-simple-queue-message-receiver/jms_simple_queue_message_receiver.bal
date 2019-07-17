@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Create a simple queue receiver. This example makes use of the ActiveMQ

@@ -38,7 +38,7 @@ import javax.jms.Session;
  */
 
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)

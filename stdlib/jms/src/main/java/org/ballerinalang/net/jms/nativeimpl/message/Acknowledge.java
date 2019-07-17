@@ -37,7 +37,7 @@ import javax.jms.Message;
  *
  */
 @BallerinaFunction(orgName = JmsConstants.BALLERINAX,
-                   packageName = JmsConstants.JMS,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.MESSAGE_OBJ_NAME,

@@ -31,7 +31,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
  * {@code Send} is the send action implementation of the JMS Connector.
  */
 @BallerinaFunction(orgName = JmsConstants.BALLERINAX,
-                   packageName = JmsConstants.JMS,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "send",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.QUEUE_SENDER_OBJ_NAME,

@@ -35,7 +35,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "registerListener",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),

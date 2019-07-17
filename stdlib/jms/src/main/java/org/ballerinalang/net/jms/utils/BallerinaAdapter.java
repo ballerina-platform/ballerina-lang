@@ -46,7 +46,8 @@ public class BallerinaAdapter {
     }
 
     private static MapValue<String, Object> createErrorRecord() {
-        return BallerinaValues.createRecordValue(JmsConstants.PROTOCOL_PACKAGE_JMS, JmsConstants.JMS_ERROR_RECORD);
+        return BallerinaValues.createRecordValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
+                                                 JmsConstants.JMS_ERROR_RECORD);
     }
 
     public static ErrorValue getError(String errorMessage, JMSException e) {

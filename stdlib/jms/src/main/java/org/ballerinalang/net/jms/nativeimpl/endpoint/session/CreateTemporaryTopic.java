@@ -34,7 +34,7 @@ import javax.jms.Session;
 /**
  * Create Text JMS Message.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
                    functionName = "createTemporaryTopic",
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS))
