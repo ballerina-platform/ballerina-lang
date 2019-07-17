@@ -35,7 +35,8 @@ public class ObjectEquivalencyTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/object/object-equivalency.bal");
+
+        compileResult = BCompileUtil.compile("test-src/object/ObjectProject", "ObjectEquivalencyTest");
     }
 
     @Test(description = "Test equivalence of objects that are in the same package and the members are visible at " +
@@ -132,8 +133,8 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test inherent type violation with nil value.",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"invalid " +
-                    "value for object field 'x': expected value of type 'string', found '\\(\\)'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation message=invalid " +
+                    "value for object field 'x': expected value of type 'string', found '\\(\\)'.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }

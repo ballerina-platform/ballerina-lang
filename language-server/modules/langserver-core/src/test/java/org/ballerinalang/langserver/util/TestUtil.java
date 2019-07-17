@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -313,6 +314,7 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever() {
+        LSPackageLoader.clearHomeRepoPackages();
         Endpoint endpoint = ServiceEndpoints.toEndpoint(new BallerinaLanguageServer());
         InitializeParams params = new InitializeParams();
         ClientCapabilities capabilities = new ClientCapabilities();

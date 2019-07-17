@@ -18,22 +18,22 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/http;
 
-function testCanHandleHttpBearerAuthWithoutHeader() returns boolean {
+function testCanProcessHttpBearerAuthWithoutHeader() returns @tainted boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "123Bearer xxxxxx";
     inRequest.setHeader("123Authorization", bearerAuthHeaderValue);
-    return handler.canHandle(inRequest);
+    return handler.canProcess(inRequest);
 }
 
-function testCanHandleHttpBearerAuth() returns boolean {
+function testCanProcessHttpBearerAuth() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BearerAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "Bearer xxxxxx";
     inRequest.setHeader("Authorization", bearerAuthHeaderValue);
-    return handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
 function testHandleHttpBearerAuthFailure() returns boolean|error {
@@ -42,7 +42,7 @@ function testHandleHttpBearerAuthFailure() returns boolean|error {
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "Bearer YW1pbGE6cHFy";
     inRequest.setHeader("Authorization", bearerAuthHeaderValue);
-    return handler.handle(inRequest);
+    return handler.process(inRequest);
 }
 
 function testHandleHttpBearerAuth() returns boolean|error {
@@ -51,7 +51,7 @@ function testHandleHttpBearerAuth() returns boolean|error {
     http:Request inRequest = createRequest();
     string bearerAuthHeaderValue = "Bearer aXN1cnU6eHh4";
     inRequest.setHeader("Authorization", bearerAuthHeaderValue);
-    return handler.handle(inRequest);
+    return handler.process(inRequest);
 }
 
 function createRequest() returns http:Request {
@@ -66,7 +66,7 @@ public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|error {
+    public function authenticate(string credential) returns boolean|auth:Error {
         return credential == "aXN1cnU6eHh4";
     }
 };

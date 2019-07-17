@@ -17,24 +17,29 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-crypto')
+    implementation project(':ballerina-time')
 
     implementation 'com.rabbitmq:amqp-client:5.6.0'
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-jvm')

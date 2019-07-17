@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/websub;
+import ballerina/'lang\.object as lang;
 
 const string MOCK_HEADER = "MockHeader";
 
@@ -100,7 +101,7 @@ service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(8787) {
 /////////////////// Specific Webhook for dispatching by key ///////////////////
 public type WebhookServerForPayload object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private websub:Listener websubListener;
 
@@ -109,13 +110,13 @@ public type WebhookServerForPayload object {
             topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {
                 "action" : {
-                    "created" : ("onCreated", MockActionEvent),
-                    "deleted" : ("onDeleted", MockActionEvent),
-                    "statuscheck" : ("onStatus", MockActionEvent)
+                    "created" : ["onCreated", MockActionEvent],
+                    "deleted" : ["onDeleted", MockActionEvent],
+                    "statuscheck" : ["onStatus", MockActionEvent]
                 },
                 "domain" : {
-                    "issue" : ("onIssue", MockDomainEvent),
-                    "feature" : ("onFeature", MockDomainEvent)
+                    "issue" : ["onIssue", MockDomainEvent],
+                    "feature" : ["onFeature", MockDomainEvent]
                 }
             }
         };
@@ -124,11 +125,11 @@ public type WebhookServerForPayload object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name = name);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.websubListener.__attach(s, name);
     }
 
     public function __start() returns error? {
@@ -143,7 +144,7 @@ public type WebhookServerForPayload object {
 /////////////////// Specific Webhook for dispatching by header ///////////////////
 public type WebhookServerForHeader object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private websub:Listener websubListener;
 
@@ -152,9 +153,9 @@ public type WebhookServerForHeader object {
             topicIdentifier: websub:TOPIC_ID_HEADER,
             topicHeader: MOCK_HEADER,
             headerResourceMap: {
-                "issue" : ("onIssue", MockActionEvent),
-                "commit" : ("onCommit", MockActionEvent),
-                "status" : ("onStatus", MockActionEvent)
+                "issue" : ["onIssue", MockActionEvent],
+                "commit" : ["onCommit", MockActionEvent],
+                "status" : ["onStatus", MockActionEvent]
             }
         };
         string host = config is () ? "" : config.host;
@@ -162,11 +163,11 @@ public type WebhookServerForHeader object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name = name);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.websubListener.__attach(s, name);
     }
 
     public function __start() returns error? {
@@ -181,7 +182,7 @@ public type WebhookServerForHeader object {
 /////////////////// Specific Webhook for dispatching by header and payload ///////////////////
 public type WebhookServerForHeaderAndPayload object {
 
-    *AbstractListener;
+    *lang:AbstractListener;
 
     private websub:Listener websubListener;
 
@@ -190,28 +191,28 @@ public type WebhookServerForHeaderAndPayload object {
             topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
             topicHeader: MOCK_HEADER,
             headerResourceMap: {
-                "headeronly" : ("onHeaderOnly", MockActionEvent),
-                "status" : ("onStatus", MockActionEvent )
+                "headeronly" : ["onHeaderOnly", MockActionEvent],
+                "status" : ["onStatus", MockActionEvent]
             },
             payloadKeyResourceMap: {
                 "action" : {
-                    "keyonly" : ("onKeyOnly", MockActionEvent)
+                    "keyonly" : ["onKeyOnly", MockActionEvent]
                 },
                 "domain" : {
-                    "domainkeyonly" : ("onDomainKeyOnly", MockDomainEvent)
+                    "domainkeyonly" : ["onDomainKeyOnly", MockDomainEvent]
                 }
             },
             headerAndPayloadKeyResourceMap: {
                 "issue" : {
                     "action" : {
-                        "created" : ("onIssueCreated", MockActionEvent),
-                        "deleted" : ("onIssueDeleted", MockActionEvent)
+                        "created" : ["onIssueCreated", MockActionEvent],
+                        "deleted" : ["onIssueDeleted", MockActionEvent]
                     }
                 },
                 "pull" : {
                     "domain" : {
-                        "bugfix" : ("onBugFixPull", MockDomainEvent),
-                        "feature" : ("onFeaturePull", MockDomainEvent)
+                        "bugfix" : ["onBugFixPull", MockDomainEvent],
+                        "feature" : ["onFeaturePull", MockDomainEvent]
                     }
                 }
             }
@@ -221,11 +222,11 @@ public type WebhookServerForHeaderAndPayload object {
             host: host,
             extensionConfig: extensionConfig
         };
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
-    public function __attach(service serviceType, string? name = ()) returns error? {
-        return self.websubListener.__attach(serviceType, name = name);
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.websubListener.__attach(s, name);
     }
 
     public function __start() returns error? {

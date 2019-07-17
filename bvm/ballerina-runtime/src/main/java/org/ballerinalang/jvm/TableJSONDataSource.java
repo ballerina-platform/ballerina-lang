@@ -235,27 +235,27 @@ public class TableJSONDataSource implements JSONDataSource {
             Object obj = dataArray[0];
             if (obj instanceof String) {
                 for (Object value : dataArray) {
-                    jsonArray.append((String) value);
+                    jsonArray.append(value);
                 }
             } else if (obj instanceof Boolean) {
                 for (Object value : dataArray) {
-                    jsonArray.append((boolean) value);
+                    jsonArray.append(value);
                 }
             } else if (obj instanceof Integer) {
                 for (Object value : dataArray) {
-                    jsonArray.append((int) value);
+                    jsonArray.append(((Integer) value).longValue());
                 }
             } else if (obj instanceof Long) {
                 for (Object value : dataArray) {
-                    jsonArray.append((long) value);
+                    jsonArray.append(value);
                 }
             } else if (obj instanceof Float) {
                 for (Object value : dataArray) {
-                    jsonArray.append((float) value);
+                    jsonArray.append(((Float) value).doubleValue());
                 }
             } else if (obj instanceof Double) {
                 for (Object value : dataArray) {
-                    jsonArray.append((double) value);
+                    jsonArray.append(value);
                 }
             } else if (obj instanceof BigDecimal) {
                 for (Object value : dataArray) {

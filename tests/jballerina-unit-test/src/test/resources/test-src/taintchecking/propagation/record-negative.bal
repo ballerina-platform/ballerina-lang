@@ -44,6 +44,6 @@ public function main (string... args) {
 
 }
 
-public function secureFunction (@sensitive any secureIn, any insecureIn) {
+public function secureFunction (@untainted any secureIn, any insecureIn) {
 
 }

@@ -162,6 +162,13 @@ public class LSPackageLoader {
     }
 
     /**
+     * Clear the home repo packages.
+     */
+    public static void clearHomeRepoPackages() {
+        homeRepoPackages.clear();
+    }
+
+    /**
      * Returns a list of packages available for the current project.
      *
      * @param pkg        Built {@link BLangPackage}
@@ -173,7 +180,7 @@ public class LSPackageLoader {
                                                                          String fileUri) {
         Path sourceRootPath = Paths.get(sourceRoot);
         List<BallerinaPackage> packageList = new ArrayList<>();
-        if (!RepoUtils.hasProjectRepo(sourceRootPath)) {
+        if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
             // Skip for non-projects
             return packageList;
         }

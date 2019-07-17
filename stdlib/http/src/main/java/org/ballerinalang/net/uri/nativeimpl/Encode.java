@@ -63,7 +63,7 @@ public class Encode extends BlockingNativeCallableUnit {
         try {
             return encode(url, charset);
         } catch (Throwable e) {
-            return HttpUtil.getError("Error occurred while encoding the url. " + e
+            return HttpUtil.createHttpError("Error occurred while encoding the url. " + e
                     .getMessage());
         }
     }

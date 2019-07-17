@@ -19,10 +19,8 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,27 +36,23 @@ import javax.jms.JMSException;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         isPublic = true
 )
-public class Stop implements NativeCallableUnit {
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        Struct connectionBObject = BallerinaAdapter.getReceiverObject(context);
-        Connection connection = BallerinaAdapter.getNativeObject(connectionBObject, JmsConstants.JMS_CONNECTION,
-                                                                 Connection.class, context);
+public class Stop {
+
+    public static void stop(Strand strand, ObjectValue connectionBObject) {
+        Connection connection = (Connection) connectionBObject.getNativeData(JmsConstants.JMS_CONNECTION);
         try {
             connection.stop();
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error occurred while stopping the connection.", context, e);
+            BallerinaAdapter.throwBallerinaException("Error occurred while stopping the connection.", e);
         }
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
+    private Stop() {
     }
 }

@@ -1,4 +1,4 @@
-import ballerina/mysql;
+import ballerinax/java.jdbc;
 
 type Employee record {
     int id;
@@ -10,14 +10,12 @@ public function main(string... args) {
 }
 
 public function testSelectWithUntaintedQueryProducingTaintedReturn(string... args) {
-    mysql:Client testDB = new({
-        host:"localhost",
-        port:3306,
-        name:"testdb",
-        username:"root",
-        password:"root",
-        poolOptions:{maximumPoolSize:5},
-        dbOptions: {}
+    jdbc:Client testDB = new ({
+        url: "jdbc:mysql://localhost:3306/testdb",
+        username: "root",
+        password: "root",
+        poolOptions: { maximumPoolSize: 5 },
+        dbOptions: { }
     });
 
     var output = testDB->select("SELECT  FirstName from Customers where registrationID = 1", Employee);
@@ -31,7 +29,7 @@ public function testSelectWithUntaintedQueryProducingTaintedReturn(string... arg
     return;
 }
 
-public function testFunction(@sensitive string anyValue) {
+public function testFunction(@untainted string anyValue) {
 
 }
 

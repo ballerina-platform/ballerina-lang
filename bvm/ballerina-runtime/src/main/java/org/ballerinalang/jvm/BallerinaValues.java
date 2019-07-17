@@ -46,6 +46,27 @@ public class BallerinaValues {
     }
 
     /**
+     * Method that populates record fields using the given package name, record type name and a map of field names
+     * and associated values for fields.
+     *
+     * @param pkgName the name of the package that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap values to be used for fields when creating the record.
+     * @return value of the populated record.
+     */
+    public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
+            Map<String, Object> valueMap) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
+        MapValue<String, Object> record = valueCreator.createRecordValue(recordTypeName);
+        BRecordType recordType = (BRecordType) record.getType();
+        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            mapValue.put(fieldEntry.getKey(), valueMap.get(fieldEntry.getKey()));
+        }
+        return mapValue;
+    }
+
+    /**
      * Method that creates a runtime object value using the given package name and object type name.
      *
      * @param pkgName the name of the package that the record type resides.

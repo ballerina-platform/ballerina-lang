@@ -67,7 +67,7 @@ function streamFunc() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            OutputRecord o = <OutputRecord>OutputRecord.stamp(m.clone());
+            OutputRecord o = <OutputRecord>OutputRecord.constructFrom(m);
             outputStream.publish(o);
         }
     };

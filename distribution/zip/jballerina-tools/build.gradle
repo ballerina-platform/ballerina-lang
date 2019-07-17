@@ -21,6 +21,10 @@ plugins {
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
 configurations {
     dist {
       transitive false
@@ -40,7 +44,6 @@ configurations {
     composerFonts {
         transitive false
     }
-    bootstrapper
     docerina
     bin
     bir
@@ -56,31 +59,42 @@ configurations {
 }
 
 dependencies {
-    bootstrapper project(path: ':ballerina-bootstrapper', configuration: 'pack3')
-
     dist 'org.bytedeco:javacpp:1.4.2'
     dist 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
-    dist 'org.ow2.asm:asm:6.2.1'
+    // dist 'org.ow2.asm:asm:6.2.1'
+
+    // Following dependencies are required for kraal library
+    dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
+    dist 'org.jetbrains.kotlin:kotlin-stdlib-common:1.3.31'
+    dist 'org.ow2.asm:asm:7.1'
+    dist 'org.ow2.asm:asm-analysis:7.1'
+    dist 'org.ow2.asm:asm-tree:7.1'
+    dist 'org.ow2.asm:asm-util:7.1'
 
     dist project(':ballerina-cli-utils')
+    dist project(':ballerina-tool')
     dist project(':ballerina-jvm')
+    birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
+    birJar project(path: ':ballerina-bir', configuration: 'birJar')
     dist project(':ballerina-utils')
     dist project(':ballerina-runtime')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
+    birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    dist project(':openapi-ballerina:openapi-validator')
+    dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    dist project(':protobuf-ballerina')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
@@ -107,6 +121,10 @@ dependencies {
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+    birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
+    birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
+    birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
+    birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
@@ -126,13 +144,6 @@ def copyJarSpec = {
     base -> copySpec {
         from configurations.dist
         into(base + 'bre/lib')
-    }
-}
-
-def copyBootstrapperSpec = {
-    base -> copySpec {
-        from configurations.bootstrapper
-        into(base + 'bre/bootstrap')
     }
 }
 
@@ -190,6 +201,13 @@ def copyBinSpec = {
         from configurations.bin
         filter { line -> line.replace('${project.version}', "$project.version") }
         into(path + 'bin')
+    }
+}
+
+def copyKraalLib = {
+    path -> copySpec {
+        from('lib')
+        into("$path/bre/lib")
     }
 }
 
@@ -302,7 +320,6 @@ task createApiDocsZip(type: Zip) {
 task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
     with copyJarSpec(basePath)
-    with copyBootstrapperSpec(basePath)
     with copyBirSpec(basePath)
     with copyBirJarSpec(basePath)
     with copyBaloSpec(basePath)
@@ -319,12 +336,12 @@ task createZip(type: Zip) {
     with copyStaticSpec(basePath)
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
+    with copyKraalLib(basePath)
 }
 
 task updateBalHome(type: Copy) {
     def installDir = ""
     with copyJarSpec(installDir)
-    with copyBootstrapperSpec(installDir)
     with copyBirSpec(installDir)
     with copyBirJarSpec(installDir)
     with copyBaloSpec(installDir)
@@ -340,6 +357,7 @@ task updateBalHome(type: Copy) {
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
+    with copyKraalLib(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
@@ -349,7 +367,6 @@ task createDistribution(type: Copy) {
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
     with copyJarSpec("")
-    with copyBootstrapperSpec("")
     with copyBirSpec("")
     with copyBirJarSpec("")
     with copyBaloSpec("")
@@ -366,6 +383,7 @@ task createDistribution(type: Copy) {
     with copyStaticSpec("")
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
+    with copyKraalLib("")
     destinationDir=file(filePath)
 }
 
@@ -391,4 +409,12 @@ project.afterEvaluate {
                 check.dependsOn dependencyCheck
             }
         }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createZip, extension: 'zip'
+        }
+    }
 }

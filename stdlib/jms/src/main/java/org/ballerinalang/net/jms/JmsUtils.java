@@ -19,32 +19,31 @@
 
 package org.ballerinalang.net.jms;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.jms.utils.BallerinaAdapter;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -62,40 +61,16 @@ public class JmsUtils {
     private JmsUtils() {
     }
 
-    /**
-     * Creates the JMS connector friendly properties Map. Converting properties as required.
-     *
-     * @param jmsConfig {@link Annotation}
-     * @return Map of String key value properties.
-     */
-    public static Map<String, String> preProcessServiceConfig(Annotation jmsConfig) {
-        Map<String, String> configParams = new HashMap<>();
-        Struct configStruct = jmsConfig.getValue();
-        if (Objects.isNull(configStruct)) {
-            return configParams;
-        }
-
-        addStringParamIfPresent(JmsConstants.ALIAS_DESTINATION, configStruct, configParams);
-        addStringParamIfPresent(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME, configStruct, configParams);
-        addStringParamIfPresent(JmsConstants.ALIAS_DESTINATION_TYPE, configStruct, configParams);
-        addStringParamIfPresent(JmsConstants.ALIAS_CLIENT_ID, configStruct, configParams);
-        addStringParamIfPresent(JmsConstants.ALIAS_DURABLE_SUBSCRIBER_ID, configStruct, configParams);
-        addStringParamIfPresent(JmsConstants.ALIAS_ACK_MODE, configStruct, configParams);
-
-        preProcessMapField(configParams, configStruct.getMapField(JmsConstants.PROPERTIES_MAP));
-        return configParams;
-    }
-
-    public static Connection createConnection(BMap<String, BValue> connectionConfig) {
+    public static Connection createConnection(MapValue connectionConfig) {
         Map<String, String> configParams = new HashMap<>();
 
-        String initialContextFactory = connectionConfig.get(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY).stringValue();
+        String initialContextFactory = connectionConfig.getStringValue(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY);
         configParams.put(JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY, initialContextFactory);
 
-        String providerUrl = connectionConfig.get(JmsConstants.ALIAS_PROVIDER_URL).stringValue();
+        String providerUrl = connectionConfig.getStringValue(JmsConstants.ALIAS_PROVIDER_URL);
         configParams.put(JmsConstants.ALIAS_PROVIDER_URL, providerUrl);
 
-        String factoryName = connectionConfig.get(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME).stringValue();
+        String factoryName = connectionConfig.getStringValue(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME);
         configParams.put(JmsConstants.ALIAS_CONNECTION_FACTORY_NAME, factoryName);
 
         preProcessIfWso2MB(configParams);
@@ -106,11 +81,10 @@ public class JmsUtils {
 
         //check for additional jndi properties
         @SuppressWarnings(JmsConstants.UNCHECKED)
-        Map<String, BValue> props = ((BMap<String, BValue>) connectionConfig.get(JmsConstants.PROPERTIES_MAP)).getMap();
-        if (props != null) {
-            for (Map.Entry<String, BValue> entry : props.entrySet()) {
-                properties.put(entry.getKey(), entry.getValue().stringValue());
-            }
+        MapValue<String, Object> props = (MapValue<String, Object>) connectionConfig.getMapValue(
+                JmsConstants.PROPERTIES_MAP);
+        for (String key : props.getKeys()) {
+            properties.put(key, props.get(key));
         }
 
         try {
@@ -120,8 +94,8 @@ public class JmsUtils {
             String password = null;
             if (connectionConfig.get(JmsConstants.ALIAS_USERNAME) != null &&
                     connectionConfig.get(JmsConstants.ALIAS_PASSWORD) != null) {
-                username = connectionConfig.get(JmsConstants.ALIAS_USERNAME).stringValue();
-                password = connectionConfig.get(JmsConstants.ALIAS_PASSWORD).stringValue();
+                username = connectionConfig.getStringValue(JmsConstants.ALIAS_USERNAME);
+                password = connectionConfig.getStringValue(JmsConstants.ALIAS_PASSWORD);
             }
 
             if (!JmsUtils.isNullOrEmptyAfterTrim(username) && password != null) {
@@ -136,12 +110,12 @@ public class JmsUtils {
         }
     }
 
-    public static Session createSession(Connection connection, Struct sessionConfig) {
+    public static Session createSession(Connection connection, MapValue sessionConfig) {
 
         int sessionAckMode;
         boolean transactedSession = false;
 
-        String ackModeString = sessionConfig.getStringField(JmsConstants.ALIAS_ACK_MODE);
+        String ackModeString = sessionConfig.getStringValue(JmsConstants.ALIAS_ACK_MODE);
 
         switch (ackModeString) {
             case JmsConstants.CLIENT_ACKNOWLEDGE_MODE:
@@ -198,7 +172,7 @@ public class JmsUtils {
         }
     }
 
-    public static void updateMappedParameters(Map<String, String> configParams) {
+    private static void updateMappedParameters(Map<String, String> configParams) {
         Iterator<Map.Entry<String, String>> iterator = configParams.entrySet().iterator();
         Map<String, String> tempMap = new HashMap<>();
         while (iterator.hasNext()) {
@@ -212,86 +186,14 @@ public class JmsUtils {
         configParams.putAll(tempMap);
     }
 
-    private static void addStringParamIfPresent(String paramName, Struct configStruct, Map<String, String> paramsMap) {
-        String param;
-        param = configStruct.getStringField(paramName);
-        if (Objects.nonNull(param) && !param.isEmpty()) {
-            paramsMap.put(paramName, param);
-        }
-    }
-
-    /**
-     * Process the provided properties in the {@link Map} and convert it to jms connector friendly Map.
-     *
-     * @param configParams Map instance that is getting filled.
-     * @param properties   {@link Map} of properties.
-     */
-    private static void preProcessMapField(Map<String, String> configParams, Map<String, Value> properties) {
-
-        if (Objects.isNull(properties)) {
-            return;
-        }
-
-        for (Map.Entry<String, Value> entry : properties.entrySet()) {
-            configParams.put(entry.getKey(), entry.getValue().getStringValue());
-        }
-    }
-
     /**
      * Extract JMS Message from the struct.
      *
-     * @param messageStruct ballerina struct.
+     * @param msgObj the Bllerina Message object
      * @return {@link Message} instance located in struct.
      */
-    public static Message getJMSMessage(BMap<String, BValue> messageStruct) {
-        Object nativeData = messageStruct.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
-        if (nativeData instanceof Message) {
-            return (Message) nativeData;
-        } else {
-            throw new BallerinaException("JMS message has not been created.");
-        }
-    }
-
-    /**
-     * Wrap JMS Message from BallerinaJmsMessage.
-     *
-     * @param message JMS transport message.
-     * @return {@link BallerinaJmsMessage} wrapped message instance.
-     */
-    public static BallerinaJmsMessage buildBallerinaJMSMessage(Message message) {
-        BallerinaJmsMessage ballerinaJMSMessage = new BallerinaJmsMessage(message);
-        try {
-            if (message.getJMSReplyTo() != null) {
-                if (message.getJMSReplyTo() instanceof Queue) {
-                    ballerinaJMSMessage.setReplyDestinationName(((Queue) message.getJMSReplyTo()).getQueueName());
-                } else if (message.getJMSReplyTo() instanceof Topic) {
-                    ballerinaJMSMessage.setReplyDestinationName(((Topic) message.getJMSReplyTo()).getTopicName());
-                } else {
-                    LOGGER.warn("ignore unexpected jms destination type received as ReplyTo header.");
-                }
-            }
-        } catch (JMSException e) {
-            throw new BallerinaException("error retrieving reply destination from the message. " + e.getMessage(), e);
-        }
-        return ballerinaJMSMessage;
-    }
-
-    /**
-     * Extract JMS Resource from the Ballerina Service.
-     *
-     * @param service Service instance.
-     * @return extracted resource.
-     */
-    public static Resource extractJMSResource(Service service) {
-        Resource[] resources = service.getResources();
-        if (resources.length == 0) {
-            throw new BallerinaException("No resources found to handle the JMS message in " + service.getName());
-        }
-        if (resources.length > 1) {
-            throw new BallerinaException("More than one resources found in JMS service " + service.getName()
-                    + ". JMS Service should only have one resource");
-        }
-        return resources[0];
+    public static Message getJMSMessage(ObjectValue msgObj) {
+        return (Message) msgObj.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
     }
 
     public static Topic getTopic(Session session, String topicPattern) throws JMSException {
@@ -301,42 +203,57 @@ public class JmsUtils {
     /**
      * Extract JMS Destination from the Destination struct.
      *
-     * @param context ballerina context.
      * @param destinationBObject Destination struct.
      * @return JMS Destination object or null.
      */
-    public static Destination getDestination(Context context, BMap<String, BValue> destinationBObject) {
+    public static Destination getDestination(ObjectValue destinationBObject) {
         Destination destination = null;
-        Object destinationObject = destinationBObject != null ?
-                destinationBObject.getNativeData(JmsConstants.JMS_DESTINATION_OBJECT) : null;
-        if (destinationObject != null) {
-            destination = BallerinaAdapter.getNativeObject(destinationBObject,
-                                                           JmsConstants.JMS_DESTINATION_OBJECT,
-                                                           Destination.class,
-                                                           context);
+        if (destinationBObject != null) {
+            Object destObj = destinationBObject.getNativeData(JmsConstants.JMS_DESTINATION_OBJECT);
+            if (destObj instanceof Destination) {
+                destination = (Destination) destObj;
+            }
         }
         return destination;
     }
 
-    /**
-     * Extract queue name from the config struct.
-     *
-     * @param configBRecord config struct.
-     * @return queue name or null.
-     */
-    public static String getQueueName(Struct configBRecord) {
-        Value queueNameValue = configBRecord.getRefField(JmsConstants.QUEUE_SENDER_FIELD_QUEUE_NAME);
-        return queueNameValue != null ? queueNameValue.getStringValue() : null;
+    public static byte[] getBytesData(ArrayValue bytesArray) {
+        return Arrays.copyOf(bytesArray.getBytes(), bytesArray.size());
     }
 
-    /**
-     * Extract topic name from the config struct.
-     *
-     * @param topicConfig config struct.
-     * @return queue name or null.
-     */
-    public static String getTopicPattern(Struct topicConfig) {
-        Value topicPatternValue = topicConfig.getRefField(JmsConstants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
-        return topicPatternValue != null ? topicPatternValue.getStringValue() : null;
+    public static ObjectValue populateAndGetDestinationObj(Destination destination) throws JMSException {
+        ObjectValue destObj;
+        if (destination instanceof Queue) {
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
+                                                        JmsConstants.JMS_DESTINATION_OBJ_NAME,
+                                                        ((Queue) destination).getQueueName(),
+                                                        JmsConstants.DESTINATION_TYPE_QUEUE);
+        } else {
+            destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
+                                                        JmsConstants.JMS_DESTINATION_OBJ_NAME,
+                                                        ((Topic) destination).getTopicName(),
+                                                        JmsConstants.DESTINATION_TYPE_QUEUE);
+        }
+        destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, destination);
+        return destObj;
+    }
+
+    public static ObjectValue createAndPopulateMessageObject(Message jmsMessage, ObjectValue sessionObj) {
+        String msgType;
+        if (jmsMessage instanceof TextMessage) {
+            msgType = JmsConstants.TEXT_MESSAGE;
+        } else if (jmsMessage instanceof BytesMessage) {
+            msgType = JmsConstants.BYTES_MESSAGE;
+        } else if (jmsMessage instanceof StreamMessage) {
+            msgType = JmsConstants.STREAM_MESSAGE;
+        } else if (jmsMessage instanceof MapMessage) {
+            msgType = JmsConstants.MAP_MESSAGE;
+        } else {
+            msgType = JmsConstants.MESSAGE;
+        }
+        ObjectValue messageObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
+                                                                   JmsConstants.MESSAGE_OBJ_NAME, sessionObj, msgType);
+        messageObj.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
+        return messageObj;
     }
 }

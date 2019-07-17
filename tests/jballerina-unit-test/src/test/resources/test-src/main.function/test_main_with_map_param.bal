@@ -21,7 +21,7 @@ public type Employee record {
 
 public function main(map<int> intMap, map<string> strMap, map<float> floatMap, map<boolean> boolMap, map<json> jsonMap,
                      map<Employee> empMap) {
-    io:print("integer: " + intMap.test + ", string: " + strMap.test + ", float: " + floatMap.test  + ", boolean: " +
-            string.convert(boolMap.test) + ", json: " + jsonMap.test.toString() + ", Test Employee Name Field: " +
-            empMap.test.name);
+    io:print("integer: " + intMap.get("test").toString() + ", string: " + strMap.get("test") + ", float: " +
+            floatMap.get("test").toString()  + ", boolean: " + boolMap.get("test").toString() + ", json: " +
+            jsonMap.get("test").toString() + ", Test Employee Name Field: " + empMap.get("test").name);
 }

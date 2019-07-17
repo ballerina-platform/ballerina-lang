@@ -6,6 +6,74 @@
   "source": "function/source/variableBoundItemSuggestions3.bal",
   "items": [
     {
+      "label": "createNewEntity()(mime:Entity)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a new `Entity` and link it with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
+        }
+      },
+      "insertText": "createNewEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getEntity()((mime:Entity|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|error)"
+        }
+      },
+      "insertText": "getEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getEntityWithoutBody()(mime:Entity)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
+        }
+      },
+      "insertText": "getEntityWithoutBody(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setEntity(mime:Entity e)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the provided `Entity` to the response.\n  \n  \n---    \n**Parameters**  \n- _e_  \n    The `Entity` to be set to the response  \n"
+        }
+      },
+      "insertText": "setEntity(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "hasHeader(string headerName)(boolean)",
       "kind": "Function",
       "detail": "Function",
@@ -80,7 +148,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specfied header value.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    The header value  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    The header value  \n"
         }
       },
       "insertText": "setHeader(${1});",
@@ -227,6 +295,23 @@
       }
     },
     {
+      "label": "getByteChannel()((io:ReadableByteChannel|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
+        }
+      },
+      "insertText": "getByteChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "getBinaryPayload()((byte[]|error))",
       "kind": "Function",
       "detail": "Function",
@@ -244,24 +329,7 @@
       }
     },
     {
-      "label": "getByteChannel()((ballerina/io:ReadableByteChannel|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
-        }
-      },
-      "insertText": "getByteChannel(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getBodyParts()((ballerina/mime:Entity[]|error))",
+      "label": "getBodyParts()((mime:Entity[]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -431,7 +499,7 @@
       }
     },
     {
-      "label": "setPayload((string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) payload)",
+      "label": "setPayload((string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) payload)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -448,75 +516,7 @@
       }
     },
     {
-      "label": "createNewEntity()(ballerina/mime:Entity)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a new `Entity` and link it with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
-        }
-      },
-      "insertText": "createNewEntity(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getEntity()((ballerina/mime:Entity|error))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|error)"
-        }
-      },
-      "insertText": "getEntity(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getEntityWithoutBody()(ballerina/mime:Entity)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
-        }
-      },
-      "insertText": "getEntityWithoutBody(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "setEntity(mime:Entity e)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the provided `Entity` to the response.\n  \n  \n---    \n**Parameters**  \n- _e_  \n    The `Entity` to be set to the response  \n"
-        }
-      },
-      "insertText": "setEntity(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "new()",
+      "label": "__init()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -525,7 +525,7 @@
           "value": "**Package:** _ballerina/http_  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "new(${1});",
+      "insertText": "__init(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -563,7 +563,7 @@
     {
       "label": "cacheControl",
       "kind": "Variable",
-      "detail": "http:ResponseCacheControl?",
+      "detail": "(http:ResponseCacheControl|())",
       "insertText": "cacheControl",
       "insertTextFormat": "Snippet"
     },

@@ -19,8 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
@@ -48,11 +46,7 @@ import java.nio.charset.StandardCharsets;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class BasicPublish extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class BasicPublish {
 
     public static Object basicPublish(Strand strand, ObjectValue channelObjectValue, Object messageContent,
                                       String routingKey, String exchangeName, Object properties) {
@@ -74,5 +68,8 @@ public class BasicPublish extends BlockingNativeCallableUnit {
                     exception.getDetail());
         }
         return null;
+    }
+
+    private BasicPublish() {
     }
 }

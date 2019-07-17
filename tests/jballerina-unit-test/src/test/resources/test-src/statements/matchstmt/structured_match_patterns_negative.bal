@@ -57,7 +57,7 @@ function testTupleInvalidPattern() returns string {
     ClosedFoo foo = {s: "S", i: 23};
     [string, int, ClosedFoo] t = ["A", 12, foo];
     match t {
-        var (a, b) => return "A"; // invalid tuple binding pattern;
+        var [a, b] => return "A"; // invalid tuple binding pattern;
         var {s, i} => return "A"; // invalid record binding pattern
         "12" => return "A"; // pattern will not be matched
         var [a, b, [d, e]] => return "A"; // invalid tuple variable;

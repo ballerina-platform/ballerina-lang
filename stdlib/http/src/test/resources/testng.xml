@@ -76,7 +76,7 @@ under the License.
             <class name="org.ballerinalang.stdlib.services.nativeimpl.ParseHeaderNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.connection.ConnectionNativeFunctionTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.endpoint.ServiceEndpointTest"/>
-            <!--
+            <!--            
             TODO: enable after maryam's jvm value fix
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionNegativeTest"/>
             <class name="org.ballerinalang.stdlib.services.nativeimpl.response.ResponseNativeFunctionSuccessTest"/>

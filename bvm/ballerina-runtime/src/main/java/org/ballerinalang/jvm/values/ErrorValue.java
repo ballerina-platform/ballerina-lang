@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 
@@ -64,7 +65,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public String stringValue() {
-        return reason + " " + details.toString();
+        return "error " + reason + Optional.ofNullable(details).map(details -> " " + details).orElse("");
     }
 
     @Override
@@ -84,8 +85,21 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        // Error values are immutable and frozen, copy give same value.
+        return this;
+    }
+
+    @Override
     public void attemptFreeze(Status freezeStatus) {
         // do nothing, since error types are always frozen
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
     }
 
     @Override

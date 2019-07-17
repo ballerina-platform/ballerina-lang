@@ -14,10 +14,10 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
+import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -40,13 +40,8 @@ public class TaskJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         Task task = (Task) jobDataMap.get(TASK_OBJECT);
-        for (ServiceWithParameters serviceWithParameters : task.getServicesMap().values()) {
-            //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
-            if (serviceWithParameters.getService() != null) {
-                TaskExecutor.execute(serviceWithParameters);
-            } else {
-                TaskExecutor.executeFunction(serviceWithParameters);
-            }
+        for (ServiceInformation serviceInformation : task.getServicesMap().values()) {
+            TaskExecutor.executeFunction(serviceInformation);
         }
     }
 }

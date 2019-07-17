@@ -16,27 +16,29 @@
  */
 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 description = 'Ballerina - Socket'
 
 dependencies {
     baloCreat project(':lib-creator')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
-    testCompile project(':ballerina-launcher')
     testCompile project(':ballerina-runtime-api')
-    testCompile project(':ballerina-builtin')
+    testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
+    testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.slf4j:slf4j-jdk14'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -50,16 +52,5 @@ configurations {
 }
 
 createBalo {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-createBir {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
-}
-
-test {
-    // TODO: enable after tuple migrate
-    onlyIf { false }
+    jvmTarget = 'true'
 }

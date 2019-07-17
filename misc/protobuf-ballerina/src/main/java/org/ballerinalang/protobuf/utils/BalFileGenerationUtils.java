@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
@@ -68,7 +69,7 @@ public class BalFileGenerationUtils {
         }
         if (process.exitValue() != 0) {
             try (BufferedReader bufferedReader = new BufferedReader(new
-                    InputStreamReader(process.getErrorStream(), "UTF-8"))) {
+                    InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))) {
                 String err;
                 StringBuilder errMsg = new StringBuilder();
                 while ((err = bufferedReader.readLine()) != null) {
@@ -103,7 +104,7 @@ public class BalFileGenerationUtils {
      */
     public static void delete(File file) {
         if ((file != null) && file.exists() && file.isDirectory()) {
-            String files[] = file.list();
+            String[] files = file.list();
             if (files != null) {
                 if (files.length != 0) {
                     for (String temp : files) {

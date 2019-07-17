@@ -19,13 +19,10 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,7 +30,6 @@ import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -41,13 +37,13 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 /**
- * Get the ID of the connection.
+ * Initialize the queue sender.
  *
  * @since 0.966
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
-        packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "initQueueSender",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_SENDER_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
@@ -56,43 +52,33 @@ import javax.jms.Session;
                 @Argument(name = "destination", type = TypeKind.OBJECT)
         }
 )
-public class InitQueueSender implements NativeCallableUnit {
+public class InitQueueSender {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> queueSenderBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-
-        BValue arg = context.getRefArgument(2);
+    public static void initQueueSender(Strand strand, ObjectValue queueSenderObj, ObjectValue sessionObj, Object dest) {
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
         String queueName = null;
-        BMap<String, BValue> destinationBObject = null;
-        if (arg instanceof BString) {
-            queueName = arg.stringValue();
+        ObjectValue destinationBObject = null;
+        if (dest instanceof String) {
+            queueName = (String) dest;
         } else {
-            destinationBObject = (BMap<String, BValue>) arg;
+            destinationBObject = (ObjectValue) dest;
         }
-        Destination destinationObject = JmsUtils.getDestination(context, destinationBObject);
+        Destination destinationObject = JmsUtils.getDestination(destinationBObject);
 
         if (JmsUtils.isNullOrEmptyAfterTrim(queueName) && destinationObject == null) {
-            throw new BallerinaException("Queue name and destination cannot be null at the same time", context);
+            throw new BallerinaException("Queue name and destination cannot be null at the same time");
         }
         try {
             Destination queue = destinationObject != null ? destinationObject : session.createQueue(queueName);
             MessageProducer producer = session.createProducer(queue);
-            queueSenderBObject.addNativeData(JmsConstants.JMS_PRODUCER_OBJECT, producer);
-            queueSenderBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
-                                             new SessionConnector(session));
+            queueSenderObj.addNativeData(JmsConstants.JMS_PRODUCER_OBJECT, producer);
+            queueSenderObj.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
+                                         new SessionConnector(session));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error creating queue sender.", context, e);
+            BallerinaAdapter.throwBallerinaException("Error creating queue sender.", e);
         }
     }
 
-    @Override
-    public boolean isBlocking() {
-        return true;
+    private InitQueueSender() {
     }
 }

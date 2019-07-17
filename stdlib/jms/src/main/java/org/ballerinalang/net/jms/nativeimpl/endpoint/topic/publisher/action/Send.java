@@ -19,32 +19,28 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher.action;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 
 /**
  * {@code Send} is the send action implementation of the topic producer Connector.
  */
-@BallerinaFunction(orgName = JmsConstants.BALLERINA,
-                   packageName = JmsConstants.JMS,
+@BallerinaFunction(orgName = JmsConstants.BALLERINAX,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "send",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.TOPIC_PUBLISHER_OBJ_NAME,
-                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-                   args = { @Argument(name = "message", type = TypeKind.OBJECT) },
-                   isPublic = true
+                                        structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class Send extends AbstractBlockingAction {
+public class Send {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        SendActionHandler.handle(context);
+    public static Object send(Strand strand, ObjectValue publisherObj, ObjectValue msgObj) {
+        return SendActionHandler.handle(publisherObj, msgObj);
     }
+
 }

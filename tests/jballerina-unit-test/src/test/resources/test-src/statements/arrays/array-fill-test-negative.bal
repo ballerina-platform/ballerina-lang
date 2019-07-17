@@ -54,7 +54,7 @@ function testArrayFillWithStringFiniteTypes() {
 }
 
 function testArrayFillWithTypedesc() {
-    typedesc[] typedescArr = [];
+    typedesc<any>[] typedescArr = [];
     typedescArr[1] = int;
 }
 
@@ -89,4 +89,18 @@ function testIllegalTwoDimensionalArrayInsertion() returns (int|string|boolean)[
     (int|string|boolean)[][2] x = [];
     x[1] = [1, 3];
     return x;
+}
+
+function testTwoDimensionalSealedArrayFill() {
+    int[][2] x = [];
+    x[1] = [1, 3];
+}
+
+type Rec record {
+    int i;
+};
+
+function testRecordTypeWithRequiredFieldsArrayFill() {
+    Rec[] x = [];
+    x[1] = {i: 1};
 }

@@ -25,7 +25,7 @@ function testRename(string oldpath, string newpath) returns error? {
 }
 
 function testRemove(string path, boolean recursive) returns error? {
-    return system:remove(path, recursive = recursive);
+    return system:remove(path, recursive);
 }
 
 function testReadDir(string path) returns system:FileInfo[]|error {
@@ -45,9 +45,9 @@ function testCreateFile(string path) returns string|error {
 }
 
 function testCreateDir(string dir, boolean parentDirs) returns string|error {
-    return system:createDir(dir, parentDirs = parentDirs);
+    return system:createDir(dir, parentDirs);
 }
 
 function testCopy(string sourcePath, string destinationPath, boolean replaceExisting) returns error? {
-    return system:copy(sourcePath, destinationPath, replaceExisting = replaceExisting);
+    return system:copy(sourcePath, destinationPath, replaceExisting);
 }

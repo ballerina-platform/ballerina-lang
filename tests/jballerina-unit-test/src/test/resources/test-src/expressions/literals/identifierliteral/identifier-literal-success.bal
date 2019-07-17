@@ -128,7 +128,7 @@ function testAcessILWithoutPipe() returns [string, string] {
      return ['x, x];
  }
  
- function testAcessJSONFielAsIL() returns (json) {
+ function testAcessJSONFielAsIL() returns (json|error) {
      json j = {"foo" : {"int" : "I am an integer"}};
      return j.foo.'int;
  }

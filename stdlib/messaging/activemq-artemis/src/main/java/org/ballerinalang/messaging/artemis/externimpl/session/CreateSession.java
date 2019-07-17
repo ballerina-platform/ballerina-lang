@@ -23,8 +23,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -53,12 +51,8 @@ import org.slf4j.LoggerFactory;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class CreateSession extends BlockingNativeCallableUnit {
+public class CreateSession {
     private static final Logger logger = LoggerFactory.getLogger(CreateSession.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void createSession(Strand strand, ObjectValue sessionObj, ObjectValue connection,
                                      MapValue<String, Object> config) {
@@ -80,16 +74,18 @@ public class CreateSession extends BlockingNativeCallableUnit {
             boolean autoCommitSends = config.getBooleanValue(ArtemisConstants.AUTO_COMMIT_SENDS);
             boolean autoCommitAcks = config.getBooleanValue(ArtemisConstants.AUTO_COMMIT_ACKS);
             ClientSession session = sessionFactory.createSession(username, password, false, autoCommitSends,
-                                                                 autoCommitAcks, serverLocator.isPreAcknowledge(),
-                                                                 serverLocator.getAckBatchSize());
+                    autoCommitAcks, serverLocator.isPreAcknowledge(),
+                    serverLocator.getAckBatchSize());
             sessionObj.addNativeData(ArtemisConstants.ARTEMIS_SESSION, session);
             if (!autoCommitSends || !autoCommitAcks) {
                 sessionObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                         new ArtemisTransactionContext(sessionObj));
+                        new ArtemisTransactionContext(sessionObj));
             }
         } catch (ActiveMQException e) {
             ArtemisUtils.throwException("Error occurred while starting session", e, logger);
         }
     }
 
+    private CreateSession() {
+    }
 }

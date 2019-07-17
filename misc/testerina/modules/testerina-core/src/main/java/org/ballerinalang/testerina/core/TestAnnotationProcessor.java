@@ -19,7 +19,6 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
@@ -29,6 +28,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.PackageInfo;

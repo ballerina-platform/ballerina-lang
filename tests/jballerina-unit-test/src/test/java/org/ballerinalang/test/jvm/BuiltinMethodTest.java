@@ -48,25 +48,9 @@ public class BuiltinMethodTest {
         Assert.assertEquals(bMap.get("test").stringValue(), "sample");
     }
 
-    @Test(description = "Test freeze")
-    public void testFreeze() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testFreeze");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
-    }
-
     @Test(description = "Test clone any")
     public void testCloneAny() {
         BValue[] result = BRunUtil.invoke(compileResult, "testCloneAny");
-        Assert.assertTrue(result[0] instanceof BMap);
-        BMap bMap = (BMap) result[0];
-        Assert.assertEquals(bMap.get("test").stringValue(), "sample");
-    }
-
-    @Test(description = "Test freeze any")
-    public void testFreezeAny() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testFreezeAny");
         Assert.assertTrue(result[0] instanceof BMap);
         BMap bMap = (BMap) result[0];
         Assert.assertEquals(bMap.get("test").stringValue(), "sample");

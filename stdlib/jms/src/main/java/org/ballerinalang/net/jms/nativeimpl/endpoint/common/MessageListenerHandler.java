@@ -19,15 +19,10 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsMessageListenerImpl;
-import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.JMSException;
@@ -44,23 +39,21 @@ public class MessageListenerHandler {
     private MessageListenerHandler() {
     }
 
-    public static void createAndRegister(Context context) {
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> consumerConnector =
-                (BMap<String, BValue>) ((BMap<String, BValue>) context.getRefArgument(0)).get("consumerActions");
-
-        Resource resource = JmsUtils.extractJMSResource(service);
-
+    public static Object createAndRegister(Strand strand, ObjectValue listenerObj, ObjectValue service) {
+        ObjectValue consumerConnector = listenerObj.getObjectValue(JmsConstants.CONSUMER_ACTIONS);
         Object nativeData = consumerConnector.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT);
+        ObjectValue sessionObj =
+                (ObjectValue) listenerObj.get(JmsConstants.SESSION_FIELD_NAME);
         if (nativeData instanceof MessageConsumer) {
-            MessageListener listener = new JmsMessageListenerImpl(resource, consumerConnector);
+            MessageListener listener = new JmsMessageListenerImpl(strand.scheduler, service, consumerConnector,
+                                                                  sessionObj);
             try {
                 ((MessageConsumer) nativeData).setMessageListener(listener);
             } catch (JMSException e) {
-                BallerinaAdapter.throwBallerinaException("Error registering the message listener for service"
-                                                 + service.getPackage() + service.getName(), context, e);
+                return BallerinaAdapter.getError("Error registering the message listener for service"
+                                                         + service.getType().getAnnotationKey(), e);
             }
         }
+        return null;
     }
 }

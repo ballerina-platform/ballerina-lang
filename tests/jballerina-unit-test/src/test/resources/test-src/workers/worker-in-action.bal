@@ -6,12 +6,7 @@ type ClientEndpointConfiguration record {
 
 public type ABCClient client object {
 
-    remote function testAction1() returns string;
-    remote function testAction2() returns string;
-
-};
-
-remote function ABCClient.testAction1() returns string {
+    remote function testAction1() returns string {
         worker sampleWorker {
             string m = "";
             m = <- default;
@@ -23,24 +18,28 @@ remote function ABCClient.testAction1() returns string {
         string result = "";
         result = <- sampleWorker;
         return result;
-}
+    }
 
-remote function ABCClient.testAction2() returns string {
+    remote function testAction2() returns string {
         worker sampleWorker {
-              "request" -> default;
+            "request" -> default;
         }
 
         string result = "";
         result = <- sampleWorker;
         return result;
-}
+    }
+
+};
 
 public type Client object {
     public ABCClient abcClient = new;
 
-    public function init(ClientEndpointConfiguration config);
+    public function init(ClientEndpointConfiguration config) {
+        self.abcClient = new;
+    }
 
-    public function register(typedesc serviceType) {
+    public function register(typedesc<any> serviceType) {
     }
 
     public function start() {
@@ -53,10 +52,6 @@ public type Client object {
     public function stop() {
     }
 };
-
-public function Client.init(ClientEndpointConfiguration config) {
-    self.abcClient = new;
-}
 
 function testAction1() returns string {
     ABCClient ep1 = new;

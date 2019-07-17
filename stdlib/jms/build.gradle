@@ -16,6 +16,13 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 configurations.all {
     resolutionStrategy.preferProjectModules()
@@ -24,25 +31,40 @@ configurations.all {
 dependencies {
     baloCreat project(':lib-creator')
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-launcher')
+    implementation project(':ballerina-runtime')
     implementation 'javax.jms:javax.jms-api'
     implementation 'org.testng:testng'
+
+    testCompile project(':ballerina-encoding')
+    testCompile project(':ballerina-internal')
+    testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-jvm')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testCompile 'org.apache.activemq:artemis-server'
+    testCompile 'org.apache.activemq:artemis-jms-client'
+
 }
 
 createBalo {
     jvmTarget = 'true'
+}
+
+clean.doFirst {
+    delete 'data'
 }
 
 description = 'Ballerina - JMS'

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * This class provides util methods for uninstalling Ballerina modules.
@@ -49,7 +50,7 @@ public class UninstallUtils {
         // Get org-name
         int orgNameIndex = fullPkgPath.indexOf("/");
         if (orgNameIndex == -1) {
-            throw LauncherUtils.createLauncherException("no org-name is provided");
+            throw LauncherUtils.createLauncherException("no orgName is provided");
         }
         orgName = fullPkgPath.substring(0, orgNameIndex);
 
@@ -118,7 +119,11 @@ public class UninstallUtils {
         Path pathsInBetween = repoPath.relativize(pkgDirPath);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
             Path toRemove = repoPath.resolve(pathsInBetween.subpath(0, i));
-            if (!Files.list(toRemove).findAny().isPresent()) {
+            boolean isPresent;
+            try (Stream<Path> stream = Files.list(toRemove)) {
+                isPresent = stream.findAny().isPresent();
+            }
+            if (!isPresent) {
                 Files.delete(toRemove);
             }
         }

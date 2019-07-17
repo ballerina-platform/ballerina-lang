@@ -41,7 +41,7 @@ import org.testng.annotations.Test;
 public class XMLNativeFunctionTest {
 
     private static final String ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE =
-            "error: \\{ballerina\\}XMLOperationError \\{\"message\":\"Failed to slice xml: index out of range:";
+            "error: \\{ballerina\\}XMLOperationError message=Failed to slice xml: index out of range:";
     private CompileResult result;
 
     @BeforeClass
@@ -821,28 +821,28 @@ public class XMLNativeFunctionTest {
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError \\{\"message\":\"Failed to slice" +
-                  " xml: invalid indices: 4 < 1\"\\}.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to slice" +
+                  " xml: invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\]\"\\}.*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\]\"\\}.*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\]\"\\}.*")
+          expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
@@ -1441,10 +1441,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONAndSubsequentStore");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
         Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"David\"}}");
         Assert.assertTrue(returns[1] instanceof BMap);
-        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.MAP_TAG);
         Assert.assertEquals(returns[1].stringValue(), "{\"person\":{\"name\":\"David\"}}");
     }
 
@@ -1453,10 +1453,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONAndSubsequentRemove");
         Assert.assertEquals(returns.length, 2);
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"David\", \"age\":37}");
         Assert.assertTrue(returns[1] instanceof BMap);
-        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.MAP_TAG);
         Assert.assertEquals(returns[1].stringValue(), "{}");
     }
 

@@ -17,14 +17,23 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @since 0.94
@@ -35,6 +44,9 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public BLangType typeNode;
     public BType targetType;
     public BOperatorSymbol conversionSymbol;
+    public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
+    public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
+    public boolean checkTypes = true;
 
     public ExpressionNode getExpression() {
         return expr;
@@ -64,6 +76,36 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
 
     @Override
     public String toString() {
-        return "<" + targetType.toString() + "> " + String.valueOf(expr);
+        return new StringBuilder()
+                .append("<")
+                .append(annAttachments.isEmpty() ? "" : attachmentsToString())
+                .append(targetType != null ? targetType.toString() : "")
+                .append("> ")
+                .append(String.valueOf(expr))
+                .toString();
+    }
+
+    private String attachmentsToString() {
+        return annAttachments.stream().map(a -> "@" + a.getAnnotationName()).collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public Set<? extends Flag> getFlags() {
+        return flagSet;
+    }
+
+    @Override
+    public void addFlag(Flag flag) {
+        flagSet.add(flag);
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+        return annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        annAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 }

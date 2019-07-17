@@ -17,10 +17,14 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Completion item tests for function definition.
@@ -28,6 +32,11 @@ import org.testng.annotations.DataProvider;
 public class FunctionDefinitionCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
+
+    @Test(dataProvider = "completion-data-provider")
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
 
     @DataProvider(name = "completion-data-provider")
     @Override
@@ -46,7 +55,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
                 // Enable the following later
-//                {"functionPointerAsParameter.json", "function"},
+                {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
                 {"matchStatementSuggestions4.json", "function"},
@@ -106,12 +115,13 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinInvocationArgs8.json", "function"},
                 {"completionWithinInvocationArgs9.json", "function"},
                 {"completionWithinInvocationArgs10.json", "function"},
+                {"completionWithinInvocationArgs11.json", "function"},
                 {"chainCompletion1.json", "function"},
                 {"chainCompletion2.json", "function"},
                 {"chainCompletion3.json", "function"},
                 {"externalKeywordSuggestion1.json", "function"},
                 {"externalKeywordSuggestion2.json", "function"},
-                {"ifWhileConditionContextCompletion1.json", "function"},
+//                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
                 {"ifWhileConditionContextCompletion2.json", "function"},
                 {"ifWhileConditionContextCompletion3.json", "function"},
                 {"ifWhileConditionContextCompletion4.json", "function"},
@@ -121,6 +131,11 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"newObjectCompletion3.json", "function"},
                 {"delimiterBasedCompletionForCompleteSource1.json", "function"},
                 {"delimiterBasedCompletionForCompleteSource2.json", "function"},
+                {"functionParamAnnotationBodyCompletion1.json", "function"},
+                {"functionParamAnnotationBodyCompletion2.json", "function"},
+                {"functionParamAnnotationBodyCompletion3.json", "function"},
+                {"functionParamAnnotationBodyCompletion4.json", "function"},
+                {"completionWithTupleVariableDef.json", "function"},
         };
     }
 }

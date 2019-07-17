@@ -58,7 +58,7 @@ public class TupleMutabilityTest {
         Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Expected value of 5");
     }
 
-    @Test(description = "Check if correct type is saved in covariant tuple with record type ",
+    @Test(enabled = false, description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'Employee' cannot " +
@@ -67,7 +67,7 @@ public class TupleMutabilityTest {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
 
-    @Test(description = "Test mutation of record type using covariant tuple",
+    @Test(enabled = false, description = "Test mutation of record type using covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
@@ -76,7 +76,7 @@ public class TupleMutabilityTest {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
 
-    @Test(description = "Test mutation of record type by assigning invalid record type",
+    @Test(enabled = false, description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +
@@ -85,7 +85,7 @@ public class TupleMutabilityTest {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
 
-    @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
+    @Test(enabled = false, description = "Test mutation of int by inserting nil value to int? covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected 'int'," +
@@ -100,7 +100,7 @@ public class TupleMutabilityTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 12);
     }
 
-    @Test(description = "Test mutation of tuple which include structural and simple values",
+    @Test(enabled = false, description = "Test mutation of tuple which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"incompatible types: expected " +

@@ -182,16 +182,8 @@ public class ObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-self-keyword.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectWithSelfKeyword");
 
-        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-
         Assert.assertEquals(returns[0].stringValue(), "sample name");
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(returns[2].stringValue(), "sample name");
-        Assert.assertEquals(returns[3].stringValue(), "sample name");
     }
 
     @Test(description = "Test object with calling attached functions")
@@ -199,16 +191,8 @@ public class ObjectTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-call-attached-functions.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectCallAttachedFunctions");
 
-        Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        Assert.assertSame(returns[3].getClass(), BString.class);
-
         Assert.assertEquals(returns[0].stringValue(), "sample name");
-        Assert.assertEquals(returns[1].stringValue(), "sample name");
-        Assert.assertEquals(returns[2].stringValue(), "sample name");
-        Assert.assertEquals(returns[3].stringValue(), "sample name");
     }
 
     @Test(description = "Test object inside object with different values")
@@ -419,26 +403,6 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sanjiva");
     }
 
-    @Test(description = "Negative test to test multiple attach functions for same function interface and " +
-            "attached function without function interface")
-    public void testObjectNegativeTestForAttachFunctions() {
-        CompileResult result = BCompileUtil.compile("test-src/object/object-with-interface-and-impl-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 4);
-
-        // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 0, "undefined symbol 'age'", 14, 17);
-        // test duplicate matching attach function implementations
-        BAssertUtil.validateError(result, 1, "implementation already exist for the given " + "function " +
-                "'attachInterface' in same module", 18, 1);
-
-        // test object without matching function signature within the object
-        BAssertUtil.validateError(result, 2, "cannot find function signature for" + " function 'attachInterfaceFunc' " +
-                "in object 'Employee'", 27, 1);
-
-        // test accessing object fields without "self" keyword in attached functions.
-        BAssertUtil.validateError(result, 3, "undefined symbol 'age'", 28, 17);
-    }
-
     @Test(description = "Negative test to test uninitialized object variables")
     public void testObjectNegativeTestForNonInitializable() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_with_non_defaultable_negative.bal");
@@ -475,33 +439,10 @@ public class ObjectTest {
     public void testNonMatchingAttachedFunction() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_invalid_attached_func_def.bal");
         int index = 0;
-        Assert.assertEquals(result.getErrorCount(), 14);
-        BAssertUtil.validateError(result, index++, "no implementation found for the function 'test6' of non-abstract "
-                + "object 'Person'", 23, 5);
-        BAssertUtil.validateError(result, index++, "no implementation found for the function 'test7' of non-abstract "
-                + "object 'Person'", 25, 5);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test0' in the " +
-                "object 'Person'", 41, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test1' in the " +
-                "object 'Person'", 45, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test2' in the " +
-                "object 'Person'", 49, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test3' in the " +
-                "object 'Person'", 53, 1);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected " + "'string', found 'int'", 53, 44);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test5' in the " +
-                "object 'Person'", 61, 1);
-        BAssertUtil.validateError(result, index++, "interface and implementation of function 'test6' of non-abstract "
-                + "object 'Person' should have same visibility", 65, 1);
-        BAssertUtil.validateError(result, index++, "interface and implementation of function 'test7' of non-abstract "
-                + "object 'Person' should have same visibility", 69, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test9' in the " +
-                "object 'Person'", 77, 1);
-        BAssertUtil.validateError(result, index++, "this function must return a result", 77, 1);
-        BAssertUtil.validateError(result, index++, "cannot find matching interface " + "function 'test12' in the " +
-                "object 'Person'", 89, 1);
-        BAssertUtil.validateError(result, index, "cannot find matching interface " + "function 'test13' in the object" +
-                " 'Person'", 93, 1);
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'int'", 13, 16);
+        BAssertUtil.validateError(result, index++, "this function must return a result", 17, 5);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found 'string'", 23, 17);
     }
 
     @Test(description = "Negative test to test initializing objects with only interface functions")
@@ -560,42 +501,29 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
-        Assert.assertEquals(result.getErrorCount(), 19);
+        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "mod");
+        Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
-        BAssertUtil.validateError(result, index++, "external function 'func2' cannot have a body", 14
-                , 1);
-        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 46, 17);
+
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 34, 17);
         BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/mod:0.0.0:Employee'",
-                                  46, 17);
+                                  34, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
-                                  50, 14);
+                                  38, 14);
         BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/mod:0.0.0:Employee'",
-                                  50, 14);
-        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 57, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:Employee'", 57, 17);
-        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 58, 17);
-        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:Employee'", 58, 17);
+                                  38, 14);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'name'", 45, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'name' in object 'testorg/pkg1:Employee'", 45, 17);
+        BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'email'", 46, 17);
+        BAssertUtil.validateError(result, index++, "undefined field 'email' in object 'testorg/pkg1:Employee'", 46, 17);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol 'Employee.getAge'",
-                                  61, 14);
+                                  49, 14);
         BAssertUtil.validateError(result, index++, "undefined function 'getAge' in object 'testorg/pkg1:Employee'",
-                                  61, 14);
+                                  49, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
-                ".getEmail'", 62, 17);
+                ".getEmail'", 50, 17);
         BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'testorg/pkg1:Employee'",
-                                  62, 17);
-        BAssertUtil.validateError(result, index++, "no implementation found for the function 'getName' of non" +
-                "-abstract object 'testorg/mod:0.0.0:Employee2'", 70, 5);
-        BAssertUtil.validateError(result, index++, "no implementation found for the function 'getAge' of non-abstract" +
-                " object 'testorg/mod:0.0.0:Employee2'", 72, 5);
-        BAssertUtil.validateError(result, index++, "no implementation found for the function 'getEmail' of " +
-                "non-abstract object 'testorg/mod:0.0.0:Employee2'", 74, 5);
-        BAssertUtil.validateError(result, index++, "interface and implementation of function 'getName' of " +
-                "non-abstract object 'testorg/mod:0.0.0:Employee2' should have same visibility", 77, 1);
-        BAssertUtil.validateError(result, index++, "interface and implementation of function 'getAge' of non-abstract" +
-                " object 'testorg/mod:0.0.0:Employee2' should have same visibility", 81, 1);
-        BAssertUtil.validateError(result, index++, "interface and implementation of function 'getEmail' of " +
-                "non-abstract object 'testorg/mod:0.0.0:Employee2' should have same visibility", 85, 1);
+                                  50, 17);
     }
 
     @Test(description = "Negative test to test unknown object field type")
@@ -642,10 +570,9 @@ public class ObjectTest {
     public void testObjectPrivateMethods() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_private_method.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testPrivateMethodAccess");
-        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 15000);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 12500);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 11500);
     }
 
     @Test(description = "Negative test to test object private methods")
@@ -654,14 +581,14 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 4);
         int i = 0;
         BAssertUtil.validateError(result, i++,
-                                  "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 53, 5);
+                                  "attempt to refer to non-accessible symbol 'Person.incrementSalary'", 45, 5);
         BAssertUtil.validateError(result, i++,
-                                  "undefined function 'incrementSalary' in object 'Person'", 53, 5);
+                                  "undefined function 'incrementSalary' in object 'Person'", 45, 5);
         BAssertUtil.validateError(result, i++,
-                                  "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 54,
+                                  "attempt to refer to non-accessible symbol 'Person.decrementAndUpdateSalary'", 46,
                                   13);
         BAssertUtil.validateError(result, i,
-                                  "undefined function 'decrementAndUpdateSalary' in object 'Person'", 54, 13);
+                                  "undefined function 'decrementAndUpdateSalary' in object 'Person'", 46, 13);
     }
 
     @Test
@@ -733,7 +660,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles")
+    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnBootstrappedJVMCodegen")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);

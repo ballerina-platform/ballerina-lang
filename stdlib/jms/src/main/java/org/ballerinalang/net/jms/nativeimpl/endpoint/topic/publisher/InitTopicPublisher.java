@@ -19,16 +19,11 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
@@ -46,51 +41,40 @@ import javax.jms.Session;
  * @since 0.966
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
-        packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "initTopicPublisher",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_PUBLISHER_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {@Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
-                @Argument(name = "destination", type = TypeKind.OBJECT)
-                },
-        isPublic = true
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class InitTopicPublisher extends AbstractBlockingAction {
+public class InitTopicPublisher {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> topicProducerBObject = (BMap<String, BValue>) context.getRefArgument(0);
-
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-        BValue arg = context.getRefArgument(2);
+    public static void initTopicPublisher(Strand strand, ObjectValue publisherObj, ObjectValue sessionObj,
+                                          Object dest) {
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
         String topicPattern = null;
-        BMap<String, BValue> destinationBObject = null;
-        if (arg instanceof BString) {
-            topicPattern = arg.stringValue();
+        ObjectValue destinationBObject = null;
+        if (dest instanceof String) {
+            topicPattern = (String) dest;
         } else {
-            destinationBObject = (BMap<String, BValue>) arg;
+            destinationBObject = (ObjectValue) dest;
         }
-        Destination destinationObject = JmsUtils.getDestination(context, destinationBObject);
+        Destination destinationObject = JmsUtils.getDestination(destinationBObject);
 
         if (JmsUtils.isNullOrEmptyAfterTrim(topicPattern) && destinationObject == null) {
-            throw new BallerinaException("Topic pattern and destination cannot be null at the same time", context);
+            throw new BallerinaException("Topic pattern and destination cannot be null at the same time");
         }
 
         try {
             Destination topic = destinationObject != null ? destinationObject :
                     JmsUtils.getTopic(session, topicPattern);
             MessageProducer producer = session.createProducer(topic);
-            topicProducerBObject.addNativeData(JmsConstants.JMS_PRODUCER_OBJECT, producer);
-            topicProducerBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
-                                               new SessionConnector(session));
+            publisherObj.addNativeData(JmsConstants.JMS_PRODUCER_OBJECT, producer);
+            publisherObj.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT, new SessionConnector(session));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error creating topic producer", context, e);
+            BallerinaAdapter.throwBallerinaException("Error creating topic producer", e);
         }
 
     }
+
 }

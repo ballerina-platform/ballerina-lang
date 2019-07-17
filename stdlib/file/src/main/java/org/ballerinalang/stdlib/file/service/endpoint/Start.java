@@ -18,10 +18,6 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -43,21 +39,7 @@ import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServer
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) serviceEndpoint
-                .getNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR);
-        try {
-            serverConnector.start();
-        } catch (LocalFileSystemServerConnectorException e) {
-            context.setReturnValues(FileUtils.createError(context, e.getMessage()));
-            return;
-        }
-        context.setReturnValues();
-    }
+public class Start {
 
     public static Object start(Strand strand, ObjectValue listener) {
         LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) listener

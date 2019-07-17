@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -50,11 +48,7 @@ import java.security.cert.X509Certificate;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePublicKey", isPublic = true)
-public class DecodePublicKey extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodePublicKey {
 
     @SuppressWarnings("unchecked")
     public static Object decodePublicKey(Strand strand, Object keyStoreValue, Object keyAliasValue) {
@@ -75,7 +69,7 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
                         .toCharArray());
             } catch (NoSuchAlgorithmException e) {
                 return CryptoUtils.createCryptoError(
-                        "keystore integrity check algorithm is not found: " + e.getMessage());
+                        "Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);

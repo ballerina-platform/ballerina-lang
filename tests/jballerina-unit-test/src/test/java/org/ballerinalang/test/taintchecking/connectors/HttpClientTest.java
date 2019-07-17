@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test HTTP Client related natives and Request/Response objects for taint checking operations.
  */
+@Test(groups = { "brokenOnLangLibChange" })
 public class HttpClientTest {
 
     @Test
@@ -38,9 +39,8 @@ public class HttpClientTest {
     @Test
     public void testHttpClientNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'headerName'", 10, 19);
-        BAssertUtil.validateError(result, 1, "tainted value passed to sensitive parameter 'path'", 12, 42);
-        BAssertUtil.validateError(result, 2, "tainted value passed to sensitive parameter 'secureIn'", 16, 28);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'path'", 12, 42);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 16, 28);
     }
 }

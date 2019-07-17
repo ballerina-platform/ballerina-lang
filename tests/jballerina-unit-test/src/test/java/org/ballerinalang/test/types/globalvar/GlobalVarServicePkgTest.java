@@ -46,7 +46,7 @@ public class GlobalVarServicePkgTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/variabledef/", PKG_NAME);
+        result = BCompileUtil.compile("test-src/statements/variabledef/TestProj", PKG_NAME);
     }
 
     @Test(description = "Test accessing global variables in other packages")

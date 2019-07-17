@@ -62,7 +62,8 @@ public class BInvokableType extends BType implements InvokableType {
 
     @Override
     public String toString() {
-        return getTypeName(TypeDescriptor.SIG_FUNCTION, paramTypes, retType);
+
+        return "function " + getTypeSignature();
     }
 
     @Override
@@ -93,13 +94,12 @@ public class BInvokableType extends BType implements InvokableType {
         return result;
     }
 
-    private static String getTypeName(String typeDescriptor, List<BType> paramType, BType retType) {
+    public String getTypeSignature() {
         String retTypeWithParam = retType.toString();
         if (retType.getKind() != TypeKind.NIL) {
             retTypeWithParam = "(" + retTypeWithParam + ")";
         }
-        return (TypeDescriptor.SIG_FUNCTION.equals(typeDescriptor) ? "function " : "")
-               + "(" + (paramType.size() != 0 ? getBTypeListAsString(paramType) : "") + ")"
+        return "(" + (paramTypes.size() != 0 ? getBTypeListAsString(paramTypes) : "") + ")"
                + " returns " + retTypeWithParam;
     }
 

@@ -32,24 +32,18 @@ public remote function test3(string value) returns int = external;
 
 type Foo client object {
 
-    function abc (string value) returns int;
+    function abc (string value) returns int {
+        return 10;
+    }
 
     remote function pqr(string value) returns boolean {
         return false;
     }
 
-    remote function xyz (string value) returns float;
+    remote function xyz (string value) returns float {
+        return 10.0;
+    }
 };
-
-// attempt to refer non-remote function as remote
-remote function Foo.abc (string value) returns int {
-    return 10;
-}
-
-// remote modifier required here
-function Foo.xyz (string value) returns float {
-    return 10.0;
-}
 
 function testFunc1() {
     Foo x = new;

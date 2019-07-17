@@ -114,7 +114,8 @@ public class CodeGeneratorTest {
         CodeGenerator generator = new CodeGenerator();
         try {
             String expectedContent = new String(Files.readAllBytes(expectedFilePath));
-            List<GenSrcFile> generatedFileList = generator.generate(GenType.GEN_SERVICE, definitionPath);
+            List<GenSrcFile> generatedFileList = generator.generateBalSource(GenType.GEN_SERVICE,
+                    definitionPath, "");
             if (generatedFileList.size() > 0) {
                 GenSrcFile actualGeneratedContent = generatedFileList.get(0);
                 Assert.assertEquals(actualGeneratedContent.getContent(), expectedContent,

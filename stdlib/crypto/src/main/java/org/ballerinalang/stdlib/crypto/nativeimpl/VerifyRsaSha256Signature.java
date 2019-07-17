@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -36,11 +34,7 @@ import java.security.PublicKey;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "verifyRsaSha256Signature")
-public class VerifyRsaSha256Signature extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class VerifyRsaSha256Signature {
 
     public static Object verifyRsaSha256Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
                                                   MapValue<?, ?> publicKey) {
@@ -50,7 +44,7 @@ public class VerifyRsaSha256Signature extends BlockingNativeCallableUnit {
             PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
             return CryptoUtils.verify("SHA256withRSA", key, data, signature);
         } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("invalid uninitialized key");
+            return CryptoUtils.createCryptoError("Uninitialized public key");
         }
     }
 }

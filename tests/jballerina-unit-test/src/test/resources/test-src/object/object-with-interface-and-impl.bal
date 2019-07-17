@@ -8,17 +8,13 @@ type Person object {
 
     string month = "february";
 
-    function attachInterface(int add) returns int;
+    function attachInterface(int add) returns int {
+        int count = self.age + add;
+        return count;
+    }
 
-    public function attachInterface2(int add) returns int;
+    public function attachInterface2(int add) returns int {
+        int count = self.age + add;
+        return count;
+    }
 };
-
-function Person.attachInterface(int add) returns int {
-    int count = self.age + add;
-    return count;
-}
-
-public function Person.attachInterface2(int add) returns int {
-    int count = self.age + add;
-    return count;
-}

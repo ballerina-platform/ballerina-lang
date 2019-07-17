@@ -26,4 +26,4 @@ service wsClientService = @http:WebSocketServiceConfig {} service {
     }
 };
 
-http:WebSocketClient wsClient = new("wss://echo.websocket.org", config = {callbackService: wsClientService});
+http:WebSocketClient wsClient = new("wss://echo.websocket.org", {callbackService: wsClientService});

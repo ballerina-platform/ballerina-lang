@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
@@ -46,6 +45,7 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
@@ -74,8 +74,8 @@ public class MessageUtils {
         }
         boolean headersRequired = false;
         for (BType paramType : function.getParameterType()) {
-            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackage().getName()) &&
-                    "Headers".equals(paramType.getName())) {
+            if (paramType != null && "Headers".equals(paramType.getName()) &&
+                    paramType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(paramType.getPackage().getName())) {
                 headersRequired = true;
                 break;
             }
@@ -97,12 +97,8 @@ public class MessageUtils {
         return total;
     }
 
-    @SuppressWarnings("unchecked")
     public static StreamObserver getResponseObserver(ObjectValue refType) {
-        Object observerObject = null;
-        if (refType instanceof MapValue) {
-            observerObject = ((MapValue<String, Object>) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
-        }
+        Object observerObject = refType.getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver) observerObject);
         }

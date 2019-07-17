@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 16,
+    "character": 1
+  },
+  "source": "annotation/source/annotationInSameModule2.bal",
+  "items": [
+    {
+      "label": "v1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "v1 {\n\tfoo: \"${1}\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "v2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "v2 {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

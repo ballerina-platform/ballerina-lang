@@ -14,10 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, map<string>>;
-type SMA error <string, map<anydata>>;
-type CMS error <string, map<string>>;
-type CMA error <string, map<anydata>>;
+type StringRestRec record {|
+    string...;
+|};
+
+type SMS error <string, record {| string...; |}>;
+type SMA error <string, record {| string|boolean...; |}>;
+type CMS error <string, record {| string...; |}>;
+type CMA error <string, record {| anydata...; |}>;
 
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
@@ -116,7 +120,7 @@ function testErrorInTuple() returns [int, string, string, anydata|error, boolean
 
     [intVar, stringVar, errorVar, [errorVar2, fooVar]] = t1;
 
-    return [intVar, stringVar, errorVar.reason(), errorVar2.detail().message, fooVar.fatal];
+    return [intVar, stringVar, errorVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
 function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|error>, boolean] {
@@ -160,7 +164,7 @@ function testErrorInRecordWithDestructure() returns [int, string, anydata|error]
     map<anydata|error> detail;
     { x, e: error (reason, ... detail) } = b;
 
-    return [x, reason, detail.message];
+    return [x, reason, detail["message"]];
 }
 
 function testErrorInRecordWithDestructure2() returns [int, string, anydata|error, anydata|error] {
@@ -176,51 +180,8 @@ function testErrorInRecordWithDestructure2() returns [int, string, anydata|error
     return [x, reason, message, extra];
 }
 
-function testBasicErrorVariableWithFieldBasedRef() returns map<anydata|error> {
-    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
-
-    map<anydata|error> results = {};
-
-    error (results.res1, ...results.rec) = err1;
-    error (results.res2, message = results.message, fatal = results.fatal) = err1;
-
-    return results;
-}
-
-function testBasicErrorVariableWithIndexBasedRef() returns map<anydata|error> {
-    FooError err1 = error("Error One", message = "Something Wrong", fatal = true);
-
-    map<anydata|error> results = {};
-
-    error (results["res1"], ...results["rec"]) = err1;
-    error (results["res2"], message = results["message"], fatal = results["fatal"]) = err1;
-
-    return results;
-}
-
-function testErrorWithUnionConstrainedDetailMap() returns [string, string, map<string|boolean>,
-                                                              string|boolean?, string|boolean?] {
-    error <string, map<string|boolean>> errorOne = error("Error Msg", message = "Failed", fatal = false);
-
-    string reasonString;
-    string reasonString2;
-    map<string|boolean> detailMap;
-    string|boolean? messageString;
-    string|boolean|() fatalBool;
-
-    error (reasonString, ... detailMap) = errorOne;
-    error (reasonString2, message = messageString, fatal = fatalBool) = errorOne;
-
-    fatalBool = true;
-    if (messageString is string) {
-        messageString = messageString + "!!";
-    }
-
-    return [reasonString, reasonString2, detailMap, messageString, fatalBool];
-}
-
 function testErrorWithRestParam() returns map<string> {
-    error<string, map<string>> errWithMap = error("Error", message = "Fatal", fatal = "true");
+    error<string, record {| string...; |}> errWithMap = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string? message;
@@ -232,7 +193,7 @@ function testErrorWithRestParam() returns map<string> {
 }
 
 function testErrorWithUnderscore() returns [string, map<string>] {
-    error<string, map<string>> errWithMap = error("Error", message = "Fatal", fatal = "true");
+    error<string, record {| string...; |}> errWithMap = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     map<string> detail;
@@ -241,16 +202,4 @@ function testErrorWithUnderscore() returns [string, map<string>] {
     error(_, ... detail) = errWithMap;
 
     return [reason, detail];
-}
-
-function testDetailMapConstrainedToJSON() returns [json, json] {
-    error<string, map<json>> err1 = error("ErrorReason", message = "broken", fatal = true);
-
-    string reason2;
-    json message;
-    json fatal;
-
-    error(reason2, message = message, fatal = fatal) = err1;
-
-    return [message, fatal];
 }
