@@ -1262,7 +1262,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
     errorGen.printStackTraceFromFutureValue(mv);
     mv.visitInsn(POP);
-    
+
 }
 
 # Generate a lambda function to invoke ballerina main.
