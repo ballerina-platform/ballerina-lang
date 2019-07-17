@@ -32,7 +32,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.Compiler;

@@ -1,8 +1,8 @@
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
