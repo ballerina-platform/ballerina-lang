@@ -1,0 +1,15 @@
+NAME
+    Ballerina sdks - List available ballerina SDKs
+
+SYNOPSIS
+    ballerina sdks
+
+DESCRIPTION
+     Ballerina sdks List available ballerina SDKs
+
+OPTIONS
+     Ballerina sdks command takes no options.
+
+EXAMPLES
+     List available Ballerina versions
+     $ ballerina sdk
