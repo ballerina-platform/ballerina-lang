@@ -19,6 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -49,12 +50,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
@@ -204,6 +200,20 @@ public class BuilderUtils {
                 outStream.println();
                 outStream.println("Generating executables");
                 entryPackages.forEach(p -> assembleExecutable(p, sourceRootPath));
+            }
+
+            // Run annotation processor codeGenerated phase.
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            for(BLangPackage p: packages) {
+                processorServiceLoader.forEach(plugin -> {
+                    String execJarName = p.packageID.name.value + ProjectDirConstants.EXEC_SUFFIX
+                            + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+                    Path execFilePath = sourceRootPath
+                            .resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                            .resolve(ProjectDirConstants.BIN_DIR_NAME)
+                            .resolve(execJarName);
+                    plugin.codeGenerated(p.packageID, execFilePath);
+                });
             }
             return;
         }
