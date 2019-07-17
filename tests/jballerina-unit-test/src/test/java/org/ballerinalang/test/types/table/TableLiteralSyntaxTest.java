@@ -395,8 +395,6 @@ public class TableLiteralSyntaxTest {
                 + "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
-
-
     @Test(enabled = false)
     public void testTableRemoveSuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccess");
