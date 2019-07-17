@@ -19,10 +19,11 @@ import ballerina/io;
 
 service pushTextFailure on new http:WebSocketListener(9089) {
     resource function onOpen(http:WebSocketCaller caller) {
-        error? err1 = caller->close(timeoutInSecs = 0);
+        WebSocketError? err1 = caller->close(timeoutInSecs = 0);
         var err = caller->pushText("hey");
-        if (err is error) {
-            io:println(err.detail().message);
+        if (err is WebSocketError) {
+            error e = err;
+            io:println(err.detail()["message"]);
         }
     }
 }

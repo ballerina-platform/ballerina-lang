@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/http;
+import ballerina/internal;
 
 listener http:Listener frontendEP = new(9090);
 
@@ -83,7 +84,7 @@ service frontendHttpService on frontendEP {
         }
         // Check whether correct response received
         string responseStringPayload = responseJsonPayload.toString();
-        if (!(responseStringPayload.contains("main"))) {
+        if (!(internal:contains(responseStringPayload, "main"))) {
             json errMsg = { "error": "expected response message not received" };
             checkpanic caller->respond(errMsg);
             return;
@@ -117,7 +118,7 @@ service frontendHttpService on frontendEP {
             // check whether expected
             string expectedVal = promise.path.substring(1, 10);
             string promisedStringPayload = promisedJsonPayload.toString();
-            if (!(promisedStringPayload.contains(expectedVal))) {
+            if (!(internal:contains(promisedStringPayload, expectedVal))) {
                 json errMsg = { "error": "expected promised response not received" };
                 checkpanic caller->respond(errMsg);
                 return;
@@ -146,11 +147,11 @@ service backendHttp2Service on backendEP {
         io:println("Request received");
 
         // Send a Push Promise
-        http:PushPromise promise1 = new(path = "/resource1", method = "POST");
+        http:PushPromise promise1 = new("/resource1", "POST");
         checkpanic caller->promise(promise1);
 
         // Send another Push Promise
-        http:PushPromise promise2 = new(path = "/resource2", method = "POST");
+        http:PushPromise promise2 = new("/resource2", "POST");
         checkpanic caller->promise(promise2);
 
         // Send one more Push Promise

@@ -92,14 +92,14 @@ function testOptFieldToOptField1() returns AnotherPerson4 {
     return ap;
 }
 
-function testOptFieldToOptField2() returns [AnotherPerson4, int] {
+function testOptFieldToOptField2() returns [AnotherPerson4, int?] {
     Person2 p = {name:"John Doe", age:25};
     AnotherPerson4 ap = p;
 
     p = {name:"Jane Doe"};
     AnotherPerson4 ap2 = p;
 
-    return [ap, ap2.age];
+    return [ap, ap2["age"]];
 }
 
 public type PublicPerson record {|

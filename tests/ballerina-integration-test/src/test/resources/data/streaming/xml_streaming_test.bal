@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 import ballerina/log;
 
 jdbc:Client testDB = new({

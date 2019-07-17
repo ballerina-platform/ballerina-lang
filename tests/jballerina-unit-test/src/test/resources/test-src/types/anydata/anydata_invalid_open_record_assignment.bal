@@ -68,7 +68,7 @@ type Foo3 record {|
 
 type Foo4 record {|
     int ca;
-    typedesc td;
+    typedesc<any> td;
     anydata...;
 |};
 

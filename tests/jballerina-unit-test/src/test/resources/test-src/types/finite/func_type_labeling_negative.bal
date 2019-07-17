@@ -20,12 +20,12 @@ function invalidFuncDefinition() {
     FuncType fn = function (int i) returns int {
         return i + 10;
     };
-    int x = fn.call(10);
+    int x = fn(10);
 }
 
 function invalidFuncDefinition2() {
     FuncType fn = function (string s) returns string {
         return s + s;
     };
-    _ = fn.call("asdf");
+    _ = fn("asdf");
 }

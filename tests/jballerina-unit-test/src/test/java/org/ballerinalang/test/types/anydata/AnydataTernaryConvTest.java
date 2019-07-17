@@ -62,7 +62,7 @@ public class AnydataTernaryConvTest {
     @Test(description = "Test anydata to json conversion")
     public void testAnydataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnydataToJson");
-        assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
         assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
     }
 
@@ -98,7 +98,7 @@ public class AnydataTernaryConvTest {
     @Test(description = "Test anydata to union conversion for complex types")
     public void testAnydataToUnion2() {
         BValue[] returns = BRunUtil.invoke(result, "testAnydataToUnion2");
-        assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
         assertEquals(returns[1].getType().getTag(), TypeTags.XML_TAG);
         assertEquals(returns[2].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns[3].getType().getTag(), TypeTags.RECORD_TYPE_TAG);

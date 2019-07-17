@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.object as lang;
+
 type Annot record {
     string foo;
     int bar?;
@@ -41,14 +43,14 @@ public type T1 record {
 T1 a = { name: "John" };
 
 function testTypeAnnotAccess1() returns boolean {
-    typedesc t = typeof a;
+    typedesc<any> t = typeof a;
     Annot? annot = t.@v1;
-    return annot is Annot && annot.foo == strValue && annot.bar == 1;
+    return annot is Annot && annot.foo == strValue && annot["bar"] == 1;
 }
 
 function testTypeAnnotAccess2() returns boolean {
     T1 b = { name: "John" };
-    typedesc t = typeof b;
+    typedesc<any> t = typeof b;
     Annot[]? annot = t.@v2;
     return annot is ();
 }
@@ -90,7 +92,7 @@ type T2 object {
 
 function testObjectTypeAnnotAccess1() returns boolean {
     T2 c = new;
-    typedesc t = typeof c;
+    typedesc<any> t = typeof c;
     Annot? annot = t.@v1;
     return annot is Annot && annot.foo == strValue;
 }
@@ -98,7 +100,7 @@ function testObjectTypeAnnotAccess1() returns boolean {
 T2 d = new;
 
 function testObjectTypeAnnotAccess2() returns boolean {
-    typedesc t = typeof d;
+    typedesc<any> t = typeof d;
     Annot[]? annots = t.@v2;
     if (annots is Annot[]) {
         if (annots.length() != 2) {
@@ -113,7 +115,7 @@ function testObjectTypeAnnotAccess2() returns boolean {
 
 function testObjectTypeAnnotAccess3() returns boolean {
     T2 e = new;
-    typedesc t = typeof e;
+    typedesc<any> t = typeof e;
     Annot? annot = t.@v3;
     return annot is ();
 }
@@ -142,7 +144,7 @@ service ser on lis {
 }
 
 function testServiceAnnotAccess1() returns boolean {
-    typedesc t = typeof ser;
+    typedesc<any> t = typeof ser;
     Annot[]? annots = t.@v8;
     if (annots is Annot[]) {
         if (annots.length() != 2) {
@@ -156,7 +158,7 @@ function testServiceAnnotAccess1() returns boolean {
 }
 
 function testServiceAnnotAccess2() returns boolean {
-    typedesc t = typeof ser;
+    typedesc<any> t = typeof ser;
     Annot? annot = t.@v1;
     return annot is ();
 }
@@ -174,7 +176,7 @@ service serTwo = @v8 {
 };
 
 function testServiceAnnotAccess3() returns boolean {
-    typedesc t = typeof serTwo;
+    typedesc<any> t = typeof serTwo;
     Annot[]? annots = t.@v8;
     if (annots is Annot[]) {
         if (annots.length() != 1) {
@@ -187,13 +189,13 @@ function testServiceAnnotAccess3() returns boolean {
 }
 
 function testServiceAnnotAccess4() returns boolean {
-    typedesc t = typeof serTwo;
+    typedesc<any> t = typeof serTwo;
     Annot[]? annot = t.@v2;
     return annot is ();
 }
 
 type Listener object {
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public function __init() {
     }

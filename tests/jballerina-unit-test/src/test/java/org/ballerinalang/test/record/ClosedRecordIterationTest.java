@@ -51,58 +51,63 @@ public class ClosedRecordIterationTest {
     @Test
     public void testNegativesWithClosedRecords() {
         int index = 0;
-        Assert.assertEquals(closedRecNegatives.getErrorCount(), 17);
-        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'sum' does not support given collection type",
-                                  21, 15);
-        BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "operation 'average' does not support given collection type",
-                                  25, 15);
-        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'max' does not support given collection type",
-                                  29, 15);
-        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'min' does not support given collection type",
-                                  33, 15);
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
-                "invalid tuple binding pattern; member variable count mismatch with member type count",
-                40, 17);
-
-        BAssertUtil.validateError(closedRecNegatives, index++, "undefined symbol 'val'", 41, 19);
+                                  "invalid tuple variable; expecting a tuple type but found 'any' in type definition",
+                                  40, 17);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 50, 15);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  47, 5);
 
         // Test invalid map iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 59, 18);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  52, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'map', found '(any) collection'", 63, 18);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  56, 12);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'map', found '(string,any,string) collection'",
-                                  67, 18);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  60, 12);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'ClosedPerson', found '(string,any) collection'",
-                                  71, 33);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  64, 27);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible types: expected 'ClosedPerson', found 'map<[string,any]>'",
+                                  64, 27);
 
         // Test invalid filter iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many variables are defined for iterable type 'ClosedPerson'", 81, 21);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'",
+                                  70, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible lambda function types: expected 'boolean', found 'string'", 85, 21);
+                                  "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
+                                          "'function ([string,any]) returns (string)'", 74, 21);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "too many return arguments are defined for operation 'filter'", 89, 21);
+                                  "incompatible types: expected '(string|int|ClosedAddress)', found '[string,any]'", 78,
+                                  27);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'ClosedPerson', found '(string,any) collection'",
-                                  93, 36);
+                                  "incompatible types: expected 'ClosedPerson', " +
+                                          "found 'map<(string|int|ClosedAddress)>'", 78, 27);
 
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'map<int>', found 'map<float>'",
-                                  119, 10);
+                                  "incompatible types: expected 'int', found '[string,int]'",
+                                  86, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "incompatible types: expected 'int[]', found 'float[]'",
-                                  146, 10);
+                                  "incompatible types: expected 'map<int>', found 'map<[string,float]>'",
+                                  86, 18);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible types: expected 'int', found '[string,int]'",
+                                  116, 16);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible types: expected 'int[]', found 'map<float>'",
+                                  116, 16);
+
+        Assert.assertEquals(closedRecNegatives.getErrorCount(), index);
     }
 
     @Test
@@ -155,7 +160,8 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
 
-    @Test(description = "Tests map iterable operation on closed records")
+    // TODO: 7/16/19 Enable once https://github.com/ballerina-platform/ballerina-lang/issues/16759 is fixed
+    @Test(description = "Tests map iterable operation on closed records", enabled = false)
     public void testMapOpWithClosedRecords() {
         String[] expectedFields = new String[]{"name", "age", "address"};
         BValue[] returns = BRunUtil.invoke(result, "testMapOpWithClosedRecords");
@@ -183,9 +189,9 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(person.get(expectedFields[4]).stringValue(), "E");
     }
 
-    @Test(description = "Tests count iterable operation on closed records")
-    public void testCountOpWithClosedRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testCountOpWithClosedRecords");
+    @Test(description = "Tests reduce iterable operation on closed records")
+    public void testReduceOpWithClosedRecords() {
+        BValue[] returns = BRunUtil.invoke(result, "testReduceOpWithClosedRecords");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
@@ -211,13 +217,6 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(foo.get("c").stringValue(), "cc");
         Assert.assertEquals(foo.get("d").stringValue(), "dd");
         Assert.assertEquals(foo.get("e").stringValue(), "ee");
-
-        BValueArray fooArr = (BValueArray) returns[1];
-        Assert.assertEquals(fooArr.getString(0), "aa");
-        Assert.assertEquals(fooArr.getString(1), "bb");
-        Assert.assertEquals(fooArr.getString(2), "cc");
-        Assert.assertEquals(fooArr.getString(3), "dd");
-        Assert.assertEquals(fooArr.getString(4), "ee");
     }
 
     @Test(description = "Test case for map op on closed records with all int fields")
@@ -229,11 +228,6 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(((BInteger) gradesMap.get("maths")).intValue(), 90);
         Assert.assertEquals(((BInteger) gradesMap.get("physics")).intValue(), 85);
         Assert.assertEquals(((BInteger) gradesMap.get("chemistry")).intValue(), 75);
-
-        BValueArray gradesArr = (BValueArray) returns[1];
-        Assert.assertEquals(gradesArr.getInt(0), 90);
-        Assert.assertEquals(gradesArr.getInt(1), 85);
-        Assert.assertEquals(gradesArr.getInt(2), 75);
     }
 
     @Test(description = "Test case for map op on closed records with all float fields")
@@ -246,11 +240,6 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(((BFloat) gradesMap.get("x")).floatValue(), a + 10);
         Assert.assertEquals(((BFloat) gradesMap.get("y")).floatValue(), b + 10);
         Assert.assertEquals(((BFloat) gradesMap.get("z")).floatValue(), c + 10);
-
-        BValueArray gradesArr = (BValueArray) returns[1];
-        Assert.assertEquals(gradesArr.getFloat(0), a + 10);
-        Assert.assertEquals(gradesArr.getFloat(1), b + 10);
-        Assert.assertEquals(gradesArr.getFloat(2), c + 10);
     }
 
     @Test(description = "Test case for filter op on closed records with all string fields")
@@ -264,11 +253,6 @@ public class ClosedRecordIterationTest {
         Assert.assertNull(foo.get("c"));
         Assert.assertNull(foo.get("d"));
         Assert.assertEquals(foo.get("e").stringValue(), e);
-
-        BValueArray fooArr = (BValueArray) returns[1];
-        Assert.assertEquals(fooArr.size(), 2);
-        Assert.assertEquals(fooArr.getString(0), a);
-        Assert.assertEquals(fooArr.getString(1), e);
     }
 
     @Test(description = "Test case for filter op on closed records with all int fields")
@@ -280,11 +264,6 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(((BInteger) gradesMap.get("maths")).intValue(), m);
         Assert.assertEquals(((BInteger) gradesMap.get("physics")).intValue(), p);
         Assert.assertNull(gradesMap.get("chemistry"));
-
-        BValueArray fooArr = (BValueArray) returns[1];
-        Assert.assertEquals(fooArr.size(), 2);
-        Assert.assertEquals(fooArr.getInt(0), m);
-        Assert.assertEquals(fooArr.getInt(1), p);
     }
 
     @Test(description = "Test case for map op on closed records with all float fields")
@@ -297,16 +276,11 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(((BFloat) gradesMap.get("x")).floatValue(), a);
         Assert.assertEquals(((BFloat) gradesMap.get("y")).floatValue(), b);
         Assert.assertNull(gradesMap.get("z"));
-
-        BValueArray gradesArr = (BValueArray) returns[1];
-        Assert.assertEquals(gradesArr.size(), 2);
-        Assert.assertEquals(gradesArr.getFloat(0), a);
-        Assert.assertEquals(gradesArr.getFloat(1), b);
     }
 
     @Test(description = "Test case for terminal ops on closed records with all int fields")
     public void testTerminalOpsOnAllIntClosedRecord() {
-        long[] marks = new long[]{80, 75, 65};
+        long[] marks = new long[]{80, 76, 66};
         BValue[] args = new BValue[]
                 {new BInteger(marks[0]), new BInteger(marks[1]), new BInteger(marks[2])};
         BValue[] returns = BRunUtil.invoke(result, "testTerminalOpsOnAllIntClosedRecord", args);
@@ -320,7 +294,7 @@ public class ClosedRecordIterationTest {
 
     @Test(description = "Test case for terminal ops on closed records with all int fields")
     public void testTerminalOpsOnAllIntClosedRecord2() {
-        long[] marks = new long[]{80, 75, 0};
+        long[] marks = new long[]{80, 76, 0};
         BValue[] args = new BValue[]
                 {new BInteger(marks[0]), new BInteger(marks[1])};
         BValue[] returns = BRunUtil.invoke(result, "testTerminalOpsOnAllIntClosedRecord2", args);

@@ -14,75 +14,119 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testFreezeOnNilTypedValue() {
-    () n = ();
-    _ = n.freeze();
-}
-
 function testFreezeOnValuesOfNonAnydataType() {
     PersonObj p = new;
-    PersonObj q = p.freeze();
+    PersonObj q = p.cloneReadOnly();
 
     stream<int> intSt = new;
-    _ = intSt.freeze();
+    _ = intSt.cloneReadOnly();
 
     future<boolean> boolFuture;
-    _ = boolFuture.freeze();
+    _ = boolFuture.cloneReadOnly();
 }
 
 function testFreezeOnMapWithoutAnydata() {
     map<PersonObj> m1 = {};
-    _ = m1.freeze();
+    _ = m1.cloneReadOnly();
 
     map<stream<int>|PersonObj> m2 = {};
-    _ = m2.freeze();
+    _ = m2.cloneReadOnly();
 }
 
 function testFreezeOnArrayWithoutAnydata() {
     PersonObj[] a1 = [];
-    _ = a1.freeze();
+    _ = a1.cloneReadOnly();
 
     (PersonObjTwo|PersonObj)?[] a2 = [];
-    _ = checkpanic a2.freeze();
+    _ =  a2.cloneReadOnly();
 }
 
 function testFreezeOnTupleWithoutAnydata() {
     PersonObj po = new;
     PersonObjTwo po2 = new;
     [PersonObj|PersonObjTwo, PersonObjTwo] t1 = [po, po2];
-    _ = t1.freeze();
+    _ = t1.cloneReadOnly();
 }
 
 function testFreezeOnRecordWithoutAnydata() {
     Department d1 = { head: new };
-    _ = d1.freeze();
+    _ = d1.cloneReadOnly();
 }
 
 function testInvalidAssignmentWithFreeze() {
     map<string|PersonObj> m = {};
-    map<string|PersonObj> m1 = m.freeze();
+    map<string|PersonObj> m1 = m.cloneReadOnly();
 
     map<[string|PersonObj, FreezeAllowedDepartment|float]> m2 = {};
-    map<[any, any]> m3 = m2.freeze();
+    map<[any, any]> m3 = m2.cloneReadOnly();
 
     (boolean|PersonObj|float)?[] a1 = [];
-    (boolean|PersonObj|float)?[] a2 = a1.freeze();
+    (boolean|PersonObj|float)?[] a2 = a1.cloneReadOnly();
 
-    any[] a3 = a1.freeze();
+    any[] a3 = a1.cloneReadOnly();
 
     [string|PersonObj, FreezeAllowedDepartment|float] t1 = ["", 0.0];
-    [string|PersonObj, FreezeAllowedDepartment|float] t2 = t1.freeze();
+    [string|PersonObj, FreezeAllowedDepartment|float] t2 = t1.cloneReadOnly();
 
     FreezeAllowedDepartment fd = { head: "" };
-    FreezeAllowedDepartment fd2 = fd.freeze();
+    FreezeAllowedDepartment fd2 = fd.cloneReadOnly();
 
     string|PersonObj u1 = "hi";
-    string|PersonObj u2 = u1.freeze();
+    string|PersonObj u2 = u1.cloneReadOnly();
 }
 
 function testFreezeOnError() {
     error e = error("test error");
-    _ = e.freeze();
+    _ = e.cloneReadOnly();
+}
+
+function testInvalidComplexMapFreeze() {
+    map<string|PersonObj> m1 = {};
+    PersonObj p = new;
+
+    m1["one"] = "one";
+    m1["two"] = p;
+
+    map<string|PersonObj>|error res = m1.cloneReadOnly();
+}
+
+function testInvalidComplexArrayFreeze()  {
+    (string|typedesc<anydata>|float)?[] a1 = [];
+    typedesc<anydata> p = int;
+
+    a1[0] = 2.0;
+    a1[1] = "hello world";
+    a1[2] = p;
+
+    (string|typedesc<anydata>|float)?[]|error res = a1.cloneReadOnly();
+}
+
+function testInvalidComplexRecordFreeze() {
+    PersonObj p = new;
+    PersonObj p1 = new;
+    PersonObj p2 = new;
+    FreezeAllowedDepartment2 fd = { head: p, e1: p1, e2: 10 };
+    FreezeAllowedDepartment2|error res = fd.cloneReadOnly();
+}
+
+function testInvalidComplexTupleFreeze() {
+    PersonObj p = new;
+    [int, string|PersonObj|float, boolean] t1 = [1, p, true];
+    any|error res = t1.cloneReadOnly();
+}
+
+function testInvalidComplexUnionFreeze() {
+    PersonObj p = new;
+    int|Department|PersonObj u1 = p;
+
+    int|Department|PersonObj|error res = u1.cloneReadOnly();
+}
+
+function testErrorValueFreeze() {
+    error e = error("test error");
+    anydata|error val = e;
+
+    anydata res = val.cloneReadOnly();
 }
 
 type PersonObj object {
@@ -109,4 +153,9 @@ type Department record {|
 type FreezeAllowedDepartment record {|
     PersonObj|string head;
     (PersonObjTwo|string)...;
+|};
+
+type FreezeAllowedDepartment2 record {|
+    PersonObj|string head;
+    (PersonObj|int)...;
 |};

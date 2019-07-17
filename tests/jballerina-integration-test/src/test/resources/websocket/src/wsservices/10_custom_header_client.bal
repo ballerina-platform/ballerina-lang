@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 
 final string strData1 = "data";
-final byte[] APPLICATION_DATA = strData1.toByteArray("UTF-8");
+final byte[] APPLICATION_DATA = strData1.toBytes();
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
@@ -31,8 +31,8 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
@@ -41,15 +41,15 @@ service PingPongTestService1 on new http:WebSocketListener(9092) {
         if (text == "custom-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(text + ":X-some-header");
-            if (returnVal is error) {
-                 panic returnVal;
+            if (returnVal is http:WebSocketError) {
+                panic <error> returnVal;
             }
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
             var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
             if (returnVal is error) {
-                 panic returnVal;
+                panic <error> returnVal;
             }
         }
     }
@@ -61,7 +61,7 @@ service clientCallbackService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serverEp = getAssociatedListener(wsEp);
         var returnVal = serverEp->pushText(text);
         if (returnVal is error) {
-             panic returnVal;
+            panic <error> returnVal;
         }
     }
 };

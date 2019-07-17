@@ -1,0 +1,11 @@
+// This sample demonstrates leveraging the historical
+// message replay feature of Streaming NATS.
+// New subscriptions may specify a starting position in the stream of
+// messages stored for the channel of the subscribed subject.
+// Message delivery may begin at:
+// 1. The earliest message stored for this subject
+// 2. The most recently stored message for this subject
+//    prior to the start of the current subscription.
+// 3. A historical offset from the current server date/time
+//    (e.g., the last 30 seconds).
+// 4. A specific message sequence number
