@@ -1,20 +1,15 @@
 NAME
-    Ballerina update - Update Ballerina
+    Ballerina update - Update to latest SDK version
 
 SYNOPSIS
-    ballerina <-v|-update|update>
+    ballerina update
 
 DESCRIPTION
      Ballerina update command will update to provided version.
 
-     Note that ballerina -u and ballerina –update are
-     identical to ballerina version. 
-
 OPTIONS
-     -v
-     -version
-         Shorthand syntax for ballerina version. 
+     Ballerina update command takes no options.
 
 EXAMPLES
-     What is the current Ballerina version installed on your machine?
-     $ ballerina -v
+     Update current SDK to latest.
+     $ ballerina update
