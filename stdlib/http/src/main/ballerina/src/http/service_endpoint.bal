@@ -260,11 +260,11 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
         var scopes = auth["scopes"];
         cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeMillis,
-                                            auth.positiveAuthzCache.capacity,
-                                            auth.positiveAuthzCache.evictionFactor);
+                                             auth.positiveAuthzCache.capacity,
+                                             auth.positiveAuthzCache.evictionFactor);
         cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeMillis,
-                                            auth.negativeAuthzCache.capacity,
-                                            auth.negativeAuthzCache.evictionFactor);
+                                             auth.negativeAuthzCache.capacity,
+                                             auth.negativeAuthzCache.evictionFactor);
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
         authFilters[1] = authzFilter;
