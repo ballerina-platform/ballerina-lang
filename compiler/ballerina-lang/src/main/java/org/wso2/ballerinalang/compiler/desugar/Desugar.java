@@ -1400,7 +1400,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression currentExpr;
         for (BLangExpression expr : exprs) {
             currentExpr = expr;
-            if (expr.type.tag != TypeTags.STRING) {
+            if (expr.type.tag != TypeTags.STRING && expr.type.tag != TypeTags.XML) {
                 currentExpr = getToStringInvocationOnExpr(expr);
             }
 
@@ -1409,8 +1409,12 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
 
-            concatExpr = ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
-                                                         symTable.stringType, OperatorKind.ADD, null);
+            concatExpr =
+                    ASTBuilderUtil.createBinaryExpr(concatExpr.pos, concatExpr, currentExpr,
+                                                    concatExpr.type.tag == TypeTags.XML ||
+                                                            currentExpr.type.tag == TypeTags.XML ?
+                                                            symTable.xmlType : symTable.stringType,
+                                                    OperatorKind.ADD, null);
         }
         return concatExpr;
     }

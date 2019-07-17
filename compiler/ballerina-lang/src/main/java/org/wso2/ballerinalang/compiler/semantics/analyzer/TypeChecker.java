@@ -2283,23 +2283,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, true);
+        checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
         resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, true);
+        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
         resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
-        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, true);
+        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
         resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        checkStringTemplateExprs(bLangXMLQuotedString.textFragments, true);
+        checkStringTemplateExprs(bLangXMLQuotedString.textFragments, false);
         resultType = types.checkType(bLangXMLQuotedString, symTable.stringType, expType);
     }
 
