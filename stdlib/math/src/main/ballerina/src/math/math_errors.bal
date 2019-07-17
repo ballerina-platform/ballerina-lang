@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,18 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Person record {|
-    int id;
-    string name;
-    int age;
-|};
+type Detail record {
+    string message;
+    error cause?;
+};
 
-function testTableLiteralDataAndAddWithObject() returns (int) {
-    //Object types cannot be included in the literal
-    table<Person> t1 = table {
-        { key id, keyerror name, age }
-    };
+public const ARITHMETIC_ERROR = "{ballerina/math}Error";
 
-    int count = t1.count();
-    return count;
-}
+public type Error error<ARITHMETIC_ERROR, Detail>;
