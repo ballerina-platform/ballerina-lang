@@ -22,7 +22,7 @@ import ballerina/io;
 }
 service clientClose on new http:WebSocketListener(9085) {
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
-        io:println("Status code: " + statusCode);
+        io:println("Status code: " + statusCode.toString());
     }
 
 }
