@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 // Server endpoint configuration
-listener grpc:Listener ep3 = new (9095);
+listener grpc:Listener ep3 = new (9093);
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
@@ -34,7 +34,7 @@ service Chat on ep3 {
 
     resource function onOpen(grpc:Caller caller) {
         io:println(string `${caller.getId()} connected to chat`);
-        self.consMap[string.convert(caller.getId())] = caller;
+        self.consMap[caller.getId().toString()] = caller;
         io:println("Client registration completed. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
@@ -57,13 +57,12 @@ service Chat on ep3 {
         io:println("Starting message broadcast. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
-        foreach var con in self.consMap {
-            string callerId;
-            (callerId, conn) = con;
+        foreach var [callerId, connection] in self.consMap.entries() {
+            conn = connection;
             error? err = conn->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                        + <string>err.detail().message);
+                        + <string> err.detail()["message"]);
             } else {
                 io:println("Server message to caller " + callerId + " sent successfully.");
             }
@@ -72,24 +71,23 @@ service Chat on ep3 {
 
     resource function onError(grpc:Caller caller, error err) {
         io:println("Error from Connector: " + err.reason() + " - "
-                + <string>err.detail().message);
+                + <string> err.detail()["message"]);
     }
 
     resource function onComplete(grpc:Caller caller) {
         grpc:Caller conn;
         string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(string.convert(caller.getId()));
+        var v = self.consMap.remove(caller.getId().toString());
         io:println("Starting client left broadcast. Connection map status");
         io:println("Map length: " + self.consMap.length());
         io:println(self.consMap);
-        foreach var con in self.consMap {
-            string callerId;
-            (callerId, conn) = con;
+        foreach var [callerId, connection] in self.consMap.entries() {
+            conn = connection;
             error? err = conn->send(msg);
             if (err is error) {
                 io:println("Error from Connector: " + err.reason() + " - "
-                        + <string>err.detail().message);
+                        + <string> err.detail()["message"]);
             } else {
                 io:println("Server message to caller " + callerId + " sent successfully.");
             }

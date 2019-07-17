@@ -32,6 +32,7 @@ import java.nio.file.Paths;
  *
  * @since 0.995.0
  */
+@Test(groups = {"jms-test"})
 public class JmsCompilationTest {
     private static final Path TEST_PATH = Paths.get("src", "test", "resources", "test-src");
     private static final Path QUEUE_TEST_PATH = TEST_PATH.resolve("queue");

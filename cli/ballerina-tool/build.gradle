@@ -29,10 +29,10 @@ dependencies {
     implementation 'org.testng:testng'
 }
 
-description = 'Ballerina - Launcher'
+description = 'Ballerina - Tool'
 
 processResources {
-    include '**/launcher.properties'
+    include '**/tool.properties'
     include 'cli-help/*'
     filter { String line -> line.replace('${project.version}', "${project.version}" )}
 }
