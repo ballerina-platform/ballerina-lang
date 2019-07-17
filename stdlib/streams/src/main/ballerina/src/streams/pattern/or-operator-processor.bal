@@ -123,9 +123,13 @@ public type OrOperatorProcessor object {
         string pAlias = <string>processorAlias;
         any|error cleaned;
         if (pAlias == self.lhsAlias) {
-            cleaned = self.rhsEvicted.remove(stateEvent.getEventId());
+            if (self.rhsEvicted.hasKey(stateEvent.getEventId())) {
+                cleaned = self.rhsEvicted.remove(stateEvent.getEventId());
+            }
         } else {
-            cleaned = self.lhsEvicted.remove(stateEvent.getEventId());
+            if (self.lhsEvicted.hasKey(stateEvent.getEventId())) {
+                cleaned = self.lhsEvicted.remove(stateEvent.getEventId());
+            }
         }
         self.stateEvents.addLast(stateEvent);
     }
@@ -178,8 +182,12 @@ public type OrOperatorProcessor object {
     #
     # + streamEvent - event to be removed
     public function remove(StreamEvent streamEvent) {
-        var removed = self.rhsEvicted.remove(streamEvent.getEventId());
-        removed = self.lhsEvicted.remove(streamEvent.getEventId());
+        if (self.rhsEvicted.hasKey(streamEvent.getEventId())) {
+            var removed = self.rhsEvicted.remove(streamEvent.getEventId());
+        }
+        if (self.lhsEvicted.hasKey(streamEvent.getEventId())) {
+            var removed = self.lhsEvicted.remove(streamEvent.getEventId());
+        }
         // remove matching fulfilled states from this processor.
         self.stateEvents.resetToFront();
         while (self.stateEvents.hasNext()) {

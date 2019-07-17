@@ -19,12 +19,16 @@ package org.ballerinalang.stdlib.math.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.stdlib.math.nativeimpl.org.ballerinalang.stdlib.math.Constant.DIVIDE_BY_ZERO_ERROR_MSG;
+import static org.ballerinalang.stdlib.math.nativeimpl.org.ballerinalang.stdlib.math.Constant.MATH_ERROR_CODE;
 
 /**
  * Extern function ballerina.math:floorDiv.
@@ -47,7 +51,11 @@ public class FloorDiv extends BlockingNativeCallableUnit {
         ctx.setReturnValues(new BInteger(Math.floorDiv(a, b)));
     }
 
-    public static long floorDiv(Strand strand, long a, long b) {
-        return Math.floorDiv(a, b);
+    public static Object floorDiv(Strand strand, long a, long b) {
+        try {
+            return Math.floorDiv(a, b);
+        } catch (ArithmeticException ex) {
+            return BallerinaErrors.createError(MATH_ERROR_CODE, DIVIDE_BY_ZERO_ERROR_MSG);
+        }
     }
 }

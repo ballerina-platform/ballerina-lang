@@ -129,7 +129,7 @@ public class WorkspacePackageRepositoryTest {
     private Pair compileAndGetWorkspacePackageRepo(Path filePath) {
         LSDocument document = new LSDocument(filePath.toUri().toString());
         WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
-        String sourceRoot = document.getSourceRoot();
+        String sourceRoot = document.getProjectRoot();
         WorkspacePackageRepository workspacePackageRepository = new WorkspacePackageRepository(sourceRoot,
                                                                                                documentManager);
 

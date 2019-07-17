@@ -11,7 +11,7 @@ public function main() {
                                                     HelloWorldMessageListener);
     if (result is error) {
         io:println("Error from Connector: " + result.reason() + " - "
-                                            + <string>result.detail().message);
+                                            + <string> result.detail()["message"]);
     } else {
         io:println("Connected successfully");
     }
@@ -31,7 +31,7 @@ service HelloWorldMessageListener = service {
     // The `resource` registered to receive server error messages
     resource function onError(error err) {
         io:println("Error from Connector: " + err.reason() + " - "
-                                            + <string>err.detail().message);
+                                            + <string> err.detail()["message"]);
     }
 
     // The `resource` registered to receive server completed messages.

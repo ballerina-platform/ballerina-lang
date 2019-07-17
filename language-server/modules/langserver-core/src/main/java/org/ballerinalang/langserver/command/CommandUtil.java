@@ -223,8 +223,8 @@ public class CommandUtil {
             String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                               diagnosticMessage.lastIndexOf("'"));
             LSDocument sourceDocument = new LSDocument(uri);
-            String sourceRoot = LSCompilerUtil.getSourceRoot(sourceDocument.getPath());
-            sourceDocument.setSourceRoot(sourceRoot);
+            String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
+            sourceDocument.setProjectRootRoot(sourceRoot);
             List<BallerinaPackage> packagesList = new ArrayList<>();
             Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                     .forEach(packagesList::addAll);

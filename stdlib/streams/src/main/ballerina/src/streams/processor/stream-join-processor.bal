@@ -258,7 +258,7 @@ public type StreamJoinProcessor object {
 #
 # + return - Returns a `StreamJoinProcessor` object.
 public function createStreamJoinProcessor(function (StreamEvent?[]) nextProcessor, JoinType joinType,
-                                          (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?
+                                          public (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)?
                                           conditionFunc = ())
                     returns StreamJoinProcessor {
     StreamJoinProcessor joinProcesor = new(nextProcessor, joinType, conditionFunc);

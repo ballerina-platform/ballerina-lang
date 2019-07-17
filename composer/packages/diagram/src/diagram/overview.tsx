@@ -76,13 +76,11 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
-        const selectedConstruct = this.props.initialSelectedConstruct;
 
         if (sourceRootUri) {
             langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
                 this.setState({
-                    modules: result.modules,
-                    selectedConstruct,
+                    modules: result.modules
                 });
             });
         } else {
@@ -100,8 +98,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                             },
                             name: ast.name,
                         }
-                    },
-                    selectedConstruct,
+                    }
                 });
             });
         }
@@ -116,8 +113,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     public componentDidMount() {
-
         this.updateAST();
+        if (this.props.initialSelectedConstruct) {
+            this.setState({
+                selectedConstruct: this.props.initialSelectedConstruct,
+            });
+        }
     }
 
     public render() {

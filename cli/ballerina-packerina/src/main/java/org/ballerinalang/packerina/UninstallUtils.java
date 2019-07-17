@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * This class provides util methods for uninstalling Ballerina modules.
@@ -118,7 +119,11 @@ public class UninstallUtils {
         Path pathsInBetween = repoPath.relativize(pkgDirPath);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
             Path toRemove = repoPath.resolve(pathsInBetween.subpath(0, i));
-            if (!Files.list(toRemove).findAny().isPresent()) {
+            boolean isPresent;
+            try (Stream<Path> stream = Files.list(toRemove)) {
+                isPresent = stream.findAny().isPresent();
+            }
+            if (!isPresent) {
                 Files.delete(toRemove);
             }
         }

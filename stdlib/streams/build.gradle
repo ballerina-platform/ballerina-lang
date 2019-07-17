@@ -65,10 +65,6 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
-test {
-    exclude "**/*"
-}
-
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'

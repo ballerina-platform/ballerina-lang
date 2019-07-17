@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.compiler.workspace;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Range;
@@ -79,7 +80,10 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
             );
         }
         documentList.put(filePath, new DocumentPair(new WorkspaceDocument(filePath, content)));
-        rescanProjectRoot(filePath);
+        LSDocument document = new LSDocument(filePath.toUri().toString());
+        if (document.isWithinProject()) {
+            rescanProjectRoot(filePath);
+        }
     }
 
     /**
@@ -144,7 +148,11 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
             } finally {
                 lock.unlock();
             }
-            rescanProjectRoot(filePath);
+            // TODO: within the workspace document we need to keep the LSDocument
+            LSDocument document = new LSDocument(filePath.toUri().toString());
+            if (document.isWithinProject()) {
+                rescanProjectRoot(filePath);
+            }
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -228,7 +236,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     }
 
     private void rescanProjectRoot(Path filePath) {
-        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(filePath));
+        Path projectRoot = Paths.get(LSCompilerUtil.getProjectRoot(filePath));
         LangServerFSProjectDirectory projectDirectory = LangServerFSProjectDirectory.getInstance(projectRoot, this);
         projectDirectory.rescanProjectRoot();
     }
