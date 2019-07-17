@@ -261,7 +261,7 @@ function selectFunction(jdbc:Client testDB) returns int[] {
     return customerIds;
 }
 
-function testH2MemDBUpdate() returns [int, string] {
+function testH2MemDBUpdate() returns @tainted [int, string] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:mem:TestMEMDB",
             username: "SA",

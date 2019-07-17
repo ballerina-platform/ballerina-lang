@@ -272,7 +272,7 @@ function restoreStates() {
             string stateStr = readFile(lastSnapshotFile, "UTF8");
             var retrievedState = trap deserialize(stateStr);
             if (retrievedState is map<map<any>>) {
-                streamsPersistanceState = retrievedState;
+                streamsPersistanceState = <@untainted> retrievedState;
                 stateLoaded = true;
             }
         }
