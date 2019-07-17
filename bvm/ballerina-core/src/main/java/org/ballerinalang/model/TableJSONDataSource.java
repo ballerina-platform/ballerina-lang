@@ -104,7 +104,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public BRefType<?> transform(BTable df) throws IOException {
+        public BRefType<?> transform(BTable df) {
             BMap<String, BRefType<?>> objNode = new BMap<>(BTypes.typeJSON);
             BStructureType structType = df.getStructType();
             BField[] structFields = null;
