@@ -56,7 +56,7 @@ public function main() {
     } else {
         error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>err.detail().message);
+                + <string>err.detail()["message"]);
     }
 
     // Here stored procedure with OUT and INOUT parameters is invoked.
@@ -76,7 +76,7 @@ public function main() {
     } else {
         error err = retCall;
         io:println("Stored procedure call failed: "
-                + <string>err.detail().message);
+                + <string>err.detail()["message"]);
     }
 
     checkData();
@@ -99,7 +99,7 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string>err.detail().message);
+        io:println(message + " failed: " + <string>err.detail()["message"]);
     }
 }
 
@@ -116,6 +116,6 @@ function checkData() {
     } else {
         error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>err.detail().message);
+                + <string>err.detail()["message"]);
     }
 }

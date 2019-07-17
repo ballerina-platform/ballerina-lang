@@ -40,7 +40,7 @@ public function main() {
         io:println("Call operation is successful");
     } else {
         error err = retCall;
-        io:println("Stored procedure call failed: " + <string>err.detail().message);
+        io:println("Stored procedure call failed: " + <string>err.detail()["message"]);
     }
 }
 
@@ -50,6 +50,6 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string>err.detail().message);
+        io:println(message + " failed: " + <string>err.detail()["message"]);
     }
 }
