@@ -555,7 +555,7 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with registration
     public function registerTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
-            error e = error(WEBSUB_ERROR_CODE, message = "Internal Ballerina Hub not initialized or incorrectly referenced");
+            error e = error(WEBSUB_ERROR_CODE, message = "Remote topic registration not allowed/not required at the Hub");
             return e;
         }
         return registerTopicAtHub(topic);
@@ -659,3 +659,4 @@ public type SubscriberDetails record {|
 type WebSubError record {
     string message = "";
 };
+

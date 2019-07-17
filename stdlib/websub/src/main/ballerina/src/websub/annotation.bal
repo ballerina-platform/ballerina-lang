@@ -34,7 +34,7 @@ public type SubscriberServiceConfiguration record {|
     Listener?[] endpoints = [];
     string path = "";
     boolean subscribeOnStartUp = false;
-    string|[string, string] target;
+    string|[string, string] target?;
     int leaseSeconds = 0;
     string secret = "";
     string callback = "";

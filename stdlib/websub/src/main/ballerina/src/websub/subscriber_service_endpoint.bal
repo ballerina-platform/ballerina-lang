@@ -98,6 +98,11 @@ public type Listener object {
                 string? hub = ();
                 string topic;
 
+                if (!subscriptionDetails.hasKey("target")) {
+                    log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
+                    return;
+                }
+
                 any target = subscriptionDetails.get("target");
 
                 if (target is string) {
@@ -111,7 +116,7 @@ public type Listener object {
                                                     clientConfig is http:ClientEndpointConfig ? clientConfig : ();
 
                 if (resourceUrl is string) {
-                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
+                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
                         var hubDecodeResponse = http:decode(retHub, "UTF-8");
@@ -215,11 +220,9 @@ public type ExtensionConfig record {|
 # The function called to discover hub and topic URLs defined by a resource URL.
 #
 # + resourceUrl - The resource URL advertising hub and topic URLs
-# + subscriptionClientConfig - The configuration for subscription client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
-function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
-                                            returns @tainted [string, string]|error {
-    http:Client resourceEP = new http:Client(resourceUrl, subscriptionClientConfig);
+function retrieveHubAndTopicUrl(string resourceUrl) returns @tainted [string, string]|error {
+    http:Client resourceEP = new http:Client(resourceUrl);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request);
     error websubError = error("Dummy");
@@ -252,11 +255,6 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
 
     [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
     string callback = <string>subscriptionDetails["callback"];
-
-    if (hub == "" || topic == "" || callback == "") {
-        log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
-        return;
-    }
 
     int leaseSeconds = 0;
 
