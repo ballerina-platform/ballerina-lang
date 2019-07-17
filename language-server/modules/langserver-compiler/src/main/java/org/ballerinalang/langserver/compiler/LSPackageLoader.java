@@ -180,7 +180,7 @@ public class LSPackageLoader {
                                                                          String fileUri) {
         Path sourceRootPath = Paths.get(sourceRoot);
         List<BallerinaPackage> packageList = new ArrayList<>();
-        if (!RepoUtils.hasProjectRepo(sourceRootPath)) {
+        if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
             // Skip for non-projects
             return packageList;
         }

@@ -247,9 +247,9 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 43);
         BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 42);
         BAssertUtil.validateError(negativeCompileResult, 10,
-                "cannot infer reason type from error constructor: 'UserDefErrorOne'", 55, 27);
+                "cannot infer reason from error constructor: 'UserDefErrorOne'", 55, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
-                "cannot infer reason type from error constructor: 'MyError'", 56, 19);
+                "cannot infer reason from error constructor: 'MyError'", 56, 19);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {

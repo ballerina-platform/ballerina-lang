@@ -152,6 +152,8 @@ public class BIRBinaryWriter {
             // Flags
             buf.writeInt(birGlobalVar.flags);
 
+            typeWriter.writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
+
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
         }
@@ -165,6 +167,8 @@ public class BIRBinaryWriter {
         // Flags
         buf.writeInt(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
+        // write documentation
+        typeWriter.writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
         writeType(buf, typeDef.type);
     }
 
@@ -210,6 +214,8 @@ public class BIRBinaryWriter {
         }
 
         writeTaintTable(buf, birFunction.taintTable);
+
+        typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
@@ -313,6 +319,9 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
+
+        typeWriter.writeMarkdownDocAttachment(buf, birConstant.markdownDocAttachment);
+
         writeType(buf, birConstant.type);
 
         // write the length of the conctant value, so that it can be skipped.

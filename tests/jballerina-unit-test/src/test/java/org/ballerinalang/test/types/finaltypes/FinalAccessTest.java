@@ -37,7 +37,8 @@ public class FinalAccessTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/finaltypes/final-field-test.bal");
+        compileResult = BCompileUtil.compile("test-src/types/finaltypes/TestProject",
+                "final-field-test");
     }
 
     @Test(description = "Test final field access failures")

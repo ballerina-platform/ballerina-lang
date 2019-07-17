@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.0
  */
-@Test(groups = { "brokenOnBootstrappedJVMCodegen" })
 public class TransactionLocalParticipantFunctionTest {
     CompileResult result;
 

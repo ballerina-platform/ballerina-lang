@@ -29,12 +29,12 @@ public class Constants {
     public static final String ENCODING_PACKAGE = "ballerina/encoding";
 
     // Error record for encoding module.
-    public static final String ENCODING_ERROR = "EncodingError";
+    public static final String ENCODING_ERROR = "Error";
 
     // Message field within error record.
     public static final String MESSAGE = "message";
 
     // Error code for encoding error
-    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}EncodingError";
+    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}Error";
 
 }

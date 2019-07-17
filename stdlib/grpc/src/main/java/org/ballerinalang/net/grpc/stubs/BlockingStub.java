@@ -112,7 +112,7 @@ public class BlockingStub extends AbstractStub {
                     headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
                     ArrayValue contentTuple =
                             new ArrayValue(
-                                    new BTupleType(Arrays.asList(BTypes.typeAny, headerObject.getType())));
+                                    new BTupleType(Arrays.asList(BTypes.typeAnydata, headerObject.getType())));
                     contentTuple.add(0, responseBValue);
                     contentTuple.add(1, headerObject);
                     inboundResponse = contentTuple;

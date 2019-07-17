@@ -53,8 +53,13 @@ public class MapLibUtils {
     public static BType getCommonTypeForRecordField(BRecordType recordType) {
         LinkedHashSet<BType> typeSet = new LinkedHashSet<>();
         Collection<BField> fields = (recordType.getFields().values());
+
         for (BField f : fields) {
             typeSet.add(f.type);
+        }
+
+        if (recordType.restFieldType != null) {
+            typeSet.add(recordType.restFieldType);
         }
 
         return typeSet.size() == 1 ? typeSet.iterator().next() : new BUnionType(typeSet.toArray(emptyTypeArr));
