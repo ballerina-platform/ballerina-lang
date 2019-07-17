@@ -53,9 +53,7 @@ public type OutboundOAuth2Provider object {
         if (authToken is string) {
             return authToken;
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = authToken;
-            return auth:prepareError("Failed to generate OAuth2 token.", e);
+            return auth:prepareError("Failed to generate OAuth2 token.", authToken);
         }
     }
 
@@ -69,9 +67,7 @@ public type OutboundOAuth2Provider object {
             if (authToken is string) {
                 return authToken;
             } else {
-                // TODO: Remove the below casting when new lang syntax are merged.
-                error e = authToken;
-                return auth:prepareError("Failed to generate OAuth2 token at inspection.", e);
+                return auth:prepareError("Failed to generate OAuth2 token at inspection.", authToken);
             }
         }
         return ();
@@ -319,7 +315,7 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
     if (cachedAccessToken == EMPTY_STRING) {
-        var directAccessToken = grantTypeConfig["accessToken"];
+        var directAccessToken = grantTypeConfig?.accessToken;
         if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
@@ -405,15 +401,15 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             payload: "grant_type=client_credentials",
             clientId: config.clientId,
             clientSecret: config.clientSecret,
-            scopes: config["scopes"],
+            scopes: config?.scopes,
             credentialBearer: config.credentialBearer
         };
         clockSkew = config.clockSkew;
         clientConfig = config.clientConfig;
     } else {
         tokenUrl = config.tokenUrl;
-        var clientId = config["clientId"];
-        var clientSecret = config["clientSecret"];
+        string? clientId = config?.clientId;
+        string? clientSecret = config?.clientSecret;
         if (clientId is string && clientSecret is string) {
             if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
                 return prepareError("Client id or client secret cannot be empty.");
@@ -422,13 +418,13 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
                 payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
                 clientId: clientId,
                 clientSecret: clientSecret,
-                scopes: config["scopes"],
+                scopes: config?.scopes,
                 credentialBearer: config.credentialBearer
             };
         } else {
             requestConfig = {
                 payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
-                scopes: config["scopes"],
+                scopes: config?.scopes,
                 credentialBearer: config.credentialBearer
             };
         }
@@ -453,7 +449,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     http:ClientEndpointConfig clientConfig;
 
     if (config is PasswordGrantConfig) {
-        var refreshConfig = config["refreshConfig"];
+        var refreshConfig = config?.refreshConfig;
         if (refreshConfig is RefreshConfig) {
             string? clientId = config?.clientId;
             string? clientSecret = config?.clientSecret;
@@ -466,7 +462,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                     payload: "grant_type=refresh_token&refresh_token=" + tokenCache.refreshToken,
                     clientId: clientId,
                     clientSecret: clientSecret,
-                    scopes: refreshConfig["scopes"],
+                    scopes: refreshConfig?.scopes,
                     credentialBearer: refreshConfig.credentialBearer
                 };
                 clientConfig = refreshConfig.clientConfig;
@@ -478,7 +474,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
         }
         clockSkew = config.clockSkew;
     } else {
-        var refreshConfig = config["refreshConfig"];
+        var refreshConfig = config?.refreshConfig;
         if (refreshConfig is DirectTokenRefreshConfig) {
             if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
                 return prepareError("Client id or client secret cannot be empty.");
@@ -488,7 +484,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 payload: "grant_type=refresh_token&refresh_token=" + refreshConfig.refreshToken,
                 clientId: refreshConfig.clientId,
                 clientSecret: refreshConfig.clientSecret,
-                scopes: refreshConfig["scopes"],
+                scopes: refreshConfig?.scopes,
                 credentialBearer: refreshConfig.credentialBearer
             };
             clientConfig = refreshConfig.clientConfig;
@@ -545,8 +541,8 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
         textPayload = textPayload + "&scope=" + scopeString;
     }
 
-    var clientId = config["clientId"];
-    var clientSecret = config["clientSecret"];
+    string? clientId = config?.clientId;
+    string? clientSecret = config?.clientSecret;
     if (config.credentialBearer == http:AUTH_HEADER_BEARER) {
         if (clientId is string && clientSecret is string) {
             string clientIdSecret = clientId + ":" + clientSecret;
