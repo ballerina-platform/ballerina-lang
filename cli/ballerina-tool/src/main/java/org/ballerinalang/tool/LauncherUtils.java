@@ -429,6 +429,9 @@ public class LauncherUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPkgNode = compiler.compile(source);
+        if (entryPkgNode.diagCollector.hasErrors()) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
 
         String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                 "ballerina.home is not set");
