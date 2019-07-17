@@ -269,7 +269,7 @@ function genJMethodForBFunc(bir:Function func,
                 string endBBID = localVar.meta.endBBID;
                 int insOffset = localVar.meta.insOffset;
                 if (startBBID != "") {
-                    startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset);
+                    startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset.toString());
                 }
                 if (endBBID != "") {
                     endLabel = labelGen.getLabel(funcName + endBBID + "beforeTerm");
@@ -562,7 +562,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                                                 handlerLabel, jumpLabel);
         }
         while (m < insCount) {
-            jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m);
+            jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m.toString());
             mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
             var pos = inst?.pos;
