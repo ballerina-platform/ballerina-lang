@@ -4,10 +4,10 @@ import ballerinax/java.jdbc;
 
 // Create MySQL client.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/StreamTestDB",
-        username: "test",
-        password: "test"
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test"
+});
 
 // Create an HTTP service and bind it to a listener on port 9090
 service dataService on new http:Listener(9090) {

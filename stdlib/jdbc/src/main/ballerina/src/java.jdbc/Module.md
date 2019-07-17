@@ -5,74 +5,74 @@ that is accessible via Java Database Connectivity (JDBC).
 
 ### Client
 
-To access a database, you must first create a `client` object. A sample for creating a JDBC client can be found below.
+To access a database, you must first create a `Client` object. A sample for creating a JDBC client can be found below.
 
 ### Connection pool handling
 
 There are 3 possible scenarios for connection pool handling.
 
-1. Global, shareable default connection pool
-If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
-a connection pool matching with the properties you provided already exists.
+1. Global, shareable default connection pool  
+    If you do not provide the `poolOptions` field, a globally shareable pool will be created for your database unless
+    a connection pool matching with the properties you provided already exists.
 
-```ballerina
-jdbc:Client testDB = new({
-    url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
-    dbOptions: { useSSL: false }
-});
-```
+    ```ballerina
+    jdbc:Client testDB = new({
+        url: "jdbc:mysql://localhost:3306/testdb",
+        username: "root",
+        password: "root",
+        dbOptions: { useSSL: false }
+    });
+    ```
 
-2. Client owned, unsharable connection pool
-If you define the `poolOptions` field inline, an unshareable connection pool will be created.
+2. Client owned, unsharable connection pool  
+    If you define the `poolOptions` field inline, an unshareable connection pool will be created.
 
-```ballerina
-jdbc:Client testDB = new({
-    url: "jdbc:mysql://localhost:3306/testdb",
-    username: "root",
-    password: "root",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
-});
-```
+    ```ballerina
+    jdbc:Client testDB = new({
+        url: "jdbc:mysql://localhost:3306/testdb",
+        username: "root",
+        password: "root",
+        poolOptions: { maximumPoolSize: 5 },
+        dbOptions: { useSSL: false }
+    });
+    ```
 
-3. Local shareable connection pool
-If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
-set of clients that connect to the same database instance with the same set of properties, a shared connection pool
-will be created.
+3. Local shareable connection pool  
+    If you create a record of type `jdbc:PoolOptions` and reuse that in the configuration of multiple clients, for each
+    set of clients that connect to the same database instance with the same set of properties, a shared connection pool
+    will be created.
 
-```ballerina
-jdbc:Client testDB1;
-jdbc:Client testDB2;
-jdbc:Client testDB3;
-
-jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5 };
-
-testDB1 = new({
-    url: "jdbc:mysql://localhost:3306/testdb1",
-    username: "root",
-    password: "root",
-    poolOptions: poolOptions1,
-    dbOptions: { useSSL: false }
-});
-
-testDB2 = new({
-    url: "jdbc:mysql://localhost:3306/testdb1",
-    username: "root",
-    password: "root",
-    poolOptions: poolOptions1,
-    dbOptions: { useSSL: false }
-});
-
-testDB3 = new({
-    url: "jdbc:mysql://localhost:3306/testdb2",
-    username: "root",
-    password: "root",
-    poolOptions: poolOptions1,
-    dbOptions: { useSSL: false }
-});
-```
+    ```ballerina
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
+    jdbc:Client testDB3;
+    
+    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5 };
+    
+    testDB1 = new({
+        url: "jdbc:mysql://localhost:3306/testdb1",
+        username: "root",
+        password: "root",
+        poolOptions: poolOptions1,
+        dbOptions: { useSSL: false }
+    });
+    
+    testDB2 = new({
+        url: "jdbc:mysql://localhost:3306/testdb1",
+        username: "root",
+        password: "root",
+        poolOptions: poolOptions1,
+        dbOptions: { useSSL: false }
+    });
+    
+    testDB3 = new({
+        url: "jdbc:mysql://localhost:3306/testdb2",
+        username: "root",
+        password: "root",
+        poolOptions: poolOptions1,
+        dbOptions: { useSSL: false }
+    });
+    ```
 ### Database operations
 
 Once the client is created, database operations can be executed through that client. This module provides support for 
@@ -99,7 +99,8 @@ The CREATE statement is executed via the `update` remote function of the client.
 
 ```ballerina
 // Create the ‘Students’ table with fields ‘id’, 'name' and ‘age’.
-var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, name VARCHAR(255), PRIMARY KEY (id))");
+var returned = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, age INT, 
+                               name VARCHAR(255), PRIMARY KEY (id))");
 if (returned is jdbc:UpdateResult) {
     io:println("Students table create status in DB: " + returned.updatedRowCount);
 } else {
@@ -126,8 +127,8 @@ if (returned is jdbc:UpdateResult) {
 ```
 
 In the second example, the parameter values, which are in local variables, are passed directly as parameters to 
-the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like string, 
-int, float, or boolean. The sql type of the parameter is derived from the type of the Ballerina variable that 
+the `update` remote function. This direct parameter passing can be done for any primitive Ballerina type like `string`, 
+`int`, `float`, or `boolean`. The sql type of the parameter is derived from the type of the Ballerina variable that 
 is passed in.
 
 ```ballerina
@@ -144,7 +145,7 @@ if (returned is jdbc:UpdateResult) {
 
 In the third example, parameter values are passed as an `jdbc:Parameter` to the `update` remote function. Use 
 `jdbc:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter 
-direction. The default parameter direction is "IN".
+direction. The default parameter direction is `IN`.
 
 ```ballerina
 jdbc:Parameter p1 = { sqlType: jdbc:TYPE_VARCHAR, value: "James" };
@@ -182,7 +183,7 @@ if (retWithKey is jdbc:UpdateResult) {
 
 This example demonstrates selecting data. First, a type is created to represent the returned result set. Next, the 
 SELECT query is executed via the `select` remote function of the client by passing that result set type. Once the 
-query is executed, each data record can be retrieved by looping the result set. The table returned by the select 
+query is executed, each data record can be retrieved by looping the result set. The `table` returned by the select 
 operation holds a pointer to the actual data in the database and it loads data from the table only when it is accessed. 
 This table can be iterated only once.
 
@@ -209,7 +210,8 @@ if (selectRet is table<Student>) {
 
 ### Updating data
 
-This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of the client
+This example demonstrates modifying data by executing an UPDATE statement via the `update` remote function of 
+the client.
 ```ballerina
 var returned = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?", 23);
 if (returned is jdbc:UpdateResult) {
@@ -239,11 +241,11 @@ jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 6 };
 jdbc:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
-jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", false,
-                                                        parameters1, parameters2);
+jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", 
+                                                 false, parameters1, parameters2);
 error? e = ret.returnedError;
 if (e is error) {
-    io:println("Error occurred:" + <string> e.detail()["message"] );
+    io:println("Error occurred:" + <string>err.detail()["message"]);
 } else {
     io:println("Batch item 1 update count: " + ret.updatedRowCount[0]);
     io:println("Batch item 2 update count: " + ret.updatedRowCount[1]);
