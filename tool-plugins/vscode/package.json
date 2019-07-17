@@ -130,11 +130,6 @@
                                 "description": "Remote debug server host",
                                 "default": "127.0.0.1"
                             },
-                            "port": {
-                                "type": "integer",
-                                "description": "Remote debug server port",
-                                "default": 5000
-                            },
                             "script": {
                                 "type": "string",
                                 "default": "${file}"
@@ -246,6 +241,14 @@
             {
                 "command": "ballerina.showTraces",
                 "title": "Ballerina: Show Network logs"
+            },
+            {
+                "command": "ballerina.refreshProjectTree",
+                "title": "Refresh",
+                "icon": {
+                    "light": "./resources/images/icons/refresh.svg",
+                    "dark": "./resources/images/icons/refresh-inverse.svg"
+                }
             }
         ],
         "menus": {
@@ -276,6 +279,13 @@
                     "when": "resourceLangId == ballerina",
                     "command": "ballerina.showAPIEditor",
                     "group": "navigation"
+                }
+            ],
+            "view/title": [
+                {
+                  "command": "ballerina.refreshProjectTree",
+                  "when": "view == ballerinaProjectTree",
+                  "group": "navigation"
                 }
             ]
         }

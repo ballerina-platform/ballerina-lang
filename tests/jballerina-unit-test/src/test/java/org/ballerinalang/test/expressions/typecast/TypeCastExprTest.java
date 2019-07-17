@@ -535,10 +535,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(map.get("name").stringValue(), "supun");
     }
 
-    @Test(description = "Test casting a struct to another struct in a different package")
+    @Test(description = "Test casting a struct to another struct in a different package",
+            groups = "brokenOnLangLibChange")
     public void testCastToStructInDifferentPkg() {
         CompileResult res = BCompileUtil.compile(this, "test-src", "expressions.typecast.foo");
-        BValue[] returns = BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
+        BRunUtil.invoke(res, "testCastToStructInDifferentPkg");
     }
 
     @Test

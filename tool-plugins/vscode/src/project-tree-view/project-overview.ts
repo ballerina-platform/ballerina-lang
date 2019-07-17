@@ -26,23 +26,26 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
 
         vscode.workspace.onDidOpenTextDocument((document) => {
             if (document.languageId === "ballerina") {
-                this.currentFilePath = document.fileName;
-                this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
-    
-                this._onDidChangeTreeData.fire();
+                this.refresh(document);
+            }
+        });
+
+        vscode.commands.registerCommand("ballerina.refreshProjectTree", (moduleName, constructName) => {
+            if (vscode.window.activeTextEditor) {
+                this.refresh(vscode.window.activeTextEditor.document);
             }
         });
 
         if (vscode.window.activeTextEditor) {
-            this.currentFilePath = vscode.window.activeTextEditor.document.fileName;
-            this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
-
-            this._onDidChangeTreeData.fire();
+            this.refresh(vscode.window.activeTextEditor.document);
         }
     }
 
-    refresh(): void {
-		this._onDidChangeTreeData.fire();
+    private refresh(document: vscode.TextDocument): void {
+		this.currentFilePath = document.fileName;
+        this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
+
+        this._onDidChangeTreeData.fire();
 	}
 
     getTreeItem(element: ProjectTreeElement): vscode.TreeItem | Thenable<vscode.TreeItem> {
