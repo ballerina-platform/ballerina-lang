@@ -40,7 +40,6 @@ public class OpenApiCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-        System.out.println("testiugf");
         //Migrated the command logic to sub commands. This execute is needed if the main command needs to be executed
         //other than a sub-command.
     }

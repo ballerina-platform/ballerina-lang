@@ -1,9 +1,9 @@
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
+import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.openapi.OpenApiMesseges;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
