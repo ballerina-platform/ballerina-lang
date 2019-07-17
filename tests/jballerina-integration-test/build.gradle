@@ -139,7 +139,6 @@ task createBre(type: org.gradle.api.tasks.Copy) {
 
 test {
     // make sure ballerina zip is built before test run
-    dependsOn ":ballerina:build"
     dependsOn ':jballerina-tools:build'
     systemProperty 'enableJBallerinaTests', 'true'
     
