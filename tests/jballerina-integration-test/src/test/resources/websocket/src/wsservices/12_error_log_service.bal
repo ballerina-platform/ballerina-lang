@@ -29,13 +29,13 @@ service errorService on new http:WebSocketListener(9094) {
     resource function onText(http:WebSocketCaller ep, string text) {
         log:printError(string `text received: ${text}`);
         var returnVal = ep->pushText(text);
-        if (returnVal is error) {
-             panic returnVal;
+        if (returnVal is http:WebSocketError) {
+             panic <error> returnVal;
         }
     }
 
     resource function onError(http:WebSocketCaller ep, error err) {
-        io:println(err.detail().message);
+        io:println(err.detail()["message"]);
     }
 
     resource function onClose(http:WebSocketCaller ep, int statusCode, string reason) {

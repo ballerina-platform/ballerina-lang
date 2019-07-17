@@ -35,7 +35,8 @@ public function main(string... args) {
                         response.topic + "]");
     }
     else {
-        string errCause = <string> response.detail().message;
+        error err = response;
+        string errCause = <string> err.detail()["message"];
         io:println("Error occurred with Unsubscription Request: ", errCause);
     }
 

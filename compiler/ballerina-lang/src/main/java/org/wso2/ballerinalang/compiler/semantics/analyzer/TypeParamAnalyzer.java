@@ -306,6 +306,9 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.ERROR) {
                     findTypeParamInError((BErrorType) expType, (BErrorType) actualType, env, resolvedTypes, result);
                 }
+                if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
+                    findTypeParamInError((BErrorType) expType, symTable.errorType, env, resolvedTypes, result);
+                }
                 return;
             case TypeTags.TYPEDESC:
                 if (actualType.tag == TypeTags.TYPEDESC) {
@@ -358,10 +361,32 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInMapForRecord(BMapType expType, BRecordType actualType, SymbolEnv env,
                                              HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        BUnionType recFieldType = BUnionType.create(null,
-                                                    new LinkedHashSet<>(actualType.fields.stream().map(f -> f.type)
-                                                                                .collect(Collectors.toList())));
-        findTypeParam(expType.constraint, recFieldType, env, resolvedTypes, result);
+        LinkedHashSet<BType> fields = actualType.fields.stream().map(f -> f.type)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        LinkedHashSet<BType> reducedTypeSet;
+        BType commonFieldType;
+
+        if (actualType.restFieldType != symTable.noType) {
+            reducedTypeSet = new LinkedHashSet<>();
+            for (BType fType : fields) {
+                if (!types.isAssignable(fType, actualType.restFieldType)) {
+                    reducedTypeSet.add(fType);
+                }
+            }
+            reducedTypeSet.add(actualType.restFieldType);
+        } else {
+            // TODO: 7/16/19 Handle cases where there may be multiple field types which are assignable to another
+            //  field type: https://github.com/ballerina-platform/ballerina-lang/issues/16824
+            reducedTypeSet = fields;
+        }
+
+        if (reducedTypeSet.size() == 1) {
+            commonFieldType = reducedTypeSet.iterator().next();
+        } else {
+            commonFieldType = BUnionType.create(null, reducedTypeSet);
+        }
+
+        findTypeParam(expType.constraint, commonFieldType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInInvokableType(BInvokableType expType, BInvokableType actualType, SymbolEnv env,

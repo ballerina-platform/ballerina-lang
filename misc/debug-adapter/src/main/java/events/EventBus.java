@@ -73,19 +73,6 @@ public class EventBus {
 
     public void setDebuggee(VirtualMachine debuggee) {
         this.debuggee = debuggee;
-//        InputStream inputStream = debuggee.process().getInputStream();
-//
-//        CompletableFuture.runAsync(() -> {
-//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-//            String read;
-//            try {
-//                while ((read = bufferedReader.readLine()) != null) {
-//                    sendOutput(read);
-//                }
-//            } catch (IOException e) {
-//
-//            }
-//        });
     }
 
     public VirtualMachine getDebuggee() {

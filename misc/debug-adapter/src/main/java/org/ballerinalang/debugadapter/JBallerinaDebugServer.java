@@ -59,6 +59,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +81,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private EventBus eventBus;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private String sourceRoot;
+    private Process launchedProcess;
+    private BufferedReader launchedStdoutStream;
+    private BufferedReader launchedErrorStream;
 
     private IDebugProtocolClient getClient() {
         return client;
@@ -122,7 +126,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             sourceRoot = args.get("sourceRoot").toString();
             String ballerinaHome = args.get("ballerina.home").toString();
-            String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "jballerina";
+            String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
             String balFile = args.get("script").toString();
 
             String packageName = args.get("package") == null ? "" : args.get("package").toString();
@@ -134,32 +138,38 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.command(ballerinaExec, "run", "--debug", debuggeePort, "--experimental",
                     balFile);
-            Process process = processBuilder.start();
+            launchedProcess = processBuilder.start();
 
             CompletableFuture.runAsync(() -> {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                try {
-                    while ((line = bufferedReader.readLine()) != null) {
-                        if (line.contains("Listening for transport dt_socket")) {
-                            attachToLaunchedProcess(Integer.parseInt(debuggeePort), packageName);
+                if (launchedProcess != null) {
+                    launchedStdoutStream = new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(),
+                            StandardCharsets.UTF_8));
+                    String line;
+                    try {
+                        while ((line = launchedStdoutStream.readLine()) != null) {
+                            if (line.contains("Listening for transport dt_socket")) {
+                                attachToLaunchedProcess(Integer.parseInt(debuggeePort), packageName);
+                            }
+                            sendOutput(line, STDOUT);
                         }
-                        sendOutput(line, STDOUT);
-                    }
-                } catch (IOException e) {
+                    } catch (IOException e) {
 
+                    }
                 }
             });
 
             CompletableFuture.runAsync(() -> {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String line;
-                try {
-                    while ((line = bufferedReader.readLine()) != null) {
-                        sendOutput(line, STDERR);
-                    }
-                } catch (IOException e) {
+                if (launchedProcess != null) {
+                    launchedErrorStream = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(),
+                            StandardCharsets.UTF_8));
+                    String line;
+                    try {
+                        while ((line = launchedErrorStream.readLine()) != null) {
+                            sendOutput(line, STDERR);
+                        }
+                    } catch (IOException e) {
 
+                    }
                 }
             });
         } catch (IOException e) {
@@ -207,13 +217,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ThreadsResponse> threads() {
-        ThreadsResponse threadsResponse = new ThreadsResponse();
-        Map<Long, ThreadReference> threadsMap = eventBus.getThreadsMap();
-        Thread[] threads = new Thread[threadsMap.size()];
-        threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
-        threadsResponse.setThreads(threads);
-
-        return CompletableFuture.completedFuture(threadsResponse);
+        try {
+            ThreadsResponse threadsResponse = new ThreadsResponse();
+            Map<Long, ThreadReference> threadsMap = eventBus.getThreadsMap();
+            Thread[] threads = new Thread[threadsMap.size()];
+            threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
+            threadsResponse.setThreads(threads);
+            return CompletableFuture.completedFuture(threadsResponse);
+        } catch (NullPointerException e) {
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     @Override
@@ -352,6 +365,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit() {
+        if (launchedErrorStream != null) {
+            try {
+                launchedErrorStream.close();
+            } catch (IOException e) {
+            }
+        }
+        if (launchedStdoutStream != null) {
+            try {
+                launchedStdoutStream.close();
+            } catch (IOException e) {
+            }
+        }
+        if (launchedProcess != null) {
+            launchedProcess.destroy();
+        }
+
         systemExit = 0;
         new java.lang.Thread(() -> {
             try {

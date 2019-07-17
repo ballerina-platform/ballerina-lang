@@ -92,7 +92,7 @@ service testClientConHEAD on serviceEndpoint4 {
     }
     resource function passthrough (http:Caller caller, http:Request req) {
         http:Request clientRequest = new;
-        var response = endPoint -> get("/getQuote/stocks", message = clientRequest);
+        var response = endPoint -> get("/getQuote/stocks", clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
