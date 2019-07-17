@@ -94,7 +94,7 @@ public class TextDocumentFormatUtil {
                                     WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, LSCompilerException {
         String path = file.toAbsolutePath().toString();
-        String sourceRoot = LSCompilerUtil.getSourceRoot(file);
+        String sourceRoot = LSCompilerUtil.getProjectRoot(file);
         String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, path);
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];

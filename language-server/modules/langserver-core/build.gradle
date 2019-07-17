@@ -193,6 +193,11 @@ artifacts {
     langserverResources file: file("$buildDir/ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
+createJavadoc {
+    // TODO: remove following, it fails at org.eclipse currently
+    exclude "**"
+}
+
 test {
     dependsOn generateIndex
     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"

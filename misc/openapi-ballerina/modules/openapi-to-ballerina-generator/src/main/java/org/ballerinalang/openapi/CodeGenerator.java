@@ -91,8 +91,8 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        if (type.equals(GenType.GEN_SERVICE) &&
-                Strings.isNullOrEmpty(LSCompilerUtil.findProjectRoot(System.getProperty("user.dir")))) {
+        Path projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+        if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
             throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
                     "from the project root. If you like to start with a new project use `ballerina init` command to " +
                     "create a new project.");
