@@ -30,7 +30,7 @@ public class Constant {
     //Name of the script file which start the server
     public static final String BALLERINA_SERVER_SCRIPT_NAME = "ballerina";
     //Name of the script file which start the jballerina server
-    public static final String JBALLERINA_SERVER_SCRIPT_NAME = "jballerina";
+    public static final String JBALLERINA_SERVER_SCRIPT_NAME = "ballerina";
     //Name of the file where ballerina server process id is stored
     public static final String SERVER_PID_FILE_NAME = "ballerina.pid";
     //File extension the the ballerina service file

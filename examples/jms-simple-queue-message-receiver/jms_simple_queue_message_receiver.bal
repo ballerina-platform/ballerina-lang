@@ -1,7 +1,7 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
-// This creates a simple queue receiver. This example makes use of the ActiveMQ
+// Create a simple queue receiver. This example makes use of the ActiveMQ
 // Artemis broker for demonstration while it can be tried with other brokers
 // that support JMS.
 
@@ -19,10 +19,10 @@ service jmsListener on consumerEndpoint {
     resource function onMessage(jms:QueueReceiverCaller consumer,
     jms:Message message) {
         // Retrieve the text message.
-        var messageText = message.getTextMessageContent();
+        var messageText = message.getPayload();
         if (messageText is string) {
             log:printInfo("Message : " + messageText);
-        } else {
+        } else if (messageText is error) {
             log:printError("Error occurred while reading message",
                 err = messageText);
         }

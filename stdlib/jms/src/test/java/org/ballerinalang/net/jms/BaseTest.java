@@ -19,8 +19,6 @@
 package org.ballerinalang.net.jms;
 
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
@@ -28,26 +26,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Includes common functionality for Artemis test cases.
+ * Includes common functionality for jms test cases.
  */
 public class BaseTest {
-    private static final Logger log = LoggerFactory.getLogger(BaseTest.class);
 
     private EmbeddedActiveMQ embeddedBroker;
 
     @BeforeGroups(value = "jms-test", alwaysRun = true)
-    public void start() {
-        Path path = Paths.get("src", "test", "resources", "messaging", "artemis");
+    public void start() throws Exception {
+        Path path = Paths.get("src", "test", "resources");
 
         // Start broker
         embeddedBroker = new EmbeddedActiveMQ();
         String brokerXML = path.resolve("configfiles").resolve("broker.xml").toUri().toString();
         embeddedBroker.setConfigResourcePath(brokerXML);
-        try {
-            embeddedBroker.start();
-        } catch (Exception ex) {
-            log.error("Cannot start ActiveMQ Artemis broker " + ex.getMessage(), ex);
-        }
+        embeddedBroker.start();
     }
 
     @AfterGroups(value = "jms-test", alwaysRun = true)
