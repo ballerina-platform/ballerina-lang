@@ -29,3 +29,7 @@ function testTableLiteralDataAndAddWithObject() returns (int) {
     int count = t1.count();
     return count;
 }
+
+function testEmptyTableCreateInvalid() {
+    table t1 = table{};
+}

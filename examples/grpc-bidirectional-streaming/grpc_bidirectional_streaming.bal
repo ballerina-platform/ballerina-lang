@@ -45,7 +45,7 @@ service Chat on new grpc:Listener(9090) {
         string msg = string `${caller.getId()} left the chat`;
         log:printInfo(msg);
         var v = self.consMap.remove(string.convert(caller.getId()));
-        foreach var [callerId, connection] in self.consMap.entries()p {
+        foreach var [callerId, connection] in self.consMap.entries() {
             ep = connection;
             error? err = ep->send(msg);
             if (err is error) {

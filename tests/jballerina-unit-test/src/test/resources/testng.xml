@@ -85,6 +85,7 @@
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
+            <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <!--<package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
@@ -130,6 +131,8 @@
                 <!--</methods>-->
             <!--</class>-->
             <!--<class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>-->
+            <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
+            <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
