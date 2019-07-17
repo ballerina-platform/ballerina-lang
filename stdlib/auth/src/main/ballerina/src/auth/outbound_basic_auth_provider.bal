@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/log;
 import ballerina/internal;
+import ballerina/log;
 
 # Represents the outbound Basic Auth authenticator.
 #
@@ -70,7 +70,7 @@ function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
-    string token = encoding:encodeBase64(internal:toByteArray(str, "UTF-8"));
+    string token = encoding:encodeBase64(str.toBytes());
     log:printDebug(function () returns string {
         return "Authorization header is generated for basic auth scheme.";
     });
