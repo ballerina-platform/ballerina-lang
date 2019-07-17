@@ -68,7 +68,7 @@ public type TimeBatchWindow object {
             }
         } else {
             error err = error("TimeBatch window should only have one parameter (<int> " +
-                "windowBatchTime), but found " + parameters.length() + " input attributes");
+                "windowBatchTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

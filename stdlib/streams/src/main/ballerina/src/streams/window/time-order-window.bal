@@ -91,7 +91,8 @@ public type TimeOrderWindow object {
             }
         } else {
             error err = error("TimeOrder window should only have three parameters (<string> timestamp, <int> " +
-                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length() + " input attributes");
+                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length().toString() +
+                " input attributes");
             panic err;
         }
 
