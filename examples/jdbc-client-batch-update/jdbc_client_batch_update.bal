@@ -43,7 +43,8 @@ public function main() {
     };
 
     // Prepare the data batches.
-    int datalen = jsonMsg.student.length();
+    json[] arr = <json[]>jsonMsg.student;
+    int datalen = arr.length();
     myBatchType[][] dataBatch = [];
     int i = 0;
 
@@ -63,7 +64,7 @@ public function main() {
                     (age,name) VALUES (?,?)", false, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
-        io:println("Batch update operation failed:" + <string> e.detail().message );
+        io:println("Batch update operation failed:" + <string> e.detail()["message"] );
     } else {
         io:println("Batch item 1 update count: " + retBatch.updatedRowCount[0]);
         io:println("Batch item 2 update count: " + retBatch.updatedRowCount[1]);
@@ -83,7 +84,7 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string>err.detail().message);
+        io:println(message + " failed: " + <string>err.detail()["message"]);
     }
 }
 
@@ -100,6 +101,6 @@ function checkData() {
     } else {
         error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>err.detail().message);
+                + <string>err.detail()["message"]);
     }
 }
