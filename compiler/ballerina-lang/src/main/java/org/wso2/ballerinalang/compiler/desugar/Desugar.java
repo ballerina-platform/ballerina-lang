@@ -717,7 +717,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                                                                        getTransactionBlockId());
         if (!funcNode.body.stmts.isEmpty()) {
-            // We need to add cast to any type for function return statement since $anonTrxParticipantFunc$ return            
+            // We need to add cast to any type for function return statement since $anonTrxParticipantFunc$ return 
             // any|error.
             BLangReturn bLangReturn = (BLangReturn) funcNode.body.stmts.get(funcNode.body.stmts.size() - 1);
             bLangReturn.expr = addConversionExprIfRequired(bLangReturn.expr, trxReturnNode.type);
