@@ -21,7 +21,7 @@ public function createSimpleConsumer() returns artemis:Consumer|error {
     return lis.createAndGetConsumer({queueName: "example"});
 }
 
-public function transactionSimpleConsumerReceive(artemis:Consumer consumer) returns string|error {
+public function transactionSimpleConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
     string msgTxt = "";
     msgTxt += receiveAndGetText(consumer);
     transaction {
@@ -37,7 +37,7 @@ public function createConsumer() returns artemis:Consumer|error {
     return lis.createAndGetConsumer({queueName: "example2"});
 }
 
-public function transactionConsumerReceive(artemis:Consumer consumer) returns string|error {
+public function transactionConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
     string msgTxt = "";
     transaction {
        msgTxt += receiveAndGetText(consumer);
@@ -51,7 +51,7 @@ public function createErringConsumer() returns artemis:Consumer|error {
     return lis.createAndGetConsumer({queueName: "example3"});
 }
 
-public function receiveAndGetText(artemis:Consumer consumer) returns string {
+public function receiveAndGetText(artemis:Consumer consumer) returns @tainted string {
     string msgTxt = "";
     var msg = consumer->receive();
     if(msg is artemis:Message) {

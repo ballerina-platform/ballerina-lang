@@ -15,8 +15,10 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
 import ballerina/runtime;
 
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
@@ -50,8 +52,10 @@ service passthrough on listener17_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + <string>e.detail()?.message };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -120,15 +124,22 @@ public type InboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function handle(http:Request req) returns boolean|error {
+    public function process(http:Request req) returns boolean|http:AuthenticationError {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
         string credential = customAuthHeader.substring(6, customAuthHeader.length()).trim();
-        return self.authProvider.authenticate(credential);
+        var authenticationResult = self.authProvider.authenticate(credential);
+        if (authenticationResult is boolean) {
+            return authenticationResult;
+        } else {
+            string message = "Failed to authenticate with custom auth hanndler.";
+            http:AuthenticationError authError = error(http:AUTHN_FAILED, message = message, cause = authenticationResult);
+            return authError;
+        }
     }
 
-    public function canHandle(http:Request req) returns @tainted boolean {
+    public function canProcess(http:Request req) returns @tainted boolean {
         var customAuthHeader = req.getHeader(http:AUTH_HEADER);
-        return customAuthHeader.hasPrefix("Custom");
+        return internal:hasPrefix(customAuthHeader, "Custom");
     }
 };
 
@@ -138,14 +149,16 @@ public type InboundCustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|error {
+    public function authenticate(string credential) returns boolean|auth:Error {
         string token = "4ddb0c25";
         boolean authenticated = crypto:crc32b(credential) == token;
         if (authenticated) {
-            runtime:Principal principal = runtime:getInvocationContext().principal;
-            principal.userId = token;
-            principal.username = token;
-            principal.scopes = [credential];
+            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+            if (principal is runtime:Principal) {
+                principal.userId = token;
+                principal.username = token;
+                principal.scopes = [credential];
+            }
         }
         return authenticated;
     }
@@ -163,13 +176,13 @@ public type OutboundCustomAuthHandler object {
         self.authProvider = authProvider;
     }
 
-    public function prepare(http:Request req) returns http:Request|error {
+    public function prepare(http:Request req) returns http:Request|http:AuthenticationError {
         string token = check self.authProvider.generateToken();
-        req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+        req.setHeader(http:AUTH_HEADER, "Custom " + token);
         return req;
     }
 
-    public function inspect(http:Request req, http:Response resp) returns http:Request|error? {
+    public function inspect(http:Request req, http:Response resp) returns http:Request|http:AuthenticationError? {
         map<anydata> headerMap = { "STATUS_CODE": resp.statusCode };
         string[] headerNames = <@untainted> resp.getHeaderNames();
         foreach string header in headerNames {
@@ -178,7 +191,7 @@ public type OutboundCustomAuthHandler object {
         }
         string? token = check self.authProvider.inspect(headerMap);
         if (token is string) {
-            req.setHeader(http:AUTH_HEADER, auth:AUTH_SCHEME_BEARER + token);
+            req.setHeader(http:AUTH_HEADER, "Custom " + token);
             return req;
         }
         return ();
@@ -191,15 +204,15 @@ public type OutboundCustomAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public function generateToken() returns string|error {
+    public function generateToken() returns string|auth:Error {
         string token = "plumless";
-        return crypto:crc32b(token);
+        return token;
     }
 
-    public function inspect(map<anydata> data) returns string|error? {
+    public function inspect(map<anydata> data) returns string|auth:Error? {
         if (data[http:STATUS_CODE] == http:FORBIDDEN_403) {
             string token = "buckeroo";
-            return crypto:crc32b(token);
+            return token;
         }
     }
 };

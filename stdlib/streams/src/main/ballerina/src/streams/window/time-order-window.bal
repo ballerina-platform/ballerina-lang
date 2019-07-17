@@ -91,7 +91,8 @@ public type TimeOrderWindow object {
             }
         } else {
             error err = error("TimeOrder window should only have three parameters (<string> timestamp, <int> " +
-                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length() + " input attributes");
+                "windowTime, <boolean> dropOlderEvents), but found " + parameters.length().toString() +
+                " input attributes");
             panic err;
         }
 
@@ -251,7 +252,7 @@ public type TimeOrderWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function timeOrder(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function timeOrder(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                   returns Window {
 
     TimeOrderWindow timeOrderWindow = new(nextProcessPointer, windowParameters);

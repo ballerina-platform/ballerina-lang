@@ -19,8 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -43,15 +41,14 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structType = RabbitMQConstants.CONNECTION_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class CreateConnection extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class CreateConnection {
 
     public static void createConnection(Strand strand, ObjectValue connectionObjectValue, MapValue<String,
             Object> connectionConfig) {
         Connection connection = ConnectionUtils.createConnection(connectionConfig);
         connectionObjectValue.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
+    }
+
+    private CreateConnection() {
     }
 }

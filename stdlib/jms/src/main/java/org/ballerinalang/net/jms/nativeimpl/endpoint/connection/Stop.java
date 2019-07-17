@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -38,16 +36,13 @@ import javax.jms.JMSException;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
         isPublic = true
 )
-public class Stop extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class Stop {
 
     public static void stop(Strand strand, ObjectValue connectionBObject) {
         Connection connection = (Connection) connectionBObject.getNativeData(JmsConstants.JMS_CONNECTION);
@@ -56,5 +51,8 @@ public class Stop extends BlockingNativeCallableUnit {
         } catch (JMSException e) {
             BallerinaAdapter.throwBallerinaException("Error occurred while stopping the connection.", e);
         }
+    }
+
+    private Stop() {
     }
 }

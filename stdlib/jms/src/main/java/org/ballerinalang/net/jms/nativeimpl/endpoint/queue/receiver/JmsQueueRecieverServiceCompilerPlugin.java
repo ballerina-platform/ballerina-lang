@@ -35,7 +35,7 @@ import java.util.List;
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS_VERSION,
                                                                  name = JmsConstants.QUEUE_LISTENER,
                                                                  orgName = JmsConstants.BALLERINAX),
-        paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JAVA_JMS,
                                                         name = JmsConstants.QUEUE_RECEIVER_CALLER_OBJ_NAME,
                                                         orgName = JmsConstants.BALLERINAX)})
 public class JmsQueueRecieverServiceCompilerPlugin extends JmsServiceCompilerPlugin {

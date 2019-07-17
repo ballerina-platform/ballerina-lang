@@ -18,7 +18,7 @@ import ballerina/artemis;
 
 artemis:Connection con = new("tcp://localhost:61616");
 artemis:Session session = new(con);
-artemis:Producer prod = new(session, "multicast_address", addressConfig = {autoCreated:false});
+artemis:Producer prod = new(session, "multicast_address", {autoCreated:false});
 
 public function testSendString() {
     var err = prod->send("Hello World");

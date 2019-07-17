@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -47,11 +45,7 @@ import java.security.cert.CertificateException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePrivateKey", isPublic = true)
-public class DecodePrivateKey extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodePrivateKey {
 
     @SuppressWarnings("unchecked")
     public static Object decodePrivateKey(Strand strand, Object keyStoreValue, Object keyAliasValue, Object password) {

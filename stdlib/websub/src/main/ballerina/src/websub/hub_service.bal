@@ -299,7 +299,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         + "&" + HUB_CHALLENGE + "=" + challenge;
 
     if (mode == MODE_SUBSCRIBE) {
-        queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
+        queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds.toString();
     }
 
     var subscriberResponse = callbackEp->get(<@untainted string> queryParams, request);
@@ -493,7 +493,7 @@ returns error? {
                                 + "], topic[" + subscriptionDetails.topic + "]");
             } else {
                 log:printError("Error delivering content to callback[" + callback + "] for topic["
-                            + subscriptionDetails.topic + "]: received response code " + respStatusCode);
+                            + subscriptionDetails.topic + "]: received response code " + respStatusCode.toString());
             }
         } else {
             error err = contentDistributionResponse;

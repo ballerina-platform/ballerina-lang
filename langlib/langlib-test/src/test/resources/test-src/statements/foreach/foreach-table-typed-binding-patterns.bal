@@ -16,11 +16,11 @@ table<Employee> data = table {
 };
 
 function concatIntAny(int i, any a) {
-    output = output + i + ":" + a.toString() + " ";
+    output = output + i.toString() + ":" + a.toString() + " ";
 }
 
 function concatIntIntStringFloat(int i1, int i2, string s, float f) {
-    output = output + i1 + ":" + i2 + ":" + s + ":" + f + " ";
+    output = output + i1.toString() + ":" + i2.toString() + ":" + s + ":" + f.toString() + " ";
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

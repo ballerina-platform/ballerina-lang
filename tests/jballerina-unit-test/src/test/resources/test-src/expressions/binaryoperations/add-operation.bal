@@ -11,7 +11,7 @@ function stringAdd(string a, string b) returns (string) {
 }
 
 function stringAndIntAdd(string a, int b) returns (string) {
-    return a + b;
+    return a + b.toString();
 }
 
 function intFloatAdd(int a, float b) returns (float) {

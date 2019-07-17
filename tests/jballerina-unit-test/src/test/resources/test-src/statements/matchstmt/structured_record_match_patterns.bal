@@ -26,7 +26,7 @@ function testStructuredMatchPatternsBasic1() returns string {
     Foo foo = {s: "S", i: 23, f: 5.6};
 
     match foo {
-        var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer + ", " + f;
+        var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer.toString() + ", " + f.toString();
     }
 
     return "Default";
@@ -42,7 +42,8 @@ function testStructuredMatchPatternsBasic2() returns string {
     Bar bar = {b: 12, f: foo};
 
     match bar {
-        var {b: byteValue, f: {s, i, f}} => return "Matched Values : " + s + ", " + i + ", " + f + ", " + <int> byteValue;
+        var {b: byteValue, f: {s, i, f}} => return "Matched Values : " + s + ", " + i.toString() + ", " +
+                f.toString() + ", " + byteValue.toString();
     }
 
     return "Default";

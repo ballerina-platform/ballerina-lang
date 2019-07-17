@@ -20,7 +20,7 @@ function testArrowExprWithOneParam() returns int {
 }
 
 function testArrowExprWithTwoParams() returns string {
-    function (int, string) returns string lambda = (x, y) => x + y;
+    function (int, string) returns string lambda = (x, y) => x.toString() + y;
     return lambda(12, "John");
 }
 
@@ -32,16 +32,16 @@ function testReturnArrowExpr() returns string {
 }
 
 function returnsArrowExpr() returns function (int x, string y) returns string {
-    return (x, y) => x + y;
+    return (x, y) => x.toString() + y;
 }
 
 function testArrowExprReturnTuple() returns [string, int] {
-    function (int, string) returns [string, int] lambda = (x, y) => [x + y, x];
+    function (int, string) returns [string, int] lambda = (x, y) => [x.toString() + y, x];
     return lambda(12, "John");
 }
 
 function testArrowExprReturnUnion() returns (string|int) {
-    function (int, string) returns (string|int) lambda = (x, y) => x + y;
+    function (int, string) returns (string|int) lambda = (x, y) => x.toString() + y;
     return lambda(12, "John");
 }
 
@@ -119,7 +119,7 @@ function threeLevelTest() returns int {
 
 function testNestedArrowExpression() returns string {
     function (int, string) returns function (int, string) returns string lambda =
-                        (integerVar, stringVar) => (integerVar2, stringVar2) => stringVar + integerVar;
+                        (integerVar, stringVar) => (integerVar2, stringVar2) => stringVar + integerVar.toString();
     var lambda2 = lambda(18, "John");
     return lambda2(20, "Doe");
 }

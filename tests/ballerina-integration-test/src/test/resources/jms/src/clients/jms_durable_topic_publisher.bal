@@ -15,7 +15,7 @@ jms:Session jmsSession = new (jmsConnection, {
 jms:TopicPublisher publisher = new(jmsSession, topicPattern = "testTopicSubscriberPublisher");
 
 public function main () {
-    // Create a Text message.
+    // Create a text message.
     var msg = jmsSession.createTextMessage("Test Text");
     if (msg is jms:Message) {
          // Send the Ballerina message to the JMS provider.

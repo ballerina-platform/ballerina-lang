@@ -638,7 +638,7 @@ function sendNewRequest(HttpClient httpClient, Request request, string path, str
 }
 
 function setAgeHeader(Response cachedResponse) {
-    cachedResponse.setHeader(<@untainted> AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse));
+    cachedResponse.setHeader(<@untainted> AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse).toString());
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3

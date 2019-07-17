@@ -20,9 +20,9 @@ import ballerina/time;
 # + t - A record received by the stream `streamName`.
 # + streamName - Name of the stream to which the record `t` is received.
 # + return - Returns an array of streams:StreamEvents|()
-public function buildStreamEvent(any t, string streamName) returns StreamEvent?[] {
+public function buildStreamEvent(anydata t, string streamName) returns StreamEvent?[] {
     EventType evntType = "CURRENT";
-    var keyVals = <map<anydata>>map<anydata>.stamp(t.clone());
+    var keyVals = <map<anydata>>map<anydata>.constructFrom(t.clone());
     StreamEvent event = new([streamName, keyVals], evntType, time:currentTime().time);
     StreamEvent?[] streamEvents = [event];
     return streamEvents;

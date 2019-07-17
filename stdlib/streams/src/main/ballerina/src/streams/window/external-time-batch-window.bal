@@ -150,7 +150,7 @@ public type ExternalTimeBatchWindow object {
         } else {
             error err = error("ExternalTimeBatch window should only have two to five " +
                 "parameters (<string> timestamp, <int> windowTime, <int> startTime, <int> " +
-                "timeout, <boolean> replaceTimestampWithBatchEndTime), but found " + parameters.length()
+                "timeout, <boolean> replaceTimestampWithBatchEndTime), but found " + parameters.length().toString()
                 + " input attributes");
             panic err;
         }
@@ -354,10 +354,9 @@ public type ExternalTimeBatchWindow object {
         self.currentEventChunk.addLast(clonedEvent);
         StreamEvent? evnt = self.resetEvent;
         if (evnt is ()) {
-            evnt = currStreamEvent.copy();
-            if (evnt is StreamEvent) {
-                evnt.eventType = RESET;
-            }
+            var resetEvent = currStreamEvent.copy();
+            resetEvent.eventType = RESET;
+            self.resetEvent = resetEvent;
         }
     }
 
@@ -377,7 +376,7 @@ public type ExternalTimeBatchWindow object {
             }
         }
 
-        if (self.expiredEventChunk != ()) {
+        if (self.expiredEventChunk.isEmpty()) {
             self.expiredEventChunk.clear();
         }
 
@@ -514,7 +513,7 @@ public type ExternalTimeBatchWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function externalTimeBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function externalTimeBatch(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                                   returns Window {
     ExternalTimeBatchWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;

@@ -64,16 +64,16 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
@@ -81,8 +81,7 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
-            error returnValError = returnVal;
-            panic returnValError;
+            panic <error> returnVal;
         }
     }
 };
