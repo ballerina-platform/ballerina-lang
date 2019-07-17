@@ -10,13 +10,13 @@ public function main() {
     rabbitmq:Channel newChannel2 = new(connection);
 
     // Declares the queue, MyQueue1.
-    var queueResult1 = newChannel1->queueDeclare(queueConfig = { queueName: "MyQueue1" });
+    var queueResult1 = newChannel1->queueDeclare({ queueName: "MyQueue1" });
     if (queueResult1 is error) {
         io:println("An error occurred while creating the MyQueue1 queue.");
     }
 
     // Declares the queue, MyQueue2.
-    var queueResult2 = newChannel2->queueDeclare(queueConfig = { queueName: "MyQueue2" });
+    var queueResult2 = newChannel2->queueDeclare({ queueName: "MyQueue2" });
     if (queueResult2 is error) {
         io:println("An error occurred while creating the MyQueue2 queue.");
     }

@@ -61,12 +61,14 @@ service passthroughService11 on listener11_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP03->get("/nyseStock/stocks", message = <@untainted> clientRequest);
+        var response = nyseEP03->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);

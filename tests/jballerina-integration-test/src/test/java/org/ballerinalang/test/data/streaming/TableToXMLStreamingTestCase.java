@@ -51,11 +51,13 @@ public class TableToXMLStreamingTestCase extends BaseTest {
 
     @BeforeClass(alwaysRun = true)
     private void setup() throws Exception {
+        System.setProperty("enableJBallerinaTests", "true");
         setUpDatabase();
         String balFile = Paths.get("src", "test", "resources", "data", "streaming", "xml_streaming_test.bal")
                 .toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
-        envProperties.put("JAVA_OPTS", "-Xms100m -Xmx100m");
+        // Had to increase this to 150 from 100 which worked with BVM. Created an issue: #16846
+        envProperties.put("JAVA_OPTS", "-Xms150m -Xmx150m");
         int[] requiredPorts = {9090};
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, null, envProperties, requiredPorts);

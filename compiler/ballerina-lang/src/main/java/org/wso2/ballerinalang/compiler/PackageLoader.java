@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -170,8 +171,10 @@ public class PackageLoader {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
-
-        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
+    
+        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
+        Repo systemBirRepo = new BirRepo(Paths.get(ballerinaHome));
+        Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeBaloCache = new BaloRepo(balHomeDir);
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
@@ -185,14 +188,19 @@ public class PackageLoader {
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeBaloCache, node(homeCacheRepo, node(systemRepo)));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node(systemBirRepo,
+                                        node(systemZipRepo))));
         } else {
             homeCacheNode = node(homeBaloCache,
                                 node(homeCacheRepo,
-                                    node(systemRepo,
-                                        node(remoteRepo,
-                                            node(homeBaloCache,
-                                                node(secondarySystemRepo))))));
+                                    node (systemBirRepo,
+                                        node(systemZipRepo,
+                                            node(remoteRepo,
+                                                node(homeBaloCache,
+                                                    node(systemBirRepo,
+                                                        node(secondarySystemRepo))))))));
         }
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),

@@ -56,7 +56,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
 
     }
 
-    public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
+    public static boolean doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
                                         String password) {
         byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);

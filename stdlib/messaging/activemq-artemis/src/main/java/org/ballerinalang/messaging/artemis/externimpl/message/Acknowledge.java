@@ -52,7 +52,8 @@ public class Acknowledge {
     public static Object acknowledge(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         ArtemisTransactionContext transactionContext =
-                (ArtemisTransactionContext) messageObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+                (ArtemisTransactionContext) ((ObjectValue) messageObj.get(ArtemisConstants.SESSION)).getNativeData(
+                        ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
         try {
             message.acknowledge();
             if (transactionContext != null) {

@@ -52,16 +52,15 @@ public function main() {
     myBatchType[][] dataBatch = [];
     int i = 0;
 
-    //json[] students = <json[]>jsonMsg.student;
     if(students is json[]) {
-    foreach (var studentData in students) {
-        string name = studentData.firstname.toString();
-        int age = <int>studentData.age;
+        foreach (var studentData in students) {
+            string name = studentData.firstname.toString();
+            int age = <int>studentData.age;
 
-        myBatchType?[] dataRow = [age, name];
-        dataBatch[i] = dataRow;
-        i = i + 1;
-    }
+            myBatchType?[] dataRow = [age, name];
+            dataBatch[i] = dataRow;
+            i = i + 1;
+        }
     }
     // A batch of data can be inserted using the `batchUpdate` remote function.
     // The number of inserted rows for each insert in the batch is returned as

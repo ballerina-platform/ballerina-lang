@@ -18,8 +18,6 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -48,11 +46,7 @@ import java.util.Objects;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetXMLContent extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetXMLContent {
 
     public static Object getXMLContent(Strand strand, ObjectValue messageObjectValue) {
         boolean isInTransaction = false;
@@ -68,5 +62,8 @@ public class GetXMLContent extends BlockingNativeCallableUnit {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.XML_CONTENT_ERROR
                     + exception.getMessage());
         }
+    }
+
+    private GetXMLContent() {
     }
 }

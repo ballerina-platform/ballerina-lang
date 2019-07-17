@@ -76,8 +76,6 @@ public class CreateProducer {
                 }
             }
             ClientProducer producer = session.createProducer(addressName, rate);
-            producerObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                    sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
             producerObj.addNativeData(ArtemisConstants.ARTEMIS_PRODUCER, producer);
 
         } catch (ActiveMQException ex) {
