@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -283,5 +284,13 @@ public class ErrorTest {
         Assert.assertEquals(((BError) returns[1]).getReason(), "ErrorNo-2");
         Assert.assertEquals(((BError) returns[2]).getReason(), "ErrNo-1");
         Assert.assertEquals(((BError) returns[3]).getReason(), "ErrorNo-2");
+    }
+
+    @Test()
+    public void indirectErrorCtorTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "foo");
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
     }
 }

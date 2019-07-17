@@ -2733,8 +2733,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BErrorType lhsErrorType = (BErrorType) expType;
-        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
+        BErrorType errorType = (BErrorType) (iExpr.symbol == symTable.errorType.tsymbol ? expType : iExpr.symbol.type);
+        BErrorType ctorType = (BErrorType) errorType.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
             return;
@@ -2775,7 +2775,7 @@ public class TypeChecker extends BLangNodeVisitor {
         setErrorDetailArgsToNamedArgsList(iExpr);
 
         resultType = expType;
-        iExpr.symbol = lhsErrorType.ctorSymbol;
+        iExpr.symbol = errorType.ctorSymbol;
     }
 
     private boolean nonNamedArgsGiven(BLangInvocation iExpr) {

@@ -236,3 +236,16 @@ function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorT
     UserDefErrorTwoA e1 = UserDefErrorTwoA(message="arg");
     return [e0, e1, e0, e1];
 }
+
+type Detail record {
+    int code;
+};
+
+const FOO = "foo";
+
+type FooError error<FOO, Detail>;
+
+public function indirectErrorCtor() returns [string, boolean, error] {
+    error e = FooError(code = 3456);
+    return [e.reason(), e is FooError, e];
+}
