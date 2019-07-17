@@ -59,7 +59,7 @@ service frontendHttpService on frontendEP {
             checkpanic caller->respond(errMsg);
             return;
         }
-        io:println("Number of promises received : " + promiseCount);
+        io:println("Number of promises received : " + promiseCount.toString());
 
         // Get the requested resource
         http:Response response = new;
