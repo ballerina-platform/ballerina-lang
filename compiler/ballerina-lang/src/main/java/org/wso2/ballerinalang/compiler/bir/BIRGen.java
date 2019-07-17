@@ -1182,7 +1182,13 @@ public class BIRGen extends BLangNodeVisitor {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
         } else {
-            String objectName = ((BObjectTypeSymbol) connectorInitExpr.type.tsymbol).name.value;
+            BType objectType = connectorInitExpr.type.tag != TypeTags.UNION ? connectorInitExpr.type  :
+                    ((BUnionType) connectorInitExpr.type).getMemberTypes().stream()
+                            .filter(bType -> bType.tag != TypeTags.ERROR)
+                            .findFirst()
+                            .get();
+
+            String objectName = objectType.tsymbol.name.value;
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, objectTypeSymbol.pkgID,
                                                            objectName, toVarRef);
         }

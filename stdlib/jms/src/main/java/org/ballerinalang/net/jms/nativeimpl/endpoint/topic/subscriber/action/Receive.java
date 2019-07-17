@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,20 +31,18 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
  * {@code Receive} is the receive action implementation of the JMS topic subscriber connector.
  */
 @BallerinaFunction(orgName = JmsConstants.BALLERINAX,
-                   packageName = JmsConstants.JMS,
+                   packageName = JmsConstants.JAVA_JMS,
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
                                         structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class Receive extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Receive {
 
     public static Object receive(Strand strand, ObjectValue topicSubscriber, long timeoutInMilliSeconds) {
         return ReceiveActionHandler.handle(topicSubscriber, timeoutInMilliSeconds);
     }
 
+    private Receive() {
+    }
 }
