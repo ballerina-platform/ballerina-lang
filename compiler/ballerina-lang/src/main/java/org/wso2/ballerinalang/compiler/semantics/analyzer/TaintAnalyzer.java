@@ -1084,9 +1084,19 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeLangLibFunctionInvocation(BLangInvocation invocationExpr) {
-        invocationExpr.requiredArgs.forEach(expression -> expression.accept(this));
-        invocationExpr.argExprs.forEach(expression -> expression.accept(this));
-        invocationExpr.restArgs.forEach(expression -> expression.accept(this));
+        for (BLangExpression requiredArg : invocationExpr.requiredArgs) {
+            requiredArg.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                return;
+            }
+        }
+        for (BLangExpression expression : invocationExpr.restArgs) {
+            expression.accept(this);
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                return;
+            }
+        }
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     private boolean isLangLibFunction(BLangInvocation invocationExpr) {
