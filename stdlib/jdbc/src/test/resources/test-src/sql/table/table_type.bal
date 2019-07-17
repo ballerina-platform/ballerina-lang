@@ -1034,11 +1034,11 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
         if (selectRet4.hasNext()) {
             var rs = selectRet4.getNext();
             if (rs is ResultPrimitiveInt) {
-                s1 = s1 + rs.INT_TYPE;
+                s1 = s1 + rs.INT_TYPE.toString();
             }
             var rs2 =selectRet4.getNext();
             if (rs2 is ResultPrimitiveInt) {
-                s1 = s1 + "_" + rs2.INT_TYPE;
+                s1 = s1 + "_" + rs2.INT_TYPE.toString();
             }
             if (selectRet4.hasNext()) {
                 s1 = s1 + "_" + "HAS";
@@ -1055,7 +1055,7 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
     if (selectRet5 is table<ResultPrimitiveInt>) {
         var rs = selectRet5.getNext();
         if (rs is ResultPrimitiveInt) {
-            s2 = s2 + rs.INT_TYPE;
+            s2 = s2 + rs.INT_TYPE.toString();
         }
         if (selectRet5.hasNext()) {
             s2 = s2 + "_" + "HAS";
@@ -1070,7 +1070,7 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
         if (selectRet5.hasNext()) {
             var rs2 = selectRet5.getNext();
             if (rs2 is ResultPrimitiveInt) {
-                s2 = s2 + "_" + rs2.INT_TYPE;
+                s2 = s2 + "_" + rs2.INT_TYPE.toString();
             }
         }
         if (selectRet5.hasNext()) {
@@ -1219,9 +1219,10 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
                 var smallIntData = result.SMALLINTDATA;
                 var intData = result.INTDATA;
                 var bigIntData = result.BIGINTDATA;
-                str = str + result.ID + "|" + (tinyIntData is int ? tinyIntData : -1) + "|" + (smallIntData is int ?
-                smallIntData : -1) + "|" + (intData is int ? intData : -1) + "|" +
-                (bigIntData is int ? bigIntData : -1) + "#";
+                str = str + result.ID.toString() + "|" + (tinyIntData is int ? tinyIntData.toString() : "-1") + "|" +
+                        (smallIntData is int ? smallIntData.toString() : "-1") + "|" +
+                        (intData is int ? intData.toString() : "-1") + "|" +
+                        (bigIntData is int ? bigIntData.toString() : "-1") + "#";
             }
         }
     }
@@ -1288,7 +1289,8 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
                 expected[i] = result.BLOB_TYPE ?: [];
                 blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
                 var clobType = result.CLOB_TYPE;
-                str = str + result.ROW_ID + "|" + blobType + "|" + (clobType is string ? clobType : "nil" ) + "|";
+                str = str + result.ROW_ID.toString() + "|" + blobType.toString() + "|" +
+                        (clobType is string ? clobType : "nil" ) + "|";
                 i += 1;
             }
         }
@@ -1739,8 +1741,8 @@ function testForEachInTableWithIndex() returns @tainted [string, string] {
     if (dt is table<Person>) {
         int i = 0;
         foreach var x in dt {
-            indexStr = indexStr + "," + i;
-            idStr = idStr + "," + x.id;
+            indexStr = indexStr + "," + i.toString();
+            idStr = idStr + "," + x.id.toString();
             i += 1;
         }
     }
