@@ -21,8 +21,7 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 
 import java.nio.file.Path;
 
@@ -30,13 +29,13 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DI
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**
- * Repo for balo_cache.
+ * Repo for bir-cache.
  */
-public class BaloRepo implements Repo<Path> {
-    ZipConverter zipConverter;
+public class BirRepo implements Repo<Path> {
+    PathConverter pathConverter;
     
-    public BaloRepo(Path repo) {
-        this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
+    public BirRepo(Path repo) {
+        this.pathConverter = new PathConverter(repo.resolve("bir-cache"));
     }
     
     @Override
@@ -50,20 +49,17 @@ public class BaloRepo implements Repo<Path> {
         } else {
             version = path(versionStr);
         }
-    
-        return new Patten(path(orgName, pkgName),
-                version,
-                path(pkgName + ".balo", ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
-                Patten.WILDCARD_SOURCE);
+        
+        return new Patten(path(orgName, pkgName), version, path(pkgName + ".bir"));
     }
     
     @Override
     public Converter<Path> getConverterInstance() {
-        return this.zipConverter;
+        return this.pathConverter;
     }
     
     @Override
     public String toString() {
-        return "{t:'BaloRepo', c:'" + this.zipConverter + "'}";
+        return "{t:'BirRepo', c:'" + this.pathConverter + "'}";
     }
 }
