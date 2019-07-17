@@ -89,4 +89,6 @@ public class ProjectDirConstants {
     public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
+
+    public static final String EXEC_SUFFIX = "-executable";
 }
