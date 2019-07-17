@@ -59,7 +59,7 @@ public type Listener object {
         var auth = self.config["auth"];
         if (auth is ListenerAuth) {
             var authHandlers = auth.authHandlers;
-            if (authHandlers is InboundAuthHandler?[]) {
+            if (authHandlers is InboundAuthHandler[]) {
                 if (authHandlers.length() > 0) {
                     initListener(self.config);
                 }
@@ -85,7 +85,8 @@ public type Listener object {
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    function start() = external;
+    # + return - An `error` if there is any error occurred during the listener start process
+    function start() returns error? = external;
 
     # Stops the registered service.
     function stop() = external;
@@ -176,7 +177,7 @@ public type ServiceEndpointConfiguration record {|
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.
 public type ListenerAuth record {|
-    (InboundAuthHandler?)[]|(InboundAuthHandler?)[][] authHandlers;
+    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
@@ -254,7 +255,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
-        InboundAuthHandler?[]|InboundAuthHandler?[][] authHandlers = auth.authHandlers;
+        InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
         authFilters[0] = authnFilter;
 

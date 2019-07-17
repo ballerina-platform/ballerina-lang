@@ -88,7 +88,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 if (bLangPackage != null) {
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
-                        String sourceRoot = LSCompilerUtil.getSourceRoot(path);
+                        String sourceRoot = LSCompilerUtil.getProjectRoot(path);
                         String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
                         String hash = generateHash(compUnit, basePath);
                         compUnits.put(hash, new Object[]{

@@ -12,7 +12,7 @@ table<Person> dt1 = table {
     {key id, key age, salary, name, married}
 };
 
-function name1() {
+function name1() returns error? {
     table<Person> dt2 = table {
         {key id, key age, salary, name, married}
     };
@@ -24,8 +24,8 @@ function name1() {
         name: "jane",
         married: true
     };
-    _ = dt2.add(p1);
-    _ = dt1.add(p1);
+    _ = check dt2.add(p1);
+    _ = check dt1.add(p1);
 
     table<Person> dt4 = table {
         {key id, key age, salary, name, married}

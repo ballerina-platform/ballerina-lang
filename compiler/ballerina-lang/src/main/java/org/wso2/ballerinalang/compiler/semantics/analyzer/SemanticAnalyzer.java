@@ -1190,14 +1190,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
                 if (entryField != null) {
-                    boundVar.type = entryField.type;
+                    if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                        boundVar.type = BUnionType.create(null, entryField.type, symTable.nilType);
+                    } else {
+                        boundVar.type = entryField.type;
+                    }
                 } else {
                     if (recordType.sealed) {
                         dlog.error(errorVariable.pos, DiagnosticCode.INVALID_ERROR_BINDING_PATTERN, errorVariable.type);
                         boundVar.type = symTable.semanticError;
                         return false;
                     } else {
-                        boundVar.type = recordType.restFieldType;
+                        boundVar.type = BUnionType.create(null, recordType.restFieldType, symTable.nilType);
                     }
                 }
 

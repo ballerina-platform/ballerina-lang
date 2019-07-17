@@ -377,7 +377,7 @@ type addressStruct object {
     public string city = "";
 
     function toString() returns string {
-        return self.no + self.city;
+        return self.no.toString() + self.city;
     }
 };
 
@@ -387,7 +387,7 @@ type officeAddressStruct object {
     public string department = "";
 
     function toString() returns string{
-        return self.department + self.no + self.city;
+        return self.department + self.no.toString() + self.city;
     }
 };
 

@@ -3048,6 +3048,7 @@ public class BLangPackageBuilder {
         List<BLangVariable> params = this.varListStack.peek();
         BLangSimpleVariable var = (BLangSimpleVariable) params.get(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
+        var.addWS(ws);
     }
 
     void addRestParam(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,

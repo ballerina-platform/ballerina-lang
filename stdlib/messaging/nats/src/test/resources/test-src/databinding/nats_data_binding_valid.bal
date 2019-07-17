@@ -45,7 +45,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingIntConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, int data) {
-         io:println("Received Message - service: " + data);
+         io:println("Received Message - service: " + data.toString());
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {
@@ -58,7 +58,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingFloatConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, float data) {
-         io:println("Received Message - service: " + data);
+         io:println("Received Message - service: " + data.toString());
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {
@@ -71,7 +71,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingBooleanConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, boolean data) {
-         io:println("Received Message - service: " + data);
+         io:println("Received Message - service: " + data.toString());
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {
@@ -84,7 +84,7 @@ listener nats:StreamingListener lis = new(conn);
  }
  service dataBindingDecimalConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, decimal data) {
-         io:println("Received Message - service: " + data);
+         io:println("Received Message - service: " + data.toString());
      }
 
      resource function onError(nats:StreamingMessage message, error errorVal) {

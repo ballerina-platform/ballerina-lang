@@ -14,17 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/h2;
 import ballerina/log;
+import ballerinax/java.jdbc;
 
-h2:Client testDB = new({
-    path: "../../tempdb/",
-    name: "STREAMING_XML_TEST_DB",
-    username: "SA",
-    password: "",
-    poolOptions: { maximumPoolSize: 1 },
-    dbOptions: { IFEXISTS: true }
-});
+jdbc:Client testDB = new({
+        url: "jdbc:h2:file:../../tempdb/STREAMING_XML_TEST_DB",
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 },
+        dbOptions: { IFEXISTS: true }
+    });
 
 listener http:Listener dataServiceListener = new(9090);
 
@@ -34,9 +33,9 @@ service dataService on dataServiceListener {
 
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
-            var xmlConversionRet = xml.convert(selectRet);
+            var xmlConversionRet = typedesc<xml>.constructFrom(selectRet);
             if (xmlConversionRet is xml) {
-                var responseToCaller = caller->respond(untaint xmlConversionRet);
+                var responseToCaller = caller->respond(<@untainted> xmlConversionRet);
                 if (responseToCaller is error) {
                     log:printError("Error sending response", responseToCaller);
                 }
@@ -44,7 +43,8 @@ service dataService on dataServiceListener {
                 panic xmlConversionRet;
             }
         } else {
-            log:printError("Select data from Data table failed: " + selectRet.reason());
+            error e = selectRet;
+            log:printError("Select data from Data table failed: " + e.reason());
         }
     }
 }

@@ -86,17 +86,17 @@ public function main(string... args) {
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host : " + host + " with port " + port);
+                panic createError("failed to resolve host : " + host + " with port " + port.toString());
             } else {
                 httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, terminalWidth, nightlyBuild);
+        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
     }
 }
 
@@ -309,10 +309,11 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         
         totalCount = totalCount + readCount;
         float percentage = totalCount / baloSize;
-        noOfBytesRead = totalCount + "/" + baloSize;
+        noOfBytesRead = totalCount.toString() + "/" + baloSize.toString();
         string bar = equals.substring(startVal, <int> (percentage * totalVal));
         string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));
-        string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + baloSize;
+        int intTotalCount = <int>totalCount;
+        string size = "[" + bar + ">" + spaces + "] " + intTotalCount.toString() + "/" + baloSize.toString();
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
         io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
     }

@@ -31,7 +31,7 @@ configurations {
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-core')
     implementation project(':ballerina-http')

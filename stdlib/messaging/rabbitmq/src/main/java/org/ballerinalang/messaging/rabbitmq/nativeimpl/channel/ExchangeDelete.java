@@ -19,8 +19,6 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -47,11 +45,7 @@ import java.io.IOException;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class ExchangeDelete extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ExchangeDelete {
 
     public static Object exchangeDelete(Strand strand, ObjectValue channelObjectValue, String exchangeName) {
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
@@ -70,5 +64,8 @@ public class ExchangeDelete extends BlockingNativeCallableUnit {
                     + exception.getMessage());
         }
         return null;
+    }
+
+    private ExchangeDelete() {
     }
 }

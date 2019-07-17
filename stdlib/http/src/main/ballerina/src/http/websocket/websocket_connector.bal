@@ -74,7 +74,7 @@ type WebSocketConnector object {
             if (statusCode <= 999 || statusCode >= 1004 && statusCode <= 1006 || statusCode >= 1012 &&
                 statusCode <= 2999 || statusCode > 4999) {
                 WsConnectionClosureError err = error(message = "Failed to execute close. Invalid status code: " +
-                statusCode);
+                statusCode.toString());
                 return err;
             }
             return self.externClose(statusCode, reason ?: "", timeoutInSecs);

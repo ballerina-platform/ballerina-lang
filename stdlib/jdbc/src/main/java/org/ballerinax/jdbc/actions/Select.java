@@ -17,8 +17,6 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -38,12 +36,7 @@ import org.ballerinax.jdbc.statement.SelectStatement;
         orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeSelect"
 )
-public class Select extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class Select {
 
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {

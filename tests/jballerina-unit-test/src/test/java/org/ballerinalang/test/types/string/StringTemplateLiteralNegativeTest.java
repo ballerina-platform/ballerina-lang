@@ -38,7 +38,7 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
         BAssertUtil.validateError(resultNegative, 1,
-                "incompatible types: expected 'string', found 'json'", 8, 32);
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found 'json'", 8, 32);
     }
 
     @Test(description = "Test string template literal syntax errors")

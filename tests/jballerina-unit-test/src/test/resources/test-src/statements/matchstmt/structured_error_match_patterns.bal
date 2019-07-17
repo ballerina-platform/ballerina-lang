@@ -119,7 +119,7 @@ function foo(ER1|ER2 t1) returns string {
     match t1 {
         var error ( _, fatal = fatal, message = message) => {
             if fatal is boolean {
-                return "Matched with boolean : " + fatal;
+                return "Matched with boolean : " + fatal.toString();
             } else if message is string {
                 return "Matched with string : " + message;
             } else {
@@ -142,7 +142,7 @@ function testBasicErrorMatch5() returns string[] {
 
 function foo2(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason) => return "Matched with an error : " + reason;
         var error (reason, ..._) => return "Matched with an error : " + reason + " {}";
     }
@@ -151,7 +151,7 @@ function foo2(any|error f) returns string {
 
 function foo3(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason) => return "Matched with an error 1: " + reason;
         var error (reason, message = message) => return "Matched with an error : " + reason + ", message = " + <string>message;
     }
@@ -213,7 +213,7 @@ function testBasicErrorMatch7() returns string[] {
 
 function foo6(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason, message = message) => return "Matched with an error : " + reason + <string>message;
     }
     return "Default";

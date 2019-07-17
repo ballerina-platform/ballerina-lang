@@ -73,7 +73,7 @@ public type TypeParser object {
         if (unparsedBytes is byte[]){
             self.reader = {buf: unparsedBytes};
         } else {
-            error err = error(cpI + " is not a shape CP.");
+            error err = error(cpI.toString() + " is not a shape CP.");
             panic err;
         }
 
@@ -160,7 +160,7 @@ public type TypeParser object {
             return <BTypeHandle> {};
         }
 
-        error err = error("Unknown type tag :" + typeTag);
+        error err = error("Unknown type tag :" + typeTag.toString());
         panic err;
     }
 
@@ -259,7 +259,11 @@ public type TypeParser object {
     }
 
     function parseRecordField() returns BRecordField {
-        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
+        string nameVal = self.readStringCpRef();
+        int flags = self.readInt32();
+        self.skipMarkDownDocAttachementForFields();
+        BType typeVal = self.parseTypeCpRef();
+        return {name:{value:nameVal}, flags:flags, typeValue:typeVal};
     }
 
     function parseObjectType() returns BType {
@@ -329,7 +333,11 @@ public type TypeParser object {
     }
 
     function parseObjectField() returns BObjectField {
-        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
+        string nameVal = self.readStringCpRef();
+        int flags = self.readInt32();
+        self.skipMarkDownDocAttachementForFields();
+        BType typeValue = self.parseTypeCpRef();
+        return {name:{value:nameVal}, flags:flags, typeValue:typeValue};
     }
 
     function parseErrorType() returns BErrorType {
@@ -362,7 +370,7 @@ public type TypeParser object {
         } else if (b == 3) {
             return "UNSEALED";
         }
-        error err = error("unknown array state tag " + b);
+        error err = error("unknown array state tag " + b.toString());
         panic err;
     }
 
@@ -425,6 +433,11 @@ public type TypeParser object {
         var byteVal = self.reader.buf[pos];
         self.reader.pos = pos + 1;
         return byteVal == 1;
+    }
+    
+    function skipMarkDownDocAttachementForFields() {
+        int docLength = self.readInt32();
+        self.reader.pos = self.reader.pos + docLength;
     }
 
     private function readInt8() returns int {

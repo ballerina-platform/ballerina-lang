@@ -18,7 +18,7 @@ import ballerina/grpc;
 import ballerina/io;
 
 // Server endpoint configuration
-listener grpc:Listener ep4 = new (9096);
+listener grpc:Listener ep4 = new (9094);
 
 @grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}

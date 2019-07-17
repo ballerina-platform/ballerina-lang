@@ -34,6 +34,8 @@ import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketServerConnectorListener;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -96,16 +98,18 @@ public class Start extends AbstractHttpNativeFunction {
         serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
     }
 
-    public static void start(Strand strand, ObjectValue listener) {
+    public static Object start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(listener);
 
         if (!isConnectorStarted(listener)) {
-            startServerConnector(listener, httpServicesRegistry, webSocketServicesRegistry);
+            return startServerConnector(strand, listener, httpServicesRegistry, webSocketServicesRegistry);
         }
+        return null;
     }
 
-    private static void startServerConnector(ObjectValue serviceEndpoint, HTTPServicesRegistry httpServicesRegistry,
+    private static Object startServerConnector(Strand strand, ObjectValue serviceEndpoint,
+                                             HTTPServicesRegistry httpServicesRegistry,
                                              WebSocketServicesRegistry webSocketServicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -123,11 +127,14 @@ public class Start extends AbstractHttpNativeFunction {
         try {
             serverConnectorFuture.sync();
         } catch (Exception ex) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException(
-                    "failed to start server connector '" + serverConnector.getConnectorID()
-                            + "': " + ex.getMessage(), ex);
+            // TODO Below is a temp fix to show listener startup failure, find a better fix
+            strand.scheduler.immortal = false;
+            throw HttpUtil.createHttpError("failed to start server connector '"
+                    + serverConnector.getConnectorID()
+                            + "': " + ex.getMessage(), HttpErrorType.LISTENER_STARTUP_FAILURE);
         }
 
         serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+        return null;
     }
 }

@@ -22,7 +22,7 @@ dependencies {
    implementation 'org.codehaus.plexus:plexus-utils'
    implementation 'org.apache.commons:commons-lang3'
    implementation project(':ballerina-config')
-   implementation project(':ballerina-launcher')
+   implementation project(':ballerina-tool')
    implementation project(':ballerina-lang')
    implementation project(':docerina')
    testCompile 'junit:junit'

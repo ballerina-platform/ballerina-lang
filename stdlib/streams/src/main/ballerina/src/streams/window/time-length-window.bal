@@ -77,7 +77,7 @@ public type TimeLengthWindow object {
             }
         } else {
             error err = error("TimeLength window should only have two parameters (<int> windowTime, <int> " +
-                "windowLength), but found " + parameters.length() + " input attributes");
+                "windowLength), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

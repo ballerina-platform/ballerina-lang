@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -43,16 +41,12 @@ import javax.jms.JMSException;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "createConnection",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.CONNECTION_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CreateConnection extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class CreateConnection {
 
     public static void createConnection(Strand strand, ObjectValue connectionObject) {
         MapValue connectionConfig = connectionObject.getMapValue(JmsConstants.CONNECTION_CONFIG);
@@ -84,5 +78,8 @@ public class CreateConnection extends BlockingNativeCallableUnit {
     private static void setIfNonDaemonThreadRunningAtAllTimes(ObjectValue connectionObject, MapValue connectionConfig) {
         connectionObject.addNativeData(JmsConstants.NON_DAEMON_THREAD_RUNNING, !connectionConfig.getStringValue(
                 JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY).contains(JmsConstants.ARTEMIS_ICF));
+    }
+
+    private CreateConnection() {
     }
 }

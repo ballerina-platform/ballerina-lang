@@ -401,29 +401,29 @@ function testLabeling() returns string {
 const aBoolean = true;
 
 function testBooleanConcat() returns string {
-    return aBoolean + " rocks";
+    return aBoolean.toString() + " rocks";
 }
 
 const aInt = 24;
 
 function testIntConcat() returns string {
-    return aInt + " rocks";
+    return aInt.toString() + " rocks";
 }
 
 const aByte = 12;
 
 function testByteConcat() returns string {
-    return aByte + " rocks";
+    return aByte.toString() + " rocks";
 }
 
 const aFloat = 25.5;
 
 function testFloatConcat() returns string {
-    return aFloat + " rocks";
+    return aFloat.toString() + " rocks";
 }
 
 const decimal aDecimal = 25.5;
 
 function testDecimalConcat() returns string {
-    return aDecimal + " rocks";
+    return aDecimal.toString() + " rocks";
 }
