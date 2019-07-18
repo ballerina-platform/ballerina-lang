@@ -222,21 +222,6 @@
                 <artifactId>netty-tcnative-boringssl-static</artifactId>
                 <version>${netty-tcnative-boringssl-static.version}</version>
             </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${jaxb-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-core</artifactId>
-                <version>${jaxb-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb-impl.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -371,9 +356,6 @@
         <httpasyncclient.version>4.0.2</httpasyncclient.version>
         <httpmime.version>4.3.6</httpmime.version>
         <commons-io.version>2.4</commons-io.version>
-        <jaxb-api.version>2.3.0</jaxb-api.version>
-        <jaxb-core.version>2.3.0</jaxb-core.version>
-        <jaxb-impl.version>2.3.0</jaxb-impl.version>
     </properties>
 
 </project>
