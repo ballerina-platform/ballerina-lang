@@ -318,12 +318,11 @@ public class Util {
      * @param sslConfig     {@link SSLConfig}
      * @param host          host of the connection
      * @param port          port of the connection
-     * @throws SSLException if any error occurs in the SSL connection
-     *
      * @return the {@link SSLEngine} which enables secure communication
+     * @throws SSLException if any error occurs in the SSL connection
      */
     public static SSLEngine configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
-            SSLConfig sslConfig) throws SSLException {
+                                                        SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         SSLEngine sslEngine = null;
         SslHandler sslHandler;
