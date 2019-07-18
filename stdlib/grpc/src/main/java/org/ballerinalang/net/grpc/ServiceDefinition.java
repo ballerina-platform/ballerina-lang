@@ -57,28 +57,28 @@ public final class ServiceDefinition {
      *
      * @return file descriptor of the service.
      */
-    public Descriptors.FileDescriptor getDescriptor() {
+    public Descriptors.FileDescriptor getDescriptor() throws GrpcClientException {
         if (fileDescriptor != null) {
             return fileDescriptor;
         }
         try {
             return fileDescriptor = getFileDescriptor(rootDescriptor, descriptorMap);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new ClientRuntimeException("Error while generating service descriptor : ", e);
+            throw new GrpcClientException("Error while generating service descriptor : ", e);
         }
     }
 
     private Descriptors.FileDescriptor getFileDescriptor(String rootDescriptor, MapValue<String, Object>
-            descriptorMap) throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException {
+            descriptorMap) throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcClientException {
         byte[] descriptor = hexStringToByteArray(rootDescriptor);
         if (descriptor.length == 0) {
-            throw new ClientRuntimeException("Error while reading the service proto descriptor. input descriptor " +
+            throw new GrpcClientException("Error while reading the service proto descriptor. input descriptor " +
                     "string is null.");
         }
         DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
                 (descriptor);
         if (descriptorProto == null) {
-            throw new ClientRuntimeException("Error while reading the service proto descriptor. File proto descriptor" +
+            throw new GrpcClientException("Error while reading the service proto descriptor. File proto descriptor" +
                     " is null.");
         }
         Descriptors.FileDescriptor[] fileDescriptors = new Descriptors.FileDescriptor[descriptorProto
@@ -91,7 +91,7 @@ public final class ServiceDefinition {
             }
         }
         if (fileDescriptors.length > 0 && i == 0) {
-            throw new ClientRuntimeException("Error while reading the service proto descriptor. Couldn't find any " +
+            throw new GrpcClientException("Error while reading the service proto descriptor. Couldn't find any " +
                     "dependent descriptors.");
         }
         return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);

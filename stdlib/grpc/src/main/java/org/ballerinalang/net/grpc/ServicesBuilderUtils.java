@@ -35,7 +35,6 @@ import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
 import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -228,7 +227,7 @@ public class ServicesBuilderUtils {
      * @param protoType Protocol buffer type
      * @return Mapping BType of the proto type.
      */
-    static BType getBallerinaValueType(String protoType) throws BallerinaException {
+    static BType getBallerinaValueType(String protoType) {
         if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
                 .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
             return BTypes.typeFloat;

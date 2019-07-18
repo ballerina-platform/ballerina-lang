@@ -47,7 +47,6 @@ import java.util.Locale;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 
 /**
@@ -58,7 +57,7 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 public class MessageUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
-    private static final String UNKNOWN_ERROR = "Unknown Error";
+    private static final String UNKNOWN_ERROR_DETAIL = "Unknown error occurred";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
@@ -114,25 +113,25 @@ public class MessageUtils {
      * @return error value.
      */
     public static ErrorValue getConnectorError(Throwable error) {
-        String reason = "{ballerina/grpc}";
+        String reason;
         String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            reason = reason + statusException.getStatus().getCode().name();
+            reason = statusException.getStatus().getReason();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
                 message = statusException.getStatus().getCause().getMessage();
             } else {
-                message =  UNKNOWN_ERROR;
+                message = UNKNOWN_ERROR_DETAIL;
             }
         } else {
             if (error.getMessage() == null) {
-                reason = reason + UNKNOWN.name();
-                message =  UNKNOWN_ERROR;
+                reason = GrpcConstants.UNKNOWN_ERROR;
+                message = UNKNOWN_ERROR_DETAIL;
             } else {
-                reason = reason + INTERNAL.name();
+                reason = GrpcConstants.INTERNAL_ERROR;
                 message = error.getMessage();
             }
         }

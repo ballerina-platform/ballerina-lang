@@ -43,7 +43,7 @@ public type Client client object {
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
     public function initStub(string stubType, string descriptorKey, map<any> descriptorMap)
-                               returns error? = external;
+                               returns Error? = external;
 
     # Calls when executing blocking call with gRPC service.
     #
@@ -52,7 +52,7 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
     public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ())
-                               returns ([anydata, Headers]|error) = external;
+                               returns ([anydata, Headers]|Error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -62,7 +62,7 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
     public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService,
-                                              Headers? headers = ()) returns error? = external;
+                                              Headers? headers = ()) returns Error? = external;
 
 
     # Calls when executing streaming call with gRPC service.
@@ -72,7 +72,7 @@ public type Client client object {
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns client connection if executes successfully, error otherwise.
     public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ())
-                               returns StreamingClient|error = external;
+                               returns StreamingClient|Error = external;
 };
 
 # Represents client endpoint configuration.

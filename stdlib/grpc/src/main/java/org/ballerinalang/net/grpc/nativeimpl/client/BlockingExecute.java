@@ -62,31 +62,31 @@ public class BlockingExecute extends AbstractExecute {
     public static Object blockingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
                                          Object payloadBValue, Object headerValues) {
         if (clientEndpoint == null) {
-            return notifyErrorReply(INTERNAL.name(), "Error while getting connector. gRPC client connector " +
+            return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC client connector " +
                     "is not initialized properly");
         }
 
         Object connectionStub = clientEndpoint.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
-            return notifyErrorReply(INTERNAL.name(), "Error while getting connection stub. gRPC Client " +
+            return notifyErrorReply(INTERNAL, "Error while getting connection stub. gRPC Client " +
                     "connector is not initialized properly");
         }
 
         if (methodName == null) {
-            return notifyErrorReply(INTERNAL.name(), "Error while processing the request. RPC endpoint " +
+            return notifyErrorReply(INTERNAL, "Error while processing the request. RPC endpoint " +
                     "doesn't set properly");
         }
         Map<String, MethodDescriptor> methodDescriptors = (Map<String, MethodDescriptor>) clientEndpoint.getNativeData
                 (METHOD_DESCRIPTORS);
         if (methodDescriptors == null) {
-            return notifyErrorReply(INTERNAL.name(), "Error while processing the request. method descriptors " +
+            return notifyErrorReply(INTERNAL, "Error while processing the request. method descriptors " +
                     "doesn't set properly");
         }
 
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
                 ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
-            return notifyErrorReply(INTERNAL.name(), "No registered method descriptor for '" + methodName + "'");
+            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName + "'");
         }
 
         if (connectionStub instanceof BlockingStub) {
@@ -107,14 +107,14 @@ public class BlockingExecute extends AbstractExecute {
                     DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand) , null);
                     blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName), dataContext);
                 } else {
-                    return notifyErrorReply(INTERNAL.name(), "Error while executing the client call. Method type " +
+                    return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
             } catch (RuntimeException | GrpcClientException e) {
-                return notifyErrorReply(INTERNAL.name(), "gRPC Client Connector Error :" + e.getMessage());
+                return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {
-            return notifyErrorReply(INTERNAL.name(), "Error while processing the request message. Connection Sub " +
+            return notifyErrorReply(INTERNAL, "Error while processing the request message. Connection Sub " +
                     "type not supported");
         }
         return null;
