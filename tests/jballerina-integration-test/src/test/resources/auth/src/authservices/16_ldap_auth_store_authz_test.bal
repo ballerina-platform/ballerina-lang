@@ -43,7 +43,7 @@ ldap:LdapConnectionConfig ldapConfig01 = {
 ldap:InboundLdapAuthProvider ldapAuthProvider01 = new(ldapConfig01, "ldap01");
 http:BasicAuthHandler ldapAuthHandler01 = new(ldapAuthProvider01);
 
-listener http:Listener authEP = new(9112, {
+listener http:Listener authEP = new(20022, {
     auth: {
         authHandlers: [ldapAuthHandler01]
     },

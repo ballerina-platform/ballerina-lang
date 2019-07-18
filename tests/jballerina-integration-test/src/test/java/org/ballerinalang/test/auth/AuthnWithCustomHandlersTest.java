@@ -30,7 +30,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnWithCustomHandlersTest extends AuthBaseTest {
 
-    private final int servicePort = 9113;
+    private final int servicePort = 20023;
 
     @Test(description = "Secured resource, secured service test case with valid auth headers")
     public void testNoAuthHeaders() throws Exception {
