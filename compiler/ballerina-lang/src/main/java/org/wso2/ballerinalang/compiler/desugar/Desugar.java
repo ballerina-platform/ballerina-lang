@@ -1060,7 +1060,7 @@ public class Desugar extends BLangNodeVisitor {
 
             DiagnosticPos pos = parentBlockStmt.pos;
             BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
-            BLangVariableReference variableReference;
+            BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {
                 BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1",
@@ -1076,39 +1076,22 @@ public class Desugar extends BLangNodeVisitor {
                         ((BLangSimpleVariableDef) parentBlockStmt.stmts.get(0)).var.symbol);
             }
 
+            List<String> keysToRemove = parentRecordVariable.variableList.stream()
+                    .map(var -> var.getKey().getValue())
+                    .collect(Collectors.toList());
+
+            BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
+                    keysToRemove, restParamType, parentBlockStmt);
+
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol);
+
             // Create rest param variable definition
             BLangSimpleVariable restParam = (BLangSimpleVariable) parentRecordVariable.restParam;
             BLangSimpleVariableDef restParamVarDef = ASTBuilderUtil.createVariableDefStmt(pos,
                     parentBlockStmt);
             restParamVarDef.var = restParam;
             restParamVarDef.var.type = restParamType;
-
-            // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
-            BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVariable, pos);
-
-            // Create filter iterator operation
-            BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
-            restParam.expr = filterIterator;
-
-            filterIterator.iterableOperationInvocation = true;
-            filterIterator.argExprs.add(lambdaFunction);
-            filterIterator.requiredArgs.add(lambdaFunction);
-
-            // Variable reference to the 1st variable of this block. i.e. the map ..
-            filterIterator.expr = variableReference;
-
-            filterIterator.type = new BIntermediateCollectionType(getStringAnyTupleType());
-
-            IterableContext iterableContext = new IterableContext(filterIterator.expr, env);
-            iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
-            filterIterator.iContext = iterableContext;
-
-            iterableContext.resultType = restParamType;
-            Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
-            filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = restParamType;
-            filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
-            iterableContext.operations.add(filterOperation);
+            restParam.expr = varRef;
         }
     }
 
@@ -1216,23 +1199,23 @@ public class Desugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariableDef(pos, errorVar);
     }
 
-    private BLangSimpleVariable generateRestFilter(BLangSimpleVarRef detailVarRef, DiagnosticPos pos,
+    private BLangSimpleVariable generateRestFilter(BLangSimpleVarRef mapVarRef, DiagnosticPos pos,
                                                    List<String> keysToRemove, BType targetType,
                                                    BLangBlockStmt parentBlockStmt) {
-        // restVar = (<map<T>>error.detail())
-        //                           .entries()
-        //                           .filter([key, val] => isKeyTakenLambdaInvoke())
-        //                           .map([key, val] => val);
-        //                           .constructFrom(errorDetail);
+        //      restVar = (<map<T>mapVarRef)
+        //                       .entries()
+        //                       .filter([key, val] => isKeyTakenLambdaInvoke())
+        //                       .map([key, val] => val)
+        //                       .constructFrom(errorDetail);
 
-        BLangExpression typeCastExpr = addConversionExprIfRequired(detailVarRef, targetType);
+        BLangExpression typeCastExpr = addConversionExprIfRequired(mapVarRef, targetType);
 
         int restNum = annonVarCount++;
-        String name = "$detail$" + restNum;
-        BLangSimpleVariable detailMap = defVariable(pos, targetType, parentBlockStmt, typeCastExpr, name);
+        String name = "$map$ref$" + restNum;
+        BLangSimpleVariable mapVariable = defVariable(pos, targetType, parentBlockStmt, typeCastExpr, name);
 
-        BLangInvocation entriesInvocation = generateMapEntriesInvocation(pos, typeCastExpr, detailMap);
-        String entriesVarName = "$details$entries$" + restNum;
+        BLangInvocation entriesInvocation = generateMapEntriesInvocation(pos, typeCastExpr, mapVariable);
+        String entriesVarName = "$map$ref$entries$" + restNum;
         BType entriesType = new BMapType(TypeTags.MAP,
                 new BTupleType(Arrays.asList(symTable.stringType, ((BMapType) targetType).constraint)), null);
         BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
@@ -1255,10 +1238,9 @@ public class Desugar extends BLangNodeVisitor {
 
         String filteredRestVarName = "$restVar$" + restNum;
         BLangInvocation constructed = generateConstructFromInvocation(pos, targetType, filtered.symbol);
-        BLangSimpleVariable x = defVariable(pos, targetType, parentBlockStmt,
+        return defVariable(pos, targetType, parentBlockStmt,
                 addConversionExprIfRequired(constructed, targetType),
                 filteredRestVarName);
-        return x;
     }
 
     private BLangInvocation generateMapEntriesInvocation(DiagnosticPos pos, BLangExpression typeCastExpr,
@@ -1280,9 +1262,8 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.symbol = symResolver.lookupLangLibMethod(filteredVar.type, names.fromString("map"));
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, filteredVar.symbol));
         invocationNode.type = invocationNode.symbol.type.getReturnType();
-        BLangInvocation mapInvocation = invocationNode;
-        mapInvocation.requiredArgs.add(backToMapLambda);
-        return mapInvocation;
+        invocationNode.requiredArgs.add(backToMapLambda);
+        return invocationNode;
     }
 
     private BLangLambdaFunction generateEntriesToMapLambda(DiagnosticPos pos) {
@@ -1352,10 +1333,10 @@ public class Desugar extends BLangNodeVisitor {
     private BLangSimpleVariable defVariable(DiagnosticPos pos, BType varType, BLangBlockStmt parentBlockStmt,
                                             BLangExpression expression, String name) {
         Name varName = names.fromString(name);
-        BLangSimpleVariable detailMap = ASTBuilderUtil.createVariable(pos, name,
-                varType, expression,
+        BLangSimpleVariable detailMap = ASTBuilderUtil.createVariable(pos, name, varType, expression,
                 new BVarSymbol(Flags.PUBLIC, varName, env.enclPkg.packageID, varType, env.scope.owner));
         BLangSimpleVariableDef constructedMap = ASTBuilderUtil.createVariableDef(pos, detailMap);
+        constructedMap.type = varType;
         parentBlockStmt.addStatement(constructedMap);
         env.scope.define(varName, detailMap.symbol);
         return detailMap;
@@ -1972,7 +1953,7 @@ public class Desugar extends BLangNodeVisitor {
 
             DiagnosticPos pos = parentBlockStmt.pos;
             BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
-            BLangVariableReference variableReference;
+            BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {
                 BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(pos, "$map$1", restParamType,
@@ -1988,38 +1969,22 @@ public class Desugar extends BLangNodeVisitor {
                         ((BLangSimpleVariableDef) parentBlockStmt.stmts.get(0)).var.symbol);
             }
 
-            // Create rest param variable definition
             BLangSimpleVarRef restParam = (BLangSimpleVarRef) parentRecordVarRef.restParam;
+
+            List<String> keysToRemove = parentRecordVarRef.recordRefFields.stream()
+                    .map(field -> field.variableName.value)
+                    .collect(Collectors.toList());
+
+            BLangSimpleVariable filteredDetail = generateRestFilter(variableReference, pos,
+                    keysToRemove, restParamType, parentBlockStmt);
+
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol);
+
+            // Create rest param variable definition
             BLangAssignment restParamAssignment = ASTBuilderUtil.createAssignmentStmt(pos, parentBlockStmt);
             restParamAssignment.varRef = restParam;
             restParamAssignment.varRef.type = restParamType;
-
-            // Create lambda function to be passed into the filter iterable operation (i.e. $lambdaArg$0)
-            BLangLambdaFunction lambdaFunction = createFuncToFilterOutRestParam(parentRecordVarRef, pos);
-
-            // Create filter iterator operation
-            BLangInvocation filterIterator = (BLangInvocation) TreeBuilder.createInvocationNode();
-            restParamAssignment.expr = filterIterator;
-
-            filterIterator.iterableOperationInvocation = true;
-            filterIterator.argExprs.add(lambdaFunction);
-            filterIterator.requiredArgs.add(lambdaFunction);
-
-            // Variable reference to the 1st variable of this block. i.e. the map ..
-            filterIterator.expr = variableReference;
-
-            filterIterator.type = new BIntermediateCollectionType(getStringAnyTupleType());
-
-            IterableContext iterableContext = new IterableContext(filterIterator.expr, env);
-            iterableContext.foreachTypes = getStringAnyTupleType().tupleTypes;
-            filterIterator.iContext = iterableContext;
-
-            iterableContext.resultType = restParamType;
-            Operation filterOperation = new Operation(IterableKind.FILTER, filterIterator, iterableContext.resultType);
-            filterOperation.pos = pos;
-            filterOperation.collectionType = filterOperation.expectedType = restParamType;
-            filterOperation.inputType = filterOperation.outputType = getStringAnyTupleType();
-            iterableContext.operations.add(filterOperation);
+            restParamAssignment.expr = varRef;
         }
     }
 
