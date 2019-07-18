@@ -403,7 +403,7 @@ public class FormatUtil {
     }
 
     private static String getModuleName(String moduleName) {
-        String[] splitedTokens = moduleName.split(File.separator);
+        String[] splitedTokens = moduleName.split("" + File.separator);
         return splitedTokens[splitedTokens.length - 1];
     }
 }
