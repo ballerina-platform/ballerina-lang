@@ -87,9 +87,8 @@ public class TransactionLocalContext {
         return this.protocol;
     }
 
-    public void beginTransactionBlock(String localTransactionID, int retryCount) {
+    public void beginTransactionBlock(String localTransactionID) {
         transactionBlockIdStack.push(localTransactionID);
-        allowedTransactionRetryCounts.put(localTransactionID, retryCount);
         currentTransactionRetryCounts.put(localTransactionID, 0);
         ++transactionLevel;
     }

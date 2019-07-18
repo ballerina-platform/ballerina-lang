@@ -25,20 +25,11 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.Map;
 
@@ -47,31 +38,9 @@ import java.util.Map;
  *
  * @since 0.995
  */
+public class GetPayload {
 
-@BallerinaFunction(
-        orgName = ArtemisConstants.BALLERINA,
-        packageName = ArtemisConstants.ARTEMIS,
-        functionName = "getPayload",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = ArtemisConstants.MESSAGE_OBJ,
-                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
-        ),
-        args = {
-                @Argument(
-                        name = "key",
-                        type = TypeKind.STRING
-                )
-        }
-)
-public class GetPayload extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
-
-    public static Object getPayload(Strand strand, ObjectValue messageObj) {
-        ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
+    public static Object getPayload(ClientMessage message) {
         byte messageType = message.getType();
         if (messageType == Message.TEXT_TYPE) {
             ActiveMQBuffer msgBuffer = message.getBodyBuffer();
@@ -113,5 +82,8 @@ public class GetPayload extends BlockingNativeCallableUnit {
             return new MapValueImpl<>(new BMapType(BTypes.typeBoolean));
         }
         return null;
+    }
+
+    private GetPayload() {
     }
 }

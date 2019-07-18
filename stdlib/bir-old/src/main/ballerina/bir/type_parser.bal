@@ -59,8 +59,7 @@ public type TypeParser object {
     public int TYPE_TAG_OBJECT = TYPE_TAG_FINITE + 1;
     public int TYPE_TAG_BYTE_ARRAY = TYPE_TAG_OBJECT + 1;
     public int TYPE_TAG_FUNCTION_POINTER = TYPE_TAG_BYTE_ARRAY + 1;
-    public int TYPE_TAG_CHANNEL = TYPE_TAG_FUNCTION_POINTER + 1;
-    public int TYPE_TAG_SERVICE = TYPE_TAG_CHANNEL + 1;
+    public int TYPE_TAG_HANDLE = TYPE_TAG_FUNCTION_POINTER + 1;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -104,6 +103,9 @@ public type TypeParser object {
 
     function parseType() returns BType {
         var typeTag = self.readInt8();
+        // Ignoring name and flags
+        _ = self.readInt32();
+        _ = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
@@ -125,7 +127,7 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_BOOLEAN){
             return TYPE_BOOLEAN;
         } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
-            return TYPE_DESC;
+            return self.parseTypedescType();
         } else if (typeTag == self.TYPE_TAG_UNION){
             return self.parseUnionType();
         } else if (typeTag == self.TYPE_TAG_TUPLE){
@@ -154,9 +156,18 @@ public type TypeParser object {
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
             return self.parseFiniteType();
-        } 
+        } else if (typeTag == self.TYPE_TAG_HANDLE){
+            return <BTypeHandle> {};
+        }
+
         error err = error("Unknown type tag :" + typeTag);
         panic err;
+    }
+
+    function parseTypedescType() returns BTypeDesc {
+        BTypeDesc obj = { typeConstraint: TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.typeConstraint = self.parseTypeCpRef();
+        return obj;
     }
 
     function parseArrayType() returns BArrayType {
@@ -248,7 +259,11 @@ public type TypeParser object {
     }
 
     function parseRecordField() returns BRecordField {
-        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
+        string nameVal = self.readStringCpRef();
+        int flags = self.readInt32();
+        self.skipMarkDownDocAttachementForFields();
+        BType typeVal = self.parseTypeCpRef();
+        return {name:{value:nameVal}, flags:flags, typeValue:typeVal};
     }
 
     function parseObjectType() returns BType {
@@ -318,7 +333,11 @@ public type TypeParser object {
     }
 
     function parseObjectField() returns BObjectField {
-        return {name:{value:self.readStringCpRef()}, flags:self.readInt32(), typeValue:self.parseTypeCpRef()};
+        string nameVal = self.readStringCpRef();
+        int flags = self.readInt32();
+        self.skipMarkDownDocAttachementForFields();
+        BType typeValue = self.parseTypeCpRef();
+        return {name:{value:nameVal}, flags:flags, typeValue:typeValue};
     }
 
     function parseErrorType() returns BErrorType {
@@ -414,6 +433,11 @@ public type TypeParser object {
         var byteVal = self.reader.buf[pos];
         self.reader.pos = pos + 1;
         return byteVal == 1;
+    }
+
+    function skipMarkDownDocAttachementForFields() {
+        int docLength = self.readInt32();
+        self.reader.pos = self.reader.pos + docLength;
     }
 
     private function readInt8() returns int {

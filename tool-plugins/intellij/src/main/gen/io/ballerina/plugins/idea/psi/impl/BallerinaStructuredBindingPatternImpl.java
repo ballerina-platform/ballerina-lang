@@ -50,14 +50,14 @@ public class BallerinaStructuredBindingPatternImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
-  public BallerinaRecordBindingPattern getRecordBindingPattern() {
-    return findChildByClass(BallerinaRecordBindingPattern.class);
+  public BallerinaListBindingPattern getListBindingPattern() {
+    return findChildByClass(BallerinaListBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public BallerinaTupleBindingPattern getTupleBindingPattern() {
-    return findChildByClass(BallerinaTupleBindingPattern.class);
+  public BallerinaRecordBindingPattern getRecordBindingPattern() {
+    return findChildByClass(BallerinaRecordBindingPattern.class);
   }
 
 }

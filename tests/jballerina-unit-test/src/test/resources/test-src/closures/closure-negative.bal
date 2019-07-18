@@ -14,11 +14,11 @@ function threeLevelTest() returns (int) {
             var addFunc3 = function (int methodInt3, int methodInt2, int methodInt1, int funcInt3) returns (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
-            return addFunc3.call(7, 23, 2, 8) + methodInt3;
+            return addFunc3(7, 23, 2, 8) + methodInt3;
         };
-        return addFunc2.call(4) + funcInt1;
+        return addFunc2(4) + funcInt1;
     };
-    return addFunc1.call(6);
+    return addFunc1(6);
 }
 
 function testDifferentArgs(int a) returns (function (float) returns (function (float) returns (string))) {
@@ -32,7 +32,7 @@ function testDifferentArgs(int a) returns (function (float) returns (function (f
             string str = "Plain";
             if (!booOuter && booInner) {
                 fOut = 4.6;
-                str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
+                str = innerInt.toString() + "InnerInt" + outerInt.toString() + fOut.toString() + "InnerFloat" + fIn.toString() + "Ballerina !!!";
             }
             return str;
         };
@@ -57,14 +57,14 @@ function testVariableShadowingInClosure(int a) returns function (float) returns 
             boo = false;
             b = a + <int>f + b;
         }
-        string s = "Out" + b;
+        string s = "Out" + b.toString();
 
         var fooIn = function (float f, boolean boo) returns (string) {
             if (a > 8 && !boo) {
                 int a = 6;
                 b = a + <int>f + b;
             }
-            return s + "In" + b + "Ballerina!!!";
+            return s + "In" + b.toString() + "Ballerina!!!";
         };
         return fooIn;
     };
@@ -81,13 +81,13 @@ function testClosureScopingNegative() returns int {
                 return a + <int>b + <int>c + i + j + k + l + m + n;
             };
             int l = 2;
-            return addFunc3.call(2.3) + l + m + n;
+            return addFunc3(2.3) + l + m + n;
         };
         int m = 6;
-        return addFunc2.call(4.2) + m + n;
+        return addFunc2(4.2) + m + n;
     };
     int n = 2;
-    return addFunc1.call(6);
+    return addFunc1(6);
 }
 
 function() foo = function () returns () {
@@ -96,7 +96,7 @@ function() foo = function () returns () {
         return a + p + m + i;
     };
     int m = 3;
-    int k = addFunc1.call(6);
+    int k = addFunc1(6);
 };
 
 int p = 2;
@@ -108,7 +108,7 @@ function testUninitializedClosureVars() {
         string str = a + "aa";
     };
 
-    bazz.call();
+    bazz();
 
     string b;
     int count;
@@ -119,5 +119,5 @@ function testUninitializedClosureVars() {
         b = b + "bb";
     };
 
-    bar.call();
+    bar();
 }

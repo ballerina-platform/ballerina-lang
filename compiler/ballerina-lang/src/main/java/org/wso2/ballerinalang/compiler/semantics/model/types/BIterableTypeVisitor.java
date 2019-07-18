@@ -126,6 +126,13 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
     }
 
     @Override
+    public List<BType> visit(BTypedescType type, Operation op) {
+
+        return visit((BType) type, op);
+    }
+
+
+    @Override
     public List<BType> visit(BJSONType type, Operation op) {
         return visit((BType) type, op);
     }

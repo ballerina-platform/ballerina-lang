@@ -44,16 +44,16 @@ public class BearerAuthHandlerTest {
         compileResult = BCompileUtil.compile(sourceRoot.resolve("bearer-auth-handler-test.bal").toString());
     }
 
-    @Test(description = "Test case for bearer auth header interceptor canHandle method, without the bearer auth header")
-    public void testCanHandleHttpBearerAuthWithoutHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBearerAuthWithoutHeader");
+    @Test(description = "Test case for bearer auth header interceptor canProcess method, without bearer auth header")
+    public void testCanProcessHttpBearerAuthWithoutHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanProcessHttpBearerAuthWithoutHeader");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for bearer auth header interceptor canHandle method")
-    public void testCanHandleHttpBearerAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBearerAuth");
+    @Test(description = "Test case for bearer auth header interceptor canProcess method")
+    public void testCanProcessHttpBearerAuth() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanProcessHttpBearerAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

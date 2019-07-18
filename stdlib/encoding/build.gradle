@@ -16,14 +16,16 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    implementation project(':ballerina-system')
+    implementation project(':ballerina-lang:annotations')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     implementation project(':ballerina-runtime-api')
 

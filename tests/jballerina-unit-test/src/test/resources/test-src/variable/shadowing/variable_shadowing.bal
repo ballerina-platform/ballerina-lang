@@ -77,7 +77,7 @@ function testLambdaFunctions() returns string {
         return name;
     };
 
-    return fn.call();
+    return fn();
 }
 
 function testFunctionParam(string name) returns string {

@@ -27,7 +27,7 @@ function testTransactionFailing() returns string|error {
 function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, boolean requestAbort) returns (string) {
     string a = "";
     a = a + "start";
-    a = a + " fc-" + failureCutOff;
+    a = a + " fc-" + failureCutOff.toString();
     int count = 0;
     transaction with retries=2 {
         a = a + " inTrx";
@@ -68,7 +68,7 @@ function runtimeNestedTransactions(boolean trapError) returns string {
             if (res is string) {
                 ss += res;
             } else {
-                ss += " trapped[err: " + <string>res.detail().message + "]";
+                ss += " trapped[err: " + <string>res.detail()["message"] + "]";
             }
         } else {
             var res = functionWithATransactionStmt();
@@ -111,7 +111,7 @@ function runtimeNestedTransactionsError() returns string {
     if (res is string) {
         ss += res;
     } else {
-        ss += " [err: " + <string>res.detail().message + "]";
+        ss += " [err: " + <string>res.detail()["message"] + "]";
     }
     return ss;
 }

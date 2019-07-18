@@ -19,7 +19,6 @@
 
 package org.ballerinalang.net.jms;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -41,15 +40,18 @@ public class JmsMessageListenerImpl implements MessageListener {
     private ObjectValue queueConsumerBObject;
     private Scheduler scheduler;
     private AttachedFunction resource;
+    private ObjectValue sessionObj;
 
     private ResponseCallback callback;
 
-    public JmsMessageListenerImpl(Scheduler scheduler, ObjectValue service, ObjectValue queueConsumerBObject) {
+    public JmsMessageListenerImpl(Scheduler scheduler, ObjectValue service, ObjectValue queueConsumerBObject,
+                                  ObjectValue sessionObj) {
         this.scheduler = scheduler;
         this.service = service;
         this.queueConsumerBObject = queueConsumerBObject;
         this.callback = new ResponseCallback();
         resource = service.getType().getAttachedFunctions()[0];
+        this.sessionObj = sessionObj;
     }
 
     @Override
@@ -58,9 +60,7 @@ public class JmsMessageListenerImpl implements MessageListener {
     }
 
     private Object[] getSignatureParameters(Message jmsMessage) {
-        ObjectValue messageObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_PACKAGE_JMS,
-                                                                   JmsConstants.MESSAGE_OBJ_NAME);
-        messageObj.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
+        ObjectValue messageObj = JmsUtils.createAndPopulateMessageObject(jmsMessage, sessionObj);
         BType[] parameterTypes = resource.getParameterType();
 
         Object[] bValues = new Object[parameterTypes.length * 2];

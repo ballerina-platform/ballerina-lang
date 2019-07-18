@@ -44,6 +44,12 @@ public class BallerinaActionInvocationImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
+  @NotNull
   public BallerinaFunctionInvocation getFunctionInvocation() {
     return findNotNullChildByClass(BallerinaFunctionInvocation.class);
   }

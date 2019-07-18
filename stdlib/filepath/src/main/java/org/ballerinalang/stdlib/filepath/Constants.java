@@ -42,4 +42,8 @@ public class Constants {
     public static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
     public static final String ERROR_REASON_PREFIX = "{ballerina/filepath}";
+
+    public static final String FILEPATH_ERROR_CODE = "{ballerina/filepath}Error";
+    static final String ERROR_DETAILS = "Detail";
+    static final String ERROR_MESSAGE = "message";
 }

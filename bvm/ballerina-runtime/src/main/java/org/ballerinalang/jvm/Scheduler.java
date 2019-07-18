@@ -264,7 +264,7 @@ public class Scheduler {
                     // TODO clean, better move it to future value itself
                     if (item.future.callback != null) {
                         if (item.future.panic != null) {
-                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic.getMessage()));
+                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
                         } else {
                             item.future.callback.notifySuccess();
                         }
@@ -285,7 +285,7 @@ public class Scheduler {
                         if (blockedItem.getState().equals(State.DONE)) {
                             continue;
                         }
-                        blockedItem.future.strand.lock();
+                    blockedItem.future.strand.lock();
                         // need to check this again due to concurrency.
                         if (blockedItem.getState().equals(State.DONE)) {
                             blockedItem.future.strand.unlock();

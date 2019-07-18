@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -47,9 +48,15 @@ public class LSPathConverter extends PathConverter {
         if (id.version.value.isEmpty() && !id.orgName.equals(Names.BUILTIN_ORG)
                 && !id.orgName.equals(Names.ANON_ORG)) {
             Manifest manifest = TomlParserUtils.getManifest(Paths.get(this.toString()));
-            id.version = new Name(manifest.getVersion());
+            id.version = new Name(manifest.getProject().getVersion());
         }
         // Returns an In-memory source entry with backing-off capability to read from the FileSystem
-        return Stream.of(new LSInMemorySourceEntry(path, this.start(), id, documentManager));
+        Path moduleRoot;
+        if (LSCompilerUtil.isBallerinaProject(this.start().toString())) {
+            moduleRoot = this.start().resolve("src");
+        } else {
+            moduleRoot = this.start();
+        }
+        return Stream.of(new LSInMemorySourceEntry(path, moduleRoot, id, documentManager));
     }
 }

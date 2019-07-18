@@ -204,3 +204,43 @@ function testArrayUnion() returns [boolean[][], string[][]] {
     (string[]|string[][]) x2 = [["scope1"]];
     return [<boolean[][]>x1, <string[][]>x2];
 }
+
+type Foo1 abstract object {
+    string fooId1 = "";
+};
+
+type Foo2 abstract object {
+    string fooId2 = "";
+};
+
+type Bar object {
+    *Foo1;
+    *Foo2;
+
+    public function __init() {
+        self.fooId1 = "Foo1";
+        self.fooId2 = "Foo2";
+    }
+};
+
+function testObjectArrayUnion() returns Foo1[][] {
+    Bar b = new;
+    Foo1[]|Foo1[][] arr1 = [[b]];
+    Foo1[]|Foo2[][] arr2 = [[b]];
+    Foo1[]|Bar[][] arr3 = [[b]];
+    Bar[]|Bar[][] arr4 = [[b]];
+    Bar[]|Foo1[][] arr5 = [[b]];
+
+    Foo1 f = new Bar();
+    Foo1[]|Foo1[][] arr6 = [[f]];
+    Foo1[]|Bar[][] arr7 = [[b]];
+    Bar[]|Bar[][] arr8 = [[b]];
+    Bar[]|Foo1[][] arr9 = [[b]];
+
+    Foo1[]|Foo1[][]|Foo2[][] arr10 = [[f]];
+    if (arr3 is Bar[][]) {
+        Foo1[][] f1 = arr3;
+        Foo2[][] f2 = arr3;
+    }
+    return <Foo1[][]>arr1;
+}

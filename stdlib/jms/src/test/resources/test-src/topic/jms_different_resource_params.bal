@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 listener jms:TopicListener subscriberEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",
         providerUrl: "amqp://admin:admin@carbon/carbon?"
             + "brokerlist='tcp://localhost:5672'",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "BallerinaTopic");
+    }, "BallerinaTopic");
 
 service jmsConsumer on subscriberEndpoint {
     resource function xyz(jms:QueueReceiverCaller consumer, jms:Message message) returns error? {

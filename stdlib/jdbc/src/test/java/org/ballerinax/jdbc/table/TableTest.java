@@ -71,6 +71,7 @@ public class TableTest {
 
     @BeforeClass
     public void setup() {
+        System.setProperty("enableJBallerinaTests", "true");
         testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/TableTest_H2_Data.sql",
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
@@ -214,7 +215,6 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    // Disabling for MySQL as array types are not supported.
     @Test(groups = {TABLE_TEST}, description = "Check xml conversion with complex element.")
     public void testToXmlComplexWithStructDef () {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef");
@@ -1189,14 +1189,14 @@ public class TableTest {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray intArray = (BValueArray) returns[0];
         Assert.assertNull(intArray.getRefValue(0));
-        Assert.assertEquals(((BInteger) intArray.getRefValue(1)).intValue(), 2);
-        Assert.assertEquals(((BInteger) intArray.getRefValue(2)).intValue(), 3);
+        Assert.assertEquals(intArray.getRefValue(1).value(), 2L);
+        Assert.assertEquals(intArray.getRefValue(2).value(), 3L);
 
         Assert.assertTrue(returns[1] instanceof BValueArray);
         BValueArray longArray = (BValueArray) returns[1];
-        Assert.assertEquals(((BInteger) longArray.getRefValue(0)).intValue(), 100000000);
+        Assert.assertEquals(longArray.getRefValue(0).value(), 100000000L);
         Assert.assertNull(longArray.getRefValue(1));
-        Assert.assertEquals(((BInteger) longArray.getRefValue(2)).intValue(), 300000000);
+        Assert.assertEquals(longArray.getRefValue(2).value(), 300000000L);
 
         Assert.assertTrue(returns[2] instanceof BValueArray);
         BValueArray doubleArray = (BValueArray) returns[2];
@@ -1388,9 +1388,31 @@ public class TableTest {
         Assert.assertEquals(returns[0].stringValue(), "Hello");
     }
 
-    @Test(description = "Test removing data from a table using a given lambda as a filter")
-    public void testRemoveOp() {
-        BValue[] returns = BRunUtil.invoke(result, "testRemoveOp");
-        Assert.assertEquals(returns[0].stringValue(), "table<Order> {index: [], primaryKey: [], data: []}");
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTableWithStmt() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTableWithStmt");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 400.25);
+        Assert.assertEquals(returns[3].stringValue(), "John");
+    }
+
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTableWithIndex() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTableWithIndex");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), ",1,2,3");
+        Assert.assertEquals(returns[1].stringValue(), ",0,1,2");
+    }
+
+    @Test(groups = "TableIterationTest", description = "Check accessing data using foreach iteration")
+    public void testForEachInTable() {
+        BValue[] returns = BRunUtil.invoke(result, "testForEachInTable");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 400.25);
+        Assert.assertEquals(returns[3].stringValue(), "John");
     }
 }

@@ -1,15 +1,15 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 // Client for the MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/testdb",
-        username: "test",
-        password: "test",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
+});
 
 // This is the `type` created to represent a data row.
 type Student record {
@@ -42,30 +42,38 @@ public function main() {
         }]
     };
 
+    int datalen = 0;
     // Prepare the data batches.
-    int datalen = jsonMsg.student.length();
+    json|error students = jsonMsg.student;
+    if (students is json[]) {
+        datalen = students.length();
+    }
+
     myBatchType[][] dataBatch = [];
     int i = 0;
 
-    json[] students = <json[]>jsonMsg.student;
-    foreach (var studentData in students) {
-        string name = studentData.firstname.toString();
-        int age = <int>studentData.age;
+    if (students is json[]) {
+        foreach (var studentData in students) {
+            string name = studentData.firstname.toString();
+            int age = <int>studentData.age;
 
-        myBatchType?[] dataRow = [age, name];
-        dataBatch[i] = dataRow;
-        i = i + 1;
+            myBatchType?[] dataRow = [age, name];
+            dataBatch[i] = dataRow;
+            i = i + 1;
+        }
     }
     // A batch of data can be inserted using the `batchUpdate` remote function.
     // The number of inserted rows for each insert in the batch is returned as
     // an array.
-    var retBatch = testDB->batchUpdate("INSERT INTO student
-                    (age,name) VALUES (?,?)", ...dataBatch);
-    if (retBatch is int[]) {
-        io:println("Batch 1 update counts: " + retBatch[0]);
-        io:println("Batch 2 update counts: " + retBatch[1]);
+    jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student
+                    (age,name) VALUES (?,?)", false, ...dataBatch);
+    error? e = retBatch.returnedError;
+    if (e is error) {
+        io:println("Batch update operation failed:"
+                   + <string> e.detail()["message"]);
     } else {
-        io:println("Batch update operation failed: " + <string>retBatch.detail().message);
+        io:println("Batch 1 update counts: " + retBatch.updatedRowCount[0]);
+        io:println("Batch 2 update counts: " + retBatch.updatedRowCount[1]);
     }
 
     // Check the data in the database.
@@ -77,11 +85,12 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string> err.detail()["message"]);
     }
 }
 
@@ -96,7 +105,8 @@ function checkData() {
             io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
         }
     } else {
+        error err = dtReturned;
         io:println("Select data from student table failed: "
-                + <string>dtReturned.detail().message);
+                + <string> err.detail()["message"]);
     }
 }

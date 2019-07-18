@@ -159,7 +159,7 @@ public class BootstrapRunner {
                           importsBirCache.toString());
 
         if (!Files.exists(jarTarget)) {
-            throw new RuntimeException("Compiled binary jar is not found");
+            throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
         }
 
         return new JBallerinaInMemoryClassLoader(jarTarget, importsTarget.toFile());

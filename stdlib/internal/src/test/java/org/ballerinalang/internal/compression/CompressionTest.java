@@ -155,7 +155,7 @@ public class CompressionTest {
 
     @Test(description = "test zipping/compressing a single file")
     public void testCompressFile() throws IOException, URISyntaxException {
-        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app/test/main.bal");
+        String resourceToRead = getAbsoluteFilePath("datafiles/compression/my.app/src/test/main.bal");
         BString dirPath = new BString(resourceToRead);
         String destDirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(destDirPath + File.separator + "main.zip");

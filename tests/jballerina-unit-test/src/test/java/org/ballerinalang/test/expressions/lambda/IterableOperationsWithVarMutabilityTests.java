@@ -87,7 +87,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[0].stringValue(), sb.toString().trim());
     }
 
-    @Test
+    @Test(enabled = false) // bal function commented out due to lack of map to list langlib func
     public void testBasicMap1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicMap1");
         Assert.assertNotNull(returns);
@@ -96,7 +96,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[1].stringValue(), "[\"a\", \"e\"]");
     }
 
-    @Test
+    @Test(enabled = false) // bal function commented out due to lack of map to list langlib func
     public void testBasicMap2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicMap2");
         Assert.assertEquals(returns.length, 3);
@@ -105,7 +105,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[2].stringValue(), "[\"aA\", \"eE\"]");
     }
 
-    @Test
+    @Test(enabled = false) // bal function commented out due to missing forEach support in langlib.xml
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlTest");
         Assert.assertEquals(returns.length, 2);
@@ -158,7 +158,7 @@ public class IterableOperationsWithVarMutabilityTests {
                 "\"types\":[\"street_number\"]}");
     }
 
-    @Test
+    @Test(enabled = false) // bal function commented out due to missing forEach support in langlib.xml
     public void testWithComplexXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexXML");
         Assert.assertNotNull(returns);

@@ -55,8 +55,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAnnotationDefSnippet() {
-        String snippet = "annotation<${1:attachmentPoint}> ${2:name};";
-
+        String snippet = "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};";
         return new SnippetBlock(ItemResolverConstants.ANNOTATION, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -108,6 +107,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getExternalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get typeof keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTypeofKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.TYPEOF, "typeof ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -345,18 +354,6 @@ public class SnippetGenerator {
 
         return new SnippetBlock(ItemResolverConstants.XMLNS, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.STATEMENT);
-    }
-
-    /**
-     * Get Object Initializer Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getObjectInitializerSnippet() {
-        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
-                CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
-                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 
     /**
@@ -984,5 +981,53 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableOnXmlParamSnippet() {
         return new SnippetBlock("xml v", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Object Initializer Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getInitFunctionSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Attach Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAttachFunctionSnippet() {
+        String snippet = "function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Start Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStartFunctionSnippet() {
+        String snippet = "function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Stop Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStopFunctionSnippet() {
+        String snippet = "function __stop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.STOP_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
     }
 }

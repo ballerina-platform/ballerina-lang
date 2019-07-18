@@ -19,8 +19,6 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -34,18 +32,17 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
  */
 @BallerinaFunction(
         orgName = JmsConstants.BALLERINAX,
-        packageName = JmsConstants.JMS,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "closeSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_LISTENER_OBJ_NAME,
                              structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CloseSubscriber extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class CloseSubscriber {
 
     public void closeSubscriber(Strand strand, ObjectValue topicListener) {
         CloseConsumerHandler.handle(topicListener);
     }
 
+    private CloseSubscriber() {
+    }
 }

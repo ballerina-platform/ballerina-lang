@@ -81,7 +81,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
     }
 
     private static ImmutablePair<Path, Path> createTestFolderIfNotExists(Path sourceFilePath) {
-        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(sourceFilePath));
+        Path projectRoot = Paths.get(LSCompilerUtil.getProjectRoot(sourceFilePath));
         ImmutablePair<Path, Path> testsDirPath = getTestsDirPath(sourceFilePath, projectRoot);
 
         //Check for tests folder, if not exists create a new folder

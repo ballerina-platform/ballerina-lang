@@ -45,7 +45,7 @@ public class KeepAliveTestCase extends HttpBaseTest {
     }
 
     private String sendRequest(String path) throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9231, path));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9232, path));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         return response.getData();

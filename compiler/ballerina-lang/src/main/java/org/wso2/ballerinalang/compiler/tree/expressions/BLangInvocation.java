@@ -54,6 +54,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public boolean iterableOperationInvocation;
     public IterableContext iContext;
     public boolean actionInvocation;
+    public boolean langLibInvocation;
     public boolean async;
     /* Cached values for Built-in function invocation */
     public boolean builtinMethodInvocation;
@@ -66,7 +67,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      * Above phases must rely on below expr lists, rather than {@link #argExprs}
      */
     public List<BLangExpression> requiredArgs = new ArrayList<>();
-    public List<BLangExpression> namedArgs = new ArrayList<>();
     public List<BLangExpression> restArgs = new ArrayList<>();
 
     @Override
@@ -82,6 +82,11 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     @Override
     public List<? extends ExpressionNode> getArgumentExpressions() {
         return argExprs;
+    }
+
+    @Override
+    public List<? extends ExpressionNode> getRequiredArgs() {
+        return this.requiredArgs;
     }
 
     @Override
@@ -162,7 +167,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.pos = parent.pos;
             this.name = parent.name;
             this.requiredArgs = parent.requiredArgs;
-            this.namedArgs = parent.namedArgs;
             this.restArgs = parent.restArgs;
             this.regIndex = parent.regIndex;
             this.symbol = parent.symbol;
@@ -185,7 +189,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
 
         public BLangAttachedFunctionInvocation(DiagnosticPos pos,
                                                List<BLangExpression> requiredArgs,
-                                               List<BLangExpression> namedArgs,
                                                List<BLangExpression> restArgs,
                                                BSymbol symbol,
                                                BType type,
@@ -193,7 +196,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
                                                boolean async) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
-            this.namedArgs = namedArgs;
             this.restArgs = restArgs;
             this.symbol = symbol;
             this.type = type;
@@ -214,14 +216,12 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
 
         public BLangActionInvocation(DiagnosticPos pos,
                                      List<BLangExpression> requiredArgs,
-                                     List<BLangExpression> namedArgs,
                                      List<BLangExpression> restArgs,
                                      BSymbol symbol,
                                      BType type,
                                      boolean async) {
             this.pos = pos;
             this.requiredArgs = requiredArgs;
-            this.namedArgs = namedArgs;
             this.restArgs = restArgs;
             this.symbol = symbol;
             this.type = type;
@@ -246,7 +246,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.name = iExpr.name;
             this.pos = iExpr.pos;
             this.requiredArgs = iExpr.requiredArgs;
-            this.namedArgs = iExpr.namedArgs;
             this.restArgs = iExpr.restArgs;
             this.async = iExpr.async;
             this.builtInMethod = builtInFunction;

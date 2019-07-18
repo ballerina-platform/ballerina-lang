@@ -48,6 +48,11 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     }
 
     @Override
+    public boolean isOptionalFieldAccess() {
+        return optionalFieldAccess;
+    }
+
+    @Override
     public String toString() {
         return String.valueOf(expr) + "." + String.valueOf(field);
     }

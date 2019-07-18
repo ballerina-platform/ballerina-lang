@@ -13,22 +13,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 jdbc:PoolOptions properties = { maximumPoolSize: 1,
     idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,
     minimumIdle: 1, validationTimeout: 5000,
     connectionInitSql: "SELECT 1" };
 
-map<any> propertiesMap = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap = { "loginTimeout": "1000" };
 jdbc:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map<any> propertiesMap2 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap2 = { "loginTimeout": "1000" };
 jdbc:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 jdbc:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
-map<any> propertiesMap3 = { "AUTO_RECONNECT": "TRUE" };
+map<any> propertiesMap3 = { "loginTimeout": "1000" };
 jdbc:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
 
 function testConnectionPoolProperties1() returns @tainted json {
@@ -210,14 +210,14 @@ function testConnectionFailure() {
 function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = json.convert(tableOrError);
+        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
             retVal = { "Error": <string> jsonConversionResult.detail().message };
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail().message };
+        retVal = { "Error": <string> tableOrError.detail()["message"] };
     }
     return retVal;
 }

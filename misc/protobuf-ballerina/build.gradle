@@ -20,13 +20,13 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation 'org.apache.maven:maven-plugin-api'
     implementation 'org.slf4j:slf4j-simple'
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'info.picocli:picocli'
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-core')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'
     compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
