@@ -53,7 +53,7 @@ public class PoolOptionsWrapper {
         SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(poolKey);
         SQLDatasource sqlDatasourceToBeReturned = existingSqlDatasource;
         if (existingSqlDatasource != null) {
-            acquireDatasourceMutex(existingSqlDatasource);
+            existingSqlDatasource.acquireMutex();
             try {
                 if (!existingSqlDatasource.isPoolShutdown()) {
                     existingSqlDatasource.incrementClientCounter();
@@ -70,14 +70,6 @@ public class PoolOptionsWrapper {
 
         }
         return sqlDatasourceToBeReturned;
-    }
-
-    private void acquireDatasourceMutex(SQLDatasource sqlDatasource) {
-        try {
-            sqlDatasource.acquireMutex();
-        } catch (InterruptedException e) {
-            throw SQLDatasourceUtils.getSQLApplicationError("error in obtaining a connection pool");
-        }
     }
 
     private SQLDatasource createAndInitDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
