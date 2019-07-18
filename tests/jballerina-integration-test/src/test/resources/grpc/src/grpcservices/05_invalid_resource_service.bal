@@ -25,13 +25,13 @@ service HelloWorld98 on ep5 {
     resource function hello(grpc:Caller caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;
-        error? err = ();
+        grpc:Error? err = ();
         if (name == "invalid") {
             err = caller->sendError(grpc:ABORTED, "Operation aborted");
         } else {
             err = caller->send(message);
         }
-        if (err is error) {
+        if (err is grpc:Error) {
             log:printError(err.reason(), err);
         }
         checkpanic caller->complete();
@@ -45,8 +45,8 @@ service HelloWorld98 on ep5 {
         } else {
             displayAge = 1;
         }
-        error? err = caller->send(displayAge);
-        if (err is error) {
+        grpc:Error? err = caller->send(displayAge);
+        if (err is grpc:Error) {
             log:printError(err.reason(), err);
         } else {
             log:printInfo("display age : " + displayAge);
@@ -57,8 +57,8 @@ service HelloWorld98 on ep5 {
     resource function testFloat(grpc:Caller caller, float salary) {
         log:printInfo("gross salary: " + salary);
         string netSalary = "salary";
-        error? err = caller->send(netSalary);
-        if (err is error) {
+        grpc:Error? err = caller->send(netSalary);
+        if (err is grpc:Error) {
             log:printError(err.reason(), err);
         } else {
             log:printInfo("net salary : " + netSalary);

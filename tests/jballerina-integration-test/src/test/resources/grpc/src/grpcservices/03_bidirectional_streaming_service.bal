@@ -59,8 +59,8 @@ service Chat on ep3 {
         io:println(self.consMap);
         foreach var [callerId, connection] in self.consMap.entries() {
             conn = connection;
-            error? err = conn->send(msg);
-            if (err is error) {
+            grpc:Error? err = conn->send(msg);
+            if (err is grpc:Error) {
                 io:println("Error from Connector: " + err.reason() + " - "
                         + <string> err.detail()["message"]);
             } else {
@@ -84,8 +84,8 @@ service Chat on ep3 {
         io:println(self.consMap);
         foreach var [callerId, connection] in self.consMap.entries() {
             conn = connection;
-            error? err = conn->send(msg);
-            if (err is error) {
+            grpc:Error? err = conn->send(msg);
+            if (err is grpc:Error) {
                 io:println("Error from Connector: " + err.reason() + " - "
                         + <string> err.detail()["message"]);
             } else {
