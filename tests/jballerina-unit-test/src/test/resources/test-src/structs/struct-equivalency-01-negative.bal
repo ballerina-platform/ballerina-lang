@@ -14,7 +14,7 @@ public type employee01 record {
 // Field name mismatch
 function testEqOfStructsInSamePackage01() returns (string) {
     employee01 e = {age:14, name:"rat"};
-    person01 p = person01.convert(e);
+    person01 p = <person01>person01.constructFrom(e);
     return p.name;
 }
 
@@ -33,7 +33,7 @@ public type employee02 record {
 // Type name mismatch
 function testEqOfStructsInSamePackage02() returns (string) {
     employee02 e = {age:14, name:"rat"};
-    person02 p = person02.convert(e);
+    person02 p = <person02>person02.constructFrom(e);
     return p.name;
 }
 
@@ -51,7 +51,7 @@ public type employee03 record {
 // Field count mismatch
 function testEqOfStructsInSamePackage03() returns (string) {
     employee03 e = {age:14, name:"rat"};
-    person03 p = person03.convert(e);
+    person03 p = <person03>person03.constructFrom(e);
     return p.name;
 }
 
@@ -73,7 +73,7 @@ type employee06 record {
 // Type mismatch
 function testEqOfStructsInSamePackage06() returns (string) {
     employee06 e = {age:14, name:"rat"};
-    person06 p = person06.convert(e);
+    person06 p = <person06>person06.constructFrom(e);
     return p.name;
 }
 

@@ -84,7 +84,7 @@ public class StructNegativeTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
-                            "incompatible types: expected 'constants:0.0.0:Person', found 'int'");
+                            "incompatible types: expected 'ballerina-test/constants:0.0.0:Person', found 'int'");
     }
 
     @Test(description = "Test accessing an field of a noninitialized struct",

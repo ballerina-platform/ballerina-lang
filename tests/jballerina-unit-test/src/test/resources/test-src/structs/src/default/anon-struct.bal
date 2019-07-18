@@ -19,14 +19,14 @@ record {
     string fname = "";
     string lname = "";
     int age = 0;
-} person = {};
+} personRec = {};
 
 function testAnonStructAsPkgVar() returns (string) {
 
-    person = {fname:"sameera", lname:"jaya"};
-    person.lname = person.lname + "soma";
-    person.age = 100;
-    return person.fname + ":" + person.lname + ":" + person.age;
+    personRec = {fname:"sameera", lname:"jaya"};
+    personRec.lname = personRec.lname + "soma";
+    personRec.age = 100;
+    return personRec.fname + ":" + personRec.lname + ":" + personRec.age;
 }
 
 type employee record {
