@@ -229,7 +229,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -251,6 +251,8 @@ public class ErrorTest {
                 "cannot infer reason from error constructor: 'UserDefErrorOne'", 55, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
                 "cannot infer reason from error constructor: 'MyError'", 56, 19);
+        BAssertUtil.validateError(negativeCompileResult, 12,
+                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 74, 12);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
