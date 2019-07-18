@@ -60,12 +60,12 @@ public class Remove extends BlockingNativeCallableUnit {
 
         try {
             if (wd.getCanonicalPath().equals(removeFile.getCanonicalPath())) {
-                return SystemUtils.getBallerinaError("INVALID_OPERATION", "Cannot delete the current" +
+                return SystemUtils.getBallerinaError("INVALID_OPERATION: Cannot delete the current" +
                         " working directory " + wd.getCanonicalPath());
             }
 
             if (!removeFile.exists()) {
-                return SystemUtils.getBallerinaError("INVALID_OPERATION",
+                return SystemUtils.getBallerinaError("INVALID_OPERATION: " +
                         "File doesn't exist in path " + removeFile.getCanonicalPath());
             }
 
@@ -74,7 +74,7 @@ public class Remove extends BlockingNativeCallableUnit {
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
                 if (!removeFile.delete()) {
-                    return SystemUtils.getBallerinaError("OPERATION_FAILED",
+                    return SystemUtils.getBallerinaError("OPERATION_FAILED: " +
                             "Error while deleting " + removeFile.getCanonicalPath());
                 }
             }

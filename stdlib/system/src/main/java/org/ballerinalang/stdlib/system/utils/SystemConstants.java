@@ -39,9 +39,17 @@ public class SystemConstants {
     /**
      * Package path.
      */
-    public static final String SYSTEM_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "system";
+    public static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 
     public static final String FILE_INFO_TYPE = "FileInfo";
+
+
+    public static final String SYSTEM_ERROR_CODE = "{ballerina/system}Error";
+    static final String ERROR_DETAILS = "Detail";
+    static final String ERROR_MESSAGE = "message";
+
+    public SystemConstants() {
+    }
 }

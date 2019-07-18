@@ -60,11 +60,11 @@ public class ReadDir extends BlockingNativeCallableUnit {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError("INVALID_OPERATION: File doesn't exist in path " + path);
         }
 
         if (!inputFile.isDirectory()) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " + path + " is not a directory");
+            return SystemUtils.getBallerinaError("INVALID_OPERATION: File in path " + path + " is not a directory");
         }
         ObjectValue[] results;
         try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
