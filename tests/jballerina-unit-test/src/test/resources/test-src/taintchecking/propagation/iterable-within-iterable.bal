@@ -1,15 +1,12 @@
 record{} globalVar = {};
 
 public function main (string... args) {
-    data.address_components
-    .filter(function (any comp) returns boolean {
-            if comp is record{} {
-                secureFunction("untainted", "untainted");
-                return true;
-            }
-            return false;
+    data.get("address_components")
+    .filter(function (record {| anydata...; |} comp) returns boolean {
+            secureFunction("untainted", "untainted");
+            return true;
         })
-    .foreach(function (record{} k) { globalVar = k;});
+    .forEach(function (record{} k) { globalVar = k;});
 }
 
 function secureFunction (@untainted string secureIn, string insecureIn) {
