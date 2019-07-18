@@ -211,19 +211,19 @@ public class WaitForAllActionsTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest13() {
         BRunUtil.invoke(result, "waitTest13");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest14() {
         BRunUtil.invoke(result, "waitTest14");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic \\{\\}.*")
+            expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest15() {
         BRunUtil.invoke(result, "waitTest15");
     }

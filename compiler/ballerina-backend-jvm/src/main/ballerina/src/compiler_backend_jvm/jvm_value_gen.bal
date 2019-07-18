@@ -159,13 +159,17 @@ public type ObjectGenerator object {
 
             if (isExternFunc(func)) {
                 mv.visitVarInsn(ALOAD, 1);
-                mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                //mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
                 jvm:Label blockedOnExternLabel = new;
                 mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                //mv.visitFieldInsn(GETSTATIC, STRAND_STATE, "RUNNABLE",
+                  //                  io:sprintf("L%s;", STRAND_STATE));
+                //mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "setState", io:sprintf("(L%s;)V", STRAND_STATE), false);
 
                 if (!(retType is () || retType is bir:BTypeNil)) {
                     mv.visitVarInsn(ALOAD, 1);
