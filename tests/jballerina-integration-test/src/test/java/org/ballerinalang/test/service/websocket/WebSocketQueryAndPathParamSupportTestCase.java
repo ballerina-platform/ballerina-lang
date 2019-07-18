@@ -38,7 +38,7 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketTestComm
         String path2 = "path2";
         String query1 = "query1";
         String query2 = "query2";
-        String url = String.format("ws://localhost:9096/simple6/%s/%s?q1=%s&q2=%s", path1, path2, query1, query2);
+        String url = String.format("ws://localhost:21015/simple6/%s/%s?q1=%s&q2=%s", path1, path2, query1, query2);
         WebSocketTestClient client = new WebSocketTestClient(url);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);

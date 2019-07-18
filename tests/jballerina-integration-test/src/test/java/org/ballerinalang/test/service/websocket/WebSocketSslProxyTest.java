@@ -29,6 +29,6 @@ import org.testng.annotations.Test;
 public class WebSocketSslProxyTest extends WebSocketSimpleProxyTestCommons {
 
     public WebSocketSslProxyTest() {
-        super(15400, true, "ws://localhost:9077");
+        super(15400, true, "ws://localhost:21021");
     }
 }
