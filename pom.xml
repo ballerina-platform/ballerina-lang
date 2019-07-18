@@ -253,8 +253,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.source}</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -302,9 +302,6 @@
                         <goals>
                             <goal>javadoc</goal>
                         </goals>
-                        <configuration>
-                            <source>${maven.compiler.source}</source>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -377,7 +374,6 @@
         <jaxb-api.version>2.3.0</jaxb-api.version>
         <jaxb-core.version>2.3.0</jaxb-core.version>
         <jaxb-impl.version>2.3.0</jaxb-impl.version>
-        <maven.compiler.source>8</maven.compiler.source>
     </properties>
 
 </project>
