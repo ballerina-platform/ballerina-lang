@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.PoolKey;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 
@@ -195,7 +196,7 @@ public class SQLDatasourceUtils {
         if (userProvidedPoolOptionsNotPresent) {
             poolOptions = globalPoolOptions;
         }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions, new PoolKey(url, dbOptions));
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
@@ -262,13 +263,13 @@ public class SQLDatasourceUtils {
         return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
     }
 
-    static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+    static ConcurrentHashMap<PoolKey, SQLDatasource> retrieveDatasourceContainer(
             MapValue<String, Object> poolOptions) {
-        return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+        return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
     public static void addDatasourceContainer(MapValue<String, Object> poolOptions,
-            ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
+            ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
     }
 
