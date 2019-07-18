@@ -33,8 +33,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class LdapAuthStoreTest extends AuthBaseTest {
 
-    private final int servicePort = 9111;
-    private final int authzServicePort = 9112;
+    private final int servicePort = 20021;
 
     @Test(description = "Test authenticate and authorize request against ldap auth store")
     public void testAuthenticationWithInvalidCredentials() throws Exception {
@@ -67,7 +66,7 @@ public class LdapAuthStoreTest extends AuthBaseTest {
     public void testAuthorizationFailureWithLdapAuthStore() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(authzServicePort,
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "auth/failAuthz"), headersMap, serverInstance.getServerHome());
         assertForbidden(response);
     }
