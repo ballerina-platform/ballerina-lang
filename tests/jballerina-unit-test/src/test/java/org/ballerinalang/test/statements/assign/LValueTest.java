@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -67,14 +68,15 @@ public class LValueTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         int i = 0;
-        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 23, 5);
-        validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 24, 5);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
+        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 5);
+        validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
         validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
-                "assignment", 34, 5);
+                "assignment", 38, 5);
         validateError(negativeResult, i, "optional field access cannot be used in the target expression of an " +
-                "assignment", 35, 5);
+                "assignment", 39, 5);
     }
 
     @Test(dataProvider = "valueStoreFunctions")
@@ -95,5 +97,47 @@ public class LValueTest {
             { "testValueStoreForRecordUnion" },
             { "testValueStoreForObjectUnion" }
         };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}InherentTypeViolation message=invalid value for " +
+                    "record field 'i': expected value of type 'int', found 'string'.*")
+    public void testInherentTypeViolatingUpdate1() {
+        BRunUtil.invoke(result, "testInherentTypeViolatingUpdate1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}InherentTypeViolation message=invalid value for " +
+                    "object field 'i': expected value of type 'boolean', found 'int'.*")
+    public void testInherentTypeViolatingUpdate2() {
+        BRunUtil.invoke(result, "testInherentTypeViolatingUpdate2");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}InherentTypeViolation message=incompatible types: " +
+                    "expected 'int', found 'string'.*")
+    public void testInherentTypeViolatingUpdate3() {
+        BRunUtil.invoke(result, "testInherentTypeViolatingUpdate3");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}KeyNotFound message=invalid field access: field 'g' " +
+                    "not found in record type 'DRec'.*")
+    public void testInvalidUpdateOnClosedRecord() {
+        BRunUtil.invoke(result, "testInvalidUpdateOnClosedRecord");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
+                    "index: 2, size: 2.*")
+    public void testInvalidUpdateOnClosedArray() {
+        BRunUtil.invoke(result, "testInvalidUpdateOnClosedArray");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}InvalidUpdate message=Invalid update of record field:" +
+                    " modification not allowed on frozen value.*")
+    public void testFrozenValueUpdate() {
+        BRunUtil.invoke(result, "testFrozenValueUpdate");
     }
 }

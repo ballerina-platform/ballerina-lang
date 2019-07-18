@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+function testInvaidAssignmentToVariable() {
+    int i = "hello";
+}
+
 type A object {
     string x = "hello";
 };

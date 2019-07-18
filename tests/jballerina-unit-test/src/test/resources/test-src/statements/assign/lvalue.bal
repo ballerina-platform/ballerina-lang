@@ -171,3 +171,71 @@ function testValueStoreForObjectUnion() returns boolean {
 }
 
 // TODO: Maryam add tests for records via objects and vice versa
+
+type ARec record {
+    string|int i;
+};
+
+type BRec record {
+    int i;
+};
+
+function testInherentTypeViolatingUpdate1() {
+    BRec b = { i: 120 };
+    ARec a = b;
+    a.i = "hello";
+}
+
+type AObj object {
+    boolean|int i;
+
+    function __init(boolean|int i) {
+        self.i = i;
+    }
+};
+
+type BObj object {
+    boolean i;
+
+    function __init(boolean i) {
+        self.i = i;
+    }
+};
+
+function testInherentTypeViolatingUpdate2() {
+    BObj b = new(true);
+    AObj a = b;
+    a.i = 10;
+}
+
+function testInherentTypeViolatingUpdate3() {
+    int[2] a = [1, 2];
+    any[] b = a;
+    b[0] = "hello";
+}
+
+type CRec record {
+    float f;
+};
+
+type DRec record {|
+    float f;
+|};
+
+function testInvalidUpdateOnClosedRecord() {
+    DRec d = { f: 2.0 };
+    CRec c = d;
+    c["g"] = 10;
+}
+
+function testInvalidUpdateOnClosedArray() {
+    int[2] a = [1, 2];
+    any[] b = a;
+    b[2] = 1;
+}
+
+function testFrozenValueUpdate() {
+    BRec b = { i: 120 };
+    BRec b2 = b.cloneReadOnly();
+    b2.i = 1;
+}
