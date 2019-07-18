@@ -19,7 +19,7 @@ import ballerina/http;
 
 ldap:LdapConnectionConfig ldapConfig02 = {
     domainName: "ballerina.io",
-    connectionURL: "ldap://localhost:9389",
+    connectionURL: "ldap://localhost:20100",
     connectionName: "uid=admin,ou=system",
     connectionPassword: "secret",
     userSearchBase: "ou=Users,dc=ballerina,dc=io",
@@ -43,7 +43,7 @@ ldap:LdapConnectionConfig ldapConfig02 = {
 ldap:InboundLdapAuthProvider ldapAuthProvider02 = new(ldapConfig02, "ldap01");
 http:BasicAuthHandler ldapAuthHandler02 = new(ldapAuthProvider02);
 
-listener http:Listener ep = new(9111, {
+listener http:Listener ep = new(20021, {
     auth: {
         authHandlers: [ldapAuthHandler02]
     },

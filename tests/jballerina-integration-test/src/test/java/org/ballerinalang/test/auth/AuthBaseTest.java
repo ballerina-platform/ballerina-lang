@@ -38,11 +38,11 @@ public class AuthBaseTest extends BaseTest {
 
     @BeforeGroups(value = "auth-test", alwaysRun = true)
     public void start() throws Exception {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101, 9102,
-                9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9114, 9115, 9116, 9117, 9190, 9195,
-                9196};
+        int[] requiredPorts = new int[]{20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010,
+                20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20022, 20023, 20024,
+                20025, 20026, 20027, 20028, 20101, 20102};
         embeddedDirectoryServer = new EmbeddedDirectoryServer();
-        embeddedDirectoryServer.startLdapServer(9389);
+        embeddedDirectoryServer.startLdapServer(20100);
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "auth").getAbsolutePath();

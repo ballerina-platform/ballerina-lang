@@ -28,7 +28,7 @@ service upgradeService = @http:WebSocketServiceConfig {} service {
     }
 };
 
-service UpgradeWithoutHandshake on new http:Listener(9079) {
+service UpgradeWithoutHandshake on new http:Listener(21002) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {

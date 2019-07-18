@@ -39,7 +39,7 @@ public class OnBinaryContinuationTest extends WebSocketTestCommons {
 
     @Test(description = "Tests XML support for pushText and onText")
     public void testBinaryContinuation() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9088/onBinaryContinuation";
+        String url = "http://localhost:21007/onBinaryContinuation";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "<note><to>Tove</to></note>";

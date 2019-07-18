@@ -37,7 +37,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzConfigPatternTest extends AuthBaseTest {
 
-    private final int servicePort = 9116;
+    private final int servicePort = 20026;
 
     @Test(description = "Test valid user for pattern 1")
     public void testValidUserForPattern1() throws Exception {

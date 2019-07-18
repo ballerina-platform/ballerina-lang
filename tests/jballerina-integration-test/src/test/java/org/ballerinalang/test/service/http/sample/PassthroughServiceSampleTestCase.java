@@ -53,7 +53,7 @@ public class PassthroughServiceSampleTestCase extends HttpBaseTest {
         assertEquals(response.getData(), responseMessage, "Message content mismatched");
     }
 
-    @Test(description = "Test passthrough with a multipart request", enabled = false)
+    @Test(description = "Test passthrough with a multipart request")
     public void testPassthroughWithMultiparts() throws IOException, MimeTypeParseException {
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         Map<String, String> headers = new HashMap<>();

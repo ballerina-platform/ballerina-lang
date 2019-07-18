@@ -106,7 +106,7 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
+<!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
             <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
