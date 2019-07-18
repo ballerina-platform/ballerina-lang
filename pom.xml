@@ -225,17 +225,17 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.3.0</version>
+                <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>2.3.0</version>
+                <version>${jaxb-core.version.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.3.0</version>
+                <version>${jaxb-impl.version.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -371,6 +371,9 @@
         <httpasyncclient.version>4.0.2</httpasyncclient.version>
         <httpmime.version>4.3.6</httpmime.version>
         <commons-io.version>2.4</commons-io.version>
+        <jaxb-api.version>2.3.0</jaxb-api.version>
+        <jaxb-core.version>2.3.0</jaxb-core.version>
+        <jaxb-impl.version>2.3.0</jaxb-impl.version>
     </properties>
 
 </project>

@@ -39,6 +39,7 @@ public interface ListenerState {
     /**
      * Reads headers of inbound request.
      *
+     * @param ctx          channel handler context
      * @param headersFrame inbound header frame
      * @throws Http2Exception if an error occurs while reading
      */
