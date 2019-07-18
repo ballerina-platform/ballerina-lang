@@ -172,7 +172,7 @@ function testRuntimeEqPublicStructsInSamePackage () returns string|error {
     // This is a safe cast
     userPA uA = uFoo;
 
-    var uB = check userPB.convert(uA);
+    var uB = check userPB.constructFrom(uA);
     return uB.name;
 }
 
@@ -183,7 +183,7 @@ function testRuntimeEqPublicStructs () returns string|error {
     userPA uA = uFoo;
 
     // This is a unsafe cast
-    var uB  = check userPB.convert(uA);
+    var uB  = check userPB.constructFrom(uA);
     return uB.name;
 }
 
@@ -193,7 +193,7 @@ function testRuntimeEqPublicStructs1 () returns string|error {
     // This is a safe cast
     userPA uA = uFoo;
 
-    var uB  = check req2:userPB.convert(uA);
+    var uB  = check req2:userPB.constructFrom(uA);
     return uB.name;
 }
 
@@ -214,7 +214,7 @@ type AnotherFoo record {
 
 function testRecordEquivalence() returns Foo {
     AnotherFoo af = {a: "A", b: "B", c: "C", d: 10};
-    af.f = "rest field";
+    af["f"] = "rest field";
     Foo f = af;
     return f;
 }
