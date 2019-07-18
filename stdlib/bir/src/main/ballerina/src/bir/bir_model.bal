@@ -72,6 +72,7 @@ public type BasicBlock record {|
 public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
+    BasicBlock targetBB;
 |};
 
 public type ChannelDetail record {|
