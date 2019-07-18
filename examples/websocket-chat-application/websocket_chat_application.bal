@@ -34,8 +34,9 @@ service chatAppUpgrader on new http:Listener(9090) {
         // The attributes map of the caller is useful for storing connection-specific data.
         // In this case, the `NAME`and `AGE` are unique to each connection.
         wsEp.attributes[NAME] = name;
-        string[]? paramVals = queryParams["age"];
-        string mapVal = paramVals is string[] ? paramVals[0] : "";
+        string? ageValue = req.getQueryParamValue("age");
+        string age = ageValue is string ? ageValue : "";
+        wsEp.attributes[AGE] = age;
         string msg =
             "Hi " + name + "! You have successfully connected to the chat";
         var err = wsEp->pushText(msg);
@@ -78,7 +79,6 @@ service chatApp = @http:WebSocketServiceConfig {} service {
 
 // Function to perform the broadcasting of text messages.
 function broadcast(string text) {
-    http:WebSocketCaller ep;
     foreach var con in connectionsMap {
         var err = con->pushText(text);
         if (err is http:WebSocketError) {
@@ -89,6 +89,6 @@ function broadcast(string text) {
 
 function getAttributeStr(http:WebSocketCaller ep, string key)
              returns (string) {
-    var name = <string>ep.attributes[key];
-    return name;
+    var name = ep.attributes[key];
+    return name.toString();
 }
