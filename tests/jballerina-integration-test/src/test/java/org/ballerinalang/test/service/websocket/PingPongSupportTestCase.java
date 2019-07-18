@@ -40,7 +40,7 @@ public class PingPongSupportTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9095/pingpong/ws";
+    private static final String URL = "ws://localhost:21014/pingpong/ws";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8));
 

@@ -35,7 +35,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnWithMultipleHandlersTest extends AuthBaseTest {
 
-    private final int servicePort = 9097;
+    private final int servicePort = 20007;
 
     @Test(description = "Authn success test case with example1 issuer")
     public void testAuthSuccessWithExample1Issuer() throws Exception {
