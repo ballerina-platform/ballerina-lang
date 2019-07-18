@@ -83,7 +83,7 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
                 authProviderConfig.getStringValue(LdapConstants.USER_NAME_LIST_FILTER));
 
         commonLdapConfiguration.setGroupSearchBase(getAsStringList(authProviderConfig.
-                getArrayValue(LdapConstants.GROUP_SEARCH_BASE).getValues()));
+                getArrayValue(LdapConstants.GROUP_SEARCH_BASE).getStringArray()));
         commonLdapConfiguration.setGroupEntryObjectClass(
                 authProviderConfig.getStringValue(LdapConstants.GROUP_ENTRY_OBJECT_CLASS));
         commonLdapConfiguration.setGroupNameAttribute(

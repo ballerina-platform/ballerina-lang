@@ -18,8 +18,6 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -44,11 +42,7 @@ import java.util.Objects;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetDeliveryTag extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetDeliveryTag {
 
     public static int getDeliveryTag(Strand strand, ObjectValue messageObjectValue) {
         boolean isInTransaction = false;
@@ -59,5 +53,8 @@ public class GetDeliveryTag extends BlockingNativeCallableUnit {
             transactionContext.handleTransactionBlock();
         }
         return Math.toIntExact(deliveryTag);
+    }
+
+    private GetDeliveryTag() {
     }
 }

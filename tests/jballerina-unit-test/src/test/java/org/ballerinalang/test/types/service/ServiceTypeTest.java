@@ -19,12 +19,16 @@ package org.ballerinalang.test.types.service;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Test cases for Service Type.
@@ -33,6 +37,8 @@ import org.testng.annotations.Test;
  */
 public class ServiceTypeTest {
     private CompileResult compileResult;
+
+    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass
     public void setup() {
@@ -45,5 +51,13 @@ public class ServiceTypeTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertTrue(returns[0].getType() instanceof BServiceType);
         Assert.assertTrue(returns[0].getType().getName().startsWith("HelloWorld"));
+    }
+
+    @Test(description = "Test resource returning error")
+    public void testAccessingChangedGlobalVarInAnotherResourceInAnotherService() {
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/hello/returnError", "GET");
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getHttpStatusCode().intValue(), 500);
     }
 }

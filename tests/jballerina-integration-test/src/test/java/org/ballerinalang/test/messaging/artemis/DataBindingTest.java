@@ -18,15 +18,13 @@
 
 package org.ballerinalang.test.messaging.artemis;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.test.messaging.artemis.ArtemisTestUtils.testSend;
 
@@ -40,8 +38,7 @@ public class DataBindingTest extends ArtemisTestCommons {
     @BeforeClass
     public void setup() throws URISyntaxException {
         TestUtils.prepareBalo(this);
-        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis", "producers");
-        anyCastResult = BCompileUtil.compile(sourcePath.resolve("data_binding_message.bal").toAbsolutePath()
+        anyCastResult = BCompileUtil.compile(producersPath.resolve("data_binding_message.bal").toAbsolutePath()
                                                      .toString());
     }
 
@@ -68,28 +65,28 @@ public class DataBindingTest extends ArtemisTestCommons {
 
     @Test(description = "Tests the sending of a record message to a queue")
     public void testSendRecord() {
-        String log = "person data {name:\"John\", age:20}";
+        String log = "person data name=John age=20";
         String functionName = "testSendRecord";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a byte[] message to a queue")
     public void testSendByteArray() {
-        String log = "byte[] data [1, 2, 2, 3, 3, 2]";
+        String log = "byte[] data 1 2 2 3 3 2";
         String functionName = "testSendByteArray";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<string> message to a queue")
     public void testSendMapString() {
-        String log = "map<string> data {\"name\":\"Riyafa\", \"hello\":\"world\"}";
+        String log = "map<string> data name=Riyafa hello=world";
         String functionName = "testSendMapString";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<int> message to a queue")
     public void testSendMapInt() {
-        String log = "map<int> data {\"num\":1, \"num2\":2}";
+        String log = "map<int> data num=1 num2=2";
         String functionName = "testSendMapInt";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
@@ -97,28 +94,28 @@ public class DataBindingTest extends ArtemisTestCommons {
 
     @Test(description = "Tests the sending of a map<float> message to a queue")
     public void testSendMapFloat() {
-        String log = "map<float> data {\"numf1\":1.1, \"numf2\":1.2}";
+        String log = "map<float> data numf1=1.1 numf2=1.2";
         String functionName = "testSendMapFloat";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<byte> message to a queue")
     public void testSendMapByte() {
-        String log = "map<byte> data {\"byte1\":1, \"byte2\":7}";
+        String log = "map<byte> data byte1=1 byte2=7";
         String functionName = "testSendMapByte";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<byte[]> message to a queue")
     public void testSendMapByteArray() {
-        String log = "map<byte[]> data {\"array2\":[5], \"array1\":[1, 2, 3]}";
+        String log = "map<byte[]> data array2=5 array1=1 2 3";
         String functionName = "testSendMapByteArray";
         testSend(anyCastResult, log, functionName, serverInstance);
     }
 
     @Test(description = "Tests the sending of a map<boolean> message to a queue")
     public void testSendMapBoolean() {
-        String log = "map<boolean> data {\"first\":true, \"second\":false}";
+        String log = "map<boolean> data first=true second=false";
         String functionName = "testSendMapBoolean";
         testSend(anyCastResult, log, functionName, serverInstance);
     }

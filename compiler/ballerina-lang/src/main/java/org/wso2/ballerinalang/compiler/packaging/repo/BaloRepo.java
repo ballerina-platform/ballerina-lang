@@ -61,4 +61,9 @@ public class BaloRepo implements Repo<Path> {
     public Converter<Path> getConverterInstance() {
         return this.zipConverter;
     }
+    
+    @Override
+    public String toString() {
+        return "{t:'BaloRepo', c:'" + this.zipConverter + "'}";
+    }
 }

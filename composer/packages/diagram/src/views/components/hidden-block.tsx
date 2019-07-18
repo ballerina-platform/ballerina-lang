@@ -63,13 +63,13 @@ export const HiddenBlock: React.StatelessComponent<{
                         </g>);
                     }
 
-                    return (<g className="hidden-block">
-                        <rect {...blockProps} onClick={(e) => {
-                            if (viewState.hiddenBlockContext) {
-                                e.stopPropagation();
-                                viewState.hiddenBlockContext.expanded = true;
-                                update();
-                            }}}/>
+                    return (<g className="hidden-block" onClick={(e) => {
+                        if (viewState.hiddenBlockContext) {
+                            e.stopPropagation();
+                            viewState.hiddenBlockContext.expanded = true;
+                            update();
+                        }}}>
+                        <rect {...blockProps} />
                         <line {...labelProps} />
                     </g>);
                 }

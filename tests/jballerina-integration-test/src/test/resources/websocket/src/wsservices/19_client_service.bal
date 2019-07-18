@@ -22,15 +22,14 @@ final string REMOTE_BACKEND_URL200 = "ws://localhost:15000/websocket";
 @http:WebSocketServiceConfig {
     path: "/client/service"
 }
-service clientFailure200 on new http:WebSocketListener(9200) {
+service clientFailure200 on new http:WebSocketListener(21020) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(
              REMOTE_BACKEND_URL200);
         var returnVal = wsEp->pushText("Client worked");
         if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -38,8 +37,7 @@ service clientFailure200 on new http:WebSocketListener(9200) {
         http:WebSocketClient wsClientEp = new(REMOTE_BACKEND_URL200, {callbackService: ClientService200});
         var returnVal = caller->pushText("Client worked");
         if (returnVal is error) {
-            error returnValError = returnVal;
-            panic returnValError;
+            panic <error> returnVal;
         }
     }
 

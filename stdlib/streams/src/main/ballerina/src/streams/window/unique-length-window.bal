@@ -76,7 +76,7 @@ public type UniqueLengthWindow object {
             }
         } else {
             error err = error("UniqueLength window should only have two parameters (<string> uniqueAttribute, " +
-                "<int> windowLength), but found " + parameters.length() + " input attributes");
+                "<int> windowLength), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -114,7 +115,7 @@ public abstract class BIRNode {
      *
      * @since 0.980.0
      */
-    public static class BIRVariableDcl extends BIRNode {
+    public static class BIRVariableDcl extends BIRDocumentableNode {
         public BType type;
         public Name name;
         public VarKind kind;
@@ -237,7 +238,7 @@ public abstract class BIRNode {
      *
      * @since 0.980.0
      */
-    public static class BIRFunction extends BIRNode {
+    public static class BIRFunction extends BIRDocumentableNode {
 
         /**
          * Name of the function.
@@ -369,7 +370,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRTypeDefinition extends BIRNode {
+    public static class BIRTypeDefinition extends BIRDocumentableNode {
 
         /**
          * Name of the type definition.
@@ -503,7 +504,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRConstant extends BIRNode {
+    public static class BIRConstant extends BIRDocumentableNode {
         /**
          * Name of the constant.
          */
@@ -648,6 +649,23 @@ public abstract class BIRNode {
 
         public TaintTable() {
             this.taintTable = new LinkedHashMap<>();
+        }
+    }
+
+    /**
+     * Documentable node which can have markdown documentations.
+     *
+     * @since 1.0.0
+     */
+    public abstract static class BIRDocumentableNode extends BIRNode {
+        public MarkdownDocAttachment markdownDocAttachment;
+
+        public BIRDocumentableNode(DiagnosticPos pos) {
+            super(pos);
+        }
+
+        public void setMarkdownDocAttachment(MarkdownDocAttachment markdownDocAttachment) {
+            this.markdownDocAttachment = markdownDocAttachment;
         }
     }
 }

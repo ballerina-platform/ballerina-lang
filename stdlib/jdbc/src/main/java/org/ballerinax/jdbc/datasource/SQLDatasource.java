@@ -214,6 +214,32 @@ public class SQLDatasource {
                     }
                 });
             }
+            // Clarification on behavior with parameters.
+            // 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
+            //    eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
+            //        username: "SA",
+            //        password: ""
+            //    });
+            // 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
+            // returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
+            // class name, it will fail since there is no such method
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
+            // 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
+            // Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
+            // it as an invalid parameter.
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {

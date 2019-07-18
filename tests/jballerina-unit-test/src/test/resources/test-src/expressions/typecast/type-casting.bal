@@ -64,7 +64,7 @@ function booleantostring(boolean value) returns (string) {
 
 function booleanappendtostring(boolean value) returns (string) {
     string result;
-    result = value + "-append-" + value;
+    result = value.toString() + "-append-" + value.toString();
     return result;
 }
 

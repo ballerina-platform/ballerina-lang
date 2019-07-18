@@ -39,7 +39,7 @@ service resourceReturnService on new http:Listener(9228, {server: "Mysql"}) {
 
         // Check expression returns error.
         int i = check getError();
-        response.setTextPayload("i = " + i);
+        response.setTextPayload("i = " + i.toString());
         checkpanic caller->respond(response);
         return;
     }

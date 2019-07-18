@@ -18,8 +18,6 @@
 
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -41,12 +39,7 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "GlobalPoolConfigContainer",
                              structPackage = JDBC_PACKAGE_PATH)
 )
-public class InitGlobalPoolContainer extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class InitGlobalPoolContainer {
 
     public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,
                                                MapValue<String, Object> poolConfig) {

@@ -20,13 +20,13 @@ public type OutboundAuthHandler abstract object {
     # Prepares the request with the relevant authentication requirements.
     #
     # + req - The `Request` instance.
-    # + return - Returns the updated `Request` instance or the `ClientError` in case of an error.
-    public function prepare(Request req) returns Request|ClientError;
+    # + return - Returns the updated `Request` instance or the `AuthenticationError` in case of an error.
+    public function prepare(Request req) returns Request|AuthenticationError;
 
     # Inspects the request and response and evaluates what is to be done.
     #
     # req - The `Request` instance.
     # resp - The `Response` instance.
-    # + return - Returns the updated `Request` instance, the `error` in case of an error, or `()` if nothing is to be returned.
-    public function inspect(Request req, Response resp) returns Request|error?;
+    # + return - Returns the updated `Request` instance, the `AuthenticationError` in case of an error, or `()` if nothing is to be returned.
+    public function inspect(Request req, Response resp) returns Request|AuthenticationError?;
 };

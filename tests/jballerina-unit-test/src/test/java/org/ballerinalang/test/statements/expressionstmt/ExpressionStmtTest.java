@@ -33,8 +33,8 @@ public class ExpressionStmtTest {
     public void testIgnoredAssignment() {
         CompileResult result = BCompileUtil.compile("test-src/statements/expression/ignore-values-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "variable assignment is required", 19, 5);
-        BAssertUtil.validateError(result, 1, "variable assignment is required", 20, 5);
+        BAssertUtil.validateError(result, 0, "variable assignment is required", 21, 5);
+        BAssertUtil.validateError(result, 1, "variable assignment is required", 22, 5);
     }
 
     @Test

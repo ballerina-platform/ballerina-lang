@@ -20,8 +20,6 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -48,11 +46,8 @@ import java.util.UUID;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class CreateChannel extends BlockingNativeCallableUnit {
+public class CreateChannel {
 
-    @Override
-    public void execute(Context context) {
-    }
     public static void createChannel(Strand strand, ObjectValue channelObjectValue, Object connectionObject) {
         ObjectValue connectionObjectValue;
         if (connectionObject != null) {
@@ -72,5 +67,8 @@ public class CreateChannel extends BlockingNativeCallableUnit {
                         + exception.getMessage());
             }
         }
+    }
+
+    private CreateChannel() {
     }
 }

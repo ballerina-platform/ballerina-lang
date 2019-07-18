@@ -35,7 +35,7 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testTokenPropagationWithBasicAuthInbound() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9103, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20013, "passthrough"),
                 headers, serverInstance.getServerHome());
         assertOK(response);
     }
@@ -44,7 +44,7 @@ public class TokenPropagationTest extends AuthBaseTest {
     public void testWithoutTokenPropagation() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9101, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20011, "passthrough"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
     }
@@ -60,7 +60,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9105, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20015, "passthrough"),
                 headers, serverInstance.getServerHome());
 
         assertOK(response);
@@ -77,7 +77,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9107, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20017, "passthrough"),
                 headers, serverInstance.getServerHome());
         assertOK(response);
     }
@@ -93,7 +93,7 @@ public class TokenPropagationTest extends AuthBaseTest {
                 "ksSeIT9McZxjPiSX1FR-nIUTcJ9anaoQVEKo3OpkIPzd_4_95CpHXF1MaW18ww5h_NShQnUrN7myrBfc-UbHsqC1YEBAM2M-" +
                 "3NMs8jjgcZHfZ1JjomZCjd5eUXz8R5Vl46uAlSbFAmxAfY1T-31qUB93eCL2iJfDc70OK2txohryntw9h-OePwQULJN0Eiwp" +
                 "oI60HQFFlgC1g_crPIDakBTiEITrbO3OzrNeCQFBN-Ji4BTXq97TulCIRNneDLCUBSRE1A");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(9109, "passthrough"),
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(20019, "passthrough"),
                 headers, serverInstance.getServerHome());
         assertUnauthorized(response);
     }

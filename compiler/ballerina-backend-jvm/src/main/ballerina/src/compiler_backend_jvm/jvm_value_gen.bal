@@ -31,12 +31,12 @@ public type ObjectGenerator object {
             if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
                 string className = self.getTypeValueClassName(typeDef.name.value);
-                byte[] bytes = self.createObjectValueClass(bType, className, typeDef);
+                byte[] bytes = self.createObjectValueClass(bType, className, typeDef, false);
                 jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BServiceType) {
                 self.currentObjectType = bType.oType;
                 string className = self.getTypeValueClassName(typeDef.name.value);
-                byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef);
+                byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef, true);
                 jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BRecordType) {
                 self.currentRecordType = bType;
@@ -53,8 +53,8 @@ public type ObjectGenerator object {
         return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
     }
 
-    private function createObjectValueClass(bir:BObjectType objectType, string className, bir:TypeDef typeDef) 
-            returns byte[] {
+    private function createObjectValueClass(bir:BObjectType objectType, string className,
+                                            bir:TypeDef typeDef, boolean isService) returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
         currentClass = className;
@@ -69,7 +69,7 @@ public type ObjectGenerator object {
         }
 
         self.createObjectInit(cw);
-        self.createCallMethod(cw, attachedFuncs, className, objectType.name.value);
+        self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
         self.createLambdas(cw);
@@ -124,7 +124,7 @@ public type ObjectGenerator object {
     }
 
     private function createCallMethod(jvm:ClassWriter cw, bir:Function?[]? functions, string objClassName,
-                                        string objTypeName) {
+                                        string objTypeName, boolean isService) {
 
         bir:Function?[] funcs = getFunctions(functions);
 
@@ -206,6 +206,10 @@ public type ObjectGenerator object {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 addBoxInsn(mv, retType);
+                if (isService) {
+                    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "handleResourceError", io:sprintf("(L%s;)L%s;",
+                                                                                OBJECT, OBJECT) , false);
+                }
             }
             mv.visitInsn(ARETURN);
             i += 1;

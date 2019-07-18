@@ -92,31 +92,31 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-auth-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />-->
-<!--            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />-->
-<!--            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />-->
-<!--            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>-->
+    <test name="ballerina-auth-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
+            <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
 <!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>-->
-<!--            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
+            <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
+            <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
+            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
+        </classes>
+    </test>
 
     <test name="ballerina-filter-tests" parallel="false">
         <classes>
@@ -168,38 +168,38 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-grpc-tests" parallel="false">-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.BidiStreamingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <!--<test name="ballerina-grpc-tests" parallel="false">-->
+        <!--<groups>-->
+            <!--<run>-->
+                <!--<exclude name="broken"/>-->
+            <!--</run>-->
+        <!--</groups>-->
+        <!--<classes>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.GrpcBaseTest"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.GrpcMutualSslWithCertsTest"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ByteArrayTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEnumTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.BidiStreamingTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.grpc.tool.ProtoMessageTestCase"/>-->
+        <!--</classes>-->
+    <!--</test>-->
 
 <!--    <test name="ballerina-observability-tests" parallel="false">-->
 <!--        <groups>-->
@@ -225,39 +225,39 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-    <test name="ballerina-websub-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
-            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-websub-advanced-config-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
-            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
-            <!--<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
-        </classes>
-    </test>
-
-<!--    <test name="ballerina-data-streaming-tests" parallel="false">-->
+<!--    <test name="ballerina-websub-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
 <!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>-->
+<!--            &lt;!&ndash; WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the-->
+<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
+<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>-->
 <!--        </classes>-->
 <!--    </test>-->
+
+<!--    <test name="ballerina-websub-advanced-config-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>-->
+<!--            &lt;!&ndash; DummyTestCase or any other test which does not have @BeforeClass and belongs to the-->
+<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
+<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>-->
+<!--            &lt;!&ndash;<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>&ndash;&gt;-->
+<!--        </classes>-->
+<!--    </test>-->
+
+    <test name="ballerina-data-streaming-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
+        </classes>
+    </test>
     <test name="ballerina-socket-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
@@ -266,13 +266,15 @@
         </classes>
     </test>
 
-<!--    <test name="artemis-test" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="artemis-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisDummyTestCase"/>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
+<!--        <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
+            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
+        </classes>
+    </test>
 </suite>

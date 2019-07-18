@@ -7,7 +7,7 @@ Create student table status: 0
 The update operation - Inserting data to a table
 Insert to student table with no parameters status: 1
 Insert to student table with variable parameters status: 1
-Insert to student table with sql:parameter values status: 1
+Insert to student table with jdbc:parameter values status: 1
 
 The Update operation - Update data in a table
 Update a row in student table status: 1
@@ -21,16 +21,6 @@ Generated key: 4
 
 The select operation - Select data from a table
 JSON: [{"id":1, "age":23, "name":"Jones"}, {"id":3, "age":25, "name":"James"}, {"id":4, "age":31, "name":"Kate"}]
-
-The select operation - By loading table to memory
-Iterating data first time:
-Student:1|Jones|23
-Student:3|James|25
-Student:4|Kate|31
-Iterating data second time:
-Student:1|Jones|23
-Student:3|James|25
-Student:4|Kate|31
 
 The update operation - Drop the student table
 Drop table student status: 0

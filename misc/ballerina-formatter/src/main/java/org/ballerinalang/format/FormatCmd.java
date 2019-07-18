@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.format;
 
-import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 import java.nio.file.Path;

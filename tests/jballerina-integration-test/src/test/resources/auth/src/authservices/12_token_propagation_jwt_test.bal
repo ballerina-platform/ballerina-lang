@@ -28,7 +28,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider12_1 = new({
 });
 http:BearerAuthHandler jwtAuthHandler12_1 = new(jwtAuthProvider12_1);
 
-listener http:Listener listener12_1 = new(9105, {
+listener http:Listener listener12_1 = new(20015, {
     auth: {
         authHandlers: [jwtAuthHandler12_1]
     },
@@ -43,7 +43,7 @@ listener http:Listener listener12_1 = new(9105, {
 jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new(());
 http:BearerAuthHandler jwtAuthHandler12_2 = new(jwtAuthProvider12_2);
 
-http:Client nyseEP12 = new("https://localhost:9106", {
+http:Client nyseEP12 = new("https://localhost:20016", {
     auth: {
         authHandler: jwtAuthHandler12_2
     }
@@ -57,12 +57,14 @@ service passthroughService12 on listener12_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP12->get("/nyseStock/stocks", message = <@untainted> clientRequest);
+        var response = nyseEP12->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -81,7 +83,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider12_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler12_3 = new(jwtAuthProvider12_3);
 
-listener http:Listener listener12_2 = new(9106, {
+listener http:Listener listener12_2 = new(20016, {
     auth: {
         authHandlers: [jwtAuthHandler12_3]
     },

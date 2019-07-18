@@ -21,7 +21,7 @@ final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(9099) {
+service on new http:WebSocketListener(21018) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
@@ -30,8 +30,7 @@ service on new http:WebSocketListener(9099) {
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -39,8 +38,7 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -48,8 +46,7 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -57,8 +54,7 @@ service on new http:WebSocketListener(9099) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
         var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -69,8 +65,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -78,8 +73,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 
@@ -87,8 +81,7 @@ service clientCallbackService9 = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
-             error returnValError = returnVal;
-             panic returnValError;
+            panic <error> returnVal;
         }
     }
 };

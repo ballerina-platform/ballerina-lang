@@ -50,10 +50,11 @@ public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoin
         // don't want to open a port to listen, hence nothing to do
     }
 
-    public static void start(Strand strand, ObjectValue listener) {
+    public static Object start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         MockHTTPConnectorListener httpListener = MockHTTPConnectorListener.getInstance();
         httpListener.setHttpServicesRegistry(((Long) listener.get(HttpConstants.ENDPOINT_CONFIG_PORT)).intValue(),
                                              httpServicesRegistry, listener.getMapValue(SERVICE_ENDPOINT_CONFIG));
+        return null;
     }
 }

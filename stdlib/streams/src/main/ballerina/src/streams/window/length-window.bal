@@ -59,7 +59,7 @@ public type LengthWindow object {
             }
         } else {
             error err = error("Length window should only have one parameter (<int> " +
-                "windowLength), but found " + parameters.length() + " input attributes");
+                "windowLength), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
