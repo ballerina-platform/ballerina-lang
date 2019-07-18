@@ -48,12 +48,12 @@ import java.util.Objects;
 public class GetTextContent {
 
     public static Object getTextContent(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         byte[] messageContent = (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+            transactionContext.handleTransactionBlock(strand);
         }
         try {
             return new String(messageContent, StandardCharsets.UTF_8.name());

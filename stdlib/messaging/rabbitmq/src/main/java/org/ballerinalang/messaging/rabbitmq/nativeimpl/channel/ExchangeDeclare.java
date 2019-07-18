@@ -55,7 +55,7 @@ public class ExchangeDeclare {
         try {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR + exception.getDetail());

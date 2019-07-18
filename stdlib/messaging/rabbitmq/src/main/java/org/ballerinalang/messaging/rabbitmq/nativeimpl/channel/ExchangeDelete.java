@@ -54,7 +54,7 @@ public class ExchangeDelete {
         try {
             channel.exchangeDelete(exchangeName);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (BallerinaException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

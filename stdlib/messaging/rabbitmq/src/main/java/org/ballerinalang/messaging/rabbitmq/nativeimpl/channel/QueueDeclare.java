@@ -66,7 +66,7 @@ public class QueueDeclare {
                 channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
             }
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

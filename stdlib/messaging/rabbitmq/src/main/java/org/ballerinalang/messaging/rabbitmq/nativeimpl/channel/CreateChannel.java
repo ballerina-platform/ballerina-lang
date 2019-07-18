@@ -61,7 +61,7 @@ public class CreateChannel {
                         new RabbitMQTransactionContext(channelObjectValue, UUID.randomUUID().toString());
                 channelObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
                         rabbitMQTransactionContext);
-                rabbitMQTransactionContext.handleTransactionBlock();
+                rabbitMQTransactionContext.handleTransactionBlock(strand);
             } catch (IOException exception) {
                 throw new BallerinaException(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
                         + exception.getMessage());

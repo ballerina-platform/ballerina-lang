@@ -61,7 +61,7 @@ public class BasicPublish {
             ChannelUtils.basicPublish(channel, routingKey, messageContent.toString().getBytes(StandardCharsets.UTF_8),
                     defaultExchangeName, properties);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR +

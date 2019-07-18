@@ -54,7 +54,7 @@ public class QueueBind {
         try {
             channel.queueBind(queueName, exchangeName, bindingKey, null);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

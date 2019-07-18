@@ -49,12 +49,12 @@ import java.util.Objects;
 public class GetJSONContent {
 
     public static Object getJSONContent(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         byte[] messageContent = (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+            transactionContext.handleTransactionBlock(strand);
         }
         try {
             return JSONParser.parse(new String(messageContent, StandardCharsets.UTF_8.name()));

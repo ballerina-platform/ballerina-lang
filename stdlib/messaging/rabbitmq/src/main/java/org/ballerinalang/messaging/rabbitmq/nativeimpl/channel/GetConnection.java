@@ -57,7 +57,7 @@ public class GetConnection {
                     RabbitMQConstants.CONNECTION_OBJECT);
             connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
             return connectionObject;
         } catch (AlreadyClosedException exception) {

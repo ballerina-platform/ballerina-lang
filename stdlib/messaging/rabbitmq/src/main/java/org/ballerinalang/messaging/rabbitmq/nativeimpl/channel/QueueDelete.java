@@ -54,7 +54,7 @@ public class QueueDelete {
         try {
             ChannelUtils.queueDelete(channel, queueName, ifUnused, ifEmpty);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

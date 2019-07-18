@@ -52,7 +52,7 @@ public class BasicNack {
     public static Object basicNack(Strand strand, ObjectValue messageObjectValue, Object multiple, Object requeue) {
         boolean defaultMultiple = false;
         boolean defaultRequeue = true;
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) messageObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
@@ -60,7 +60,7 @@ public class BasicNack {
         boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObjectValue);
         boolean ackMode = ChannelUtils.validateAckMode(messageObjectValue);
         if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+            transactionContext.handleTransactionBlock(strand);
         }
         if (multiple != null && RabbitMQUtils.checkIfBoolean(multiple)) {
             defaultMultiple = Boolean.valueOf(multiple.toString());
