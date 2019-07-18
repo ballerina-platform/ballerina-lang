@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9091/client/failure";
+    private static final String URL = "ws://localhost:21010/client/failure";
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_failure.bal file")
     public void setup() throws URISyntaxException {

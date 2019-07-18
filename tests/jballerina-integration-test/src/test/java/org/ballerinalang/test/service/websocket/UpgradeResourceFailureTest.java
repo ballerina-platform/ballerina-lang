@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class UpgradeResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9097/simple7";
+    private static final String URL = "ws://localhost:21016/simple7";
 
     @BeforeClass(description = "Initializes the Ballerina server with the resource_failure.bal file")
     public void setup() throws URISyntaxException {
