@@ -17,15 +17,13 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.statement.SQLStatement;
 import org.ballerinax.jdbc.statement.SelectStatement;
 
@@ -35,21 +33,16 @@ import org.ballerinax.jdbc.statement.SelectStatement;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeSelect"
 )
-public class Select extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class Select {
 
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
-                (TypedescValue) recordType);
+                (TypedescValue) recordType, strand);
         return selectStatement.execute();
     }
 }

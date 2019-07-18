@@ -22,8 +22,8 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -98,7 +98,7 @@ public class FormatUtil {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String sourceRoot = LSCompilerUtil.getSourceRoot(filePath.toAbsolutePath());
+                    String sourceRoot = LSCompilerUtil.getProjectRoot(filePath.toAbsolutePath());
                     String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
                             filePath.toAbsolutePath().toString());
                     if ("".equals(packageName)) {
@@ -157,7 +157,7 @@ public class FormatUtil {
                         throw LauncherUtils.createLauncherException(Messages.getNotBallerinaProject());
                     }
                     BLangPackage bLangPackage = FormatUtil
-                            .compileModule(sourceRootPath, moduleName);
+                            .compileModule(sourceRootPath, getModuleName(moduleName));
 
                     // If there are no compilation errors do not continue the process.
                     if (bLangPackage.diagCollector.hasErrors()) {
@@ -206,7 +206,7 @@ public class FormatUtil {
      * @return {@link boolean} true or false
      */
     private static boolean notABallerinaProject(Path path) {
-        Path cachePath = path.resolve(".ballerina");
+        Path cachePath = path.resolve("Ballerina.toml");
         return !Files.exists(cachePath);
     }
 
@@ -249,7 +249,13 @@ public class FormatUtil {
      * @return {@link Boolean} true or false
      */
     private static boolean isModuleExist(String module, Path projectRoot) {
-        Path modulePath = projectRoot.resolve(module);
+        Path modulePath;
+        if (module.startsWith("src/")) {
+            modulePath = projectRoot.resolve(module);
+        } else {
+            modulePath = projectRoot.resolve("src").resolve(module);
+        }
+
         return Files.isDirectory(modulePath);
     }
 
@@ -358,6 +364,8 @@ public class FormatUtil {
                                        List<String> formattedFiles, boolean dryRun)
             throws JSONGenerationException, IOException {
         String fileName = sourceRootPath.toString() + File.separator
+                + "src"
+                + File.separator
                 + compilationUnit.getPosition().getSource().getPackageName()
                 + File.separator
                 + compilationUnit.getPosition().getSource().getCompilationUnitName();
@@ -392,5 +400,10 @@ public class FormatUtil {
         } else {
             outStream.println(Messages.getNoChanges());
         }
+    }
+
+    private static String getModuleName(String moduleName) {
+        String[] splitedTokens = moduleName.split(File.separator);
+        return splitedTokens[splitedTokens.length - 1];
     }
 }

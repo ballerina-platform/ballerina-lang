@@ -19,6 +19,7 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -49,11 +50,11 @@ public class BallerinaErrors {
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
     public static ErrorValue createError(String reason) {
-        return new ErrorValue(reason, new MapValueImpl<>());
+        return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static ErrorValue createError(String reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>();
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
@@ -62,6 +63,13 @@ public class BallerinaErrors {
 
     public static ErrorValue createError(String reason, MapValue detailMap) {
         return new ErrorValue(reason, detailMap);
+    }
+
+    public static ErrorValue createError(Throwable error) {
+        if (error instanceof ErrorValue) {
+            return (ErrorValue) error;
+        }
+        return createError(error.getMessage());
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
@@ -105,6 +113,13 @@ public class BallerinaErrors {
 
     public static ErrorValue createUsageError(String errorMsg) {
         return createError("ballerina: " + errorMsg);
+    }
+
+    public static Object handleResourceError(Object returnValue) {
+        if (returnValue instanceof ErrorValue) {
+            throw (ErrorValue) returnValue;
+        }
+        return returnValue;
     }
 
     public static ArrayValue generateCallStack() {

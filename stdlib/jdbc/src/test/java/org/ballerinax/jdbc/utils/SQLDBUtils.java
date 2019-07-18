@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.utils;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +118,7 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        InputStream is = null;
+        InputStream is;
         String fileAsString = null;
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {

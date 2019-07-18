@@ -14,7 +14,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 public type Customer record {
     int customerId;
@@ -88,7 +88,7 @@ function testCall() returns @tainted string {
         return "nil";
     } else {
         error e = ret;
-        return <string>e.detail().message;
+        return <string> e.detail()["message"];
     }
 
     string name = "";
@@ -118,7 +118,7 @@ function testGeneratedKeyOnInsert() returns string|int {
         returnVal = x.updatedRowCount;
     } else {
         error e = x;
-        returnVal = <string>e.detail().message;
+        returnVal = <string> e.detail()["message"];
     }
 
     checkpanic testDB.stop();
@@ -149,16 +149,9 @@ function testBatchUpdate() returns int[] {
     jdbc:Parameter para8 = { sqlType: jdbc:TYPE_VARCHAR, value: "UK" };
     jdbc:Parameter?[] parameters2 = [para5, para6, para7, para8];
 
-    var x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", parameters1, parameters2);
-
-    int[] ret = [];
-    if (x is int[]) {
-        ret = x;
-    } else {
-        ret = [];
-    }
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into Customers values (?,?,?,?)", false, parameters1, parameters2);
     checkpanic testDB.stop();
-    return ret;
+    return x.updatedRowCount;
 }
 
 function testUpdateInMemory() returns @tainted [int, string] {
@@ -182,7 +175,7 @@ function testUpdateInMemory() returns @tainted [int, string] {
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
     if (x is table<Customer>) {
-        var res = json.convert(x);
+        var res = typedesc<json>.constructFrom(x);
         if (res is json) {
             s = res.toString();
         }
@@ -219,9 +212,8 @@ function testInitWithInvalidDbOptions() returns int[] {
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
-            poolOptions: { maximumPoolSize: 1 },
-            dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
-                "PAGE_SIZE": 512, "INVALID_PARAM": -1 }
+            poolOptions: { maximumPoolSize: 1, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+            dbOptions: { "INVALID_PARAM": -1 }
         });
     return selectFunction(testDB);
 }
@@ -282,7 +274,7 @@ function testH2MemDBUpdate() returns [int, string] {
 
     string data = "";
     if (dt is table<record {}>) {
-        var j = json.convert(dt);
+        var j = typedesc<json>.constructFrom(dt);
         if (j is json) {
             data = io:sprintf("%s", j);
         }

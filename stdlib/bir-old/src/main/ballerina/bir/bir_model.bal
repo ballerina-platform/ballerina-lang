@@ -92,13 +92,19 @@ public type AnnotationAttachment record {|
     AnnotationValue?[] annotValues = [];
 |};
 
-public type AnnotationValue record {|
-    map<AnnotationValueEntry?[]> valueEntryMap = {};
+public type AnnotationValue AnnotationLiteralValue | AnnotationRecordValue | AnnotationArrayValue;
+
+public type AnnotationLiteralValue record {|
+    BType literalType;
+    anydata literalValue;
 |};
 
-public type AnnotationValueEntry record {|
-    BType literalType;
-    anydata value;
+public type AnnotationRecordValue record {|
+    map<AnnotationValue> annotValueMap = {};
+|};
+
+public type AnnotationArrayValue record {|
+    AnnotationValue?[]  annotValueArray = [];
 |};
 
 public const BINARY_ADD = "ADD";
@@ -303,9 +309,6 @@ public type BTypeByte TYPE_BYTE;
 public const TYPE_JSON = "json";
 public type BJSONType TYPE_JSON;
 
-public const TYPE_DESC = "typedesc";
-public type BTypeDesc TYPE_DESC;
-
 public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
@@ -319,6 +322,10 @@ public type BArrayType record {|
     ArrayState state;
     int size;
     BType eType;
+|};
+
+public type BTypeDesc record {|
+    BType typeConstraint;
 |};
 
 public type BMapType record {|
@@ -519,7 +526,8 @@ public type FieldAccess record {|
     VarRef lhsOp;
     VarRef keyOp;
     VarRef rhsOp;
-    boolean except = true;
+    boolean optionalFieldAccess = false;
+    boolean fillingRead = false;
 |};
 
 public type TypeCast record {|

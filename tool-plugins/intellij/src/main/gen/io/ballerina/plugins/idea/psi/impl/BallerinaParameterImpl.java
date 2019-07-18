@@ -50,20 +50,20 @@ public class BallerinaParameterImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @NotNull
-  public List<BallerinaParameterWithType> getParameterWithTypeList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaParameterWithType.class);
+  public BallerinaTypeName getTypeName() {
+    return findNotNullChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getIdentifier() {
+    return findNotNullChildByType(IDENTIFIER);
   }
 
   @Override
   @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+  public PsiElement getPublic() {
+    return findChildByType(PUBLIC);
   }
 
 }

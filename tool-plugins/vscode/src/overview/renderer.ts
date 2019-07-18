@@ -19,13 +19,17 @@
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ExtensionContext } from 'vscode';
 import { getLibraryWebViewContent, getComposerWebViewOptions } from '../utils';
+import { ConstructIdentifier } from 'src/core';
 
-export function render (context: ExtensionContext, langClient: ExtendedLangClient, sourceRoot: string, retries: number = 1)
-        : string {       
-   return renderDiagram(context, sourceRoot);
+export function render (context: ExtensionContext, langClient: ExtendedLangClient,
+    options: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier},
+    retries: number = 1)
+        : string {
+   return renderDiagram(context, options);
 }
 
-function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
+function renderDiagram(context: ExtensionContext,
+    constructIdentifier: {currentUri: string, sourceRootUri?: string, construct?: ConstructIdentifier}): string {
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"></div>
     `;
@@ -73,7 +77,7 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
 
     const scripts = `
         function loadedScript() {
-            let sourceRoot = ${JSON.stringify(sourceRoot)};
+            let constructIdentifier = ${JSON.stringify(constructIdentifier)};
             function drawDiagram() {
                 try {
                     let width = window.innerWidth - 6;
@@ -82,7 +86,9 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                     const options = {
                         target: document.getElementById("diagram"),
                         editorProps: {
-                            docUri: sourceRoot,
+                            docUri: constructIdentifier.currentUri,
+                            sourceRootUri: constructIdentifier.sourceRootUri,
+                            initialSelectedConstruct: constructIdentifier.construct,
                             width,
                             height,
                             zoom,
@@ -92,6 +98,14 @@ function renderDiagram(context: ExtensionContext, sourceRoot: string): string {
                     const diagram = ballerinaComposer.renderOverview(options);
                     webViewRPCHandler.addMethod("updateAST", (args) => {
                         diagram.updateAST();
+                        return Promise.resolve({});
+                    });
+                    webViewRPCHandler.addMethod("selectConstruct", (args) => {
+                        diagram.selectConstruct({
+                            moduleName: args[0],
+                            constructName: args[1],
+                            subConstructName: args[2],
+                        });
                         return Promise.resolve({});
                     });
                 } catch(e) {

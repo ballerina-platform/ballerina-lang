@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -42,11 +40,7 @@ import java.util.zip.Checksum;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "crc32b", isPublic = true)
-public class Crc32b extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Crc32b {
 
     public static String crc32b(Strand strand, Object entityBody) {
         Checksum checksum = new CRC32();

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.log;
 
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.logging.BLogManager;
@@ -35,7 +34,7 @@ import java.util.logging.LogManager;
  *
  * @since 0.95.0
  */
-public abstract class AbstractLogFunction extends BlockingNativeCallableUnit {
+public abstract class AbstractLogFunction {
 
     protected static final BLogManager LOG_MANAGER = (BLogManager) LogManager.getLogManager();
 

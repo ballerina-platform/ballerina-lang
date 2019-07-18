@@ -75,6 +75,7 @@ dependencies {
     dist 'org.ow2.asm:asm-util:7.1'
 
     dist project(':ballerina-cli-utils')
+    dist project(':ballerina-tool')
     dist project(':ballerina-jvm')
     birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
@@ -85,14 +86,15 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
     dist project(':ballerina-packerina')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+//    dist project(':openapi-ballerina:openapi-validator')
+    dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
-    dist project(':openapi-ballerina:openapi-to-ballerina-generator')
+    dist project(':protobuf-ballerina')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
@@ -119,6 +121,10 @@ dependencies {
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+    birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
+    birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
+    birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
+    birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
 //    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
 }
@@ -408,7 +414,6 @@ project.afterEvaluate {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId 'jballerina-ext-build'
             artifact source: createZip, extension: 'zip'
         }
     }

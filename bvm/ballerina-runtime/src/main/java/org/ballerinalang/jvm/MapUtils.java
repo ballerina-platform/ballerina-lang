@@ -26,7 +26,10 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+
+import static java.lang.String.format;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.
@@ -76,6 +79,21 @@ public class MapUtils {
 
                 mapValue.put(fieldName, value);
                 break;
+        }
+    }
+
+    public static ErrorValue createOpNotSupportedError(BType type, String op) {
+        return BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
+                                           format("%s not supported on type '%s'", op, type.getQualifiedName()));
+    }
+
+    public static void checkIsMapOnlyOperation(BType mapType, String op) {
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                return;
+            default:
+                throw createOpNotSupportedError(mapType, op);
         }
     }
 }

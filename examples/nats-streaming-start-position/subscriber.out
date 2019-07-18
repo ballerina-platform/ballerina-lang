@@ -1,0 +1,30 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+# When you start the subscriber after publishing several messages,
+# You'll notice that,
+# 1. `receiveSinceTimeDelta` service receives the messages if
+#     the messages were sent within a historical offset of 5 seconds
+#     from the current server date/time
+# 2. `receiveFromGivenIndex` service receives services messages
+#     starting from the third message published.
+# 3. `receiveFromLastReceived` service receives messages starting
+#     from the last published message.
+# 4. `receiveFromBeginning` service receives all messages ever
+#     published
+# 5. `receiveNewOnly` service receives only the messages, which are
+#    published after the subscriber starts.
+
+$ ballerina run subscriber.bal
+
+[ballerina/nats] Connection established with server nats://localhost:4222
+Message Received to service receiveSinceTimeDelta: Third Message
+Message Received to service receiveFromGivenIndex: Third Message
+Message Received to service receiveFromLastReceived: Third Message
+Message Received to service receiveFromBeginning: First Message
+Message Received to service receiveFromBeginning: Second Message
+Message Received to service receiveFromBeginning: Third Message
+Message Received to service receiveFromGivenIndex: Forth Message
+Message Received to service receiveFromLastReceived: Forth Message
+Message Received to service receiveNewOnly: Forth Message
+Message Received to service receiveSinceTimeDelta: Forth Message
+Message Received to service receiveFromBeginning: Forth Message

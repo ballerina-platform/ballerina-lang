@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 jms:Connection conn = new({
         initialContextFactory: "bmbInitialContextFactory",
@@ -24,7 +24,7 @@ jms:Connection conn = new({
 
 jms:Session jmsSession = new(conn, {acknowledgementMode: "AUTO_ACKNOWLEDGE"});
 
-listener jms:QueueListener consumerEndpoint = new(jmsSession, queueName = "MyQueue");
+listener jms:QueueListener consumerEndpoint = new(jmsSession, "MyQueue");
 service jmsConsumer on consumerEndpoint {
     resource function onMessage(jms:QueueReceiverCaller consumer, jms:Message message) returns error? {
     }

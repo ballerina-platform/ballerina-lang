@@ -17,11 +17,11 @@
  */
 package org.ballerinax.jdbc.transaction;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinax.jdbc.utils.SQLDBUtils;
 import org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
 import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
@@ -50,43 +50,43 @@ public class SQLXATransactionsTest {
     }
 
     @Test
-    public void testXATransactonSuccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonSuccess");
+    public void testXATransactionSuccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionSuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
     @Test
-    public void testXATransactonSuccessWithDataSource() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonSuccessWithDataSource");
+    public void testXATransactionSuccessWithDataSource() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionSuccessWithDataSource");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
     @Test
-    public void testXATransactonSuccessWithH2Client() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonSuccessWithH2Client");
+    public void testXATransactionSuccessWithH2Client() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionSuccessWithH2Client");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
     @Test
-    public void testXATransactonFailed1() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonFailed1");
+    public void testXATransactionFailed1() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionFailed1");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test
-    public void testXATransactonFailed2() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonFailed2");
+    public void testXATransactionFailed2() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionFailed2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test
-    public void testXATransactonRetry() {
-        BValue[] returns = BRunUtil.invoke(result, "testXATransactonRetry");
+    public void testXATransactionRetry() {
+        BValue[] returns = BRunUtil.invoke(result, "testXATransactionRetry");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }

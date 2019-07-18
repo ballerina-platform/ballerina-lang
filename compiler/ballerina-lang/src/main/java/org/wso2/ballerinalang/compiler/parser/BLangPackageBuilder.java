@@ -74,7 +74,6 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -346,8 +345,6 @@ public class BLangPackageBuilder {
 
     private Set<BLangImportPackage> imports = new HashSet<>();
 
-    private List<VariableDefinitionNode> defaultableParamsList = new ArrayList<>();
-
     private Stack<SimpleVariableNode> restParamStack = new Stack<>();
 
     private Deque<BLangMatch> matchStmtStack;
@@ -363,6 +360,9 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> workerDefinitionWSStack = new Stack<>();
 
     private Stack<Set<Whitespace>> bindingPatternIdentifierWS = new Stack<>();
+
+    private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
+    private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -684,9 +684,23 @@ public class BLangPackageBuilder {
                                      String identifier,
                                      DiagnosticPos identifierPos,
                                      boolean exprAvailable,
+                                     int annotCount,
+                                     boolean isPublic) {
+        BLangSimpleVariable var  = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
+        if (isPublic) {
+            var.flagSet.add(Flag.PUBLIC);
+        }
+        return var;
+    }
+
+    BLangSimpleVariable addSimpleVar(DiagnosticPos pos,
+                                     Set<Whitespace> ws,
+                                     String identifier,
+                                     DiagnosticPos identifierPos,
+                                     boolean exprAvailable,
                                      int annotCount) {
         BLangSimpleVariable var = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier, identifierPos,
-                                                                                  exprAvailable);
+                exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
         if (this.varListStack.empty()) {
@@ -717,6 +731,14 @@ public class BLangPackageBuilder {
         this.varStack.push(errorVariable);
     }
 
+    void endSimpleMatchPattern(Set<Whitespace> ws) {
+        this.simpleMatchPatternWS.push(ws);
+    }
+
+    void endErrorMatchPattern(Set<Whitespace> ws) {
+        this.errorMatchPatternWS.push(ws);
+    }
+
     void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
                           boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
@@ -727,12 +749,15 @@ public class BLangPackageBuilder {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
             errorVariable.reasonMatchConst = reasonLiteral;
-
             errorVariable.reason = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
         } else {
             errorVariable.reason = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
+        }
+
+        if (this.simpleMatchPatternWS.size() > 0) {
+            errorVariable.reason.addWS(this.simpleMatchPatternWS.pop());
         }
 
         errorVariable.reasonVarPrefixAvailable = reasonVar;
@@ -788,6 +813,9 @@ public class BLangPackageBuilder {
                 BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
                 simpleVariableNode.pos = pos;
+                if (this.bindingPatternIdentifierWS.size() > 0) {
+                    simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
+                }
                 BLangErrorVariable.BLangErrorDetailEntry detailEntry =
                         new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
                 errorVariable.detail.add(detailEntry);
@@ -919,7 +947,7 @@ public class BLangPackageBuilder {
                                            boolean exprAvailable,
                                            int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNodeWithoutType(pos, ws, identifier, identifierPos,
-                                                                                 exprAvailable);
+                exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
         if (this.varListStack.empty()) {
@@ -975,12 +1003,6 @@ public class BLangPackageBuilder {
             this.varListStack.pop().forEach(variableNode -> {
                 invNode.addParameter((SimpleVariableNode) variableNode);
             });
-
-            this.defaultableParamsList.forEach(variableDef -> {
-                BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) variableDef;
-                invNode.addDefaultableParameter(varDef);
-            });
-            this.defaultableParamsList = new ArrayList<>();
 
             if (restParamAvail) {
                 invNode.setRestParameter(this.restParamStack.pop());
@@ -1040,7 +1062,7 @@ public class BLangPackageBuilder {
                                        DiagnosticPos identifierPos, boolean isFinal, boolean isExpressionAvailable,
                                        boolean isDeclaredWithVar) {
         BLangSimpleVariableDef varDefNode = createSimpleVariableDef(pos, ws, identifier, identifierPos, isFinal,
-                                                                    isExpressionAvailable, isDeclaredWithVar);
+                isExpressionAvailable, isDeclaredWithVar);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             varDefNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
@@ -1485,7 +1507,6 @@ public class BLangPackageBuilder {
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
-        invocationNode.safeNavigate = safeNavigate;
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
@@ -1493,6 +1514,17 @@ public class BLangPackageBuilder {
         }
 
         invocationNode.expr = (BLangExpression) exprNodeStack.pop();
+        invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
+        invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
+        addExpressionNode(invocationNode);
+    }
+
+    void createWorkerLambdaInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        invocationNode.addWS(ws);
+        invocationNode.addWS(invocationWsStack.pop());
+
         invocationNode.name = (BLangIdentifier) createIdentifier(invocation);
         invocationNode.pkgAlias = (BLangIdentifier) createIdentifier(null);
         addExpressionNode(invocationNode);
@@ -1511,7 +1543,7 @@ public class BLangPackageBuilder {
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,
-                                    FieldKind fieldType, boolean safeNavigate) {
+                                    FieldKind fieldType, boolean optionalFieldAccess) {
         BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldBasedAccess.pos = pos;
         fieldBasedAccess.addWS(ws);
@@ -1519,7 +1551,7 @@ public class BLangPackageBuilder {
         fieldBasedAccess.field.pos = fieldNamePos;
         fieldBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         fieldBasedAccess.fieldKind = fieldType;
-        fieldBasedAccess.safeNavigate = safeNavigate;
+        fieldBasedAccess.optionalFieldAccess = optionalFieldAccess;
         addExpressionNode(fieldBasedAccess);
     }
 
@@ -1702,15 +1734,16 @@ public class BLangPackageBuilder {
 
         // Check if the worker is in a fork. If so add the lambda function to the worker list in fork, else ignore.
         if (!this.forkJoinNodesStack.empty()) {
+            // TODO: Revisit the fork join worker declaration and decide whether move this to desugar.
             List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
             BLangSimpleVariableDef lamdaWrkr = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
+            lamdaWrkr.isInFork = true;
             this.forkJoinNodesStack.peek().addWorkers(lamdaWrkr);
         }
 
         addNameReference(pos, null, null, workerLambdaName);
-        createSimpleVariableReference(pos, null);
         startInvocationNode(null);
-        createInvocationNode(pos, null, BLangBuiltInMethod.CALL.toString(), false, false);
+        createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
         markLastInvocationAsAsync(pos, numAnnotations);
         addSimpleVariableDefStatement(pos, null, workerName, null, true, true, true);
     }
@@ -1800,7 +1833,7 @@ public class BLangPackageBuilder {
     }
 
     private BLangConstant generateConstantNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
-                                             DiagnosticPos identifierPos, boolean isTypeAvailable) {
+                                               DiagnosticPos identifierPos, boolean isTypeAvailable) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
         constantNode.pos = pos;
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -1843,7 +1876,7 @@ public class BLangPackageBuilder {
     void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                      boolean isPublic, boolean isTypeAvailable) {
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, identifierPos,
-                                                                               isTypeAvailable);
+                isTypeAvailable);
         attachAnnotations(constantNode);
         constantNode.flagSet.add(Flag.CONSTANT);
         if (isPublic) {
@@ -1891,7 +1924,7 @@ public class BLangPackageBuilder {
                            boolean isPublic, boolean isFinal, boolean isDeclaredWithVar, boolean isExpressionAvailable,
                            boolean isListenerVar) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, identifierPos,
-                                                                      isDeclaredWithVar, isExpressionAvailable);
+                isDeclaredWithVar, isExpressionAvailable);
 
         if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
@@ -2383,7 +2416,7 @@ public class BLangPackageBuilder {
     void addForeachStatementWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                                            DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
         BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
-                                                                                false, false, isDeclaredWithVar);
+                false, false, isDeclaredWithVar);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
         }
@@ -2670,6 +2703,9 @@ public class BLangPackageBuilder {
         }
 
         patternClause.bindingPatternVariable = this.varStack.pop();
+        if (this.errorMatchPatternWS.size() > 0) {
+            patternClause.bindingPatternVariable.addWS(this.errorMatchPatternWS.pop());
+        }
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
 
@@ -2797,9 +2833,9 @@ public class BLangPackageBuilder {
         // Crate Global variable for service.
         if (!isAnonServiceValue) {
             BLangSimpleVariable var = (BLangSimpleVariable) generateBasicVarNodeWithoutType(identifierPos,
-                                                                                            Collections.emptySet(),
-                                                                                            serviceName, identifierPos,
-                                                                                            true);
+                    Collections.emptySet(),
+                    serviceName, identifierPos,
+                    true);
             var.flagSet.add(Flag.FINAL);
             var.flagSet.add(Flag.SERVICE);
             var.typeNode = createUserDefinedType(pos, ws, (BLangIdentifier) TreeBuilder.createIdentifierNode(),
@@ -3009,21 +3045,16 @@ public class BLangPackageBuilder {
     }
 
     void addDefaultableParam(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangSimpleVariableDef defaultableParam =
-                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        defaultableParam.pos = pos;
-        defaultableParam.addWS(ws);
         List<BLangVariable> params = this.varListStack.peek();
-        BLangSimpleVariable var = (BLangSimpleVariable) params.remove(params.size() - 1);
+        BLangSimpleVariable var = (BLangSimpleVariable) params.get(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
-        defaultableParam.var = var;
-        this.defaultableParamsList.add(defaultableParam);
+        var.addWS(ws);
     }
 
     void addRestParam(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                       int annotCount) {
         BLangSimpleVariable restParam = (BLangSimpleVariable) this.generateBasicVarNode(pos, ws, identifier,
-                                                                                        identifierPos, false);
+                identifierPos, false);
         attachAnnotations(restParam, annotCount);
         restParam.pos = pos;
 
@@ -3753,6 +3784,7 @@ public class BLangPackageBuilder {
         BLangNameReference nameReference = nameReferenceStack.pop();
         annotAccessExpr.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
         annotAccessExpr.annotationName = (BLangIdentifier) nameReference.name;
+        annotAccessExpr.addWS(nameReference.ws);
         addExpressionNode(annotAccessExpr);
     }
 

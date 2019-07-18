@@ -439,7 +439,7 @@ public class ASTBuilderUtil {
                                                                             SymbolResolver symResolver,
                                                                             BLangBuiltInMethod builtInFunction) {
         BLangInvocation invokeLambda = createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                                                  new ArrayList<>(), new ArrayList<>(), symResolver);
+                                                                  new ArrayList<>(), symResolver);
         invokeLambda.expr = expr;
         return new BLangInvocation.BLangBuiltInMethodInvocation(invokeLambda, builtInFunction);
     }
@@ -463,19 +463,15 @@ public class ASTBuilderUtil {
 
     public static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs, SymbolResolver symResolver) {
-        return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
-                symResolver);
+        return createInvocationExpr(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
     static BLangInvocation createInvocationExpr(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangSimpleVariable> requiredArgs,
-                                                List<BLangSimpleVariable> namedArgs,
                                                 List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
         invokeLambda.requiredArgs.addAll(generateArgExprs(pos, requiredArgs, invokableSymbol.params, symResolver));
-        invokeLambda.namedArgs
-                .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
         invokeLambda.restArgs
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
 
@@ -486,20 +482,16 @@ public class ASTBuilderUtil {
 
     static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                 List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
-        return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
-                symResolver);
+        return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), symResolver);
     }
 
     static BLangInvocation createInvocationExprMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
                                                       List<BLangExpression> requiredArgs,
-                                                      List<BLangSimpleVariable> namedArgs,
                                                       List<BLangSimpleVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;
         invokeLambda.name = createIdentifier(pos, invokableSymbol.name.value);
         invokeLambda.requiredArgs.addAll(requiredArgs);
-        invokeLambda.namedArgs
-                .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
         invokeLambda.restArgs
                 .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
 
@@ -809,7 +801,6 @@ public class ASTBuilderUtil {
                 invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
-        dupFuncSymbol.defaultableParams = new ArrayList<>(invokableSymbol.defaultableParams);
         dupFuncSymbol.restParam = invokableSymbol.restParam;
         dupFuncSymbol.params = new ArrayList<>(invokableSymbol.params);
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
@@ -832,9 +823,6 @@ public class ASTBuilderUtil {
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
 
-        dupFuncSymbol.defaultableParams = invokableSymbol.defaultableParams.stream()
-                .map(param -> duplicateParamSymbol(param, dupFuncSymbol))
-                .collect(Collectors.toList());
         dupFuncSymbol.params = invokableSymbol.params.stream()
                 .map(param -> duplicateParamSymbol(param, dupFuncSymbol))
                 .collect(Collectors.toList());
@@ -858,7 +846,7 @@ public class ASTBuilderUtil {
         BVarSymbol newParamSymbol =
                 new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID, paramSymbol.type, owner);
         newParamSymbol.tainted = paramSymbol.tainted;
-        newParamSymbol.defaultValue = paramSymbol.defaultValue;
+        newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
         return newParamSymbol;
     }

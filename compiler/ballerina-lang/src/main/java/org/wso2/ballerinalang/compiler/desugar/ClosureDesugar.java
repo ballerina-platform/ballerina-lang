@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -225,6 +226,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
+        // Check if the rest param is a closure var
+        if (funcNode.symbol.restParam != null && funcNode.symbol.restParam.closure) {
+            if (funcNode.mapSymbol == null) {
+                createFunctionMap(funcNode, funcEnv);
+            }
+            addToFunctionMap(funcNode, funcEnv, position, funcNode.symbol.restParam,
+                             funcNode.symbol.restParam.type);
+            position++;
+        }
+
         // For attached functions add the receiver to the function map if it has been exposed as a closure.
         BLangSimpleVariable receiver = funcNode.receiver;
         if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {
@@ -389,7 +400,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             iExpr.requiredArgs.set(0, iExpr.expr);
         }
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
     }
@@ -659,7 +669,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangInvocation iExpr) {
         iExpr.expr = rewriteExpr(iExpr.expr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
     }
@@ -791,32 +800,33 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.textFragments.forEach(this::rewriteExpr);
         xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
+        xmlCommentLiteral.textFragments.forEach(this::rewriteExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
         xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
-        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
+        xmlProcInsLiteral.dataFragments.forEach(this::rewriteExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
+        xmlQuotedString.textFragments.forEach(this::rewriteExpr);
         result = xmlQuotedString;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.concatExpr = rewriteExpr(stringTemplateLiteral.concatExpr);
+        stringTemplateLiteral.exprs.forEach(this::rewriteExpr);
         result = stringTemplateLiteral;
     }
 
@@ -915,6 +925,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // 3) Add the resolved level of the closure variable to the preceding function maps.
         updatePrecedingFunc(env, absoluteLevel);
+    }
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        result = ignoreExpr;
     }
 
     /**
@@ -1155,7 +1170,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangInvocation.BFunctionPointerInvocation fpInvocation) {
         fpInvocation.expr = rewriteExpr(fpInvocation.expr);
         fpInvocation.requiredArgs = rewriteExprs(fpInvocation.requiredArgs);
-        fpInvocation.namedArgs = rewriteExprs(fpInvocation.namedArgs);
         fpInvocation.restArgs = rewriteExprs(fpInvocation.restArgs);
         result = fpInvocation;
     }
@@ -1237,7 +1251,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangInvocation.BLangBuiltInMethodInvocation iExpr) {
         iExpr.expr = rewriteExpr(iExpr.expr);
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.namedArgs = rewriteExprs(iExpr.namedArgs);
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
         result = iExpr;
     }

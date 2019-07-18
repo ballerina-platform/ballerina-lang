@@ -108,7 +108,7 @@ function bar(FooRecord fRec1 = { a: "default", b: 50, c: false, d: 11.1 }, FooRe
 // Test 3
 function testDefaultExprInFunctionPointers() returns [int, string, float, boolean]  {
     function (int, string, float, boolean) returns [int, string, float, boolean] fp1 = foo;
-    [int, string, float, boolean] y = fp1.call(200, "given", 4.4, false);
+    [int, string, float, boolean] y = fp1(200, "given", 4.4, false);
     return y;
 }
 
@@ -140,7 +140,7 @@ function foo3(int|error a = getIntOrError(GLB)) returns error {
         return a;
     }
     if (a is int) {
-        return error("Not Error " + a);
+        return error("Not Error " + a.toString());
     }
 
     return error("Invalid");

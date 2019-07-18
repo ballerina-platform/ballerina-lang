@@ -83,7 +83,7 @@ type Student1 object {
     }
 
     public function toString() returns string {
-        return "Student1{" + self.name + ", " + self.age + ", " + self.school + "}";
+        return "Student1{" + self.name + ", " + self.age.toString() + ", " + self.school + "}";
     }
 };
 
@@ -111,7 +111,7 @@ public type UniStudent1 object {
     }
 
     public function toString() returns string {
-        return "Student{" + self.name + ", " + self.age + ", " + self.school + ", " + self.major + "}";
+        return "Student{" + self.name + ", " + self.age.toString() + ", " + self.school + ", " + self.major + "}";
     }
 
     public function getSchool() returns string {
@@ -140,7 +140,7 @@ type Dog object {
     }
 
     function move(int distance) returns string {
-        return self.name + " walked " + distance + " meters";
+        return self.name + " walked " + distance.toString() + " meters";
     }
 };
 

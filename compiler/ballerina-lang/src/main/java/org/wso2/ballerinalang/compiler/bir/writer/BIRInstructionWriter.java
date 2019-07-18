@@ -353,7 +353,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
         if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
-            buf.writeBoolean(birFieldAccess.except);
+            buf.writeBoolean(birFieldAccess.optionalFieldAccess);
+            buf.writeBoolean(birFieldAccess.fillingRead);
         }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);

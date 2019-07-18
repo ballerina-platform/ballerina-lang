@@ -17,22 +17,22 @@
 import ballerina/auth;
 import ballerina/http;
 
-function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
+function testCanProcessHttpBasicAuthWithoutHeader() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "123Basic xxxxxx";
     inRequest.setHeader("123Authorization", basicAuthHeaderValue);
-    return <@untainted> handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
-function testCanHandleHttpBasicAuth() returns boolean {
+function testCanProcessHttpBasicAuth() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic xxxxxx";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
-    return <@untainted> handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
 function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
@@ -65,7 +65,7 @@ public type CustomAuthProvider object {
 
     *auth:InboundAuthProvider;
 
-    public function authenticate(string credential) returns boolean|auth:AuthError {
+    public function authenticate(string credential) returns boolean|auth:Error {
         return credential == "aXN1cnU6eHh4";
     }
 };

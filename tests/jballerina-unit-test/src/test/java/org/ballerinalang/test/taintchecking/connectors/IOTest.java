@@ -35,7 +35,7 @@ public class IOTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(groups = { "brokenOnLangLibChange" })
     public void testCharacterIONegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/character-io-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);

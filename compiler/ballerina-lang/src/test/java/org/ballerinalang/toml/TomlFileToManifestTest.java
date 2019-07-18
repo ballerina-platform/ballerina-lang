@@ -22,7 +22,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
@@ -31,39 +30,27 @@ import java.nio.file.Paths;
 public class TomlFileToManifestTest {
 
     @Test(description = "Test which covers all the attributes tested above")
-    public void testTomlFile() throws IOException {
+    public void testTomlFile() {
         Manifest manifest = TomlParserUtils.getManifest(Paths.get(System.getProperty("user.dir"), "src", "test",
                                                                   "resources"));
-        Assert.assertEquals(manifest.getName(), "foo");
-        Assert.assertEquals(manifest.getVersion(), "1.0.0");
-        Assert.assertEquals(manifest.getDescription(), "This is a sample description which contains " +
-                "information");
-        Assert.assertEquals(manifest.getDocumentationURL(), "https://ballerinalang.org/docs/api/0.95.5/");
-        Assert.assertEquals(manifest.getHomepageURL(), "https://ballerinalang.org/");
-        Assert.assertEquals(manifest.getRepositoryURL(), "https://github.com/ballerinalang/ballerina");
-        Assert.assertEquals(manifest.getReadmeFilePath(), "https://github.com/ballerinalang/composer/blob/" +
-                "master/README.md");
-        Assert.assertEquals(manifest.getAuthors().get(0), "tyler@wso2.com");
-        Assert.assertEquals(manifest.getAuthors().get(1), "manu@wso2.com");
+        Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
+        Assert.assertEquals(manifest.getProject().getVersion(), "1.0.0");
+        Assert.assertEquals(manifest.getProject().getRepository(), "https://github.com/ballerinalang/ballerina");
+        Assert.assertEquals(manifest.getProject().getAuthors().get(0), "tyler@wso2.com");
+        Assert.assertEquals(manifest.getProject().getAuthors().get(1), "manu@wso2.com");
 
-        Assert.assertEquals(manifest.getKeywords().get(0), "ballerina");
-        Assert.assertEquals(manifest.getKeywords().get(2), "crypto");
-        Assert.assertEquals(manifest.getKeywords().size(), 3);
+        Assert.assertEquals(manifest.getProject().getKeywords().get(0), "ballerina");
+        Assert.assertEquals(manifest.getProject().getKeywords().get(2), "crypto");
+        Assert.assertEquals(manifest.getProject().getKeywords().size(), 3);
 
-        Assert.assertEquals(manifest.getDependencies().size(), 6);
-        Assert.assertEquals(manifest.getDependencies().get(0).getPackageName(), "synchapi");
-        Assert.assertEquals(manifest.getDependencies().get(0).getVersion(), "0.9.2");
-
-        Assert.assertEquals(manifest.getDependencies().get(1).getLocation(), "src/libc");
-        Assert.assertEquals(manifest.getDependencies().get(1).getPackageName(), "libc");
-
-        Assert.assertEquals(manifest.getDependencies().get(2).getPackageName(), "string-utils");
-        Assert.assertEquals(manifest.getDependencies().get(3).getLocation(), null);
-
-        Assert.assertEquals(manifest.getDependencies().get(4).getPackageName(), "toml");
-        Assert.assertEquals(manifest.getDependencies().get(4).getVersion(), "0.4.6");
-
-        Assert.assertEquals(manifest.getDependencies().get(5).getLocation(), "src/core/jobapi");
-        Assert.assertEquals(manifest.getDependencies().get(5).getPackageName(), "jobapi.core");
+        Assert.assertEquals(manifest.getDependencies().size(), 2);
+        
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "wso2/twitter");
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "2.3.4");
+    
+        Assert.assertEquals(manifest.getDependencies().get(1).getModuleName(), "wso2/github");
+        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
+        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath(), "path/to/github.balo");
+        
     }
 }

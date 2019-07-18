@@ -23,19 +23,19 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaErrorRefBindingPattern extends PsiElement {
 
+  @NotNull
+  List<BallerinaErrorNamedArgRefPattern> getErrorNamedArgRefPatternList();
+
   @Nullable
-  BallerinaRecordRefBindingPattern getRecordRefBindingPattern();
+  BallerinaErrorRefRestPattern getErrorRefRestPattern();
+
+  @Nullable
+  BallerinaVariableReference getVariableReference();
 
   @NotNull
-  List<BallerinaVariableReference> getVariableReferenceList();
-
-  @Nullable
-  PsiElement getComma();
-
-  @Nullable
   PsiElement getLeftParenthesis();
 
-  @Nullable
+  @NotNull
   PsiElement getRightParenthesis();
 
   @NotNull

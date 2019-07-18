@@ -31,15 +31,24 @@ import java.util.Map;
  */
 public class HandleValue implements RefValue {
 
-    public Object value;
+    private Object value;
 
     public HandleValue(Object value) {
         this.value = value;
     }
 
+    public Object getValue() {
+        return value;
+    }
+
     @Override
     public String stringValue() {
         return value.toString();
+    }
+
+    @Override
+    public String toString() {
+        return value != null ? value.toString() : null;
     }
 
     @Override
@@ -55,5 +64,11 @@ public class HandleValue implements RefValue {
     @Override
     public Object copy(Map<Object, Object> refs) {
         return null;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+
+        return this;
     }
 }

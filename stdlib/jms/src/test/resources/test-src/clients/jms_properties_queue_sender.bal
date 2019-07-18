@@ -1,34 +1,28 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 
-// Create a queue sender
 jms:QueueSender queueSender = new({
     initialContextFactory: "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
     providerUrl: "tcp://localhost:61616"
-}, queueName = "MyPropQueue");
+}, "MyPropQueue");
 
 public function sendTextMessage () {
-    // Create a Text message.
-    var msg = queueSender.session.createTextMessage("Test Text");
-    if (msg is jms:Message) {
-         var returnVal = msg.setBooleanProperty("booleanProp", false);
-         if (returnVal is error) {
-              panic returnVal;
-         }
-         returnVal = msg.setIntProperty("intProp", 10);
-         if (returnVal is error) {
-              panic returnVal;
-         }
-         returnVal = msg.setFloatProperty("floatProp", 10.5);
-         if (returnVal is error) {
-              panic returnVal;
-         }
-         returnVal = msg.setStringProperty("stringProp", "TestString");
-         if (returnVal is error) {
-              panic returnVal;
-         }
-         // Send the Ballerina message to the JMS provider.
-         checkpanic queueSender->send(msg);
-    } else {
-         panic msg;
+    jms:Message msg = checkpanic new jms:Message(queueSender.session, jms:TEXT_MESSAGE);
+    checkpanic msg.setPayload("Test Text");
+    var returnVal = msg.setProperty("booleanProp", false);
+    if (returnVal is error) {
+      panic returnVal;
     }
+    returnVal = msg.setProperty("intProp", 10);
+    if (returnVal is error) {
+      panic returnVal;
+    }
+    returnVal = msg.setProperty("floatProp", 10.5);
+    if (returnVal is error) {
+      panic returnVal;
+    }
+    returnVal = msg.setProperty("stringProp", "TestString");
+    if (returnVal is error) {
+      panic returnVal;
+    }
+    checkpanic queueSender->send(msg);
 }

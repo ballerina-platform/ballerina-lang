@@ -68,7 +68,7 @@ function testGetModifiedTime(string pathValue) returns (string){
     return modifiedTime.toString();
 }
 
-function testWriteFile(string pathValue,string accessMode,byte[] content) returns (byte[]|io:IOError){
+function testWriteFile(string pathValue,string accessMode,byte[] content) returns (byte[]|io:Error){
    file:Path filePath = new(pathValue);
    string absolutePath = filePath.toAbsolutePath().getPathValue();
    io:WritableByteChannel wbc =io:openWritableFile(absolutePath);
@@ -83,7 +83,7 @@ function testWriteFile(string pathValue,string accessMode,byte[] content) return
           var (bytes, numberOfBytes) = byteContent;
           return bytes;
        }
-       io:IOError err =>{
+       io:Error err =>{
           return err;
        }
    }

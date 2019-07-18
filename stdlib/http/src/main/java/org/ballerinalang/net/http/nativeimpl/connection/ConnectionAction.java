@@ -51,7 +51,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         sendResponseRobust(dataContext, requestMessage, outboundResponseObj, responseMessage);
     }
 
-    void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
+    static void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
         HttpConnectorListener outboundResStatusConnectorListener =
                 new ResponseWriter.HttpResponseConnectorListener(dataContext);
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);

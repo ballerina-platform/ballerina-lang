@@ -40,7 +40,8 @@ public class FunctionPointersTest {
     @BeforeClass
     public void setup() {
         fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers.bal");
-        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda", "private-function-pointers");
+        privateFPProgram = BCompileUtil.compile(this, "test-src/expressions/lambda/FunctionPointersProject",
+                "private-function-pointers");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
     }
@@ -95,6 +96,11 @@ public class FunctionPointersTest {
     @Test
     public void testFuncWithArrayParams() {
         invokeFunctionPointerProgram(fpProgram, "testFuncWithArrayParams", 0);
+    }
+
+    @Test
+    public void testInTypeGuard() {
+        invokeFunctionPointerProgram(fpProgram, "testInTypeGuard", 0);
     }
 
     @Test
@@ -207,22 +213,6 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "1500526800000");
-    }
-
-    @Test
-    public void testFunctionPointerNullCheck() {
-        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-null-check.bal");
-        BValue[] returns = BRunUtil.invoke(result, "checkFunctionPointerNullEqual");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-
-        returns = BRunUtil.invoke(result, "checkFunctionPointerNullNotEqual");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test

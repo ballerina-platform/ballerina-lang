@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -50,7 +49,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -119,7 +117,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        validateParameters(funcNode, funcNode.getParameters(), funcNode.getDefaultableParameters(),
+        validateParameters(funcNode, funcNode.getParameters(),
                 funcNode.restParam, DiagnosticCode.UNDOCUMENTED_PARAMETER,
                 DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
@@ -147,14 +145,14 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         BLangType typeNode = typeDefinition.getTypeNode();
         if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
             List<? extends SimpleVariableNode> fields = ((BLangObjectTypeNode) typeNode).getFields();
-            validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
+            validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<? extends SimpleVariableNode> fields = ((BLangRecordTypeNode) typeNode).getFields();
-            validateParameters(typeDefinition, fields, new LinkedList<>(), null, DiagnosticCode.UNDOCUMENTED_FIELD,
+            validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
         }
@@ -162,7 +160,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangResource resourceNode) {
-        validateParameters(resourceNode, resourceNode.getParameters(), resourceNode.getDefaultableParameters(),
+        validateParameters(resourceNode, resourceNode.getParameters(),
                 resourceNode.restParam, DiagnosticCode.UNDOCUMENTED_PARAMETER,
                 DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
                 DiagnosticCode.PARAMETER_ALREADY_DOCUMENTED);
@@ -172,7 +170,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     private void validateParameters(DocumentableNode documentableNode,
                                     List<? extends SimpleVariableNode> actualParameters,
-                                    List<? extends BLangSimpleVariableDef> defaultableParameters,
                                     BLangSimpleVariable restParam,
                                     DiagnosticCode undocumentedParameter, DiagnosticCode noSuchParameter,
                                     DiagnosticCode parameterAlreadyDefined) {
@@ -208,21 +205,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     // Add warnings for undocumented parameters.
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }
-            }
-        });
-
-        // Iterate through defaultable parameters.
-        defaultableParameters.forEach(parameter -> {
-            String name = parameter.getVariable().getName().value;
-            // Get parameter documentation if available.
-            BLangMarkdownParameterDocumentation param = documentedParameterMap.get(name);
-            if (param != null) {
-                // Set the symbol in the documentation node.
-                param.setSymbol(parameter.getVariable().symbol);
-                documentedParameterMap.remove(name);
-            } else {
-                // Add warnings for undocumented parameters.
-                dlog.warning(parameter.pos, undocumentedParameter, name);
             }
         });
 

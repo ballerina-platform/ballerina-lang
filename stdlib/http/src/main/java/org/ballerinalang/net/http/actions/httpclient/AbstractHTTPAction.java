@@ -53,7 +53,7 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -179,7 +179,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     }
 
     static void prepareOutboundRequest(String serviceUri, String path, HttpCarbonMessage outboundRequest,
-                                Boolean nonEntityBodyReq) {
+                                       Boolean nonEntityBodyReq) {
         //TODO transaction code
 //        if (context.isInTransaction()) {
 //            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
@@ -227,7 +227,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
     }
 
     private static void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host,
-                                          Boolean nonEntityBodyReq) {
+                                                 Boolean nonEntityBodyReq) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
 
@@ -359,10 +359,10 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         try {
             send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
-            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(e));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.createHttpError(e.getMessage()));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
-                                                                  e);
+                    e);
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(exception));
         }
     }
@@ -453,12 +453,12 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      * Serialize multipart entity body. If an array of body parts exist, encode body parts else serialize body content
      * if it exist as a byte channel.
      *
-     * @param entityObj        Represents the entity that holds the actual body
+     * @param entityObj           Represents the entity that holds the actual body
      * @param boundaryString      Boundary string that should be used in encoding body parts
      * @param messageOutputStream Output stream to which the payload is written
      */
     private static void serializeMultiparts(ObjectValue entityObj, OutputStream messageOutputStream,
-                                     String boundaryString) throws IOException {
+                                            String boundaryString) throws IOException {
         ArrayValue bodyParts = EntityBodyHandler.getBodyPartArray(entityObj);
         if (bodyParts != null && bodyParts.size() > 0) {
             serializeMultipartDataSource(messageOutputStream, boundaryString, entityObj);
@@ -471,11 +471,11 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      * Encode body parts with the given boundary and send it across the wire.
      *
      * @param boundaryString      Boundary string of multipart entity
-     * @param entityObj        Represent ballerina entity struct
+     * @param entityObj           Represent ballerina entity struct
      * @param messageOutputStream Output stream to which the payload is written
      */
     private static void serializeMultipartDataSource(OutputStream messageOutputStream,
-                                              String boundaryString, ObjectValue entityObj) {
+                                                     String boundaryString, ObjectValue entityObj) {
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityObj, boundaryString);
         multipartDataSource.serialize(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
@@ -516,7 +516,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
             ObjectValue httpFuture = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
-                                                                       HttpConstants.HTTP_FUTURE);
+                    HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
             this.dataContext.notifyInboundResponseStatus(httpFuture, null);
         }
@@ -524,15 +524,15 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         @Override
         public void onError(Throwable throwable) {
             ErrorValue httpConnectorError;
-            if (throwable instanceof EndpointTimeOutException) {
-                httpConnectorError = HttpUtil.getError(throwable);
+            if (throwable instanceof ClientConnectorException) {
+                httpConnectorError = HttpUtil.createHttpError(throwable);
             } else if (throwable instanceof IOException) {
                 this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
-                httpConnectorError = HttpUtil.getError(throwable);
+                httpConnectorError = HttpUtil.createHttpError(throwable);
             } else {
                 this.dataContext.getOutboundRequest()
                         .setIoException(new IOException(throwable.getMessage(), throwable));
-                httpConnectorError = HttpUtil.getError(throwable);
+                httpConnectorError = HttpUtil.createHttpError(throwable);
             }
             this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
@@ -542,6 +542,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      * Observe {@link HTTPClientConnectorListener} and add HTTP status code as a tag to {@link ObserverContext}.
      */
     private static class ObservableHttpClientConnectorListener extends HTTPClientConnectorListener {
+
         //TODO Fix this along with observability migration
 //        private final Context context;
 //

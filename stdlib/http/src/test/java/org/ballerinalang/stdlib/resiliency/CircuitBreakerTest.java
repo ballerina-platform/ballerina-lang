@@ -54,7 +54,7 @@ public class CircuitBreakerTest {
     private static final int CB_CLIENT_FORCE_OPEN_INDEX = 4;
     private static final String STATUS_CODE_FIELD = "statusCode";
 
-    private CompileResult compileResult, serviceResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {

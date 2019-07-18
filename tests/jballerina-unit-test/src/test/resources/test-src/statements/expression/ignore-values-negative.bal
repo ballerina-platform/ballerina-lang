@@ -1,5 +1,6 @@
 function add (int x, int y) returns string {
-    string result = "result is " + (x + y);
+    int addition = x + y;
+    string result = "result is " + addition.toString();
     return result;
 }
 
@@ -8,7 +9,8 @@ function checkAndAdd (int x, int y) returns (string|error) {
         error err = error("can't add negative values.");
         return (err);
     }
-    string result = "result is " + (x + y);
+    int addition = x + y;
+    string result = "result is " + addition.toString();
     return (result);
 }
 

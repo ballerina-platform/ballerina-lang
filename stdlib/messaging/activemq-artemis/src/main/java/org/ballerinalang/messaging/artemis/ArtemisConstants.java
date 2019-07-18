@@ -34,9 +34,11 @@ public class ArtemisConstants {
     public static final String PROTOCOL_PACKAGE_ARTEMIS = BALLERINA_PACKAGE_PREFIX + ARTEMIS;
 
     // Error related constants
-    static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}ArtemisError";
+    static final String ARTEMIS_ERROR_CODE = "{" + PROTOCOL_PACKAGE_ARTEMIS + "}Error";
     static final String ARTEMIS_ERROR_RECORD = "ArtemisError";
+    static final String ARTEMIS_ERROR_DETAILS = "Detail";
     static final String ARTEMIS_ERROR_MESSAGE = "message";
+    static final String ARTEMIS_ERROR_CAUSE = "cause";
 
     // Native objects
     public static final String ARTEMIS_CONNECTION_POOL = "artemis-connection-pool";
@@ -88,6 +90,8 @@ public class ArtemisConstants {
     public static final String LAST_VALUE = "lastValue";
     static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String ADDRESS_NAME = "addressName";
+    public static final String ON_MESSAGE = "onMessage";
+    public static final String ON_ERROR = "onError";
 
     // Field names for Message
     public static final String MESSAGE_TYPE = "messageType";
@@ -95,6 +99,7 @@ public class ArtemisConstants {
     public static final String TIME_STAMP = "timeStamp";
     public static final String PRIORITY = "priority";
     public static final String MESSAGE_CONFIG = "configuration";
+    public static final String CREATED = "created";
 
     // Field names for Producer
     public static final String RATE = "rate";

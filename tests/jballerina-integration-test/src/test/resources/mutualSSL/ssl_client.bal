@@ -27,7 +27,7 @@ http:ClientEndpointConfig mutualSslCertClientConf = {
 };
 
 public function main (string... args) {
-    http:Client clientEP = new("https://localhost:9217", config = mutualSslCertClientConf );
+    http:Client clientEP = new("https://localhost:9217", mutualSslCertClientConf );
     http:Request req = new;
     var resp = clientEP->get("/echo/");
     if (resp is http:Response) {
@@ -35,9 +35,11 @@ public function main (string... args) {
         if (payload is string) {
             io:println(payload);
         } else {
-            io:println(<string> payload.detail().message);
+            error err = payload;
+            io:println(<string> err.detail()["message"]);
         }
     } else {
-        io:println(<string> resp.detail().message);
+        error err = resp;
+        io:println(<string> err.detail()["message"]);
     }
 }

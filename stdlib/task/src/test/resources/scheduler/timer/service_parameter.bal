@@ -28,7 +28,7 @@ function attachTimer() {
     };
 
     task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    checkpanic timer.attach(timerService, attachment = person);
+    checkpanic timer.attach(timerService, person);
     checkpanic timer.start();
 }
 
@@ -37,7 +37,7 @@ string result = "";
 service timerService = service {
     resource function onTrigger(Person person) {
         person.age = person.age + 1;
-        result = <@untainted string> (person.name + " is " + person.age + " years old");
+        result = <@untainted string> (person.name + " is " + person.age.toString() + " years old");
     }
 };
 

@@ -70,6 +70,9 @@ public type PackageParser object {
         while i < numConstants {
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
+
+            skipMarkDownDocAttachement(self.reader);
+
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
@@ -147,6 +150,8 @@ public type PackageParser object {
 
         int taintLength = self.reader.readInt64();
         _ = self.reader.readByteArray(untaint taintLength); // read and ignore taint table
+
+        skipMarkDownDocAttachement(self.reader);
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
@@ -236,15 +241,11 @@ public type PackageParser object {
         int requiredParamCount = self.reader.readInt32();
         int i = 0;
         while (i < requiredParamCount) {
+            // ignore name
+            _ = self.reader.readInt32();
+            // ignore flags
             _ = self.reader.readInt32();
             i += 1;
-        }
-
-        int defaultableParamCount = self.reader.readInt32();
-        int j = 0;
-        while (j < defaultableParamCount) {
-            _ = self.reader.readInt32();
-            j += 1;
         }
     }
 
@@ -355,6 +356,9 @@ public type PackageParser object {
         string name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
+
+        skipMarkDownDocAttachement(self.reader);
+
         var bType = self.reader.readTypeCpRef();
         return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
     }
@@ -367,6 +371,7 @@ public type PackageParser object {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
+            skipMarkDownDocAttachement(self.reader);
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[startIndex + i] = dcl;
@@ -424,32 +429,63 @@ public type PackageParser object {
     }
 
     function parseAnnotAttachValue() returns AnnotationValue {
-        AnnotationValue annotValue = {};
+        var bType = self.reader.readTypeCpRef();
+        if bType is BArrayType {
+            return self.parseAnnotArrayValue();
+        } else if bType is BMapType || bType is BRecordType {
+            return self.parseAnnotRecordValue();
+        } else {
+            // This is a value type
+            return self.parseAnnotLiteralValue(bType);
+        }
+    }
+
+    function parseAnnotLiteralValue(BType bType) returns AnnotationLiteralValue {
+        var value = parseLiteralValue(self.reader, bType);
+        return {
+            literalType: bType,
+            literalValue: value
+        };
+    }
+
+    function parseAnnotRecordValue() returns AnnotationRecordValue {
+        map<AnnotationValue> annotValueMap = {};
         var noOfAnnotValueEntries = self.reader.readInt32();
         foreach var i in 0..<noOfAnnotValueEntries {
             var key = self.reader.readStringCpRef();
-            // read count
-            var noOfValueEntries = self.reader.readInt32();
-            AnnotationValueEntry?[] valueEntries = [];
-            foreach var j in 0..<noOfValueEntries {
-               var bType = self.reader.readTypeCpRef();
-               var value = parseLiteralValue(self.reader, bType);
-               valueEntries[j] = {literalType: bType, value: value};
-            }
-            
-            annotValue.valueEntryMap[key] = valueEntries;
+            var annotValue = self.parseAnnotAttachValue();
+            annotValueMap[key] = annotValue;
         }
-        return annotValue;
+        return {
+            annotValueMap: annotValueMap
+        };
+    }
+
+    function parseAnnotArrayValue() returns AnnotationArrayValue {
+        AnnotationValue?[]  annotValueArray = [];
+        var noOfAnnotValueEntries = self.reader.readInt32();
+        foreach var i in 0..<noOfAnnotValueEntries {
+            var annotValue = self.parseAnnotAttachValue();
+            annotValueArray[annotValueArray.length()] = annotValue;
+        }
+        return {
+            annotValueArray: annotValueArray
+        };
     }
 
 };
 
+function skipMarkDownDocAttachement(BirChannelReader reader) {
+    int docLength = reader.readInt32();
+    _ = reader.readByteArray(untaint docLength);
+}
+
 function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata {
     anydata value;
     if (bType is BTypeByte) {
-        value = reader.readIntCpRef();
-    } else if (bType is BTypeInt) {
         value = reader.readByteCpRef();
+    } else if (bType is BTypeInt) {
+        value = reader.readIntCpRef();
     } else if (bType is BTypeString) {
         value = reader.readStringCpRef();
     } else if (bType is BTypeDecimal) {

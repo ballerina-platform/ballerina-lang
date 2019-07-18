@@ -35,13 +35,12 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -75,6 +74,8 @@ public class LSCompilerUtil {
 
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
+    
+    private static final String FILE_SEPARATOR = File.separator;
 
     static {
         String experimental = System.getProperty("experimental");
@@ -175,10 +176,10 @@ public class LSCompilerUtil {
                                                          LSDocument document, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
-        CompilerContext context = prepareCompilerContext(packageID, packageRepository, document.getSourceRoot(),
+        CompilerContext context = prepareCompilerContext(packageID, packageRepository, document.getProjectRoot(),
                                                          preserveWhitespace, documentManager, compilerPhase);
-        Path sourceRootPath = document.getSourceRootPath();
-        if (isBallerinaProject(document.getSourceRoot(), document.getURIString())) {
+        Path sourceRootPath = document.getProjectRootPath();
+        if (isBallerinaProject(document.getProjectRoot())) {
             LangServerFSProjectDirectory projectDirectory =
                     LangServerFSProjectDirectory.getInstance(sourceRootPath, documentManager);
             context.put(SourceDirectory.class, projectDirectory);
@@ -205,7 +206,7 @@ public class LSCompilerUtil {
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.TAINT_ANALYZE);
+                documentManager, CompilerPhase.COMPILER_PLUGIN);
     }
 
     /**
@@ -214,42 +215,9 @@ public class LSCompilerUtil {
      * @param parentDir current parent directory
      * @return {@link String} project root | null
      */
-    public static String findProjectRoot(String parentDir) {
-        return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
-    }
-
     @CheckForNull
-    public static String findProjectRoot(String parentDir, Path balHomePath) {
-        if (parentDir == null) {
-            return null;
-        }
-        Path pathWithDotBal = null;
-        boolean pathWithDotBalExists = false;
-
-        // Go to top till you find a project directory or ballerina home
-        while (!pathWithDotBalExists && parentDir != null) {
-            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-            pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
-            if (!pathWithDotBalExists) {
-                Path parentsParent = Paths.get(parentDir).getParent();
-                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
-            }
-        }
-
-        boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
-
-        // Check if you find ballerina home if so return null.
-        if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
-            return null;
-        }
-
-        // Else return the project directory.
-        if (pathWithDotBalExists) {
-            return parentDir;
-        } else {
-            // If no directory found return null.
-            return null;
-        }
+    public static Path findProjectRoot(String parentDir) {
+        return ProjectDirs.findProjectRoot(Paths.get(parentDir));
     }
 
     private static boolean isSameFile(Path path1, Path path2) {
@@ -307,7 +275,7 @@ public class LSCompilerUtil {
      * @param filePath current file's path
      * @return {@link String} program directory path
      */
-    public static String getSourceRoot(Path filePath) {
+    public static String getProjectRoot(Path filePath) {
         if (filePath == null || filePath.getParent() == null) {
             return null;
         }
@@ -316,8 +284,8 @@ public class LSCompilerUtil {
             return null;
         }
 
-        String fileRoot = findProjectRoot(parentPath.toString());
-        return fileRoot != null ? fileRoot : parentPath.toString();
+        Path projectRoot = findProjectRoot(parentPath.toString());
+        return projectRoot != null ? projectRoot.toString() : parentPath.toString();
     }
 
     /**
@@ -334,8 +302,8 @@ public class LSCompilerUtil {
         if (parentPath == null) {
             return null;
         }
-
-        return findProjectRoot(parentPath.toString());
+        Path projectRoot = findProjectRoot(parentPath.toString());
+        return projectRoot == null ? null : projectRoot.toString();
     }
 
     /**
@@ -348,7 +316,7 @@ public class LSCompilerUtil {
      * @return top-level module path
      */
     public static Path getCurrentModulePath(Path filePath) {
-        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(filePath));
+        Path projectRoot = Paths.get(LSCompilerUtil.getProjectRoot(filePath));
         Path currentModulePath = projectRoot;
         Path prevSourceRoot = filePath.getParent();
         try {
@@ -374,12 +342,11 @@ public class LSCompilerUtil {
     /**
      * Check whether given directory is a project dir.
      *
-     * @param root root path
-     * @param fileUri file Uri
+     * @param projectRoot root path
      * @return {@link Boolean} true if project dir, else false
      */
-    public static boolean isBallerinaProject(String root, String fileUri) {
-        return findProjectRoot(root) != null;
+    public static boolean isBallerinaProject(String projectRoot) {
+        return findProjectRoot(projectRoot) != null;
     }
 
 
@@ -392,10 +359,10 @@ public class LSCompilerUtil {
      */
     public static String getPackageNameForGivenFile(String sourceRoot, String filePath) {
         String packageName = "";
-        String packageStructure = filePath.substring(sourceRoot.length() + 1, filePath.length());
+        String packageStructure = filePath.substring(sourceRoot.length() + 1);
         String[] splittedPackageStructure = packageStructure.split(Pattern.quote(File.separator));
         if (splittedPackageStructure.length > 0 && !splittedPackageStructure[0].endsWith(".bal")) {
-            packageName = packageStructure.split(Pattern.quote(File.separator))[0];
+            packageName = packageStructure.split(Pattern.quote(File.separator))[1];
         }
         return packageName;
     }
@@ -458,7 +425,7 @@ public class LSCompilerUtil {
      */
     public static List<String> getCurrentProjectModules(Path projectRoot) {
         try {
-            Stream<Path> pathStream = Files.walk(projectRoot);
+            Stream<Path> pathStream = Files.walk(projectRoot.resolve("src"));
             return pathStream
                     .filter(path -> { 
                         try { 

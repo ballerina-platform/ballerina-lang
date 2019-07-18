@@ -38,7 +38,7 @@ function testAnonObjectAsPkgVar() returns (string) {
     person = new (fname = "sameera", lname = "jaya");
     person.lname = person.lname + "soma";
     person.age = 100;
-    return person.fname + ":" + person.lname + ":" + person.age;
+    return person.fname + ":" + person.lname + ":" + person.age.toString();
 }
 
 type employee object {
@@ -97,7 +97,7 @@ function testAnonObjectAsObjectField() returns (string) {
     employee e = new ("sam", "json", 100,
                      new ("12 Gemba St APT 134", "Los Altos", "CA", "95123"),
                         new());
-    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
+    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address.state + ":" + e.fname;
 }
 
 object { public int age = 0; public string name = ""; function __init (int age, string lname) {self.name = "a " + lname;} function getName() returns string {return self.name;}} p = new (5, "hello");
