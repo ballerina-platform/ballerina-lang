@@ -11,7 +11,7 @@ import ballerina/internal;
 service basic on new http:WebSocketListener(9090) {
 
     string ping = "ping";
-    byte[] pingData = internal:toByteArray(ping, "UTF-8");
+    byte[] pingData = ping.toBytes();
 
     // This `resource` is triggered after a successful client connection.
     resource function onOpen(http:WebSocketCaller caller) {
