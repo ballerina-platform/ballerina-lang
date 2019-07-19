@@ -81,7 +81,7 @@ public class ReadDir extends BlockingNativeCallableUnit {
             }).toArray(ObjectValue[]::new);
             return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR, ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
             return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
         }

@@ -74,13 +74,13 @@ public class Remove extends BlockingNativeCallableUnit {
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
                 if (!removeFile.delete()) {
-                    return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR,
+                    return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR,
                             "Error while deleting " + removeFile.getCanonicalPath());
                 }
             }
             return null;
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR, ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
             return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
         }

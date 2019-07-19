@@ -61,7 +61,7 @@ public class Rename extends BlockingNativeCallableUnit {
             Files.move(oldFilePath.toAbsolutePath(), newFilePath.toAbsolutePath());
             return null;
         } catch (FileAlreadyExistsException e) {
-            return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR,
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
                     "File already exists in the new path " + newFilePath);
         } catch (IOException e) {
             return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);

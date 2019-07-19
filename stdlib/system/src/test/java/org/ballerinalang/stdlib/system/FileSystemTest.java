@@ -110,7 +110,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRename", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}OperationFailedError");
+            assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
             Files.deleteIfExists(tempSourcePath);
@@ -137,7 +137,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}OperationFailedError");
+            assertEquals(error.getReason(), "{ballerina/system}FileSystemError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
 
             // Remove directory with recursive true

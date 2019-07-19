@@ -70,7 +70,7 @@ public class Copy extends BlockingNativeCallableUnit {
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR, ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         }
         return null;
     }
