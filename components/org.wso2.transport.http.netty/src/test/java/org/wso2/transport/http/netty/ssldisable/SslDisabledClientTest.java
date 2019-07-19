@@ -27,12 +27,11 @@ import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.pkcs.PKCSTest;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.util.HashMap;
@@ -43,7 +42,7 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTPS_SCHEME;
  * Test case for testing insecure SSL validation. Client should accept any certificate presented from the server.
  */
 public class SslDisabledClientTest {
-    private static final Logger LOG = LoggerFactory.getLogger(PKCSTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SslDisabledClientTest.class);
 
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory httpConnectorFactory;
@@ -90,7 +89,7 @@ public class SslDisabledClientTest {
         try {
             httpConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for HttpWsFactory to close");
+            LOG.warn("Interrupted while waiting for httpConnectorFactory to close");
         }
     }
 }
