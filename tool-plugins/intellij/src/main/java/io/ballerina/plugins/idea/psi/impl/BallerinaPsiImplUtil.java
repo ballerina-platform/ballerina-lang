@@ -32,12 +32,15 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageName;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
 
 /**
  * Util class which contains methods related to PSI manipulation.
@@ -144,9 +147,15 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static String getPackage(@NotNull PsiFile file) {
         Project project = file.getProject();
-        String modulePath = project.getBasePath() + FILE_SEPARATOR;
+        String balProjectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(file.getVirtualFile().getPath(),
+                project.getBasePath());
+        if (balProjectRoot.isEmpty()) {
+            return balProjectRoot;
+        }
+
         String filePath = file.getVirtualFile().getPath();
-        filePath = filePath.replace(modulePath, "");
+        filePath = filePath.replace(String.format("%s%s%s%s", balProjectRoot, FILE_SEPARATOR, BALLERINA_SRC_DIR_NAME,
+                FILE_SEPARATOR), "");
         if (!filePath.contains(FILE_SEPARATOR)) {
             return "";
         }

@@ -455,8 +455,6 @@ public class HttpUtil {
     static void handleFailure(HttpCarbonMessage requestMessage, ErrorValue error) {
         String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        //TODO Need a method to get printable stacktrace
-//        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         ErrorHandlerUtils.printError("error: " + error.toString());
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }

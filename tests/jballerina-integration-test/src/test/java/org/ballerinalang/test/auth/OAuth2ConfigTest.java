@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 @Test(groups = "auth-test")
 public class OAuth2ConfigTest extends AuthBaseTest {
 
-    private final int servicePort = 9190;
+    private final int servicePort = 20028;
 
     @Test(description = "Test client credentials grant type with valid credentials")
     public void testClientCredentialsGrantType1() throws Exception {

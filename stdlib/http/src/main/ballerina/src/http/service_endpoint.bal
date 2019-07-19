@@ -85,7 +85,8 @@ public type Listener object {
     function register(service s, string? name) returns error? = external;
 
     # Starts the registered service.
-    function start() = external;
+    # + return - An `error` if there is any error occurred during the listener start process
+    function start() returns error? = external;
 
     # Stops the registered service.
     function stop() = external;

@@ -29,12 +29,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BIR_CACHE_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
@@ -113,12 +116,32 @@ public class BIRFileWriter {
         }
     }
 
+    private void writeImportsToHomeCache(List<BPackageSymbol> imports) {
+        for (BPackageSymbol bimport : imports) {
+            PackageID id = bimport.pkgID;
+            Path cacheDir = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
+                    .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+            try {
+                Files.createDirectories(cacheDir);
+                Path birFile = cacheDir.resolve(id.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(bimport.birPackageFile);
+                Files.write(birFile, pkgBirBinaryContent);
+                writeImportsToHomeCache(bimport.imports);
+            } catch (IOException e) {
+                String msg = "error writing the compiled module(bir) of '" +
+                        id.name.value + "' to '" + cacheDir + "': " + e.getMessage();
+                throw new BLangCompilerException(msg, e);
+            }
+        }
+    }
+
     private void writeBIRToProjectCache(BLangPackage module) throws IOException {
         // Find the module name
+        String orgName = module.packageID.orgName.value;
         String moduleName = module.packageID.name.value;
         String birFileName = moduleName + BLANG_COMPILED_PKG_BIR_EXT;
         // Create the cache directory
-        Path cacheDir = createCacheDirectory(moduleName);
+        Path cacheDir = createCacheDirectory(orgName, moduleName);
         Path birFile = cacheDir.resolve(birFileName);
         // Write the bir file
         //TODO: Investigate why birPackageFile can be null
@@ -128,6 +151,7 @@ public class BIRFileWriter {
         try {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(module.symbol.birPackageFile);
             Files.write(birFile, pkgBirBinaryContent);
+            writeImportsToHomeCache(module.symbol.imports);
         } catch (IOException e) {
             String msg = "error writing the compiled module(bir) of '" +
                     module.packageID + "' to '" + cacheDir + "': " + e.getMessage();
@@ -135,7 +159,7 @@ public class BIRFileWriter {
         }
     }
 
-    private Path createCacheDirectory(String moduleName) throws IOException {
+    private Path createCacheDirectory(String orgName, String moduleName) throws IOException {
         // Get project source root
         Path projectDirectory = this.sourceDirectory.getPath();
         String versionNo = manifest.getProject().getVersion();
@@ -143,6 +167,7 @@ public class BIRFileWriter {
         Path cacheDir = projectDirectory.resolve(TARGET_DIR_NAME)
                 .resolve(CACHES_DIR_NAME)
                 .resolve(BIR_CACHE_DIR_NAME)
+                .resolve(orgName)
                 .resolve(moduleName)
                 .resolve(versionNo);
         Files.createDirectories(cacheDir);

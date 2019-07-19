@@ -529,7 +529,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.SDK);
                 return;
             }
 
@@ -585,7 +585,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.INSTALL);
                 return;
             }
 
@@ -642,7 +642,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.UPDATE);
                 return;
             }
 
@@ -698,7 +698,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.REMOVE);
                 return;
             }
 

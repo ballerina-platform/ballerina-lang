@@ -572,7 +572,7 @@ public abstract class LSCompletionProvider {
 
         BLangType typeNode = ((BLangSimpleVariableDef) evalStatement).getVariable().getTypeNode();
 
-        return Optional.of(typeNode);
+        return Optional.ofNullable(typeNode);
     }
 
     private void fillFunctionWithBodySnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,

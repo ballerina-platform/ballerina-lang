@@ -40,7 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionInvocationNode;
 
 /**
  * Represents the ignore return command executor.
@@ -90,7 +90,7 @@ public class IgnoreReturnExecutor implements LSCommandExecutor {
 
         BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }

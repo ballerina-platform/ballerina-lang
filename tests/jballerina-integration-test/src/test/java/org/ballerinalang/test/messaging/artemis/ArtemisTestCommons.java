@@ -21,7 +21,6 @@ package org.ballerinalang.test.messaging.artemis;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterGroups;
@@ -39,24 +38,21 @@ public class ArtemisTestCommons extends BaseTest {
     private EmbeddedActiveMQ embeddedBroker;
 
     protected static BServerInstance serverInstance;
+    Path testsPath = Paths.get("src", "test", "resources", "messaging", "artemis");
+    Path producersPath = testsPath.resolve("src").resolve("producers");
 
     @BeforeGroups(value = "artemis-test", alwaysRun = true)
-    public void start() throws BallerinaTestException {
-        Path path = Paths.get("src", "test", "resources", "messaging", "artemis");
-
+    public void start() throws Exception {
         // Start broker
         embeddedBroker = new EmbeddedActiveMQ();
-        String brokerXML = path.resolve("configfiles").resolve("broker.xml").toUri().toString();
+        String brokerXML = testsPath.resolve("src").resolve("configfiles").resolve("broker.xml").toUri().toString();
         embeddedBroker.setConfigResourcePath(brokerXML);
-        try {
-            embeddedBroker.start();
-        } catch (Exception ex) {
-            log.error("Cannot start ActiveMQ Artemis broker " + ex.getMessage(), ex);
-        }
+        embeddedBroker.start();
+
 
         // Start Ballerina server
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(path.toAbsolutePath().toString(), "consumers", new String[]{"--experimental"},
+        serverInstance.startServer(testsPath.toAbsolutePath().toString(), "consumers", new String[]{"--experimental"},
                                    new int[]{});
     }
 

@@ -127,11 +127,11 @@ public class H2ClientActionsTest {
         assertInitTestReturnValues(returns);
     }
 
-    // TODO: #16033
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:Failed to initialize pool: "
-                  + "Unsupported connection setting \"INVALID_PARAM\".*", groups = { H2_TEST_GROUP, "broken" })
+                  ".*error in sql connector configuration:"
+                          + "Property INVALID_PARAM does not exist on target class org.h2.jdbcx.JdbcDataSource.*",
+          groups = { H2_TEST_GROUP })
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");
         Assert.fail("Expected exception should have been thrown by this point");

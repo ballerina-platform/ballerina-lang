@@ -21,8 +21,6 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -47,10 +45,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetConnection extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class GetConnection {
 
     public static Object getConnection(Strand strand, ObjectValue channelObjectValue) {
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
@@ -68,5 +63,8 @@ public class GetConnection extends BlockingNativeCallableUnit {
         } catch (AlreadyClosedException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR + exception.getMessage());
         }
+    }
+
+    private GetConnection() {
     }
 }

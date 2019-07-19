@@ -25,7 +25,7 @@ function test5 (int value) returns (string) {
 }
 
 function foo (int a, string b, boolean c) returns (string) {
-    return a + b + c;
+    return a.toString() + b + c.toString();
 }
 
 type Person record {

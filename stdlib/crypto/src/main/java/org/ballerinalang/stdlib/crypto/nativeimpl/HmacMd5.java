@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -34,11 +32,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
         orgName = "ballerina", packageName = "crypto",
         functionName = "hmacMd5", isPublic = true
 )
-public class HmacMd5 extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class HmacMd5 {
 
     public static ArrayValue hmacMd5(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
         byte[] output = CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes());

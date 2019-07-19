@@ -49,7 +49,7 @@ public function getEmployee() returns Employee {
 
 public function getEmployeeEmployee() returns Employee {
     var f = basicClosure();
-    int r = f.call(1);
+    int r = f(1);
     return getEmployee();
 }
 

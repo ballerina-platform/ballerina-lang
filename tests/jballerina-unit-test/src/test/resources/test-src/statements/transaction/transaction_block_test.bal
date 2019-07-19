@@ -27,7 +27,7 @@ function testTransactionFailing() returns string|error {
 function testTransactionStmtWithCommitedAndAbortedBlocks(int failureCutOff, boolean requestAbort) returns (string) {
     string a = "";
     a = a + "start";
-    a = a + " fc-" + failureCutOff;
+    a = a + " fc-" + failureCutOff.toString();
     int count = 0;
     transaction with retries=2 {
         a = a + " inTrx";

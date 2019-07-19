@@ -35,7 +35,7 @@ dependencies {
     implementation project(':language-server:language-server-compiler')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-http')
     

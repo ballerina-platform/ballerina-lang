@@ -69,7 +69,7 @@ public type TimeAccumulatingWindow object {
             }
         } else {
             error err = error("Time accumulating window should only have one parameter (<int> " +
-                "timePeriod), but found " + parameters.length() + " input attributes");
+                "timePeriod), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

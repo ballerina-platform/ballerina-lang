@@ -31,7 +31,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnConfigInheritanceTest extends AuthBaseTest {
 
-    private final int servicePort = 9090;
+    private final int servicePort = 20000;
 
     @Test(description = "Secured resource, secured service test case with no auth headers")
     public void testNoAuthHeaders1() throws Exception {

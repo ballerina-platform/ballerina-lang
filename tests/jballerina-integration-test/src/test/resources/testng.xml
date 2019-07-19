@@ -225,37 +225,37 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-    <test name="ballerina-websub-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
-            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-websub-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>-->
+<!--            &lt;!&ndash; WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the-->
+<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
+<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
-    <test name="ballerina-websub-advanced-config-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
-            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
-            <!--<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
-        </classes>
-    </test>
+<!--    <test name="ballerina-websub-advanced-config-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>-->
+<!--            &lt;!&ndash; DummyTestCase or any other test which does not have @BeforeClass and belongs to the-->
+<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
+<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>-->
+<!--            &lt;!&ndash;<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>&ndash;&gt;-->
+<!--        </classes>-->
+<!--    </test>-->
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.data.streaming.TableToXMLStreamingTestCase"/>
+            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -266,13 +266,15 @@
         </classes>
     </test>
 
-<!--    <test name="artemis-test" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
-<!--            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="artemis-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisDummyTestCase"/>
+            <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
+            <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
+            <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
+<!--        <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
+            <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
+        </classes>
+    </test>
 </suite>

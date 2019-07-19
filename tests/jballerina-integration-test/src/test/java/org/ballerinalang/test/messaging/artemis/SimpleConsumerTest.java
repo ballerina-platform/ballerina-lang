@@ -18,15 +18,13 @@
 
 package org.ballerinalang.test.messaging.artemis;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.test.messaging.artemis.ArtemisTestUtils.testSend;
 
@@ -40,8 +38,7 @@ public class SimpleConsumerTest extends ArtemisTestCommons {
     @BeforeClass
     public void setup() throws URISyntaxException {
         TestUtils.prepareBalo(this);
-        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis", "producers");
-        result = BCompileUtil.compile(sourcePath.resolve("simple_producer.bal").toAbsolutePath().toString());
+        result = BCompileUtil.compile(producersPath.resolve("simple_producer.bal").toAbsolutePath().toString());
     }
 
     @Test(description = "Tests the sending of a string message to a queue")

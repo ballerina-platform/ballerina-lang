@@ -95,7 +95,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -374,7 +378,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String innerDirName = LSCompilerUtil.getCurrentModulePath(document.getPath())
                         .relativize(document.getPath())
                         .toString().split(Pattern.quote(File.separator))[0];
-                String moduleName = document.getSourceRootPath()
+                String moduleName = document.getProjectRootPath()
                         .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
                         !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
@@ -546,7 +550,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
                         GotoImplementationCustomErrorStrategy.class, false);
                 implementationLocations.addAll(GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
-                        position.getPosition(), lsDocument.getSourceRoot()));
+                        position.getPosition(), lsDocument.getProjectRoot()));
             } catch (LSCompilerException e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
@@ -562,20 +566,26 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        Path openedPath = new LSDocument(params.getTextDocument().getUri()).getPath();
-        if (openedPath != null) {
+        String docUri = params.getTextDocument().getUri();
+        LSDocument document = new LSDocument(docUri);
+        Path compilationPath;
+        try {
+            compilationPath = Paths.get(new URL(docUri).toURI());
+        } catch (URISyntaxException | MalformedURLException e) {
+            compilationPath = null;
+        }
+        if (compilationPath != null) {
             String content = params.getTextDocument().getText();
-            Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath);
+            // TODO: check the untitled file path issue
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                documentManager.openFile(compilationPath, content);
+                documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
                 LanguageClient client = this.ballerinaLanguageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext();
-                String fileURI = params.getTextDocument().getUri();
-                context.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, context, documentManager);
-            } catch (WorkspaceDocumentException | LSCompilerException e) {
-                LOGGER.error("Error while opening file:" + openedPath.toString());
+            } catch (WorkspaceDocumentException | LSCompilerException | MalformedURLException | URISyntaxException e) {
+                LOGGER.error("Error while opening file:" + document.toString());
             } finally {
                 lock.ifPresent(Lock::unlock);
             }

@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
@@ -66,14 +67,17 @@ public class DiagnosticsHelper {
     /**
      * Compiles and publishes diagnostics for a source file.
      *
-     * @param client            Language server client
-     * @param lsCompiler        LS Compiler
+     * @param client     Language server client
+     * @param lsCompiler LS Compiler
+     * @param context    LS context
+     * @param docManager LS Document manager
+     * @throws LSCompilerException throws a LS compiler exception
      */
     public synchronized void compileAndSendDiagnostics(LanguageClient client, LSCompiler lsCompiler, LSContext context,
                                                        WorkspaceDocumentManager docManager) throws LSCompilerException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        Path projectPath = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY)).getSourceRootPath();
+        Path projectPath = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY)).getProjectRootPath();
         lsCompiler.getBLangPackages(context, docManager, true, null, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
@@ -130,11 +134,19 @@ public class DiagnosticsHelper {
     public Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
                                                         Path projectPath) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        diagnostics.forEach(diag -> {
+        boolean ballerinaProject = LSCompilerUtil.isBallerinaProject(projectPath.toString());
+        Path diagnosticRoot = projectPath;
+        for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();
-            String fileURI = projectPath.resolve(moduleName).resolve(fileName).toUri().toString() + "";
+            if (ballerinaProject) {
+                diagnosticRoot = diagnosticRoot.resolve("src");
+            }
+            if (!".".equals(moduleName)) {
+                diagnosticRoot = diagnosticRoot.resolve(moduleName);
+            }
+            String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<>());
@@ -152,7 +164,7 @@ public class DiagnosticsHelper {
             Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
             diagnostic.setSeverity(DiagnosticSeverity.Error);
             clientDiagnostics.add(diagnostic);
-        });
+        }
         return diagnosticsMap;
     }
 
