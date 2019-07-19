@@ -73,7 +73,7 @@ public class PoolOptionsWrapper {
         try {
             sqlDatasource.acquireMutex();
         } catch (InterruptedException e) {
-            throw SQLDatasourceUtils.getSQLApplicationError("error in obtaining a connection pool");
+            throw SQLDatasourceUtils.getSQLApplicationError("Error while obtaining a connection pool");
         }
     }
 

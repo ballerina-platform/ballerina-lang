@@ -207,23 +207,31 @@ public class SQLDatasourceUtils {
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
-        String sqlErrorMessage =
-                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        int vendorCode = exception.getErrorCode();
-        String sqlState = exception.getSQLState();
-        return getSQLDatabaseError(messagePrefix + sqlErrorMessage, vendorCode, sqlState);
+        String sqlErrorMessage;
+        int vendorCode;
+        String sqlState;
+        String errorMessage = messagePrefix;
+
+        if (exception instanceof DatabaseException) {
+            DatabaseException dbException = (DatabaseException) exception;
+            String reason =
+                    dbException.getMessage() != null ? dbException.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+            sqlErrorMessage = dbException.getSqlErrorMessage();
+            vendorCode = dbException.getSqlErrorCode();
+            sqlState = dbException.getSqlState();
+            errorMessage += reason;
+        } else {
+            sqlErrorMessage =
+                    exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+            vendorCode = exception.getErrorCode();
+            sqlState = exception.getSQLState();
+        }
+        errorMessage += sqlErrorMessage + ".";
+        return getSQLDatabaseError(errorMessage, vendorCode, sqlState);
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception) {
         return getSQLDatabaseError(exception, "");
-    }
-
-    public static ErrorValue getSQLDatabaseError(DatabaseException exception, String messagePrefix) {
-        String message = exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        int vendorCode = exception.getSqlErrorCode();
-        String sqlState = exception.getSqlState();
-        String sqlErrorMessage = exception.getSqlErrorMessage();
-        return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
     }
 
     static ErrorValue getSQLDatabaseError(DatabaseException exception) {
@@ -243,9 +251,9 @@ public class SQLDatasourceUtils {
     public static ErrorValue getSQLApplicationError(ApplicationException exception, String messagePrefix) {
         String message =
                 exception.getMessage() != null ? exception.getMessage() : Constants.APPLICATION_ERROR_MESSAGE;
-        String detailedErrorMessage = messagePrefix + message;
+        String detailedErrorMessage = messagePrefix + message + ".";
         if (exception.getDetailedErrorMessage() != null) {
-            detailedErrorMessage += exception.getDetailedErrorMessage();
+            detailedErrorMessage += " " + exception.getDetailedErrorMessage() + ".";
         }
         return getSQLApplicationError(detailedErrorMessage);
     }

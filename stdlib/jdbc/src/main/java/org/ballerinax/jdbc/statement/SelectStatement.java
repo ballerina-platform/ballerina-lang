@@ -28,7 +28,6 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -67,7 +66,7 @@ public class SelectStatement extends AbstractSQLStatement {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        String errorMessagePrefix = "execute query failed: ";
+        String errorMessagePrefix = "Failed to execute select query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource, true);
@@ -83,12 +82,6 @@ public class SelectStatement extends AbstractSQLStatement {
             cleanupResources(rs, stmt, conn, true);
             handleErrorOnTransaction(this.strand);
             //TODO: JBalMigration Commenting out transaction handling and observability
-            // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
-        } catch (DatabaseException e) {
-            cleanupResources(null, stmt, conn, true);
-            //TODO: JBalMigration Commenting out transaction handling and observability
-            handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute query failed: " + e.getMessage());
             return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {

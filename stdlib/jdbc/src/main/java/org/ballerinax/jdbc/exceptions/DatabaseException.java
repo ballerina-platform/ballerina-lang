@@ -24,7 +24,7 @@ import java.sql.SQLException;
  *
  * @since 1.0.0
  */
-public class DatabaseException extends Exception {
+public class DatabaseException extends SQLException {
 
     private int sqlErrorCode;
     private String sqlState;
