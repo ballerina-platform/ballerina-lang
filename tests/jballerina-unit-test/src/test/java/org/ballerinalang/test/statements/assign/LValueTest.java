@@ -145,7 +145,7 @@ public class LValueTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}InvalidUpdate message=Invalid update of record field:" +
-                    " modification not allowed on frozen value.*")
+                    " modification not allowed on readonly value.*")
     public void testFrozenValueUpdate() {
         BRunUtil.invoke(result, "testFrozenValueUpdate");
     }
