@@ -318,13 +318,14 @@ public class Util {
      * Configure outbound HTTP pipeline for SSL configuration.
      *
      * @param socketChannel Socket channel of outbound connection
-     * @param sslConfig {@link SSLConfig}
-     * @param host host of the connection
-     * @param port port of the connection
+     * @param sslConfig     {@link SSLConfig}
+     * @param host          host of the connection
+     * @param port          port of the connection
+     * @return the {@link SSLEngine} which enables secure communication
      * @throws SSLException if any error occurs in the SSL connection
      */
     public static SSLEngine configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
-            SSLConfig sslConfig) throws SSLException {
+                                                        SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         SSLEngine sslEngine = null;
         SslHandler sslHandler;
@@ -663,8 +664,9 @@ public class Util {
     /**
      * Adds a listener to notify the outbound response future if an error occurs while writing the response message.
      *
-     * @param outboundRespStatusFuture the future of outbound response write operation
-     * @param channelFuture            the channel future related to response write operation
+     * @param outboundRespStatusFuture  the future of outbound response write operation
+     * @param channelFuture             the channel future related to response write operation
+     * @param http2OutboundRespListener the http/2 outbound response listener
      */
     public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
                                                        ChannelFuture channelFuture,

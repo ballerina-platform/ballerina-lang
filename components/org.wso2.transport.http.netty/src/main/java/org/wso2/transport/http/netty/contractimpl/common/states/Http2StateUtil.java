@@ -104,6 +104,7 @@ public class Http2StateUtil {
      *
      * @param httpRequest        the HTTPRequest message
      * @param http2SourceHandler the HTTP/2 source handler
+     * @param streamId           the stream id
      * @return the CarbonRequest Message created from given HttpRequest
      */
     public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
@@ -142,6 +143,7 @@ public class Http2StateUtil {
      * @param streamId                 the id of the stream
      * @param http2Headers             the Http2Headers received over a HTTP/2 stream
      * @param endStream                is this the end of stream
+     * @param respListener             http/2 outbound response listener
      * @throws Http2Exception throws if a protocol-related error occurred
      */
     public static void writeHttp2ResponseHeaders(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
@@ -335,6 +337,7 @@ public class Http2StateUtil {
     /**
      * Adds a push promise message.
      *
+     * @param ctx                the channel handler context
      * @param http2PushPromise   the HTTP2 push promise
      * @param http2ClientChannel the client channel related to the handler
      * @param outboundMsgHolder  the outbound message holder
