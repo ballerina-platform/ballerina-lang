@@ -27,30 +27,26 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 public class MathUtils {
 
     public static long divide(long numerator, long denominator) {
-        if (denominator == 0) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+        try {
+            return numerator / denominator;
+        } catch (ArithmeticException e) {
+            if (denominator == 0) {
+                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+            } else {
+                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+            }
         }
-        return numerator / denominator;
-    }
-
-    public static double divide(double numerator, double denominator) {
-        if (denominator == 0) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
-        }
-        return numerator / denominator;
     }
 
     public static long remainder(long numerator, long denominator) {
-        if (denominator == 0) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+        try {
+            return numerator % denominator;
+        } catch (ArithmeticException e) {
+            if (denominator == 0) {
+                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+            } else {
+                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+            }
         }
-        return numerator % denominator;
-    }
-
-    public static double remainder(double numerator, double denominator) {
-        if (denominator == 0) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
-        }
-        return numerator % denominator;
     }
 }

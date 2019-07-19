@@ -421,7 +421,7 @@ type InstructionGenerator object {
         if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
         } else if (bType is bir:BTypeFloat) {
-            self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(DD)D", false);
+            self.mv.visitInsn(DDIV);
         } else if (bType is bir:BTypeDecimal) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "divide",
                 io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
@@ -457,7 +457,7 @@ type InstructionGenerator object {
             if (bType is bir:BTypeInt) {
                 self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
             } else if (bType is bir:BTypeFloat) {
-                self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(DD)D", false);
+                self.mv.visitInsn(DREM);
             } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "remainder",
                     io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
