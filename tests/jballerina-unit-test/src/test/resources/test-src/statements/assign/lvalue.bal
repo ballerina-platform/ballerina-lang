@@ -314,3 +314,87 @@ function testFillingReadOnInitializedObjectField() returns boolean {
 
     return i.h?.m["one"] == 1 && i.h?.m["two"] == 2;
 }
+
+type J record {
+    string s = "default value";
+};
+
+function testFillingReadOnMapPositive() returns boolean {
+    map<map<int>> m1 = {};
+    m1["one"]["id"] = 10;
+
+    map<J> m2 = {};
+    m2["one"]["s"] = "value";
+
+    map<int>? m3 = m1["one"];
+    if (m3 is () || m3.length() != 1) {
+        return false;
+    }
+
+    J? j = m2["one"];
+    if (j is () || j.length() != 1) {
+        return false;
+    }
+
+    return m1["one"]["id"] == 10 && m2["one"]["s"] == "value";
+}
+
+type K record {
+    J j?;
+};
+
+function testFillingReadOnRecordPositive() returns boolean {
+    K k1 = {};
+    K k2 = {};
+
+    k1.j.s = "new value 1";
+    k2.j.s = "new value 2";
+
+    J? j1 = k1?.j;
+    J? j2 = k2?.j;
+
+    if (j1 is () || j2 is ()) {
+        return false;
+    }
+
+    return k1?.j?.s == "new value 1" && k2["j"]["s"] == "new value 2";
+}
+
+type L record {
+    int i;
+};
+
+function testFieldUpdateOfElementForMapWithNoFillerValue() returns boolean {
+    map<L> m = { one: { i: 10 } };
+    m["one"]["i"] = 1;
+    return m["one"]["i"] == 1;
+}
+
+function testFillingReadOnMappingNegative() {
+    map<L> m = {};
+    m["one"]["i"] = 1;
+}
+
+type M record {
+    L l?;
+};
+
+function testFieldUpdateOfElementForRecordWithNoFillerValue() returns boolean {
+    M m1 = { l: { i: 10 } };
+    m1["l"]["i"] = 150;
+
+    M m2 = { l: { i: 10 } };
+    m2.l.i = 250;
+
+    return m1["l"]["i"] == 150 && m2?.l?.i == 250;
+}
+
+function testFillingReadOnRecordNegativeFieldAccessLvExpr() {
+    M m = {};
+    m.l.i = 1;
+}
+
+function testFillingReadOnRecordNegativeMemberAccessLvExpr() {
+    M m = {};
+    m["l"]["i"] = 1;
+}

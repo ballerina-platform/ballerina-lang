@@ -60,3 +60,21 @@ function testInvalidFillingReadOnInitializedObjectField() {
     D d = new;
     d.c.m["one"] = 1;
 }
+
+type E record {
+    string x;
+};
+
+type F record {
+    map<int>? m = ();
+    E? e;
+};
+
+function testInvalidRecordFieldAccessLvExpr() {
+    E e = { x: "hello" };
+    e.y = 1;
+
+    F f = { m: { "one": 1 }, e: () };
+    f.m["two"] = 2;
+    f.e.x = "ddd";
+}

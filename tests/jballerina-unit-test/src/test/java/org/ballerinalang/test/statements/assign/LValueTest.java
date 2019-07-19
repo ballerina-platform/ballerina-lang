@@ -68,7 +68,7 @@ public class LValueTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 10);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
         validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 5);
@@ -80,6 +80,10 @@ public class LValueTest {
         validateError(negativeResult, i++, "uninitialized field 's'", 44, 5);
         validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
                 "assignment", 61, 5);
+        validateError(negativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
+        validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
+                "assignment", 78, 5);
+        validateError(negativeResult, i, "invalid operation: type 'E?' does not support field access", 79, 5);
     }
 
     @Test(dataProvider = "valueStoreFunctions")
@@ -98,7 +102,9 @@ public class LValueTest {
             { "testBasicValueStoreForUnionVariable" },
             { "testValueStoreForMapUnion" },
             { "testValueStoreForRecordUnion" },
-            { "testValueStoreForObjectUnion" }
+            { "testValueStoreForObjectUnion" },
+            { "testFieldUpdateOfElementForMapWithNoFillerValue" },
+            { "testFieldUpdateOfElementForRecordWithNoFillerValue" }
         };
     }
 
@@ -169,7 +175,27 @@ public class LValueTest {
     @DataProvider(name = "mappingFillingReadFunctions")
     public Object[][] mappingFillingReadFunctions() {
         return new Object[][] {
-            { "testFillingReadOnInitializedObjectField" }
+            { "testFillingReadOnInitializedObjectField" },
+            { "testFillingReadOnMapPositive" },
+            { "testFillingReadOnRecordPositive" }
         };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}KeyNotFound message=cannot find key 'one'.*")
+    public void testFillingReadOnMappingNegative() {
+        BRunUtil.invoke(result, "testFillingReadOnMappingNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}KeyNotFound message=cannot find key 'l'.*")
+    public void testFillingReadOnRecordNegativeFieldAccessLvExpr() {
+        BRunUtil.invoke(result, "testFillingReadOnRecordNegativeFieldAccessLvExpr");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}KeyNotFound message=cannot find key 'l'.*")
+    public void testFillingReadOnRecordNegativeMemberAccessLvExpr() {
+        BRunUtil.invoke(result, "testFillingReadOnRecordNegativeMemberAccessLvExpr");
     }
 }
