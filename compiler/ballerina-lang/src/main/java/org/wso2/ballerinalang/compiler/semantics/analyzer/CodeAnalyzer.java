@@ -1630,10 +1630,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateBinaryExpr(BLangBinaryExpr binaryExpr) {
-        // This is when there are semantic errors causing lsh type to be null.
-        if (binaryExpr.lhsExpr.type == null) {
-            return false;
-        }
         // 1) For usual binary expressions the lhs or rhs can never be future types, so return true if both of
         // them are not future types
         if (binaryExpr.lhsExpr.type.tag != TypeTags.FUTURE && binaryExpr.rhsExpr.type.tag != TypeTags.FUTURE) {
