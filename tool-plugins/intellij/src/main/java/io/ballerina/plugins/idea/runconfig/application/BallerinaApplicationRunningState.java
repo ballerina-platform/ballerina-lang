@@ -39,6 +39,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.nio.file.Paths;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
+
 /**
  * Represents Ballerina application running state.
  */
@@ -83,20 +85,25 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         }
 
         VirtualFile fileDir = file.getVirtualFile().getParent();
-        // Sets parent of IDEA project as the termination for the recursive search.
-        String rootDir = new File(project.getBasePath()).getParent();
-        String sourcerootDir = BallerinaSdkUtils.searchForBallerinaProjectRoot(fileDir.getPath(), rootDir);
+        // Sets IDEA project as the termination for the recursive search.
+        String projectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(fileDir.getPath(),
+                project.getBasePath());
         // if no ballerina project is found.
-        if (sourcerootDir.equals("")) {
-            sourcerootDir = baseDir.getPath();
-            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
+        if (projectRoot.equals("")) {
+            projectRoot = baseDir.getPath();
+            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
         } else {
             String relativeFilePath =
-                    Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
+                    Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
             //If file is found in a ballerina package, runs the whole package.
-            if (relativeFilePath.contains(File.separator)) {
-                // package, instead of the single file.
-                filePath = relativeFilePath.substring(0, relativeFilePath.indexOf(File.separator));
+            if (relativeFilePath.startsWith(BALLERINA_SRC_DIR_NAME)) {
+                filePath = relativeFilePath.replace(BALLERINA_SRC_DIR_NAME + File.separator, "");
+                if (filePath.contains(File.separator)) {
+                    // package, instead of the single file.
+                    filePath = filePath.substring(0, filePath.indexOf(File.separator));
+                } else {
+                    filePath = relativeFilePath;
+                }
             } else {
                 filePath = relativeFilePath;
             }
@@ -122,7 +129,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor.withParameters("--sourceroot").withParameters(sourcerootDir).withBallerinaPath(
+            ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot).withBallerinaPath(
                     BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
                     .withParameterString(myConfiguration.getBallerinaToolParams());
         } else {

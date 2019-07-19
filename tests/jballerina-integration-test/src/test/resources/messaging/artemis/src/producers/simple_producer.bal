@@ -18,7 +18,7 @@ import ballerina/artemis;
 import ballerina/filepath;
 
 public function testSimpleSend() {
-    artemis:Producer prod = new({host: "localhost", port: 61616}, "simple_queue", addressConfig = {autoCreated:false});
+    artemis:Producer prod = new({host: "localhost", port: 61616}, "simple_queue", {autoCreated:false});
     var err = prod->send("Hello World");
     err = prod->close();
 }

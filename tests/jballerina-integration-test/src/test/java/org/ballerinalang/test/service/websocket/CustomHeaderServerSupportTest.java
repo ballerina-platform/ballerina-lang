@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class CustomHeaderServerSupportTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9093/simple3/custom/header/server";
+    private static final String URL = "ws://localhost:21012/simple3/custom/header/server";
     private static final String RECEIVED_TEXT = "some-header-value";
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_server.bal file")

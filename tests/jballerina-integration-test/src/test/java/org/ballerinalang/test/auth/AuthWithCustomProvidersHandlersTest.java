@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 @Test(groups = "auth-test")
 public class AuthWithCustomProvidersHandlersTest extends AuthBaseTest {
 
-    private final int servicePort = 9113;
+    private final int servicePort = 20023;
 
     @Test(description = "Auth success with outbound custom auth provider initially generated token")
     public void testAuthSuccess1() throws Exception {
