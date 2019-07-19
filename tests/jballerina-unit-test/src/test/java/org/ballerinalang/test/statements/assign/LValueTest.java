@@ -68,15 +68,18 @@ public class LValueTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
         validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 5);
         validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
         validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
                 "assignment", 38, 5);
-        validateError(negativeResult, i, "optional field access cannot be used in the target expression of an " +
+        validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
                 "assignment", 39, 5);
+        validateError(negativeResult, i++, "uninitialized field 's'", 44, 5);
+        validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
+                "assignment", 61, 5);
     }
 
     @Test(dataProvider = "valueStoreFunctions")
@@ -139,5 +142,34 @@ public class LValueTest {
                     " modification not allowed on frozen value.*")
     public void testFrozenValueUpdate() {
         BRunUtil.invoke(result, "testFrozenValueUpdate");
+    }
+
+    @Test
+    public void testListFillMember() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayFillSuccess1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        returns = BRunUtil.invoke(result, "testArrayFillSuccess2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IllegalArrayInsertion message=array of length 2 " +
+                    "cannot be expanded into array of length 4 without filler values.*")
+    public void testArrayFillFailure() {
+        BRunUtil.invoke(result, "testArrayFillFailure");
+    }
+
+    @Test(dataProvider = "mappingFillingReadFunctions")
+    public void testMappingFillingRead(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "mappingFillingReadFunctions")
+    public Object[][] mappingFillingReadFunctions() {
+        return new Object[][] {
+            { "testFillingReadOnInitializedObjectField" }
+        };
     }
 }

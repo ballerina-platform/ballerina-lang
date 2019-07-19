@@ -38,3 +38,25 @@ function testInvalidOptionalFieldAccesOnLhs() {
     m?.x += "qwer";
     m?.y += 1;
 }
+
+type ObjectWithInvalidFillingReadOnUninitializedField object {
+
+    map<int[]> s;
+
+    function __init() {
+        self.s["one"][0] = 1;
+    }
+};
+
+type C record {
+    map<int>? m = ();
+};
+
+type D object {
+    C c = {};
+};
+
+function testInvalidFillingReadOnInitializedObjectField() {
+    D d = new;
+    d.c.m["one"] = 1;
+}

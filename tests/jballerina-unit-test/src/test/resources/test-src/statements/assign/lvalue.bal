@@ -239,3 +239,78 @@ function testFrozenValueUpdate() {
     BRec b2 = b.cloneReadOnly();
     b2.i = 1;
 }
+
+function testArrayFillSuccess1() returns boolean {
+    int[] i = [0, 1];
+    i[4] = 4;
+    return i.length() == 5 && i[0] == 0 && i[1] == 1 && i[4] == 4 && i[2] == i[3] && i[2] == 0;
+}
+
+type E record {
+    int i = 10;
+    string s?;
+    F f = {};
+
+};
+
+type F record {
+    float f = 1.0;
+};
+
+function testArrayFillSuccess2() returns boolean {
+    E e1 = { i: 120, s: "hello", f: { f: 1.4 } };
+    E e2 = { i: 345, f: { f: 1.4 } };
+    E[] e = [e1];
+    e[3] = e2;
+
+    return e.length() == 4 && e[0] == e1 && e[3] == e2 && e[1] == e[2] && e[1].i == 10 && e[1]?.s is () &&
+            e[1].f.f == 1.0;
+}
+
+type G object {
+
+    string s;
+
+    function __init(string s) {
+        self.s = s;
+    }
+};
+
+function testArrayFillFailure() {
+    G[] a = [new("hello"), new("world")];
+    a[3] = new("test");
+}
+
+function testArrayFillOnFilledContainer() returns boolean {
+    map<map<string[]>> m = {};
+    m["one"]["two"][3] = "test";
+
+    if !(m["one"]["two"] is string[]) {
+        return false;
+    }
+
+    string[] s = <string[]> m["one"]["two"];
+    return m.length() == 1 && s.length() == 4 && s[0] == "" && s[1] == "" && s[2] == "" && s[3] == "test";
+}
+
+type H record {
+    map<int> m?;
+};
+
+type I object {
+    H h = {};
+};
+
+function testFillingReadOnInitializedObjectField() returns boolean {
+    I i = new;
+    i.h.m["one"] = 1;
+    i.h.m["two"] = 2;
+
+    map<int>? rm = i.h?.m;
+
+    if (rm is () || rm.length() != 2) {
+        return false;
+    }
+
+    return i.h?.m["one"] == 1 && i.h?.m["two"] == 2;
+}
