@@ -56,7 +56,7 @@ service delay06 on backendEP06 {
     }
     resource function delayResource(http:Caller caller, http:Request req) {
         // Delay the response for 5000 milliseconds to mimic network level delays.
-        runtime:sleep(5000);
+        runtime:sleep(10000);
         var responseToCaller = caller->respond("Delayed resource is invoked");
         if (responseToCaller is error) {
             log:printError("Error sending response from delay service", responseToCaller);
