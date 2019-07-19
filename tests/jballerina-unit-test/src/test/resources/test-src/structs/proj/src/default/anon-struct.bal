@@ -26,7 +26,7 @@ function testAnonStructAsPkgVar() returns (string) {
     personRec = {fname:"sameera", lname:"jaya"};
     personRec.lname = personRec.lname + "soma";
     personRec.age = 100;
-    return personRec.fname + ":" + personRec.lname + ":" + personRec.age;
+    return personRec.fname + ":" + personRec.lname + ":" + personRec.age.toString();
 }
 
 type employee record {

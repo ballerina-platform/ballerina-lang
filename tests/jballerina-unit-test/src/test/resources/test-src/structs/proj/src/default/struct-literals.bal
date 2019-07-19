@@ -1,7 +1,7 @@
 type DepartmentLT record {
     string dptName = "";
-    Person[] employees = [];
-    Person manager = {};
+    PersonLT[] employees = [];
+    PersonLT manager = {};
 };
 
 type PersonLT record {

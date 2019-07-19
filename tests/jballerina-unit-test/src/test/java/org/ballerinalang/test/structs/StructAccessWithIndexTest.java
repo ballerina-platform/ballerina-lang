@@ -41,7 +41,7 @@ public class StructAccessWithIndexTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/src/default/struct-access-with-index.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/struct-access-with-index.bal");
         negativeResult = BCompileUtil.compile("test-src/structs/struct-access-with-index-negative.bal");
     }
 

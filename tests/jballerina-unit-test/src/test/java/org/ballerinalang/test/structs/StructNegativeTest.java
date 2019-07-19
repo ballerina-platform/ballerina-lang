@@ -80,7 +80,7 @@ public class StructNegativeTest {
 
     @Test(description = "Test defining a struct constant")
     public void testStructConstant() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs", "constants");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/structs/proj", "constants");
         Assert.assertEquals(compileResult.getWarnCount(), 0);
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
