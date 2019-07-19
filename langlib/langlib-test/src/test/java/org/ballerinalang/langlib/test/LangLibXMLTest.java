@@ -59,4 +59,11 @@ public class LangLibXMLTest {
                 {returns[2], 12}
         };
     }
+
+    @Test
+    public void testFromXml() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
+        assertEquals(returns[0].stringValue(),
+                "<TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE><TITLE>Greatest Hits</TITLE>");
+    }
 }

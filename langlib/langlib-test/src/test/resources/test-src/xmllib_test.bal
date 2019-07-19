@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.xml as xmllib;
+
 xml catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
@@ -42,4 +44,10 @@ function getXML() returns xml[] {
     data[data.length()] = xml `Hello World!`;
 
     return data;
+}
+
+function testFromString() returns xml|error {
+    string s = catalog.toString();
+    xml x = <xml> xmllib:fromString(s);
+    return x["CD"]["TITLE"];
 }
