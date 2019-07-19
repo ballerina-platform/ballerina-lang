@@ -41,65 +41,51 @@ type Teacher record {
     string school;
 };
 
-type TeacherObj object {
-    string name = "Mohan";
-    int age = 30;
-    string status = "Single";
-    string batch = "LK2014";
-    string school = "VNC";
-};
 
-function stampRecordToXML() returns xml {
+
+function stampRecordToXML() returns xml|error {
 
     Employee employeeRecord = { name: "Raja", age: 25, salary: 20000 };
 
-    xml xmlValue = xml.stamp(employeeRecord);
+    xml|error xmlValue = xml.constructFrom(employeeRecord);
     return xmlValue;
 }
 
-function stampOpenRecordToClosedRecord() returns Employee {
+function stampOpenRecordToClosedRecord() returns Employee|error {
 
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee employee = Employee.stamp(teacher);
+    Employee|error employee = Employee.constructFrom(teacher);
 
     return employee;
 }
 
-function stampClosedRecordToClosedRecord() returns Student {
+function stampClosedRecordToClosedRecord() returns Student|error {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    Student student = Student.stamp(person);
+    Student|error student = Student.constructFrom(person);
 
     return student;
 }
 
-function stampRecordToObject() returns TeacherObj {
-
-    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    TeacherObj returnValue = TeacherObj.stamp(teacher);
-
-    return returnValue;
-}
-
-function stampClosedRecordToMap() returns map<string> {
+function stampClosedRecordToMap() returns map<string>|error {
 
     Person person = { name: "Raja", age: 25, batch: "LK2014", school: "Hindu College" };
-    map<string> mapValue = map<string>.stamp(person);
+    map<string>|error mapValue = map<string>.constructFrom(person);
 
     return mapValue;
 }
 
-function stampRecordToArray() returns string[] {
+function stampRecordToArray() returns string[]|error {
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    string[] stringArray = string[].stamp(e1);
+    string[]|error stringArray = string[].constructFrom(e1);
 
     return stringArray;
 }
 
-function stampRecordToTuple() returns [string, string] {
+function stampRecordToTuple() returns [string, string]|error {
 
     Employee e1 = { name: "Raja", age: 30, salary: 10000 };
-    [string, string] tupleValue = [string, string].stamp(e1);
+    [string, string]|error tupleValue = [string, string].constructFrom(e1);
 
     return tupleValue;
 }
@@ -117,10 +103,3 @@ type Address object {
     public string city = "colombo";
 };
 
-function stampExtendedRecordToAnydata() returns anydata {
-    Address addressObj = new Address();
-    ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
-    anydata anydataValue = anydata.stamp(employee);
-
-    return anydataValue;
-}
