@@ -107,9 +107,8 @@ public class RequestNativeFunctionNegativeTest {
     @Test(description = "Test getEntity method on a outRequest without a entity")
     public void testGetEntityNegative() {
         ObjectValue outRequest = createRequestObject();
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetEntity", new Object[]{ outRequest });
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetEntity", new Object[]{outRequest});
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertNotNull(returnVals[0]);
     }
 
