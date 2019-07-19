@@ -87,7 +87,7 @@ public class FileSystemTest {
         try {
             Files.copy(srcFilePath, tempSourcePath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-            
+
             BValue[] args = {new BString(tempSourcePath.toString()), new BString(tempDestPath.toString())};
             BRunUtil.invoke(compileResult, "testRename", args);
             Assert.assertTrue(Files.exists(tempDestPath));
@@ -111,6 +111,9 @@ public class FileSystemTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+            assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                    "File already exists in the new path" +
+                            " /var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/dest-file.txt");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
             Files.deleteIfExists(tempSourcePath);
@@ -138,6 +141,9 @@ public class FileSystemTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), "{ballerina/system}FileSystemError");
+            assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                    "Error while deleting " +
+                            "/private/var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/src-dir");
             log.info("Ballerina error: " + error.getDetails().stringValue());
 
             // Remove directory with recursive true
@@ -162,6 +168,8 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+        assertEquals(((BMap) error.getDetails()).get("message").stringValue(), "File doesn't exist in path " +
+                "/private/var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/src-dir");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -183,6 +191,8 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+        assertEquals(((BMap) error.getDetails()).get("message").stringValue(), "File doesn't exist in path " +
+                "/var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/dest-file.txt");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -202,6 +212,8 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+        assertEquals(((BMap) error.getDetails()).get("message").stringValue(), "File doesn't exist in path" +
+                " /var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/dest-dir");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -212,6 +224,8 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+        assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                "File in path src/test/resources/data-files/src-file.txt is not a directory");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -253,6 +267,8 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+        assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                "File already exists. Failed to create the file: src/test/resources/data-files/src-file.txt");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -279,6 +295,9 @@ public class FileSystemTest {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), "{ballerina/system}FileSystemError");
+            assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                    "IO error while creating the file " +
+                            "/var/folders/m7/4xbxflbx3r5d74ghcf0rj9mh0000gp/T/data-files/temp-dir/nested-dir");
             log.info("Ballerina error: " + error.getDetails().stringValue());
             assertFalse(Files.exists(filepath));
         } finally {
@@ -322,6 +341,8 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
+            assertEquals(((BMap) error.getDetails()).get("message").stringValue(),
+                    "File doesn't exist in path src/test/resources/data-files/dest-file.txt");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
             Files.deleteIfExists(tempDestPath);

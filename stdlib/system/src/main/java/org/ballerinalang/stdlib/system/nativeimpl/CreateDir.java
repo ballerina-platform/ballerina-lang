@@ -70,11 +70,13 @@ public class CreateDir extends BlockingNativeCallableUnit {
             log.error(msg, e);
             return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, msg);
         } catch (IOException e) {
-            log.error("IO error while creating the file " + dir, e);
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            String msg = "IO error while creating the file " + dir;
+            log.error(msg, e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         } catch (Exception e) {
-            log.error("Error while creating the file " + dir, e);
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            String msg = "Error while creating the file " + dir;
+            log.error(msg, e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         }
     }
 }
