@@ -156,7 +156,7 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 }
 
 function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
+	if (fs.existsSync(path.join(currentPath, 'Ballerina.Toml'))) {
 		if (currentPath !== os.homedir()) {
 			return currentPath;
 		}

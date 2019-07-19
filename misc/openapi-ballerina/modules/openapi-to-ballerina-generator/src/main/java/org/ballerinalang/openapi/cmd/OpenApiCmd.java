@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.openapi.cmd;
 
-import org.ballerinalang.launcher.BLauncherCmd;
+import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
 /**

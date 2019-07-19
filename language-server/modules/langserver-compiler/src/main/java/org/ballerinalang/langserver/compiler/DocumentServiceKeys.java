@@ -53,6 +53,8 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<BLangPackage> CURRENT_BLANG_PACKAGE_CONTEXT_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<List<BLangPackage>> BLANG_PACKAGES_CONTEXT_KEY
+            = new LSContext.Key<>();
     public static final LSContext.Key<String> SYMBOL_QUERY
             = new LSContext.Key<>();
 }

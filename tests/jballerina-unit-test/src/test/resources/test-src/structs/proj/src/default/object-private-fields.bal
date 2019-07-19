@@ -20,7 +20,7 @@ public type person object {
     public int id = 0;
 };
 
-public type employee object {
+public type employeeObj object {
     public int age = 0;
     public string name = "";
     public string address = "";
@@ -56,7 +56,7 @@ public function textPrivateFieldAccess2 () returns [int, string] {
 }
 
 public function testCompileTimeStructEqWithPrivateFields () returns [string, string, string, int] {
-    employee e = new;
+    employeeObj e = new;
     e.age = 24;
     e.name = "jay";
     e.ssn = "123-56-7890";
@@ -68,7 +68,7 @@ public function testCompileTimeStructEqWithPrivateFields () returns [string, str
 }
 
 public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns [int, string, string] {
-    employee e = new;
+    employeeObj e = new;
     e.age = 28;
     e.name = "mal";
     e.ssn = "123-56-2345";
@@ -80,7 +80,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns [
 }
 
 public function testRuntimeStructEqWithPrivateFields () returns [string, string, string, int, int]|error {
-    employee e = new;
+    employeeObj e = new;
     e.age = 24;
     e.name = "jay";
     e.ssn = "123-56-7890";
@@ -89,15 +89,15 @@ public function testRuntimeStructEqWithPrivateFields () returns [string, string,
 
     person p = e;
 
-    // Now I want p back to be an employee instance
-    var e1 = check trap <employee> p;
+    // Now I want p back to be an employeeObj instance
+    var e1 = check trap <employeeObj> p;
 
 
     return [e1.name, e1.zipcode, e1.ssn, e1.id, e1.employeeId];
 }
 
 public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns [string, string, string, int]|error {
-    employee e = new;
+    employeeObj e = new;
     e.age = 24;
     e.name = "jay";
     e.ssn = "123-56-7890";
@@ -105,7 +105,7 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns [str
 
     foo:userObject u = e;
 
-    // Now I want convert u back to be an employee instance.
+    // Now I want convert u back to be an employeeObj instance.
     if(u is person) {
         return [u.name, u.zipcode, u.ssn, u.id];
     } else {

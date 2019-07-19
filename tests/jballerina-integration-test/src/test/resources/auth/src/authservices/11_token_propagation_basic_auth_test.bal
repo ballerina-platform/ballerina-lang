@@ -21,7 +21,7 @@ import ballerina/jwt;
 auth:InboundBasicAuthProvider basicAuthProvider11_1 = new(());
 http:BasicAuthHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
 
-listener http:Listener listener11_1 = new(9103, {
+listener http:Listener listener11_1 = new(20013, {
     auth: {
         authHandlers: [basicAuthHandler11_1]
     },
@@ -47,7 +47,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
 });
 http:BearerAuthHandler jwtAuthHandler11_2 = new(jwtAuthProvider11_2);
 
-http:Client nyseEP03 = new("https://localhost:9104", {
+http:Client nyseEP03 = new("https://localhost:20014", {
     auth: {
         authHandler: jwtAuthHandler11_2
     }
@@ -85,7 +85,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);
 
-listener http:Listener listener11_2 = new(9104, {
+listener http:Listener listener11_2 = new(20014, {
     auth: {
         authHandlers: [jwtAuthHandler11_3]
     },

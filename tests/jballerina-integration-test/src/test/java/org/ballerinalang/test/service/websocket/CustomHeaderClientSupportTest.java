@@ -38,7 +38,7 @@ public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9092/pingpong/ws";
+    private static final String URL = "ws://localhost:21011/pingpong/ws";
     private static final String RECEIVED_TEXT = "some-header-value";
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_client.bal file")
