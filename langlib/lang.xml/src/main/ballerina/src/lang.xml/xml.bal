@@ -155,7 +155,6 @@ public function appendChildren(xml x,xml children) = external;
 # + qname - Namespace qualified name of the children to be removed
 public function removeChildren(xml x,string qname) = external;
 
-
 // Functional programming methods
 public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
 public function forEach(xml x, function(xml|string item) returns () func) = external;
