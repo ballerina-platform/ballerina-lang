@@ -48,27 +48,28 @@ public class SystemUtils {
      * Returns error object for input reason.
      * Error type is generic ballerina error type. This utility to construct error object from message.
      *
-     * @param reason Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
-     *               default.
-     * @param error  Java throwable object to capture description of error struct. If throwable object is null,
-     *               "Unknown Error" sets to message by default.
+     * @param error Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
+     *              default.
+     * @param ex    Java throwable object to capture description of error struct. If throwable object is null,
+     *              "Unknown Error" sets to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String reason, Throwable error) {
-        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : reason;
-        return getBallerinaError(errorMsg);
+    public static ErrorValue getBallerinaError(String error, Throwable ex) {
+        String errorMsg = error != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
+        return getBallerinaError(error, errorMsg);
     }
 
     /**
      * Returns error object for input reason and details.
      * Error type is generic ballerina error type. This utility to construct error object from message.
      *
+     * @param error   The specific error type.
      * @param details Java throwable object to capture description of error struct. If throwable object is null,
      *                "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String details) {
-        return BallerinaErrors.createError(SystemConstants.SYSTEM_ERROR_CODE, populateSystemErrorRecord(details));
+    public static ErrorValue getBallerinaError(String error, String details) {
+        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
     }
 
     private static MapValue populateSystemErrorRecord(String message) {

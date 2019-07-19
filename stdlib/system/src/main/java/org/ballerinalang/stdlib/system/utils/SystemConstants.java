@@ -45,8 +45,12 @@ public class SystemConstants {
 
     public static final String FILE_INFO_TYPE = "FileInfo";
 
-
+    // Error codes
     public static final String SYSTEM_ERROR_CODE = "{ballerina/system}Error";
+    public static final String INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
+    public static final String PERMISSION_ERROR = "{ballerina/system}PermissionError";
+    public static final String FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
+    public static final String OPERATION_FAILED_ERROR = "{ballerina/system}OperationFailedError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 

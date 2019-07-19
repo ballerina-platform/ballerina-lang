@@ -64,12 +64,13 @@ public class Copy extends BlockingNativeCallableUnit {
         Path destPath = Paths.get(destinationPath);
 
         if (Files.notExists(srcPath)) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION: File doesn't exist in path " + sourcePath);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "File doesn't exist in path " + sourcePath);
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.OPERATION_FAILED_ERROR, ex);
         }
         return null;
     }

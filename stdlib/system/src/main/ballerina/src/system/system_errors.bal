@@ -23,6 +23,20 @@ type Detail record {
     error cause?;
 };
 
-public const SYSTEM_ERROR = "{ballerina/system}Error";
+public const INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
 
-public type Error error<SYSTEM_ERROR, Detail>;
+public type InvalidOperationError error<INVALID_OPERATION_ERROR, Detail>;
+
+public const PERMISSION_ERROR = "{ballerina/system}PermissionError";
+
+public type PermissionError error<PERMISSION_ERROR, Detail>;
+
+public const FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
+
+public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
+
+public const OPERATION_FAILED_ERROR = "{ballerina/system}OperationFailedError";
+
+public type OperationFailedError error<OPERATION_FAILED_ERROR, Detail>;
+
+public type Error InvalidOperationError|PermissionError|FileSystemError|OperationFailedError;

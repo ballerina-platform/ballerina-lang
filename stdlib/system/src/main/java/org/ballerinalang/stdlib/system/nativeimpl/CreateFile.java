@@ -59,17 +59,17 @@ public class CreateFile extends BlockingNativeCallableUnit {
         } catch (FileAlreadyExistsException e) {
             String msg = "File already exists. Failed to create the file: " + path;
             log.error(msg, e);
-            return SystemUtils.getBallerinaError("INVALID_OPERATION: " + msg);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR, msg);
         } catch (SecurityException e) {
             String msg = "Permission denied. Failed to create the file: " + path;
             log.error(msg, e);
-            return SystemUtils.getBallerinaError("PERMISSION_ERROR: " + msg);
+            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, msg);
         } catch (IOException e) {
             log.error("IO error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
         } catch (Exception e) {
             log.error("Error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
         }
     }
 }

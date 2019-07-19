@@ -110,7 +110,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRename", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}Error");
+            assertEquals(error.getReason(), "{ballerina/system}OperationFailedError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
             Files.deleteIfExists(tempSourcePath);
@@ -137,7 +137,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}Error");
+            assertEquals(error.getReason(), "{ballerina/system}OperationFailedError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
 
             // Remove directory with recursive true
@@ -161,7 +161,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}Error");
+        assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -182,7 +182,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}Error");
+        assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -201,7 +201,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}Error");
+        assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -211,7 +211,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}Error");
+        assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -252,7 +252,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}Error");
+        assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
         log.info("Ballerina error: " + error.getDetails().stringValue());
     }
 
@@ -278,7 +278,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateDir", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}Error");
+            assertEquals(error.getReason(), "{ballerina/system}FileSystemError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
             assertFalse(Files.exists(filepath));
         } finally {
@@ -321,7 +321,7 @@ public class FileSystemTest {
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}Error");
+            assertEquals(error.getReason(), "{ballerina/system}InvalidOperationError");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } finally {
             Files.deleteIfExists(tempDestPath);
