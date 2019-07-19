@@ -77,8 +77,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
-                inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
-                messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                if (isAbnormal100Response((HttpResponse) msg)) {
+                    LOG.warn("Received an unexpected 100-continue response");
+                } else {
+                    inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
+                    messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                }
             } else {
                 if (inboundResponseMsg != null) {
                     messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
@@ -91,6 +95,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             }
             ReferenceCountUtil.release(msg);
         }
+    }
+
+    private boolean isAbnormal100Response(HttpResponse msg) {
+        return msg.status().code() == 100 && !outboundRequestMsg.is100ContinueExpected();
     }
 
     @Override

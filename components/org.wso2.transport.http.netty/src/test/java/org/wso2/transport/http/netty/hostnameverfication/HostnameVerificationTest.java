@@ -27,10 +27,10 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -123,7 +123,7 @@ public class HostnameVerificationTest {
                 boolean hasSSLException = false;
                 for (Throwable throwable : listener.getThrowables()) {
                     if (throwable.getMessage() != null && (throwable.getMessage()
-                            .contains("General SSLEngine problem"))) {
+                            .contains("No name matching localhost found"))) {
                         hasSSLException = true;
                         break;
                     }

@@ -27,7 +27,6 @@ import org.wso2.transport.http.netty.contract.Constants;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
@@ -69,7 +68,11 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
                 this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);
             } else {
-                connectionAvailabilityFuture.notifyFailure(event.cause());
+                Throwable cause = event.cause();
+                while (cause.getCause() != null && cause.getCause() != cause) {
+                    cause = cause.getCause();
+                }
+                connectionAvailabilityFuture.notifyFailure(cause);
             }
         }
     }

@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.certificatevalidation;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 
 /**
  * A test case for testing OCSP.
