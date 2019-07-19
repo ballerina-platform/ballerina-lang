@@ -52,8 +52,7 @@ public class FormatCmdTest {
         }
     }
 
-    @Test(description = "Test to check the exception for not a ballerina project when given a module name.",
-            enabled = false)
+    @Test(description = "Test to check the exception for not a ballerina project when given a module name.")
     public void formatCLINotAProjectInModuleTest() {
         Path sourceRoot = RES_DIR.resolve("notAProject");
         List<String> argList = new ArrayList<>();

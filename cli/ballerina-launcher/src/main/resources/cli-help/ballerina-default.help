@@ -37,22 +37,33 @@ OPTIONS
 BALLERINA COMMANDS
      Available commands are:
          run        Run Ballerina program
-         build      Compile Ballerina program
-         install    Install modules to home repository
-         uninstall  Uninstall modules from home repository
+         compile    Compile Ballerina module in-to a sharable
+                    library(balo).
+         build      Compile Ballerina program in-to an executable
+         clean      Clean artifacts generated during compile/build
+         test       Test Ballerina program
+         doc        Generate Ballerina API documentation
+
          pull       Download modules from Ballerina Central
          push       Upload modules to Ballerina Central
-         init       Initialize Ballerina project
          search     Search for modules within Ballerina Central
-         list       List dependencies of modules
-         doc        Generate Ballerina API documentation
-         grpc       Generate connector/service using protobuf   
-                    definition
-         openapi    Generate client/service using OpenAPI definition
-                    or export OpenAPI file for a Ballerina service
-         test       Test Ballerina program
+
          version    Print Ballerina version
+
+         new        Initialize Ballerina project
+         create     Initialize Ballerina module from a template
+
+         sdks       List available ballerina SDKs
+         install    Install a given SDK version
+         update     Update to latest SDK version
+         remove     Delete locally installed SDK version
+
          encrypt    Encrypt sensitive data
+         grpc       Generate connector/service using protobuf
+                    Definition
+         openapi    Generate client/service using openapi definition
+                    or export openapi file for a Ballerina service
+         format     Formats Ballerina source code.
 
 EXAMPLES
      Check the current version of Ballerina in use on your system

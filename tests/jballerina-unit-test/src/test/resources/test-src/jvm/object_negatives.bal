@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import testorg/subtyping version v1;
+import testorg/subtyping version v1;
 
 type ObjWithPvtField abstract object {
     string name = "";
@@ -62,6 +62,6 @@ type Subtype2 object {
 };
 
 function testModuleLevelSubtypableObjs() {
-//    subtyping:ModuleLevelSubtypableObj o = new Subtype1();
-//    subtyping:ModuleLevelSubtypableObj2 o = new Subtype2();
+    subtyping:ModuleLevelSubtypableObj o1 = new Subtype1();
+    subtyping:ModuleLevelSubtypableObj2 o2 = new Subtype2();
 }
