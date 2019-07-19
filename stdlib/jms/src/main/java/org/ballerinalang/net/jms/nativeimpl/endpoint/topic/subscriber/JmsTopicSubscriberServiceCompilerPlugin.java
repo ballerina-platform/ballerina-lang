@@ -35,7 +35,7 @@ import java.util.List;
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS_VERSION,
                                                                  name = JmsConstants.TOPIC_LISTENER_OBJ_NAME,
                                                                  orgName = JmsConstants.BALLERINAX),
-        paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JMS,
+        paramTypes = {@SupportedResourceParamTypes.Type(packageName = JmsConstants.JAVA_JMS,
                                                         name = JmsConstants.TOPIC_SUBSCRIBER_CALLER_OBJ_NAME,
                                                         orgName = JmsConstants.BALLERINAX)})
 public class JmsTopicSubscriberServiceCompilerPlugin extends JmsServiceCompilerPlugin {

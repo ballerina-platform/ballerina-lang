@@ -25,6 +25,12 @@ package org.ballerinalang.stdlib.ldap;
  */
 public class LdapConstants {
 
+    // Name of the Ballerina ldap module, used to create struct instances.
+    public static final String LDAP_PACKAGE = "ballerina/ldap";
+
+    // Record used to reference to a LDAP connection.
+    public static final String LDAP_CONNECTION = "LdapConnection";
+
     public static final String DOMAIN_NAME = "domainName";
     // LDAP connection related constants
     public static final String CONNECTION_URL = "connectionURL";

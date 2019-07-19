@@ -26,6 +26,7 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -43,7 +44,7 @@ public class UriTemplateDispatcherTest {
 
     @BeforeClass()
     public void setup() {
-        BCompileUtil.compile("test-src/services/dispatching/uri-template.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/dispatching/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",

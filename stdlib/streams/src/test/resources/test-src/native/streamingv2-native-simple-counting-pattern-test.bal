@@ -81,7 +81,7 @@ public function runPatternQuery1() returns (ABCInfo[]) {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach map<anydata> m in events {
             // just cast input map into the output type
-            ABCInfo o = <ABCInfo>ABCInfo.convert(m);
+            ABCInfo o = <ABCInfo>ABCInfo.constructFrom(m);
             abcStream.publish(o);
         }
     };
@@ -120,13 +120,13 @@ public function runPatternQuery1() returns (ABCInfo[]) {
 
     // subscribe to input/output streams.
     aStream.subscribe(function (AInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
             stateMachine.process(eventArr);
         }
     );
     bStream.subscribe(function (BInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
             stateMachine.process(eventArr);
         }

@@ -31,7 +31,6 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,13 +46,14 @@ public class H2ClientActionsTest {
     private static final String DB_NAME = "TestDBH2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
     private static final String H2_TEST_GROUP = "H2_TEST";
+    private SQLDBUtils.TestDatabase testDatabase;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enableJBallerinaTests", "true");
         result = BCompileUtil.compile("test-src/h2/h2_actions_test.bal");
-        SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
-        SQLDBUtils.initH2Database(DB_DIRECTORY_H2, DB_NAME, "datafiles/sql/H2ConnectorTableCreate.sql");
+        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
+                "datafiles/sql/H2ConnectorTableCreate.sql", DB_DIRECTORY_H2, DB_NAME);
     }
 
     @Test(groups = H2_TEST_GROUP)
@@ -61,7 +61,7 @@ public class H2ClientActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelect");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
@@ -105,8 +105,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.getInt(1), 1);
     }
 
-    //TODO: #16033
-    @Test(groups = { H2_TEST_GROUP, "broken" })
+    @Test(groups = { H2_TEST_GROUP })
     public void testUpdateInMemory() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateInMemory");
         Assert.assertEquals(returns.length, 2);
@@ -128,11 +127,11 @@ public class H2ClientActionsTest {
         assertInitTestReturnValues(returns);
     }
 
-    // TODO: #16033
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:Failed to initialize pool: "
-                  + "Unsupported connection setting \"INVALID_PARAM\".*", groups = { H2_TEST_GROUP, "broken" })
+                  ".*error in sql connector configuration:"
+                          + "Property INVALID_PARAM does not exist on target class org.h2.jdbcx.JdbcDataSource.*",
+          groups = { H2_TEST_GROUP })
     public void testInitWithInvalidDbOptions() {
         BRunUtil.invoke(result, "testInitWithInvalidDbOptions");
         Assert.fail("Expected exception should have been thrown by this point");
@@ -141,13 +140,12 @@ public class H2ClientActionsTest {
     private void assertInitTestReturnValues(BValue[] returns) {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BValueArray);
-        Assert.assertEquals(((BValueArray) returns[0]).size(), 2);
+        Assert.assertEquals(returns[0].size(), 2);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(0), 1);
         Assert.assertEquals(((BValueArray) returns[0]).getInt(1), 2);
     }
 
-    //TODO: #16033
-    @Test(groups = { H2_TEST_GROUP, "broken" })
+    @Test(groups = { H2_TEST_GROUP })
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -165,7 +163,9 @@ public class H2ClientActionsTest {
 
     @AfterSuite
     public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(DB_DIRECTORY_H2));
+        if (testDatabase != null) {
+            testDatabase.stop();
+        }
     }
 
     //This method is used as a UDF

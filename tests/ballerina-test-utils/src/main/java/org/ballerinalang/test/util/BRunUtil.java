@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -54,6 +55,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -288,6 +290,18 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Integer) {
+                paramTypes[i] = Long.class;
+            } else if (arg instanceof Float) {
+                paramTypes[i] = Double.class;
+            } else if (arg instanceof Double) {
+                paramTypes[i] = Double.class;
+            } else if (arg instanceof Long) {
+                paramTypes[i] = Long.class;
+            } else if (arg instanceof Boolean) {
+                paramTypes[i] = Boolean.class;
+            } else if (arg instanceof MapValue) {
+                paramTypes[i] = MapValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -612,6 +626,7 @@ public class BRunUtil {
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
                 ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
+                jvmArray.elementType = getJVMType(array.elementType);
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -712,6 +727,8 @@ public class BRunUtil {
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
+            case TypeTags.DECIMAL_TAG:
+                return new DecimalValue(((BDecimal) value).value());
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
@@ -886,6 +903,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeString;
             case TypeTags.FLOAT_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeFloat;
+            case TypeTags.DECIMAL_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeDecimal;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 org.ballerinalang.jvm.types.BType elementType = getJVMType(arrayType.getElementType());
@@ -1075,6 +1094,10 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 bvmValue = new BHandleValue(((HandleValue) value).getValue());
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+                org.ballerinalang.jvm.types.BObjectType bObjectType = ((AbstractObjectValue) value).getType();
+                bvmValue = new BMap(getBVMType(bObjectType, new Stack<>()));
+                break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -1176,7 +1199,8 @@ public class BRunUtil {
                 return BTypes.typeXML;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 BTypedescType typedescType = (BTypedescType) jvmType;
-                return new BTypeDesc(typedescType.getName(), typedescType.getPackage().getName());
+                return new BTypeDesc(typedescType.getName(),
+                        typedescType.getPackage() == null ? null : typedescType.getPackage().getName());
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 return BTypes.typeNull;
             case org.ballerinalang.jvm.types.TypeTags.FINITE_TYPE_TAG:
@@ -1198,6 +1222,8 @@ public class BRunUtil {
                 return new BFunctionType(bParamTypes, new BType[]{bRetType});
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
+            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+                return new BServiceType(null, jvmType.getName(), null, 0);
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

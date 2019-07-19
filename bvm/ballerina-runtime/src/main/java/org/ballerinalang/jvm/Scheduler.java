@@ -298,7 +298,7 @@ public class Scheduler {
                         // TODO clean, better move it to future value itself
                         if (item.future.callback != null) {
                             if (item.future.panic != null) {
-                                item.future.callback.notifyFailure(BallerinaErrors.createError(panic.getMessage()));
+                                item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
                             } else {
                                 item.future.callback.notifySuccess();
                             }

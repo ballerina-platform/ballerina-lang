@@ -23,7 +23,13 @@ dependencies {
     implementation project(':ballerina-runtime')
     baloCreat project(':lib-creator')
 
-    bir project(path: ':ballerina-builtin', configuration: 'bir')
+    bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
+    bir project(path: ':ballerina-lang:string', configuration: 'bir')
+    bir project(path: ':ballerina-lang:internal', configuration: 'bir')
+
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 }
 
 createBalo {

@@ -1,13 +1,13 @@
 import ballerina/http;
 import ballerina/log;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 // Create MySQL client.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/StreamTestDB",
-        username: "test",
-        password: "test"
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test"
+});
 
 // Create an HTTP service and bind it to a listener on port 9090
 service dataService on new http:Listener(9090) {
@@ -22,11 +22,11 @@ service dataService on new http:Listener(9090) {
             // Convert the obtained data to `json`. Note that this conversion
             // does not load all the data into memory.
             // The `table` can be converted to `xml` in a similar manner.
-            var jsonConversionRet = json.convert(selectRet);
+            var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
             if (jsonConversionRet is json) {
                 // Set the `json` payload to the response. This is streamed
                 // to the client once the service is invoked.
-                res.setPayload(untaint jsonConversionRet);
+                res.setPayload(<@untainted> jsonConversionRet);
             } else {
                 // Set a payload indicating an error in case the `json`
                 // conversion fails.
@@ -45,7 +45,7 @@ service dataService on new http:Listener(9090) {
         // Respond to the client.
         var respondRet = caller->respond(res);
         if (respondRet is error) {
-            log:printError("Sending response failed", err = respondRet);
+            log:printError("Sending response failed", respondRet);
         }
     }
 }

@@ -39,9 +39,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CleanupTransactionContext {
 
     public static void cleanupTransactionContext(Strand strand, String transactionBlockId) {
-        org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.getLocalTransactionContext();
-        transactionLocalContext.onTransactionEnd(transactionBlockId);
         strand.removeLocalTransactionContext();
     }
 }

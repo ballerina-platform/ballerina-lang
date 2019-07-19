@@ -1,12 +1,12 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 public function main() {
     jdbc:Client testDB = new({
-            url: "jdbc:mysql://localhost:3306/StreamTestDB",
-            username: "test",
-            password: "test"
-        });
+        url: "jdbc:mysql://localhost:3306/testdb",
+        username: "test",
+        password: "test"
+    });
 
     // Create a table for data insertion.
     var ret = testDB->update("CREATE TABLE Data (id INT, field1
@@ -39,15 +39,18 @@ public function main() {
     if (retCall is ()|table<record {}>[]) {
         io:println("Call operation is successful");
     } else {
-        io:println("Stored procedure call failed: " + <string>retCall.detail().message);
+        error err = retCall;
+        io:println("Stored procedure call failed: "
+                    + <string> err.detail()["message"]);
     }
 }
 
 // Function to handle the return value of the update remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string> err.detail()["message"]);
     }
 }

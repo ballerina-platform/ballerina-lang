@@ -36,9 +36,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         packageName = "observe",
         functionName = "addTagToSpan",
         args = {
-                @Argument(name = "spanId", type = TypeKind.INT),
                 @Argument(name = "tagKey", type = TypeKind.STRING),
-                @Argument(name = "tagValue", type = TypeKind.STRING)
+                @Argument(name = "tagValue", type = TypeKind.STRING),
+                @Argument(name = "spanId", type = TypeKind.INT)
         },
         returnType = @ReturnType(type = TypeKind.BOOLEAN),
         isPublic = true

@@ -14,7 +14,7 @@ function testSetJsonPayloadWithoutCharset() returns @tainted string[] {
 
 function testCharsetWithExistingContentType() returns @tainted string[] {
     http:Request request = new;
-    request.setJsonPayload({ test: "testValue" }, contentType = "application/json;charset=\"ISO_8859-1:1987\"");
+    request.setJsonPayload({ test: "testValue" }, "application/json;charset=\"ISO_8859-1:1987\"");
     return request.getHeaders("content-type");
 }
 
@@ -34,7 +34,7 @@ function testJsonPayloadWithDefaultCharset() returns @tainted json|error {
 
 function testJsonPayloadWithCharset() returns @tainted json|error {
     http:Request request = new;
-    request.setJsonPayload({ test: "ߢߚߟ" }, contentType = "application/json;charset=utf-8");
+    request.setJsonPayload({ test: "ߢߚߟ" }, "application/json;charset=utf-8");
     return request.getJsonPayload();
 }
 
@@ -68,7 +68,7 @@ function testXmlPayloadWithDefaultCharset() returns @tainted xml|error {
 
 function testXmlPayloadWithCharset() returns @tainted xml|error {
     http:Request request = new;
-    request.setXmlPayload(xmlValue, contentType = "application/xml;charset=utf-8");
+    request.setXmlPayload(xmlValue, "application/xml;charset=utf-8");
     return request.getXmlPayload();
 }
 
@@ -102,7 +102,7 @@ function testTextPayloadWithDefaultCharset() returns @tainted string|error {
 
 function testTextPayloadWithCharset() returns @tainted string|error {
     http:Request request = new;
-    request.setTextPayload("菜鸟驿站", contentType = "text/plain;charset=utf-8");
+    request.setTextPayload("菜鸟驿站", "text/plain;charset=utf-8");
     return request.getTextPayload();
 }
 
@@ -186,7 +186,9 @@ service echo on mockEP {
         if (payload is json) {
             response.setPayload(<@untainted> payload);
         } else {
-            response.setPayload(<@untainted> <string>payload.detail().message);
+            error err = payload;
+            string? errMsg = err.detail()?.message;
+            response.setPayload(errMsg is string ? <@untainted>errMsg : "Error in parsing payload");
         }
         checkpanic caller->respond(response);
     }

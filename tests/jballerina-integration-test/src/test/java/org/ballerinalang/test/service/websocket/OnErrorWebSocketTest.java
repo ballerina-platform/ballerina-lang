@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class OnErrorWebSocketTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9094/error/ws";
+    private static final String URL = "ws://localhost:21013/error/ws";
     private LogLeecher logLeecher;
 
     @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")

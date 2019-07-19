@@ -10,8 +10,8 @@ function addTwoIntegers(int a, int b) returns int {
    return 100;
 }
 
-function addTwoIntegers2(int a, int b) returns (int,string) {
-   return (100, "");
+function addTwoIntegers2(int a, int b) returns [int,string] {
+   return [100, ""];
 }
 
 function addTwoIntegers3(int a, int b) returns (int[]) {

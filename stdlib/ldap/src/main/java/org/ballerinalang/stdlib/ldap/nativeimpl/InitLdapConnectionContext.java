@@ -21,9 +21,9 @@ package org.ballerinalang.stdlib.ldap.nativeimpl;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
@@ -54,7 +54,7 @@ import javax.net.ssl.SSLContext;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
-        functionName = "initLdapConnectionContext")
+        functionName = "initLdapConnectionContext", isPublic = true)
 public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     @Override
@@ -62,9 +62,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     }
 
-    public static void initLdapConnectionContext(Strand strand, ObjectValue authStore, String instanceId) {
-        MapValue<?, ?> authProviderConfig = (MapValue<?, ?>) authStore.get(LdapConstants.LDAP_AUTH_PROVIDER_CONFIG);
-
+    public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
+                                                                     String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));
@@ -84,7 +83,7 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
                 authProviderConfig.getStringValue(LdapConstants.USER_NAME_LIST_FILTER));
 
         commonLdapConfiguration.setGroupSearchBase(getAsStringList(authProviderConfig.
-                getArrayValue(LdapConstants.GROUP_SEARCH_BASE).getValues()));
+                getArrayValue(LdapConstants.GROUP_SEARCH_BASE).getStringArray()));
         commonLdapConfiguration.setGroupEntryObjectClass(
                 authProviderConfig.getStringValue(LdapConstants.GROUP_ENTRY_OBJECT_CLASS));
         commonLdapConfiguration.setGroupNameAttribute(
@@ -115,10 +114,14 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
             }
             LdapConnectionContext connectionSource = new LdapConnectionContext(commonLdapConfiguration);
             DirContext dirContext = connectionSource.getContext();
-            authStore.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
-            authStore.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);
-            authStore.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);
-            authStore.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
+
+            MapValue<String, Object> ldapConnectionRecord = BallerinaValues.createRecordValue(
+                    LdapConstants.LDAP_PACKAGE, LdapConstants.LDAP_CONNECTION);
+            ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
+            ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);
+            ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);
+            ldapConnectionRecord.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
+            return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException e) {
             throw new BallerinaException(e.getMessage(), e);

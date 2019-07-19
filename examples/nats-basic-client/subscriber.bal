@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/log;
 import ballerina/nats;
 
 // Initializes the NATS listener.
@@ -14,7 +14,7 @@ service demo on subscription {
 
     resource function onMessage(nats:Message msg) {
         // Prints the incoming message in the console.
-        io:println("Received message : " + msg.getData());
+        log:printInfo("Received message : " + msg.getData());
     }
 
 }

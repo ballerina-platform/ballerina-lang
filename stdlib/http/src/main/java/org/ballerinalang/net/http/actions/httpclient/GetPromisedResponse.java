@@ -66,7 +66,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
                 setPushResponseListener(new BPushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
-    public static void getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
+    public static Object getPromisedResponse(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand),
                                                   pushPromiseObj, null);
@@ -76,6 +76,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
         clientConnector.getPushResponse(http2PushPromise).
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
+        return null;
     }
 
     private static class BPushResponseListener implements HttpClientConnectorListener {
@@ -115,7 +116,8 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onError(Throwable throwable) {
-            ErrorValue httpConnectorError = HttpUtil.getError(throwable);
+            ErrorValue httpConnectorError = HttpUtil
+                    .createHttpError(throwable.getMessage());
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

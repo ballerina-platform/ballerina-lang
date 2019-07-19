@@ -17,6 +17,7 @@
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 
 configurations.all {
@@ -27,7 +28,7 @@ dependencies {
     baloCreat project(':lib-creator')
     shadow project(':ballerina-core')
     shadow project(':ballerina-lang')
-    shadow project(':ballerina-builtin')
+    shadow project(':ballerina-lang:annotations')
     shadow 'com.google.code.gson:gson'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')

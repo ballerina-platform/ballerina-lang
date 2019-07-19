@@ -47,7 +47,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int|err
     arr[2] = arr[0] + arr[1];
     map<any> tempMap = {"length":(arr.length())};
     int length;
-    length =check int.convert(tempMap.length);
+    length = <int>tempMap["length"];
     return length;
 }
 
@@ -126,8 +126,10 @@ type Person record {
 
 function arrayLengthAccessTestJSONArrayCase (int x, int y) returns (int) {
     json arr = [x,y,5,5,6,6];
-    int length;
-    length = (arr.length());
+    int length = 0;
+    if (arr is json[]) {
+        length = (arr.length());
+    }
     return length;
 }
 
@@ -155,11 +157,11 @@ function lengthOfString() returns [int, int, int] {
 
 function lengthOfBlob() returns [int, int] {
     string s1 = "Hello";
-	byte[] b1 = s1.toByteArray("UTF-8");
+	byte[] b1 = s1.toBytes();
     int l1 = b1.length();
     
     string s2 = "";
-    byte[] b2 = s2.toByteArray("UTF-8");
+    byte[] b2 = s2.toBytes();
     int l2 = b2.length();
     
     return [l1, l2];
@@ -171,6 +173,6 @@ function lengthOfNullString() returns (int) {
 }
 
 function lengthOfJSONObject() returns (int) {
-    json j = {"a":"A", "b":"B"};
+    map<json> j = {"a":"A", "b":"B"};
     return j.length();
 }

@@ -163,7 +163,7 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName.call();
+    return p.fullName();
 }
 
 public type InMemoryModeConfig record {|
@@ -199,27 +199,6 @@ function init(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig rec) return
     } else {
         return "In-memory mode configuration";
     }
-}
-
-type PersonB record {|
-    string fname = "";
-    string lname = "";
-    (function (string, string) returns string)? getName = ();
-|};
-
-function testNilableFuncPtrInvocation() returns string? {
-    PersonB bob = {fname:"Bob", lname:"White"};
-    bob.getName = function (string fname, string lname) returns string {
-        return fname + " " + lname;
-    };
-    string? x = bob.getName.call(bob.fname, bob.lname);
-    return x;
-}
-
-function testNilableFuncPtrInvocation2() returns string? {
-    PersonB bob = {fname:"Bob", lname:"White"};
-    string? x = bob.getName.call(bob.fname, bob.lname);
-    return x;
 }
 
 public type A record {|

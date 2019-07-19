@@ -412,15 +412,15 @@ function testPublicObjectEquivalency() returns [string, string, string] {
     string s3 = "n/a";
 
     if(x is A4) {
-        s1 = "values: " + x.p + ", " + x.q;
+        s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
     if (x is B4) {
-        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+        s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
     if (x is Person) {   // shouldn't match
-        s3 = "values: " + x.name + ", " + x.age;
+        s3 = "values: " + x.name + ", " + x.age.toString();
     }
 
     return [s1, s2, s3];
@@ -455,15 +455,15 @@ function testPrivateObjectEquivalency() returns [string, string, string] {
     string s3 = "n/a";
 
     if(x is A5) {
-        s1 = "values: " + x.p + ", " + x.q;
+        s1 = "values: " + x.p.toString() + ", " + x.q;
     }
 
     if (x is B5) {
-        s2 = "values: " + x.p + ", " + x.q + ", " + x.r;
+        s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
     if (x is Person) {   // shouldn't match
-        s3 = "values: " + x.name + ", " + x.age;
+        s3 = "values: " + x.name + ", " + x.age.toString();
     }
 
     return [s1, s2, s3];
@@ -476,15 +476,15 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     string s3 = "n/a";
 
     if(x is abstract object { public float r; *A4; }) {
-        s1 = "values: " + x.p + ", " + x.q + ", " + x.r;
+        s1 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString();
     }
 
     if(x is object {  public int p = 0;  public string q = "";  public float r = 0;  public boolean s = false;}) {
-        s2 = "values: " + x.p + ", " + x.q + ", " + x.r + ", " + x.s;
+        s2 = "values: " + x.p.toString() + ", " + x.q + ", " + x.r.toString() + ", " + x.s.toString();
     }
 
     if(x is object { public int p = 0;  public boolean q = false;  public float r = 0.0;}) {  // shouldn't match
-        s3 = "values: " + x.p + ", " + x.q + ", " + x.r;
+        s3 = "values: " + x.p.toString() + ", " + x.q.toString() + ", " + x.r.toString();
     }
 
     return [s1, s2, s3];
@@ -722,14 +722,14 @@ function testFiniteTypeAsFiniteTypeFalse() returns boolean {
 }
 
 function testIntersectingUnionTrue() returns [boolean, boolean] {
-    string|int|typedesc x = 1;
+    string|int|typedesc<any> x = 1;
     return [x is int|boolean, x is json];
 }
 
-function testIntersectingUnionFalse() returns [boolean, boolean] {
-    string|int|typedesc x = int;
-    return [x is int|boolean, x is anydata];
-}
+//function testIntersectingUnionFalse() returns [boolean, boolean] {
+//    string|int|typedesc<any> x = int;
+//    return [x is int|boolean, x is anydata];
+//}
 
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";

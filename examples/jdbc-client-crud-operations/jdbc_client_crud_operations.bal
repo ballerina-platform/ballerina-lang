@@ -1,15 +1,15 @@
 import ballerina/io;
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
-// Client for MySQL database. This client can be used with any JDBC
+// JDBC Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new({
-        url: "jdbc:mysql://localhost:3306/testdb",
-        username: "test",
-        password: "test",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
-    });
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test",
+    poolOptions: { maximumPoolSize: 5 },
+    dbOptions: { useSSL: false }
+});
 
 // This is the `type` created to represent a data row.
 type Student record {
@@ -80,11 +80,12 @@ public function main() {
                         (age, name) values (?, ?)", age, name);
     if (retWithKey is jdbc:UpdateResult) {
         int count = retWithKey.updatedRowCount;
-        int generatedKey = <int>retWithKey.generatedKeys.GENERATED_KEY;
+        int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
         io:println("Inserted row count: " + count);
         io:println("Generated key: " + generatedKey);
     } else {
-        io:println("Insert to table failed: " + <string>retWithKey.detail().message);
+        error err = retWithKey;
+        io:println("Insert failed: " + <string> err.detail()["message"]);
     }
 
     // Select data using the `select` remote function. The `select` remote
@@ -100,17 +101,17 @@ public function main() {
         // result in the server and returning it. This allows unlimited payload
         // sizes in the result and the response is instantaneous to the client.
         // Convert a table to `json`.
-        var jsonConversionRet = json.convert(selectRet);
+        var jsonConversionRet = typedesc<json>.constructFrom(selectRet);
         if (jsonConversionRet is json) {
             io:println("JSON: ", io:sprintf("%s", jsonConversionRet));
         } else {
             io:println("Error in table to json conversion");
         }
     } else {
+        error err = selectRet;
         io:println("Select data from student table failed: "
-                + <string>selectRet.detail().message);
+                + <string> err.detail()["message"]);
     }
-
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
     ret = testDB->update("DROP TABLE student");
@@ -118,10 +119,11 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult|error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: " + returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + <string>returned.detail().message);
+        error err = returned;
+        io:println(message + " failed: " + <string> err.detail()["message"]);
     }
 }

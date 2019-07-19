@@ -107,7 +107,7 @@ public class AnydataNegativeTest {
         // Test invalid map insertions
         validateError(result, index++, "incompatible types: expected 'anydata', found 'Bar'", 145, 16);
         validateError(result, index++, "incompatible types: expected 'anydata', found " +
-                "'(int|float|string|boolean|byte|table<any>|json|xml|Bar|map<anydata>|anydata[])'", 148, 18);
+                "'(int|float|string|boolean|byte|table<any>|json|xml|Bar|map<anydata>|anydata[])'", 148, 21);
 
         validateError(result, index, "incompatible types: expected 'anydata', found 'error'", 153, 18);
     }

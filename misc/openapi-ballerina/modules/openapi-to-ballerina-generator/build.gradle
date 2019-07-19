@@ -18,23 +18,38 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply plugin: 'com.github.johnrengelman.shadow'
 
-configurations.all {
-    resolutionStrategy.preferProjectModules()
+configurations {
+    distBal {
+        transitive false
+    }
 }
 
 dependencies {
+    implementation 'io.swagger.parser.v3:swagger-parser:2.0.0-rc3'
+    implementation 'io.swagger:swagger-core'
+    implementation 'io.swagger:swagger-models'
+    implementation 'io.swagger:swagger-parser'
+    implementation 'io.swagger.core.v3:swagger-core'
+    implementation 'io.swagger.core.v3:swagger-models'
     implementation 'io.swagger.parser.v3:swagger-parser'
-    implementation 'com.github.jknack:handlebars'
-    implementation 'info.picocli:picocli'
-    implementation 'javax.ws.rs:javax.ws.rs-api'
-    implementation project(':ballerina-launcher')
+    implementation 'io.swagger.parser.v3:swagger-parser-core'
+    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
+    implementation 'io.swagger.parser.v3:swagger-parser-v3'
+    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'info.picocli:picocli:3.9.0'
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
+    implementation project(':ballerina-tool')
+    implementation project(':ballerina-lang')
+    implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
-    testCompile 'org.testng:testng'
+    implementation project(':language-server:language-server-compiler')
+    testCompile 'org.testng:testng:6.13.1'
 }
 
 jar {
     enabled = false
     dependsOn(shadowJar { classifier = null })
+    manifest { }
 }
 
 shadowJar {
@@ -53,7 +68,7 @@ shadowJar {
         include(dependency('io.swagger.parser.v3:swagger-parser-v3'))
         include(dependency('javax.validation:validation-api'))
         include(dependency('com.google.code.gson:gson'))
-        include(dependency('org.ballerinalang:ballerina-to-swagger'))
+        include(dependency('org.ballerinalang:ballerina-to-openapi-generator'))
         exclude('META-INF/*.SF')
         exclude('META-INF/*.DSA')
         exclude('META-INF/*.RSA')

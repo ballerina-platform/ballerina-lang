@@ -29,6 +29,7 @@ public class Flags {
     public static final int ATTACHED = 8;
     public static final int REQUIRED = 256;
     public static final int PRIVATE = 1024;
+    public static final int ABSTRACT = 4096;
     public static final int OPTIONAL = 8192;
     public static final int SERVICE = 524288;
 

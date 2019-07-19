@@ -36,7 +36,6 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
@@ -44,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.repository.CompilerOutputEntry.Kind;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -55,6 +55,7 @@ import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
  */
 public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path projectDirPath;
+    private final Path sourceDirPath;
     private List<String> packageNames;
     protected boolean scanned = false;
     private static PrintStream outStream = System.out;
@@ -63,11 +64,12 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         super(projectDirPath);
         // TODO This path expect absolute path. This is validated by the SourceDirectoryManager
         this.projectDirPath = projectDirPath;
+        this.sourceDirPath = projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
     }
 
     @Override
     public boolean canHandle(Path dirPath) {
-        return RepoUtils.hasProjectRepo(dirPath);
+        return RepoUtils.isBallerinaProject(dirPath);
     }
 
     @Override
@@ -87,13 +89,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         }
 
         try {
-            this.packageNames = Files.list(projectDirPath)
-                    .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
-                    .filter(ProjectDirs::containsSourceFiles)
-                    .map(ProjectDirs::getLastComp)
-                    .filter(dirName -> !isSpecialDirectory(dirName))
-                    .map(Path::toString)
-                    .collect(Collectors.toList());
+            try (Stream<Path> stream = Files.list(sourceDirPath)) {
+                this.packageNames = stream.filter(path -> Files.isDirectory(path))
+                        .filter(ProjectDirs::containsSourceFiles)
+                        .map(ProjectDirs::getLastComp)
+                        .filter(dirName -> !isSpecialDirectory(dirName))
+                        .map(Path::toString)
+                        .collect(Collectors.toList());
+            }
         } catch (SecurityException | AccessDeniedException e) {
             throw new BLangCompilerException("permission denied: " + projectDirPath.toString());
         } catch (IOException e) {

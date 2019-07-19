@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -56,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -87,6 +90,8 @@ public class BIRTypeWriter implements TypeVisitor {
 
     public void visitType(BType type) {
         buff.writeByte(type.tag);
+        buff.writeInt(addStringCPEntry(type.name.getValue()));
+        buff.writeInt(type.flags);
         type.accept(this);
     }
 
@@ -180,6 +185,12 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     @Override
+    public void visit(BTypedescType typedescType) {
+
+        writeTypeCpIndex(typedescType.constraint);
+    }
+
+    @Override
     public void visit(BFutureType bFutureType) {
         writeTypeCpIndex(bFutureType.constraint);
     }
@@ -259,6 +270,7 @@ public class BIRTypeWriter implements TypeVisitor {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
             buff.writeInt(symbol.flags);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
 
@@ -303,6 +315,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeInt(field.symbol.flags);
+            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
@@ -342,6 +355,30 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BXMLType bxmlType) {
         // Nothing to do
+    }
+
+    public void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
+        ByteBuf birbuf = Unpooled.buffer();
+        if (markdownDocAttachment == null) {
+            birbuf.writeBoolean(false);
+        } else {
+            birbuf.writeBoolean(true);
+
+            birbuf.writeInt(markdownDocAttachment.description == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.description));
+            birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
+                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            birbuf.writeInt(markdownDocAttachment.parameters.size());
+            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
+                birbuf.writeInt(parameter.name == null ? -1
+                        : addStringCPEntry(parameter.name));
+                birbuf.writeInt(parameter.description == null ? -1
+                        : addStringCPEntry(parameter.description));
+            }
+        }
+        int length = birbuf.nioBuffer().limit();
+        buf.writeInt(length);
+        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void throwUnimplementedError(BType bType) {

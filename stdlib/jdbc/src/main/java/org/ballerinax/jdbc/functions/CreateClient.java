@@ -17,14 +17,12 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.SQLDatasourceUtils;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 
 import java.util.UUID;
 
@@ -35,16 +33,11 @@ import java.util.UUID;
  */
 
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "jdbc",
+        orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "createClient",
         isPublic = true
 )
-public class CreateClient extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class CreateClient {
 
     public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,
                 Object> globalPoolOptions) {

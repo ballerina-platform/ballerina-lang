@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
@@ -30,6 +33,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;
@@ -37,12 +41,20 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +64,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionInvocationNode;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
@@ -107,7 +119,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionNode(line, column, documentUri, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(line, column, documentUri, documentManager, lsCompiler, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
@@ -128,9 +140,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
 
         String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-        int totalLines = contentComponents.length;
+        int eLine = contentComponents.length;
         int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
-        int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+        int eCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
@@ -146,9 +158,9 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             };
             returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
             returnValue = FunctionGenerator.generateReturnValue(importsAcceptor, currentPkgId, parent,
-                                                                           "    return {%1};");
-            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId,
-                                                                                   functionNode);
+                                                                "    return {%1};");
+            List<String> arguments = FunctionGenerator.getFuncArguments(importsAcceptor, currentPkgId, functionNode,
+                                                                        context);
             if (arguments != null) {
                 funcArgs = String.join(", ", arguments);
             }
@@ -156,11 +168,68 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue);
-        Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
+        String modifiers = "";
+        boolean prependLineFeed = true;
+        String padding = "";
+        if (functionNode.expr != null) {
+            padding = StringUtils.repeat(' ', 4);
+            BTypeSymbol tSymbol = functionNode.expr.type.tsymbol;
+            Pair<DiagnosticPos, Boolean> nodeLocation = getNodeLocationAndHasFunctions(tSymbol.name.value, context);
+            if (!nodeLocation.getRight()) {
+                prependLineFeed = false;
+            }
+            eLine = nodeLocation.getLeft().eLine - 1;
+            eCol = 0;
+            String cUnitName = nodeLocation.getLeft().src.cUnitName;
+            String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+            String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
+            String uri = new File(sourceRoot).toPath().resolve(pkgName).resolve(cUnitName).toUri().toString();
+            textDocumentIdentifier.setUri(uri);
+            if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
+                modifiers += "public ";
+            }
+        }
+        String editText = FunctionGenerator.createFunction(functionName, funcArgs, returnType, returnValue, modifiers,
+                                                           prependLineFeed, padding);
+        Range range = new Range(new Position(eLine, eCol), new Position(eLine, eCol));
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
+    }
+
+    private Pair<DiagnosticPos, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {
+        List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+        DiagnosticPos pos;
+        boolean hasFunctions = false;
+        for (BLangPackage bLangPackage : bLangPackages) {
+            for (BLangCompilationUnit cUnit : bLangPackage.getCompilationUnits()) {
+                for (TopLevelNode node : cUnit.getTopLevelNodes()) {
+                    if (node instanceof BLangTypeDefinition) {
+                        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) node;
+                        if (typeDefinition.name.value.equals(name)) {
+                            pos = typeDefinition.getPosition();
+                            if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
+                                BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
+                                hasFunctions = typeSymbol.attachedFuncs.size() > 0;
+                            }
+                            return new ImmutablePair<>(pos, hasFunctions);
+                        }
+                    } else if (node instanceof BLangService) {
+                        BLangService bLangService = (BLangService) node;
+                        if (bLangService.name.value.equals(name)) {
+                            pos = bLangService.getPosition();
+                            BLangType typeNode = bLangService.serviceTypeDefinition.typeNode;
+                            if (typeNode instanceof BLangObjectTypeNode) {
+                                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNode;
+                                hasFunctions = objectTypeNode.functions.size() > 0;
+                            }
+                            return new ImmutablePair<>(pos, hasFunctions);
+                        }
+                    }
+                }
+            }
+        }
+        return new ImmutablePair<>(null, hasFunctions);
     }
 
     private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {

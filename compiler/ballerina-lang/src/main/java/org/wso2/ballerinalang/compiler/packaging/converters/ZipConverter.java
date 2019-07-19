@@ -42,7 +42,8 @@ public class ZipConverter extends PathConverter {
 
     private static Path resolveIntoArchive(Path newPath) {
         String pathPart = newPath.toString();
-        if ((pathPart.endsWith(".zip") || pathPart.endsWith(".jar")) && Files.isRegularFile(newPath)) {
+        if ((pathPart.endsWith(".zip") || pathPart.endsWith(".jar") || pathPart.endsWith(".balo")) &&
+            Files.isRegularFile(newPath)) {
             return pathWithinZip(newPath.toUri());
         } else {
             return newPath;
@@ -90,13 +91,14 @@ public class ZipConverter extends PathConverter {
             List<Path> pathList = new ArrayList<>();
             if (packageID != null) {
                 String pkgName = packageID.getName().getValue();
-                pathList = Files.list(path)
-                                .map(SortablePath::new)
-                                .filter(SortablePath::valid)
-                                .sorted(Comparator.reverseOrder())
-                                .limit(1)
-                                .map(SortablePath::getPath)
-                                .collect(Collectors.toList());
+                try (Stream<Path> stream = Files.list(path)) {
+                    pathList = stream.map(SortablePath::new)
+                            .filter(SortablePath::valid)
+                            .sorted(Comparator.reverseOrder())
+                            .limit(1)
+                            .map(SortablePath::getPath)
+                            .collect(Collectors.toList());
+                }
                 if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                         && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
                     Path modulePath = pathList.get(0);
@@ -177,7 +179,11 @@ public class ZipConverter extends PathConverter {
         Path pathsInBetween = repoPath.relativize(modulePath);
         for (int i = pathsInBetween.getNameCount(); i > 0; i--) {
             Path toRemove = repoPath.resolve(pathsInBetween.subpath(0, i));
-            if (!Files.list(toRemove).findAny().isPresent()) {
+            boolean isPresent;
+            try (Stream<Path> stream = Files.list(toRemove)) {
+                isPresent = stream.findAny().isPresent();
+            }
+            if (!isPresent) {
                 Files.delete(toRemove);
             }
         }

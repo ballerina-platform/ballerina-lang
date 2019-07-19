@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jdbc;
+import ballerinax/java.jdbc;
 
 type Person record {
     int id;
@@ -26,89 +26,6 @@ type Person record {
 type ResultCount record {
     int COUNTVAL;
 };
-
-int idValue = -1;
-int ageValue = -1;
-float salValue = -1.0;
-string nameValue = "";
-
-function testForEachInTableWithStmt() returns @tainted [int, int, float, string] {
-    jdbc:Client testDB = new({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    var dt = testDB->select("SELECT * from Person where id = 1", Person);
-
-    int id = -1;
-    int age = -1;
-    float salary = -1;
-    string name = "";
-
-    if (dt is table<Person>) {
-        foreach var x in dt {
-            id = x.id;
-            age = x.age;
-            salary = x.salary;
-            name = x.name;
-        }
-    }
-    checkpanic testDB.stop();
-    return [id, age, salary, name];
-}
-
-function testForEachInTableWithIndex() returns @tainted [string, string] {
-    jdbc:Client testDB = new({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    var dt = testDB->select("SELECT * from Person where id < 10 order by id", Person);
-
-    string indexStr = "";
-    string idStr = "";
-    if (dt is table<Person>) {
-        int i = 0;
-        foreach var x in dt {
-            indexStr = indexStr + "," + i;
-            idStr = idStr + "," + x.id;
-            i += 1;
-        }
-    }
-    checkpanic testDB.stop();
-    return [idStr, indexStr];
-}
-
-function testForEachInTable() returns [int, int, float, string] {
-    jdbc:Client testDB = new({
-        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 }
-    });
-
-    var dt = testDB->select("SELECT * from Person where id = 1", Person);
-
-    if (dt is table<Person>) {
-        dt.foreach(function (Person p) {
-                idValue = <@untainted>p.id;
-                ageValue = <@untainted>p.age;
-                salValue = <@untainted>p.salary;
-                nameValue = <@untainted>p.name;
-            }
-        );
-    }
-    int id = idValue;
-    int age = ageValue;
-    float salary = salValue;
-    string name = nameValue;
-    checkpanic testDB.stop();
-    return [id, age, salary, name];
-}
 
 function testCountInTable() returns @tainted int {
     jdbc:Client testDB = new({

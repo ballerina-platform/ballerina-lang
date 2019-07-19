@@ -31,9 +31,9 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthzConfigInheritanceTest extends AuthBaseTest {
 
-    private final int servicePort1 = 9091;
-    private final int servicePort2 = 9092;
-    private final int servicePort3 = 9093;
+    private final int servicePort1 = 20001;
+    private final int servicePort2 = 20002;
+    private final int servicePort3 = 20003;
 
     @Test(description = "Listener - valid scopes, service - valid scopes and resource - valid scopes")
     public void testValidScopesAtListener1() throws Exception {

@@ -63,4 +63,3 @@ function getSessionCount() returns (int) {
     checkpanic testDB.stop();
     return count;
 }
-

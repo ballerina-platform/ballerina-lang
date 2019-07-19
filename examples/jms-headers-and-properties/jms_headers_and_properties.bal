@@ -1,4 +1,4 @@
-import ballerinax/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Initializes a JMS connection with the provider.
@@ -31,59 +31,58 @@ service jmsListener on consumerEndpoint {
                 providerUrl: "tcp://localhost:61616"
             }, queueName = "RequestQueue");
 
-        var content = message.getTextMessageContent();
+        var content = message.getPayload();
         if (content is string) {
             log:printInfo("Message Text: " + content);
-        } else {
+        } else if (content is error) {
             log:printError("Error retrieving content", err = content);
         }
 
         // Retrieves the JMS message headers.
-        var id = message.getCorrelationID();
-        if (id is string) {
-            log:printInfo("Correlation ID: " + id);
-        } else if (id is ()) {
-            log:printInfo("Correlation ID not set");
+        var headers = message.getDeveloperAssignedHeaders();
+        if (headers is error) {
+            log:printError("Error retrieving developer assigned headers ",
+                err = headers);
         } else {
-            log:printError("Error getting correlation id", err = id);
+            var id = headers["correlationId"];
+            if (id is string) {
+                log:printInfo("Correlation ID: " + id);
+            } else {
+                log:printInfo("Correlation ID not set");
+            }
+            var msgType = headers["jmsType"];
+            if (msgType is string) {
+                log:printInfo("Message Type: " + msgType);
+            } else {
+                log:printInfo("Message type not provided");
+            }
         }
-
-        var msgType = message.getType();
-        if (msgType is string) {
-            log:printInfo("Message Type: " + msgType);
-        } else if (msgType is ()) {
-            log:printInfo("Message type not provided");
-        } else {
-            log:printError("Error getting message type", err = msgType);
-        }
-
         // Retrieves the custom JMS string property.
-        var size = message.getStringProperty("ShoeSize");
+        var size = message.getProperty("ShoeSize");
         if (size is string) {
             log:printInfo("Shoe size: " + size);
         } else if (size is ()) {
             log:printInfo("Please provide the shoe size");
-        } else {
+        } else if (size is error) {
             log:printError("Error getting string property", err = size);
         }
 
         // Creates a new text message.
-        var msg = queueSender.session.createTextMessage(
-                                         "Hello From Ballerina!");
+        var msg = new jms:Message(queueSender.session, jms:TEXT_MESSAGE);
         if (msg is jms:Message) {
             // Sets the JMS header and Correlation ID.
-            var cid = msg.setCorrelationID("Msg:1");
+            var cid = msg.setDeveloperAssignedHeaders({correlationId: "Msg:1"});
             if (cid is error) {
                 log:printError("Error setting correlation id",
                     err = cid);
             }
 
             // Sets the JMS string property.
-            var stringProp = msg.setStringProperty("Instruction",
+            var err = msg.setProperty("Instruction",
                 "Do a perfect Pirouette");
-            if (stringProp is error) {
+            if (err is error) {
                 log:printError("Error setting string property",
-                    err = stringProp);
+                    err = err);
             }
             var result = queueSender->send(msg);
             if (result is error) {

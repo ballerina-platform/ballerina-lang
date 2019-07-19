@@ -21,7 +21,7 @@ public type Employee record {
 
 public function main(int[] intArr, string[] strArr, float[] floatArr, boolean[] boolArr, json[] jsonArr,
                      Employee[] empArr) {
-    io:print("integer: " + intArr[1] + ", string: " + strArr[1] + ", float: " + floatArr[1]  + ", boolean: " +
-            string.convert(boolArr[1]) + ", json: " + jsonArr[1].toString() + ", Employee Name Field: " +
-            empArr[1].name);
+    io:print("integer: " + intArr[1].toString() + ", string: " + strArr[1] + ", float: " + floatArr[1].toString()  +
+                ", boolean: " + boolArr[1].toString() + ", json: " + jsonArr[1].toString() + ", Employee Name Field: " +
+                empArr[1].name);
 }

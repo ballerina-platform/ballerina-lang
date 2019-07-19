@@ -13,20 +13,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/h2;
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/sql;
+import ballerinax/java.jdbc;
 import ballerina/transactions;
 
 type ResultCount record {
     int COUNTVAL;
 };
 
-function testLocalTransaction() returns @tainted (int, int, boolean, boolean) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransaction() returns @tainted [int, int, boolean, boolean] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -52,13 +50,12 @@ function testLocalTransaction() returns @tainted (int, int, boolean, boolean) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 200", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count, committedBlockExecuted, abortedBlockExecuted);
+    return [returnVal, count, committedBlockExecuted, abortedBlockExecuted];
 }
 
-function testTransactionRollback() returns @tainted (int, int, boolean) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionRollback() returns @tainted [int, int, boolean] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -82,13 +79,12 @@ function testTransactionRollback() returns @tainted (int, int, boolean) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count, stmtAfterFailureExecuted);
+    return [returnVal, count, stmtAfterFailureExecuted];
 }
 
-function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -108,13 +104,12 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns @tainted (int, in
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -136,13 +131,12 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns @tainted (int,
 
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testLocalTransactionStoredProcedure() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionStoredProcedure() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -161,13 +155,12 @@ function testLocalTransactionStoredProcedure() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testLocalTransactionRollbackStoredProcedure() returns @tainted (int, int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionRollbackStoredProcedure() returns @tainted [int, int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 3 }
@@ -196,13 +189,12 @@ function testLocalTransactionRollbackStoredProcedure() returns @tainted (int, in
     count2 = getTableCountValColumn(dt2);
     count3 = getTableCountValColumn(dt3);
     checkpanic testDB.stop();
-    return (returnVal, count1, count2, count3);
+    return [returnVal, count1, count2, count3];
 }
 
-function testLocalTransactionBatchUpdate() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionBatchUpdate() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -212,26 +204,26 @@ function testLocalTransactionBatchUpdate() returns @tainted (int, int) {
     int count;
 
     //Batch 1
-    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 611 };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: sql:TYPE_INTEGER, value: 611 };
-    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
+    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 611 };
+    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -239,13 +231,12 @@ function testLocalTransactionBatchUpdate() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 611", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testLocalTransactionRollbackBatchUpdate() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionRollbackBatchUpdate() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -255,26 +246,26 @@ function testLocalTransactionRollbackBatchUpdate() returns @tainted (int, int) {
     int count;
 
     //Batch 1
-    sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
-    sql:Parameter para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    sql:Parameter para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 612 };
+    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: sql:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: sql:TYPE_INTEGER, value: 612 };
-    para4 = { sqlType: sql:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: sql:TYPE_VARCHAR, value: "Colombo" };
-    sql:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
+    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
+    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 612 };
+    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
+    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
         var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
         var e2 = testDB->batchUpdate("Insert into Customers2
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters1, parameters2);
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -282,13 +273,12 @@ function testLocalTransactionRollbackBatchUpdate() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 612", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testTransactionAbort() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionAbort() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -314,14 +304,13 @@ function testTransactionAbort() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 220", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
 int testTransactionErrorPanicRetVal = 0;
-function testTransactionErrorPanic() returns @tainted (int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionErrorPanic() returns @tainted [int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -338,10 +327,10 @@ function testTransactionErrorPanic() returns @tainted (int, int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 260", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (testTransactionErrorPanicRetVal, catchValue, count);
+    return [testTransactionErrorPanicRetVal, catchValue, count];
 }
 
-function testTransactionErrorPanicHelper(h2:Client testDB) {
+function testTransactionErrorPanicHelper(jdbc:Client testDB) {
     int returnVal = 0;
     transaction {
         var e1 = testDB->update("Insert into Customers (firstName,lastName,
@@ -356,10 +345,9 @@ function testTransactionErrorPanicHelper(h2:Client testDB) {
     }
 }
 
-function testTransactionErrorPanicAndTrap() returns @tainted (int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionErrorPanicAndTrap() returns @tainted [int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -382,7 +370,7 @@ function testTransactionErrorPanicAndTrap() returns @tainted (int, int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 250", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, catchValue, count);
+    return [returnVal, catchValue, count];
 }
 
 function testTransactionErrorPanicAndTrapHelper(int i) {
@@ -392,10 +380,9 @@ function testTransactionErrorPanicAndTrapHelper(int i) {
     }
 }
 
-function testTransactionCommitted() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionCommitted() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -415,13 +402,12 @@ function testTransactionCommitted() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 300", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testTwoTransactions() returns @tainted (int, int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTwoTransactions() returns @tainted [int, int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -451,13 +437,12 @@ function testTwoTransactions() returns @tainted (int, int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 400", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal1, returnVal2, count);
+    return [returnVal1, returnVal2, count];
 }
 
-function testTransactionWithoutHandlers() returns @tainted (int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testTransactionWithoutHandlers() returns @tainted int {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -478,10 +463,9 @@ function testTransactionWithoutHandlers() returns @tainted (int) {
     return count;
 }
 
-function testLocalTransactionFailed() returns @tainted (string, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionFailed() returns @tainted [string, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -500,10 +484,10 @@ function testLocalTransactionFailed() returns @tainted (string, int) {
     var dtRet = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 111", ResultCount);
     count = getTableCountValColumn(dtRet);
     checkpanic testDB.stop();
-    return (a, count);
+    return [a, count];
 }
 
-function testLocalTransactionFailedHelper(string status, h2:Client testDB) returns string {
+function testLocalTransactionFailedHelper(string status, jdbc:Client testDB) returns string {
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
@@ -519,10 +503,9 @@ function testLocalTransactionFailedHelper(string status, h2:Client testDB) retur
     return a;
 }
 
-function testLocalTransactionSuccessWithFailed() returns @tainted (string, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionSuccessWithFailed() returns @tainted [string, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -539,10 +522,10 @@ function testLocalTransactionSuccessWithFailed() returns @tainted (string, int) 
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 222", ResultCount);
     int count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (a, count);
+    return [a, count];
 }
 
-function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client testDB) returns string {
+function testLocalTransactionSuccessWithFailedHelper(string status, jdbc:Client testDB) returns string {
     int i = 0;
     string a = status;
     transaction with retries = 4 {
@@ -565,20 +548,18 @@ function testLocalTransactionSuccessWithFailedHelper(string status, h2:Client te
     return a;
 }
 
-function testLocalTransactionFailedWithNextupdate() returns @tainted (int) {
-    h2:Client testDB1;
-    h2:Client testDB2;
+function testLocalTransactionFailedWithNextupdate() returns @tainted int {
+    jdbc:Client testDB1;
+    jdbc:Client testDB2;
     testDB1 = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
     });
 
     testDB2 = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -600,17 +581,16 @@ function testLocalTransactionFailedWithNextupdate() returns @tainted (int) {
     return i;
 }
 
-function testLocalTransactionFailedWithNextupdateHelper(h2:Client testDB) {
+function testLocalTransactionFailedWithNextupdateHelper(jdbc:Client testDB) {
     transaction {
         var e = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
                                     values ('James', 'Clerk', 1234, 5000.75, 'USA')");
     }
 }
 
-function testNestedTwoLevelTransactionSuccess() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testNestedTwoLevelTransactionSuccess() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -629,19 +609,18 @@ function testNestedTwoLevelTransactionSuccess() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 333", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
 @transactions:Participant {}
-function testNestedTwoLevelTransactionSuccessParticipant(h2:Client testDB) {
+function testNestedTwoLevelTransactionSuccessParticipant(jdbc:Client testDB) {
     var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionSuccess() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testNestedThreeLevelTransactionSuccess() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -660,26 +639,25 @@ function testNestedThreeLevelTransactionSuccess() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 444", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
 @transactions:Participant {}
-function testNestedThreeLevelTransactionSuccessParticipant1(h2:Client testDB) {
+function testNestedThreeLevelTransactionSuccessParticipant1(jdbc:Client testDB) {
     var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
     testNestedThreeLevelTransactionSuccessParticipant2(testDB);
 }
 
 @transactions:Participant {}
-function testNestedThreeLevelTransactionSuccessParticipant2(h2:Client testDB) {
+function testNestedThreeLevelTransactionSuccessParticipant2(jdbc:Client testDB) {
     _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                 values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
-function testNestedThreeLevelTransactionFailed() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testNestedThreeLevelTransactionFailed() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }
@@ -695,10 +673,10 @@ function testNestedThreeLevelTransactionFailed() returns @tainted (int, int) {
     var dt = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 555", ResultCount);
     count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns int {
+function testNestedThreeLevelTransactionFailedHelper(jdbc:Client testDB) returns int {
     int returnVal = 0;
     transaction {
         _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
@@ -711,29 +689,28 @@ function testNestedThreeLevelTransactionFailedHelper(h2:Client testDB) returns i
 }
 
 @transactions:Participant {}
-function testNestedThreeLevelTransactionFailedHelperParticipant1(h2:Client testDB) {
+function testNestedThreeLevelTransactionFailedHelperParticipant1(jdbc:Client testDB) {
     var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                         values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant2(testDB);
 }
 
 @transactions:Participant {}
-function testNestedThreeLevelTransactionFailedHelperParticipant2(h2:Client testDB) {
+function testNestedThreeLevelTransactionFailedHelperParticipant2(jdbc:Client testDB) {
     var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant3(testDB);
 }
 
 @transactions:Participant {}
-function testNestedThreeLevelTransactionFailedHelperParticipant3(h2:Client testDB) {
+function testNestedThreeLevelTransactionFailedHelperParticipant3(jdbc:Client testDB) {
     var e = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
                                             values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
-function testLocalTransactionWithSelectAndForeachIteration() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionWithSelectAndForeachIteration() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
@@ -765,13 +742,12 @@ function testLocalTransactionWithSelectAndForeachIteration() returns @tainted (i
         returnVal = -1;
     }
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
-function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted (int, int) {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted [int, int] {
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 5 }
@@ -795,13 +771,12 @@ function testLocalTransactionWithSelectAndHasNextIteration() returns @tainted (i
         returnVal = -1;
     }
     checkpanic testDB.stop();
-    return (returnVal, count);
+    return [returnVal, count];
 }
 
 function testCloseConnectionPool() returns @tainted int {
-    h2:Client testDB = new({
-        path: "./target/tempdb/",
-        name: "TEST_SQL_CONNECTOR_TR",
+    jdbc:Client testDB = new({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         password: "",
         poolOptions: { maximumPoolSize: 1 }

@@ -18,10 +18,12 @@ package org.ballerinalang.langserver.compiler.common;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -32,23 +34,35 @@ import java.util.List;
 public class LSDocument {
     private Path path;
     private String uri;
-    private String sourceRoot;
+    private String projectRoot;
     private List<String> projectModules;
+    private boolean withinProject;
 
     public LSDocument(String uri) {
         try {
             this.uri = uri;
             this.path = Paths.get(new URL(uri).toURI());
-            this.sourceRoot = LSCompilerUtil.getSourceRoot(this.path);
-            this.projectModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(sourceRoot));
+            this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
+            if (this.projectRoot == null) {
+                return;
+            }
+            try {
+                this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
+            } catch (IOException e) {
+                withinProject = false;
+            }
+            if (withinProject) {
+                // TODO: Fix project module retrieve logic
+                this.projectModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(projectRoot).getParent());
+            }
         } catch (URISyntaxException | MalformedURLException e) {
             // Ignore
         }
     }
 
-    public LSDocument(Path path, String sourceRoot) {
+    public LSDocument(Path path, String projectRoot) {
         this.uri = path.toUri().toString();
-        this.sourceRoot = sourceRoot;
+        this.projectRoot = projectRoot;
         this.path = path;
     }
 
@@ -66,8 +80,8 @@ public class LSDocument {
      *
      * @return {@link Path} source root path
      */
-    public Path getSourceRootPath() {
-        return Paths.get(this.sourceRoot);
+    public Path getProjectRootPath() {
+        return Paths.get(this.projectRoot);
     }
 
     /**
@@ -95,8 +109,8 @@ public class LSDocument {
      *
      * @return {@link String} source root
      */
-    public String getSourceRoot() {
-        return this.sourceRoot;
+    public String getProjectRoot() {
+        return this.projectRoot;
     }
 
     /**
@@ -113,8 +127,8 @@ public class LSDocument {
      *
      * @param sourceRoot source root
      */
-    public void setSourceRoot(String sourceRoot) {
-        this.sourceRoot = sourceRoot;
+    public void setProjectRootRoot(String sourceRoot) {
+        this.projectRoot = sourceRoot;
     }
 
     /**
@@ -123,7 +137,7 @@ public class LSDocument {
      * @return True if this file has project repo, False otherwise
      */
     public boolean hasProjectRepo() {
-        return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
+        return RepoUtils.isBallerinaProject(Paths.get(projectRoot));
     }
 
     /**
@@ -135,8 +149,12 @@ public class LSDocument {
         return projectModules;
     }
 
+    public boolean isWithinProject() {
+        return withinProject;
+    }
+
     @Override
     public String toString() {
-        return "{" + "sourceRoot:" + this.sourceRoot + ", uri:" + this.uri + "}";
+        return "{" + "projectRoot:" + this.projectRoot + ", uri:" + this.uri + "}";
     }
 }

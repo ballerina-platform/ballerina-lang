@@ -44,16 +44,16 @@ public class BasicAuthHandlerTest {
         compileResult = BCompileUtil.compile(sourceRoot.resolve("basic-auth-handler-test.bal").toString());
     }
 
-    @Test(description = "Test case for basic auth header interceptor canHandle method, without the basic auth header")
-    public void testCanHandleHttpBasicAuthWithoutHeader() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuthWithoutHeader");
+    @Test(description = "Test case for basic auth header interceptor canProcess method, without the basic auth header")
+    public void testCanProcessHttpBasicAuthWithoutHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanProcessHttpBasicAuthWithoutHeader");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test case for basic auth header interceptor canHandle method")
-    public void testCanHandleHttpBasicAuth() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCanHandleHttpBasicAuth");
+    @Test(description = "Test case for basic auth header interceptor canProcess method")
+    public void testCanProcessHttpBasicAuth() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCanProcessHttpBasicAuth");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }

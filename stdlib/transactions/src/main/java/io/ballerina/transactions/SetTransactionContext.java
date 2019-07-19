@@ -43,9 +43,12 @@ public class SetTransactionContext {
 
     public static void setTransactionContext(Strand strand, MapValue txDataStruct) {
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
+        String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
         String protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).toString();
-        strand.setLocalTransactionContext(TransactionLocalContext.createTransactionParticipantLocalCtx
-                (globalTransactionId, url, protocol));
+        TransactionLocalContext trxCtx = TransactionLocalContext
+                .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol);
+        trxCtx.beginTransactionBlock(transactionBlockId);
+        strand.setLocalTransactionContext(trxCtx);
     }
 }
