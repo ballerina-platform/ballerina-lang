@@ -35,8 +35,4 @@ public const FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
 
 public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
 
-public const OPERATION_FAILED_ERROR = "{ballerina/system}OperationFailedError";
-
-public type OperationFailedError error<OPERATION_FAILED_ERROR, Detail>;
-
 public type Error InvalidOperationError|PermissionError|FileSystemError|OperationFailedError;
