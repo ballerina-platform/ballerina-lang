@@ -264,9 +264,8 @@ public class ReferencesUtil {
             DiagnosticPos position = reference.getPosition();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             Path baseRoot = reference.getSourcePkgName().equals(".") ? Paths.get(sourceRoot)
-                    : Paths.get(sourceRoot).resolve(reference.getSourcePkgName());
+                    : Paths.get(sourceRoot).resolve("src").resolve(reference.getSourcePkgName());
             String fileURI = baseRoot.resolve(reference.getCompilationUnit()).toUri().toString();
-
             return new Location(fileURI, getRange(position));
         }).collect(Collectors.toList());
     }
