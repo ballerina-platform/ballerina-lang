@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
-import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 
@@ -117,7 +116,7 @@ public class NonBlockingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                 }
                 return null;
-            } catch (RuntimeException | GrpcClientException e) {
+            } catch (Exception e) {
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {

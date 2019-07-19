@@ -29,7 +29,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -339,8 +338,8 @@ public class Message {
                         break;
                     }
                     default: {
-                        throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
-                                "type is not supported : " + fieldDescriptor.getType());
+                        throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request message. " +
+                                "Field type is not supported : " + fieldDescriptor.getType()).asRuntimeException();
                     }
                 }
             }
@@ -652,8 +651,8 @@ public class Message {
                     break;
                 }
                 default: {
-                    throw new UnsupportedFieldTypeException("Error while writing output stream. Field " +
-                            "type is not supported : " + fieldDescriptor.getType());
+                    throw Status.Code.INTERNAL.toStatus().withDescription("Error while writing output stream. " +
+                            "Field type is not supported : " + fieldDescriptor.getType()).asRuntimeException();
                 }
             }
         }
@@ -983,8 +982,9 @@ public class Message {
                     break;
                 }
                 default: {
-                    throw new UnsupportedFieldTypeException("Error while calculating the serialized type. Field " +
-                            "type is not supported : " + fieldDescriptor.getType());
+                    throw Status.Code.INTERNAL.toStatus().withDescription(
+                            "Error while calculating the serialized type. Field type is not supported : "
+                                    + fieldDescriptor.getType()).asRuntimeException();
                 }
             }
         }

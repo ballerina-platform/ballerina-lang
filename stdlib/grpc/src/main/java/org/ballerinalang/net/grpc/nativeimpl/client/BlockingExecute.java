@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
-import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.BlockingStub;
 import org.ballerinalang.net.http.DataContext;
 
@@ -110,7 +109,7 @@ public class BlockingExecute extends AbstractExecute {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
                 }
-            } catch (RuntimeException | GrpcClientException e) {
+            } catch (Exception e) {
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {

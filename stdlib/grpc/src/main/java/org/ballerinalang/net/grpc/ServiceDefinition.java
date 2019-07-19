@@ -22,7 +22,6 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.IOException;
@@ -56,6 +55,7 @@ public final class ServiceDefinition {
      * Returns file descriptor of the gRPC service.
      *
      * @return file descriptor of the service.
+     * @throws GrpcClientException if an error occur while generating service descriptor.
      */
     public Descriptors.FileDescriptor getDescriptor() throws GrpcClientException {
         if (fileDescriptor != null) {
@@ -68,8 +68,8 @@ public final class ServiceDefinition {
         }
     }
 
-    private Descriptors.FileDescriptor getFileDescriptor(String rootDescriptor, MapValue<String, Object>
-            descriptorMap) throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcClientException {
+    private Descriptors.FileDescriptor getFileDescriptor(String rootDescriptor, MapValue<String, Object> descriptorMap)
+            throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcClientException {
         byte[] descriptor = hexStringToByteArray(rootDescriptor);
         if (descriptor.length == 0) {
             throw new GrpcClientException("Error while reading the service proto descriptor. input descriptor " +

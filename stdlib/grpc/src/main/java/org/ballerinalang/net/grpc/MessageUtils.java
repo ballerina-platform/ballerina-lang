@@ -292,6 +292,43 @@ public class MessageUtils {
         }
     }
 
+    static int statusCodeToHttpCode(Status.Code code) {
+        switch (code) {
+            case CANCELLED:
+                return 499; // Client Closed Request
+            case UNKNOWN:
+                return 500; // Internal Server Error
+            case INVALID_ARGUMENT:
+                return 400; // Bad Request
+            case DEADLINE_EXCEEDED:
+                return 504; // Gateway timeout
+            case NOT_FOUND:
+                return 404; // Not Found
+            case ALREADY_EXISTS:
+                return 409; // Conflicts
+            case PERMISSION_DENIED:
+                return 403; // Forbidden
+            case UNAUTHENTICATED:
+                return 401; // Unauthorized
+            case FAILED_PRECONDITION:
+                return 400; // Bad Request
+            case ABORTED:
+                return 409; // Conflicts
+            case OUT_OF_RANGE:
+                return 400; // Bad Request
+            case UNIMPLEMENTED:
+                return 501; // Not Implemented
+            case INTERNAL:
+                return 500; // Internal Server Error
+            case UNAVAILABLE:
+                return 503; // Service Unavailable
+            case DATA_LOSS:
+                return 500; // Internal Server Error
+            default:
+                return 500; // Internal Server Error
+        }
+    }
+
     /**
      * Reads an entire {@link HttpContent} to a new array. After calling this method, the buffer
      * will contain no readable bytes.
