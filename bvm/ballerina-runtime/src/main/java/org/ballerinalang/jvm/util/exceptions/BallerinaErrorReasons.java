@@ -39,6 +39,7 @@ public class BallerinaErrorReasons {
 
     public static final String JSON_OPERATION_ERROR = BALLERINA_PREFIX.concat("JSONOperationError");
     public static final String JSON_CONVERSION_ERROR = BALLERINA_PREFIX.concat("JSONConversionError");
+    public static final String MERGE_JSON_ERROR = BALLERINA_PREFIX.concat("MergeJsonError");
 
     public static final String STRING_OPERATION_ERROR = BALLERINA_PREFIX.concat("StringOperationError");
 
