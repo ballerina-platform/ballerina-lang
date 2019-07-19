@@ -21,9 +21,9 @@ artemis:Connection con = new("tcp://localhost:61616");
 artemis:Session session = new(con);
 artemis:Producer prod = new(session, "close_address");
 
-public function testClose() returns (artemis:Producer, artemis:Session, artemis:Connection) {
+public function testClose() returns [artemis:Producer, artemis:Session, artemis:Connection] {
     var err = prod->close();
     err = session->close();
     err = con->close();
-    return (prod, session, con);
+    return [prod, session, con];
 }

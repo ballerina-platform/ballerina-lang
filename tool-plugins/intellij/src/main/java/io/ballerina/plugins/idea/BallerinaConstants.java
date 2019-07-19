@@ -71,6 +71,7 @@ public class BallerinaConstants {
 
     public static final String BALLERINA_PROJECT_CACHE_FOLDER_NAME = ".ballerina";
     public static final String BALLERINA_CONFIG_FILE_NAME = "Ballerina.toml";
+    public static final String BALLERINA_SRC_DIR_NAME = "src";
 
     public static final String BALLERINAX_SOURCE_PATH = "lib/repo";
     public static final String LAUNCHER_SCRIPT_PATH = "lib/tools/lang-server/launcher";

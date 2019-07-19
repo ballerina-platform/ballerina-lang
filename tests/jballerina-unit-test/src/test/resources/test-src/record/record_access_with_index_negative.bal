@@ -31,6 +31,7 @@ type FiniteOne "fieldOne"|"fieldTwo"|0;
 type FiniteTwo 0|1;
 type FiniteThree "fieldOne"|"fieldTwo"|"fieldThree";
 type FiniteFour FiniteThree|FIELD_FOUR;
+type NoIntersection "F1"|"F2"|"F3"|FIELD_FOUR;
 
 type Foo record {
     string|boolean fieldOne;
@@ -47,7 +48,9 @@ function testFiniteTypeAsIndex() {
     FiniteOne f1 = "fieldOne";
     FiniteTwo f2 = 0;
     FiniteThree f3 = "fieldOne";
-    FiniteFour f4 = "fieldFour";
+    NoIntersection f4 = "fieldFour";
+    NoIntersection f5 = "F2";
+
 
     Foo foo = { fieldOne: "S", fieldTwo: 12, fieldThree: 98.9 };
     Bar bar = { fieldOne: "S", fieldTwo: 12 };
@@ -58,6 +61,6 @@ function testFiniteTypeAsIndex() {
 
     string|boolean|int|float? v4 = bar[f1]; // incompatible types: expected 'string', found 'fieldOne|fieldTwo|0'
     string|boolean|int|float? v5 = bar[f2]; // incompatible types: expected 'string', found '0|1'
-    string|boolean|int|float? v6 = bar[f3]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range
-    var v7 = bar[f4]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range
+    string|boolean|int|float? v6 = bar[f4]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree' out of range
+    var v7 = bar[f5]; // invalid record index expression: value space 'fieldOne|fieldTwo|fieldThree|fieldFour' out of range
 }
