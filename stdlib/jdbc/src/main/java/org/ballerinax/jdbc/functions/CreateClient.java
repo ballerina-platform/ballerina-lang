@@ -49,7 +49,7 @@ public class CreateClient {
         return jdbcClient;
     }
 
-    public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
+    private static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
             MapValue<String, Object> globalPoolOptions) {
         String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
         String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);

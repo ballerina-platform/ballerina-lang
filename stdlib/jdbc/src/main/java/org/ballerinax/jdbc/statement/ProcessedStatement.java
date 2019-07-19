@@ -59,6 +59,8 @@ import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
 
 /**
  * Represents a processed statement.
+ *
+ * @since 1.0.0
  */
 class ProcessedStatement {
     private Connection conn;
