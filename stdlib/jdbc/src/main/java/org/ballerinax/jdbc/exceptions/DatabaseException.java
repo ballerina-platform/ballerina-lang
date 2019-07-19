@@ -26,8 +26,6 @@ import java.sql.SQLException;
  */
 public class DatabaseException extends SQLException {
 
-    private int sqlErrorCode;
-    private String sqlState;
     private String sqlErrorMessage;
     private String reason;
 
@@ -38,25 +36,13 @@ public class DatabaseException extends SQLException {
      * @param cause   Cause
      */
     public DatabaseException(String reason, SQLException cause) {
-        super(reason);
+        super(reason, cause.getSQLState(), cause.getErrorCode());
         this.reason = reason;
-        this.sqlErrorCode = cause.getErrorCode();
-        this.sqlState = cause.getSQLState();
         this.sqlErrorMessage = cause.getMessage();
-    }
-
-    @Override
-    public String getSQLState() {
-        return sqlState;
     }
 
     @Override
     public String getMessage() {
         return reason + sqlErrorMessage;
-    }
-
-    @Override
-    public int getErrorCode() {
-        return (sqlErrorCode);
     }
 }
