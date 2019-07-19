@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.datasource;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
@@ -30,7 +30,7 @@ public class PoolKey {
     private String jdbcUrl;
     private Map<String, ?> dbOptions;
 
-    public PoolKey(String jdbcUrl, Map<String, ?> dbOptions) {
+    PoolKey(String jdbcUrl, Map<String, ?> dbOptions) {
         this.jdbcUrl = jdbcUrl;
         this.dbOptions = dbOptions;
     }
@@ -84,13 +84,11 @@ public class PoolKey {
                 break;
             default:
                 throw new AssertionError("Type " + type.getName() + " shouldn't have occurred");
-
             }
             hashCode = hashCode + keyHashCode + valueHashCode;
         }
         return hashCode;
     }
-
 
     private boolean dbOptionsEqual(PoolKey anotherPoolKey) {
         Map<String, ?> anotherDbOptions = anotherPoolKey.dbOptions;
@@ -110,5 +108,4 @@ public class PoolKey {
         }
         return true;
     }
-
 }

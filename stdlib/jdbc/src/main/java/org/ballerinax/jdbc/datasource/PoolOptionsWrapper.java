@@ -19,7 +19,6 @@
 package org.ballerinax.jdbc.datasource;
 
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinax.jdbc.PoolKey;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
