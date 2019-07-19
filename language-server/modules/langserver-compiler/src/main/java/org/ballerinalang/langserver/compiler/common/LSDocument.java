@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.compiler.common;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
