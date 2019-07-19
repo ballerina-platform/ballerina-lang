@@ -84,7 +84,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         } catch (Exception ex) {
             HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
         }
-
     }
 
     @Override
