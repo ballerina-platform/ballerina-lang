@@ -30,7 +30,7 @@ public class RecordFieldsAccessNegativeTest {
 
     @Test(description = "Test private fields access in record 01")
     public void testRecordPrivateFieldsAccess1() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_fields_negative1.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-1");
 
         Assert.assertEquals(compileResult.getErrorCount(), 12);
         String expectedErrMsg1 = "attempt to expose non-public symbol ";
@@ -52,7 +52,7 @@ public class RecordFieldsAccessNegativeTest {
 
     @Test(description = "Test private fields access in record 02")
     public void testRecordPrivateFieldsAccess2() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_fields_negative2.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/record-project", "access-neg-2");
 
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         String expectedErrMsg1 = "attempt to expose non-public symbol ";

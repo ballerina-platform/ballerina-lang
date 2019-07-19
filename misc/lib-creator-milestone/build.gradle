@@ -21,7 +21,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m1'
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
 }
 
 description = 'Ballerina - Milestone library creation utility'

@@ -24,9 +24,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         this.ballerinaExtInstance = balExt;
         this.langClient = balExt.langClient;
 
-        vscode.workspace.onDidOpenTextDocument((document) => {
-            if (document.languageId === "ballerina") {
-                this.refresh(document);
+        vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
+            if (!activatedTextEditor) {
+                return;
+            }
+
+            if (activatedTextEditor.document.languageId === "ballerina") {
+                this.refresh(activatedTextEditor.document);
             }
         });
 
@@ -160,6 +164,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     if (element[child] && Object.keys(element[child]).length > 0) {
                         collapseMode = vscode.TreeItemCollapsibleState.Collapsed;
                     }
+
                     elementTree.push(new ProjectTreeElement(child, collapseMode, {
                         command: "ballerina.executeTreeElement",
                         title: "Execute Tree Command",
@@ -170,10 +175,14 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                 let treeObj = this.getTreeForKey(element, parentEl.label);
                 if (Object.keys(treeObj).length !== 0) {
                     Object.keys(treeObj).map(child => {
+                        let args = [key, child];
+                        if (parentEl.command && parentEl.command.arguments) {
+                            args = [...parentEl.command.arguments, child];
+                        }
                         elementTree.push(new ProjectTreeElement(child, vscode.TreeItemCollapsibleState.None, {
                             command: "ballerina.executeTreeElement",
                             title: "Execute Tree Command",
-                            arguments: [key, child]
+                            arguments: args,
                         }));
                     });
                 }
@@ -200,7 +209,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
      * @param root - root path
      */
     private getSourceRoot(currentPath: string, root: string): string|undefined {
-        if (fs.existsSync(path.join(currentPath, '.ballerina'))) {
+        if (fs.existsSync(path.join(currentPath, 'Ballerina.Toml'))) {
             if (currentPath !== os.homedir()) {
                 return currentPath;
             }

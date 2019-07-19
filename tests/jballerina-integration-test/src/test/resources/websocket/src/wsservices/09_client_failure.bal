@@ -23,7 +23,7 @@ http:WebSocketCaller? globalServerCaller = ();
 @http:WebSocketServiceConfig {
     path: "/client/failure"
 }
-service clientFailure on new http:WebSocketListener(9091) {
+service clientFailure on new http:WebSocketListener(21010) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp;

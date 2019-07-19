@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This test case tests the scenario of streaming the data from a table converted to XML.
  */
-public class TableToXMLStreamingTestCase extends BaseTest {
+public class TableDataStreamingTestCase extends BaseTest {
     private static BServerInstance serverInstance;
     private final int servicePort = Constant.DEFAULT_HTTP_PORT;
     private TestDatabase testDatabase;
@@ -53,7 +53,7 @@ public class TableToXMLStreamingTestCase extends BaseTest {
     private void setup() throws Exception {
         System.setProperty("enableJBallerinaTests", "true");
         setUpDatabase();
-        String balFile = Paths.get("src", "test", "resources", "data", "streaming", "xml_streaming_test.bal")
+        String balFile = Paths.get("src", "test", "resources", "data", "streaming", "streaming_test.bal")
                 .toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         // Had to increase this to 150 from 100 which worked with BVM. Created an issue: #16846
@@ -67,26 +67,55 @@ public class TableToXMLStreamingTestCase extends BaseTest {
         String dbScriptPath = Paths
                 .get("data", "streaming", "datafiles", "streaming_test_data.sql").toString();
         testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2, dbScriptPath, SQLDBUtils.DB_DIRECTORY,
-                "STREAMING_XML_TEST_DB");
+                "STREAMING_TEST_DB");
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
 
     @Test(description = "Tests streaming a large amount of data from a table, converted to XML")
-    public void testStreamingLargeXML() throws Exception {
+    public void testStreamingLargeXml() throws Exception {
         HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getData"), 60000, responseBuilder);
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, responseBuilder);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
+    }
+
+    @Test(description = "Tests streaming a large amount of data from a table, converted to JSON")
+    public void testStreamingLargeJson() throws Exception {
+        HttpResponse response = HttpClientRequest
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonData"), 60000,
+                        responseBuilder);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
+    }
+
+    @Test(description = "Tests streaming a large amount of data from a table, converted to JSON")
+    public void testStreamingLargeJsonAppended() throws Exception {
+        HttpResponse response = HttpClientRequest
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonDataAppended"), 60000,
+                        responseBuilder);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 208788925);
+    }
+
+    @Test(description = "Tests the outbound throttling scenario with a slow client")
+    public void testStreamingLargeXMLWithSlowClient() throws Exception {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, slowResponseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
     }
 
     @Test(description = "Tests the outbound throttling scenario with a slow client")
-    public void testStreamingLargeXMLWithSlowClient() throws Exception {
+    public void testStreamingLargeJsonWithSlowClient() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(servicePort, "dataService/getData"), 60000, slowResponseBuilder);
+                serverInstance.getServiceURLHttp(servicePort, "dataService/getJsonData"), 60000, slowResponseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
-        Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 208788890);
     }
 
     @AfterClass(alwaysRun = true)

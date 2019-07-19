@@ -1397,14 +1397,15 @@ public class CommonUtil {
     /**
      * Generates a variable name.
      *
-     * @param value     index of the argument
      * @param bLangNode {@link BLangNode}
-     * @param context   {@link CompilerContext}
      * @return random argument name
      */
-    public static String generateVariableName(int value, BLangNode bLangNode, CompilerContext context) {
-        Set<String> allNameEntries = getAllNameEntries(bLangNode, context);
-        String newName = generateName(value, allNameEntries);
+    public static String generateVariableName(BLangNode bLangNode, Set<String> names) {
+        return generateVariableName(1, bLangNode, names);
+    }
+
+    private static String generateVariableName(int value, BLangNode bLangNode, Set<String> names) {
+        String newName = generateName(value, names);
         if (bLangNode instanceof BLangInvocation && value == 1) {
             newName = ((BLangInvocation) bLangNode).name.value;
             BiFunction<String, String, String> replacer = (search, text) ->
@@ -1430,7 +1431,7 @@ public class CommonUtil {
             // Lower first letter
             newName = newName.substring(0, 1).toLowerCase(Locale.getDefault()) + newName.substring(1);
             // if already available, try appending 'Result'
-            Iterator<String> iterator = allNameEntries.iterator();
+            Iterator<String> iterator = names.iterator();
             boolean alreadyExists = false;
             boolean appendResult = true;
             boolean appendOut = true;
@@ -1453,8 +1454,8 @@ public class CommonUtil {
                 newName = newName + suffixOut;
             }
             // if still already available, try a random letter
-            while (allNameEntries.contains(newName)) {
-                newName = generateVariableName(++value, bLangNode, context);
+            while (names.contains(newName)) {
+                newName = generateVariableName(++value, bLangNode, names);
             }
         }
         return newName;
@@ -1521,7 +1522,14 @@ public class CommonUtil {
                 (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM));
     }
 
-    private static Set<String> getAllNameEntries(BLangNode bLangNode, CompilerContext context) {
+    /**
+     * Get all available name entries.
+     *
+     * @param bLangNode {@link BLangNode}
+     * @param context   {@link CompilerContext}
+     * @return set of strings
+     */
+    public static Set<String> getAllNameEntries(BLangNode bLangNode, CompilerContext context) {
         Set<String> strings = new HashSet<>();
         BLangPackage packageNode = null;
         BLangNode parent = bLangNode.parent;

@@ -64,7 +64,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-system')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-logging')

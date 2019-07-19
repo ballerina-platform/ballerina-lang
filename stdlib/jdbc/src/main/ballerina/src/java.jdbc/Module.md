@@ -245,7 +245,7 @@ jdbc:BatchUpdateResult ret = testDB->batchUpdate("INSERT INTO Students(name, age
                                                  false, parameters1, parameters2);
 error? e = ret.returnedError;
 if (e is error) {
-    io:println("Error occurred:" + <string>err.detail()["message"]);
+    io:println("Error occurred:" + <string>e.detail()["message"]);
 } else {
     io:println("Batch item 1 update count: " + ret.updatedRowCount[0]);
     io:println("Batch item 2 update count: " + ret.updatedRowCount[1]);

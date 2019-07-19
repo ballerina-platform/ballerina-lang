@@ -20,8 +20,8 @@ package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.repository.CompiledPackage;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.BinaryFileWriter;
