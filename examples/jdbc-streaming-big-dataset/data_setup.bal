@@ -40,17 +40,17 @@ public function main() {
         io:println("Call operation is successful");
     } else {
         error err = retCall;
-        io:println("Stored procedure call failed: "
-                    + <string> err.detail()["message"]);
+        io:println("Stored procedure call failed: ",
+                     <string> err.detail()["message"]);
     }
 }
 
 // Function to handle the return value of the update remote function.
 function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
-        io:println(message + " status: " + returned.updatedRowCount);
+        io:println(message, " status: ", returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string> err.detail()["message"]);
+        io:println(message, " failed: ", <string> err.detail()["message"]);
     }
 }
