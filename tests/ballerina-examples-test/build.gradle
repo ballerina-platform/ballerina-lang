@@ -45,7 +45,7 @@ task copyDistribution() {
 task test {
     dependsOn copyDistribution
     def distPath = "$buildDir/extractedDistribution"
-    mustRunAfter ':ballerina-integration-test:test'
+    mustRunAfter ':jballerina-integration-test:test'
     outputs.dir("${distPath}/examples/target")
     outputs.dir("${distPath}/examples/.ballerina/repo/")
     outputs.cacheIf{ true }
