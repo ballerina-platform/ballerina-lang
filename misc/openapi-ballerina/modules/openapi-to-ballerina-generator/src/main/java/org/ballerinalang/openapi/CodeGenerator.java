@@ -29,7 +29,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
@@ -38,6 +37,7 @@ import org.ballerinalang.openapi.utils.CodegenUtils;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.ballerinalang.openapi.utils.TypeMatchingUtil;
+import org.ballerinalang.tool.LauncherUtils;
 
 import java.io.File;
 import java.io.IOException;

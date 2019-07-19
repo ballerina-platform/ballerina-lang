@@ -17,7 +17,7 @@
 import ballerina/log;
 import ballerina/http;
 
-listener http:Listener ep1 = new(9090);
+listener http:Listener ep1 = new(21009);
 
 service simpleProxy1 = @http:WebSocketServiceConfig {} service {
 

@@ -18,8 +18,8 @@
 public type Producer client object {
     private Session session;
 
-    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig, string addressName,
-                           AddressConfiguration? addressConfig = (), int rate = -1) {
+    public function __init(Session | EndpointConfiguration sessionOrEndpointConfig, public string addressName,
+                           public AddressConfiguration? addressConfig = (), int rate = -1) {
         if (sessionOrEndpointConfig is Session) {
             self.session = sessionOrEndpointConfig;
         } else {

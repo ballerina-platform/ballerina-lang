@@ -17,8 +17,6 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -39,12 +37,7 @@ import java.util.UUID;
         functionName = "createClient",
         isPublic = true
 )
-public class CreateClient extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class CreateClient {
 
     public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,
                 Object> globalPoolOptions) {

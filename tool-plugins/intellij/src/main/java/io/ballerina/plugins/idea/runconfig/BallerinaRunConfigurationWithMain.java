@@ -61,16 +61,16 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     @Override
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
-        myFilePath = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        myFilePath = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element,
                 FILE_PATH_ATTRIBUTE_NAME));
         myRunKind = RunConfigurationKind.valueOf(StringUtil.notNullize(
-                JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
-        String remoteDebugHost = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+                JDOMExternalizerUtil.readCustomField(element, KIND_ATTRIBUTE_NAME)));
+        String remoteDebugHost = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element,
                 REMOTE_DEBUGGING_HOST_ATTRIBUTE_NAME));
         if (!remoteDebugHost.isEmpty()) {
             this.remoteDebugHost = remoteDebugHost;
         }
-        String remoteDebugPort = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        String remoteDebugPort = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element,
                 REMOTE_DEBUGGING_PORT_ATTRIBUTE_NAME));
         if (!remoteDebugPort.isEmpty()) {
             this.remoteDebugPort = remoteDebugPort;
