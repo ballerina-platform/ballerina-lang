@@ -38,7 +38,7 @@ public class AnonymousStructTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/anon-struct.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/anon-struct.bal");
     }
 
     @Test(description = "Test Anonymous struct in a function parameter declaration")
