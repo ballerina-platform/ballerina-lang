@@ -48,12 +48,13 @@ import java.io.IOException;
 public class QueuePurge {
 
     public static Object queuePurge(Strand strand, ObjectValue channelObjectValue, String queueName) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.queuePurge(queueName);
-            if (transactionContext != null) {
+            if (isInTransaction && transactionContext != null) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

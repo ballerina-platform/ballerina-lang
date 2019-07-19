@@ -88,22 +88,19 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
      * @param strand Strand.
      */
     public void handleTransactionBlock(Strand strand) {
-        boolean isInTransaction = strand.isInTransaction();
-        if (isInTransaction) {
-            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
-            BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
-            if (Objects.isNull(txContext)) {
-                try {
-                    channel.txSelect();
-                } catch (IOException exception) {
-                    throw new RabbitMQConnectorException("I/O Error occurred while initiating the transaction."
-                            + exception.getMessage(), exception);
-                }
-                transactionLocalContext.registerTransactionContext(connectorId, this);
-                String globalTxId = transactionLocalContext.getGlobalTransactionId();
-                String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
-                TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
+        if (Objects.isNull(txContext)) {
+            try {
+                channel.txSelect();
+            } catch (IOException exception) {
+                throw new RabbitMQConnectorException("I/O Error occurred while initiating the transaction."
+                        + exception.getMessage(), exception);
             }
+            transactionLocalContext.registerTransactionContext(connectorId, this);
+            String globalTxId = transactionLocalContext.getGlobalTransactionId();
+            String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
         }
     }
 }

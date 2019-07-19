@@ -50,6 +50,7 @@ public class BasicPublish {
 
     public static Object basicPublish(Strand strand, ObjectValue channelObjectValue, Object messageContent,
                                       String routingKey, String exchangeName, Object properties) {
+        boolean isInTransaction = strand.isInTransaction();
         String defaultExchangeName = "";
         if (exchangeName != null) {
             defaultExchangeName = exchangeName;
@@ -60,7 +61,7 @@ public class BasicPublish {
         try {
             ChannelUtils.basicPublish(channel, routingKey, messageContent.toString().getBytes(StandardCharsets.UTF_8),
                     defaultExchangeName, properties);
-            if (transactionContext != null) {
+            if (isInTransaction && transactionContext != null) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

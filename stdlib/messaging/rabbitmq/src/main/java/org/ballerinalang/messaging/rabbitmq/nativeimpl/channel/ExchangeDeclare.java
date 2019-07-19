@@ -49,12 +49,13 @@ public class ExchangeDeclare {
 
     public static Object exchangeDeclare(Strand strand, ObjectValue channelObjectValue,
                                          MapValue<String, Object> exchangeConfig) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
-            if (transactionContext != null) {
+            if (isInTransaction && transactionContext != null) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

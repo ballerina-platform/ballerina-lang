@@ -48,12 +48,13 @@ public class QueueBind {
 
     public static Object queueBind(Strand strand, ObjectValue channelObjectValue, String queueName,
                                    String exchangeName, String bindingKey) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.queueBind(queueName, exchangeName, bindingKey, null);
-            if (transactionContext != null) {
+            if (isInTransaction && transactionContext != null) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {
