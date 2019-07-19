@@ -409,21 +409,17 @@ public class CommonUtil {
      * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx, CommonToken pkgAlias) {
-        BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+                                                             LSContext ctx, CommonToken pkgAlias,
+                                                             Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
-        Map<String, String> pkgAliasMap = CommonUtil.getCurrentFileImports(bLangPackage, ctx).stream()
-                .collect(Collectors.toMap(pkg -> pkg.symbol.pkgID.toString(), pkg -> pkg.alias.value));
         
         String aliasComponent = "";
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
+        } else if (!currentPkgID.name.value.equals(packageID.name.value)) {
+            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
-//        else if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-//                && !currentPkgID.name.value.equals(packageID.name.value)) {
-//            aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
-//        }
 
         boolean withAlias = (pkgAlias == null && !aliasComponent.isEmpty());
         
@@ -466,12 +462,13 @@ public class CommonUtil {
      * @param packageID Package Id
      * @param annotationSymbol BLang annotation to extract the completion Item
      * @param ctx LS Service operation context, in this case completion context
+     * @param pkgAliasMap Package alias map for the file
      *
      * @return {@link CompletionItem} Completion item for the annotation
      */
     public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol, 
-                                                             LSContext ctx) {
-        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null);
+                                                             LSContext ctx, Map<String, String> pkgAliasMap) {
+        return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
     }
 
     /**
@@ -1567,5 +1564,18 @@ public class CommonUtil {
             entries.forEach((name, scopeEntry) -> strings.add(name.value));
         }
         return strings;
+    }
+
+    /**
+     * Whether the given package is a lang lib.
+     * 
+     * @param packageID Package ID to evaluate
+     * @return {@link Boolean} whether package is a lang lib
+     */ 
+    public static boolean isLangLib(PackageID packageID) {
+        String orgName = packageID.orgName.value;
+        List<String> nameComps = packageID.nameComps.stream().map(Name::getValue).collect(Collectors.toList());
+        
+        return orgName.equals("ballerina") && nameComps.get(0).equals("lang");
     }
 }

@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.compiler.common;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -26,7 +27,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Document class to hold the file path used in the LS.
@@ -35,8 +40,9 @@ public class LSDocument {
     private Path path;
     private String uri;
     private String projectRoot;
-    private List<String> projectModules;
-    private boolean withinProject;
+    private List<String> projectModules = new ArrayList<>();
+    private boolean withinProject = false;
+    private String ownerModule = "";
 
     public LSDocument(String uri) {
         try {
@@ -53,7 +59,8 @@ public class LSDocument {
             }
             if (withinProject) {
                 // TODO: Fix project module retrieve logic
-                this.projectModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(projectRoot).getParent());
+                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot).getParent());
+                this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
             }
         } catch (URISyntaxException | MalformedURLException e) {
             // Ignore
@@ -64,6 +71,7 @@ public class LSDocument {
         this.uri = path.toUri().toString();
         this.projectRoot = projectRoot;
         this.path = path;
+        this.withinProject = true;
     }
 
     /**
@@ -136,9 +144,9 @@ public class LSDocument {
      *
      * @return True if this file has project repo, False otherwise
      */
-    public boolean hasProjectRepo() {
-        return RepoUtils.isBallerinaProject(Paths.get(projectRoot));
-    }
+//    public boolean hasProjectRepo() {
+//        return RepoUtils.isBallerinaProject(Paths.get(projectRoot));
+//    }
 
     /**
      * Get the project modules list.
@@ -153,8 +161,53 @@ public class LSDocument {
         return withinProject;
     }
 
+    public String getOwnerModule() {
+        return ownerModule;
+    }
+
     @Override
     public String toString() {
         return "{" + "projectRoot:" + this.projectRoot + ", uri:" + this.uri + "}";
+    }
+    
+    /**
+     * Get the package name for given file.
+     *
+     * @param projectRoot project root
+     * @param filePath full path of the file
+     * @return {@link String} package name
+     */
+    private String getModuleNameForDocument(String projectRoot, String filePath) {
+        String packageName = "";
+        String packageStructure = filePath.substring(projectRoot.length() + 1);
+        String[] splittedPackageStructure = packageStructure.split(Pattern.quote(File.separator));
+        if (splittedPackageStructure.length > 0 && !splittedPackageStructure[0].endsWith(".bal")) {
+            packageName = packageStructure.split(Pattern.quote(File.separator))[1];
+        }
+        return packageName;
+    }
+
+    /**
+     * Get the list of module names in the repo.
+     *
+     * @param projectRoot project root path
+     * @return {@link List} List of module names
+     */
+    private List<String> getCurrentProjectModules(Path projectRoot) {
+        try {
+            Stream<Path> pathStream = Files.walk(projectRoot.resolve("src"));
+            return pathStream
+                    .filter(path -> {
+                        try {
+                            return Files.isDirectory(path) && !Files.isHidden(path);
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    })
+                    .map(path -> path.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
     }
 }
