@@ -293,7 +293,7 @@ public class SQLDataIterator extends TableIterator {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
                 if (dataArray.length != internalStructFields.length) {
-                    throw new PanickingApplicationException("Specified struct and the returned struct are " +
+                    throw new PanickingApplicationException("Specified record and the returned record types are " +
                             "not compatible");
                 }
                 int index = 0;
