@@ -64,7 +64,8 @@ public class MergeJson {
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                               "Cannot merge JSON values of types " + j1Type + " and " + j2Type);
+                                               "Cannot merge JSON values of types '" + j1Type + "' and '" +
+                                                       j2Type + "'");
         }
 
         MapValue<String, Object> m1 = (MapValue<String, Object>) j1;

@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -27,6 +28,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -99,4 +101,23 @@ public class LangLibValueTest {
         assertEquals(array.getRefValue(3).stringValue(), "4");
     }
 
+    @Test(dataProvider = "mergeJsonFunctions")
+    public void testMergeJson(String function) {
+        BValue[] returns = BRunUtil.invoke(compileResult, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "mergeJsonFunctions")
+    public Object[][] mergeJsonFunctions() {
+        return new Object[][] {
+            { "testNilAndNonNilJsonMerge" },
+            { "testNonNilNonMappingJsonMerge" },
+            { "testMappingJsonAndNonMappingJsonMerge1" },
+            { "testMappingJsonAndNonMappingJsonMerge2" },
+            { "testMappingJsonNoIntersectionMergeSuccess" },
+            { "testMappingJsonWithIntersectionMergeFailure1" },
+            { "testMappingJsonWithIntersectionMergeFailure2" },
+            { "testMappingJsonWithIntersectionMergeSuccess" }
+        };
+    }
 }
