@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
@@ -98,9 +99,11 @@ public class FormatUtil {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String sourceRoot = LSCompilerUtil.getProjectRoot(filePath.toAbsolutePath());
-                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
-                            filePath.toAbsolutePath().toString());
+                    // TODO: Fix this properly
+                    String projectRoot = LSCompilerUtil.getProjectRoot(filePath.toAbsolutePath());
+//                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
+//                            filePath.toAbsolutePath().toString());
+                    String packageName = "";
                     if ("".equals(packageName)) {
                         Path path = filePath.getFileName();
                         if (path != null) {
@@ -109,7 +112,7 @@ public class FormatUtil {
                     }
 
                     // Compile the given ballerina file.
-                    BLangPackage bLangPackage = compileFile(Paths.get(sourceRoot), packageName);
+                    BLangPackage bLangPackage = compileFile(Paths.get(projectRoot), packageName);
 
                     // If there are compilation errors do not continue the process.
                     if (bLangPackage.diagCollector.hasErrors()) {
