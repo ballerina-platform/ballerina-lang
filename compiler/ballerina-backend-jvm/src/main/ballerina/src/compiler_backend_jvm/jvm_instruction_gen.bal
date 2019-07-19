@@ -419,9 +419,9 @@ type InstructionGenerator object {
         bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
         if (bType is bir:BTypeInt) {
-            self.mv.visitInsn(LDIV);
+            self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
         } else if (bType is bir:BTypeFloat) {
-            self.mv.visitInsn(DDIV);
+            self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(DD)D", false);
         } else if (bType is bir:BTypeDecimal) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "divide",
                 io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
@@ -455,9 +455,9 @@ type InstructionGenerator object {
             bir:BType bType = binaryIns.lhsOp.typeValue;
             self.generateBinaryRhsAndLhsLoad(binaryIns);
             if (bType is bir:BTypeInt) {
-                self.mv.visitInsn(LREM);
+                self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
             } else if (bType is bir:BTypeFloat) {
-                self.mv.visitInsn(DREM);
+                self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(DD)D", false);
             } else if (bType is bir:BTypeDecimal) {
                 self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "remainder",
                     io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
