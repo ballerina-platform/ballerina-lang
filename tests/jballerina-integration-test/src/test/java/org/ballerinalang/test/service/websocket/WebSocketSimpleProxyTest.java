@@ -28,6 +28,6 @@ import org.testng.annotations.Test;
 @Test(groups = {"websocket-test"})
 public class WebSocketSimpleProxyTest extends WebSocketSimpleProxyTestCommons {
     public WebSocketSimpleProxyTest() {
-        super(15300, false, "ws://localhost:9099");
+        super(15300, false, "ws://localhost:21018");
     }
 }

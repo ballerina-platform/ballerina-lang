@@ -31,7 +31,7 @@ service simpleProxy3 = @http:WebSocketServiceConfig {} service {
     }
 };
 
-service simple3 on new http:Listener(9093) {
+service simple3 on new http:Listener(21012) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
