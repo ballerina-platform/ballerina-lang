@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+const string XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+
 type XMLIterator object {
 
     private xml m;
@@ -109,20 +112,20 @@ public function strip(xml x) returns xml = external;
 # + startIndex - Start index, inclusive
 # + endIndex - End index, exclusive
 # + return - Sliced sequence
-public function slice(xml x,int startIndex, int endIndex) returns xml = external;
+public function slice(xml x, int startIndex, int endIndex) returns xml = external;
 
 # Sets the attributes to the provided attributes map.
 #
 # + x - The xml source
 # + attributes - Attributes map
-public function setAttributes(xml x,map<any> attributes) = external;
+public function setAttributes(xml x, map<any> attributes) = external;
 
 # Converts a XML object to a JSON representation.
 #
 # + x - The xml source
 # + options - xmlOptions struct for XML to JSON conversion properties
 # + return - JSON representation of the given XML
-public function toJSON(xml x,record {
+public function toJSON(xml x, record {
                                          string attributePrefix = "@";
                                          boolean preserveNamespaces = true;
                                      } options) returns json = external;
@@ -133,29 +136,90 @@ public function toJSON(xml x,record {
 # + x - The xml source
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x,string qname) returns xml = external;
+public function selectDescendants(xml x, string qname) returns xml = external;
 
 # Remove an attribute from an XML.
 #
 # + x - The xml source
 # + qname - Qualified name of the attribute
-public function removeAttribute(xml x,string qname) = external;
+public function removeAttribute(xml x, string qname) = external;
 
 # Append children to an XML if its an element type XML. Error otherwise.
 # New children will be appended at the end of the existing children.
 #
 # + x - The xml source
 # + children - children
-public function appendChildren(xml x,xml children) = external;
+public function appendChildren(xml x, xml children) = external;
 
 # Remove children matching the given name from an XML. This operation has no effect
 # if the XML is not an element type XML.
 #
 # + x - The xml source
 # + qname - Namespace qualified name of the children to be removed
-public function removeChildren(xml x,string qname) = external;
+public function removeChildren(xml x, string qname) = external;
+
+# Concatenate all the `xs`. Empty xml sequence if empty.
+public function concat((xml|string)... xs) returns xml = external;
+
+# Returns true if `x` is a singleton xml sequence consisting of an element item.
+public function isElement(xml x) returns boolean = external;
+
+# Returns true if `x` is a singleton xml sequence consisting of a processing instruction item.
+public function isProcessingInstruction(xml x) returns boolean = external;
+
+# Returns true if `x` is a singleton xml sequence consisting of a comment item.
+public function isComment(xml x) returns boolean = external;
+
+# Represents a parameter for which isElement must be true.
+type Element xml;
+# Represents a parameter for which isProcessingInstruction must be true.
+type ProcessingInstruction xml;
+# Represents a parameter for which isComment must be true.
+type Comment xml;
+# Represents a parameter for which isText must be true.
+type Text xml;
+
+# Returns a string giving the expanded name of `elem`.
+public function getName(Element elem) returns string = external;
+public function setName(Element elem, string xName) = external;
+
+# Returns the children of `elem`.
+# Panics if `isElement(elem)` is not true.
+public function getChildren(Element elem) returns xml = external;
+
+# Sets the children of `elem` to `children`.
+# Panics if `isElement(elem)` is not true.
+public function setChildren(Element elem, xml|string children) = external;
+
+# Returns the map representing the attributes of `elem`.
+# This includes namespace attributes.
+# The keys in the map are the expanded name of the attribute.
+# Panics if `isElement(elem)` is not true.
+# There is no setAttributes function.
+public function getAttributes(Element x) returns map<string> = external;
+
+# Returns the target part of the processing instruction.
+public function getTarget(ProcessingInstruction x) returns string = external;
+
+# Returns the content of a text or processing instruction or comment item.
+public function getContent(Text|ProcessingInstruction|Comment x) returns string = external;
+
+# Creates an element with the specified children
+# The attributes are empty initially
+public function createElement(string name, xml children = concat()) returns Element = external;
+
+# Creates a processing instruction with the specified target and content.
+public function createProcessingInstruction(string target, string content) returns ProcessingInstruction
+ = external;
+
+# Creates a comment with the specified content.
+public function createComment(string content) returns Comment = external;
 
 // Functional programming methods
 public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
 public function forEach(xml x, function(xml|string item) returns () func) = external;
 public function filter(xml x, function(xml|string item) returns boolean func) returns xml = external;
+
+# This is the inverse of `value:toString` applied to an `xml`.
+public function fromString(string s) returns xml|error = external;
+
