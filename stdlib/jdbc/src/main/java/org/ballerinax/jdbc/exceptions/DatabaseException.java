@@ -29,6 +29,7 @@ public class DatabaseException extends SQLException {
     private int sqlErrorCode;
     private String sqlState;
     private String sqlErrorMessage;
+    private String reason;
 
     /**
      * Constructs a new {@link DatabaseException} with the specified detail message and cause.
@@ -38,20 +39,24 @@ public class DatabaseException extends SQLException {
      */
     public DatabaseException(String reason, SQLException cause) {
         super(reason);
+        this.reason = reason;
         this.sqlErrorCode = cause.getErrorCode();
         this.sqlState = cause.getSQLState();
         this.sqlErrorMessage = cause.getMessage();
     }
 
-    public String getSqlState() {
+    @Override
+    public String getSQLState() {
         return sqlState;
     }
 
-    public String getSqlErrorMessage() {
-        return sqlErrorMessage;
+    @Override
+    public String getMessage() {
+        return reason + sqlErrorMessage;
     }
 
-    public int getSqlErrorCode() {
-        return sqlErrorCode;
+    @Override
+    public int getErrorCode() {
+        return (sqlErrorCode);
     }
 }

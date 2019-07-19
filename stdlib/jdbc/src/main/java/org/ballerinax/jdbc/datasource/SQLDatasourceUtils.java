@@ -207,26 +207,11 @@ public class SQLDatasourceUtils {
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
-        String sqlErrorMessage;
-        int vendorCode;
-        String sqlState;
-        String errorMessage = messagePrefix;
-
-        if (exception instanceof DatabaseException) {
-            DatabaseException dbException = (DatabaseException) exception;
-            String reason =
-                    dbException.getMessage() != null ? dbException.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-            sqlErrorMessage = dbException.getSqlErrorMessage();
-            vendorCode = dbException.getSqlErrorCode();
-            sqlState = dbException.getSqlState();
-            errorMessage += reason;
-        } else {
-            sqlErrorMessage =
-                    exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-            vendorCode = exception.getErrorCode();
-            sqlState = exception.getSQLState();
-        }
-        errorMessage += sqlErrorMessage + ".";
+        String sqlErrorMessage =
+                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
+        int vendorCode = exception.getErrorCode();
+        String sqlState = exception.getSQLState();
+        String errorMessage = messagePrefix + sqlErrorMessage + ".";
         return getSQLDatabaseError(errorMessage, vendorCode, sqlState);
     }
 
