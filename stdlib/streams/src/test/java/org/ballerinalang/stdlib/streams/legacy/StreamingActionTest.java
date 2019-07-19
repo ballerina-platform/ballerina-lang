@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.stdlib.streams.legacy;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.tool.util.BAssertUtil;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

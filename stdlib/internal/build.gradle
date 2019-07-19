@@ -36,7 +36,7 @@ dependencies {
     implementation project(':ballerina-file')
 	implementation project(':ballerina-log-api')
 	implementation project(':ballerina-runtime-api')
-	implementation project(':ballerina-launcher')
+	implementation project(':ballerina-tool')
     implementation project(':ballerina-utils')    
     implementation 'commons-io:commons-io'
 
