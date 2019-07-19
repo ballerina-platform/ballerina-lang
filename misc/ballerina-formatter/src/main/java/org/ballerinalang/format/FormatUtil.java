@@ -19,7 +19,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
