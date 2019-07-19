@@ -44,6 +44,7 @@ public class BalFileGenerationUtils {
      * Execute command and generate file descriptor.
      *
      * @param command protoc executor command.
+     * @throws CodeGeneratorException if an error occurred when executing protoc command.
      */
     public static void generateDescriptor(String command) throws CodeGeneratorException {
         boolean isWindows = System.getProperty("os.name")
@@ -134,8 +135,9 @@ public class BalFileGenerationUtils {
     /**
      * Download file in the url to the destination file.
      *
-     * @param url  file URL
-     * @param file destination file
+     * @param url  file URL.
+     * @param file destination file.
+     * @throws CodeGeneratorException if an error occurred while downloading the file.
      */
     public static void downloadFile(URL url, File file) throws CodeGeneratorException {
         try (InputStream in = url.openStream(); FileOutputStream fos = new FileOutputStream(file)) {
@@ -154,6 +156,7 @@ public class BalFileGenerationUtils {
      * Grant permission to the protoc executor file.
      *
      * @param file protoc executor file.
+     * @throws CodeGeneratorException if an error occurred while providing execute permission to protoc executor file.
      */
     public static void grantPermission(File file) throws CodeGeneratorException {
         boolean isExecutable = file.setExecutable(true);

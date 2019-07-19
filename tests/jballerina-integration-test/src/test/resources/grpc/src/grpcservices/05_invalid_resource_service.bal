@@ -49,13 +49,13 @@ service HelloWorld98 on ep5 {
         if (err is grpc:Error) {
             log:printError(err.reason(), err);
         } else {
-            log:printInfo("display age : " + displayAge);
+            log:printInfo("display age : " + displayAge.toString());
         }
         checkpanic caller->complete();
     }
 
     resource function testFloat(grpc:Caller caller, float salary) {
-        log:printInfo("gross salary: " + salary);
+        log:printInfo("gross salary: " + salary.toString());
         string netSalary = "salary";
         grpc:Error? err = caller->send(netSalary);
         if (err is grpc:Error) {

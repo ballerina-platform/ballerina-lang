@@ -37,7 +37,7 @@ service HelloWorld3 on ep2 {
         if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }
@@ -69,7 +69,7 @@ service HelloWorld3 on ep2 {
         if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }
@@ -85,7 +85,7 @@ service HelloWorld3 on ep2 {
         if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }

@@ -63,9 +63,9 @@ service HelloWorld on ep {
     resource function testInputStructNoOutput(grpc:Caller caller, StockQuote req) {
         io:println("Symbol: " + req.symbol);
         io:println("Name: " + req.name);
-        io:println("Last: " + req.last);
-        io:println("Low: " + req.low);
-        io:println("High: " + req.high);
+        io:println("Last: " + req.last.toString());
+        io:println("Low: " + req.low.toString());
+        io:println("High: " + req.high.toString());
     }
 
     resource function testNoInputOutputStruct(grpc:Caller caller) {

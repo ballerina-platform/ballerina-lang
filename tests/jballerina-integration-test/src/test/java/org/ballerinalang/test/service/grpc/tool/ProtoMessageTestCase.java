@@ -28,6 +28,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageParser;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.ProtoUtils;
+import org.ballerinalang.protobuf.exception.CodeGeneratorException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -128,7 +129,8 @@ public class ProtoMessageTestCase {
         Assert.assertFalse(message1.isError());
     }
 
-    private void readMessageDescriptor(Path protoPath) throws IOException, Descriptors.DescriptorValidationException {
+    private void readMessageDescriptor(Path protoPath)
+            throws IOException, Descriptors.DescriptorValidationException, CodeGeneratorException {
         DescriptorProtos.FileDescriptorSet descriptorSet = ProtoDescriptorUtils.getProtoFileDescriptor(compilerFile,
                 protoPath.toString());
         DescriptorProtos.FileDescriptorProto fileDescriptorProto = descriptorSet.getFile(0);

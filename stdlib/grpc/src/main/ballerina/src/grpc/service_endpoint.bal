@@ -64,12 +64,11 @@ public type Listener object {
 
     function initEndpoint() returns error? = external;
 
-
     function register(service serviceType, string? name) returns error? = external;
 
-    function start() = external;
+    function start() returns error? = external;
 
-    function stop() = external;
+    function stop() returns error? = external;
 };
 
 # Maximum number of requests that can be processed at a given time on a single connection.

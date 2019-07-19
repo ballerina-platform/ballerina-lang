@@ -36,7 +36,7 @@ service Chat on ep3 {
         io:println(string `${caller.getId()} connected to chat`);
         self.consMap[caller.getId().toString()] = caller;
         io:println("Client registration completed. Connection map status");
-        io:println("Map length: " + self.consMap.length());
+        io:println("Map length: " + self.consMap.length().toString());
         io:println(self.consMap);
         self.initialized = true;
     }
@@ -48,14 +48,14 @@ service Chat on ep3 {
         int waitCount = 0;
         while(!self.initialized) {
             runtime:sleep(1000);
-            io:println("Waiting till connection initialize. status: " + self.initialized);
+            io:println("Waiting till connection initialize. status: " + self.initialized.toString());
             if (waitCount > 10) {
                 break;
             }
             waitCount += 1;
         }
         io:println("Starting message broadcast. Connection map status");
-        io:println("Map length: " + self.consMap.length());
+        io:println("Map length: " + self.consMap.length().toString());
         io:println(self.consMap);
         foreach var [callerId, connection] in self.consMap.entries() {
             conn = connection;
@@ -80,7 +80,7 @@ service Chat on ep3 {
         io:println(msg);
         var v = self.consMap.remove(caller.getId().toString());
         io:println("Starting client left broadcast. Connection map status");
-        io:println("Map length: " + self.consMap.length());
+        io:println("Map length: " + self.consMap.length().toString());
         io:println(self.consMap);
         foreach var [callerId, connection] in self.consMap.entries() {
             conn = connection;

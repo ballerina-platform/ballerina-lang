@@ -31,10 +31,13 @@ public type Client client object {
     public function __init(string url, ClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        self.init(self.url, self.config, globalGrpcClientConnPool);
+        error? err = self.init(self.url, self.config, globalGrpcClientConnPool);
+        if (err is error) {
+            panic err;
+        }
     }
 
-    function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig) = external;
+    function init(string url, ClientEndpointConfig config, PoolConfiguration globalPoolConfig) returns error? = external;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #

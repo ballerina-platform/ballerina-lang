@@ -59,8 +59,8 @@ public class InitEndpoint extends AbstractGrpcNativeFunction {
     public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
         MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
         long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
-        ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
         try {
+            ListenerConfiguration configuration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
             ServicesRegistry.Builder servicesRegistryBuilder = new ServicesRegistry.Builder();
