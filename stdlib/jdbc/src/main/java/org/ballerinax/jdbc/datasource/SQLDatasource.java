@@ -62,7 +62,7 @@ public class SQLDatasource {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
             throw SQLDatasourceUtils
-                    .getSQLDatabaseError(e, "Error while getting connection for " + Constants.CONNECTOR_NAME + ", ");
+                    .getSQLDatabaseError(e, "Error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
         }
         return this;
     }
@@ -99,7 +99,7 @@ public class SQLDatasource {
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("Error while getting distributed data source", e);
+            throw new PanickingDatabaseException("Error while obtaining distributed data source", e);
         }
         return xaDataSource;
     }
@@ -266,7 +266,7 @@ public class SQLDatasource {
                     xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
                 }
             } catch (SQLException e) {
-                throw new PanickingDatabaseException("Error while getting the connection for "
+                throw new PanickingDatabaseException("Error while obtaining the connection for "
                         + Constants.CONNECTOR_NAME + ": ", e);
             }
             break;

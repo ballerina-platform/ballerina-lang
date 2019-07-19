@@ -759,8 +759,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Double.parseDouble((String) value);
                     break;
                 default:
-                    throw new ApplicationException("Invalid input value " + value.toString() + " specified for double");
-
+                    throw new ApplicationException("Invalid input value \"" + value.toString()
+                            + "\" specified for double");
             }
         }
         try {
@@ -806,8 +806,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = new BigDecimal((String) value);
                     break;
                 default:
-                    throw new ApplicationException("Invalid input value " + value.toString()
-                            + " specified for numeric");
+                    throw new ApplicationException("Invalid input value \"" + value.toString()
+                            + "\" specified for numeric type");
             }
         }
         try {
@@ -847,8 +847,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Boolean.valueOf((String) value);
                      break;
                  default:
-                     throw new ApplicationException("Invalid input value " + value.toString()
-                             + " specified for boolean");
+                     throw new ApplicationException("Invalid input value \"" + value.toString()
+                             + "\" specified for boolean");
             }
         }
         try {
@@ -889,7 +889,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Byte.parseByte((String) value);
                     break;
                 default:
-                    throw new ApplicationException("Invalid input value " + value.toString() + " specified for byte");
+                    throw new ApplicationException("Invalid input value \"" + value.toString()
+                            + "\" specified for byte");
 
             }
         }
@@ -931,7 +932,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 val = Long.parseLong((String) value);
                 break;
             default:
-                throw new ApplicationException("Invalid input value " + value.toString() + " specified for bigint");
+                throw new ApplicationException("Invalid input value \"" + value.toString() + "\" specified for bigint");
             }
         }
         try {
@@ -975,7 +976,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                     val = Float.parseFloat((String) value);
                     break;
                 default:
-                    throw new ApplicationException("Invalid input value for float " + value.toString());
+                    throw new ApplicationException("Invalid input value \"" + value.toString()
+                            + "\" specified for float ");
             }
         }
         try {
@@ -1387,7 +1389,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 case TypeTags.STRING_TAG:
                     return Integer.parseInt((String) value);
                 default:
-                    throw new ApplicationException("Invalid value for integer " + value.toString());
+                    throw new ApplicationException("Invalid value \"" + value.toString() + "\" specified for integer ");
             }
         }
         return null;
