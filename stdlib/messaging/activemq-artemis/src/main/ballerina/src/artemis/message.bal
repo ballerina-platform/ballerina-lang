@@ -24,7 +24,8 @@ public type Message client object {
     private boolean created = false;
     private Session session;
 
-    public function __init(Session session, @untainted MessageContent data, MessageConfiguration? config = ()) {
+    public function __init(public Session session, @untainted public MessageContent data,
+        public MessageConfiguration? config = ()) {
         self.session = session;
         self.content = data;
         if (config is MessageConfiguration) {

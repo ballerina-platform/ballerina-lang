@@ -37,7 +37,7 @@ public class ClosedRecordEquivalencyTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/closed_record_equivalency.bal");
+        compileResult = BCompileUtil.compile("test-src/record/record-project", "closed-rec-equiv");
     }
 
     @Test(description = "Test equivalence of records that are in the same package")
