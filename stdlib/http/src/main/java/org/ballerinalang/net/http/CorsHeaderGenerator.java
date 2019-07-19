@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class CorsHeaderGenerator {
             return null;
         }
         //6.2.2 - request origin must be on the list or match with *.
-        if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.getAllowOrigins())) {
+        if (!isEffectiveOrigin(Collections.singletonList(origin), resourceCors.getAllowOrigins())) {
             bLog.info("{} origin not allowed", ACTION);
             return null;
         }
@@ -136,7 +137,7 @@ public class CorsHeaderGenerator {
             return null;
         }
         //6.2.7 - set origin and credentials
-        setAllowOriginAndCredentials(Arrays.asList(origin), resourceCors, responseHeaders);
+        setAllowOriginAndCredentials(Collections.singletonList(origin), resourceCors, responseHeaders);
         //6.2.9 - set allow-methods
         responseHeaders.put(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(), requestMethod);
         //6.2.10 - set allow-headers
@@ -151,10 +152,8 @@ public class CorsHeaderGenerator {
     }
 
     private static boolean isEffectiveOrigin(List<String> requestOrigins, List<String> resourceOrigins) {
-        if (resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*")) {
-            return true;
-        }
-        return resourceOrigins.containsAll(requestOrigins);
+        return resourceOrigins.size() == 1 && resourceOrigins.get(0).equals("*") ||
+                resourceOrigins.containsAll(requestOrigins);
     }
 
     private static boolean isEffectiveHeader(List<String> requestHeaders, List<String> resourceHeaders) {
@@ -179,6 +178,7 @@ public class CorsHeaderGenerator {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     private static CorsHeaders getResourceCors(HttpCarbonMessage cMsg, String requestMethod) {
         List<HttpResource> resources = (List<HttpResource>) cMsg.getProperty(HttpConstants.PREFLIGHT_RESOURCES);
         if (resources == null) {
