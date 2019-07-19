@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -87,7 +88,7 @@ public class LSAnnotationCache {
         }
     }
 
-    private static Map<String, BPackageSymbol> loadPackagesMap(CompilerContext tempCompilerContext) {
+    private static Map<String, BPackageSymbol> loadPackagesMap(CompilerContext compilerCtx) {
         Map<String, BPackageSymbol> staticPackages = new HashMap<>();
 
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
@@ -96,8 +97,11 @@ public class LSAnnotationCache {
                     new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()), Names.DEFAULT_VERSION);
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
-                staticPackages.put(bPackageSymbol.pkgID.toString(), bPackageSymbol);
+                Optional<BPackageSymbol> bPackageSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx, packageID);
+                if (!bPackageSymbol.isPresent()) {
+                    return staticPackages;
+                }
+                staticPackages.put(bPackageSymbol.get().pkgID.toString(), bPackageSymbol.get());
             } catch (Exception e) {
                 logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
@@ -129,14 +133,16 @@ public class LSAnnotationCache {
     public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(AnnotationNodeKind attachmentPoint,
                                                                                LSContext ctx) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
-        
+        CompilerContext compilerCtx = ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+
         // Check whether the imported packages in the current bLang package has been already processed
         ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
-                .forEach(bLangImportPackage -> {
-                    if (bLangImportPackage.symbol != null && !isPackageProcessed(bLangImportPackage.symbol.pkgID)
-                            && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
-                        loadAnnotationsFromPackage(LSPackageLoader.getPackageSymbolById(
-                                ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), bLangImportPackage.symbol.pkgID));
+                .forEach(importPackage -> {
+                    if (importPackage.symbol != null && !isPackageProcessed(importPackage.symbol.pkgID)
+                            && !importPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
+                        Optional<BPackageSymbol> pkgSymbol = LSPackageLoader.getPackageSymbolById(compilerCtx,
+                                importPackage.symbol.pkgID);
+                        pkgSymbol.ifPresent(LSAnnotationCache::loadAnnotationsFromPackage);
                     }
                 });
         switch (attachmentPoint) {

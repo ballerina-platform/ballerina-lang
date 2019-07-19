@@ -99,7 +99,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -262,7 +261,8 @@ public class CommandUtil {
                     if (node.expr != null) {
                         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
                         String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
-                        List<String> currentModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(sourceRoot));
+                        LSDocument lsDocument = new LSDocument(sourceRoot);
+                        List<String> currentModules = lsDocument.getProjectModules();
                         PackageID nodePkgId = node.expr.type.tsymbol.pkgID;
                         isWithinProject = bLangPackage.packageID.orgName.equals(nodePkgId.orgName) &&
                                 currentModules.contains(nodePkgId.name.value);

@@ -380,7 +380,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .toString().split(Pattern.quote(File.separator))[0];
                 String moduleName = document.getProjectRootPath()
                         .relativize(LSCompilerUtil.getCurrentModulePath(document.getPath())).toString();
-                if (topLevelNodeType != null && diagnostics.isEmpty() && document.hasProjectRepo() &&
+                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
                         !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
                         !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
                     /*
