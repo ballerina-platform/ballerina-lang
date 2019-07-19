@@ -248,7 +248,7 @@ public class IdentifierLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testILConsistency");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(((BMap)returns[0]).getIfExist("{http://test.com}fname").stringValue(),
+        Assert.assertEquals(((BMap) returns[0]).getIfExist("{http://test.com}fname").stringValue(),
                 "First Name Element");
     }
 }
