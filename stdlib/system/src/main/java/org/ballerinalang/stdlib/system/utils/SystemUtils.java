@@ -68,10 +68,10 @@ public class SystemUtils {
      * @return Ballerina error object.
      */
     public static ErrorValue getBallerinaError(String details) {
-        return BallerinaErrors.createError(SystemConstants.SYSTEM_ERROR_CODE, populateFilepathErrorRecord(details));
+        return BallerinaErrors.createError(SystemConstants.SYSTEM_ERROR_CODE, populateSystemErrorRecord(details));
     }
 
-    private static MapValue populateFilepathErrorRecord(String message) {
+    private static MapValue populateSystemErrorRecord(String message) {
         Map<String, Object> valueMap = new HashMap<>();
         if (message != null) {
             valueMap.put(SystemConstants.ERROR_MESSAGE, message);
