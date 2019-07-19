@@ -33,11 +33,10 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class LdapAuthStoreTest extends AuthBaseTest {
 
-    private final int servicePort = 9111;
-    private final int authzServicePort = 9112;
+    private final int servicePort = 20021;
 
-    @Test(description = "Test authenticate and authorize request against ldap auth store")
-    public void testAuthenticationWithInvalidCredentials() throws Exception {
+    @Test(description = "Test authentication failure request against ldap auth store")
+    public void testAuthenticationFailure() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTp2aWppdGhhQDEyMw==");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
@@ -45,8 +44,8 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         assertUnauthorized(response);
     }
 
-    @Test(description = "Test authenticate request against ldap auth store")
-    public void testAuthenticationWithLdapAuthStoreWithoutAuthorization() throws Exception {
+    @Test(description = "Test authentication success request against ldap auth store")
+    public void testAuthenticationSuccess() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
@@ -54,8 +53,8 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Test authenticate and authorize request against ldap auth store")
-    public void testAuthenticationWithLdapAuthStoreWithAuthorization() throws Exception {
+    @Test(description = "Test authentication success and authorization success request against ldap auth store")
+    public void testAuthenticationSuccessAndAuthorizationSuccess() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
@@ -63,12 +62,12 @@ public class LdapAuthStoreTest extends AuthBaseTest {
         assertOK(response);
     }
 
-    @Test(description = "Test the failure of authorization request against ldap auth store")
-    public void testAuthorizationFailureWithLdapAuthStore() throws Exception {
+    @Test(description = "Test authentication success and authorization failure request against ldap auth store")
+    public void testAuthenticationSuccessAndAuthorizationFailure() throws Exception {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("Authorization", "Basic dmlqaXRoYTpiYWxsZXJpbmE=");
-        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(authzServicePort,
-                "auth/failAuthz"), headersMap, serverInstance.getServerHome());
+        HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
+                "ldapAuth/failAuthz"), headersMap, serverInstance.getServerHome());
         assertForbidden(response);
     }
 }

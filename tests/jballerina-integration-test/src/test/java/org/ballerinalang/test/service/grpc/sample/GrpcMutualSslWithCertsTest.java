@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;

@@ -36,7 +36,7 @@ public class CancelWebSocketUpgradeTest extends WebSocketTestCommons {
             expectedExceptions = WebSocketHandshakeException.class,
             expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testCancelUpgrade() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9090/simple/cancel");
+        client = new WebSocketTestClient("ws://localhost:21009/simple/cancel");
         client.handshake();
         client.shutDown();
     }
@@ -45,7 +45,7 @@ public class CancelWebSocketUpgradeTest extends WebSocketTestCommons {
             expectedExceptions = WebSocketHandshakeException.class,
             expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 400 Bad Request")
     public void testCancelUpgradeSuccessStatusCode() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9090/cannotcancel/cannot/cancel");
+        client = new WebSocketTestClient("ws://localhost:21009/cannotcancel/cannot/cancel");
         client.handshake();
         client.shutDown();
     }

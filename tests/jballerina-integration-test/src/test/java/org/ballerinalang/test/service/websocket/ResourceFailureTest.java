@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class ResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9097/simple7?q1=name";
+    private static final String URL = "ws://localhost:21016/simple7?q1=name";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private CountDownLatch countDownLatch;
 

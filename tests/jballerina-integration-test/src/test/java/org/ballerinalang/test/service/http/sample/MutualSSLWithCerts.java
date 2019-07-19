@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;

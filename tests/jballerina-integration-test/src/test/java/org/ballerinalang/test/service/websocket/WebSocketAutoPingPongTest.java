@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketAutoPingPongTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9100";
+    private static final String URL = "ws://localhost:21019";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
 
     @BeforeClass(description = "Initializes Ballerina with the simple_server_without_ping_resource.bal file")

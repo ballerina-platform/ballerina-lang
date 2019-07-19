@@ -35,7 +35,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests string support for pushText and onText")
     public void testString() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9080/onTextString";
+        String url = "http://localhost:21003/onTextString";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";
@@ -45,7 +45,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests JSON support for pushText and onText")
     public void testJson() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9081/onTextJSON";
+        String url = "http://localhost:21023/onTextJSON";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         assertSuccess(client, "{'id':1234, 'name':'Riyafa'}", "{\"id\":1234, \"name\":\"Riyafa\"}");
@@ -55,7 +55,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests string support for pushText and onText")
     public void testXml() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9082/onTextXML";
+        String url = "http://localhost:21024/onTextXML";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "<note><to>Tove</to></note>";
@@ -68,7 +68,7 @@ public class WebSocketContinuationAndAggregationTest extends WebSocketTestCommon
 
     @Test(description = "Tests string support for pushText and onText")
     public void testRecord() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9083/onTextRecord";
+        String url = "http://localhost:21025/onTextRecord";
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         assertSuccess(client, "{'id':1234, 'name':'Riyafa'}", "{\"id\":1234, \"name\":\"Riyafa\"}");

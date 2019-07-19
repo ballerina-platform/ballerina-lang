@@ -86,14 +86,14 @@ function testOptFieldToOptField1() returns AnotherPerson4 {
     return ap;
 }
 
-function testOptFieldToOptField2() returns [AnotherPerson4, int] {
+function testOptFieldToOptField2() returns [AnotherPerson4, anydata] {
     Person2 p = {name:"John Doe", age:25};
     AnotherPerson4 ap = p;
 
     p = {name:"Jane Doe"};
     AnotherPerson4 ap2 = p;
 
-    return [ap, ap2.age];
+    return [ap, ap2.get("age")];
 }
 
 // Test for rest fields types.
@@ -117,7 +117,7 @@ function testRestFieldToRestField1() returns Bar {
 function testRestFieldToRestField2() returns Bar {
     Foo f = {s:"qwerty", rest1:"asdf", rest2:123};
     Bar b = f;
-    b.rest3 = 23.45;
+    b["rest3"] = 23.45;
     return b;
 }
 

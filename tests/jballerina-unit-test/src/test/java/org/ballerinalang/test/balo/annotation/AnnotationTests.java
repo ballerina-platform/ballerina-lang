@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 /**
  * Test cases for reading annotations.
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class AnnotationTests {
 
     CompileResult result;
