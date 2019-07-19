@@ -24,8 +24,8 @@ service chatAppUpgrader on new http:Listener(9090) {
         // Cancel the handshake by sending a 400 status code if the age parameter is missing in the request.
         if (!queryParams.hasKey("age")) {
             var err = caller->cancelWebSocketUpgrade(400, "Age is required");
-            if (err is error) {
-                log:printError("Error cancelling handshake", err = err);
+            if (err is http:WebSocketError) {
+                log:printError("Error cancelling handshake",<error> err);
             }
             return;
         }
@@ -34,12 +34,14 @@ service chatAppUpgrader on new http:Listener(9090) {
         // The attributes map of the caller is useful for storing connection-specific data.
         // In this case, the `NAME`and `AGE` are unique to each connection.
         wsEp.attributes[NAME] = name;
-        wsEp.attributes[AGE] = queryParams["age"][0];
+        string? ageValue = req.getQueryParamValue("age");
+        string age = ageValue is string ? ageValue : "";
+        wsEp.attributes[AGE] = age;
         string msg =
             "Hi " + name + "! You have successfully connected to the chat";
         var err = wsEp->pushText(msg);
-        if (err is error) {
-            log:printError("Error sending message", err = err);
+        if (err is http:WebSocketError) {
+            log:printError("Error sending message", <error> err);
         }
     }
 }
@@ -77,18 +79,16 @@ service chatApp = @http:WebSocketServiceConfig {} service {
 
 // Function to perform the broadcasting of text messages.
 function broadcast(string text) {
-    http:WebSocketCaller ep;
-    foreach var [id, con] in connectionsMap {
-        ep = con;
-        var err = ep->pushText(text);
-        if (err is error) {
-            log:printError("Error sending message", err = err);
+    foreach var con in connectionsMap {
+        var err = con->pushText(text);
+        if (err is http:WebSocketError) {
+            log:printError("Error sending message", <error> err);
         }
     }
 }
 
 function getAttributeStr(http:WebSocketCaller ep, string key)
              returns (string) {
-    var name = <string>ep.attributes[key];
-    return name;
+    var name = ep.attributes[key];
+    return name.toString();
 }

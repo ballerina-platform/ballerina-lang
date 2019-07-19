@@ -36,7 +36,7 @@ public class WebSocketServiceNotFoundTest extends WebSocketTestCommons {
             expectedExceptions = WebSocketHandshakeException.class,
             expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testServiceNotFound() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9098/prox");
+        client = new WebSocketTestClient("ws://localhost:21017/prox");
         client.handshake();
         client.shutDown();
     }
@@ -45,7 +45,7 @@ public class WebSocketServiceNotFoundTest extends WebSocketTestCommons {
             expectedExceptions = WebSocketHandshakeException.class,
             expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testResourceNotFound() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9090/proxy/cancell");
+        client = new WebSocketTestClient("ws://localhost:21009/proxy/cancell");
         client.handshake();
         client.shutDown();
     }

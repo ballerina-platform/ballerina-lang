@@ -19,7 +19,7 @@ import ballerina/log;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(9077) {
+service on new http:WebSocketListener(21021) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
             sslClientService, secureSocket: { trustStore: {

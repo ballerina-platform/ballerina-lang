@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientCloseTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9085";
+    private static final String URL = "ws://localhost:21004";
     private LogLeecher logLeecher;
 
     @Test(description = "Test client closing the connection without a close frame")
