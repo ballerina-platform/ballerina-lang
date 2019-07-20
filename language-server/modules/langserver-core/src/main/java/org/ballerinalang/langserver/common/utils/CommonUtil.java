@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -378,12 +377,13 @@ public class CommonUtil {
      * Get current package by given file name.
      *
      * @param packages list of packages to be searched
-     * @param fileUri  string file URI
+     * @param document  string file URI
      * @return {@link BLangPackage} current package
      */
-    public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, String fileUri) {
-        Path filePath = new LSDocument(fileUri).getPath();
-        String currentModule = LSCompilerUtil.getCurrentModulePath(filePath).getFileName().toString();
+    public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, LSDocument document) {
+        Path filePath = document.getPath();
+        String currentModule = document.getOwnerModule().isEmpty()
+                ? document.getProjectRoot() : document.getOwnerModule();
         try {
             for (BLangPackage bLangPackage : packages) {
                 if (bLangPackage.packageID.sourceFileName != null &&
