@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.balo.constant;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.BRunUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
