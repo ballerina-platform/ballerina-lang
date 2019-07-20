@@ -1,15 +1,12 @@
 record{} globalVar = {};
 
 public function main (string... args) {
-    taintedJsonReturn().address_components
-    .filter(function (any comp) returns boolean {
-            if comp is record{} {
-                secureFunction(taintedReturn(), taintedReturn());
-                return true;
-            }
-            return false;
+    taintedJsonReturn().get("address_components")
+    .filter(function (record {| anydata...; |} comp) returns boolean {
+            secureFunction(taintedReturn(), taintedReturn());
+            return true;
         })
-    .foreach(function (record{} k) { globalVar = k;});
+    .forEach(function (record{} k) { globalVar = k;});
 }
 
 function secureFunction (@untainted string secureIn, string insecureIn) {

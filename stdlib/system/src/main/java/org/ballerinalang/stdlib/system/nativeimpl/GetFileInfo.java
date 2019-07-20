@@ -53,13 +53,14 @@ public class GetFileInfo extends BlockingNativeCallableUnit {
     public static Object getFileInfo(Strand strand, String path) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "File doesn't exist in path " + path);
         }
         try {
             return SystemUtils.getFileInfo(inputFile);
         } catch (IOException e) {
             log.error("IO error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
         }
     }
 }

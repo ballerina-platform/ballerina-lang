@@ -119,10 +119,10 @@ public class EmbeddedDirectoryServer {
 
         // Load the LDIF file
         String ldif = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "auth" + File.separator + "ldif").getAbsolutePath() + File.separator + "users-import.ldif";
+                "auth" + File.separator + "src" + File.separator + "ldif").getAbsolutePath() + File.separator +
+                "users-import.ldif";
         LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
         ldifLoader.execute();
-
     }
 
     private void initSchemaPartition() throws IOException, LdapException {
