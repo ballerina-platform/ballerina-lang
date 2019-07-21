@@ -177,8 +177,6 @@
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
         <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-        <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
