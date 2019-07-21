@@ -44,44 +44,44 @@ type Teacher record {
 
 //----------------------------JSON Stamp -------------------------------------------------------------
 
-function stampJSONToAnydata() returns anydata {
+function stampJSONToAnydata() returns anydata|error {
     json jsonValue = 3;
-    anydata anydataValue = anydata.stamp(jsonValue);
+    anydata|error anydataValue = anydata.constructFrom(jsonValue);
 
     return anydataValue;
 }
 
-function stampJSONToAnydataV2() returns anydata {
+function stampJSONToAnydataV2() returns anydata|error {
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    anydata anyValue = anydata.stamp(jsonValue);
+    anydata|error anyValue = anydata.constructFrom(jsonValue);
 
     return anyValue;
 }
 
 function stampJSONToRecord() returns Employee|error {
     json employee = { name: "John", status: "single", batch: "LK2014" };
-    Employee|error employeeValue = Employee.stamp(employee);
+    Employee|error employeeValue = Employee.constructFrom(employee);
 
     return employeeValue;
 }
 
 function stampJSONToRecordV2() returns Employee|error {
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    Employee|error employeeValue = Employee.stamp(employee);
+    Employee|error employeeValue = Employee.constructFrom(employee);
 
     return employeeValue;
 }
 
-function stampJSONToJSON() returns json {
+function stampJSONToJSON() returns json|error {
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    json jsonValue = json.stamp(employee);
+    json|error jsonValue = json.constructFrom(employee);
 
     return jsonValue;
 }
 
 function stampJSONToMap() returns map<anydata>|error {
     json employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
-    map<anydata>|error mapValue = map<anydata>.stamp(employee);
+    map<anydata>|error mapValue = map<anydata>.constructFrom(employee);
 
     return mapValue;
 }
@@ -89,7 +89,7 @@ function stampJSONToMap() returns map<anydata>|error {
 function stampJSONToMapV2() returns map<anydata>|error {
     json teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
         emp : { name: "John", status: "single", batch: "LK2014"} };
-    map<anydata>|error mapValue = map<anydata>.stamp(teacher);
+    map<anydata>|error mapValue = map<anydata>.constructFrom(teacher);
 
     return mapValue;
 }
@@ -98,35 +98,35 @@ function stampJSONArrayToConstraintArray() returns Student []|error{
     json employeeArray = [{ name: "John", status: "single", batch: "LK2014", school: "Hindu College" },
                             { name: "Raja", status: "married", batch: "LK2014", school: "Hindu College" }];
 
-    Student []|error studentArray = Student[].stamp(employeeArray);
+    Student []|error studentArray = Student[].constructFrom(employeeArray);
 
     return studentArray;
 }
 
 function stampJSONArrayToAnyTypeArray() returns anydata []|error{
     json jsonArray =  [1, false, "foo", { first: "John", last: "Pala" }];
-    anydata[]|error anydataArray = anydata[].stamp(jsonArray);
+    anydata[]|error anydataArray = anydata[].constructFrom(jsonArray);
 
     return anydataArray;
 }
 
-function stampJSONToAnydataV3() returns anydata {
+function stampJSONToAnydataV3() returns anydata|error {
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
-    anydata anydataValue = anydata.stamp(jsonValue);
+    anydata|error anydataValue = anydata.constructFrom(jsonValue);
 
     return anydataValue;
 }
 
 function stampJSONToUnion() returns json|map<anydata>|error {
     json jsonValue = { name: "John", status: "single", batch: "LK2014" };
-    json|map<anydata>|error outputValue = json|map<anydata>.stamp(jsonValue);
+    json|map<anydata>|error outputValue = json|map<anydata>.constructFrom(jsonValue);
 
     return outputValue;
 }
 
 function stampJSONArrayWithNullToAnydataArray() returns anydata []|error{
     json jsonArray =  [1, false, "foo", (), { first: "John", last: "Pala" }];
-    anydata[]|error anydataArray = anydata[].stamp(jsonArray);
+    anydata[]|error anydataArray = anydata[].constructFrom(jsonArray);
 
     return anydataArray;
 }
@@ -137,7 +137,7 @@ type Foo record{|
 
 function stampJSONToRecordWithArray() returns Foo|error {
     json j1 = {a:["a", "b"]};
-    Foo|error returnValue = Foo.stamp(j1);
+    Foo|error returnValue = Foo.constructFrom(j1);
 
     return returnValue;
 }
@@ -146,14 +146,14 @@ function stampJSONToRecordWithArray() returns Foo|error {
 
 function stampJSONToRecordNegative() returns Student|error {
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    Student|error student = Student.stamp(employee);
+    Student|error student = Student.constructFrom(employee);
 
     return student;
 }
 
 function stampJSONToMapNegative() returns map<string>|error {
     json employee = { name: "John", age : 23, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = map<string>.stamp(employee);
+    map<string>|error mapValue = map<string>.constructFrom(employee);
 
     return mapValue;
 }
@@ -165,7 +165,7 @@ type StringArray record {|
 function stampNullJSONToArrayNegative() returns StringArray|error {
 
     json j = ();
-    var s = StringArray.stamp(j);
+    var s = StringArray.constructFrom(j);
 
     return s;
 }

@@ -20,7 +20,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation 'commons-logging:commons-logging'
     implementation project(":ballerina-logging")
-    implementation project(":ballerina-launcher")
+    implementation project(":ballerina-tool")
     implementation project(':ballerina-lang')
     testCompile 'org.slf4j:slf4j-api'
     testCompile 'org.testng:testng'

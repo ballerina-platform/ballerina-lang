@@ -419,7 +419,7 @@ type InstructionGenerator object {
         bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
         if (bType is bir:BTypeInt) {
-            self.mv.visitInsn(LDIV);
+            self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitInsn(DDIV);
         } else if (bType is bir:BTypeDecimal) {
@@ -455,7 +455,7 @@ type InstructionGenerator object {
             bir:BType bType = binaryIns.lhsOp.typeValue;
             self.generateBinaryRhsAndLhsLoad(binaryIns);
             if (bType is bir:BTypeInt) {
-                self.mv.visitInsn(LREM);
+                self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitInsn(DREM);
             } else if (bType is bir:BTypeDecimal) {

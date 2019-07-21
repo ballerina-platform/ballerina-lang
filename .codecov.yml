@@ -20,7 +20,7 @@ flags:
   integrationtests:
     paths:
       - ./tests/ballerina-tools-integration-test
-      - ./tests/ballerina-integration-test
+      - ./tests/jballerina-integration-test
   unittests:
     paths:
       - ./composer

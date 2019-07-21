@@ -18,7 +18,7 @@
 package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
