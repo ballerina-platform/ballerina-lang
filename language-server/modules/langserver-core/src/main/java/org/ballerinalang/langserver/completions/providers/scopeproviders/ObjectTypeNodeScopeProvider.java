@@ -138,8 +138,8 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
                         .stream()
                         .filter(scopeEntry -> scopeEntry.symbol instanceof BObjectTypeSymbol)
                         .map(scopeEntry -> {
-                            BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) scopeEntry.symbol;
-                            return new SymbolInfo(objSymbol.getName().getValue(), new Scope.ScopeEntry(objSymbol, null));
+                            BObjectTypeSymbol oSymbol = (BObjectTypeSymbol) scopeEntry.symbol;
+                            return new SymbolInfo(oSymbol.getName().getValue(), new Scope.ScopeEntry(oSymbol, null));
                         })
                         .collect(Collectors.toList());
                 completionItems.addAll(this.getCompletionItemList(filteredSymbolInfo, ctx));
