@@ -19,6 +19,7 @@
 package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -26,6 +27,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static java.lang.String.format;
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
@@ -39,7 +41,7 @@ public class ObjectSubtypingTest {
 
     @BeforeClass
     public void setup() {
-//        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
         compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
     }
 
@@ -61,15 +63,13 @@ public class ObjectSubtypingTest {
         assertEquals(result[0].stringValue(), "Student1{John Doe, 25, Ballerina Academy}");
     }
 
-    // TODO: 5/10/19 Enable once imports are working on jBallerina
-    @Test(enabled = false)
+    @Test
     public void testSubtypingAPublicAbsObjectInAnotherModule() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicAbsObjectInAnotherModule");
         assertEquals(result[0].stringValue(), "Student{Jane Doe, 22, BA}");
     }
 
-    // TODO: 5/10/19 Enable once imports are working on jBallerina
-    @Test(enabled = false)
+    @Test
     public void testSubtypingAPublicObjectInAnotherModule() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSubtypingAPublicObjectInAnotherModule");
         assertEquals(result[0].stringValue(), "Student{Jane Doe, 22, BA, CS}");
@@ -84,16 +84,18 @@ public class ObjectSubtypingTest {
     @Test
     public void testNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object_negatives.bal");
+        String msgFormat = "incompatible types: expected '%s', found '%s'";
         int i = 0;
-        assertEquals(result.getErrorCount(), 4);
         validateError(result, i++, "abstract object field: 'ssn' can not be declared as private", 21, 5);
         validateError(result, i++,
                       "interface function: 'test' of abstract object 'ObjWithPvtMethod' can not be declared as private",
                       28, 5);
-        validateError(result, i++, "incompatible types: expected 'ObjWithPvtField', found 'AnotherObjWithAPvtField'",
-                      45, 26);
-        validateError(result, i, "incompatible types: expected 'ObjWithPvtMethod', found 'AnotherObjWithPvtMethod'", 46,
-                      27);
-        // TODO: 5/10/19 Add the rest of the cases once module importing is working 
+        validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
+        validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj", "Subtype1"),
+                      65, 45);
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj2", "Subtype2"),
+                      66, 46);
+        assertEquals(result.getErrorCount(), i);
     }
 }

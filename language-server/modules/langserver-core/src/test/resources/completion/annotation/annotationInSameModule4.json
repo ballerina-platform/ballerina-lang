@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 20,
+    "line": 21,
     "character": 1
   },
   "source": "annotation/source/annotationInSameModule4.bal",
@@ -15,11 +15,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -37,37 +37,15 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/grpc;\n"
-        }
-      ]
-    },
-    {
-      "label": "openapi:ServiceInfo",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "openapi:ServiceInfo {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/openapi;\n"
         }
       ]
     },
@@ -81,11 +59,33 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/openapi;\n"
+        }
+      ]
+    },
+    {
+      "label": "openapi:ServiceInfo",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "openapi:ServiceInfo {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
               "character": 0
             }
           },
@@ -103,11 +103,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -116,20 +116,42 @@
       ]
     },
     {
-      "label": "nats:ConsumerConfig",
+      "label": "nats:SubscriptionConfig",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "nats:ConsumerConfig {\n\tsubject: \"${1}\"}",
+      "insertText": "nats:SubscriptionConfig {\n\tsubject: \"${1}\"}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/nats;\n"
+        }
+      ]
+    },
+    {
+      "label": "nats:StreamingSubscriptionConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "nats:StreamingSubscriptionConfig {\n\tsubject: \"${1}\"}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
               "character": 0
             }
           },
@@ -147,11 +169,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -169,11 +191,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -191,11 +213,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
