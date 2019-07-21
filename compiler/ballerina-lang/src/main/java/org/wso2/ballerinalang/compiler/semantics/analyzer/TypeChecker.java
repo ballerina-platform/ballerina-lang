@@ -3900,7 +3900,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.STRING && indexExpr.getKind() == NodeKind.LITERAL) {
-                    if (!isMapConstIndexAccess(indexBasedAccessExpr)) {
+                    if (!isConstIndexAccess(indexBasedAccessExpr)) {
                         dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
                                    ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
                     }
@@ -3946,7 +3946,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            // TODO: 7/20/19  Add additional validations for const - e.g., obvious failure
+            if (isConstIndexAccess(indexBasedAccessExpr)) {
+                if (!isResolvedConst(indexBasedAccessExpr) && indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    // Error will be logged later on for invalid indices
+                    return symTable.stringType;
+                }
+
+                BType constAccessType = checkStringConstantAccess(indexBasedAccessExpr);
+
+                if (constAccessType != symTable.semanticError || indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    return constAccessType;
+                }
+            }
 
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
@@ -4150,7 +4161,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            if (isMapConstIndexAccess(accessExpr)) {
+            if (isConstIndexAccess(accessExpr)) {
                 if (!isResolvedConst(accessExpr) && accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
                     // Error will be logged later on for invalid keys
                     return ((BMapType) type).constraint;
@@ -4540,14 +4551,36 @@ public class TypeChecker extends BLangNodeVisitor {
         return value.get(key).type;
     }
 
-    private boolean isMapConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
+    private BType checkStringConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
+        BType varRefType = indexAccessExpr.expr.type;
+
+        if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
+            return symTable.semanticError;
+        }
+
+        if (indexAccessExpr.indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
+            return symTable.semanticError;
+        }
+
+        BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
+        String value = (String) constantSymbol.value.value;
+        Long intIndex = (Long) ((BLangLiteral) indexAccessExpr.indexExpr).value;
+
+        if (intIndex < 0 || intIndex >= value.length()) {
+            dlog.error(indexAccessExpr.indexExpr.pos, DiagnosticCode.INDEX_OUT_OF_RANGE, intIndex);
+            return symTable.semanticError;
+        }
+        return symTable.stringType;
+    }
+
+    private boolean isConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
         BLangExpression expression = indexAccessExpr.expr;
         if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
         }
 
         if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return isMapConstIndexAccess((BLangIndexBasedAccess) expression);
+            return isConstIndexAccess((BLangIndexBasedAccess) expression);
         }
 
         return false;
