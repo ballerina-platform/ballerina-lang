@@ -27,14 +27,13 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
-import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -92,10 +91,8 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
                 break;
             }
             case BallerinaParser.COLON: {
-                Either<List<CompletionItem>, List<SymbolInfo>> eitherList = SymbolFilters
-                        .get(DelimiterBasedContentFilter.class)
-                        .filterItems(context);
-                completionItems.addAll(this.getCompletionItemList(eitherList, context));
+                List<SymbolInfo> listeners = this.filterListenersFromPackage(context);
+                completionItems.addAll(this.getCompletionItemList(listeners, context));
                 break;
             }
             default: {
@@ -110,6 +107,34 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
     private List<SymbolInfo> filterListenerTypes(List<SymbolInfo> symbolInfos) {
         return symbolInfos.stream()
                 .filter(symbolInfo -> CommonUtil.isListenerObject(symbolInfo.getScopeEntry().symbol))
+                .collect(Collectors.toList());
+    }
+    
+    private List<SymbolInfo> filterListenersFromPackage(LSContext context) {
+        List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> tokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<SymbolInfo> symbolInfos = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        if (tokenTypes == null) {
+            return new ArrayList<>();
+        }
+
+        int colonIndex = tokenTypes.indexOf(BallerinaParser.COLON);
+        if (colonIndex < 0) {
+            return new ArrayList<>();
+        }
+        String pkgName = defaultTokens.get(colonIndex - 1).getText();
+
+        Optional<SymbolInfo> symbolWithName = symbolInfos.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbolName().equals(pkgName))
+                .findAny();
+        if (!symbolWithName.isPresent() || !(symbolWithName.get().getScopeEntry().symbol instanceof BPackageSymbol)) {
+            return new ArrayList<>();
+        }
+        BPackageSymbol pkgSymbol = ((BPackageSymbol) symbolWithName.get().getScopeEntry().symbol);
+
+        return pkgSymbol.scope.entries.values().stream()
+                .filter(scopeEntry -> CommonUtil.isListenerObject(scopeEntry.symbol))
+                .map(scopeEntry -> new SymbolInfo(scopeEntry.symbol.getName().getValue(), scopeEntry))
                 .collect(Collectors.toList());
     }
 }
