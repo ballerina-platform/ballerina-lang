@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.index.tools;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContextManager;
+import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.DTOUtil;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -32,6 +34,7 @@ import org.ballerinalang.langserver.index.dto.BFunctionSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
+import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -39,11 +42,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -54,29 +60,26 @@ public class IndexGenerator {
     private static final Logger logger = LoggerFactory.getLogger(IndexGenerator.class);
 
     private List<BPackageSymbol> getBLangPackages() {
-//        List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
-//        List<String> packages = new ArrayList<>();
-//                Arrays.asList("auth", "builtin", "cache", "config", "crypto", "grpc", /*"jdbc",*/
-//                "encoding", "file", "filepath", "grpc", "http", "internal", "io", /*"jms",*/ "jwt", "ldap",
-//                "log", "math", "artemis", "rabbitmq", "mime", "nats", "oauth2", /*"observability", */"openapi",
-//                "reflect", /*"socket",*/ "streams", "system", "task", "time", "transactions", "utils"
-//                /*, "websub"*/);
-//        CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-//        packages.forEach(pkg -> {
-//            try {
-//                PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-//                        new org.wso2.ballerinalang.compiler.util.Name(pkg),
-//                        new org.wso2.ballerinalang.compiler.util.Name(""));
-//                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
-//                Objects.requireNonNull(bPackageSymbol);
-//                bPackageSymbols.add(bPackageSymbol);
-//            } catch (Exception e) {
-//                logger.error("Cannot Load Package: ballerina/" + pkg);
-//                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
-//            }
-//        });
+        List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
+        List<String> packages = Arrays.asList("auth", "cache", "config", "crypto", "encoding", "file", "filepath",
+                "grpc", "http", "io", "jdbc", "jms", "jwt", "ldap", "log", "math", "artemis", "nats", "rabbitmq",
+                "mime", "oauth2", "observability", "openapi", "reflect", "socket", "streams", "system", "task", "test", 
+                "time", "transactions", "utils", "websub", "xslt");
+        CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
+        packages.forEach(pkg -> {
+            try {
+                PackageID pkgID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
+                        new org.wso2.ballerinalang.compiler.util.Name(pkg),
+                        new org.wso2.ballerinalang.compiler.util.Name(""));
+                Optional<BPackageSymbol> pkgSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, pkgID);
+                pkgSymbol.ifPresent(bPackageSymbols::add);
+            } catch (Exception e) {
+                logger.error("Cannot Load Package: ballerina/" + pkg);
+                throw new RuntimeException("Cannot Load Package: ballerina/" + pkg, e);
+            }
+        });
 
-        return new ArrayList<>();
+        return bPackageSymbols;
     }
 
     public static void main(String[] args) {
