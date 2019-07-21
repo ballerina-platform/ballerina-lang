@@ -3932,6 +3932,24 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
                 return actualType;
             }
+        } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.STRING)) {
+            if (indexBasedAccessExpr.lhsVar) {
+                dlog.error(indexBasedAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                           indexBasedAccessExpr.expr.type);
+                return symTable.semanticError;
+            }
+
+            checkExpr(indexExpr, this.env, symTable.intType);
+
+            if (indexExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            // TODO: 7/20/19  Add additional validations for const - e.g., obvious failure
+
+            indexBasedAccessExpr.originalType = symTable.stringType;
+            actualType = symTable.stringType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
