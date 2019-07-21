@@ -3932,7 +3932,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
                 return actualType;
             }
-        } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.STRING)) {
+        } else if (types.isAssignable(varRefType, symTable.stringType)) {
             if (indexBasedAccessExpr.lhsVar) {
                 dlog.error(indexBasedAccessExpr.pos,
                            DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
