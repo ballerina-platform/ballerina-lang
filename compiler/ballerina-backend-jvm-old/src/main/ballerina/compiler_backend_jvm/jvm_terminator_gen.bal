@@ -79,16 +79,13 @@ type TerminatorGenerator object {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string lockClass = "L" + LOCK_VALUE + ";";
-        foreach var globleVar in lockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
-            var lockName = computeLockNameFromString(globleVar);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
-            self.mv.visitInsn(POP);
-            genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
-
-        }
+        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar);
+        var lockName = computeLockNameFromString(lockIns.globleVar);
+        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+        self.mv.visitInsn(POP);
+        genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }

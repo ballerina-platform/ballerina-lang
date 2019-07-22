@@ -552,15 +552,8 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_LOCK) {
             TerminatorKind kind = TERMINATOR_LOCK;
 
-            var globleVarCount = self.reader.readInt32();
-            string[] globleVarName = [];
-            int i = 0;
-            while (i < globleVarCount) {
-                globleVarName[i] = self.reader.readStringCpRef();
-                i += 1;
-            }
-
-            Lock lockIns = {pos:pos, kind:kind, globleVars:globleVarName, lockBB:self.parseBBRef()};
+            string globleVarName = self.reader.readStringCpRef();
+            Lock lockIns = {pos:pos, kind:kind, globleVar:globleVarName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;

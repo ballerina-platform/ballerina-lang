@@ -651,7 +651,7 @@ public type GOTO record {|
 public type Lock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string[] globleVars;
+    string globleVar;
     BasicBlock lockBB;
 |};
 

@@ -161,10 +161,8 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1821,8 +1819,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
             addToTrapStack(lockedBB);
             this.env.enclBasicBlocks.add(lockedBB);
-            this.env.enclBB.terminator = new BIRTerminator.Lock(null,
-                    new HashSet<>(Collections.singletonList(globalVar)), lockedBB);
+            this.env.enclBB.terminator = new BIRTerminator.Lock(null, globalVar, lockedBB);
             this.env.enclBB = lockedBB;
         }
         this.env.unlockVars.peek().add(lockedOn);
