@@ -57,7 +57,6 @@ class BIRGenEnv {
     private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
-    BIRBasicBlock trapBB;
     BIROperand targetOperand;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
