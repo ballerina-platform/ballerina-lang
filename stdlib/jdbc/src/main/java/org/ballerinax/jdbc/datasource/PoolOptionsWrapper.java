@@ -33,7 +33,7 @@ public class PoolOptionsWrapper {
     private final MapValue<String, Object> poolOptions;
     private final PoolKey poolKey;
 
-    PoolOptionsWrapper(MapValue<String, Object> poolOptions, PoolKey poolKey) {
+    public PoolOptionsWrapper(MapValue<String, Object> poolOptions, PoolKey poolKey) {
         this.poolOptions = poolOptions;
         this.poolKey = poolKey;
     }

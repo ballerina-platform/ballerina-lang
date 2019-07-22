@@ -6,7 +6,7 @@
   "source": "service/source/serviceVariableAndFieldsCompletion1.bal",
   "items": [
     {
-      "label": "sayHello(http:Caller caller, http:Request request)",
+      "label": "sayHello()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

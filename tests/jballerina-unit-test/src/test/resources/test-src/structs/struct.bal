@@ -1,18 +1,18 @@
-type Department record {
+type DepartmentSt record {
     string dptName = "";
-    Person[] employees = [];
+    PersonSt[] employees = [];
 };
 
-type Person record {
+type PersonSt record {
     string name = "default first name";
     string lname = "";
     map<any> adrs = {};
     int age = 999;
-    Family family = {};
-    Person? parent = ();
+    FamilySt family = {};
+    PersonSt? parent = ();
 };
 
-type Family record {
+type FamilySt record {
     string spouse = "";
     int noOfChildren = 0;
     string[] children = [];
@@ -20,30 +20,30 @@ type Family record {
 
 function testCreateStruct () returns [string, map<any>, int] {
     map<any> address = {"country":"USA", "state":"CA"};
-    Person emp = {name:"Jack", adrs:address, age:25};
+    PersonSt emp = {name:"Jack", adrs:address, age:25};
     return [emp.name, emp.adrs, emp.age];
 }
 
 function testStructOfStruct () returns (string) {
 
     map<any> address = {"country":"USA", "state":"CA"};
-    Person emp1 = {name:"Jack", adrs:address, age:25};
-    Person emp2 = {};
-    Person[] emps = [emp1, emp2];
-    Department dpt = {employees:emps};
+    PersonSt emp1 = {name:"Jack", adrs:address, age:25};
+    PersonSt emp2 = {};
+    PersonSt[] emps = [emp1, emp2];
+    DepartmentSt dpt = {employees:emps};
 
-    string country = <string> dpt.employees[0].adrs.country;
+    string country = <string> dpt.employees[0].adrs["country"];
     return country;
 }
 
 function testReturnStructAttributes () returns (string) {
     map<any> address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
-    Family fmly = {children:chldrn};
-    Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
-    Person emp2 = {};
-    Person[] employees = [emp1, emp2];
-    Department dpt = {employees:employees};
+    FamilySt fmly = {children:chldrn};
+    PersonSt emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
+    PersonSt emp2 = {};
+    PersonSt[] employees = [emp1, emp2];
+    DepartmentSt dpt = {employees:employees};
 
     dpt.employees[0].family.children[0] = "emily";
 
@@ -51,7 +51,7 @@ function testReturnStructAttributes () returns (string) {
 }
 
 function testExpressionAsIndex () returns (string) {
-    Family family = {spouse:"Kate"};
+    FamilySt family = {spouse:"Kate"};
     int a = 2;
     int b = 5;
     family.children = ["Emma", "Rose", "Jane"];
@@ -59,12 +59,12 @@ function testExpressionAsIndex () returns (string) {
 }
 
 function testStructExpressionAsIndex () returns (string) {
-    Department dpt = {};
-    Family fmly = {};
+    DepartmentSt dpt = {};
+    FamilySt fmly = {};
     fmly.children = [];
-    Person emp2 = {};
+    PersonSt emp2 = {};
     map<any> address = {"country":"USA", "state":"CA"};
-    Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
+    PersonSt emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
 
     emp1.adrs["street"] = "20";
     emp1.age = 0;
@@ -77,19 +77,19 @@ function testStructExpressionAsIndex () returns (string) {
 }
 
 function testDefaultVal () returns [string, string, int] {
-    Person p = {};
+    PersonSt p = {};
     return [p.name, p.lname, p.age];
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {
-    Department dpt = {};
+    DepartmentSt dpt = {};
     dpt.employees = [];
     dpt.employees[0] = {lname:"Smith"};
     return [dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age];
 }
 
-function testNestedStructInit () returns (Person) {
-    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
+function testNestedStructInit () returns (PersonSt) {
+    PersonSt p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
     return p1;
 }
 
@@ -105,35 +105,35 @@ function getStructNegativeValues () returns [int, int, float, float] {
     return [tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat];
 }
 
-function getStruct () returns (Person) {
-    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", lname:"ccc", age:50}};
+function getStruct () returns (PersonSt) {
+    PersonSt p1 = {name:"aaa", age:25, parent:{name:"bbb", lname:"ccc", age:50}};
     return p1;
 }
 
 function testGetNonInitAttribute () returns (string) {
-    Person emp1 = {};
-    Person emp2 = {};
-    Person[] emps = [emp1, emp2];
-    Department dpt = {dptName:"HR", employees:emps};
+    PersonSt emp1 = {};
+    PersonSt emp2 = {};
+    PersonSt[] emps = [emp1, emp2];
+    DepartmentSt dpt = {dptName:"HR", employees:emps};
     return dpt.employees[0].family.children[0];
 }
 
 function testGetNonInitArrayAttribute () returns (string) {
-    Department dpt = {dptName:"HR"};
+    DepartmentSt dpt = {dptName:"HR"};
     return dpt.employees[0].family.children[0];
 }
 
-function testGetNonInitLastAttribute () returns (Person) {
-    Department dpt = {};
+function testGetNonInitLastAttribute () returns (PersonSt) {
+    DepartmentSt dpt = {};
     return dpt.employees[0];
 }
 
 function testSetFieldOfNonInitChildStruct () {
-    Person person = {name:"Jack"};
+    PersonSt person = {name:"Jack"};
     person.family.spouse = "Jane";
 }
 
 function testSetFieldOfNonInitStruct () {
-    Department dpt = {};
+    DepartmentSt dpt = {};
     dpt.dptName = "HR";
 }

@@ -26,7 +26,9 @@ import static org.ballerinalang.net.http.HttpConstants.ENTITY;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PUSH_PROMISE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
 /**
  * Utility functions to create JVM values.
@@ -53,5 +55,13 @@ public class ValueCreatorUtils {
 
     public static ObjectValue createPushPromiseObject() {
         return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, PUSH_PROMISE);
+    }
+
+    public static ObjectValue createRequestCacheControlObject() {
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, REQUEST_CACHE_CONTROL);
+    }
+
+    public static ObjectValue createResponseCacheControlObject() {
+        return BallerinaValues.createObjectValue(HTTP_PACKAGE_PATH, RESPONSE_CACHE_CONTROL);
     }
 }

@@ -32,7 +32,7 @@ public class PoolKey {
     private String jdbcUrl;
     private Map<String, ?> dbOptions;
 
-    PoolKey(String jdbcUrl, Map<String, ?> dbOptions) {
+    public PoolKey(String jdbcUrl, Map<String, ?> dbOptions) {
         this.jdbcUrl = jdbcUrl;
         this.dbOptions = dbOptions;
     }

@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 @Test(groups = {"websocket-test"})
 public class PushTextFailureTest extends WebSocketTestCommons {
 
-    private static final String URL = "ws://localhost:9089/pushTextFailure";
+    private static final String URL = "ws://localhost:21008/pushTextFailure";
     private LogLeecher logLeecher;
 
     // Related file 07_pushText_failure.bal

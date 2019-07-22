@@ -29,7 +29,8 @@ public class ObjectFunctionCodeAnalysisTest {
 
     @Test
     public void testObjectFunctionReturnValidation() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/object-function-code-analysis.bal");
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/structs/object-function-code-analysis-negative.bal");
         BAssertUtil.validateError(compileResult, 0, "this function must return a result", 5, 3);
     }
 

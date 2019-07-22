@@ -44,4 +44,8 @@ public class Call {
                 parameters, strand);
         return callStatement.execute();
     }
+
+    private Call() {
+
+    }
 }

@@ -18,7 +18,7 @@
 public type Session client object {
     boolean anonymousSession = false;
 
-    public function __init(Connection con, SessionConfiguration? config = ()) {
+    public function __init(public Connection con, public SessionConfiguration? config = ()) {
         SessionConfiguration configuration = {};
         if (config is SessionConfiguration) {
             configuration = config;

@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.net.http.nativeimpl.connection.BResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -66,53 +65,6 @@ public class PipeliningHandler {
             throw new BallerinaConnectorException("Error occurred while sending outbound response", e);
         }
         return responseFuture;
-    }
-
-    /**
-     * Executes pipelining logic.
-     *
-     * @param sourceContext     Represents channel handler context
-     * @param pipelinedResponse Represents pipelined response
-     * @return HttpResponseFuture that represent the future results
-     */
-    public static HttpResponseFuture executeBPipeliningLogic(ChannelHandlerContext sourceContext,
-                                                            BPipelinedResponse pipelinedResponse) {
-        HttpResponseFuture responseFuture = null;
-
-        synchronized (sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get()) {
-            Queue<BPipelinedResponse> responseQueue = sourceContext.channel().attr(Constants.RESPONSE_QUEUE).get();
-            if (bthresholdReached(sourceContext, responseQueue)) {
-                return null;
-            }
-            if (pipelinedResponse != null) {
-                responseQueue.add(pipelinedResponse);
-            }
-            while (!responseQueue.isEmpty()) {
-                long nextSequenceNumber = sourceContext.channel().attr(Constants.NEXT_SEQUENCE_NUMBER).get();
-                final BPipelinedResponse queuedPipelinedResponse = responseQueue.peek();
-                long currentSequenceNumber = queuedPipelinedResponse.getSequenceId();
-                if (currentSequenceNumber != nextSequenceNumber) {
-                    break;
-                }
-                responseQueue.remove();
-                //IMPORTANT: Do not increment the nextSequenceNumber after 'sendOutboundResponseRobust()' or
-                //'sendOutboundResponse()' under any circumstance.  nextSequenceNumber should be updated only
-                //when the last http content of this message has been written to the socket because in case if
-                //one response has delayed http contents, there's a good chance that the contents of another
-                //response will be sent out before its turn.
-                if (queuedPipelinedResponse.getDataContext() != null &&
-                        queuedPipelinedResponse.getOutboundResponse() != null) {
-                    BResponseWriter.sendResponseRobust(queuedPipelinedResponse.getDataContext(),
-                                       queuedPipelinedResponse.getInboundRequestMsg(),
-                                       queuedPipelinedResponse.getOutboundResponse(),
-                                       queuedPipelinedResponse.getOutboundResponseMsg());
-                } else {
-                    responseFuture = sendOutboundResponse(queuedPipelinedResponse.getInboundRequestMsg(),
-                                                          queuedPipelinedResponse.getOutboundResponseMsg());
-                }
-            }
-            return responseFuture;
-        }
     }
 
     /**
@@ -182,31 +134,6 @@ public class PipeliningHandler {
      * @param responseQueue Represents pipelined response queue
      * @return a boolean indicating whether the maximum queued response count is reached
      */
-    private static boolean bthresholdReached(ChannelHandlerContext sourceContext,
-                                             Queue<BPipelinedResponse> responseQueue) {
-        long maxQueuedResponses = sourceContext.channel()
-                .attr(Constants.MAX_RESPONSES_ALLOWED_TO_BE_QUEUED).get();
-        if (Constants.UNBOUNDED_RESPONSE_QUEUE == maxQueuedResponses) {
-            return false;
-        }
-
-        if (responseQueue.size() > maxQueuedResponses) {
-            sourceContext.channel().close();
-            log.warn("Threshold {} for pipelined response queue reached hence closing the connection.",
-                    maxQueuedResponses);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * When the maximum queued response count reached, close the connection because queuing up indefinitely might cause
-     * out of memory issues.
-     *
-     * @param sourceContext Represents channel handler context
-     * @param responseQueue Represents pipelined response queue
-     * @return a boolean indicating whether the maximum queued response count is reached
-     */
     private static boolean thresholdReached(ChannelHandlerContext sourceContext,
                                             Queue<PipelinedResponse> responseQueue) {
         long maxQueuedResponses = sourceContext.channel()
@@ -222,18 +149,6 @@ public class PipeliningHandler {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Set pipelining listener to outbound response.
-     *
-     * @param httpResponse Represent HTTP outbound response
-     */
-    public static void setBPipeliningListener(HttpCarbonMessage httpResponse) {
-        BPipelineResponseListener pipeliningListener = new BPipelineResponseListener();
-        HttpPipeliningFuture pipeliningFuture = new HttpPipeliningFuture();
-        pipeliningFuture.setPipeliningListener(pipeliningListener);
-        httpResponse.setPipeliningFuture(pipeliningFuture);
     }
 
     /**
