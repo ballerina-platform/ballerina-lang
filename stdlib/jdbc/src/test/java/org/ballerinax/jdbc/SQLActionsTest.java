@@ -172,7 +172,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
+    @Test(groups = CONNECTOR_TEST)
     public void testINParametersWithDirectValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -185,7 +185,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
     }
 
-    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
+    @Test(groups = CONNECTOR_TEST)
     public void testINParametersWithDirectVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -320,7 +320,7 @@ public class SQLActionsTest {
         Assert.assertEquals((int) retValue.getInt(2), 1);
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Check date time null in values")
+    @Test(groups = CONNECTOR_TEST, description = "Check date time null in values")
     public void testDateTimeNullInValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues");
         Assert.assertEquals(returns.length, 1);
@@ -338,7 +338,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Check blob binary and clob types types.")
+    @Test(groups = CONNECTOR_TEST, description = "Check blob binary and clob types types.")
     public void testComplexTypeRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval");
         String expected0, expected1, expected2, expected3;
