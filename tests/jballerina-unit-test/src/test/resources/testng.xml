@@ -32,7 +32,6 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
                 <exclude name="brokenOnLangLibChange"/>
             </run>
         </groups>

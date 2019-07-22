@@ -3441,21 +3441,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {
-
         if (binaryExpr.parent == null || binaryExpr.parent.type == null) {
             return;
         }
 
         int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
         int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
-
         if (rhsExprTypeTag != TypeTags.BYTE && lhsExprTypeTag != TypeTags.BYTE) {
             return;
         }
 
-        int parentTypeTag = binaryExpr.parent.type.tag;
-
-        if (parentTypeTag == TypeTags.INT) {
+        int resultTypeTag = binaryExpr.type.tag;
+        if (resultTypeTag == TypeTags.INT) {
             if (rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
             }

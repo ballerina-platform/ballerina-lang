@@ -100,5 +100,5 @@ function bytesToByte(byte[] b) returns byte {
     byte octave1 = 8;
     byte octave2 = 16;
     byte octave3 = 24;
-    return (b[0] << octave3) | ((b[1] & ff) << octave2) | ((b[2] & ff) << octave1) | (b[3] & ff);
+    return <byte>((b[0] << octave3) | ((b[1] & ff) << octave2) | ((b[2] & ff) << octave1) | (b[3] & ff));
 }

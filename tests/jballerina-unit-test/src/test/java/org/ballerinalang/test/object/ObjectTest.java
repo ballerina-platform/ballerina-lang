@@ -660,12 +660,12 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) retChoose.get("val")).intValue(), 5);
     }
 
-    @Test(dataProvider = "missingNativeImplFiles", groups = "brokenOnBootstrappedJVMCodegen")
+    @Test(dataProvider = "missingNativeImplFiles")
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
-        } catch (BLangCompilerException e) {
-            Assert.assertTrue(e.getMessage().contains("jvm code gen phase failed"));
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");
