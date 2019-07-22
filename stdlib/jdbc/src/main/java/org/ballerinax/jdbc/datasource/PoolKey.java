@@ -24,7 +24,9 @@ import org.ballerinalang.jvm.types.TypeTags;
 import java.util.Map;
 
 /**
- * The key that uniquely identifies a connection pool.
+ * The key that uniquely identifies a connection pool encapsulated by {@link SQLDatasource}.
+ *
+ * @since 1.0.0
  */
 public class PoolKey {
     private String jdbcUrl;
