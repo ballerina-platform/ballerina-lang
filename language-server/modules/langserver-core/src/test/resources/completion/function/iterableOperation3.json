@@ -193,6 +193,23 @@
       }
     },
     {
+      "label": "map(function ((xml|string)) returns ((xml|string)) func)(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+        }
+      },
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "XMLIterator",
       "kind": "Class",
       "detail": "Object",
@@ -227,6 +244,23 @@
         }
       },
       "insertText": "appendChildren(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "forEach(function ((xml|string)) returns () func)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "forEach(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -295,6 +329,23 @@
         }
       },
       "insertText": "getItemType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "filter(function ((xml|string)) returns (boolean) func)(xml)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+        }
+      },
+      "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
