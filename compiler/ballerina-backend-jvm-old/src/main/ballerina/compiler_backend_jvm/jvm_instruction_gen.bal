@@ -815,6 +815,18 @@ type InstructionGenerator object {
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
+    function generateIsLikeIns(bir:IsLike isLike) {
+        // load source value
+        self.loadVar(isLike.rhsOp.variableDcl);
+
+        // load targetType
+        loadType(self.mv, isLike.typeVal);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsLikeType",
+            io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+        self.storeToVar(isLike.lhsOp.variableDcl);
+    }
+
     function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {
         var typeDefRef = objectNewIns.typeDefRef;
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);

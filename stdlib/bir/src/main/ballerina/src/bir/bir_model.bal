@@ -543,7 +543,7 @@ public type IsLike record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
-    BType typeValue;
+    BType typeVal;
 |};
 
 public type TypeTest record {|
