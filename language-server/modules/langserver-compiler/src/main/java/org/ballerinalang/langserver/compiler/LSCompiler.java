@@ -53,7 +53,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  */
 public class LSCompiler {
 
-    private final WorkspaceDocumentManager documentManager;
+    private final WorkspaceDocumentManager docManager;
 
     /**
      * Special LS Compiler instance with the Extended Document Manager to compile the content.
@@ -63,10 +63,10 @@ public class LSCompiler {
     /**
      * Returns a new LS Compiler instance with this document manager.
      *
-     * @param documentManager document manager
+     * @param docManager document manager
      */
-    public LSCompiler(WorkspaceDocumentManager documentManager) {
-        this.documentManager = documentManager;
+    public LSCompiler(WorkspaceDocumentManager docManager) {
+        this.docManager = docManager;
     }
 
     /**
@@ -103,29 +103,28 @@ public class LSCompiler {
      * @return {@link BallerinaFile} containing compiled package
      */
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
-        String projectRoot = LSCompilerUtil.getProjectRoot(filePath);
-        String packageName = LSCompilerUtil.getPackageNameForGivenFile(projectRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath, projectRoot);
+        LSDocument lsDocument = new LSDocument(filePath.toUri().toString());
+        String packageName = lsDocument.getOwnerModule();
+        String projectRoot = lsDocument.getProjectRoot();
 
-        PackageRepository packageRepository = new WorkspacePackageRepository(projectRoot, documentManager);
+        PackageRepository packageRepo = new WorkspacePackageRepository(lsDocument.getProjectRoot(), docManager);
         PackageID packageID;
-        if ("".equals(packageName)) {
+        if ("".equals(lsDocument.getOwnerModule())) {
             Path path = filePath.getFileName();
             if (path != null) {
                 packageName = path.toString();
-                packageID = new PackageID(packageName);
+                packageID = new PackageID(path.toString());
             } else {
                 packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
             }
         } else {
             packageID = generatePackageFromManifest(packageName, projectRoot);
         }
-        CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                                        true, documentManager, phase);
+        CompilerContext context = prepareCompilerContext(packageID, packageRepo, lsDocument, true, docManager, phase);
 
         BallerinaFile bfile;
         BLangPackage bLangPackage = null;
-        boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(projectRoot));
+        boolean isProjectDir = lsDocument.isWithinProject();
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
@@ -242,7 +241,7 @@ public class LSCompiler {
         String projectRoot = sourceDoc.getProjectRoot();
         PackageRepository pkgRepo = new WorkspacePackageRepository(projectRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
-        String pkgName = LSCompilerUtil.getPackageNameForGivenFile(projectRoot, sourceDoc.getPath().toString());
+        String pkgName = sourceDoc.getOwnerModule();
         PackageID pkgID;
         String relativeFilePath;
 

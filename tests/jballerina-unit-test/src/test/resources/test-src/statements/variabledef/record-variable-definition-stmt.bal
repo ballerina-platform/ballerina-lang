@@ -319,14 +319,10 @@ type ObjectRestRecord record {|
     Object...;
 |};
 
-function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean, boolean, boolean] {
+function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
     IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
     IntRestRecord { name: name1, ...other1 } = rec1;
     var { name: name2, ...other2 } = rec1;
-
-    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
-    ObjectRestRecord { name: name3, ...other3 } = rec2;
-    var { name: name4, ...other4 } = rec2;
 
     IntRestRecord|ObjectRestRecord rec3 = rec1;
     IntRestRecord|ObjectRestRecord { name: name5, ...other5 } = rec3;
@@ -336,11 +332,9 @@ function testRestParameterType() returns [boolean, boolean, boolean, boolean, bo
 
     any a1 = other1;
     any a2 = other2;
-    any a3 = other3;
-    any a4 = other4;
     any a5 = other5;
     any a6 = other6;
 
-    return [a1 is map<anydata|error>, a2 is map<int>, a3 is map<any|error>, a4 is map<Object>, a5 is map<any|error>,
+    return [a1 is map<anydata|error>, a2 is map<int>, a5 is map<any|error>,
                                                                     a5 is map<anydata>, a6 is map<anydata|error>];
 }

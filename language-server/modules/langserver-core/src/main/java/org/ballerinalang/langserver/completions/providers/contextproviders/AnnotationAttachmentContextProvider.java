@@ -94,16 +94,18 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
                     // compare with the import statements' package alias
                     if (finalAlias == null || finalAlias.getText().equals(annotationPkgAlias)
                             || annotationPkg.equals(pkgAliasMap.get(finalAlias.getText()))) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, ctx, finalAlias));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(key, annotation, ctx, finalAlias,
+                                pkgAliasMap));
                     }
                 }));
         
-        completionItems.addAll(this.getAnnotationsInModule(ctx, attachmentPoint));
+        completionItems.addAll(this.getAnnotationsInModule(ctx, attachmentPoint, pkgAliasMap));
         
         return completionItems;
     }
     
-    private List<CompletionItem> getAnnotationsInModule(LSContext ctx, AnnotationNodeKind kind) {
+    private List<CompletionItem> getAnnotationsInModule(LSContext ctx, AnnotationNodeKind kind,
+                                                        Map<String, String> pkgAliasMap) {
         BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         List<CompletionItem> completionItems = new ArrayList<>();
         List<BLangAnnotation> annotations = bLangPackage.topLevelNodes.stream()
@@ -119,42 +121,42 @@ public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
             switch (kind) {
                 case ANNOTATION:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.ANNOTATION)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case FUNCTION:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)
                             || (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT_METHOD)
                             && scopeNode.getKind() == NodeKind.OBJECT_TYPE)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case LISTENER:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.LISTENER)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case OBJECT:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.TYPE)
                             || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.OBJECT)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case RESOURCE:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RESOURCE)
                             || Symbols.isAttachPointPresent(maskedPoints, AttachPoints.FUNCTION)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case SERVICE:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.SERVICE)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 case RECORD:
                 case TYPE:
                     if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.TYPE)) {
-                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx));
+                        completionItems.add(CommonUtil.getAnnotationCompletionItem(pkgId, symbol, ctx, pkgAliasMap));
                     }
                     break;
                 default:

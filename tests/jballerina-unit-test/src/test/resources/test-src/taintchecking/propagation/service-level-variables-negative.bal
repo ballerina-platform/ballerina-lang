@@ -13,7 +13,6 @@ service sample on helloWorldEP {
     }
     resource function params (http:Caller caller, http:Request req, string foo) {
         var bar = req.getQueryParamValue("bar");
-        var bar = paramsMap.bar;
 
         self.serviceLevelVariable = foo;
         globalLevelVariable = foo;

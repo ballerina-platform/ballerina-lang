@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 21,
+    "line": 22,
     "character": 5
   },
   "source": "annotation/source/annotationInSameModule5.bal",
@@ -15,11 +15,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -37,59 +37,15 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/transactions;\n"
-        }
-      ]
-    },
-    {
-      "label": "test:BeforeEach",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:BeforeEach",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
-      "label": "test:AfterSuite",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:AfterSuite",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
         }
       ]
     },
@@ -103,55 +59,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
-      "label": "test:AfterEach",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:AfterEach",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
-      "label": "test:BeforeSuite",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:BeforeSuite",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -169,11 +81,11 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
@@ -182,68 +94,90 @@
       ]
     },
     {
-      "label": "openapi:ResourceInfo",
+      "label": "test:BeforeSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "openapi:ResourceInfo {\n\t${1}\n}",
+      "insertText": "test:BeforeSuite {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
-          "newText": "import ballerina/openapi;\n"
+          "newText": "import ballerina/test;\n"
         }
       ]
     },
     {
-      "label": "openapi:MultiResourceInfo",
+      "label": "test:AfterSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "openapi:MultiResourceInfo {\n\tresourceInformation: ${1:{}}}",
+      "insertText": "test:AfterSuite {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
-          "newText": "import ballerina/openapi;\n"
+          "newText": "import ballerina/test;\n"
         }
       ]
     },
     {
-      "label": "http:ParamOrderConfig",
+      "label": "test:BeforeEach",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "http:ParamOrderConfig {\n\t${1}\n}",
+      "insertText": "test:BeforeEach {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
               "character": 0
             }
           },
-          "newText": "import ballerina/http;\n"
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:AfterEach",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:AfterEach {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
         }
       ]
     },
@@ -257,11 +191,33 @@
         {
           "range": {
             "start": {
-              "line": 0,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 0,
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "http:ParamOrderConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "http:ParamOrderConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
               "character": 0
             }
           },
