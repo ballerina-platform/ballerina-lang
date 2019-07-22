@@ -55,7 +55,7 @@ public class ExchangeDeclare {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

@@ -61,7 +61,7 @@ public class BasicPublish {
         try {
             ChannelUtils.basicPublish(channel, routingKey, messageContent.toString().getBytes(StandardCharsets.UTF_8),
                     defaultExchangeName, properties);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

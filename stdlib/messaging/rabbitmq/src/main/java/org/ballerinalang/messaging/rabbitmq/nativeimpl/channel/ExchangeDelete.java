@@ -54,7 +54,7 @@ public class ExchangeDelete {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.exchangeDelete(exchangeName);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (BallerinaException exception) {

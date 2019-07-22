@@ -57,7 +57,7 @@ public class GetConnection {
             ObjectValue connectionObject = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_RABBITMQ,
                     RabbitMQConstants.CONNECTION_OBJECT);
             connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
             return connectionObject;

@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * Reject one or several received messages.
@@ -59,7 +58,7 @@ public class BasicNack {
         long deliveryTag = (long) messageObjectValue.getNativeData(RabbitMQConstants.DELIVERY_TAG);
         boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObjectValue);
         boolean ackMode = ChannelUtils.validateAckMode(messageObjectValue);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
+        if (isInTransaction) {
             transactionContext.handleTransactionBlock(strand);
         }
         if (multiple != null && RabbitMQUtils.checkIfBoolean(multiple)) {

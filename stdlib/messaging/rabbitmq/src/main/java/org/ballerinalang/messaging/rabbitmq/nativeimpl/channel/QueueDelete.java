@@ -54,7 +54,7 @@ public class QueueDelete {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.queueDelete(channel, queueName, ifUnused, ifEmpty);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

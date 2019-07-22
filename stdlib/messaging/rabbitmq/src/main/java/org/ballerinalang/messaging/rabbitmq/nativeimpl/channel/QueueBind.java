@@ -54,7 +54,7 @@ public class QueueBind {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.queueBind(queueName, exchangeName, bindingKey, null);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {

@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * Retrieves the int content of the RabbitMQ message.
@@ -52,7 +51,7 @@ public class GetIntContent {
         byte[] messageContent = (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
+        if (isInTransaction) {
             transactionContext.handleTransactionBlock(strand);
         }
         try {

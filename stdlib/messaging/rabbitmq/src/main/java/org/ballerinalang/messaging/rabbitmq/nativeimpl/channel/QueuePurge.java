@@ -54,7 +54,7 @@ public class QueuePurge {
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.queuePurge(queueName);
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {

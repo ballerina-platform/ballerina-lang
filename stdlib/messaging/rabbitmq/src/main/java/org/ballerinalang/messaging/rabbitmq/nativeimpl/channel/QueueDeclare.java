@@ -65,7 +65,7 @@ public class QueueDeclare {
                 boolean autoDelete = config.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
                 channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
             }
-            if (isInTransaction && transactionContext != null) {
+            if (isInTransaction) {
                 transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {
