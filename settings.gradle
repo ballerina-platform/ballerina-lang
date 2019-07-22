@@ -127,6 +127,7 @@ include(':ballerina-jwt')
 include(':ballerina-ldap')
 include(':ballerina-oauth2')
 include(':build-config:checkstyle')
+include(':debug-adapter')
 include(':ballerina-bootstrapper')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
 project(':ballerina-lang:internal').projectDir = file('langlib/lang.__internal')
@@ -248,6 +249,7 @@ project(':ballerina-ldap').projectDir = file('stdlib/ldap')
 project(':ballerina-oauth2').projectDir = file('stdlib/oauth2')
 project(':ballerina-bootstrapper').projectDir = file('distribution/bootstrapper')
 
+project(':debug-adapter').projectDir = file('misc/debug-adapter')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"

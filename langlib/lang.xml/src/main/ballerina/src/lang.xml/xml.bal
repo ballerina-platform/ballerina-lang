@@ -221,3 +221,8 @@ public function filter(xml x, function(xml|string item) returns boolean func) re
 
 # This is the inverse of `value:toString` applied to an `xml`.
 public function fromString(string s) returns xml|error = external;
+
+// Functional programming methods
+public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
+public function forEach(xml x, function(xml|string item) returns () func) = external;
+public function filter(xml x, function(xml|string item) returns boolean func) returns xml = external;
