@@ -531,8 +531,7 @@ public class MapStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'map<string>' value cannot be stamped as " +
-                                    "'EmployeeClosedRecord'");
+                            "'map<string>' value cannot be converted to 'EmployeeClosedRecord'");
     }
 
     @Test(description = "Test stamping to record when value has cyclic reference.")

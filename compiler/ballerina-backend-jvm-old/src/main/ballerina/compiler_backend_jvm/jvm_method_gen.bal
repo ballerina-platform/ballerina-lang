@@ -1281,7 +1281,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         }
     }
 
-    scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+    if (hasInitFunction(pkg)) {
+       scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+    }
 
     // stop all listeners
     stopListeners(mv, serviceEPAvailable);
@@ -1333,7 +1335,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
     errorGen.printStackTraceFromFutureValue(mv);
     mv.visitInsn(POP);
-    
+
 }
 
 # Generate a lambda function to invoke ballerina main.

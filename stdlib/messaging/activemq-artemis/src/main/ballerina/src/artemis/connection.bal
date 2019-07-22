@@ -22,7 +22,7 @@ public type Connection client object {
     # 
     # + url - The connection url to the broker
     # + config - The connection configuration
-    public function __init(string url, ConnectionConfiguration? config = ()) {
+    public function __init(public string url, public ConnectionConfiguration? config = ()) {
         ConnectionConfiguration configuration = {};
         if (config is ConnectionConfiguration) {
             configuration = config;

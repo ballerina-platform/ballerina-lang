@@ -64,7 +64,7 @@ public type LengthBatchWindow object {
             }
         } else {
             error err = error("LengthBatch window should only have one parameter (<int> " +
-                "windowBatchLength), but found " + parameters.length() + " input attributes");
+                "windowBatchLength), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
@@ -197,7 +197,7 @@ public type LengthBatchWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function lengthBatch(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function lengthBatch(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                       returns Window {
     LengthBatchWindow lengthBatchWindow = new(nextProcessPointer, windowParameters);
     return lengthBatchWindow;

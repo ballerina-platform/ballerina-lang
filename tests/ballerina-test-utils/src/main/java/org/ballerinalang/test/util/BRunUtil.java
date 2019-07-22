@@ -290,8 +290,18 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Integer) {
+                paramTypes[i] = Long.class;
+            } else if (arg instanceof Float) {
+                paramTypes[i] = Double.class;
+            } else if (arg instanceof Double) {
+                paramTypes[i] = Double.class;
             } else if (arg instanceof Long) {
                 paramTypes[i] = Long.class;
+            } else if (arg instanceof Boolean) {
+                paramTypes[i] = Boolean.class;
+            } else if (arg instanceof MapValue) {
+                paramTypes[i] = MapValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());

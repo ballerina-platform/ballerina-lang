@@ -37,7 +37,7 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class AuthnConfigPatternTest extends AuthBaseTest {
 
-    private final int servicePort = 9116;
+    private final int servicePort = 20025;
 
     @Test(description = "Test pattern 1 with JWT of issuer: example1")
     public void testExample1IssuerJWTForPattern1() throws Exception {

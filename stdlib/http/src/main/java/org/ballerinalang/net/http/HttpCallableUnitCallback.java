@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class HttpCallableUnitCallback implements CallableUnitCallback {
     private HttpCarbonMessage requestMessage;
 
-    public HttpCallableUnitCallback(HttpCarbonMessage requestMessage) {
+    HttpCallableUnitCallback(HttpCarbonMessage requestMessage) {
         this.requestMessage = requestMessage;
     }
 

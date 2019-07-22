@@ -65,6 +65,13 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
+    public static ErrorValue createError(Throwable error) {
+        if (error instanceof ErrorValue) {
+            return (ErrorValue) error;
+        }
+        return createError(error.getMessage());
+    }
+
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(BallerinaErrorReasons.CONVERSION_ERROR,
                            BLangExceptionHelper

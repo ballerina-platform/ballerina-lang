@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, map<string>>;
-type SMA error <string, map<anydata>>;
+type SMS error <string, record {| string...; |}>;
+type SMA error <string, record {| anydata...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
@@ -63,31 +63,13 @@ function errorVarInTupleVar() {
 }
 
 function errorVarWithConstrainedMap() {
-    error <string, map<string>> err = error("Error Code", message = "Fatal");
+    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
     var error (reason, message = message) = err;
     string m = message; // incompatible types: expected 'string', found 'string?'
 }
 
 function errorVarWithUnderscore() {
-    error <string, map<string>> err = error("Error Code", message = "Fatal");
+    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
     var error (_, ..._) = err; // no new variables on left side
     var error (_) = err; // no new variables on left side
-}
-
-
-function testDetailMapConstrainedToJSON() returns [json, json] {
-    error<string, map<json>> err1 = error("ErrorReason", message = "broken", fatal = true);
-
-    var error(reason1, message = message, fatal = fatal) = err1;
-    error<string, map<json>> error(reason2, message = msg, fatal = fat) = err1;
-
-    if message is json { // unnecessary condition: expression will always evaluate to 'true'
-
-    }
-
-    if msg is json { // unnecessary condition: expression will always evaluate to 'true'
-
-    }
-
-    return [message, fatal];
 }

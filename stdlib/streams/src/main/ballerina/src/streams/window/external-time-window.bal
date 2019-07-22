@@ -69,7 +69,7 @@ public type ExternalTimeWindow object {
             }
         } else {
             error err = error("ExternalTime window should only have two parameters (<string> timestamp, <int> " +
-                "windowTime), but found " + parameters.length() + " input attributes");
+                "windowTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
@@ -206,7 +206,7 @@ public type ExternalTimeWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function externalTime(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function externalTime(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                                         returns Window {
 
     ExternalTimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);

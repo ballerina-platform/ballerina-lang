@@ -30,6 +30,7 @@ public enum HttpErrorType {
             "{ballerina/http}AllLoadBalanceEndpointsFailed"),
     ALL_RETRY_ATTEMPTS_FAILED("AllRetryAttemptsFailed", "{ballerina/http}AllRetryAttemptsFailed"),
     IDLE_TIMEOUT_TRIGGERED("IdleTimeoutError", "{ballerina/http}IdleTimeoutError"),
+    LISTENER_STARTUP_FAILURE("ListenerError", "{ballerina/http}ListenerStartupError"),
 
     // ClientAuthError
     AUTHN_FAILED("AuthenticationError", "{ballerina/http}AuthenticationFailed"),

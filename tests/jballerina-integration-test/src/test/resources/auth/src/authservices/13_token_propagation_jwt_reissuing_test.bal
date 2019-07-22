@@ -28,7 +28,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider13_1 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_1 = new(jwtAuthProvider13_1);
 
-listener http:Listener listener13_1 = new(9107, {
+listener http:Listener listener13_1 = new(20017, {
     auth: {
         authHandlers: [jwtAuthHandler13_1]
     },
@@ -54,7 +54,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider13_2 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_2 = new(jwtAuthProvider13_2);
 
-http:Client nyseEP13 = new("https://localhost:9108", {
+http:Client nyseEP13 = new("https://localhost:20018", {
     auth: {
         authHandler: jwtAuthHandler13_2
     }
@@ -68,12 +68,14 @@ service passthroughService13 on listener13_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP13->get("/nyseStock/stocks", message = <@untainted> clientRequest);
+        var response = nyseEP13->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -92,7 +94,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider13_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler13_3 = new(jwtAuthProvider13_3);
 
-listener http:Listener listener13_2 = new(9108, {
+listener http:Listener listener13_2 = new(20018, {
     auth: {
         authHandlers: [jwtAuthHandler13_3]
     },

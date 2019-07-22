@@ -27,23 +27,23 @@ import org.testng.annotations.Test;
 @Test(groups = "auth-test")
 public class AuthWithCustomProvidersHandlersTest extends AuthBaseTest {
 
-    private final int servicePort = 9113;
+    private final int servicePort = 20023;
 
-    @Test(description = "Auth success with oubound custom auth provider initially generated token")
+    @Test(description = "Auth success with outbound custom auth provider initially generated token")
     public void testAuthSuccess1() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test1"),
                 serverInstance.getServerHome());
         assertOK(response);
     }
 
-    @Test(description = "Auth success with oubound custom auth provider generated token after inspection")
+    @Test(description = "Auth success with outbound custom auth provider generated token after inspection")
     public void testAuthSuccess2() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test2"),
                 serverInstance.getServerHome());
         assertOK(response);
     }
 
-    @Test(description = "Auth failure with oubound custom auth provider initially generated token and token after " +
+    @Test(description = "Auth failure with outbound custom auth provider initially generated token and token after " +
             "inspection")
     public void testAuthFailure() throws Exception {
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort, "echo/test3"),

@@ -41,7 +41,7 @@ public class MissingResourcesTest extends WebSocketTestCommons {
 
     @Test(description = "Tests behavior when onText resource is missing and a text message is received")
     public void testMissingOnText() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9086/onlyOnBinary");
+        client = new WebSocketTestClient("ws://localhost:21005/onlyOnBinary");
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -55,7 +55,7 @@ public class MissingResourcesTest extends WebSocketTestCommons {
 
     @Test(description = "Tests behavior when onPong resource is missing and a pong is received")
     public void testMissingOnPong() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9086/onlyOnBinary");
+        client = new WebSocketTestClient("ws://localhost:21005/onlyOnBinary");
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -68,7 +68,7 @@ public class MissingResourcesTest extends WebSocketTestCommons {
 
     @Test(description = "Tests behavior when onBinary resource is missing and binary message is received")
     public void testMissingOnBinary() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9087/onlyOnText");
+        client = new WebSocketTestClient("ws://localhost:21006/onlyOnText");
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
@@ -82,7 +82,7 @@ public class MissingResourcesTest extends WebSocketTestCommons {
 
     @Test(description = "Tests behavior when onBinary resource is missing and binary message is received")
     public void testMissingOnIdleTimeout() throws InterruptedException, URISyntaxException {
-        client = new WebSocketTestClient("ws://localhost:9087/onlyOnText");
+        client = new WebSocketTestClient("ws://localhost:21006/onlyOnText");
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(2);
         client.setCountDownLatch(countDownLatch);

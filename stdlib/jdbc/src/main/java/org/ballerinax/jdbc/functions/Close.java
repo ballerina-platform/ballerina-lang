@@ -17,14 +17,12 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
-import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 /**
  * {@code Close} is the Close function implementation of the JDBC client connection pool.
@@ -35,12 +33,7 @@ import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
         orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "close"
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class Close {
 
     public static Object close(Strand strand, ObjectValue client) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
@@ -51,7 +44,7 @@ public class Close extends BlockingNativeCallableUnit {
             try {
                 datasource.decrementClientCounterAndAttemptPoolShutdown();
             } catch (InterruptedException e) {
-                return  SQLDatasourceUtils.getSQLApplicationError("Error while stopping the database client");
+                return  ErrorGenerator.getSQLApplicationError("Error while stopping the database client");
             }
         }
         return null;

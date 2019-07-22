@@ -26,10 +26,7 @@ export interface OverviewProps extends CommonDiagramProps {
 }
 export interface OverviewState {
     modules: ProjectAST;
-    selectedConstruct?: {
-        moduleName: string;
-        constructName: string;
-    } | undefined;
+    selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
     modeText: string;
     fitToWidthOrHeight: boolean;
@@ -41,6 +38,7 @@ export interface OverviewState {
 export interface ConstructIdentifier {
     constructName: string;
     moduleName: string;
+    subConstructName?: string;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
@@ -67,7 +65,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
             fitToWidthOrHeight: true,
-            maxInvocationDepth: 0,
+            maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
@@ -78,13 +76,11 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
-        const selectedConstruct = this.props.initialSelectedConstruct;
 
         if (sourceRootUri) {
-            langClient.getProjectAST({ sourceRoot: sourceRootUri}).then((result) => {
+            langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
                 this.setState({
-                    modules: result.modules,
-                    selectedConstruct,
+                    modules: result.modules
                 });
             });
         } else {
@@ -102,24 +98,27 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                             },
                             name: ast.name,
                         }
-                    },
-                    selectedConstruct,
+                    }
                 });
             });
         }
     }
 
-    public selectConstruct({moduleName, constructName}: ConstructIdentifier) {
+    public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
         this.setState({
             selectedConstruct: {
-                constructName, moduleName,
+                constructName, moduleName, subConstructName
             }
         });
     }
 
     public componentDidMount() {
-
         this.updateAST();
+        if (this.props.initialSelectedConstruct) {
+            this.setState({
+                selectedConstruct: this.props.initialSelectedConstruct,
+            });
+        }
     }
 
     public render() {
@@ -131,6 +130,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
         const selectedModule = this.state.selectedConstruct.moduleName;
         const selectedConstruct = this.state.selectedConstruct.constructName;
+        const selectedSubConstruct = this.state.selectedConstruct.subConstructName;
         const moduleList = this.getModuleList();
 
         const moduleNames: string[] = [];
@@ -149,6 +149,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     if (selectedConstruct && (nodeName === selectedConstruct)) {
                         selectedAST = nodeI.node;
                         selectedUri = nodeI.uri;
+
+                        if (selectedSubConstruct) {
+                            if (ASTKindChecker.isService(selectedAST)) {
+                                selectedAST = selectedAST.resources.find((resorce) => {
+                                    return resorce.name.value === selectedSubConstruct;
+                                });
+                            }
+                        }
                     }
                 });
             }

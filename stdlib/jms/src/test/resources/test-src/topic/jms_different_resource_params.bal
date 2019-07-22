@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/jms;
+import ballerinax/java.jms;
 
 listener jms:TopicListener subscriberEndpoint = new({
         initialContextFactory: "bmbInitialContextFactory",

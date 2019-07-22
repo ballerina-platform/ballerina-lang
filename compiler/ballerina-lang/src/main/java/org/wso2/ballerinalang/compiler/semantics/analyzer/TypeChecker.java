@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -150,6 +151,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -2281,23 +2283,23 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
-        bLangXMLTextLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLTextLiteral.textFragments);
+        checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
         resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        bLangXMLCommentLiteral.concatExpr = getStringTemplateConcatExpr(bLangXMLCommentLiteral.textFragments);
+        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
         resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
-        bLangXMLProcInsLiteral.dataConcatExpr = getStringTemplateConcatExpr(bLangXMLProcInsLiteral.dataFragments);
+        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
         resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        bLangXMLQuotedString.concatExpr = getStringTemplateConcatExpr(bLangXMLQuotedString.textFragments);
+        checkStringTemplateExprs(bLangXMLQuotedString.textFragments, false);
         resultType = types.checkType(bLangXMLQuotedString, symTable.stringType, expType);
     }
 
@@ -2334,7 +2336,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.concatExpr = getStringTemplateConcatExpr(stringTemplateLiteral.exprs);
+        checkStringTemplateExprs(stringTemplateLiteral.exprs, false);
         resultType = types.checkType(stringTemplateLiteral, symTable.stringType, expType);
     }
 
@@ -3097,7 +3099,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
             // on it, it will recursively add the first param to argExprs again, resulting in a too many args in
             // function call error.
-            if (i == 0 && arg.typeChecked) {
+            if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 types.checkType(arg.pos, arg.type, expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.type, expectedType);
             }
@@ -3382,24 +3384,32 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(startTagName.pos, DiagnosticCode.XML_TAGS_MISMATCH);
     }
 
-    private BLangExpression getStringTemplateConcatExpr(List<BLangExpression> exprs) {
-        BLangExpression concatExpr = null;
+    private void checkStringTemplateExprs(List<BLangExpression> exprs, boolean allowXml) {
         for (BLangExpression expr : exprs) {
             checkExpr(expr, env);
-            if (concatExpr == null) {
-                concatExpr = expr;
+
+            BType type = expr.type;
+
+            if (type == symTable.semanticError) {
                 continue;
             }
 
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, expr.type);
-            if (opSymbol == symTable.notFoundSymbol && expr.type != symTable.semanticError) {
-                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.stringType, expr.type);
+            if (type.tag >= TypeTags.JSON) {
+                if (allowXml) {
+                    if (type.tag != TypeTags.XML) {
+                        dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                                   BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType,
+                                                     symTable.stringType, symTable.booleanType, symTable.xmlType),
+                                   type);
+                    }
+                    continue;
+                }
+
+                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                           BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType,
+                                             symTable.stringType, symTable.booleanType), type);
             }
-
-            concatExpr = getBinaryAddExpr(concatExpr, expr, opSymbol);
         }
-
-        return concatExpr;
     }
 
     /**
@@ -3411,34 +3421,36 @@ public class TypeChecker extends BLangNodeVisitor {
      */
     private List<BLangExpression> concatSimilarKindXMLNodes(List<BLangExpression> exprs, SymbolEnv xmlElementEnv) {
         List<BLangExpression> newChildren = new ArrayList<>();
-        BLangExpression strConcatExpr = null;
+        List<BLangExpression> tempConcatExpressions = new ArrayList<>();
 
         for (BLangExpression expr : exprs) {
             BType exprType = checkExpr(expr, xmlElementEnv);
             if (exprType == symTable.xmlType) {
-                if (strConcatExpr != null) {
-                    newChildren.add(getXMLTextLiteral(strConcatExpr));
-                    strConcatExpr = null;
+                if (!tempConcatExpressions.isEmpty()) {
+                    newChildren.add(getXMLTextLiteral(tempConcatExpressions));
+                    tempConcatExpressions = new ArrayList<>();
                 }
                 newChildren.add(expr);
                 continue;
             }
 
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(OperatorKind.ADD, symTable.stringType, exprType);
-            if (opSymbol == symTable.notFoundSymbol && exprType != symTable.semanticError) {
-                dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.xmlType, exprType);
-            }
-
-            if (strConcatExpr == null) {
-                strConcatExpr = expr;
+            BType type = expr.type;
+            if (type.tag >= TypeTags.JSON) {
+                if (type != symTable.semanticError) {
+                    dlog.error(expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                               BUnionType.create(null, symTable.intType, symTable.floatType, symTable.decimalType,
+                                                 symTable.stringType, symTable.booleanType, symTable.xmlType),
+                               type);
+                }
                 continue;
             }
-            strConcatExpr = getBinaryAddExpr(strConcatExpr, expr, opSymbol);
+
+            tempConcatExpressions.add(expr);
         }
 
         // Add remaining concatenated text nodes as children
-        if (strConcatExpr != null) {
-            newChildren.add(getXMLTextLiteral(strConcatExpr));
+        if (!tempConcatExpressions.isEmpty()) {
+            newChildren.add(getXMLTextLiteral(tempConcatExpressions));
         }
 
         return newChildren;
@@ -3461,10 +3473,10 @@ public class TypeChecker extends BLangNodeVisitor {
         return binaryExpressionNode;
     }
 
-    private BLangExpression getXMLTextLiteral(BLangExpression contentExpr) {
+    private BLangExpression getXMLTextLiteral(List<BLangExpression> exprs) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        xmlTextLiteral.concatExpr = contentExpr;
-        xmlTextLiteral.pos = contentExpr.pos;
+        xmlTextLiteral.textFragments = exprs;
+        xmlTextLiteral.pos = exprs.get(0).pos;
         xmlTextLiteral.type = symTable.xmlType;
         return xmlTextLiteral;
     }
@@ -3710,6 +3722,29 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
             fieldAccessExpr.originalType = actualType;
+        } else if (varRefType.tag == TypeTags.STREAM || varRefType.tag == TypeTags.TABLE) {
+
+            BType constraint =  (fieldAccessExpr.expr.type.tag == TypeTags.STREAM ?
+                                                    ((BStreamType) fieldAccessExpr.expr.type).constraint :
+                                                    ((BTableType) fieldAccessExpr.expr.type).constraint);
+
+            if (constraint.tag != TypeTags.RECORD) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
+                return symTable.semanticError;
+            }
+
+            Optional<BField> fieldType =
+                    ((BRecordType) constraint).fields.stream().filter(field -> field.name.value.equals(fieldName.value))
+                            .findFirst();
+
+            if (fieldType.isPresent()) {
+                actualType = fieldType.get().type;
+            } else {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           varRefType.tsymbol.type.getKind().typeName(), varRefType);
+                return symTable.semanticError;
+            }
+
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }

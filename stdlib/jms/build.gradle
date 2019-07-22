@@ -35,6 +35,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
@@ -43,7 +44,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-utils')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-runtime')
     implementation 'javax.jms:javax.jms-api'
     implementation 'org.testng:testng'

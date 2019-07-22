@@ -294,7 +294,7 @@ function prepareSecureRequest(Request req, ClientEndpointConfig config) returns 
 # + res - An HTTP outbound response message
 # + config - Client endpoint configurations
 # + return - Prepared HTTP request or `()` if nothing to be done or `http:ClientError` if an error occurred at auth handler invocation
-function doInspection(Request req, Response res, ClientEndpointConfig config) returns Request|error? {
+function doInspection(Request req, Response res, ClientEndpointConfig config) returns Request|ClientError? {
     var auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;

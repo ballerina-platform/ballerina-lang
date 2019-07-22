@@ -65,7 +65,7 @@ public type TimeWindow object {
             }
         } else {
             error err = error("Time window should only have one parameter (<int> " +
-                "windowTime), but found " + parameters.length() + " input attributes");
+                "windowTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
@@ -193,7 +193,7 @@ public type TimeWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function time(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function time(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                         returns Window {
     TimeWindow timeWindow1 = new(nextProcessPointer, windowParameters);
     return timeWindow1;

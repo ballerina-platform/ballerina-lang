@@ -95,7 +95,7 @@ service HelloWorld3 on ep2 {
         A[] values = req.values;
         string result = "";
         foreach var value in values {
-            result = result + "," + value.name;
+            result = result + "," + <string> value.name;
         }
         error? err = caller->send(result);
         if (err is error) {

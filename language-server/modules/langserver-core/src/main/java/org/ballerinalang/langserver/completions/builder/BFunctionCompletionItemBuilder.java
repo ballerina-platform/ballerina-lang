@@ -65,6 +65,7 @@ public final class BFunctionCompletionItemBuilder {
      * Creates and returns a completion item.
      *
      * @param bSymbol BSymbol
+     * @param context LS context
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(BInvokableSymbol bSymbol, LSContext context) {

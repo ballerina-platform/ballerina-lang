@@ -142,7 +142,9 @@ annotation    Annot    v6    on  parameter  ;
           val: 42
       }
       public function getLetter( @  v6  { foo: "v62 value" } int intVal) returns  @ v7  string {
-          return self.name.substring(intVal, intVal + 1);
+             // TODO: FIX
+         // return self.name.substring(intVal, intVal + 1);
+          return self.name;
       }
   };
 

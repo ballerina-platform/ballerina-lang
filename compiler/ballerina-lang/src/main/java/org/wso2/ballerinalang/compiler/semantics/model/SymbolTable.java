@@ -270,18 +270,8 @@ public class SymbolTable {
         // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType, InstructionCodes.XMLADD);
-        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, decimalType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType, InstructionCodes.XMLADD);
-        defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType, InstructionCodes.DADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
@@ -356,8 +346,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
         defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.ILSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.ILSHIFT);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, byteType, InstructionCodes.BILSHIFT);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType, InstructionCodes.BILSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);

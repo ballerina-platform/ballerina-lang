@@ -131,7 +131,7 @@ function testInvalidTupleVarDef2() returns [string, int, boolean, int, float, in
     [[string, [int, [boolean, int]]], [float, int]] [[s, [i1, [b, y]]], [f, i2]] = [["Bal", [3, [true, 34]]], [5.6, 45]];
     [[string, [int, [boolean, int]]], [float, int]] t = [["Bal", [3, [true, 34]]], [5.6, 45]];
     any a = t;
-    [[s, [i1, [b, y]]], [f, i2]] = fn1[a];
+    [[s, [i1, [b, y]]], [f, i2]] = fn1(a);
     return [s, i1, b, y, f, i2];
 }
 

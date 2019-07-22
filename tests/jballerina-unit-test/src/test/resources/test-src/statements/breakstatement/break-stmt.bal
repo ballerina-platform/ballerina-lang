@@ -45,12 +45,12 @@ function tracePath (string path) {
 function testBreakWithForeach (string command) returns (string) {
     output = "start";
     foreach var i in 0 ... 5 {
-        tracePath("foreach" + i);
+        tracePath("foreach" + i.toString());
         if (i == 3 && command == "break") {
             tracePath("break");
             break;
         }
-        tracePath("foreachEnd" + i);
+        tracePath("foreachEnd" + i.toString());
     }
     tracePath("end");
     return output;

@@ -38,8 +38,9 @@ public class ResourceFunctionReturnTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9228, "manualErrorReturn"));
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
-                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "simulated error", "Message content mismatched");
+                            TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "{ballerina}SimulatedError:Some random error",
+                            "Message content mismatched");
     }
 
     @Test(description = "Returning error from a resource function due to 'check' generate 500")

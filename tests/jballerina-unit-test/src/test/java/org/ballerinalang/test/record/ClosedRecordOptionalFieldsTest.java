@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -108,10 +109,29 @@ public class ClosedRecordOptionalFieldsTest {
         Assert.assertNull(person.get("adrs"));
     }
 
-    @Test(description = "Test non-defaultable optional field access", expectedExceptions =
-            BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*cannot find key 'adrs'.*")
+    @Test(description = "Test non-defaultable optional field access", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: '\\(\\)' cannot be cast to " +
+                  "'Address3'.*")
     public void testOptionalNonDefField2() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField2");
+    }
+
+    @Test(description = "Test non-defaultable optional field access",
+          expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*KeyNotFound message=cannot find key 'adrs'.*")
+    public void testOptionalNonDefField3() {
+        BRunUtil.invoke(compileResult, "testOptionalNonDefField3");
+    }
+
+    @Test(description = "Test non-defaultable optional field access")
+    public void testOptionalNonDefField4() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testOptionalNonDefField4");
+        Assert.assertEquals(returns[0].stringValue(), "{street:\"Palm Grove\", city:\"Colombo 3\", country:\"LK\"}");
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(returns[0].getType().getName(), "Address3");
+        Assert.assertEquals(returns[1].stringValue(), "{street:\"Palm Grove\", city:\"Colombo 3\", country:\"LK\"}");
+        Assert.assertEquals(returns[1].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(returns[1].getType().getName(), "Address3");
     }
 
     @Test(description = "Test defaultable user defined type as an optional field")

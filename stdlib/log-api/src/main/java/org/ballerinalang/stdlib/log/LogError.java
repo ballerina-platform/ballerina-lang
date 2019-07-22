@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.log;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,10 +38,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         isPublic = true
 )
 public class LogError extends AbstractLogFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void printError(Strand strand, Object msg, Object err) {
         String packagePath = getPackagePath();

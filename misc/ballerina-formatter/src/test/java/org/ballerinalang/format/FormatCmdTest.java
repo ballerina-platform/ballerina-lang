@@ -1,6 +1,6 @@
 package org.ballerinalang.format;
 
-import org.ballerinalang.launcher.BLauncherException;
+import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

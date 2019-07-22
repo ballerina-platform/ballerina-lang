@@ -22,7 +22,7 @@ import ballerina/jwt;
 auth:InboundBasicAuthProvider basicAuthProvider10 = new(());
 http:BasicAuthHandler basicAuthHandler10 = new(basicAuthProvider10);
 
-listener http:Listener listener10_1 = new(9101, {
+listener http:Listener listener10_1 = new(20011, {
     auth: {
         authHandlers: [basicAuthHandler10]
     },
@@ -35,7 +35,7 @@ listener http:Listener listener10_1 = new(9101, {
 });
 
 // client will not propagate JWT
-http:Client nyseEP = new("https://localhost:9102");
+http:Client nyseEP = new("https://localhost:20012");
 
 @http:ServiceConfig { basePath: "/passthrough" }
 service passthroughService10 on listener10_1 {
@@ -45,12 +45,14 @@ service passthroughService10 on listener10_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP->get("/nyseStock/stocks", message = <@untainted> clientRequest);
+        var response = nyseEP->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
+            // TODO: Remove the below casting when new lang syntax are merged.
+            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -70,7 +72,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider10 = new({
 
 http:BearerAuthHandler jwtAuthHandler10 = new(jwtAuthProvider10);
 
-listener http:Listener listener10_2 = new(9102, {
+listener http:Listener listener10_2 = new(20012, {
     auth: {
         authHandlers: [jwtAuthHandler10]
     },

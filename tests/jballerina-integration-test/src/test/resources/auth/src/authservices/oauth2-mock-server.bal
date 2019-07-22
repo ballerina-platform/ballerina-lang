@@ -17,6 +17,7 @@
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
+import ballerina/internal;
 import ballerina/system;
 
 // Values that the grant_type parameter can hold.
@@ -35,18 +36,22 @@ const string HEADER_BEARER = "header";
 const string BODY_BEARER = "body";
 const string NO_BEARER = "none";
 
+const string ACCESS_GRANTED = "access_granted";
+const string ACCESS_DENIED = "access_denied";
 const string INVALID_CLIENT = "invalid_client";
 const string INVALID_REQUEST = "invalid_request";
 const string INVALID_GRANT = "invalid_grant";
+const string UNAUTHORIZED_CLIENT = "unauthorized_client";
+const string AUTHORIZATION_HEADER_NOT_PROVIDED = "authorization_header_not_provided";
 
 string refreshTokenString = CLIENT_ID + CLIENT_SECRET;
-string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toByteArray("UTF-8")));
+string refreshTokenHash = encoding:encodeBase64(crypto:hashMd5(refreshTokenString.toBytes()));
 
 string[] accessTokenStore = ["2YotnFZFEjr1zCsicMWpAA"];
 
 // The mock OAuth2 server, which is capable of issuing access tokens with related to the grant type and also of refreshing the
 // already-issued access tokens. This keeps the set of issued access tokens for the validation purpose of the API  endpoint.
-listener http:Listener oauth2Server = new(9196, {
+listener http:Listener oauth2Server = new(20102, {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -145,20 +150,20 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = payload.split("&");
+            string[] params = internal:split(payload, "&");
             string grantType = "";
             string scopes = "";
             string username = "";
             string password = "";
             foreach string param in params {
-                if (param.contains("grant_type")) {
-                    grantType = param.split("=")[1];
-                } else if (param.contains("scope")) {
-                    scopes = param.split("=")[1];
-                } else if (param.contains("username")) {
-                    username = param.split("=")[1];
-                } else if (param.contains("password")) {
-                    password = param.split("=")[1];
+                if (internal:contains(param, "grant_type")) {
+                    grantType = internal:split(param, "=")[1];
+                } else if (internal:contains(param, "scope")) {
+                    scopes = internal:split(param, "=")[1];
+                } else if (internal:contains(param, "username")) {
+                    username = internal:split(param, "=")[1];
+                } else if (internal:contains(param, "password")) {
+                    password = internal:split(param, "=")[1];
                 }
             }
             res = prepareResponse(res, grantType, scopes, username, password, bearer);
@@ -177,8 +182,8 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
 
 function getResponseForPostBodyBearerRequest(string payload, string bearer) returns http:Response {
     http:Response res = new;
-    if (payload.contains("client_id") && payload.contains("client_secret")) {
-        string[] params = payload.split("&");
+    if (internal:contains(payload, "client_id") && internal:contains(payload, "client_secret")) {
+        string[] params = internal:split(payload, "&");
         string grantType = "";
         string scopes = "";
         string username = "";
@@ -186,18 +191,18 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
         string clientId = "";
         string clientSecret = "";
         foreach string param in params {
-            if (param.contains("grant_type")) {
-                grantType = param.split("=")[1];
-            } else if (param.contains("scope")) {
-                scopes = param.split("=")[1];
-            } else if (param.contains("username")) {
-                username = param.split("=")[1];
-            } else if (param.contains("password")) {
-                password = param.split("=")[1];
-            } else if (param.contains("client_id")) {
-                clientId = param.split("=")[1];
-            } else if (param.contains("client_secret")) {
-                clientSecret = param.split("=")[1];
+            if (internal:contains(param, "grant_type")) {
+                grantType = internal:split(param, "=")[1];
+            } else if (internal:contains(param, "scope")) {
+                scopes = internal:split(param, "=")[1];
+            } else if (internal:contains(param, "username")) {
+                username = internal:split(param, "=")[1];
+            } else if (internal:contains(param, "password")) {
+                password = internal:split(param, "=")[1];
+            } else if (internal:contains(param, "client_id")) {
+                clientId = internal:split(param, "=")[1];
+            } else if (internal:contains(param, "client_secret")) {
+                clientSecret = internal:split(param, "=")[1];
             }
         }
 
@@ -218,20 +223,20 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
 
 function getResponseForNoBearerRequest(string payload, string bearer) returns http:Response {
     http:Response res = new;
-    string[] params = payload.split("&");
+    string[] params = internal:split(payload, "&");
     string grantType = "";
     string scopes = "";
     string username = "";
     string password = "";
     foreach string param in params {
-        if (param.contains("grant_type")) {
-            grantType = param.split("=")[1];
-        } else if (param.contains("scope")) {
-            scopes = param.split("=")[1];
-        } else if (param.contains("username")) {
-            username = param.split("=")[1];
-        } else if (param.contains("password")) {
-            password = param.split("=")[1];
+        if (internal:contains(param, "grant_type")) {
+            grantType = internal:split(param, "=")[1];
+        } else if (internal:contains(param, "scope")) {
+            scopes = internal:split(param, "=")[1];
+        } else if (internal:contains(param, "username")) {
+            username = internal:split(param, "=")[1];
+        } else if (internal:contains(param, "password")) {
+            password = internal:split(param, "=")[1];
         }
     }
     res = prepareResponse(res, grantType, scopes, username, password, bearer);
@@ -243,29 +248,29 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = payload.split("&");
+            string[] params = internal:split(payload, "&");
             string grantType = "";
             string refreshToken = "";
             string scopes = "";
             foreach string param in params {
-                if (param.contains("grant_type")) {
-                    grantType = param.split("=")[1];
-                } else if (param.contains("refresh_token")) {
-                    refreshToken = param.split("=")[1];
+                if (internal:contains(param, "grant_type")) {
+                    grantType = internal:split(param, "=")[1];
+                } else if (internal:contains(param, "refresh_token")) {
+                    refreshToken = internal:split(param, "=")[1];
                     // If the refresh token contains the `=` symbol, then it is required to concatenate all the parts of the value since
                     // the String split breaks all those into separate parts.
-                    if (param.hasSuffix("==")) {
+                    if (internal:hasSuffix(param, "==")) {
                         refreshToken += "==";
                     }
-                } else if (param.contains("scope")) {
-                    scopes = param.split("=")[1];
+                } else if (internal:contains(param, "scope")) {
+                    scopes = internal:split(param, "=")[1];
                 }
             }
 
             if (grantType == GRANT_TYPE_REFRESH_TOKEN) {
                 if (refreshToken == refreshTokenHash) {
                     string input = CLIENT_ID + CLIENT_SECRET + refreshToken + scopes;
-                    string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                    string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
                     addToAccessTokenStore(accessToken);
                     json response = {
                         "access_token": accessToken,
@@ -302,14 +307,14 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
     if (isAuthorizedClient(authorizationHeader)) {
         var payload = req.getTextPayload();
         if (payload is string) {
-            string[] params = payload.split("&");
+            string[] params = internal:split(payload, "&");
             string token = "";
             string tokenTypeHint = "";
             foreach string param in params {
-                if (param.contains("token")) {
-                    token = param.split("=")[1];
-                } else if (param.contains("token_type_hint")) {
-                    tokenTypeHint = param.split("=")[1];
+                if (internal:contains(param, "token")) {
+                    token = internal:split(param, "=")[1];
+                } else if (internal:contains(param, "token_type_hint")) {
+                    tokenTypeHint = internal:split(param, "=")[1];
                 }
             }
 
@@ -343,7 +348,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                          string bearer) returns http:Response {
     if (grantType == GRANT_TYPE_CLIENT_CREDENTIALS) {
         string input = CLIENT_ID + CLIENT_SECRET + scopes;
-        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+        string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
         addToAccessTokenStore(accessToken);
         json response = {
             "access_token": accessToken,
@@ -356,7 +361,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         if (username == USERNAME && password == PASSWORD) {
             if (bearer == NO_BEARER) {
                 string input = username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -367,7 +372,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
                 res.setPayload(response);
             } else {
                 string input = CLIENT_ID + CLIENT_SECRET + username + password + scopes;
-                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toByteArray("UTF-8")));
+                string accessToken = encoding:encodeBase64(crypto:hashMd5(input.toBytes()));
                 addToAccessTokenStore(accessToken);
                 json response = {
                     "access_token": accessToken,
@@ -381,8 +386,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
             res.statusCode = http:UNAUTHORIZED_401;
-            json errMsg = { "error": "unauthorized_client" };
-            res.setPayload(errMsg);
+            res.setPayload(UNAUTHORIZED_CLIENT);
         }
     } else {
         // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
@@ -394,7 +398,7 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
 
 function isAuthorizedClient(string authorizationHeader) returns boolean {
     string clientIdSecret = CLIENT_ID + ":" + CLIENT_SECRET;
-    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toByteArray("UTF-8"));
+    string expectedAuthorizationHeader = "Basic " + encoding:encodeBase64(clientIdSecret.toBytes());
     return authorizationHeader == expectedAuthorizationHeader;
 }
 
@@ -407,7 +411,7 @@ function addToAccessTokenStore(string accessToken) {
 
 //The API endpoint, which is responsible for processing the request after validating the access token in the authorization header.
 // The token should be listed in the accessTokenStore, which keeps the tokens issued by the mock OAuth2 server.
-listener http:Listener apiEndpoint = new(9195, {
+listener http:Listener apiEndpoint = new(20101, {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -422,7 +426,7 @@ service foo on apiEndpoint {
         http:Response res = new;
         var authorizationHeader = trap req.getHeader("Authorization");
         if (authorizationHeader is string) {
-            string accessToken = authorizationHeader.split(" ")[1];
+            string accessToken = internal:split(authorizationHeader, " ")[1];
             boolean tokenAvailable = false;
             foreach string token in accessTokenStore {
                 if (token == accessToken) {
@@ -430,19 +434,16 @@ service foo on apiEndpoint {
                 }
             }
             if (tokenAvailable) {
-                json payload = { "success": "access_granted" };
-                res.setPayload(payload);
+                res.setPayload(ACCESS_GRANTED);
                 checkpanic caller->respond(res);
             } else {
                 res.statusCode = http:UNAUTHORIZED_401;
-                json payload = { "error": "access_denied" };
-                res.setPayload(payload);
+                res.setPayload(ACCESS_DENIED);
                 checkpanic caller->respond(res);
             }
         } else {
             res.statusCode = http:UNAUTHORIZED_401;
-            json payload = { "error": "authorization_header_not_provided" };
-            res.setPayload(payload);
+            res.setPayload(AUTHORIZATION_HEADER_NOT_PROVIDED);
             checkpanic caller->respond(res);
         }
     }

@@ -44,7 +44,7 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile project(':ballerina-runtime')
     testCompile project(':ballerina-test-common')
     testCompile 'org.testng:testng'

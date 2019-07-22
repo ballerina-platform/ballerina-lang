@@ -17,8 +17,6 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,16 +35,15 @@ import org.ballerinax.jdbc.statement.UpdateStatement;
         orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeUpdate"
 )
-public class Update extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class Update {
 
     public static Object nativeUpdate(Strand strand, ObjectValue client, String query, ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters, strand);
         return updateStatement.execute();
+    }
+
+    private Update() {
+
     }
 }

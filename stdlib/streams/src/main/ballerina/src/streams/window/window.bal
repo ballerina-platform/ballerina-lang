@@ -46,6 +46,6 @@ public type Window abstract object {
     public function getCandidateEvents(
                         StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
-                        boolean isLHSTrigger = true)
+                        public boolean isLHSTrigger = true)
                         returns [StreamEvent?, StreamEvent?][];
 };

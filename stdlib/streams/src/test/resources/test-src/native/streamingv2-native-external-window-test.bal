@@ -88,7 +88,7 @@ function createStreamingConstruct() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            var t = <TeacherOutput>TeacherOutput.stamp(m.clone());
+            var t = <TeacherOutput>TeacherOutput.constructFrom(m);
             outputStream.publish(t);
         }
     };

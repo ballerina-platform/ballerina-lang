@@ -67,13 +67,7 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
                 .filter(commonToken -> commonToken.getType() == BallerinaParser.LISTENER)
                 .findAny();
 
-        if (lhsDefaultTokens.size() >= 2
-                && BallerinaParser.TYPE_MAP == lhsDefaultTokens.get(0).getType()
-                && BallerinaParser.LT == lhsDefaultTokens.get(1).getType()) {
-            if (BallerinaParser.GT != CommonUtil.getLastItem(lhsDefaultTokens).getType()) {
-                completionItems.addAll(getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
-            }
-        } else if (lhsDefaultTokens.size() <= 2) {
+        if (lhsDefaultTokens.size() <= 2) {
             if (listenerKWToken.isPresent()) {
                 completionItems.addAll(this.getListenersAndPackages(ctx));
             } else if (firstToken == BallerinaParser.FINAL) {

@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
@@ -56,12 +57,12 @@ public class SQLDatasource {
         try {
             xaConn = isXADataSource();
         } catch (PanickingDatabaseException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+            throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils
+            throw ErrorGenerator
                     .getSQLDatabaseError(e, "error in get connection: " + Constants.CONNECTOR_NAME + ": ");
         }
         return this;
@@ -210,10 +211,36 @@ public class SQLDatasource {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
                         config.addDataSourceProperty(key, value);
                     } else {
-                        throw SQLDatasourceUtils.getSQLApplicationError("Unsupported type for the db option: " + key);
+                        throw ErrorGenerator.getSQLApplicationError("Unsupported type for the db option: " + key);
                     }
                 });
             }
+            // Clarification on behavior with parameters.
+            // 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
+            //    eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
+            //        username: "SA",
+            //        password: ""
+            //    });
+            // 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
+            // returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
+            // class name, it will fail since there is no such method
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
+            // 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
+            // Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
+            // it as an invalid parameter.
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
@@ -221,7 +248,7 @@ public class SQLDatasource {
             if (t.getCause() != null) {
                 message += ":" + t.getCause().getMessage();
             }
-            throw SQLDatasourceUtils.getSQLApplicationError(message);
+            throw ErrorGenerator.getSQLApplicationError(message);
         }
     }
 
@@ -291,7 +318,7 @@ public class SQLDatasource {
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
-    static class SQLDatasourceParams {
+    public static class SQLDatasourceParams {
         private PoolOptionsWrapper poolOptionsWrapper;
         private String jdbcUrl;
         private String dbType;

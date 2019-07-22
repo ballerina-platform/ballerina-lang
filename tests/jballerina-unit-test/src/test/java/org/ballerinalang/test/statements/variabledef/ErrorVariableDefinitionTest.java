@@ -166,8 +166,7 @@ public class ErrorVariableDefinitionTest {
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
     }
 
-    @Test(description = "Test simple error var def inside tuple with destructuring error",
-            groups = { "brokenOnJBallerina" })
+    @Test(description = "Test simple error var def inside tuple with destructuring error")
     public void testErrorInTupleWithDestructure2() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInTupleWithDestructure2");
         Assert.assertEquals(returns.length, 5);
@@ -214,11 +213,11 @@ public class ErrorVariableDefinitionTest {
 
     @Test
     public void testNegativeErrorVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 16);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 9);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'error', found 'error'", 28, 85);
+                "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -235,16 +234,12 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 61, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|error)'", 62, 16);
+                "incompatible types: expected 'string', found 'string?'", 62, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 68, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 73, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 74, 9);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "unnecessary condition: expression will always evaluate to 'true'", 84, 8);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "unnecessary condition: expression will always evaluate to 'true'", 88, 8);
     }
 }

@@ -255,11 +255,6 @@
             "editor/title": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
-                    "group": "navigation"
-                },
-                {
-                    "when": "resourceLangId == ballerina",
                     "command": "ballerina.showDocs",
                     "group": "navigation"
                 }
@@ -283,9 +278,9 @@
             ],
             "view/title": [
                 {
-                  "command": "ballerina.refreshProjectTree",
-                  "when": "view == ballerinaProjectTree",
-                  "group": "navigation"
+                    "command": "ballerina.refreshProjectTree",
+                    "when": "view == ballerinaProjectTree",
+                    "group": "navigation"
                 }
             ]
         }

@@ -80,7 +80,7 @@ public type HoppingWindow object {
             }
         } else {
             error err = error("Hopping window should only have two parameters (<int> windowTime, <int> " +
-                "hoppingTime), but found " + parameters.length() + " input attributes");
+                "hoppingTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }
@@ -221,7 +221,7 @@ public type HoppingWindow object {
 #                       they appear in the argument list.
 # + nextProcessPointer - The function pointer to the `process` function of the next processor.
 # + return - Returns the created window.
-public function hopping(any[] windowParameters, function (StreamEvent?[])? nextProcessPointer = ())
+public function hopping(any[] windowParameters, public function (StreamEvent?[])? nextProcessPointer = ())
                                                                                                                                                                                                                                                                                                                                                                                                               returns Window {
     HoppingWindow hoppingWindow = new(nextProcessPointer, windowParameters);
     return hoppingWindow;

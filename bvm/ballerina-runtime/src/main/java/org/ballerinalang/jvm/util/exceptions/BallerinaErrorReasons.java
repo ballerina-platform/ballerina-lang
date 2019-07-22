@@ -39,6 +39,7 @@ public class BallerinaErrorReasons {
 
     public static final String JSON_OPERATION_ERROR = BALLERINA_PREFIX.concat("JSONOperationError");
     public static final String JSON_CONVERSION_ERROR = BALLERINA_PREFIX.concat("JSONConversionError");
+    public static final String MERGE_JSON_ERROR = BALLERINA_PREFIX.concat("MergeJsonError");
 
     public static final String STRING_OPERATION_ERROR = BALLERINA_PREFIX.concat("StringOperationError");
 
@@ -56,6 +57,7 @@ public class BallerinaErrorReasons {
     public static final String ILLEGAL_ARRAY_INSERTION_ERROR = BALLERINA_PREFIX.concat("IllegalArrayInsertion");
 
     public static final String DIVISION_BY_ZERO_ERROR = BALLERINA_PREFIX.concat("DivisionByZero");
+    public static final String ARITHMETIC_OPERATION_ERROR = BALLERINA_PREFIX.concat("ArithmeticOperationEorror");
 
     public static final String STACK_OVERFLOW_ERROR = BALLERINA_PREFIX.concat("StackOverflow");
 

@@ -39,32 +39,23 @@ function name9() returns (Person) {
     return {name: ""};
 }
 
-private function name10() {
+function name10() {
 
 }
-
-function name11() = external;
-
-public function name12() = external;
-
-private function name13()
-=
-external
-;
 
 function name14(int i, string name = "john", string... rest) {
 
 }
 
-function name15(string name = "john", int i, string... rest) {
+function name15(int i, string name = "john", string... rest) {
 
 }
 
-function name16(string name = "john", int i, int id = 0, string... rest) {
+function name16(int i, string name = "john", int id = 0, string... rest) {
 
 }
 
-function name17(string name = "john", int i,
+function name17(int i, string name = "john",
 int id = 0, string... rest) {
 
 }

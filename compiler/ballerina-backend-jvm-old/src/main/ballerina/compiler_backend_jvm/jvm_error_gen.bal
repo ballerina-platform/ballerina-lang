@@ -80,7 +80,7 @@ type ErrorHandlerGenerator object {
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
-        mv.visitMethodInsn(INVOKEVIRTUAL, THROWABLE, PRINT_STACK_TRACE_METHOD, "()V", false);
+        mv.visitInsn(ATHROW);
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }

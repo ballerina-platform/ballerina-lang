@@ -66,21 +66,24 @@ public class DiagnosticsHelper {
     /**
      * Compiles and publishes diagnostics for a source file.
      *
-     * @param client            Language server client
-     * @param lsCompiler        LS Compiler
+     * @param client     Language server client
+     * @param lsCompiler LS Compiler
+     * @param context    LS context
+     * @param docManager LS Document manager
+     * @throws LSCompilerException throws a LS compiler exception
      */
     public synchronized void compileAndSendDiagnostics(LanguageClient client, LSCompiler lsCompiler, LSContext context,
                                                        WorkspaceDocumentManager docManager) throws LSCompilerException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        Path projectPath = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY)).getSourceRootPath();
+        LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
         lsCompiler.getBLangPackages(context, docManager, true, null, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
              diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
 
-        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, projectPath);
+        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDocument);
         // If the client is null, returns
         if (client == null) {
             return;
@@ -90,7 +93,6 @@ public class DiagnosticsHelper {
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
         // Update home-repo packages
-//        balFile.getBLangPackage().ifPresent(this::updateHomeRepoPackages);
         lastDiagnosticMap = diagnosticMap;
     }
 
@@ -124,17 +126,24 @@ public class DiagnosticsHelper {
      * Returns diagnostics for this file.
      *
      * @param diagnostics  List of ballerina diagnostics
-     * @param projectPath project path
+     * @param lsDocument project path
      * @return diagnostics map
      */
-    public Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
-                                                        Path projectPath) {
+    private Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
+                                                         LSDocument lsDocument) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        diagnostics.forEach(diag -> {
+        Path diagnosticRoot = lsDocument.getProjectRootPath();
+        for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();
-            String fileURI = projectPath.resolve(moduleName).resolve(fileName).toUri().toString() + "";
+            if (lsDocument.isWithinProject()) {
+                diagnosticRoot = diagnosticRoot.resolve("src");
+            }
+            if (!".".equals(moduleName)) {
+                diagnosticRoot = diagnosticRoot.resolve(moduleName);
+            }
+            String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
 
             if (!diagnosticsMap.containsKey(fileURI)) {
                 diagnosticsMap.put(fileURI, new ArrayList<>());
@@ -152,7 +161,7 @@ public class DiagnosticsHelper {
             Diagnostic diagnostic = new Diagnostic(range, diag.getMessage());
             diagnostic.setSeverity(DiagnosticSeverity.Error);
             clientDiagnostics.add(diagnostic);
-        });
+        }
         return diagnosticsMap;
     }
 
