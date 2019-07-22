@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -237,6 +238,9 @@ public class BIRBinaryWriter {
             birbuf.writeByte(param.kind.getValue());
             writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
+            if (param.kind.equals(VarKind.ARG)) {
+                birbuf.writeInt(addStringCPEntry(param.metaVarName != null ? param.metaVarName : ""));
+            }
             birbuf.writeBoolean(param.hasDefaultExpr);
         }
 
@@ -245,6 +249,16 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
+            // skip compiler added vars and only write metaVarName for user added vars
+            if (localVar.kind.equals(VarKind.LOCAL) || localVar.kind.equals(VarKind.ARG)) {
+                birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
+            }
+            // add enclosing basic block id
+            if (localVar.kind.equals(VarKind.LOCAL)) {
+                birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
+                birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
+                birbuf.writeInt(localVar.insOffset);
+            }
         }
 
         // Write basic blocks related to parameter default values

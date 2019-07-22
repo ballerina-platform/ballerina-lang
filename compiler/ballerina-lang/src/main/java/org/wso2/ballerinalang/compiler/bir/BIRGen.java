@@ -193,6 +193,8 @@ public class BIRGen extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private BLangBlockStmt currentBlock;
+    private Map<BLangBlockStmt, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
 
 
     public static BIRGen getInstance(CompilerContext context) {
@@ -303,7 +305,7 @@ public class BIRGen extends BLangNodeVisitor {
             }
 
             birFunc.returnVariable = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.retType,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
 
             typeDef.attachedFuncs.add(birFunc);
         }
@@ -396,7 +398,7 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, astFunc.symbol.type.getReturnType(),
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
 
         //add closure vars
         astFunc.paramClosureMap.forEach((k, v) -> addRequiredParam(birFunc, v, astFunc.pos));
@@ -578,8 +580,8 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambdaExpr) {
         //fpload instruction
-        BIRVariableDcl tempVarLambda = new BIRVariableDcl(lambdaExpr.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarLambda = new BIRVariableDcl(lambdaExpr.pos, lambdaExpr.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP, null);
         this.env.enclFunc.localVars.add(tempVarLambda);
         BIROperand lhsOp = new BIROperand(tempVarLambda);
         Name funcName = getFuncName(lambdaExpr.function.symbol);
@@ -587,15 +589,19 @@ public class BIRGen extends BLangNodeVisitor {
         List<BIRVariableDcl> params = new ArrayList<>();
 
         lambdaExpr.function.requiredParams.forEach(param -> {
+
+            // skip adding debug info for identifier literals FTM as they break java identifier rules
+            String metaVarName = param.name.isLiteral ? null : param.name.value;
+
             BIRVariableDcl birVarDcl = new BIRVariableDcl(param.pos, param.symbol.type,
-                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG);
+                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, metaVarName);
             params.add(birVarDcl);
         });
 
         BLangSimpleVariable restParam = lambdaExpr.function.restParam;
         if (restParam != null) {
             BIRVariableDcl birVarDcl = new BIRVariableDcl(restParam.pos, restParam.symbol.type,
-                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG);
+                    this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         }
 
@@ -640,7 +646,8 @@ public class BIRGen extends BLangNodeVisitor {
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
                           DiagnosticPos pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, defaultValExpr != null);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
+                paramSymbol.name.value, defaultValExpr != null);
 
         List<BIRBasicBlock> bbsOfDefaultValueExpr = new ArrayList<>();
         if (defaultValExpr != null) {
@@ -668,7 +675,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
 
         birFunc.restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -680,7 +687,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, DiagnosticPos pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
         birFunc.parameters.put(birVarDcl, new ArrayList<>());
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -695,17 +702,29 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt astBlockStmt) {
+        BLangBlockStmt prevBlock = this.currentBlock;
+        this.currentBlock = astBlockStmt;
+        this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
+        this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
+            birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
+        );
+        this.currentBlock = prevBlock;
     }
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
-        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL);
-        this.env.enclFunc.localVars.add(birVarDcl);
 
+        // skip adding debug info for identifier literals FTM as they break java identifier rules
+        String metaVarName = astVarDefStmt.var.name.isLiteral ? null : astVarDefStmt.var.name.value;
+
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, metaVarName);
+        birVarDcl.startBB = this.env.enclBB;
+        this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
+        this.env.enclFunc.localVars.add(birVarDcl);
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
@@ -720,6 +739,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Create a variable reference and
         BIROperand varRef = new BIROperand(birVarDcl);
         emit(new Move(astVarDefStmt.pos, this.env.targetOperand, varRef));
+        birVarDcl.insOffset = this.env.enclBB.instructions.size() - 1;
     }
 
     @Override
@@ -728,10 +748,10 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextGlobalVarId(names);
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, name,
-                                                                  VarScope.GLOBAL, VarKind.GLOBAL);
-
+                                                                  VarScope.GLOBAL, VarKind.GLOBAL,
+                                                                    varNode.name.value);
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
-
+        
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.env.globalVarMap.put(varNode.symbol, birVarDcl);
@@ -1391,7 +1411,7 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol symbol = astPackageVarRefExpr.symbol;
         if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    symbol.name, VarScope.GLOBAL, VarKind.CONSTANT);
+                    symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value);
         }
 
         return this.env.globalVarMap.get(symbol);
@@ -2100,7 +2120,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void generateXMLNamespace(BLangXMLNS xmlnsNode) {
         BIRVariableDcl birVarDcl = new BIRVariableDcl(xmlnsNode.pos, symTable.stringType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, null);
         this.env.enclFunc.localVars.add(birVarDcl);
         this.env.symbolVarMap.put(xmlnsNode.symbol, birVarDcl);
 
@@ -2205,14 +2225,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         funcSymbol.params.forEach(param -> {
             BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, param.type, this.env.nextLambdaVarId(names),
-                    VarScope.FUNCTION, VarKind.ARG);
+                    VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         });
 
         BVarSymbol restParam = funcSymbol.restParam;
         if (restParam != null) {
             BIRVariableDcl birVarDcl = new BIRVariableDcl(fpVarRef.pos, restParam.type, this.env.nextLambdaVarId(names),
-                    VarScope.FUNCTION, VarKind.ARG);
+                    VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         }
 
