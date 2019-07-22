@@ -6,7 +6,7 @@
   "source": "function/source/chainCompletion2.bal",
   "items": [
     {
-      "label": "setContentType()((()|mime:InvalidContentTypeError))",
+      "label": "setContentType(string mediaType)((()|mime:InvalidContentTypeError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "setContentId()",
+      "label": "setContentId(string contentId)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "setContentLength()",
+      "label": "setContentLength(int contentLength)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -108,7 +108,7 @@
       }
     },
     {
-      "label": "setContentDisposition()",
+      "label": "setContentDisposition(mime:ContentDisposition contentDisposition)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "setBody()",
+      "label": "setBody((string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) entityBody)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "setFileAsEntityBody()",
+      "label": "setFileAsEntityBody(string filePath, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -176,7 +176,7 @@
       }
     },
     {
-      "label": "setJson()",
+      "label": "setJson(json jsonContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -210,7 +210,7 @@
       }
     },
     {
-      "label": "setXml()",
+      "label": "setXml(xml xmlContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -244,7 +244,7 @@
       }
     },
     {
-      "label": "setText()",
+      "label": "setText(string textContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -278,7 +278,7 @@
       }
     },
     {
-      "label": "setByteArray()",
+      "label": "setByteArray(byte[] blobContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -312,7 +312,7 @@
       }
     },
     {
-      "label": "setByteChannel()",
+      "label": "setByteChannel(io:ReadableByteChannel byteChannel, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -380,7 +380,7 @@
       }
     },
     {
-      "label": "setBodyParts()",
+      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -397,7 +397,7 @@
       }
     },
     {
-      "label": "getHeader()(string)",
+      "label": "getHeader(string headerName)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -414,7 +414,7 @@
       }
     },
     {
-      "label": "getHeaders()(string[])",
+      "label": "getHeaders(string headerName)(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -448,7 +448,7 @@
       }
     },
     {
-      "label": "addHeader()",
+      "label": "addHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -465,7 +465,7 @@
       }
     },
     {
-      "label": "setHeader()",
+      "label": "setHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -482,7 +482,7 @@
       }
     },
     {
-      "label": "removeHeader()",
+      "label": "removeHeader(string headerName)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -516,7 +516,7 @@
       }
     },
     {
-      "label": "hasHeader()(boolean)",
+      "label": "hasHeader(string headerName)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

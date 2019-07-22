@@ -6,7 +6,7 @@
   "source": "function/source/iterableOperation4.bal",
   "items": [
     {
-      "label": "reduce()((any|error))",
+      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "hasKey()(boolean)",
+      "label": "hasKey(string k)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -47,7 +47,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "forEach()",
+      "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -105,7 +105,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remove()((any|error))",
+      "label": "remove(string k)((any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -129,7 +129,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filter()(map\u003c(any|error)\u003e)",
+      "label": "filter(function ((any|error)) returns (boolean) func)(map\u003c(any|error)\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -204,7 +204,7 @@
       }
     },
     {
-      "label": "get()((any|error))",
+      "label": "get(string k)((any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -221,7 +221,7 @@
       }
     },
     {
-      "label": "map()(map\u003c(any|error)\u003e)",
+      "label": "map(function ((any|error)) returns ((any|error)) func)(map\u003c(any|error)\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

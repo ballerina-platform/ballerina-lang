@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "removeChildren()",
+      "label": "removeChildren(string qname)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "select()(xml)",
+      "label": "select(string qname)(xml)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "setAttributes()",
+      "label": "setAttributes(map\u003cany\u003e attributes)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "label": "toJSON()(json)",
+      "label": "toJSON(record {\nstring attributePrefix;\nboolean preserveNamespaces;\n} options)(json)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "slice()(xml)",
+      "label": "slice(int startIndex, int endIndex)(xml)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -176,7 +176,7 @@
       }
     },
     {
-      "label": "removeAttribute()",
+      "label": "removeAttribute(string qname)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -200,7 +200,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "selectDescendants()(xml)",
+      "label": "selectDescendants(string qname)(xml)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -217,7 +217,7 @@
       }
     },
     {
-      "label": "appendChildren()",
+      "label": "appendChildren(xml children)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -319,7 +319,7 @@
       }
     },
     {
-      "label": "setChildren()",
+      "label": "setChildren(xml children)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
