@@ -295,4 +295,10 @@ public class ErrorTest {
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
         Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
     }
+
+    @Test()
+    public void testUnionLhsWithIndirectErrorRhs() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
+    }
 }
