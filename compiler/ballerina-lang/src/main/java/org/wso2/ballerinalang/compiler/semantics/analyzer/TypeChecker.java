@@ -4538,29 +4538,45 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
+        BLangConstantValue value = getMapConstAccessConstantValue(indexAccessExpr);
+
+        if (value == null) {
+            return symTable.semanticError;
+        }
+
+        return value.type;
+    }
+
+    private BLangConstantValue getMapConstAccessConstantValue(BLangIndexBasedAccess indexBasedAccess) {
+        if (indexBasedAccess.expr.type.tag == TypeTags.SEMANTIC_ERROR) {
+            return null;
+        }
+
         String key;
-        if (indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
-            key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
-        } else if (isConst((BLangSimpleVarRef) indexAccessExpr.indexExpr)) {
-            key = (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.indexExpr).symbol).value.value;
+        if (indexBasedAccess.indexExpr.getKind() == NodeKind.LITERAL) {
+            key = (String) ((BLangLiteral) indexBasedAccess.indexExpr).value;
+        } else if (isConst((BLangSimpleVarRef) indexBasedAccess.indexExpr)) {
+            key = (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.indexExpr).symbol).value.value;
         } else {
-            return symTable.semanticError;
+            return null;
         }
 
-        BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
-
-        if (!value.containsKey(key)) {
-            dlog.error(indexAccessExpr.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccessExpr.expr);
-            return symTable.semanticError;
+        Map<String, BLangConstantValue> exprConstValue;
+        if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            exprConstValue = (Map<String, BLangConstantValue>)
+                    getMapConstAccessConstantValue((BLangIndexBasedAccess) indexBasedAccess.expr).value;
+        } else if (indexBasedAccess.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.expr).symbol;
+            exprConstValue = (Map<String, BLangConstantValue>) constantSymbol.value.value;
+        } else {
+            return null;
         }
 
-        if (value.get(key) == null) {
-            // value could be null due to an error
-            return symTable.semanticError;
+        if (!exprConstValue.containsKey(key)) {
+            dlog.error(indexBasedAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexBasedAccess.expr);
+            return null;
         }
-
-        return value.get(key).type;
+        return exprConstValue.get(key);
     }
 
     private BType checkStringConstantAccess(BLangIndexBasedAccess indexAccessExpr) {

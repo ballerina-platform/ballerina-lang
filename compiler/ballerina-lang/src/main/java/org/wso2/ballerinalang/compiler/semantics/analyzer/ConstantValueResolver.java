@@ -141,6 +141,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
+        if (constVal.type.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
         if (constVal.type.tag == TypeTags.STRING) {
             String value = ((String) constVal.value);
             Long intIndex = (Long) index.value;
