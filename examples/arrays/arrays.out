@@ -4,6 +4,11 @@ $ ballerina run arrays.bal
 0
 1
 8
+Reversed: 8 5 6 7 4 2 3 1
+Before pop: 1 3 2 4 7 6 5 8
+Popped value: 8
+After pop: 1 3 2 4 7 6 5
+Doubled: 2 6 4 8 14 12 10
 23
 1000
 3

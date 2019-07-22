@@ -6,9 +6,24 @@ public function main() {
     io:println(a.length());
 
     // Creates an array specifying an array literal.
-    int[] b = [1, 2, 3, 4, 5, 6, 7, 8];
+    int[] b = [1, 3, 2, 4, 7, 6, 5, 8];
     io:println(b[0]);
     io:println(b.length());
+
+    // Array supports several inbuilt functions such as `reverse()`, `pop()`, `push()`, `removeAll()`
+    int[] bReveresed = b.reverse();
+    io:println("Reversed: " + bReveresed.toString());
+
+    io:println("Before pop: " + b.toString());
+    int poppedValue = b.pop();
+    io:println("Popped value: " + poppedValue.toString());
+    io:println("After pop: " + b.toString());
+
+    // Any iteratable type including arrays support functional type iteration
+    int[] doubled = b.map(function (int value) returns int {
+            return value*2;
+        });
+    io:println("Doubled: " + doubled.toString());
 
     // Unless the length is explicitly specified or is expected to be inferred, arrays are unbounded in length.
     // They can grow up to any length based on the given index.
