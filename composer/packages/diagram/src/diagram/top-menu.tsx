@@ -48,6 +48,11 @@ export const TopMenu = (props: TopMenuProps) => {
                 <div onClick={handleOpened} className="menu-icon">
                     <Icon className="fw fw-search" />
                 </div>
+                <div onClick={handleOpened} className="status-wrapper">
+                    Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Design : <Label>{selectedModeText}</Label>
+                </div>
             </div> :
             <Grid className="menu-container">
                 <Grid.Row className="menu-row" columns={3}>
