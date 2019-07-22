@@ -53,8 +53,6 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 

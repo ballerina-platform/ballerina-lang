@@ -42,15 +42,15 @@ import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.util.XMLValidationUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 
 import static org.ballerinalang.model.util.FreezeUtils.handleInvalidUpdate;
 import static org.ballerinalang.model.util.FreezeUtils.isOpenForFreeze;
