@@ -4162,14 +4162,16 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
             if (isConstIndexAccess(accessExpr)) {
-                if (!isResolvedConst(accessExpr) && accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                if (!isResolvedConst(accessExpr) && (accessExpr.indexExpr.getKind() == NodeKind.LITERAL ||
+                                                             isConst((BLangSimpleVarRef) accessExpr.indexExpr))) {
                     // Error will be logged later on for invalid keys
                     return ((BMapType) type).constraint;
                 }
 
                 BType actualType = checkMapConstantAccess(accessExpr);
 
-                if (actualType != symTable.semanticError || accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                if (actualType != symTable.semanticError || accessExpr.indexExpr.getKind() == NodeKind.LITERAL ||
+                        isConst((BLangSimpleVarRef) accessExpr.indexExpr)) {
                     return actualType;
                 }
             }
@@ -4536,18 +4538,28 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        if (indexAccessExpr.indexExpr.getKind() != NodeKind.LITERAL) {
+        String key;
+        if (indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+            key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
+        } else if (isConst((BLangSimpleVarRef) indexAccessExpr.indexExpr)) {
+            key = (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.indexExpr).symbol).value.value;
+        } else {
             return symTable.semanticError;
         }
 
         BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
         Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
-        String key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
 
         if (!value.containsKey(key)) {
             dlog.error(indexAccessExpr.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccessExpr.expr);
             return symTable.semanticError;
         }
+
+        if (value.get(key) == null) {
+            // value could be null due to an error
+            return symTable.semanticError;
+        }
+
         return value.get(key).type;
     }
 
@@ -4573,10 +4585,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.stringType;
     }
 
+    private boolean isConst(BLangSimpleVarRef simpleVarRef) {
+        return (simpleVarRef.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+    }
+
     private boolean isConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
         BLangExpression expression = indexAccessExpr.expr;
         if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
+            return isConst((BLangSimpleVarRef) expression);
         }
 
         if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {

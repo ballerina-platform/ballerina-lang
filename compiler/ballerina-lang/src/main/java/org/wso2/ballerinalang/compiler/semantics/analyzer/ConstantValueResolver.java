@@ -136,7 +136,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangConstantValue constVal = visitExpr(indexAccess.expr);
 
         // constVal can be null in error scenarios
-        if (constVal == null) {
+        if (constVal == null || index == null) {
             this.result = null;
             return;
         }
