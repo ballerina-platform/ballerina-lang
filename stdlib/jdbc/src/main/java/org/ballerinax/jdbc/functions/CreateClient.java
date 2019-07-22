@@ -70,10 +70,6 @@ public class CreateClient {
                 .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
                 .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
 
-        return createSQLClient(sqlDatasourceParams);
-    }
-
-    private static ObjectValue createSQLClient(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
         ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_CLIENT);

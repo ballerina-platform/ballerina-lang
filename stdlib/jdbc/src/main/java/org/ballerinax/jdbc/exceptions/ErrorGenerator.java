@@ -29,6 +29,8 @@ import java.util.Map;
 
 /**
  * Utility class for generating JDBC Client errors.
+ *
+ * @since 1.0.0
  */
 public class ErrorGenerator {
     private ErrorGenerator() {
