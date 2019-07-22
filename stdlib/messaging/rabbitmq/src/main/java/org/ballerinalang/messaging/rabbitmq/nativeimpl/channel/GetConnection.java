@@ -48,6 +48,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 public class GetConnection {
 
     public static Object getConnection(Strand strand, ObjectValue channelObjectValue) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
@@ -56,8 +57,8 @@ public class GetConnection {
             ObjectValue connectionObject = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_RABBITMQ,
                     RabbitMQConstants.CONNECTION_OBJECT);
             connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
             return connectionObject;
         } catch (AlreadyClosedException exception) {

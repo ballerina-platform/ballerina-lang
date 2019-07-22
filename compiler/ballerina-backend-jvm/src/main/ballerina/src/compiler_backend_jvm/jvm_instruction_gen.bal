@@ -522,6 +522,7 @@ type InstructionGenerator object {
             self.mv.visitInsn(LSHL);
         } else {
             self.mv.visitInsn(ISHL);
+            self.mv.visitInsn(I2L);
         }
 
         self.storeToVar(binaryIns.lhsOp.variableDcl);

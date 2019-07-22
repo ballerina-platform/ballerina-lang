@@ -45,4 +45,8 @@ public class Select {
                 (TypedescValue) recordType, strand);
         return selectStatement.execute();
     }
+
+    private Select() {
+
+    }
 }
