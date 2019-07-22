@@ -88,12 +88,6 @@ public function getElementName(xml x) returns string = external;
 # + return - Text value of the xml
 public function getTextValue(xml x) returns string = external;
 
-# Set the children of an XML if its a singleton. An Error otherwise. Any existing children will be removed.
-#
-# + x - The xml source
-# + children - children
-public function setChildren(xml x, xml children) = external;
-
 # Make a deep copy of an XML.
 #
 # + x - The xml source
@@ -170,6 +164,9 @@ public function isProcessingInstruction(xml x) returns boolean = external;
 # Returns true if `x` is a singleton xml sequence consisting of a comment item.
 public function isComment(xml x) returns boolean = external;
 
+# Returns true if `x` is an xml sequence consisting of one or more character items.
+public function isText(xml x) returns boolean = external;
+
 # Represents a parameter for which isElement must be true.
 type Element xml;
 # Represents a parameter for which isProcessingInstruction must be true.
@@ -206,7 +203,9 @@ public function getContent(Text|ProcessingInstruction|Comment x) returns string 
 
 # Creates an element with the specified children
 # The attributes are empty initially
-public function createElement(string name, xml children = concat()) returns Element = external;
+// todo: 2nd arg should be xml children = concat()
+// https://github.com/ballerina-platform/ballerina-lang/issues/16953
+public function createElement(string name, xml children) returns Element = external;
 
 # Creates a processing instruction with the specified target and content.
 public function createProcessingInstruction(string target, string content) returns ProcessingInstruction
@@ -222,4 +221,3 @@ public function filter(xml x, function(xml|string item) returns boolean func) re
 
 # This is the inverse of `value:toString` applied to an `xml`.
 public function fromString(string s) returns xml|error = external;
-
