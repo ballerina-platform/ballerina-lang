@@ -42,6 +42,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'commons-codec:commons-codec'
     testCompile 'org.apache.ws.commons.axiom:axiom-dom'
+    testCompile 'com.h2database:h2'
 
     bir project(path: ':ballerina-time', configuration: 'bir')
 
