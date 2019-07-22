@@ -55,7 +55,7 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
     implementation project(':ballerina-internal')
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-simple'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

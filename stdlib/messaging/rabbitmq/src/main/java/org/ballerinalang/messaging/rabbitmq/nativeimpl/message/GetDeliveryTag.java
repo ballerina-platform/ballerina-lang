@@ -26,8 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.util.Objects;
-
 /**
  * Retrieves the delivery tag of the message.
  *
@@ -45,12 +43,12 @@ import java.util.Objects;
 public class GetDeliveryTag {
 
     public static int getDeliveryTag(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         long deliveryTag = (long) messageObjectValue.getNativeData(RabbitMQConstants.DELIVERY_TAG);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+        if (isInTransaction) {
+            transactionContext.handleTransactionBlock(strand);
         }
         return Math.toIntExact(deliveryTag);
     }

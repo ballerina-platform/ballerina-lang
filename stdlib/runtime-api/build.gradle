@@ -31,7 +31,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     implementation 'org.slf4j:slf4j-api'
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
 

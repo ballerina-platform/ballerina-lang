@@ -39,7 +39,7 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-http')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-jdbc')

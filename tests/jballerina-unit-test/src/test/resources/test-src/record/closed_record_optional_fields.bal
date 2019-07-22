@@ -76,7 +76,20 @@ function testOptionalNonDefField() returns Person3 {
 
 function testOptionalNonDefField2() {
     Person3 p = {};
-    Address3 a = p.adrs;
+    Address3 a = <Address3>p?.adrs;
+    Address3 b = <Address3>p.get("adrs");
+}
+
+function testOptionalNonDefField3() {
+    Person3 p = {};
+    anydata b = p.get("adrs");
+}
+
+function testOptionalNonDefField4() returns [Address3, Address3] {
+    Person3 p = {adrs:{street: "Palm Grove", city: "Colombo 3"}};
+    Address3 a = <Address3>p.get("adrs");
+    Address3 b = <Address3>p?.adrs;
+    return [a, b];
 }
 
 // When adrs is an optional defaultable field
