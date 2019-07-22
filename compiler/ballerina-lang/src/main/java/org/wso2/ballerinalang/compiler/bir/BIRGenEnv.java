@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -61,6 +63,9 @@ class BIRGenEnv {
     BIRBasicBlock enclLoopEndBB;
 
     List<BIRAnnotationAttachment> enclAnnotAttachments;
+
+    Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
+    Stack<List<Set<BIRGlobalVariableDcl>>> unlockVars = new Stack<>();
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.

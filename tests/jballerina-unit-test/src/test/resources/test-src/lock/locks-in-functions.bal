@@ -1,4 +1,5 @@
 import ballerina/runtime;
+import ballerina/'lang\.int as ints;
 
 int lockWithinLockInt1 = 0;
 
@@ -85,7 +86,7 @@ function convertStringToInt() {
         lockWithinLockInt1 = lockWithinLockInt1 +1;
         lockWithinLockString1 = "hello";
         int ddd;
-        var result = int.convert(lockWithinLockString1);
+        var result = ints:fromString(lockWithinLockString1);
         if (result is int) {
             ddd = result;
         } else {
@@ -171,7 +172,7 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
             lockWithinLockString1 = "hello";
             int ddd;
-            var result = int.convert(lockWithinLockString1);
+            var result = ints:fromString(lockWithinLockString1);
             if (result is int) {
                 ddd = result;
             } else {
@@ -239,7 +240,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
         lock {
             boolValue = true;
             string strVal = "sample blob output";
-            blobValue = strVal.toByteArray("UTF-8");
+            blobValue = strVal.toBytes();
             lock {
                 boolValue = true;
             }
@@ -252,7 +253,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
             boolValue = false;
             lock {
                 string wrongStr = "wrong output";
-                blobValue = wrongStr.toByteArray("UTF-8");
+                blobValue = wrongStr.toBytes();
             }
             boolValue = false;
         }
@@ -288,58 +289,58 @@ function returnInsideLockPart() returns (string) {
     }
 }
 
-//function breakInsideLock() returns [int, string] {
-//    worker w1 {
-//        int i = 0;
-//        while (i < 3) {
-//            lock {
-//                lockWithinLockInt1 = 40;
-//                lockWithinLockString1 = "lock value inside while";
-//                if (i == 0) {
-//                    break;
-//                }
-//            }
-//            i = i + 1;
-//        }
-//    }
-//    runtime:sleep(20);
-//    lock {
-//        if (lockWithinLockInt1 == 40) {
-//            lockWithinLockInt1 = 657;
-//            lockWithinLockString1 = "lock value inside second worker after while";
-//        } else {
-//            lockWithinLockInt1 = 3454;
-//            lockWithinLockString1 = "wrong value";
-//        }
-//    }
-//    return [lockWithinLockInt1, lockWithinLockString1];
-//}
-//
-//function nextInsideLock() returns [int, string] {
-//    worker w1 {
-//        int i = 0;
-//        while (i < 1) {
-//            i = i + 1;
-//            lock {
-//                lockWithinLockInt1 = 40;
-//                lockWithinLockString1 = "lock value inside while";
-//                if (i == 0) {
-//                    continue;
-//                }
-//            }
-//        }
-//    }
-//
-//    runtime:sleep(20);
-//    lock {
-//        if (lockWithinLockInt1 == 40) {
-//            lockWithinLockInt1 = 657;
-//            lockWithinLockString1 = "lock value inside second worker after while";
-//        } else {
-//            lockWithinLockInt1 = 3454;
-//            lockWithinLockString1 = "wrong value";
-//        }
-//    }
-//    return [lockWithinLockInt1, lockWithinLockString1];
-//}
+function breakInsideLock() returns [int, string] {
+    worker w1 {
+        int i = 0;
+        while (i < 3) {
+            lock {
+                lockWithinLockInt1 = 40;
+                lockWithinLockString1 = "lock value inside while";
+                if (i == 0) {
+                    break;
+                }
+            }
+            i = i + 1;
+        }
+    }
+    runtime:sleep(20);
+    lock {
+        if (lockWithinLockInt1 == 40) {
+            lockWithinLockInt1 = 657;
+            lockWithinLockString1 = "lock value inside second worker after while";
+        } else {
+            lockWithinLockInt1 = 3454;
+            lockWithinLockString1 = "wrong value";
+        }
+    }
+    return [lockWithinLockInt1, lockWithinLockString1];
+}
+
+function nextInsideLock() returns [int, string] {
+    worker w1 {
+        int i = 0;
+        while (i < 1) {
+            i = i + 1;
+            lock {
+                lockWithinLockInt1 = 40;
+                lockWithinLockString1 = "lock value inside while";
+                if (i == 0) {
+                    continue;
+                }
+            }
+        }
+    }
+
+    runtime:sleep(20);
+    lock {
+        if (lockWithinLockInt1 == 40) {
+            lockWithinLockInt1 = 657;
+            lockWithinLockString1 = "lock value inside second worker after while";
+        } else {
+            lockWithinLockInt1 = 3454;
+            lockWithinLockString1 = "wrong value";
+        }
+    }
+    return [lockWithinLockInt1, lockWithinLockString1];
+}
 

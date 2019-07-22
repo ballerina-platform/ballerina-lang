@@ -2457,22 +2457,15 @@ public class Desugar extends BLangNodeVisitor {
 
         enclLocks.push(lockStmt);
 
-
-
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
-
         BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
-
         BLangStatementExpression statementExpression = ASTBuilderUtil
                 .createStatementExpression(lockNode.body, nilLiteral);
         statementExpression.type = symTable.nilType;
 
-
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.type = nillableError;
-
         trapExpr.expr = statementExpression;
-
         BVarSymbol nillableErrorVarSymbol = new BVarSymbol(0, names.fromString("$errorResult"),
                 this.env.scope.owner.pkgID, nillableError, this.env.scope.owner);
         BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(lockNode.pos, "$errorResult",
@@ -2480,12 +2473,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(lockNode.pos, simpleVariable);
         blockStmt.addStatement(simpleVariableDef);
 
-
         BLangUnLockStmt unLockStmt = ASTBuilderUtil.createUnLockStmt(lockNode.pos);
         blockStmt.addStatement(unLockStmt);
-
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(lockNode.pos, nillableErrorVarSymbol);
-
 
         BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(lockNode.pos);
         BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
@@ -2499,9 +2489,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
         blockStmt.addStatement(ifelse);
-
         result = rewrite(blockStmt, env);
-
         enclLocks.pop();
 
         //check both a field and parent are in locked variables

@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
@@ -162,8 +161,10 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -357,6 +358,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         Name workerName = names.fromIdNode(astFunc.defaultWorkerName);
 
+        this.env.unlockVars.push(new ArrayList<>());
         BIRFunction birFunc;
 
         TaintTable taintTable = populateTaintTable(astFunc.symbol.taintTable);
@@ -419,6 +421,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks = birFunc.basicBlocks;
         birFunc.basicBlocks.add(entryBB);
         this.env.enclBB = entryBB;
+        addToTrapStack(entryBB);
 
         astFunc.body.accept(this);
         birFunc.basicBlocks.add(this.env.returnBB);
@@ -431,6 +434,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         this.env.clear();
+
+        this.env.unlockVars.clear();
 
         // Rearrange basic block ids.
         birFunc.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names)));
@@ -786,6 +791,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangWorkerReceive workerReceive) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         String channel = workerReceive.workerIdentifier.value + "->" + env.enclFunc.workerName.value;
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(workerReceive.type, this.env.nextLocalVarId(names),
@@ -805,6 +811,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSend workerSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         this.env.enclBasicBlocks.add(thenBB);
         workerSend.expr.accept(this);
 
@@ -819,6 +826,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSyncSendExpr syncSend) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         syncSend.expr.accept(this);
         BIROperand dataOp = this.env.targetOperand;
 
@@ -840,6 +848,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangWorkerFlushExpr flushExpr) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
 
         //create channelDetails array
         BIRNode.ChannelDetails[] channels = new BIRNode.ChannelDetails[flushExpr.workerIdentifierList.size()];
@@ -865,6 +874,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void createWait(BLangWaitExpr waitExpr) {
 
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         // This only supports wait for single future and alternate wait
         List<BIROperand> exprList = new ArrayList<>();
 
@@ -910,6 +920,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         // Lets create a block the jump after successful function return
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         this.env.enclBasicBlocks.add(thenBB);
 
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
@@ -986,11 +997,25 @@ public class BIRGen extends BLangNodeVisitor {
         if (this.env.returnBB == null) {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
             this.env.returnBB = returnBB;
         }
         if (this.env.enclBB.terminator == null) {
+            this.env.unlockVars.forEach(s -> {
+                for (Set<BIRGlobalVariableDcl> vars : s) {
+                    BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
+                    this.env.enclBasicBlocks.add(unlockBB);
+                    this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars, unlockBB);
+                    this.env.enclBB = unlockBB;
+                }
+            });
+
             this.env.enclBB.terminator = new BIRTerminator.GOTO(astReturnStmt.pos, this.env.returnBB);
+            BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(nextBB);
+            this.env.enclBB = nextBB;
+            addToTrapStack(nextBB);
         }
     }
 
@@ -1000,6 +1025,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Some functions will only have panic but we need to add return for them to make current algorithm work.
         if (this.env.returnBB == null) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
             this.env.returnBB = returnBB;
         }
@@ -1007,6 +1033,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // This basic block will contain statement that comes right after this 'if' statement.
         BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(unlockBB);
         this.env.enclBasicBlocks.add(unlockBB);
         this.env.enclBB = unlockBB;
     }
@@ -1018,10 +1045,12 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create the basic block for the if-then block.
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         this.env.enclBasicBlocks.add(thenBB);
 
         // This basic block will contain statement that comes right after this 'if' statement.
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(nextBB);
 
         // Add the branch instruction to the current basic block.
         // This is the end of the current basic block.
@@ -1041,6 +1070,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (astIfStmt.elseStmt != null) {
             // Create a basic block for the else block.
             BIRBasicBlock elseBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(elseBB);
             this.env.enclBasicBlocks.add(elseBB);
             branchIns.falseBB = elseBB;
 
@@ -1069,6 +1099,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create a basic block for the while expression.
         BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(whileExprBB);
         this.env.enclBasicBlocks.add(whileExprBB);
 
         // Insert a GOTO instruction as the terminal instruction into current basic block.
@@ -1081,10 +1112,12 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Create the basic block for the while-body block.
         BIRBasicBlock whileBodyBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(whileBodyBB);
         this.env.enclBasicBlocks.add(whileBodyBB);
 
         // Create the basic block for the statements that comes after the while statement.
         BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(whileEndBB);
 
         // Add the branch instruction to the while expression basic block.
         this.env.enclBB.terminator =
@@ -1094,7 +1127,9 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = whileBodyBB;
         this.env.enclLoopBB = whileExprBB;
         this.env.enclLoopEndBB = whileEndBB;
+        this.env.unlockVars.push(new ArrayList<>());
         astWhileStmt.body.accept(this);
+        this.env.unlockVars.pop();
         if (this.env.enclBB.terminator == null) {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB);
         }
@@ -1453,6 +1488,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks.add(trapBB);
         this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, trapBB);
         this.env.enclBB = trapBB;
+        this.env.trapBlocks.push(new ArrayList<>());
+        addToTrapStack(trapBB);
 
         trapExpr.expr.accept(this);
 
@@ -1460,18 +1497,23 @@ public class BIRGen extends BLangNodeVisitor {
                 VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
 
+        List<BIRBasicBlock> trappedBlocks = this.env.trapBlocks.pop();
         // Create new block for instructions after trap.
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(nextBB);
         env.enclBasicBlocks.add(nextBB);
         this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
 
         this.env.targetOperand = new BIROperand(tempVarDcl);
 
+        for (BIRBasicBlock bb : trappedBlocks) {
+            env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(bb, env.targetOperand, nextBB));
+        }
 
         this.env.enclBB = nextBB;
         // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap
         // and add error entry for each and every basic block.
-        genIntermediateErrorEntries(birTerminatorVisitor, trapBB);
+//        genIntermediateErrorEntries(birTerminatorVisitor, trapBB);
     }
 
     @Override
@@ -1482,6 +1524,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
@@ -1723,11 +1766,38 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBreak breakStmt) {
+        List<Set<BIRGlobalVariableDcl>> toUnlock = this.env.unlockVars.peek();
+        if (!toUnlock.isEmpty()) {
+            BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(goToBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, goToBB);
+            this.env.enclBB = goToBB;
+        }
+        for (Set<BIRGlobalVariableDcl> vars : toUnlock) {
+            BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(unlockBB);
+            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars, unlockBB);
+            this.env.enclBB = unlockBB;
+        }
         this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, this.env.enclLoopEndBB);
     }
 
     @Override
     public void visit(BLangContinue continueStmt) {
+        List<Set<BIRGlobalVariableDcl>> toUnlock = this.env.unlockVars.peek();
+        if (!toUnlock.isEmpty()) {
+            BIRBasicBlock goToBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(goToBB);
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, goToBB);
+            this.env.enclBB = goToBB;
+        }
+        for (Set<BIRGlobalVariableDcl> vars : toUnlock) {
+            BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(unlockBB);
+            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, vars, unlockBB);
+            this.env.enclBB = unlockBB;
+        }
+
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
     }
 
@@ -1743,21 +1813,25 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLockStmt lockStmt) {
-        BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclBasicBlocks.add(lockedBB);
-
         Supplier<TreeSet<BIRGlobalVariableDcl>> supplier = () -> new TreeSet<>(Comparator.comparing(v -> v.name.value));
         Set<BIRGlobalVariableDcl> lockedOn = lockStmt.lockVariables.stream()
                 .map(e -> this.env.globalVarMap.get(e))
                 .collect(Collectors.toCollection(supplier));
-        this.env.enclBB.terminator = new BIRTerminator.Lock(null, lockedOn, lockedBB);
-
-        this.env.enclBB = lockedBB;
+        for (BIRGlobalVariableDcl globalVar : lockedOn) {
+            BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(lockedBB);
+            this.env.enclBasicBlocks.add(lockedBB);
+            this.env.enclBB.terminator = new BIRTerminator.Lock(null,
+                    new HashSet<>(Collections.singletonList(globalVar)), lockedBB);
+            this.env.enclBB = lockedBB;
+        }
+        this.env.unlockVars.peek().add(lockedOn);
     }
 
     @Override
     public void visit(BLangUnLockStmt unLockStmt) {
         BIRBasicBlock unLockedBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
 
         Supplier<TreeSet<BIRGlobalVariableDcl>> supplier = () -> new TreeSet<>(Comparator.comparing(v -> v.name.value));
@@ -1766,81 +1840,8 @@ public class BIRGen extends BLangNodeVisitor {
                 .collect(Collectors.toCollection(supplier));
         this.env.enclBB.terminator = new BIRTerminator.Unlock(null, lockedOn, unLockedBB);
 
+        this.env.unlockVars.peek().remove(lockedOn);
         this.env.enclBB = unLockedBB;
-    }
-
-    BIRVisitor birTerminatorVisitor = new BIRVisitor() {
-
-        public void visit(BIRTerminator.GOTO birGoto) {
-            genIntermediateErrorEntries(this, birGoto.targetBB);
-        }
-
-        public void visit(BIRTerminator.Call birCall) {
-            genIntermediateErrorEntries(this, birCall.thenBB);
-        }
-
-        public void visit(BIRTerminator.AsyncCall birCall) {
-            genIntermediateErrorEntries(this, birCall.thenBB);
-        }
-
-        public void visit(BIRTerminator.Return birReturn) {
-            // Nothing to do
-        }
-
-        public void visit(BIRTerminator.Panic birPanic) {
-            // Nothing to do
-        }
-
-        public void visit(BIRTerminator.Wait birWait) {
-            genIntermediateErrorEntries(this, birWait.thenBB);
-        }
-
-        public void visit(BIRTerminator.WaitAll birWaitAll) {
-            genIntermediateErrorEntries(this, birWaitAll.thenBB);
-        }
-
-        public void visit(BIRTerminator.Lock birLock) {
-            genIntermediateErrorEntries(this, birLock.lockedBB);
-        }
-
-        public void visit(BIRTerminator.Unlock birUnLock) {
-            genIntermediateErrorEntries(this, birUnLock.unlockBB);
-        }
-
-        public void visit(BIRTerminator.Branch birBranch) {
-            genIntermediateErrorEntries(this, birBranch.trueBB);
-            genIntermediateErrorEntries(this, birBranch.falseBB);
-        }
-
-        public void visit(BIRTerminator.FPCall fpCall) {
-            genIntermediateErrorEntries(this, fpCall.thenBB);
-        }
-
-        //TODO implement for the rest of Terminator nodes.
-    };
-
-    // private methods
-
-    private void genIntermediateErrorEntries(BIRVisitor visitor, BIRBasicBlock trapBB) {
-        if (trapBB == env.enclBB) {
-            return;
-        }
-        // TODO improve below logic with hashmap contains
-        if (!alreadyTrapped(trapBB)) {
-            env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trapBB, env.targetOperand, env.enclBB));
-        }
-        if (trapBB.terminator != null) {
-            trapBB.terminator.accept(visitor);
-        }
-    }
-
-    private boolean alreadyTrapped(BIRBasicBlock trapBB) {
-        for (BIRNode.BIRErrorEntry birErrorEntry : this.env.enclFunc.errorTable) {
-            if (birErrorEntry.trapBB == trapBB) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void emit(BIRInstruction instruction) {
@@ -2295,5 +2296,12 @@ public class BIRGen extends BLangNodeVisitor {
         currentEnv.enclAnnotAttachments = birAnnotAttachments;
         astAnnotAttachments.forEach(annotAttach -> annotAttach.accept(this));
         currentEnv.enclAnnotAttachments = null;
+    }
+
+    private void addToTrapStack(BIRBasicBlock birBasicBlock) {
+        if (this.env.trapBlocks.isEmpty()) {
+            return;
+        }
+        this.env.trapBlocks.peek().add(birBasicBlock);
     }
 }
