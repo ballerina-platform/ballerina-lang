@@ -73,3 +73,16 @@ public function toJsonString(json v) returns string = external;
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
 public function fromJsonString(string str) returns json|error = external;
+
+# Return the result of merging json value `j1` with `j2`.
+# If the merge fails, then return an error.
+# The merge of j1 with j2 is defined as follows:
+# - if j1 is (), then the result is j2
+# - if j2 is nil, then the result is j1
+# - if j1 is a mapping and j2 is a mapping, then for each entry [k, j] in j2,
+#   set j1[k] to the merge of j1[k] with j
+#     - if j1[k] is undefined, then set j1[k] to j
+#     - if any merge fails, then the merge of j1 with j2 fails
+#     - otherwise, the result is j1.
+# - otherwise, the merge fails
+public function mergeJson(json j1, json j2) returns json|error = external;

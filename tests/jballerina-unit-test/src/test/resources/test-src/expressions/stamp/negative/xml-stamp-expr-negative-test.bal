@@ -18,54 +18,42 @@ type BookRecord record {
    string book = "ABC";
 };
 
-type BookObject object {
-    string book = "XYZ";
-};
-
-function stampXMLToRecord() returns BookRecord {
+function stampXMLToRecord() returns BookRecord|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    BookRecord recordValue = BookRecord.stamp(xmlValue);
+    BookRecord|error recordValue = BookRecord.constructFrom(xmlValue);
     return recordValue;
 }
 
-function stampJSONToRecord() returns json {
+function stampXMLToJson() returns json|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    json jsonValue = json.stamp(xmlValue);
+    json|error jsonValue = json.constructFrom(xmlValue);
     return jsonValue;
 }
 
-function stampXMLToObject() returns BookObject {
+function stampXMLToMap() returns map<anydata>|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    BookObject objectValue = BookObject.stamp(xmlValue);
-    return objectValue;
-}
-
-function stampXMLToMap() returns map<any> {
-
-    xml xmlValue = xml `<book>The Lost World</book>`;
-
-    map<any> mapValue = map<any>.stamp(xmlValue);
+    map<anydata>|error mapValue = map<anydata>.constructFrom(xmlValue);
     return mapValue;
 }
 
-function stampXMLToArray() returns BookRecord[] {
+function stampXMLToArray() returns BookRecord[]|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    BookRecord[] arrayValue = BookRecord[].stamp(xmlValue);
+    BookRecord[]|error arrayValue = BookRecord[].constructFrom(xmlValue);
     return arrayValue;
 }
 
-function stampXMLToTuple() returns [string, string] {
+function stampXMLToTuple() returns [string, string]|error {
 
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    [string, string] tupleValue = [string, string].stamp(xmlValue);
+    [string, string]|error tupleValue = [string, string].constructFrom(xmlValue);
     return tupleValue;
 }

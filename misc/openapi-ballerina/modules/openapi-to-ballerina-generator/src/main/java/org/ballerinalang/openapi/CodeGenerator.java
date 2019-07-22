@@ -28,7 +28,6 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
@@ -38,6 +37,7 @@ import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.ballerinalang.openapi.utils.TypeMatchingUtil;
 import org.ballerinalang.tool.LauncherUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        Path projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
             throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
                     "from the project root. If you like to start with a new project use `ballerina init` command to " +

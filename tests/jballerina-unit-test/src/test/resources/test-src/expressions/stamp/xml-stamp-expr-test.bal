@@ -16,16 +16,16 @@
 
 //----------------------------XML Stamp -------------------------------------------------------------
 
-function stampXMLToXML() returns xml {
+function stampXMLToXML() returns xml|error {
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    xml returnValue = xml.stamp(xmlValue);
+    xml|error returnValue = xml.constructFrom(xmlValue);
     return returnValue;
 }
 
-function stampXMLToAnydata() returns anydata {
+function stampXMLToAnydata() returns anydata|error {
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    anydata anydataValue = anydata.stamp(xmlValue);
+    anydata|error anydataValue = anydata.constructFrom(xmlValue);
     return anydataValue;
 }

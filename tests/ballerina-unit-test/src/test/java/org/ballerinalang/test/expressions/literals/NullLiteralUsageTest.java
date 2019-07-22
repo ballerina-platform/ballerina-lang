@@ -18,16 +18,16 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.BRunUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.tool.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
