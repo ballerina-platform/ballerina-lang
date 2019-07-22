@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
