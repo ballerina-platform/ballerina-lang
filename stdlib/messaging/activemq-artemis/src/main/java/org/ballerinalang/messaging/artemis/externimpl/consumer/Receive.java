@@ -65,7 +65,7 @@ public class Receive {
             if (autoAck) {
                 clientMessage.acknowledge();
                 if (transactionContext != null) {
-                    transactionContext.handleTransactionBlock(ArtemisConstants.CONSUMER_OBJ);
+                    transactionContext.handleTransactionBlock(ArtemisConstants.CONSUMER_OBJ, strand);
                 }
             }
             return messageObj;
