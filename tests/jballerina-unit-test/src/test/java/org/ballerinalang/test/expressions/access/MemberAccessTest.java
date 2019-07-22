@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 45);
+        Assert.assertEquals(negativeResult.getErrorCount(), 47);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -108,7 +108,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 156, 15);
         validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
-        validateError(negativeResult, i, "incompatible types: expected 'int', found 'string'", 159, 21);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
+        validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support indexing", 169, 17);
+        validateError(negativeResult, i, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -264,6 +266,7 @@ public class MemberAccessTest {
                 { "testVariableStringMemberAccess" },
                 { "testConstStringMemberAccess1" },
                 { "testConstStringMemberAccess2" },
+                { "testFiniteTypeStringMemberAccess" }
         };
     }
 
@@ -288,6 +291,14 @@ public class MemberAccessTest {
                     "index: 25, size: 12.*")
     public void testOutOfRangeStringMemberAccess3() {
         BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=string index out of range: " +
+                    "index: 4, size: 3.*")
+    public void testOutOfRangeFiniteTypeStringMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

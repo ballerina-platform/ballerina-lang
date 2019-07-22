@@ -158,3 +158,14 @@ function testInvalidStringMemberAccess() {
     string sv3 = s1["s"];
     string sv4 = s1[s2];
 }
+
+type StrOrInt "foo"|1;
+
+function testInvalidFiniteTypeStringMemberAccess() {
+    StrOrInt s1 = "foo";
+    StrOrInt s2 = 1;
+    string s3 = "foo";
+
+    string s4 = s1[0];
+    string s5 = s3[s2];
+}

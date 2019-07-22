@@ -394,3 +394,20 @@ function testOutOfRangeStringMemberAccess3() {
     int i = 25;
     string s2 = CONST_STRING_2[i];
 }
+
+type StFooBar "foo"|"bar";
+type IntValues -1|0|4;
+
+function testFiniteTypeStringMemberAccess() returns boolean {
+    StFooBar s1 = "bar";
+    string s2 = "bar";
+    IntValues i1 = 0;
+    int i2 = 1;
+    return s1[i1] == "b" && s1[i2] == "a" && s2[i1] == "b" && s2[i2] == "a";
+}
+
+function testOutOfRangeFiniteTypeStringMemberAccess() {
+    StFooBar s = "foo";
+    IntValues i = 4;
+    _ = s[i];
+}
