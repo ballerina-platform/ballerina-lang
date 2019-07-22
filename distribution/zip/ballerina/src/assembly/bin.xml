@@ -136,7 +136,7 @@
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-runtime:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
-                <include>org.ballerinalang:ballerina-launcher:jar</include>
+                <include>org.ballerinalang:ballerina-tool:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
 
