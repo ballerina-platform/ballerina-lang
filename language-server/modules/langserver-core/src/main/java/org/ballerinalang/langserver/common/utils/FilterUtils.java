@@ -324,10 +324,11 @@ public class FilterUtils {
     private static Map<Name, Scope.ScopeEntry> getScopeEntriesForSymbol(BType symbolType, LSContext context) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        Map<Name, Scope.ScopeEntry> entriesFromLangLib = lookupInLangModules(symbolType.tag, symbolTable);
-        if (!entriesFromLangLib.isEmpty()) {
-            return entriesFromLangLib;
-        }
+        
+        /*
+        LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
+        from the object symbol itself
+         */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
             Map<Name, Scope.ScopeEntry> entries = objectTypeSymbol.methodScope.entries;
@@ -335,7 +336,11 @@ public class FilterUtils {
             return entries;
         }
         
-        return symbolType.tsymbol.scope.entries;
+        Map<Name, Scope.ScopeEntry> entries = lookupInLangModules(symbolType.tag, symbolTable);
+        if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
+            entries.putAll(symbolType.tsymbol.scope.entries);
+        }
+        return entries;
     }
 
     private static Optional<Scope.ScopeEntry> getScopeEntryWithName(Map<Name, Scope.ScopeEntry> entries,
@@ -378,7 +383,7 @@ public class FilterUtils {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 entries.putAll(symTable.langMapModuleSymbol.scope.entries);
-                break;
+                return entries;
             case TypeTags.OBJECT:
                 entries.putAll(symTable.langObjectModuleSymbol.scope.entries);
                 break;
@@ -400,8 +405,15 @@ public class FilterUtils {
             default:
                 break;
         }
-        
-        return entries;
+
+        return entries.entrySet().stream().filter(entry -> {
+            BSymbol symbol = entry.getValue().symbol;
+            if (symbol instanceof BInvokableSymbol) {
+                List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
+                return params.isEmpty() || params.get(0).type.tag == typeTag;
+            }
+            return true;
+        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

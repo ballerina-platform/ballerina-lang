@@ -50,13 +50,18 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
-        
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+
         if (contextProvider.isPresent()) {
             return contextProvider.get().getCompletions(ctx);
         }
 
-        completionItems.addAll(addTopLevelItems(ctx));
+        if (!(lhsDefaultTokens != null && lhsDefaultTokens.size() >= 2
+                && BallerinaParser.LT == lhsDefaultTokens.get(lhsDefaultTokens.size() - 1).getType())) {
+            completionItems.addAll(addTopLevelItems(ctx));
+        }
         completionItems.addAll(getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
+        completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
         ItemSorters.get(TopLevelContextSorter.class).sortItems(ctx, completionItems);
         return completionItems;

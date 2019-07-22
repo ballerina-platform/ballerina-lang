@@ -88,7 +88,6 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         packagesList.forEach(pkg -> {
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
             String insertText = pkg.getOrgName() + "/";
-            // TODO : add test cases
             if (pkg.getOrgName().equals(Names.BALLERINA_ORG.value)
                     && pkg.getPackageName().startsWith(Names.LANG.value + ".")) {
                 insertText += getLangLibModuleNameInsertText(pkg.getPackageName());
@@ -119,11 +118,18 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            String label = ballerinaPackage.getPackageName();
-            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
-                pkgNameLabels.add(label);
+            String packageName = ballerinaPackage.getPackageName();
+            String insertText;
+            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(packageName)) {
+                if (orgName.equals(Names.BALLERINA_ORG.value)
+                        && packageName.startsWith(Names.LANG.value + ".")) {
+                    insertText = getLangLibModuleNameInsertText(packageName);
+                } else {
+                    insertText = packageName;
+                }
+                pkgNameLabels.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(label, label));
+                completionItems.add(getImportCompletion(packageName, insertText));
             }
         });
         
