@@ -38,7 +38,7 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
- * This class tests integer lang module functionality.
+ * This class tests xml lang module functionality.
  *
  * @since 1.0
  */
@@ -77,16 +77,16 @@ public class LangLibXMLTest {
     @Test
     public void testEmptyConcatCall() {
         BValue[] returns = BRunUtil.invoke(compileResult, "emptyConcatCall");
-        assertTrue(((BXML<?>)returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
-        assertEquals(((BXML<?>)returns[0]).size(), 0);
+        assertTrue(((BXML<?>) returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
+        assertEquals(((BXML<?>) returns[0]).size(), 0);
     }
 
     @Test
     public void testConcat() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
-        assertTrue(((BXML<?>)returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
-        assertEquals(((BXML<?>)returns[0]).size(), 21);
-        assertEquals(((BXML<?>)returns[0]).stringValue(),
+        assertTrue(((BXML<?>) returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
+        assertEquals(((BXML<?>) returns[0]).size(), 21);
+        assertEquals(((BXML<?>) returns[0]).stringValue(),
                 "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
                         "<TITLE>Greatest Hits</TITLE>hello from String");
     }
@@ -130,7 +130,7 @@ public class LangLibXMLTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = "error: lang.xml function 'getName' only accept xml type 'element'.*")
+            expectedExceptionsMessageRegExp = "error: lang.xml function 'getName' only accept xml type 'element'.*")
     public void testGetNameOfElementNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getNameOfElementNegative");
     }
@@ -142,7 +142,7 @@ public class LangLibXMLTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-    expectedExceptionsMessageRegExp = "error: lang.xml function 'setName' only accept xml type 'element'.*")
+            expectedExceptionsMessageRegExp = "error: lang.xml function 'setName' only accept xml type 'element'.*")
     public void testSetElementNameNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetElementNameNegative");
     }
@@ -178,7 +178,8 @@ public class LangLibXMLTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: lang.xml function 'getAttributes' only accept xml type 'element'.*")
+            expectedExceptionsMessageRegExp =
+                    "error: lang.xml function 'getAttributes' only accept xml type 'element'.*")
     public void testGetAttributesNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetAttributesNegative");
     }

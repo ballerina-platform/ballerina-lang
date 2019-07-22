@@ -12,11 +12,10 @@ import org.ballerinalang.jvm.values.XMLValue;
 public class XMLValueUtil {
 
     /**
-     * Create an XML element from given element with new local name.
+     * Set the local name of xml element.
      *
      * @param xmlValue source xml value to copy from.
      * @param newName to be set in new element.
-     * @return new xml value whose name is newName.
      */
     public static void setElementName(XMLValue<?> xmlValue, String newName) {
         OMNode node = (OMNode) xmlValue.value();

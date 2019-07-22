@@ -18,12 +18,9 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLValueUtil;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;

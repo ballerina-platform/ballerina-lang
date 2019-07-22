@@ -27,8 +27,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import javax.xml.XMLConstants;
-
 /**
  * Create XML element from tag name and children sequence.
  *

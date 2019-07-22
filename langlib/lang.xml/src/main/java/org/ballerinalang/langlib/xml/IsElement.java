@@ -19,8 +19,6 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
