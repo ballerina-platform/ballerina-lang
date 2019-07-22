@@ -84,24 +84,6 @@ public class BallerinaStackFrame extends XStackFrame {
         }
 
         return null;
-
-        // Todo - Add support for non-project files (standard libraries, central modules)
-//        // If the file is not available locally, we use package path and file path to find the matching file in the
-//        // project.
-//        // if the package path is ".", full path of the file will be sent as the file name.
-//        if (".".equals(packageName) && fileName.contains(File.separator)) {
-//            String filePath = constructFilePath(projectBasePath, "",
-//                    fileName.substring(fileName.lastIndexOf(File.separator)));
-//            return LocalFileSystem.getInstance().findFileByPath(filePath);
-//        } else {
-//            String filePath = constructFilePath(projectBasePath, packageName, fileName);
-//            VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
-//            if (virtualFile != null) {
-//                return virtualFile;
-//            }
-//            String path = Paths.get(packageName.replaceAll("\\.", File.separator), fileName).toString();
-//            return BallerinaPsiImplUtil.findFileInProjectSDK(project, path);
-//        }
     }
 
     private File searchFile(File file, String search) {
@@ -165,40 +147,6 @@ public class BallerinaStackFrame extends XStackFrame {
             } catch (Exception e) {
                 LOG.warn("Scope/Variable Request Failed.", e);
             }
-
-//        // Iterate through each variable.
-//        List<Variable> variables = myFrame.getVariables();
-//        for (Variable variable : variables) {
-//            // Get the scopeprocessors.
-//            String scopeName = variable.getScope();
-//            // Check whether the scopeprocessors is already available in the map.
-//            if (scopeMap.containsKey(scopeName)) {
-//                // If it is already in the map, add the variable to the corresponding list.
-//                List<Variable> list = scopeMap.get(scopeName);
-//                list.add(variable);
-//            } else {
-//                // If it is not available in the map, add it as a new entry.
-//                List<Variable> list = new LinkedList<>();
-//                list.add(variable);
-//                scopeMap.put(scopeName, list);
-//            }
-//        }
-//
-//        // Iterate through each scopeprocessors in the map.
-//        scopeMap.forEach((scopeName, variableList) -> {
-//            // Create a new XValueChildrenList to hold the XValues.
-//            XValueChildrenList xValueChildrenList = new XValueChildrenList();
-//            // Create a new variable to represent the scopeprocessors.
-//            Variable scopeVariable = new Variable();
-//            // Set the variable name.
-//            scopeVariable.setName(scopeName);
-//            // Set the children.
-//            scopeVariable.setChildren(variableList);
-//            // Add the variables to the children list using a ValueGroup.
-//            xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scopeName, scopeVariable));
-//            // Add the list to the node as children.
-//            node.addChildren(xValueChildrenList, true);
-//        });
         });
     }
 }
