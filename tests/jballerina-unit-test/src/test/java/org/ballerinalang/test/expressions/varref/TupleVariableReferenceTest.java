@@ -53,12 +53,6 @@ public class TupleVariableReferenceTest {
         validateVarRefBasicTestResults(returns);
     }
 
-    @Test(description = "Test tuple var reference 2", groups = { "brokenOnJBallerina" })
-    public void testTupleVarRefBasic2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic2");
-        validateVarRefBasicTestResults(returns);
-    }
-
     @Test(description = "Test tuple var reference 3")
     public void testTupleVarRefBasic3() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic3");
@@ -68,12 +62,6 @@ public class TupleVariableReferenceTest {
     @Test(description = "Test tuple var reference 4")
     public void testTupleVarRefBasic4() {
         BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic4");
-        validateVarRefBasicTestResults(returns);
-    }
-
-    @Test(description = "Test tuple var reference 5", groups = { "brokenOnJBallerina" })
-    public void testTupleVarRefBasic5() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefBasic5");
         validateVarRefBasicTestResults(returns);
     }
 
@@ -203,12 +191,6 @@ public class TupleVariableReferenceTest {
         validateVarRefArrayResults(returns);
     }
 
-    @Test(description = "Test tuple var reference with array 4", groups = { "brokenOnJBallerina" })
-    public void testTupleVarRefWithArray4() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleVarRefWithArray4");
-        validateVarRefArrayResults(returns);
-    }
-
     private void validateVarRefArrayResults(BValue[] returns) {
         Assert.assertEquals(returns.length, 3);
         int i = -1;
@@ -301,44 +283,49 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(returns[1].stringValue(), "S1");
     }
 
-    @Test(groups = { "brokenOnJBallerina" })
+    @Test
     public void testNegativeTupleVariablesReferences() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 20);
+        Assert.assertEquals(resultNegative.getErrorCount(), 33);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(string,int,float)', found '(string,int,float,string)'", 19, 17);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(string,int,float)', found '(string,int)'", 24, 17);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(string,int,float)', found '(int,string,boolean)'", 29, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "tuple and expression size does not match", 19, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "tuple and expression size does not match", 24, 17);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 29, 18);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 29, 22);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 29, 30);
         BAssertUtil.validateError(resultNegative, ++i, "undefined symbol 'e'", 34, 15);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(string,int,float,other)', found '(int,string,boolean,int)'", 34, 20);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 34, 21);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 34, 25);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 34, 33);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 's'", 40, 20);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'i'", 40, 23);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 45, 10);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 46, 10);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 47, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'(string,int,float)', found '(float,boolean,int)'",
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'[string,int,float]', found '[float,boolean,int]'",
                 52, 20);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'(string,int)', found '(int,string)'", 62, 16);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'string', found 'int'", 62, 17);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'string'", 62, 21);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'float', found 'boolean'", 63, 10);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(Foo,(BarObj,FooObj))', found '(Bar,(FooObj,BarObj))'", 72, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((Foo,(BarObj,FooObj)),Bar)', found '((Bar,(FooObj,BarObj)),Foo)'", 72, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(Foo,(BarObj,FooObj),Bar)', found '(Bar,FooObj,Foo)'", 81, 24);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'(int,Foo,(BarObj,string,FooObj),Bar,boolean)', found '(Bar,int,(FooObj,string,BarObj),Foo,boolean)'",
-                90, 35);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 127, 36);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found '(string,int,boolean,int,float,int)'", 134, 36);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 +
-                "'((string,(int,(boolean,int))),(float,int))', found 'any'", 139, 84);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 72, 28);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 72, 34);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 72, 42);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 72, 52);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'Bar'", 81, 25);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'[BarObj,FooObj]', found 'FooObj'", 81, 30);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 81, 38);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'int', found 'Bar'", 90, 36);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Foo', found 'int'", 90, 41);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'BarObj', found 'FooObj'", 90, 46);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'FooObj', found 'BarObj'", 90, 60);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg1 + "'Bar', found 'Foo'", 90, 69);
+        BAssertUtil.validateError(resultNegative, ++i,
+                errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 127, 36);
+        BAssertUtil.validateError(resultNegative, ++i,
+                errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found '[string,int,boolean,int,float,int]'",
+                134, 36);
+        BAssertUtil.validateError(resultNegative, ++i,
+                errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
     }
 }

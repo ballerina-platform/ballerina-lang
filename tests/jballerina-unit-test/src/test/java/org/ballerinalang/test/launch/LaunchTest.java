@@ -18,11 +18,11 @@
 package org.ballerinalang.test.launch;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;

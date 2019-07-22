@@ -17,8 +17,14 @@
 */
 package org.ballerinalang.test.expressions.stamp;
 
+import org.ballerinalang.model.types.BErrorType;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +46,6 @@ public class StampInbuiltFunctionNegativeTest {
     private CompileResult arrayNegativeTestCompileResult;
     private CompileResult tupleNegativeTestCompileResult;
     private CompileResult unionNegativeTestCompileResult;
-    private CompileResult anydataNegativeTestCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -61,8 +66,6 @@ public class StampInbuiltFunctionNegativeTest {
                 compile("test-src/expressions/stamp/negative/tuple-stamp-expr-negative-test.bal");
         unionNegativeTestCompileResult = BCompileUtil.
                 compile("test-src/expressions/stamp/negative/union-stamp-expr-negative-test.bal");
-        anydataNegativeTestCompileResult = BCompileUtil.
-                compile("test-src/expressions/stamp/negative/anydata-stamp-expr-negative-test.bal");
     }
 
     //----------------------------- NegativeTest cases ------------------------------------------------------
@@ -70,296 +73,304 @@ public class StampInbuiltFunctionNegativeTest {
     @Test
     public void testStampNegativeTest() {
 
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        int index = 0;
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<stream<Person>>'",
+                                  53, 41);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'stream<Employee>'", 53, 70);
+        BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'constructFrom()'", 60, 24);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 74, 26);
+        BAssertUtil
+                .validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'", 81, 54);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 89, 30);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
+                                  97, 40);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 105, 31);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 113, 56);
+    }
 
-        //Negative test case to verify the unsupported type for stamp operation.
-        BAssertUtil.validateError(compileResult, 0,
-                "stamp function on type 'stream<Employee>' is not supported",
-                34, 35);
+    //----------------------------- Object NegativeTest cases ------------------------------------------------------
 
-        //Negative test case to verify the no of arguments get passed to stamp function.
-        BAssertUtil.validateError(compileResult, 1,
-                "too many arguments in call to 'stamp()'",
-                41, 24);
+    @Test
+    public void testObjectNegativeTest() {
+        int index = 0;
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 85, 54);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 92, 47);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 99, 44);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 31);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 106, 54);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 113, 48);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 120, 65);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'anydata', found 'PersonObj'", 127, 28);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<PersonObj>'", 128,
+                                  33);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
+                                  136, 40);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
+                                  144, 40);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected '(EmployeeObj|error)', found '(EmployeeObject|error)'",
+                                  145, 12);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<BookObject>'", 152,
+                                  36);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<IntObject>'", 158,
+                                  35);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<TeacherObj>'", 166,
+                                  36);
+        BAssertUtil.validateError(objectNegativeTestCompileResult, index,
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObj>'",
+                                  174, 37);
+    }
 
-        //Negative test case to confirm primitive types are not supported for stamp operation.
-        BAssertUtil.validateError(compileResult, 2,
-                "stamp function on type 'string' is not supported",
-                48, 22);
+    //----------------------------- Record NegativeTest cases ------------------------------------------------------
 
-        //Negative test case to confirm primitive types are not supported for stamp operation.
-        BAssertUtil.validateError(compileResult, 3,
-                "incompatible stamp type: type 'string[]' cannot be stamped as type 'any'",
-                55, 20);
-
-        //Negative test case to confirm values cannot be stamped as primitive type.
-        BAssertUtil.validateError(compileResult, 4,
-                "incompatible stamp type: type 'any' cannot be stamped as type 'string'",
-                62, 27);
-
-        //Negative test case to confirm invalid types cannot be used as argument for stamp function.
-        BAssertUtil.validateError(compileResult, 5,
-                "undefined symbol 'TestType'",
-                70, 24);
+    @Test
+    public void stampRecordToXML() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Employee' value cannot be converted to 'xml'");
     }
 
     @Test
-    public void testRecordStampNegativeTest() {
-
-        Assert.assertEquals(recordNegativeTestCompileResult.getErrorCount(), 8);
-
-        //Negative test case to confirm record cannot be stamped as xml.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'Employee' cannot be " +
-                        "stamped as type 'xml'",
-                56, 20);
-
-        //Negative test case to confirm open record to closed record stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'Teacher' cannot be stamped as " +
-                        "type 'Employee'",
-                63, 25);
-
-        //Negative test case to confirm closed record to closed record stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 2,
-                "incompatible stamp type: type 'Person' cannot be stamped as type 'Student'",
-                71, 23);
-
-        //Negative test case to confirm closed record to object stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 3,
-                "incompatible stamp type: type 'Teacher' cannot be stamped as " +
-                        "type 'TeacherObj'",
-                79, 30);
-
-        //Negative test case to confirm closed record to map stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 4,
-                "incompatible stamp type: type 'Person' cannot be stamped as " +
-                        "type 'map<string>'",
-                87, 28);
-
-        //Negative test case to confirm closed record to array stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 5,
-                "incompatible stamp type: type 'Employee' cannot be stamped as type" +
-                        " 'string[]'",
-                94, 28);
-
-        //Negative test case to confirm closed record to tuple stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 6,
-                "incompatible stamp type: type 'Employee' cannot be stamped as type" +
-                        " '[string,string]'",
-                102, 35);
-
-        //Negative test case to confirm record(with  object) to anydata stamp conversion.
-        BAssertUtil.validateError(recordNegativeTestCompileResult, 7,
-                "stamp function on type 'ExtendedEmployee' is not supported",
-                123, 28);
+    public void stampOpenRecordToClosedRecord() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampOpenRecordToClosedRecord");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Teacher' value cannot be converted to 'Employee'");
     }
 
     @Test
-    public void testJSONStampNegativeTest() {
-
-        Assert.assertEquals(jsonNegativeTestCompileResult.getErrorCount(), 3);
-
-        //Negative test case to confirm record cannot be stamped as xml.
-        BAssertUtil.validateError(jsonNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'json' cannot be stamped as type " +
-                        "'xml'", 28, 20);
-
-        //Negative test case to confirm record cannot be stamped as xml.
-        BAssertUtil.validateError(jsonNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'json' cannot be stamped as " +
-                        "type 'EmployeeObj'", 35, 31);
-
-        //Negative test case to confirm record cannot be stamped as tuple.
-        BAssertUtil.validateError(jsonNegativeTestCompileResult, 2,
-                "incompatible stamp type: type 'json' cannot be stamped as " +
-                        "type '[string,string]'", 43, 35);
+    public void stampClosedRecordToClosedRecord() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToClosedRecord");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Person' value cannot be converted to 'Student'");
     }
 
     @Test
-    public void testXMLStampNegativeTest() {
-
-        Assert.assertEquals(xmlNegativeTestCompileResult.getErrorCount(), 6);
-
-        //Negative test case to confirm xml cannot be stamped as record.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'xml' cannot be stamped as type 'BookRecord'",
-                29, 30);
-
-        //Negative test case to confirm xml cannot be stamped as json.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'xml' cannot be stamped as type 'json'",
-                37, 22);
-
-        //Negative test case to confirm xml cannot be stamped as Object.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 2,
-                "incompatible stamp type: type 'xml' cannot be stamped as type 'BookObject'",
-                45, 30);
-
-        //Negative test case to confirm xml cannot be stamped as map.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 3,
-                "incompatible stamp type: type 'xml' cannot be stamped as type 'map'",
-                53, 25);
-
-        //Negative test case to confirm xml cannot be stamped as array.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 4,
-                "incompatible stamp type: type 'xml' cannot be stamped as type 'BookRecord[]'",
-                61, 31);
-
-        //Negative test case to confirm xml cannot be stamped as tuple.
-        BAssertUtil.validateError(xmlNegativeTestCompileResult, 5,
-                "incompatible stamp type: type 'xml' cannot be stamped as type '[string,string]'",
-                69, 35);
+    public void stampClosedRecordToMap() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToMap");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Person' value cannot be converted to 'map<string>'");
     }
 
     @Test
-    public void testMapStampNegativeTest() {
-
-        Assert.assertEquals(mapNegativeTestCompileResult.getErrorCount(), 4);
-
-        //Negative test case to confirm map cannot be stamped as xml.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'map' cannot be stamped as type 'xml'",
-                26, 20);
-
-        //Negative test case to confirm map cannot be stamped as array.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'map<anydata>' cannot be stamped as type 'string[]'",
-                33, 27);
-
-        //Negative test case to confirm map cannot be stamped as tuple.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 2,
-                "incompatible stamp type: type 'map<anydata>' cannot be stamped as type '[string,string]'",
-                40, 34);
-
-        //Negative test case to confirm map cannot be stamped as object.
-        BAssertUtil.validateError(mapNegativeTestCompileResult, 3,
-                "incompatible stamp type: type 'map<anydata>' cannot be stamped as type 'IntObject'",
-                47, 29);
+    public void stampRecordToArray() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToArray");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Employee' value cannot be converted to 'string[]'");
     }
 
     @Test
-    public void testObjectStampNegativeTest() {
+    public void stampRecordToTuple() {
+        BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToTuple");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'Employee' value cannot be converted to '[string,string]'");
+    }
 
-        Assert.assertEquals(objectNegativeTestCompileResult.getErrorCount(), 6);
+    //----------------------------- JSON NegativeTest cases ------------------------------------------------------
 
-        //Negative test case to confirm object cannot be stamped as record.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 0,
-                "stamp function on type 'PersonObj' is not supported",
-                41, 25);
-
-        //Negative test case to confirm object cannot be stamped as json.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 1,
-                "stamp function on type 'PersonObj' is not supported",
-                49, 22);
-
-        //Negative test case to confirm object cannot be stamped as xml.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 2,
-                "stamp function on type 'PersonObj' is not supported",
-                56, 20);
-
-        //Negative test case to confirm object cannot be stamped as map.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 3,
-                "stamp function on type 'PersonObj' is not supported",
-                63, 25);
-
-        //Negative test case to confirm object cannot be stamped as array.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 4,
-                "stamp function on type 'PersonObj' is not supported",
-                70, 22);
-
-        //Negative test case to confirm object cannot be stamped as tuple.
-        BAssertUtil.validateError(objectNegativeTestCompileResult, 5,
-                "stamp function on type 'PersonObj' is not supported",
-                77, 32);
+    @Test
+    public void stampJSONToXML() {
+        BValue[] results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'map<json>' value cannot be converted to 'xml'");
     }
 
     @Test
-    public void testArrayStampNegativeTest() {
+    public void stampJSONToTuple() {
+        BValue[] results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToTuple");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'map<json>' value cannot be converted to '[string,string]'");
+    }
 
-        Assert.assertEquals(arrayNegativeTestCompileResult.getErrorCount(), 4);
+    //----------------------------- XML NegativeTest cases ------------------------------------------------------
 
-        //Negative test case to confirm array cannot be stamped as record.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 0,
-                "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'Employee'",
-                34, 25);
-
-        //Negative test case to confirm array cannot be stamped as xml.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'xml'",
-                42, 20);
-
-        //Negative test case to confirm array cannot be stamped as object.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 2,
-                "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'EmployeeObject'",
-                50, 34);
-
-        //Negative test case to confirm array cannot be stamped as map.
-        BAssertUtil.validateError(arrayNegativeTestCompileResult, 3,
-                "incompatible stamp type: type 'anydata[]' cannot be stamped as type 'map'",
-                58, 25);
+    @Test
+    public void stampXMLToRecord() {
+        BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to 'BookRecord'");
     }
 
     @Test
-    public void testTupleStampNegativeTest() {
-
-        Assert.assertEquals(tupleNegativeTestCompileResult.getErrorCount(), 5);
-
-        //Negative test case to confirm tuple cannot be stamped as record.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 0,
-                "incompatible stamp type: type '[string,string,string]' cannot be stamped as type 'Employee'",
-                41, 28);
-
-        //Negative test case to confirm tuple cannot be stamped as json.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 1,
-                "incompatible stamp type: type '[string,string,string]' cannot be stamped as type 'json'",
-                48, 22);
-
-        //Negative test case to confirm tuple cannot be stamped as xml.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 2,
-                "incompatible stamp type: type '[string,string,string]' cannot be stamped as type 'xml'",
-                55, 20);
-
-        //Negative test case to confirm tuple cannot be stamped as object.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 3,
-                "incompatible stamp type: type '[string,int]' cannot be stamped as type 'EmployeeObj'",
-                62, 31);
-
-        //Negative test case to confirm tuple cannot be stamped as map.
-        BAssertUtil.validateError(tupleNegativeTestCompileResult, 4,
-                "incompatible stamp type: type '[string,string,string]' cannot be stamped as type 'map'",
-                69, 25);
+    public void stampXMLToJson() {
+        BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to 'json'");
     }
 
     @Test
-    public void testUnionStampNegativeTest() {
-
-        Assert.assertEquals(unionNegativeTestCompileResult.getErrorCount(), 2);
-
-        BAssertUtil.validateError(unionNegativeTestCompileResult, 0,
-                "incompatible stamp type: type '(int|float|xml)' cannot be stamped as type 'Employee'",
-                28, 30);
-
-        BAssertUtil.validateError(unionNegativeTestCompileResult, 1,
-                "incompatible stamp type: type " +
-                        "'(int|float|[string,string])' cannot be stamped as type '(int|float|[string,int])'",
-                34, 49);
+    public void stampXMLToMap() {
+        BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to 'map<anydata>'");
     }
 
     @Test
-    public void testAnydataStampNegativeTest() {
+    public void stampXMLToArray() {
+        BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to 'BookRecord[]'");
+    }
 
-        Assert.assertEquals(anydataNegativeTestCompileResult.getErrorCount(), 2);
+    @Test
+    public void stampXMLToTuple() {
+        BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to '[string,string]'");
+    }
 
-        //Negative test case to validate invalid stamp conversion from anydata to object.
+    //----------------------------- Map NegativeTest cases ------------------------------------------------------
+    
+    @Test
+    public void stampMapToXML() {
+        BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'map<anydata>' value cannot be converted to 'xml'");
+    }
 
-        BAssertUtil.validateError(anydataNegativeTestCompileResult, 0,
-                "incompatible types: expected 'anydata', found 'PersonObj'",
-                29, 28);
+    @Test
+    public void stampMapToArray() {
+        BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToArray");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'map<anydata>' value cannot be converted to 'string[]'");
+    }
 
-        BAssertUtil.validateError(anydataNegativeTestCompileResult, 1,
-                "incompatible stamp type: type 'anydata' cannot be stamped as type 'PersonObj'",
-                30, 27);
+    @Test
+    public void stampMapToTuple() {
+        BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToTuple");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'map<anydata>' value cannot be converted to '[string,string]'");
+    }
+    
+    //----------------------------- Array NegativeTest cases ------------------------------------------------------
+    
+    @Test
+    public void stampAnyArrayToRecord() {
+        BValue[] results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToRecord");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'anydata[]' value cannot be converted to 'Employee'");
+    }
+
+    @Test
+    public void stampAnyArrayToXML() {
+        BValue[] results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'anydata[]' value cannot be converted to 'xml'");
+    }
+
+    //----------------------------- Tuple NegativeTest cases ------------------------------------------------------
+
+    @Test
+    public void stampTupleToRecord() {
+        BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToRecord");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'[string,string,string]' value cannot be converted to 'Employee'");
+    }
+    
+    @Test
+    public void stampTupleToJSON() {
+        BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToJSON");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'[string,string,string]' value cannot be converted to 'json'");
+    }
+    
+    @Test
+    public void stampTupleToXML() {
+        BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'[string,string,string]' value cannot be converted to 'xml'");
+    }
+
+    @Test
+    public void stampTupleToMap() {
+        BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToMap");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'[string,string,string]' value cannot be converted to 'map<anydata>'");
+    }
+    
+    //----------------------------- Union NegativeTest cases ------------------------------------------------------
+
+    @Test
+    public void stampUnionToXML() {
+        BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'xml' value cannot be converted to 'Employee'");
+    }
+
+    @Test
+    public void stampUnionToConstraintMapToUnionNegative() {
+        BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToConstraintMapToUnionNegative");
+        BValue error = results[0];
+        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
+        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+                            "'int' value cannot be converted to 'float|[string,int]'");
     }
 }
-

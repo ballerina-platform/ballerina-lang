@@ -41,7 +41,7 @@ dependencies {
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
 
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile 'io.netty:netty-transport'
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'

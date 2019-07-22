@@ -28,34 +28,18 @@ type EmployeeObject object {
 
 //----------------------------Array Stamp Negative Test cases -------------------------------------------------------------
 
-function stampAnyArrayToRecord() returns Employee {
+function stampAnyArrayToRecord() returns Employee|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    Employee employee = Employee.stamp(anyArray);
+    Employee|error employee = Employee.constructFrom(anyArray);
 
     return employee;
 }
 
-function stampAnyArrayToXML() returns xml {
+function stampAnyArrayToXML() returns xml|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    xml xmlValue = xml.stamp(anyArray);
+    xml|error xmlValue = xml.constructFrom(anyArray);
 
     return xmlValue;
-}
-
-function stampAnyArrayToObject() returns EmployeeObject {
-
-    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    EmployeeObject objectValue = EmployeeObject.stamp(anyArray);
-
-    return objectValue;
-}
-
-function stampAnyArrayToMap() returns map<any> {
-
-    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    map<any> mapValue = map<any>.stamp(anyArray);
-
-    return mapValue;
 }

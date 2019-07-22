@@ -28,9 +28,9 @@ import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
-import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -77,7 +77,9 @@ public class UpdateStatement extends AbstractSQLStatement {
             conn = getDatabaseConnection(strand, client, datasource, false);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
-            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
+            ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
+                    datasource.getDatabaseProductName());
+            stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
             rs = stmt.getGeneratedKeys();
             //This result set contains the auto generated keys.
@@ -90,15 +92,15 @@ public class UpdateStatement extends AbstractSQLStatement {
             return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
             handleErrorOnTransaction(this.strand);
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         }  catch (DatabaseException e) {
             handleErrorOnTransaction(this.strand);
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
             // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         }  catch (ApplicationException e) {
             handleErrorOnTransaction(this.strand);
-            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);

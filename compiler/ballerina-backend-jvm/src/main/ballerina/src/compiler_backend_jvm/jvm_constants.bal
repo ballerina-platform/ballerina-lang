@@ -259,6 +259,7 @@ const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
 const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
+const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

@@ -208,7 +208,7 @@ dependencies {
     dist project(':ballerina-io')
     dist project(':ballerina-jms')
 //    dist project(':ballerina-lang')
-    dist project(':ballerina-launcher')
+    dist project(':ballerina-tool')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
     dist project(':ballerina-math')

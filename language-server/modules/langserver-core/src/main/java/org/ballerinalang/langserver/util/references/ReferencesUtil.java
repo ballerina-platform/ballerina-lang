@@ -60,15 +60,15 @@ public class ReferencesUtil {
     private ReferencesUtil() {
     }
 
-    public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
+    public static List<BLangPackage> getPreparedModules(LSDocument document, WorkspaceDocumentManager docManager,
                                                         LSCompiler lsCompiler, Position position, LSContext context,
                                                         boolean compileProject) {
-        Path defFilePath = new LSDocument(fileUri).getPath();
+        Path defFilePath = document.getPath();
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath);
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         Class errStrategy = LSCustomErrorStrategy.class;
         try {
-            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
             context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
 
             // With the sub-rule parser, find the token
@@ -79,7 +79,7 @@ public class ReferencesUtil {
                                                                            compileProject, false);
 
             // Set the current package.
-            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, fileUri);
+            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, document);
             context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentBLangPackage);
             return bLangPackages;
         } catch (Exception e) {
@@ -132,11 +132,11 @@ public class ReferencesUtil {
         return getLocations(referencesModel.getDefinitions(), context);
     }
 
-    public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, String fileUri,
+    public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, LSDocument document,
                                                                        Position position) throws LSReferencesException {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager, lsCompiler,
+        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
                                                                        position, context, true);
         prepareReferences(modules, context, position);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
@@ -264,9 +264,8 @@ public class ReferencesUtil {
             DiagnosticPos position = reference.getPosition();
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             Path baseRoot = reference.getSourcePkgName().equals(".") ? Paths.get(sourceRoot)
-                    : Paths.get(sourceRoot).resolve(reference.getSourcePkgName());
+                    : Paths.get(sourceRoot).resolve("src").resolve(reference.getSourcePkgName());
             String fileURI = baseRoot.resolve(reference.getCompilationUnit()).toUri().toString();
-
             return new Location(fileURI, getRange(position));
         }).collect(Collectors.toList());
     }

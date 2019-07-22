@@ -21,26 +21,20 @@ type EmployeeObj object {
 };
 
 
-function stampJSONToXML() returns xml {
+function stampJSONToXML() returns xml|error {
 
     json jsonValue = { name: "Raja", age: 25, salary: 20000 };
 
-    xml xmlValue = xml.stamp(jsonValue);
+    xml|error xmlValue = xml.constructFrom(jsonValue);
     return xmlValue;
 }
 
-function stampJSONToObject() returns EmployeeObj {
 
-    json employee = { name: "John", age: 23 };
-    EmployeeObj employeeObj = EmployeeObj.stamp(employee);
 
-    return employeeObj;
-}
-
-function stampJSONToTuple() returns [string, string] {
+function stampJSONToTuple() returns [string, string]|error {
 
     json jsonValue = { name: "Raja", status: "single" };
-    [string, string] tupleValue = [string, string].stamp(jsonValue);
+    [string, string]|error tupleValue = [string, string].constructFrom(jsonValue);
 
     return tupleValue;
 }

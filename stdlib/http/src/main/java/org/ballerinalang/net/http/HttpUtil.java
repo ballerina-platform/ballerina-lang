@@ -28,11 +28,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
@@ -55,12 +51,8 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
-import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.transactions.TransactionConstants;
@@ -169,20 +161,26 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -197,37 +195,6 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static final String CHUNKING_CONFIG = "chunking_config";
-
-//    public static Object[] getProperty(Context context, boolean isRequest) {
-//        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        HttpCarbonMessage httpCarbonMessage = HttpUtil
-//                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-//        String propertyName = context.getStringArgument(0);
-//
-//        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
-//
-//        if (propertyValue == null) {
-//            return new BValue[0];
-//        }
-//
-//        if (propertyValue instanceof String) {
-//            return new BValue[] { new BString((String) propertyValue) };
-//        } else {
-//            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
-//        }
-//    }
-
-//    public static void setProperty(Context context, boolean isRequest) {
-//        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        String propertyName = context.getStringArgument(0);
-//        String propertyValue = context.getStringArgument(1);
-//
-//        if (propertyName != null && propertyValue != null) {
-//            HttpCarbonMessage httpCarbonMessage = HttpUtil
-//                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-//            httpCarbonMessage.setProperty(propertyName, propertyValue);
-//        }
-//    }
 
     /**
      * Set new entity to in/out request/response struct.
@@ -345,47 +312,14 @@ public class HttpUtil {
                                                HttpCarbonMessage outboundResponseMsg,
                                                ObjectValue outboundResponseObj) {
         HttpUtil.checkEntityAvailability(outboundResponseObj);
-        HttpUtil.addHTTPSessionAndCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.addCorsHeaders(inboundRequestMsg, outboundResponseMsg);
         HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
         HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
         HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
         HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
-    public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
-        BMap<String, BValue> sessionStruct = ConnectorUtils
-                .createAndGetStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SESSION);
-        //Add session to the struct as a native data
-        sessionStruct.addNativeData(HttpConstants.HTTP_SESSION, session);
-        return sessionStruct;
-    }
-
-    public static String getSessionID(String cookieHeader) {
-        return Arrays.stream(cookieHeader.split(";"))
-                .filter(cookie -> cookie.trim().startsWith(HttpConstants.SESSION_ID))
-                .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
-    }
-
-    private static void addHTTPSessionAndCorsHeaders(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg) {
-        //TODO Remove once service session LC is introduced
-//        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
-//        if (session != null) {
-//            boolean isSecureRequest = false;
-//            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-//                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-//            if (configAnn != null) {
-//                AnnAttributeValue httpsPortAttrVal = configAnn
-//                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-//                if (httpsPortAttrVal != null) {
-//                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
-//                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
-//                        isSecureRequest = true;
-//                    }
-//                }
-//            }
-//            session.generateSessionHeader(responseMsg, isSecureRequest);
-//        }
-        //Process CORS if exists.
+    private static void addCorsHeaders(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg) {
         if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
@@ -469,7 +403,7 @@ public class HttpUtil {
         return errorMsg;
     }
 
-    public static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
+    private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
         Integer carbonStatusCode = requestMessage.getHttpStatusCode();
         if (carbonStatusCode == null) {
             //log only the internal server errors
@@ -510,10 +444,10 @@ public class HttpUtil {
     }
 
     /**
-     * Get error struct.
+     * Get HTTP error value with a given error detail.
      *
      * @param errMsg  Error message
-     * @return Error struct
+     * @return Error value
      */
     public static ErrorValue getError(String errMsg) {
         MapValue<String, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
@@ -522,7 +456,7 @@ public class HttpUtil {
     }
 
     /**
-     * Get error struct from throwable.
+     * Get error value from throwable.
      *
      * @param throwable Throwable representing the error.
      * @return Error struct
@@ -634,59 +568,48 @@ public class HttpUtil {
         return BallerinaErrors.createError(reason, detailRecord);
     }
 
-    //TODO Remove after migration : implemented using bvm values/types
-    public static HttpCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage defaultMsg) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
+    public static HttpCarbonMessage getCarbonMsg(ObjectValue objectValue, HttpCarbonMessage defaultMsg) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) objectValue.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
-        addCarbonMsg(struct, defaultMsg);
-        return defaultMsg;
-    }
-
-    public static HttpCarbonMessage getCarbonMsg(ObjectValue struct, HttpCarbonMessage defaultMsg) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
-        if (httpCarbonMessage != null) {
-            return httpCarbonMessage;
-        }
-        addCarbonMsg(struct, defaultMsg);
+        addCarbonMsg(objectValue, defaultMsg);
         return defaultMsg;
     }
 
     /**
-     * Gets the {@code Http2PushPromise} represented by the PushPromise struct.
+     * Gets the {@code Http2PushPromise} represented by the PushPromise object.
      *
-     * @param pushPromiseStruct  the push promise struct
-     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native data of a push promise
-     * @return the {@code Http2PushPromise} represented by the PushPromise struct
+     * @param pushPromiseObj  the push promise object
+     * @param defaultPushPromise the Http2PushPromise to use if the object does not have native data of a push promise
+     * @return the {@code Http2PushPromise} represented by the PushPromise object
      */
-    public static Http2PushPromise getPushPromise(ObjectValue pushPromiseStruct,
-                                                  Http2PushPromise defaultPushPromise) {
+    public static Http2PushPromise getPushPromise(ObjectValue pushPromiseObj, Http2PushPromise defaultPushPromise) {
         Http2PushPromise pushPromise =
-                (Http2PushPromise) pushPromiseStruct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
+                (Http2PushPromise) pushPromiseObj.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
         if (pushPromise != null) {
             return pushPromise;
         }
-        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
+        pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
         return defaultPushPromise;
     }
 
     /**
-     * Populates the push promise struct from native {@code Http2PushPromise}.
-     *  @param pushPromiseStruct the push promise struct
+     * Populates the push promise object from native {@code Http2PushPromise}.
+     *  @param pushPromiseObj the push promise object
      * @param pushPromise the native Http2PushPromise
      */
-    public static void populatePushPromiseStruct(ObjectValue pushPromiseStruct,
+    public static void populatePushPromiseStruct(ObjectValue pushPromiseObj,
                                                  Http2PushPromise pushPromise) {
-        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
-        pushPromiseStruct.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, pushPromise.getPath());
-        pushPromiseStruct.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, pushPromise.getMethod());
+        pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, pushPromise.getPath());
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, pushPromise.getMethod());
     }
 
     /**
-     * Creates native {@code Http2PushPromise} from PushPromise struct.
+     * Creates native {@code Http2PushPromise} from PushPromise object.
      *
-     * @param pushPromiseObj the PushPromise struct
+     * @param pushPromiseObj the PushPromise object
      * @return the populated the native {@code Http2PushPromise}
      */
     public static Http2PushPromise createHttpPushPromise(ObjectValue pushPromiseObj) {
@@ -700,11 +623,6 @@ public class HttpUtil {
             path = HttpConstants.DEFAULT_BASE_PATH;
         }
         return new Http2PushPromise(method, path);
-    }
-
-    //TODO Remove after migration : implemented using bvm values/types
-    public static void addCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage httpCarbonMessage) {
-        struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
     public static void addCarbonMsg(ObjectValue struct, HttpCarbonMessage httpCarbonMessage) {
@@ -773,7 +691,7 @@ public class HttpUtil {
     public static void enrichHttpCallerWithNativeData(ObjectValue caller, HttpCarbonMessage inboundMsg,
                                                       MapValue config) {
         caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-//        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        caller.set(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, config);
     }
 
     /**
@@ -823,7 +741,7 @@ public class HttpUtil {
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
                                                ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getHttpStatusCode();
+        int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
         inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -874,10 +792,10 @@ public class HttpUtil {
     }
 
     /**
-     * Set headers and properties of request/response struct to the outbound transport message.
+     * Set headers and properties of request/response object to the outbound transport message.
      *
      * @param outboundMsg    transport Http carbon message.
-     * @param outboundMsgObj req/resp struct.
+     * @param outboundMsgObj req/resp object.
      */
     public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, ObjectValue outboundMsgObj) {
         setHeadersToTransportMessage(outboundMsg, outboundMsgObj);
@@ -972,7 +890,7 @@ public class HttpUtil {
     /**
      * Check the existence of the message entity data source.
      *
-     * @param value  request/response struct.
+     * @param value  request/response object.
      * @return true if the message entity data source is available else false.
      */
     public static boolean isEntityDataSourceAvailable(ObjectValue value) {
@@ -1128,33 +1046,6 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
-    }
-
-    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
-        return (annotationList == null || annotationList.isEmpty()) ? null : annotationList.get(0);
-    }
-
-//    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
-//        if (annotation == null) {
-//            return;
-//        }
-//        AnnAttrValue keepAliveAttrVal = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-//        if (keepAliveAttrVal != null) {
-//            service.setKeepAlive(keepAliveAttrVal.getBooleanValue());
-//        }
-//
-//        AnnAttrValue compressionEnabled = annotation.getAnnAttrValue(
-//                HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-//        if (compressionEnabled != null) {
-//            service.setCompressionEnabled(compressionEnabled.getBooleanValue());
-//        }
-//    }
-
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
         return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
     }
@@ -1176,22 +1067,6 @@ public class HttpUtil {
 
     public static String getContentTypeFromTransportMessage(HttpCarbonMessage transportMessage) {
         return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-    }
-
-    /**
-     * If the given Content-Type header value doesn't have a boundary parameter value, get a new boundary string and
-     * append it to Content-Type and set it to transport message.
-     *
-     * @param transportMessage Represent transport message
-     * @param contentType      Represent the Content-Type header value
-     * @return The boundary string that was extracted from header or the newly generated one
-     */
-    public static String addBBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
-        String boundaryString;
-        BString boundaryValue = HeaderUtil.extractBoundaryBParameter(contentType);
-        boundaryString = boundaryValue != null ? boundaryValue.toString() :
-                HttpUtil.addBoundaryParameter(transportMessage, contentType);
-        return boundaryString;
     }
 
     /**
@@ -1232,7 +1107,7 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
-        // TODO fix observabiltiy utils
+        // TODO fix observability utils
 //        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
 //        observerContext.ifPresent(ctx -> {
 //            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
