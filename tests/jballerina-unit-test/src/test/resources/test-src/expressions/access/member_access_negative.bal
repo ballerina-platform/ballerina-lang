@@ -148,3 +148,13 @@ function testMemberAccessOnMappingUnionInvalidType() {
     map<float>? y = bq["y"];
     anydata z = bq["z"][index];
 }
+
+function testInvalidStringMemberAccess() {
+    string s1 = "string value";
+    string s2 = "x";
+    int iv = 1;
+    int sv1 = s1[0];
+    float sv2 = s1[iv];
+    string sv3 = s1["s"];
+    string sv4 = s1[s2];
+}

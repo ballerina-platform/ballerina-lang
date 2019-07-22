@@ -325,3 +325,72 @@ function testMemberAccessOnMappingUnion() returns boolean {
 
     return x == "hello" && x2 == "hello" && y == 11 && z is ();
 }
+
+function testVariableStringMemberAccess() returns boolean {
+    string s = "hello world";
+    string[] sa = [];
+
+    foreach int i in 0 ..< s.length() {
+        sa[i] = s[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == s;
+}
+
+const CONST_STRING_1 = "string value";
+
+function testConstStringMemberAccess1() returns boolean {
+    string[] sa = [];
+
+    foreach int i in 0 ..< CONST_STRING_1.length() {
+        sa[i] = CONST_STRING_1[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == CONST_STRING_1;
+}
+
+const CONST_STRING_2 = "abcdef value";
+
+const map<string> m1 = {
+    one: CONST_STRING_2
+};
+
+const IIC1 = 1;
+const IIC3 = 3;
+const SIC = "one";
+
+const map<string> m2 = {
+    a: CONST_STRING_2[0],
+    b: CONST_STRING_2[IIC1],
+    c: m1["one"][2],
+    d: m1[SIC][IIC3]
+};
+
+function testConstStringMemberAccess2() returns boolean {
+    return m2["a"] == "a" && m2["b"] == "b" && m2["c"] == "c" && m2["d"] == "d";
+}
+
+function testOutOfRangeStringMemberAccess1() {
+    string s = "hello";
+    string s2 = s[-1];
+}
+
+function testOutOfRangeStringMemberAccess2() {
+    string s = "hello world";
+    string s2 = s[s.length()];
+}
+
+function testOutOfRangeStringMemberAccess3() {
+    int i = 25;
+    string s2 = CONST_STRING_2[i];
+}
