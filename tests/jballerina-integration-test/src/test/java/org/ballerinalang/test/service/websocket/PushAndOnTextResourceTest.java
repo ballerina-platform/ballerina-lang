@@ -37,7 +37,7 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests string support for pushText and onText")
     public void testString() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9080/onTextString";
+        String url = "http://localhost:21003/onTextString";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";
@@ -47,13 +47,13 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests JSON support for pushText and onText")
     public void testJson() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9081/onTextJSON";
+        String url = "http://localhost:21023/onTextJSON";
         testJsonAndRecord(url);
     }
 
     @Test(description = "Tests XML support for pushText and onText")
     public void testXml() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9082/onTextXML";
+        String url = "http://localhost:21024/onTextXML";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "<note><to>Tove</to></note>";
@@ -70,13 +70,13 @@ public class PushAndOnTextResourceTest extends WebSocketTestCommons {
 
     @Test(description = "Tests Record support for pushText and onText")
     public void testRecord() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9083/onTextRecord";
+        String url = "http://localhost:21025/onTextRecord";
         testJsonAndRecord(url);
     }
 
     @Test(description = "Tests byte array support for pushText and onText")
     public void testByteArray() throws URISyntaxException, InterruptedException {
-        String url = "http://localhost:9084/onTextByteArray";
+        String url = "http://localhost:21026/onTextByteArray";
         client = new WebSocketTestClient(url);
         client.handshake();
         String msg = "Hello";

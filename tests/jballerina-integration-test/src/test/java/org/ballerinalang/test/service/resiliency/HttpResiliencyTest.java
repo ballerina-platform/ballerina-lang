@@ -293,6 +293,7 @@ public class HttpResiliencyTest extends BaseTest {
         verifyResponses(9313, LB_CUSTOM_ALGO_SERVICE_PATH, responseCode, message);
     }
 
+    // TODO: #16933
     @Test(description = "Test basic failover scenario for HTTP2 clients")
     public void testBasicHttp2Failover() throws IOException {
         Map<String, String> headers = new HashMap<>();

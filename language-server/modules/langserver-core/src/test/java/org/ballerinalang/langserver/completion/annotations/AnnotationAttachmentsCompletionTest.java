@@ -44,7 +44,7 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
                 {"annotationBodyCompletion1.json", "annotation"},
                 {"annotationBodyCompletion2.json", "annotation"},
                 {"annotationBodyCompletion3.json", "annotation"},
-//                {"annotationBodyCompletion4.json", "annotation"}, //TODO: Fix this
+                {"annotationBodyCompletion4.json", "annotation"},
                 {"annotationBodyCompletion5.json", "annotation"},
                 {"annotationBodyCompletion6.json", "annotation"},
                 {"annotationInSameModule1.json", "annotation"},

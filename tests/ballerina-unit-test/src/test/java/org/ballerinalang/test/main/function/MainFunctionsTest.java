@@ -17,16 +17,16 @@
 package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.tool.LauncherUtils;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.BRunUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.launcher.util.BAssertUtil.validateError;
+import static org.ballerinalang.tool.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 

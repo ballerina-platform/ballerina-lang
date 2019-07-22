@@ -651,7 +651,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
-        String parentPath = new LSDocument(position.getTextDocument().getUri()).getSourceRoot();
+        String parentPath = new LSDocument(position.getTextDocument().getUri()).getProjectRoot();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths.get(CommonUtil.getPackageURI(currentPackageName, parentPath, ownerPackageName),

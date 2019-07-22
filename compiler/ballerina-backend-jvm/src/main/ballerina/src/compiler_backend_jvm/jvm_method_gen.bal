@@ -1290,7 +1290,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         }
     }
 
-    scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+    if (hasInitFunction(pkg)) {
+        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+    }
 
     // stop all listeners
     stopListeners(mv, serviceEPAvailable);

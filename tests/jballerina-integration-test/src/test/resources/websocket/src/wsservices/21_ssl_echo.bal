@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-service sslEcho on new http:WebSocketListener(9076, { secureSocket: {
+service sslEcho on new http:WebSocketListener(21022, { secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
             password: "ballerina"

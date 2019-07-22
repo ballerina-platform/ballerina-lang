@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -87,7 +88,7 @@ public class FileSystemTest {
         try {
             Files.copy(srcFilePath, tempSourcePath,
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-            
+
             BValue[] args = {new BString(tempSourcePath.toString()), new BString(tempDestPath.toString())};
             BRunUtil.invoke(compileResult, "testRename", args);
             Assert.assertTrue(Files.exists(tempDestPath));
@@ -110,8 +111,9 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRename", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}OPERATION_FAILED");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                    .contains("File already exists in the new path "));
         } finally {
             Files.deleteIfExists(tempSourcePath);
             Files.deleteIfExists(tempDestPath);
@@ -137,8 +139,8 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}OPERATION_FAILED");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("Error while deleting "));
 
             // Remove directory with recursive true
             BValue[] args2 = {new BString(tempSourceDirPath.toString()), new BBoolean(true)};
@@ -161,8 +163,8 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-        log.info("Ballerina error: " + error.getDetails().stringValue());
+        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
     }
 
     @Test(description = "Test for retrieving file info from system")
@@ -182,8 +184,8 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-        log.info("Ballerina error: " + error.getDetails().stringValue());
+        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
     }
 
     @Test(description = "Test for retrieving files inside directory")
@@ -201,8 +203,8 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-        log.info("Ballerina error: " + error.getDetails().stringValue());
+        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path"));
     }
 
     @Test(description = "Test for reading file info from non existence directory")
@@ -211,8 +213,8 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-        log.info("Ballerina error: " + error.getDetails().stringValue());
+        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File in path "));
     }
 
     @Test(description = "Test for checking whether file exists")
@@ -252,8 +254,9 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-        log.info("Ballerina error: " + error.getDetails().stringValue());
+        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                .contains("File already exists. Failed to create the file: "));
     }
 
     @Test(description = "Test for creating new file")
@@ -278,8 +281,9 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateDir", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}FILE_SYSTEM_ERROR");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                    .contains("IO error while creating the file "));
             assertFalse(Files.exists(filepath));
         } finally {
             FileUtils.deleteDirectory(filepath.getParent().toFile());
@@ -321,8 +325,9 @@ public class FileSystemTest {
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/system}INVALID_OPERATION");
-            log.info("Ballerina error: " + error.getDetails().stringValue());
+            assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                    .contains("File doesn't exist in path "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }

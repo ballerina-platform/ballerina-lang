@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 @Test(groups = {"websocket-test"})
 public class SslEchoTest extends WebSocketTestCommons {
 
-    private static final String URL = "wss://localhost:9076/sslEcho";
+    private static final String URL = "wss://localhost:21022/sslEcho";
     private WebSocketTestClient client;
 
     // Related file 21_ssl_echo.bal

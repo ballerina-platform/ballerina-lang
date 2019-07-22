@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.protobuf.cmd;
 
-import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
+import org.ballerinalang.tool.BLauncherCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;

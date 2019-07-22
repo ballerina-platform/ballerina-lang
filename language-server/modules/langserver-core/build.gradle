@@ -79,7 +79,7 @@ dependencies {
     implementation project(':ballerina-utils')
 //    implementation project(':ballerina-websub')
     implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
@@ -191,6 +191,11 @@ artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
     libs configurations.dependency.files
     langserverResources file: file("$buildDir/ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
+}
+
+createJavadoc {
+    // TODO: remove following, it fails at org.eclipse currently
+    exclude "**"
 }
 
 test {

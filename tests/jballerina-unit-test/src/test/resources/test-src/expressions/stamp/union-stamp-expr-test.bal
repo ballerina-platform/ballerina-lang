@@ -54,21 +54,21 @@ type EmployeeObj object {
 function stampUnionToRecord() returns Employee|error  {
     int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee|error  employee = Employee.stamp(unionVar);
+    Employee|error  employee = Employee.constructFrom(unionVar);
     return employee;
 }
 
-function stampUnionToJSON() returns json {
+function stampUnionToJSON() returns json|error {
     int|float|json unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json jsonValue = json.stamp(unionVar);
+    json|error jsonValue = json.constructFrom(unionVar);
     return jsonValue;
 }
 
 function stampUnionToXML() returns xml|error  {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
 
-    xml|error  xmlValue = xml.stamp(unionVar);
+    xml|error  xmlValue = xml.constructFrom(unionVar);
     return xmlValue;
 }
 
@@ -76,7 +76,7 @@ function stampUnionToXML() returns xml|error  {
 function stampUnionToIntMap() returns map<int>|error  {
     int|float|map<int> unionVar = { "a": 1, "b": 2 };
 
-    map<int>|error  mapValue = map<int>.stamp(unionVar);
+    map<int>|error  mapValue = map<int>.constructFrom(unionVar);
     return mapValue;
 }
 
@@ -88,27 +88,27 @@ function stampUnionToConstraintMap() returns map<Employee>|error  {
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    map<Employee>|error  mapValue = map<Employee>.stamp(unionVar);
+    map<Employee>|error  mapValue = map<Employee>.constructFrom(unionVar);
     return mapValue;
 }
 
-function stampUnionToAnydata() returns anydata {
+function stampUnionToAnydata() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
-    anydata anydataValue = anydata.stamp(unionValue);
+    anydata|error anydataValue = anydata.constructFrom(unionValue);
 
     return anydataValue;
 }
 
 function stampUnionToTuple() returns [string, string]|error  {
     int|float|[string, string] unionVar = ["mohan", "LK2014"];
-    [string, string]|error  tupleValue = [string, string].stamp(unionVar);
+    [string, string]|error  tupleValue = [string, string].constructFrom(unionVar);
 
     return tupleValue;
 }
 
-function stampUnionToAnydataV2() returns anydata {
+function stampUnionToAnydataV2() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
-    anydata anydataValue = anydata.stamp(unionValue);
+    anydata|error anydataValue = anydata.constructFrom(unionValue);
 
     return anydataValue;
 }
@@ -121,6 +121,6 @@ function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    int|float|map<Teacher>|error  mapValue = int|float|map<Teacher>.stamp(unionVar);
+    int|float|map<Teacher>|error  mapValue = int|float|map<Teacher>.constructFrom(unionVar);
     return mapValue;
 }

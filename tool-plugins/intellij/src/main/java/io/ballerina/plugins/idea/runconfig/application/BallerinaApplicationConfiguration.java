@@ -56,10 +56,10 @@ public class BallerinaApplicationConfiguration
     @Override
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
-        myPackage = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        myPackage = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element,
                 PACKAGE_ATTRIBUTE_NAME));
         try {
-            String kindName = JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME);
+            String kindName = JDOMExternalizerUtil.readCustomField(element, KIND_ATTRIBUTE_NAME);
             myRunKind = kindName != null ? RunConfigurationKind.valueOf(kindName) : RunConfigurationKind.MAIN;
         } catch (IllegalArgumentException e) {
             myRunKind = RunConfigurationKind.MAIN;
@@ -69,9 +69,9 @@ public class BallerinaApplicationConfiguration
     @Override
     public void writeExternal(Element element) throws WriteExternalException {
         super.writeExternal(element);
-        JDOMExternalizerUtil.addElementWithValueAttribute(element, KIND_ATTRIBUTE_NAME, myRunKind.name());
+        JDOMExternalizerUtil.writeCustomField(element, KIND_ATTRIBUTE_NAME, myRunKind.name());
         if (!myPackage.isEmpty()) {
-            JDOMExternalizerUtil.addElementWithValueAttribute(element, PACKAGE_ATTRIBUTE_NAME, myPackage);
+            JDOMExternalizerUtil.writeCustomField(element, PACKAGE_ATTRIBUTE_NAME, myPackage);
         }
     }
 

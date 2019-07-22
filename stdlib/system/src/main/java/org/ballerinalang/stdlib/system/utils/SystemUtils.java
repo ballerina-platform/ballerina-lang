@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.File;
@@ -29,6 +28,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
@@ -42,46 +43,43 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
 public class SystemUtils {
 
     private static final String UNKNOWN_MESSAGE = "Unknown Error";
-    private static final String UNKNOWN_REASON = "UNKNOWN";
 
     /**
      * Returns error object for input reason.
      * Error type is generic ballerina error type. This utility to construct error object from message.
      *
-     * @param reason Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
-     *               default.
-     * @param error  Java throwable object to capture description of error struct. If throwable object is null,
-     *               "Unknown Error" sets to message by default.
+     * @param error Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
+     *              default.
+     * @param ex    Java throwable object to capture description of error struct. If throwable object is null,
+     *              "Unknown Error" sets to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String reason, Throwable error) {
-        String errorMsg = error != null && error.getMessage() != null ? error.getMessage() : UNKNOWN_MESSAGE;
-        return getBallerinaError(reason, errorMsg);
+    public static ErrorValue getBallerinaError(String error, Throwable ex) {
+        String errorMsg = error != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
+        return getBallerinaError(error, errorMsg);
     }
 
     /**
      * Returns error object for input reason and details.
      * Error type is generic ballerina error type. This utility to construct error object from message.
      *
-     * @param reason  Reason for creating the error object. If the reason is null, value "UNKNOWN" is set by
-     *                default.
+     * @param error   The specific error type.
      * @param details Java throwable object to capture description of error struct. If throwable object is null,
      *                "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String reason, String details) {
-        MapValue<String, Object> refData = new MapValueImpl<>(BTypes.typeError.detailType);
-        if (reason != null) {
-            reason = SystemConstants.ERROR_REASON_PREFIX + reason;
+    public static ErrorValue getBallerinaError(String error, String details) {
+        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
+    }
+
+    private static MapValue populateSystemErrorRecord(String message) {
+        Map<String, Object> valueMap = new HashMap<>();
+        if (message != null) {
+            valueMap.put(SystemConstants.ERROR_MESSAGE, message);
         } else {
-            reason = SystemConstants.ERROR_REASON_PREFIX + UNKNOWN_REASON;
+            valueMap.put(SystemConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
         }
-        if (details != null) {
-            refData.put("message", details);
-        } else {
-            refData.put("message", UNKNOWN_MESSAGE);
-        }
-        return new ErrorValue(BTypes.typeError, reason, refData);
+        return BallerinaValues.createRecordValue(SYSTEM_PACKAGE_PATH, SystemConstants.ERROR_DETAILS, valueMap);
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {
@@ -107,5 +105,8 @@ public class SystemUtils {
             return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
         }
         return value;
+    }
+
+    private SystemUtils() {
     }
 }
