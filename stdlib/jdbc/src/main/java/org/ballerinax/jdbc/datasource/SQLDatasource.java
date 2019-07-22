@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
@@ -56,12 +57,12 @@ public class SQLDatasource {
         try {
             xaConn = isXADataSource();
         } catch (PanickingDatabaseException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+            throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils
+            throw ErrorGenerator
                     .getSQLDatabaseError(e, "error in get connection: " + Constants.CONNECTOR_NAME + ": ");
         }
         return this;
@@ -210,7 +211,7 @@ public class SQLDatasource {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
                         config.addDataSourceProperty(key, value);
                     } else {
-                        throw SQLDatasourceUtils.getSQLApplicationError("Unsupported type for the db option: " + key);
+                        throw ErrorGenerator.getSQLApplicationError("Unsupported type for the db option: " + key);
                     }
                 });
             }
@@ -247,7 +248,7 @@ public class SQLDatasource {
             if (t.getCause() != null) {
                 message += ":" + t.getCause().getMessage();
             }
-            throw SQLDatasourceUtils.getSQLApplicationError(message);
+            throw ErrorGenerator.getSQLApplicationError(message);
         }
     }
 
@@ -317,7 +318,7 @@ public class SQLDatasource {
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
-    static class SQLDatasourceParams {
+    public static class SQLDatasourceParams {
         private PoolOptionsWrapper poolOptionsWrapper;
         private String jdbcUrl;
         private String dbType;

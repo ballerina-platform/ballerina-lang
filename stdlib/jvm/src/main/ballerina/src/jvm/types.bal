@@ -73,6 +73,8 @@ public type MethodVisitor object {
                                         string exceptionType) = external;
                                         
     public function visitLineNumber(int line, Label label) = external;
+
+    public function visitLocalVariable(string varName, string descriptor, Label startLabel, Label endLabel, int index) = external;
 };
 
 

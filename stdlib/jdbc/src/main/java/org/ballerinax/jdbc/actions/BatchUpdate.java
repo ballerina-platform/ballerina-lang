@@ -45,4 +45,8 @@ public class BatchUpdate {
                 rollbackAllInFailure, strand);
         return (MapValue<String, Object>) batchUpdateStatement.execute();
     }
+
+    private BatchUpdate() {
+
+    }
 }
