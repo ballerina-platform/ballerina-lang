@@ -169,3 +169,8 @@ function testInvalidFiniteTypeStringMemberAccess() {
     string s4 = s1[0];
     string s5 = s3[s2];
 }
+
+function testStringMemberAccessForAssignment() {
+    string animal = "animal";
+    animal[0] = "b";
+}

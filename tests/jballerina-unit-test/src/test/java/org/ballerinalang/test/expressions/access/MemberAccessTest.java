@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 47);
+        Assert.assertEquals(negativeResult.getErrorCount(), 48);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -110,7 +110,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
         validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support indexing", 169, 17);
-        validateError(negativeResult, i, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
+        validateError(negativeResult, i, "invalid operation: type 'string' does not support member access for " +
+                "assignment", 175, 5);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
