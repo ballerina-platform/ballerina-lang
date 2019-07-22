@@ -135,8 +135,8 @@ public class DiagnosticsHelper {
                                                         Path projectPath) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
         boolean ballerinaProject = LSCompilerUtil.isBallerinaProject(projectPath.toString());
-        Path diagnosticRoot = projectPath;
         for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
+            Path diagnosticRoot = projectPath;
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();
