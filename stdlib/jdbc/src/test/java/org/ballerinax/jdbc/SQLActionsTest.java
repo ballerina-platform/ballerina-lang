@@ -410,7 +410,7 @@ public class SQLActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid update of record field: modification not allowed on frozen value.*")
+                    ".*Invalid update of record field: modification not allowed on readonly value.*")
     public void testUpdateResult() {
         BRunUtil.invoke(resultNegative, "testUpdateResult");
     }
