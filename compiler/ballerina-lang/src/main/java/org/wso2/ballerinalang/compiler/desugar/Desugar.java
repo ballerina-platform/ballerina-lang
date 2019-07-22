@@ -4656,7 +4656,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangLiteral createByteLiteral(DiagnosticPos pos, Byte value) {
-        BLangLiteral byteLiteral = new BLangLiteral(value, symTable.byteType);
+        BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
         byteLiteral.pos = pos;
         return byteLiteral;
     }
