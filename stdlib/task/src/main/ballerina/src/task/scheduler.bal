@@ -27,7 +27,7 @@ public type Scheduler object {
     # + serviceToAttach - Service which needs to be attached to the task.
     # + attachment - An optional parameter which needs to passed inside the resources.
     # + return - Returns `SchedulerError` if the process failed due to any reason, nil otherwise.
-    public function attach(service serviceToAttach, any attachment = ()) returns SchedulerError? {
+    public function attach(service serviceToAttach, public any attachment = ()) returns SchedulerError? {
         string message = "Failed to attach the service to the scheduler";
         if (attachment != ()) {
             map<any> attachments = { attachment: attachment };
