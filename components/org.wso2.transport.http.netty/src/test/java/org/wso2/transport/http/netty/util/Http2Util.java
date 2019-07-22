@@ -78,8 +78,8 @@ public class Http2Util {
      * @param withPriorKnowledge a boolean indicating whether the prior knowledge support is expected
      * @return HttpClientConnector
      */
-    public static HttpClientConnector getTestClient(HttpWsConnectorFactory httpWsConnectorFactory,
-                                                    boolean withPriorKnowledge) {
+    public static HttpClientConnector getTestHttp2Client(HttpWsConnectorFactory httpWsConnectorFactory,
+                                                         boolean withPriorKnowledge) {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
@@ -89,6 +89,15 @@ public class Http2Util {
         }
         return httpWsConnectorFactory.createHttpClientConnector(
             HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+    }
+
+    public static HttpClientConnector getTestHttp1Client(HttpWsConnectorFactory httpWsConnectorFactory) {
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        SenderConfiguration h1SenderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                             Constants.HTTP_SCHEME);
+        h1SenderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
+        return httpWsConnectorFactory.createHttpClientConnector(
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), h1SenderConfiguration);
     }
 
     public static void assertResult(String response1, String response2, String response3, String response4) {
