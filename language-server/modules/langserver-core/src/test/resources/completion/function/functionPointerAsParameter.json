@@ -118,7 +118,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar(lang.annotations:int a, lang.annotations:string b)(float)",
+      "label": "bar(int a, string b)(float)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -195,7 +195,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foo()(float)",
+      "label": "foo(int x, function (int,string) returns (float) bar)(float)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

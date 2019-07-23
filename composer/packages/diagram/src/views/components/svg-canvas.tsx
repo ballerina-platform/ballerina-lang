@@ -11,7 +11,7 @@ export const SvgCanvas: React.StatelessComponent<{
     return (
         <DiagramContext.Consumer>
             {(diagContext) => {
-                const viewBox =  `0 0 1000 1000`;
+                const viewBox =  `-20 -20 1000 1000`;
                 return (
                     <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >
                         <svg

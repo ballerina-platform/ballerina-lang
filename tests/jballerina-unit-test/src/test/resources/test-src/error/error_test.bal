@@ -236,3 +236,28 @@ function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorT
     UserDefErrorTwoA e1 = UserDefErrorTwoA(message="arg");
     return [e0, e1, e0, e1];
 }
+
+type Detail record {
+    int code;
+};
+
+const FOO = "foo";
+
+type FooError error<FOO, Detail>;
+
+public function indirectErrorCtor() returns [string, boolean, error] {
+    error e = FooError(code = 3456);
+    return [e.reason(), e is FooError, e];
+}
+
+const F = "Foo";
+const G = "Foo";
+
+type E1 error<F, record { string message?; error cause?;}>;
+type E2 error<G, record { string message?; error cause?;}>;
+type E E1|E2;
+
+public function testUnionLhsWithIndirectErrorRhs() returns error {
+    E x = E1(); // Ok, since it say E1.
+    return x;
+}

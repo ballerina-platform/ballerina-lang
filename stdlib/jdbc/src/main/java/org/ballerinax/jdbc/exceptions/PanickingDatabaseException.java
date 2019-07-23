@@ -24,7 +24,7 @@ import java.sql.SQLException;
  *
  * @since 1.0.0
  */
-public class PanickingDatabaseException extends DatabaseException {
+public class PanickingDatabaseException extends SQLException {
 
     /**
      * Constructs a new {@link PanickingDatabaseException} with the specified error message.

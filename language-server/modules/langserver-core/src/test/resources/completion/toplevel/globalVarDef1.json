@@ -6,7 +6,7 @@
   "source": "toplevel/source/globalVarDef1.bal",
   "items": [
     {
-      "label": "pkg1PrivateFunc1()(int)",
+      "label": "pkg1PrivateFunc1(int a)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "pkg1Func1()(boolean)",
+      "label": "pkg1Func1(int a, int b, string hello)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

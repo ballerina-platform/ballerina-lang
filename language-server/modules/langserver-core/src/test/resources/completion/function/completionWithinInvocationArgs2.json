@@ -27,7 +27,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myFunction()",
+      "label": "myFunction(int a, int b, string c)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

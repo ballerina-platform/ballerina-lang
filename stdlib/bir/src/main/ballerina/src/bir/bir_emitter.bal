@@ -123,7 +123,11 @@ public type BirEmitter object {
                 self.typeEmitter.emitType(v.typeValue, tabs = tabs + "\t");
                 print(" ");
                 print(v.name.value);
-                print("\t ", v.kind);
+                if (!(v.kind is TempVarKind)) {
+                    print(" %meta ");
+                    print(v.meta?.name);
+                }
+                print("\t// ", v.kind);
                 if (v.hasDefaultExpr) {
                     print("\t// defaultable -> ");
                     var bb = bFunction.paramDefaultBBs[i][0];
@@ -142,6 +146,19 @@ public type BirEmitter object {
                 print("%ret");
             } else {
                 print(varDecl.name.value);
+                print(" ");
+                if (!(varDecl.kind is TempVarKind)) {
+                    print("%meta ");
+                    print(varDecl.meta?.name);
+                }
+                if (varDecl.kind is LocalVarKind) {
+                    print(" %endBBID ");
+                    print(varDecl.meta?.endBBID);
+                    print(" %startBBID ");
+                    print(varDecl.meta?.startBBID);
+                    print(" %insOffset ");
+                    print(varDecl.meta?.insOffset);
+                }
             }
             println("\t// ", varDecl.kind);
         }
@@ -339,7 +356,7 @@ type InstructionEmitter object {
             print(" = ");
             self.opEmitter.emitOp(ins.rhsOp);
             print(" ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.typeVal);
             println(";");
         } else if (ins is FPLoad) {
             print(tabs);

@@ -64,7 +64,7 @@ public class SQLDatasource {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
             throw ErrorGenerator
-                    .getSQLDatabaseError(e, "error in get connection: " + Constants.CONNECTOR_NAME + ": ");
+                    .getSQLDatabaseError(e, "Error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
         }
         return this;
     }
@@ -101,7 +101,7 @@ public class SQLDatasource {
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error in get distributed data source", e);
+            throw new PanickingDatabaseException("Error while obtaining distributed data source", e);
         }
         return xaDataSource;
     }
@@ -212,7 +212,8 @@ public class SQLDatasource {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
                         config.addDataSourceProperty(key, value);
                     } else {
-                        throw ErrorGenerator.getSQLApplicationError("Unsupported type for the db option: " + key);
+                        throw ErrorGenerator.getSQLApplicationError("Unsupported type " + key
+                                + " for the db option");
                     }
                 });
             }
@@ -245,7 +246,7 @@ public class SQLDatasource {
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
-            String message = "error in sql connector configuration:" + t.getMessage();
+            String message = "Error in sql connector configuration: " + t.getMessage();
             if (t.getCause() != null) {
                 message += ":" + t.getCause().getMessage();
             }
@@ -267,7 +268,8 @@ public class SQLDatasource {
                     xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
                 }
             } catch (SQLException e) {
-                throw new PanickingDatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
+                throw new PanickingDatabaseException("Error while obtaining the connection for "
+                        + Constants.CONNECTOR_NAME + ": ", e);
             }
             break;
         case Constants.DBTypes.SQLSERVER:
@@ -303,7 +305,7 @@ public class SQLDatasource {
             xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
             break;
         default:
-            throw new PanickingApplicationException("unknown database type used for xa connection : " + dbType);
+            throw new PanickingApplicationException("Unknown database type " + dbType + " used for xa connection");
         }
         return xaDataSource;
     }
@@ -312,7 +314,7 @@ public class SQLDatasource {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error in check distributed data source: ", e);
+            throw new PanickingDatabaseException("Error while checking distributed data source: ", e);
         }
     }
 

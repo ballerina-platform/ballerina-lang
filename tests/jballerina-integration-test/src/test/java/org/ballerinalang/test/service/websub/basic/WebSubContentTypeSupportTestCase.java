@@ -44,9 +44,9 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
-    private static final int WEBSUB_PORT = 8282;
+    private static final int WEBSUB_PORT = 23282;
     private static final String SKIP_SUBSCRIBER_CHECK = "skip_subscriber_check";
-    private static final String CONTENT_TYPE_PUBLISHER_URL = "http://localhost:8080/contentTypePublisher/notify/";
+    private static final String CONTENT_TYPE_PUBLISHER_URL = "http://localhost:23080/contentTypePublisher/notify/";
     
     private BServerInstance webSubSubscriber;
 
@@ -124,8 +124,9 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         webSubSubscriber = new BServerInstance(balServer);
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                File.separator + "websub" + File.separator +
-                                                "test_different_content_type_subscribers.bal").getAbsolutePath();
+                                                File.separator + "websub" + File.separator + "subscriber" +
+                                                File.separator + "test_different_content_type_subscribers.bal")
+                .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherOne);

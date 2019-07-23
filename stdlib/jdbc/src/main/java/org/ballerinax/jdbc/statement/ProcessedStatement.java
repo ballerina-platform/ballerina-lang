@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -80,7 +79,7 @@ class ProcessedStatement {
         this.databaseProductName = databaseProductName;
     }
 
-    PreparedStatement prepare() throws ApplicationException, DatabaseException {
+    PreparedStatement prepare() throws ApplicationException, SQLException {
         if (params == null) {
             return null;
         }
@@ -121,12 +120,13 @@ class ProcessedStatement {
                                 paramValue = array;
                                 break;
                             } else {
-                                throw new ApplicationException("unsupported array type for parameter index: " + index
-                                        + ". Array element type being an array is supported only when the inner array"
-                                        + " element type is BYTE");
+                                throw new ApplicationException("Unsupported array type specified as a parameter " +
+                                        "at index " + index + " and array element type being an array is supported " +
+                                        "only when the inner array element type is BYTE");
                             }
                         default:
-                            throw new ApplicationException("unsupported array type for parameter index " + index);
+                            throw new ApplicationException("Unsupported array type specified as a parameter at index "
+                                    + index);
                         }
                         if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType) || Constants.SQLDataTypes.BLOB
                                 .equals(sqlType)) {
@@ -155,12 +155,12 @@ class ProcessedStatement {
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index) throws DatabaseException, ApplicationException {
+            int index) throws SQLException, ApplicationException {
         setParameter(conn, stmt, sqlType, value, direction, index, null);
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index, String databaseProductName) throws ApplicationException, DatabaseException {
+            int index, String databaseProductName) throws ApplicationException, SQLException {
         if (sqlType == null || sqlType.isEmpty()) {
             setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -254,13 +254,14 @@ class ProcessedStatement {
                 setRefCursorValue(stmt, index, direction, databaseProductName);
                 break;
             default:
-                throw new ApplicationException("unsupported datatype as parameter: " + sqlType + " index:" + index);
+                throw new ApplicationException("Unsupported data type " + sqlType + " specified as a parameter" +
+                        " at index " + index);
             }
         }
     }
 
     private void setIntValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -279,15 +280,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.INTEGER);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set integer to statement: ", e);
+            throw new SQLException("Error while setting integer value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
     private void setSmallIntValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -306,15 +308,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.SMALLINT);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set integer to statement: ", e);
+            throw new SQLException("Error while setting integer value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -332,15 +335,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set string to statement: ", e);
+            throw new SQLException("Error while setting string value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -358,15 +362,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set string to statement: ", e);
+            throw new SQLException("Error while setting string value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setDoubleValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Double val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -385,7 +390,8 @@ class ProcessedStatement {
                 val = Double.parseDouble((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for double: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString()
+                        + "\" specified for double");
 
             }
         }
@@ -406,15 +412,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.DOUBLE);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set double to statement: ", e);
+            throw new SQLException("Error while setting double value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNumericValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BigDecimal val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -432,7 +439,8 @@ class ProcessedStatement {
                 val = new BigDecimal((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for numeric: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString()
+                        + "\" specified for numeric type");
             }
         }
         try {
@@ -452,15 +460,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set numeric value to statement: ", e);
+            throw new SQLException("Error while setting numeric value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBooleanValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Boolean val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -472,7 +481,8 @@ class ProcessedStatement {
                 val = Boolean.valueOf((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for boolean: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString()
+                        + "\" specified for boolean");
             }
         }
         try {
@@ -492,15 +502,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.BIT);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set boolean value to statement: ", e);
+            throw new SQLException("Error while setting boolean value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Byte val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -513,7 +524,8 @@ class ProcessedStatement {
                 val = Byte.parseByte((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for byte: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString()
+                        + "\" specified for byte");
 
             }
         }
@@ -534,15 +546,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TINYINT);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set tinyint value to statement: ", e);
+            throw new SQLException("Error while setting tinyint value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBigIntValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Long val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -555,7 +568,7 @@ class ProcessedStatement {
                 val = Long.parseLong((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for bigint: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString() + "\" specified for bigint");
             }
         }
         try {
@@ -575,15 +588,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.BIGINT);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set bigint value to statement: ", e);
+            throw new SQLException("Error while setting bigint value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setRealValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Float val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -599,7 +613,8 @@ class ProcessedStatement {
                 val = Float.parseFloat((String) value);
                 break;
             default:
-                throw new ApplicationException("invalid value for float: " + value.toString());
+                throw new ApplicationException("Invalid input value \"" + value.toString()
+                        + "\" specified for float ");
             }
         }
         try {
@@ -619,15 +634,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter, index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set float value to statement.", e);
+            throw new SQLException("Error while setting float value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setDateValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Date val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -640,7 +656,7 @@ class ProcessedStatement {
             } else if (type.getTag() == TypeTags.STRING_TAG) {
                 val = convertToDate((String) value);
             } else {
-                throw new ApplicationException("invalid input type for date parameter with index: " + index);
+                throw new ApplicationException("Invalid input type for date parameter at index " + index);
             }
         }
         try {
@@ -660,10 +676,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.DATE);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set date value to statement: ", e);
+            throw new SQLException("Error while setting date value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -682,7 +699,7 @@ class ProcessedStatement {
         }
         if (source.length() >= 10) {
             if ((source.charAt(4) != '-') || (source.charAt(7) != '-')) {
-                throw new ApplicationException("invalid date format: " + source);
+                throw new ApplicationException("Invalid date format " + source + " specified");
             }
             int year = Integer.parseInt(source.substring(0, 4));
             int month = Integer.parseInt(source.substring(5, 7));
@@ -698,13 +715,13 @@ class ProcessedStatement {
             calendar.set(Calendar.DAY_OF_MONTH, day);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new ApplicationException("invalid date string to parse: " + source);
+            throw new ApplicationException("Invalid date string " + source + " to parse");
         }
         return new Date(calendar.getTime().getTime());
     }
 
     private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, Calendar utcCalendar)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Timestamp val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -718,7 +735,8 @@ class ProcessedStatement {
             } else if (value instanceof String) {
                 val = convertToTimeStamp((String) value);
             } else {
-                throw new ApplicationException("invalid input type for timestamp parameter with index: " + index);
+                throw new ApplicationException("Invalid input type specified for timestamp parameter at index "
+                        + index);
             }
         }
         try {
@@ -738,10 +756,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TIMESTAMP);
             } else {
-                throw new ApplicationException("invalid direction for the parameter, index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set timestamp value to statement: ", e);
+            throw new SQLException("Error while setting timestamp value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -761,7 +780,7 @@ class ProcessedStatement {
         if (source.length() >= 19) {
             if ((source.charAt(4) != '-') || (source.charAt(7) != '-') || (source.charAt(10) != 'T') || (
                     source.charAt(13) != ':') || (source.charAt(16) != ':')) {
-                throw new ApplicationException("invalid datetime format: " + source);
+                throw new ApplicationException("Invalid datetime format " + source + " specified");
             }
             int year = Integer.parseInt(source.substring(0, 4));
             int month = Integer.parseInt(source.substring(5, 7));
@@ -790,7 +809,7 @@ class ProcessedStatement {
             calendar.set(Calendar.MILLISECOND, (int) miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new ApplicationException("datetime string can not be less than 19 characters: " + source);
+            throw new ApplicationException("Datetime string of " + source + " can not be less than 19 characters");
         }
         return new Timestamp(calendar.getTimeInMillis());
     }
@@ -824,7 +843,7 @@ class ProcessedStatement {
                         timeZoneOffSet = -1;
                     }
                     if (timeOffSetStr.charAt(2) != ':') {
-                        throw new ApplicationException("invalid time zone format: " + fractionStr);
+                        throw new ApplicationException("Invalid time zone format " + fractionStr + " specified");
                     }
                     int hours = Integer.parseInt(timeOffSetStr.substring(0, 2));
                     int minits = Integer.parseInt(timeOffSetStr.substring(3, 5));
@@ -856,7 +875,7 @@ class ProcessedStatement {
             timeZoneOffSet = 0;
         } else if (timezoneStr.startsWith("+") || timezoneStr.startsWith("-")) { //timezone with offset
             if (timezoneStr.charAt(3) != ':') {
-                throw new ApplicationException("invalid time zone format:" + timezoneStr);
+                throw new ApplicationException("Invalid time zone format " + timezoneStr + " specified");
             }
             int hours = Integer.parseInt(timezoneStr.substring(1, 3));
             int minits = Integer.parseInt(timezoneStr.substring(4, 6));
@@ -865,13 +884,13 @@ class ProcessedStatement {
                 timeZoneOffSet = timeZoneOffSet * -1;
             }
         } else {
-            throw new ApplicationException("invalid prefix for timezone: " + timezoneStr);
+            throw new ApplicationException("Invalid prefix of " + timezoneStr + " specified for timezone");
         }
         return timeZoneOffSet;
     }
 
     private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, Calendar utcCalendar)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Time val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -903,10 +922,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TIME);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set timestamp value to statement: ", e);
+            throw new SQLException("Error while setting timestamp value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -921,7 +941,7 @@ class ProcessedStatement {
         calendar.setLenient(false);
         if (source.length() >= 8) {
             if ((source.charAt(2) != ':') || (source.charAt(5) != ':')) {
-                throw new ApplicationException("invalid time format: " + source);
+                throw new ApplicationException("Invalid time format " + source + " specified");
             }
             int hour = Integer.parseInt(source.substring(0, 2));
             int minite = Integer.parseInt(source.substring(3, 5));
@@ -941,13 +961,13 @@ class ProcessedStatement {
             calendar.set(Calendar.MILLISECOND, miliSecond);
             calendar.set(Calendar.ZONE_OFFSET, timeZoneOffSet);
         } else {
-            throw new ApplicationException("time string can not be less than 8 characters: " + source);
+            throw new ApplicationException("Time string of " + source + " can not be less than 8 characters");
         }
         return new Time(calendar.getTimeInMillis());
     }
 
     private void setBinaryValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -966,15 +986,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set binary value to statement: ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBlobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -993,10 +1014,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set binary value to statement: ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1010,7 +1032,7 @@ class ProcessedStatement {
             case TypeTags.STRING_TAG:
                 return Integer.parseInt((String) value);
             default:
-                throw new ApplicationException("invalid value for integer: " + value.toString());
+                throw new ApplicationException("Invalid value \"" + value.toString() + "\" specified for integer ");
             }
         }
         return null;
@@ -1031,12 +1053,12 @@ class ProcessedStatement {
         try {
             return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
         } catch (Exception e) {
-            throw new ApplicationException("error in processing base64 string: ", e.getMessage());
+            throw new ApplicationException("Error while processing base64 string", e.getMessage());
         }
     }
 
     private void setClobValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1058,15 +1080,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.CLOB);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set binary value to statement: ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNClobValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1088,15 +1111,16 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.NCLOB);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set binary value to statement: ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (Constants.DatabaseNames.ORACLE.equals(databaseProductName)) {
@@ -1109,15 +1133,16 @@ class ProcessedStatement {
                     ((CallableStatement) stmt).registerOutParameter(index + 1, Types.REF_CURSOR);
                 }
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in setting ref cursor value to statement: ", e);
+            throw new SQLException("Error while setting ref cursor value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
     private void setArrayValue(Connection conn, PreparedStatement stmt, Object value, int index, int direction,
-            String databaseProductName) throws ApplicationException, DatabaseException {
+            String databaseProductName) throws ApplicationException, SQLException {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
         String structuredSQLType = (String) arrayData[1];
@@ -1130,10 +1155,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 registerArrayOutParameter(stmt, index, structuredSQLType, databaseProductName);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set array value to statement: ", e);
+            throw new SQLException("Error while setting array value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1161,11 +1187,12 @@ class ProcessedStatement {
         }
     }
 
-    private void setNullObject(PreparedStatement stmt, int index) throws DatabaseException {
+    private void setNullObject(PreparedStatement stmt, int index) throws SQLException {
         try {
             stmt.setObject(index + 1, null);
         } catch (SQLException e) {
-            throw new DatabaseException("error in set null to parameter with index: " + index, e);
+            throw new SQLException("Error while setting null value to the parameter at index " + index + ". " +
+                    e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -1225,15 +1252,15 @@ class ProcessedStatement {
                 }
                 return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
             } else {
-                throw new ApplicationException("unsupported data type for array parameter");
+                throw new ApplicationException("Unsupported data type specified as an array parameter");
             }
         default:
-            throw new ApplicationException("unsupported data type for array parameter");
+            throw new ApplicationException("Unsupported data type specified as an array parameter");
         }
     }
 
     private void setUserDefinedValue(Connection conn, PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             Object[] structData = getStructData(value, conn);
             Object[] dataArray = (Object[]) structData[0];
@@ -1256,10 +1283,11 @@ class ProcessedStatement {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, Types.STRUCT, structuredSQLType);
             } else {
-                throw new ApplicationException("invalid direction for the parameter with index: " + index);
+                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in set struct value to statement: ", e);
+            throw new SQLException("Error while setting struct value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1294,7 +1322,8 @@ class ProcessedStatement {
                     structData[i] = ((ArrayValue) bValue).getBytes();
                     break;
                 } else {
-                    throw new ApplicationException("unsupported data type for struct parameter: " + structuredSQLType);
+                    throw new ApplicationException("Unsupported data type of " + structuredSQLType
+                            + " specified for struct parameter");
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 Object structValue = bValue;
@@ -1305,7 +1334,8 @@ class ProcessedStatement {
                 structData[i] = structValue;
                 break;
             default:
-                throw new ApplicationException("unsupported data type for struct parameter: " + structuredSQLType);
+                throw new ApplicationException("Unsupported data type of " + structuredSQLType
+                        + " specified for struct parameter");
             }
         }
         return new Object[] { structData, structuredSQLType };
