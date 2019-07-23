@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -48,7 +48,7 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
 
     @Test(description = "Tests the behaviour when url length is less than the configured threshold")
     public void testValidUrlLength() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9230,
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9234,
                         "requestUriLimit/validUrl"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -59,11 +59,9 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
     @Test(description = "Tests the behaviour when header size is less than the configured threshold")
     public void testValidHeaderLength() {
         String expectedMessage = "Hello World!!!";
-        HttpClient httpClient = new HttpClient(TEST_HOST, 9233);
-
+        HttpClient httpClient = new HttpClient(TEST_HOST, 9237);
         FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                         "/requestHeaderLimit/validHeaderSize");
-
         FullHttpResponse response = httpClient.sendRequest(request);
         Assert.assertNotNull(response, "Response is empty.");
         Assert.assertEquals(response.status(), HttpResponseStatus.OK, "Response status does not match.");
@@ -72,13 +70,10 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
 
     @Test(description = "Tests the behaviour when url length is greater than the configured threshold")
     public void testInvalidUrlLength() {
-
         String expected = "414 Request-URI Too Long";
-        HttpClient httpClient = new HttpClient(TEST_HOST, 9231);
-
+        HttpClient httpClient = new HttpClient(TEST_HOST, 9235);
         FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                     "/lowRequestUriLimit/invalidUrl");
-
         FullHttpResponse response = httpClient.sendRequest(request);
         Assert.assertNotNull(response, "Response is empty.");
         Assert.assertEquals(response.status().toString(), expected, "Response status does not match.");
@@ -86,10 +81,8 @@ public class RequestLimitsConfigurationTest extends HttpBaseTest {
 
     @Test(description = "Tests the behaviour when header size is greater than the configured threshold")
     public void testInvalidHeaderLength() {
-
         String expectedMessage = "413 Request Entity Too Large";
-        HttpClient httpClient = new HttpClient(TEST_HOST, 9232);
-
+        HttpClient httpClient = new HttpClient(TEST_HOST, 9236);
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
                                             "/lowRequestHeaderLimit/invalidHeaderSize");
         httpRequest.headers().set("X-Test", getLargeHeader());

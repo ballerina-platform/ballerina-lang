@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -40,10 +40,10 @@ http:ServiceEndpointConfiguration midSizeHeaderConfig = {
     }
 };
 
-listener http:Listener normalRequestLimitEP = new(9230, config = urlLimitConfig);
-listener http:Listener lowRequestLimitEP = new(9231, config = lowUrlLimitConfig);
-listener http:Listener lowHeaderLimitEP = new(9232, config = lowHeaderConfig);
-listener http:Listener midHeaderLimitEP = new(9233, config = midSizeHeaderConfig);
+listener http:Listener normalRequestLimitEP = new(9234, urlLimitConfig);
+listener http:Listener lowRequestLimitEP = new(9235, lowUrlLimitConfig);
+listener http:Listener lowHeaderLimitEP = new(9236, lowHeaderConfig);
+listener http:Listener midHeaderLimitEP = new(9237, midSizeHeaderConfig);
 
 @http:ServiceConfig {basePath:"/requestUriLimit"}
 service urlLimitService on normalRequestLimitEP {
@@ -53,7 +53,7 @@ service urlLimitService on normalRequestLimitEP {
         path:"/validUrl"
     }
     resource function mediumUrl(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello World!!!");
+        checkpanic caller->respond("Hello World!!!");
     }
 }
 
@@ -65,7 +65,7 @@ service lessUrlLimitService on lowRequestLimitEP {
         path:"/invalidUrl"
     }
     resource function lessUrlLength(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello World!!!");
+        checkpanic caller->respond("Hello World!!!");
     }
 }
 
@@ -77,7 +77,7 @@ service lessHeaderLimitService on lowHeaderLimitEP {
         path:"/invalidHeaderSize"
     }
     resource function invalidHeader(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello World!!!");
+        checkpanic caller->respond("Hello World!!!");
     }
 }
 
@@ -89,6 +89,6 @@ service headerLimitService on midHeaderLimitEP {
         path:"/validHeaderSize"
     }
     resource function validHeader(http:Caller caller, http:Request req) {
-        _ = caller->respond("Hello World!!!");
+        checkpanic caller->respond("Hello World!!!");
     }
 }
