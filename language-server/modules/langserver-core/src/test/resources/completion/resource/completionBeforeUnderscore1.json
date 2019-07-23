@@ -344,7 +344,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "openReadableFile()((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -361,7 +361,7 @@
       }
     },
     {
-      "label": "openWritableFile()((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -378,7 +378,7 @@
       }
     },
     {
-      "label": "createReadableChannel()((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -395,7 +395,7 @@
       }
     },
     {
-      "label": "openReadableCsvFile()((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -412,7 +412,7 @@
       }
     },
     {
-      "label": "openWritableCsvFile()((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
+      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -429,7 +429,7 @@
       }
     },
     {
-      "label": "print()",
+      "label": "print(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -446,7 +446,7 @@
       }
     },
     {
-      "label": "println()",
+      "label": "println(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -463,7 +463,7 @@
       }
     },
     {
-      "label": "sprintf()(string)",
+      "label": "sprintf(string format, ...(any|error))(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -480,7 +480,7 @@
       }
     },
     {
-      "label": "readln()(string)",
+      "label": "readln(any a)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
