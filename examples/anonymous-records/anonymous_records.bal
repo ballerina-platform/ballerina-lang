@@ -43,7 +43,7 @@ function toFieldsArray(record {} pureRecord) returns (anydata|error)[] {
     (anydata|error)[] fields = [];
     int i = 0;
 
-    foreach var (_, field) in pureRecord {
+    foreach var field in pureRecord {
         fields[i] = field;
         i += 1;
     }
