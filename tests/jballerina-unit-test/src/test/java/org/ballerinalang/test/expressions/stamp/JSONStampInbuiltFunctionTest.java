@@ -267,7 +267,7 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'Student'");
+                            "'map<json>' value cannot be converted to 'Student'");
     }
 
     @Test
@@ -277,7 +277,7 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'json' value cannot be stamped as 'map<string>'");
+                            "'map<json>' value cannot be converted to 'map<string>'");
     }
 
     @Test
@@ -287,6 +287,6 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "cannot stamp 'null' value to type 'StringArray'");
+                            "cannot convert 'null' value to type 'StringArray'");
     }
 }

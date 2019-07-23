@@ -42,7 +42,7 @@ function test1 (string s, int sd) returns int{
 public function main (string... args) {
     string s = "mars";
     io:println(s);
-    var df = s.contains("mar");
+    var df = s.indexOf("m");
     var x = test1("s",0);
     Person testPerson = {
                    id:1,

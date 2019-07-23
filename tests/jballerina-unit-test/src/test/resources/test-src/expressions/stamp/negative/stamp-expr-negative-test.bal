@@ -25,49 +25,93 @@ type Person record {
     int age;
 };
 
-function stampStreamTypeVariable() returns stream<Person> {
+type ExtendedEmployee record {
+    string name;
+    string status;
+    string batch;
+    Address address;
+};
 
-    stream<Employee> employeeStream;
+type Address object {
+    public int no = 10;
+    public string streetName = "Palm Grove";
+    public string city = "colombo";
+};
+
+type EmployeeObject object {
+    string name = "Mohan";
+    string status = "Single";
+    string batch = "LK2014";
+};
+
+function stampStreamTypeVariable() returns stream<Person>|error {
+
+    stream<Employee> employeeStream = new;
     Employee e1 = { name: "Raja", age: 25, salary: 20000 };
     Employee e2 = { name: "Mohan", age: 45, salary: 10000 };
 
-    stream<Person> personStream = stream<Person>.stamp(employeeStream);
+    stream<Person>|error personStream = stream<Person>.constructFrom(employeeStream);
     return personStream;
 }
 
 function seaWithInvalidNoOrParameters() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json returnValue = json.stamp(jsonValue, 34);
+    json returnValue = json.constructFrom(jsonValue, 34);
 
     return returnValue;
 }
 
-function stampStringValueToJson() returns json {
+function stampStringValueToJson() returns json|error {
     string value = "mohan";
-    json jsonValue = json.stamp(value);
+    json|error jsonValue = json.constructFrom(value);
 
     return jsonValue;
 }
 
-function stampStringValueToAny() returns any {
+function stampStringValueToAny() returns any|error {
     string[] stringArray = ["mohan", "mike"];
-    any anyValue = any.stamp(stringArray);
+    any|error anyValue = any.constructFrom(stringArray);
 
     return anyValue;
 }
 
-function stampAnyToString() returns string? {
+function stampAnyToString() returns string?|error {
     any value = "mohan";
-    string? stringValue = string.stamp(value);
+    string?|error stringValue = string.constructFrom(value);
 
     return stringValue;
 }
 
-function seaWithInvalidTypedesc() returns json {
+function seaWithInvalidTypedesc() returns json|error {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];
-    json returnValue = TestType.stamp(jsonValue);
+    json|error returnValue = TestType.constructFrom(jsonValue);
 
     return returnValue;
 }
+
+function stampAnyArrayToObject() returns EmployeeObject|error {
+
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    EmployeeObject|error objectValue = EmployeeObject.constructFrom(anyArray);
+
+    return objectValue;
+}
+
+function stampAnyArrayToMap() returns map<any>|error {
+
+    anydata[] anyArray = ["Mohan", "Single", "LK2014"];
+    map<any>|error mapValue = map<any>.constructFrom(anyArray);
+
+    return mapValue;
+}
+
+function stampExtendedRecordToAnydata() returns anydata|error {
+    Address addressObj = new Address();
+    ExtendedEmployee employee = { name: "Raja", status: "single", batch: "LK2014", address:addressObj};
+    anydata|error anydataValue = anydata.constructFrom(employee);
+
+    return anydataValue;
+}
+

@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.main.function;
 
-import org.ballerinalang.launcher.BLauncherException;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.BLauncherException;
+import org.ballerinalang.tool.LauncherUtils;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
