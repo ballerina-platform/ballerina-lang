@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 53);
+        Assert.assertEquals(negativeResult.getErrorCount(), 48);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -111,13 +111,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
         validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support indexing", 169, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
-        validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
+        validateError(negativeResult, i, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
-        validateError(negativeResult, i++, "index out of range: index: '1'", 187, 18);
-        validateError(negativeResult, i++, "expression is not a constant expression", 188, 17);
-        validateError(negativeResult, i++, "index out of range: index: '-1'", 189, 15);
-        validateError(negativeResult, i++, "index out of range: index: '6'", 190, 17);
-        validateError(negativeResult, i, "index out of range: index: '1'", 191, 17);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -273,7 +268,6 @@ public class MemberAccessTest {
                 { "testVariableStringMemberAccess" },
                 { "testConstStringMemberAccess1" },
                 { "testConstStringMemberAccess2" },
-                { "testNestedConstStringMemberAccess" },
                 { "testFiniteTypeStringMemberAccess" }
         };
     }

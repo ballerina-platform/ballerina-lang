@@ -174,19 +174,3 @@ function testStringMemberAccessForAssignment() {
     string animal = "animal";
     animal[0] = "b";
 }
-
-const STC = "qwerty";
-const SIC2 = "l";
-
-const map<string> CM1 = {
-    l: STC[0],
-    m: STC
-};
-
-const map<string> CM2 = {
-    v: CM1[SIC2][1],
-    w: CM1["m"][STC.length()],
-    x: STC[0][-1],
-    y: CM1["m"][6],
-    z: CM1["l"][1]
-};
