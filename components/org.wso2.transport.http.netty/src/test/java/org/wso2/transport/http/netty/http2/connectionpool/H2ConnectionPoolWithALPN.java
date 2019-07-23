@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2;
+package org.wso2.transport.http.netty.http2.connectionpool;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;

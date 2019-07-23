@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.http2;
+package org.wso2.transport.http.netty.http2.clienttimeout;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
@@ -50,11 +50,11 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * {@code Http2ClientTimeoutTestCase} contains test cases for HTTP/2 Client request timeout.
+ * {@code TimeoutAfterRequestWrite} contains test cases for HTTP/2 Client request timeout.
  */
-public class Http2ClientTimeoutTestCase {
+public class TimeoutAfterRequestWrite {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Http2ClientTimeoutTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TimeoutAfterRequestWrite.class);
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
@@ -68,6 +68,8 @@ public class Http2ClientTimeoutTestCase {
         listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
         listenerConfiguration.setVersion(Constants.HTTP_2_0);
+        //Set this to a value larger than client socket timeout value, to make sure that the client times out first
+        listenerConfiguration.setSocketIdleTimeout(500000);
         serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();

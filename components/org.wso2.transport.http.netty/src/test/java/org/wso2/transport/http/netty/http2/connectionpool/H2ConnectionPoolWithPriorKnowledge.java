@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2;
+package org.wso2.transport.http.netty.http2.connectionpool;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
@@ -53,14 +53,13 @@ import static org.wso2.transport.http.netty.util.Http2Util.assertResult;
 import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp2Client;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
-
 /**
- * Test cases for H2C client connection pool with upgrade.
+ * Test case for H2C client connection pool with prior knowledge.
  *
  * @since 6.0.273
  */
-public class H2ConnectionPoolWithUpgrade {
-    private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolWithUpgrade.class);
+public class H2ConnectionPoolWithPriorKnowledge {
+    private static final Logger LOG = LoggerFactory.getLogger(H2ConnectionPoolWithPriorKnowledge.class);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
@@ -82,6 +81,7 @@ public class H2ConnectionPoolWithUpgrade {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration h2cSenderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                               Constants.HTTP_SCHEME);
+        h2cSenderConfiguration.setForceHttp2(true);
         h2cSenderConfiguration.setHttpVersion(Constants.HTTP_2_0);
         serverConnectorFuture.setHttpConnectorListener(
             new PassthroughMessageProcessorListener(h2cSenderConfiguration, true));
@@ -93,15 +93,15 @@ public class H2ConnectionPoolWithUpgrade {
     }
 
     @Test
-    public void testH2CUpgradeWithPool() {
+    public void testPriorKnowledgeWithPool() {
         //Since we have only two eventloops, upstream will have two different pools.
-        HttpClientConnector client1 = getTestHttp2Client(httpWsConnectorFactory, false); //Upstream uses eventloop1 pool
+        HttpClientConnector client1 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
         String response1 = getResponse(client1);
-        HttpClientConnector client2 = getTestHttp2Client(httpWsConnectorFactory, false); //Upstream uses eventloop2 pool
+        HttpClientConnector client2 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
         String response2 = getResponse(client2);
-        HttpClientConnector client3 = getTestHttp2Client(httpWsConnectorFactory, false); //Upstream uses eventloop1 pool
+        HttpClientConnector client3 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
         String response3 = getResponse(client3);
-        HttpClientConnector client4 = getTestHttp2Client(httpWsConnectorFactory, false); //Upstream uses eventloop2 pool
+        HttpClientConnector client4 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
         String response4 = getResponse(client4);
 
         assertResult(response1, response2, response3, response4);
