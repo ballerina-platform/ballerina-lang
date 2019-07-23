@@ -195,7 +195,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foo()(float)",
+      "label": "foo(int x, function (int,string) returns (float) bar)(float)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

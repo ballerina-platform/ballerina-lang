@@ -237,13 +237,14 @@ public class FunctionGenerator {
     /**
      * Get the list of function arguments from the invokable symbol.
      *
-     * @param bInvokableSymbol Invokable symbol to extract the arguments
+     * @param symbol Invokable symbol to extract the arguments
+     * @param context Lang Server Operation context
      * @return {@link List} List of arguments
      */
-    public static List<String> getFuncArguments(BInvokableSymbol bInvokableSymbol) {
+    public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext context) {
         List<String> list = new ArrayList<>();
-        if (bInvokableSymbol.type instanceof BInvokableType) {
-            BInvokableType bInvokableType = (BInvokableType) bInvokableSymbol.type;
+        if (symbol.type instanceof BInvokableType) {
+            BInvokableType bInvokableType = (BInvokableType) symbol.type;
             if (bInvokableType.paramTypes.isEmpty()) {
                 return list;
             }
@@ -251,9 +252,12 @@ public class FunctionGenerator {
             Set<String> argNames = new HashSet<>();
             for (BType bType : bInvokableType.getParameterTypes()) {
                 String argName = CommonUtil.generateName(argCounter++, argNames);
-                String argType = generateTypeDefinition(null, bInvokableSymbol.pkgID, bType);
+                String argType = generateTypeDefinition(null, symbol.pkgID, bType);
                 list.add(argType + " " + argName);
                 argNames.add(argName);
+            }
+            if (symbol.restParam != null && (symbol.restParam.type instanceof BArrayType)) {
+                argNames.add("..." + CommonUtil.getBTypeName(((BArrayType) symbol.restParam.type).eType, context));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();
