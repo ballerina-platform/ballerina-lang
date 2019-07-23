@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * Implementation of {@link FunctionClauseNode}.
  */
+@Deprecated
 public class BLangFunctionClause extends BLangNode implements FunctionClauseNode {
 
     private ExpressionNode functionInvocation;

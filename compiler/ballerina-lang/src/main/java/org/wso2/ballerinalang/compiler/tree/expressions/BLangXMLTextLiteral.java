@@ -61,4 +61,10 @@ public class BLangXMLTextLiteral extends BLangExpression implements XMLTextLiter
     public String toString() {
         return "BLangXMLTextLiteral: " + textFragments;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.concatExpr = null;
+    }
 }

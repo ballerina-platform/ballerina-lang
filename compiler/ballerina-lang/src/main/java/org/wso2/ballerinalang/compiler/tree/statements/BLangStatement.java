@@ -34,4 +34,10 @@ public abstract class BLangStatement extends BLangNode implements StatementNode 
         public BLangStatement statement;
         public BLangStatementLink parent;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.statementLink = null;
+    }
 }

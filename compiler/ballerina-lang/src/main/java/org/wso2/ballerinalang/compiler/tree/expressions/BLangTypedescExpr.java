@@ -55,4 +55,10 @@ public class BLangTypedescExpr extends BLangExpression implements TypedescExpres
     public String toString() {
         return String.valueOf(resolvedType);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.resolvedType = null;
+    }
 }

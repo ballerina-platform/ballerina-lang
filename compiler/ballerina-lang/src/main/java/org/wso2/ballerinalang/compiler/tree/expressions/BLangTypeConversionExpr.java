@@ -108,4 +108,11 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
         annAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.targetType = null;
+        this.conversionSymbol = null;
+    }
 }

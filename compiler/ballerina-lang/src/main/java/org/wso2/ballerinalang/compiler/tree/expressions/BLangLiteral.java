@@ -77,4 +77,10 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
         return value == null ? originalValue : String.valueOf(value);
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.isJSONContext = false;
+        this.isFiniteContext = false;
+    }
 }

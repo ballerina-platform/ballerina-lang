@@ -73,4 +73,12 @@ public class BLangWorkerReceive extends BLangExpression implements WorkerReceive
     public String toString() {
         return "BLangWorkerReceive: " + this.toActionString();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.workerType = null;
+        this.matchingSendsError = null;
+        this.env = null;
+    }
 }

@@ -71,4 +71,11 @@ public class BLangWorkerSyncSendExpr extends BLangExpression implements WorkerSe
     public String toString() {
         return "BLangWorkerSyncSend: " + this.toActionString();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.workerType = null;
+        this.env = null;
+    }
 }

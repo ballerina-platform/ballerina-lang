@@ -72,4 +72,14 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
         this.stmts.forEach(stmt -> sj.add(stmt.toString()));
         return sj.toString();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.mapSymbol = null;
+
+        if (this.scope != null) {
+            scope.entries.clear();
+        }
+    }
 }

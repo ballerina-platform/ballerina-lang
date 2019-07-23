@@ -197,4 +197,10 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+        this.desugaredReturnType = false;
+    }
 }

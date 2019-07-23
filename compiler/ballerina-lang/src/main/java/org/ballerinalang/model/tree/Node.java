@@ -46,4 +46,10 @@ public interface Node {
      * @return the position of this node.
      */
     DiagnosticPosition getPosition();
+
+    /**
+     * Resets the symbols, types and other semantic information cached by the compiler in nodes when the compiler is
+     * executed.
+     */
+    void reset();
 }

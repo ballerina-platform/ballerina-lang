@@ -61,6 +61,13 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
         return Arrays.toString(exprs.toArray());
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.typedescType = null;
+        this.isTypedescExpr = false;
+    }
+
     /**
      * Implementation of Array literal.
      *

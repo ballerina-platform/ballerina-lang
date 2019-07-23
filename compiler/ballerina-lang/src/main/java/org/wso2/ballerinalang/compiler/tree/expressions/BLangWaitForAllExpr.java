@@ -105,7 +105,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
      * @since 0.985
      */
     public static class BLangWaitLiteral extends BLangWaitForAllExpr {
-        public BAttachedFunction initializer;
+        public BAttachedFunction initializer; // TODO: 7/22/19 Remove this
 
         public BLangWaitLiteral(List<BLangWaitKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;

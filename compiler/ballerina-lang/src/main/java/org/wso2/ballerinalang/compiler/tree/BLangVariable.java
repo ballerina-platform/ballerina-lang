@@ -106,4 +106,10 @@ public abstract class BLangVariable extends BLangNode implements VariableNode {
     public String toString() {
         return String.valueOf(type) + " " + (expr != null ? " = " + String.valueOf(expr) : "");
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
 }

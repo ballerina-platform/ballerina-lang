@@ -117,4 +117,10 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
         BLangXMLQName otherQname = (BLangXMLQName) other;
         return localname.equals(otherQname.localname) && prefix.equals(otherQname.prefix);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.nsSymbol = null;
+    }
 }

@@ -70,4 +70,9 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
         return NodeKind.TUPLE_VARIABLE_REF;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.varSymbol = null;
+    }
 }

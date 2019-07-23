@@ -80,4 +80,10 @@ public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
     public String toString() {
         return "BLangWorkerSend: " + this.toActionString();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.env = null;
+    }
 }

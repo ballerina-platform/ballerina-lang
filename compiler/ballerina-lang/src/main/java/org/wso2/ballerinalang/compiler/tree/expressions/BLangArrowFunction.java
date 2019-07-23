@@ -75,4 +75,10 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
         return String.format("ArrowExprRef:(%s) => %s",
                 Arrays.toString(params.stream().map(x -> x.name).toArray()), expression);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.funcType = null;
+    }
 }

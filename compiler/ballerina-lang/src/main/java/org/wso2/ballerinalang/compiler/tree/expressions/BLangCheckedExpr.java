@@ -62,4 +62,10 @@ public class BLangCheckedExpr extends BLangExpression implements CheckedExpressi
     public NodeKind getKind() {
         return NodeKind.CHECK_EXPR;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.equivalentErrorTypeList = null;
+    }
 }

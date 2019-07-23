@@ -55,4 +55,10 @@ public class BLangXMLAttributeAccess extends BLangIndexBasedAccess implements In
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.namespaces.clear();
+    }
 }

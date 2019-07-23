@@ -115,4 +115,11 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
             /* ignore */
         }
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.indexColumnsArrayLiteral = null;
+        this.keyColumnsArrayLiteral = null;
+    }
 }

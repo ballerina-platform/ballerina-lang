@@ -64,4 +64,10 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
     public String toString() {
         return String.valueOf(lhsExpr) + " " + String.valueOf(opKind) + " " + String.valueOf(rhsExpr);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.opSymbol = null;
+    }
 }

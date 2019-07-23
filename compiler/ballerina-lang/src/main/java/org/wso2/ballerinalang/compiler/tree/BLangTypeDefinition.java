@@ -114,4 +114,10 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
         return "BLangTypeDefinition: " + this.name;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+        this.precedence = 0;
+    }
 }

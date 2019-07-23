@@ -63,4 +63,10 @@ public class BLangLambdaFunction extends BLangExpression implements LambdaFuncti
     public String toString() {
         return "LambdaRef:" + (function != null ? String.valueOf(function.getName()) : null);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.cachedEnv = null;
+    }
 }

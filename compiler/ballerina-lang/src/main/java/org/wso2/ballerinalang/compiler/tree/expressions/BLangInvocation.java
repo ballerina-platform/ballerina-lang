@@ -158,6 +158,14 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
         this.getAnnotationAttachments().add((BLangAnnotationAttachment) annAttachment);
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.exprSymbol = null;
+        this.functionPointerInvocation = false;
+        this.langLibInvocation = false;
+    }
+
     /**
      * @since 0.94
      */

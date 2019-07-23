@@ -52,4 +52,11 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public boolean typeChecked;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.typeChecked = false;
+        this.narrowedTypeInfo = null;
+    }
 }

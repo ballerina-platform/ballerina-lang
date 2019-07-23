@@ -34,4 +34,13 @@ public abstract class BLangAccessExpression extends BLangVariableReference imple
     public boolean nilSafeNavigation = false;
     public BType originalType;
     public boolean leafNode;
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.errorSafeNavigation = false;
+        this.nilSafeNavigation = false;
+        this.originalType = null;
+        this.leafNode = false;
+    }
 }

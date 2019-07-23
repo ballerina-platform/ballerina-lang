@@ -80,4 +80,15 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public String toString() {
         return "BLangFunction: " + super.toString();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.paramClosureMap = new TreeMap<>();
+        this.mapSymbol = null;
+        this.initFunctionStmts = new LinkedHashMap<>();
+        this.closureVarSymbols = new LinkedHashSet<>();
+        this.originalFuncSymbol = null;
+        this.sendsToThis = new LinkedHashSet<>();
+    }
 }

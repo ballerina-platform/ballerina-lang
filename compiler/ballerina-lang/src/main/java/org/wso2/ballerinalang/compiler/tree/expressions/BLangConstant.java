@@ -122,4 +122,11 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
     public BLangTypeDefinition getAssociatedTypeDefinition() {
         return associatedTypeDefinition;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+
+    }
 }

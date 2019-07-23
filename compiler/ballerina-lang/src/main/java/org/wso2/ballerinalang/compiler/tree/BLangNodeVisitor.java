@@ -397,10 +397,12 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangFunctionClause functionClause) {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangSetAssignment setAssignmentClause) {
         throw new AssertionError();
     }
@@ -616,10 +618,12 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangMatchExpression bLangMatchExpression) {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangMatchExprPatternClause bLangMatchExprPatternClause) {
         throw new AssertionError();
     }
@@ -801,6 +805,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    @Deprecated
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
         throw new AssertionError();
     }

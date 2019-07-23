@@ -62,6 +62,12 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     public NodeKind getKind() {
         return NodeKind.XMLNS;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
     
     @Override
     public String toString() {

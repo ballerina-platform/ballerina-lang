@@ -66,6 +66,12 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
         return NodeKind.SIMPLE_VARIABLE_REF;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.varSymbol = null;
+    }
+
     /***
      * @since 0.94
      */

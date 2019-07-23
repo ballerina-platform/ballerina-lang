@@ -121,4 +121,14 @@ public class BLangXMLElementLiteral extends BLangExpression implements XMLElemen
         return "BLangXMLElementLiteral: <" + startTagName + (endTagName == null ? "" : "> </" + endTagName + "> ")
                 + attributes + (children == null ? "" : children);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.defaultNsSymbol = null;
+        this.modifiedChildren = null;
+        this.namespacesInScope.clear();
+        this.scope.entries.clear();
+        this.inlineNamespaces.clear();
+    }
 }

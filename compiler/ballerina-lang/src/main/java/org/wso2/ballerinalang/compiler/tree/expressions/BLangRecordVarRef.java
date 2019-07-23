@@ -39,7 +39,7 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
     public List<BLangRecordVarRefKeyValue> recordRefFields;
-    public ExpressionNode restParam;
+    public BLangExpression restParam;
     public boolean isClosed;
 
     public BLangRecordVarRef() {
@@ -76,6 +76,13 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
     @Override
     public NodeKind getKind() {
         return NodeKind.RECORD_VARIABLE_REF;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.varSymbol = null;
+
     }
 
     /**

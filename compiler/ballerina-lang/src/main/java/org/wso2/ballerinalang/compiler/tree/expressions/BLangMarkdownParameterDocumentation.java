@@ -76,4 +76,10 @@ public class BLangMarkdownParameterDocumentation extends BLangExpression
     public String toString() {
         return "BLangMarkdownParameterDocumentation: " + parameterName + " : " + parameterDocumentationLines;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
 }

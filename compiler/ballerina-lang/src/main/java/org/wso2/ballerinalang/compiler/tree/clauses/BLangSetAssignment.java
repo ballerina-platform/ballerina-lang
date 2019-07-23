@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.965.0
  */
+@Deprecated
 public class BLangSetAssignment extends BLangNode implements SetAssignmentNode {
 
     private ExpressionNode variableReferenceNode;

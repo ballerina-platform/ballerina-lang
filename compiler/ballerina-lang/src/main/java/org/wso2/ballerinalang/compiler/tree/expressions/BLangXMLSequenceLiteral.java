@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @since 0.956
  */
+@Deprecated
 public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiteralNode {
 
     public List<BLangExpression> xmlItems;

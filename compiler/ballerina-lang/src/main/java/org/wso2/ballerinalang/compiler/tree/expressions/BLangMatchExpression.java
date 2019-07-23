@@ -36,6 +36,7 @@ import java.util.StringJoiner;
  *
  * @since 0.970.0
  */
+@Deprecated
 public class BLangMatchExpression extends BLangExpression implements MatchExpressionNode {
 
     public BLangExpression expr;
@@ -66,6 +67,7 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
      *
      * @since 0.970.0
      */
+    @Deprecated
     public static class BLangMatchExprPatternClause extends BLangNode implements MatchExpressionPatternNode {
 
         public BLangSimpleVariable variable;

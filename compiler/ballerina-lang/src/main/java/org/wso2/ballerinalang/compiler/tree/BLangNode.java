@@ -65,4 +65,10 @@ public abstract class BLangNode implements Node {
             this.ws.addAll(whitespaces);
         }
     }
+
+    @Override
+    public void reset() {
+        this.type = null;
+        this.desugared = false;
+    }
 }

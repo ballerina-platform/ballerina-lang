@@ -78,4 +78,10 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     public NodeKind getKind() {
         return NodeKind.ERROR_VARIABLE_REF;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.varSymbol = null;
+    }
 }

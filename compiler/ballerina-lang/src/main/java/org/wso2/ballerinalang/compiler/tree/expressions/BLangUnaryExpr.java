@@ -58,4 +58,10 @@ public class BLangUnaryExpr extends BLangExpression implements UnaryExpressionNo
     public String toString() {
         return String.valueOf(operator) + " " + String.valueOf(expr);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.opSymbol = null;
+    }
 }

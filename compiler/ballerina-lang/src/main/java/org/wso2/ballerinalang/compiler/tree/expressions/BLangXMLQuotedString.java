@@ -71,4 +71,10 @@ public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedSt
     public String toString() {
         return "BLangXMLQuotedString: (" + quoteType + ") " + textFragments;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.concatExpr = null;
+    }
 }

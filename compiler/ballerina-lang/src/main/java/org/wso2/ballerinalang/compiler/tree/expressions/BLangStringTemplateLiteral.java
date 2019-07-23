@@ -61,4 +61,10 @@ public class BLangStringTemplateLiteral extends BLangExpression implements Strin
     public String toString() {
         return "BLangStringTemplateLiteral: " + exprs;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.concatExpr = null;
+    }
 }

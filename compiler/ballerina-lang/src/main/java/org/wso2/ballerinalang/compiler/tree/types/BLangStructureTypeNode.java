@@ -81,4 +81,9 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
         return "record { " + this.fields + " }";
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
 }

@@ -69,4 +69,11 @@ public class BLangXMLAttribute extends BLangExpression implements XMLAttributeNo
     public String toString() {
         return "BLangXMLAttribute: " + name + "=" + value;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+        this.isNamespaceDeclr = false;
+    }
 }

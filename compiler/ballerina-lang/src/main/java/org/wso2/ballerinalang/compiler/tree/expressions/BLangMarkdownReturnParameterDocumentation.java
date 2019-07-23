@@ -82,4 +82,10 @@ public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
         return "BLangMarkdownReturnParameterDocumentation: " + (returnParameterDocumentationLines == null ? "" :
                 returnParameterDocumentationLines);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.type = null;
+    }
 }

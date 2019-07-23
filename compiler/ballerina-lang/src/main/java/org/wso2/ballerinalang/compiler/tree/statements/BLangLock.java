@@ -94,6 +94,13 @@ public class BLangLock extends BLangStatement implements LockNode {
                 + (body != null ? String.valueOf(body) : "") + "}";
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.lockVariables.clear();
+        this.fieldVariables.clear();
+    }
+
     /**
      * Implementation for the lock statement, used only in desugar phase.
      *

@@ -61,4 +61,10 @@ public class BLangXMLCommentLiteral extends BLangExpression implements XMLCommen
     public String toString() {
         return "BLangXMLCommentLiteral: " + textFragments;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.concatExpr = null;
+    }
 }

@@ -148,4 +148,11 @@ public class BLangService extends BLangNode implements ServiceNode {
     public String toString() {
         return "BLangService: " + flagSet + " " + annAttachments + " " + getName();
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+        this.listenerType = null;
+    }
 }

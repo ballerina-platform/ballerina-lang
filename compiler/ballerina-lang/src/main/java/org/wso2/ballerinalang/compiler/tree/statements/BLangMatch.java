@@ -93,6 +93,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
         return String.valueOf(expr) + " match {" + String.valueOf(sj) + "}";
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.exprTypes.clear();
+    }
+
     /**
      * {@code BLangMatchBindingPatternClause} is the parent class for all the pattern clauses.
      *
@@ -109,6 +115,12 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         // flag to set the last pattern clause
         public boolean isLastPattern;
+
+        @Override
+        public void reset() {
+            super.reset();
+            this.matchExpr = null;
+        }
     }
 
     /**

@@ -73,4 +73,10 @@ public class BLangXMLProcInsLiteral extends BLangExpression implements XMLProces
     public String toString() {
         return "BLangXMLProcInsLiteral: " + dataFragments;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.dataConcatExpr = null;
+    }
 }

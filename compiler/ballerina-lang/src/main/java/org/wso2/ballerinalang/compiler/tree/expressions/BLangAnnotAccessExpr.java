@@ -78,4 +78,10 @@ public class BLangAnnotAccessExpr extends BLangAccessExpression implements Annot
     public void setAnnotationName(IdentifierNode name) {
         this.annotationName = (BLangIdentifier) name;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.annotationSymbol = null;
+    }
 }

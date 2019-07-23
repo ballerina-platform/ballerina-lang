@@ -63,4 +63,11 @@ public class BLangIsAssignableExpr extends BLangExpression implements IsAssignab
     public String toString() {
         return String.valueOf(this.lhsExpr) + " " + this.opKind.value() + " " + this.targetType;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.targetType = null;
+        this.opSymbol = null;
+    }
 }

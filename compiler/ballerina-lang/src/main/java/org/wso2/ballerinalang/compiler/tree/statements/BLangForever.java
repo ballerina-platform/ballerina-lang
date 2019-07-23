@@ -93,4 +93,10 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
     public boolean isSiddhiRuntimeEnabled() {
         return isSiddhiRuntimeEnabled;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.env = null;
+    }
 }

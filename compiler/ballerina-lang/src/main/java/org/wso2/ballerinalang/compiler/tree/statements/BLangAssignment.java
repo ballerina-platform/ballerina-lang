@@ -33,7 +33,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
     public BLangExpression varRef;
     public BLangExpression expr;
     public boolean declaredWithVar;
-    public boolean safeAssignment;
+    public boolean safeAssignment; // TODO: 7/22/19 Check if this can be removed
 
     public BLangAssignment() {
     }

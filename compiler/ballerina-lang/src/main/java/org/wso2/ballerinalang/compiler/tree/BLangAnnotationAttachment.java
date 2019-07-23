@@ -88,4 +88,10 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
         this.expr = (BLangExpression) expression;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        this.annotationSymbol = null;
+    }
+
 }

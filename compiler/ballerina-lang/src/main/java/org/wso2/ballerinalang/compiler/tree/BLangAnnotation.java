@@ -124,4 +124,10 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public String toString() {
         return "BLangAnnotation: " + this.name + " -> " + this.typeNode;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
 }

@@ -91,4 +91,12 @@ public class BLangForeach extends BLangStatement implements ForeachNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.varType = null;
+        this.resultType = null;
+        this.nillableResultType = null;
+    }
 }

@@ -136,4 +136,10 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
 
         return (orgName.isEmpty() ? "" : orgName + '/') + pkgName + versionStr + aliasStr;
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.symbol = null;
+    }
 }
