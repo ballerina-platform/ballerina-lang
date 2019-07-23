@@ -174,3 +174,24 @@ function testStringMemberAccessForAssignment() {
     string animal = "animal";
     animal[0] = "b";
 }
+
+const I5 = 5;
+
+function testInvalidOutOfRangeClosedArrayMemberAccessByConstant() {
+    Employee[2] ia = [{ name: "abc" }, { name: "def" }];
+    _ = ia[I5];
+}
+
+function testInvalidOutOfRangeTupleMemberAccessByConstant() {
+    [int, Employee] ia = [1, { name: "def" }];
+    _ = ia[I5];
+}
+
+const NAMEC = "name";
+const AGEC = "age";
+
+function testInvalidRecordMemberAccessByConst() {
+    Employee e = { name: "abc" };
+    int i1 = e[NAMEC];
+    int i2 = e[AGEC];
+}

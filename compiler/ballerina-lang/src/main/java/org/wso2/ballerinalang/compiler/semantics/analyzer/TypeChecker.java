@@ -3926,9 +3926,12 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.type.tag == TypeTags.STRING && indexExpr.getKind() == NodeKind.LITERAL) {
+                if (indexExpr.type.tag == TypeTags.STRING && isConst(indexExpr)) {
+                    String fieldName = indexExpr.getKind() == NodeKind.LITERAL ?
+                            (String) ((BLangLiteral) indexExpr).value :
+                            (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
-                               ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
+                               fieldName, indexBasedAccessExpr.expr.type);
                     return actualType;
                 }
 
@@ -3949,9 +3952,11 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.type.tag == TypeTags.INT && indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
-                            ((BLangLiteral) indexExpr).value);
+                if (indexExpr.type.tag == TypeTags.INT && isConst(indexExpr)) {
+                    Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
+                            (Long) ((BLangLiteral) indexExpr).value :
+                            (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE, index);
                     return actualType;
                 }
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
@@ -4005,14 +4010,17 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         switch (indexExprType.tag) {
             case TypeTags.INT:
-                if (indexBasedAccess.indexExpr.getKind() != NodeKind.NUMERIC_LITERAL ||
-                        arrayType.state == BArrayState.UNSEALED) {
+                BLangExpression indexExpr = indexBasedAccess.indexExpr;
+                if (!isConst(indexExpr) || arrayType.state == BArrayState.UNSEALED) {
                     actualType = arrayType.eType;
                     break;
                 }
 
-                actualType = ((Long) ((BLangLiteral) indexBasedAccess.indexExpr).value) >= arrayType.size ?
-                        symTable.semanticError : arrayType.eType;
+                Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
+                        (Long) ((BLangLiteral) indexExpr).value :
+                        (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+
+                actualType = index >= arrayType.size ? symTable.semanticError : arrayType.eType;
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
@@ -4091,9 +4099,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.INT:
-                if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
-                    actualType = checkTupleFieldType(tuple, indexValue);
+                if (isConst(indexExpr)) {
+                    Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
+                            (Long) ((BLangLiteral) indexExpr).value :
+                            (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+                    actualType = checkTupleFieldType(tuple, index.intValue());
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
                     LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
@@ -4217,8 +4227,10 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
-                if (indexExpr.getKind() == NodeKind.LITERAL) {
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                if (isConst(indexExpr)) {
+                    String fieldName = indexExpr.getKind() == NodeKind.LITERAL ?
+                            (String) ((BLangLiteral) indexExpr).value :
+                            (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;
