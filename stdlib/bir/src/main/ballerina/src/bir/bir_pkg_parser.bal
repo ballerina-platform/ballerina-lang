@@ -130,7 +130,6 @@ public type PackageParser object {
 
     public function parseFunction(TypeDef?[] typeDefs) returns @untainted Function {
         map<VariableDcl> localVarMap = {};
-        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
@@ -224,6 +223,7 @@ public type PackageParser object {
             count += 1;
         }
 
+        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs, receiver);
         count = 0;
         BasicBlock?[][] paramDefaultBBs = [];
         while (count < numDefaultParams) {
