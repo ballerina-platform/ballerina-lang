@@ -303,12 +303,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resolveBlockedInvokable(blockedNodeList);
         resolveBlockedInvokable(blockedEntryPointNodeList);
 
+        // Go through module level variable after all functions are resolved.
+        analyzeModuleLevelVariableDefinitions(topLevelNodeGroups.get(true));
+
         if (dlogSet.size() > 0) {
             dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
                     dlogEntry.paramName.toArray()));
         }
         currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
+    }
+
+    private void analyzeModuleLevelVariableDefinitions(List<TopLevelNode> topLevelNodes) {
+        // Only analyze variable definitions
+        topLevelNodes.stream()
+                .filter(node -> node.getKind() == NodeKind.VARIABLE || node.getKind() == NodeKind.VARIABLE_DEF)
+                .forEach(topLevelNode -> {
+                    AnalysisState analysisState = new AnalysisState();
+                    analysisStateStack.push(analysisState);
+                    ((BLangNode) topLevelNode).accept(this);
+                    analysisStateStack.pop();
+                });
     }
 
     private void analyzeNode(List<TopLevelNode> topLevelNodes) {
@@ -487,7 +502,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE
+        if (isModuleVariable(varNode.symbol)
                 || (varNode.symbol.owner.type != null && varNode.symbol.owner.type.tag == TypeTags.SERVICE)) {
             if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
                 ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.TAINTED;
@@ -653,7 +668,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
         return varRef.symbol != null && varRef.symbol.owner != null
-                && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
+                && (isModuleVariable(varRef.symbol)
                 || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);
     }
 
