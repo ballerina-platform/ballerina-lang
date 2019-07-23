@@ -33,6 +33,7 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -92,7 +93,9 @@ public class CallStatement extends AbstractSQLStatement {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
-            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
+            ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
+                    datasource.getDatabaseProductName());
+            stmt = (CallableStatement) processedStatement.prepare();
             boolean refCursorOutParamsPresent = isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = false;
             TableResourceManager rm = null;
@@ -123,12 +126,12 @@ public class CallStatement extends AbstractSQLStatement {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
     }
@@ -210,8 +213,8 @@ public class CallStatement extends AbstractSQLStatement {
             }
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getValue(index);
             if (paramValue != null) {
-                String sqlType = getSQLType(paramValue);
-                int direction = getParameterDirection(paramValue);
+                String sqlType = StatementProcessUtils.getSQLType(paramValue);
+                int direction = StatementProcessUtils.getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.INOUT
                         || direction == Constants.QueryParamDirection.OUT) {
                     setOutParameterValue(stmt, sqlType, index, paramValue, rm);
@@ -391,7 +394,7 @@ public class CallStatement extends AbstractSQLStatement {
         int paramCount = params.size();
         for (int index = 0; index < paramCount; index++) {
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getRefValue(index);
-            int direction = getParameterDirection(paramValue);
+            int direction = StatementProcessUtils.getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }
@@ -405,8 +408,8 @@ public class CallStatement extends AbstractSQLStatement {
         for (int index = 0; index < paramCount; index++) {
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getRefValue(index);
             if (paramValue != null) {
-                String sqlType = getSQLType(paramValue);
-                int direction = getParameterDirection(paramValue);
+                String sqlType = StatementProcessUtils.getSQLType(paramValue);
+                int direction = StatementProcessUtils.getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.OUT && Constants.SQLDataTypes.REFCURSOR
                         .equals(sqlType)) {
                     refCursorOutParamPresent = true;
@@ -439,7 +442,7 @@ public class CallStatement extends AbstractSQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
         }
     }
 }

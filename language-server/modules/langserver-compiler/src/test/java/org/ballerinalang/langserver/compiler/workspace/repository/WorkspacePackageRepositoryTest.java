@@ -142,7 +142,8 @@ public class WorkspacePackageRepositoryTest {
     }
 
     private String getPackageName(String sourceRoot, Path filePath) {
-        String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+        LSDocument lsDocument = new LSDocument(sourceRoot);
+        String packageName = lsDocument.getOwnerModule();
         if ("".equals(packageName)) {
             Path path = filePath.getFileName();
             if (path != null) {

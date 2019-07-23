@@ -682,7 +682,7 @@ public type FuncBodyParser object {
             }
 
             var possibleDcl = self.globalVarMap[varName];
-            if (possibleDcl is VariableDcl) {
+            if (possibleDcl is GlobalVariableDcl) {
                 return possibleDcl;
             } else {
                 error err = error("global var missing " + varName);

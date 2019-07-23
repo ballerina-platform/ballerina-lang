@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/reflect;
+import ballerina/'lang\.object as lang;
 
 type Annot record {
     string foo;  
@@ -41,7 +42,7 @@ service ser on lis {
 }
 
 type Listener object {
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public function __init() {
     }
@@ -79,6 +80,6 @@ function annotationAccessExpressionTest() {
         }
     };
 
-    typedesc td = typeof ser;
+    typedesc<service> td = typeof ser;
     Annot? m1 = td.@v4;
 }

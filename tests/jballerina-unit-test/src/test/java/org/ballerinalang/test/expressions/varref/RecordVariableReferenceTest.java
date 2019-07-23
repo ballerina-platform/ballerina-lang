@@ -70,7 +70,7 @@ public class RecordVariableReferenceTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test simple record variable definition", groups = { "brokenOnLangLibChange" })
+    @Test(description = "Test simple record variable definition")
     public void testRestParam() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParam");
         Assert.assertEquals(returns.length, 1);
@@ -104,8 +104,7 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 1990);
     }
 
-    @Test(description = "Test record var ref inside tuple var ref inside record var ref",
-            groups = { "brokenOnLangLibChange" })
+    @Test(description = "Test record var ref inside tuple var ref inside record var ref")
     public void testRecordInsideTupleInsideRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.length, 3);
@@ -140,9 +139,8 @@ public class RecordVariableReferenceTest {
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     // TODO: Uncomment below tests once record literal is supported with var ref

@@ -25,7 +25,7 @@ configurations.all {
 dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser'
 
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
     testCompile 'org.testng:testng'
