@@ -1,6 +1,8 @@
 import ballerina/http;
 
 listener http:Listener helloWorldEP = new (19090);
+const JOB = "job";
+final string SS = "job2";
 
 any globalLevelVariable = "";
 service sample on helloWorldEP {
@@ -13,6 +15,14 @@ service sample on helloWorldEP {
 
         self.serviceLevelVariable = "static";
         globalLevelVariable = "static";
+        modifyParamVar([JOB, SS], taintedVal());
     }
 }
 
+function modifyParamVar(string[] s, string tainted) {
+    s[0] = tainted;
+}
+
+function taintedVal() returns @tainted string {
+    return "val";
+}

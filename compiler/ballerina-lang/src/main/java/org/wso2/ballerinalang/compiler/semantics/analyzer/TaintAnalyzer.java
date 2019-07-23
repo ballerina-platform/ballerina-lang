@@ -291,7 +291,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         env = pkgEnv;
 
         Map<Boolean, List<TopLevelNode>> topLevelNodeGroups = pkgNode.topLevelNodes.stream()
-                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE));
+                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE
+                    || node.getKind() == NodeKind.CONSTANT));
 
         // Analyze top level variable nodes.
         analyzeNode(topLevelNodeGroups.get(true));
@@ -554,7 +555,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Generate error if a global variable has been assigned with a tainted value.
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
-                if (isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
+                if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(pos, varRef.symbol.name.value,
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
@@ -606,7 +607,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-    
+
+    private boolean isMutableVariable(BLangVariableReference varRef) {
+        if (varRef.symbol == null) {
+            if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+                    || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangExpression expr = ((BLangAccessExpression) varRef).expr;
+                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || varRef.getKind() == NodeKind.CONSTANT_REF) {
+                    return isMutableVariable((BLangVariableReference) expr);
+                }
+            }
+            return false;
+        }
+        if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+            return false;
+        }
+        return true;
+    }
+
     private boolean notInSameScope(BLangVariableReference varRefExpr, SymbolEnv env) {
         return !varRefExpr.symbol.owner.equals(env.scope.owner);
     }
