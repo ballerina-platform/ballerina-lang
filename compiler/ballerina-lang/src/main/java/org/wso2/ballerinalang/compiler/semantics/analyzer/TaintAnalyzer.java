@@ -464,6 +464,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     ((BInvokableSymbol) varNode.symbol).taintTable = taintTable;
                 }
             }
+            // blocker found while analyzing module level variable, reset stopAnalysis flag
+            if (stopAnalysis && isModuleVariable(varNode.symbol)) {
+                stopAnalysis = false;
+            }
+
+            if (isModuleVariable(varNode.symbol)
+                    && getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                dlogSet.add(new TaintRecord.TaintError(varNode.pos, varNode.name.value,
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE));
+            }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
         }
 
@@ -486,6 +496,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.UNTAINTED;
             }
         }
+    }
+
+    private boolean isModuleVariable(BSymbol symbol) {
+        return symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     @Override
