@@ -48,10 +48,10 @@ import org.wso2.transport.http.netty.contractimpl.sender.channel.BootstrapConfig
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientTimeoutHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.RequestWriteStarter;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
@@ -250,13 +250,13 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 private void prepareTargetChannelForHttp2() {
                     freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
                     connectionManager.getHttp2ConnectionManager().
-                        addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
-                                              freshHttp2ClientChannel);
+                            addHttp2ClientChannel(freshHttp2ClientChannel.getChannel().eventLoop(), route,
+                                                  freshHttp2ClientChannel);
                     freshHttp2ClientChannel.getConnection().remote().flowController().listener(
-                        new ClientRemoteFlowControlListener(freshHttp2ClientChannel));
-                    freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
-                                                                 new TimeoutHandler(socketIdleTimeout,
-                                                                                    freshHttp2ClientChannel));
+                            new ClientRemoteFlowControlListener(freshHttp2ClientChannel));
+                    freshHttp2ClientChannel.addDataEventListener(
+                            Constants.IDLE_STATE_HANDLER,
+                            new Http2ClientTimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }

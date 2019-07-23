@@ -43,20 +43,22 @@ import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIG
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
 
 /**
- * {@code TimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
+ * {@code Http2ClientTimeoutHandler} handles the Read/Write Timeout of HTTP/2 streams.
  */
-public class TimeoutHandler implements Http2DataEventListener {
+public class Http2ClientTimeoutHandler implements Http2DataEventListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TimeoutHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ClientTimeoutHandler.class);
     private static final long MIN_TIMEOUT_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
     private long idleTimeNanos;
     private Http2ClientChannel http2ClientChannel;
     private Map<Integer, ScheduledFuture<?>> timerTasks;
 
-    public TimeoutHandler(long idleTimeMills, Http2ClientChannel http2ClientChannel) {
+    public Http2ClientTimeoutHandler(long idleTimeMills, Http2ClientChannel http2ClientChannel) {
         this.idleTimeNanos = Math.max(TimeUnit.MILLISECONDS.toNanos(idleTimeMills), MIN_TIMEOUT_NANOS);
         this.http2ClientChannel = http2ClientChannel;
         timerTasks = new ConcurrentHashMap<>();
@@ -241,13 +243,5 @@ public class TimeoutHandler implements Http2DataEventListener {
         private long getNextDelay(OutboundMsgHolder msgHolder) {
             return idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
         }
-    }
-
-    private long ticksInNanos() {
-        return System.nanoTime();
-    }
-
-    private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
-        return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
     }
 }

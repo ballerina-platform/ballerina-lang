@@ -19,20 +19,26 @@
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
@@ -57,7 +63,7 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -65,13 +71,16 @@ public class ReceivingEntityBody implements ListenerState {
     public void readInboundRequestBody(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
-
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId)
+                .getInboundMsg();
         if (sourceReqCMsg != null) {
+            for (Http2DataEventListener listener : http2SourceHandler.getHttp2ServerChannel().getDataEventListeners()) {
+                listener.onDataRead(http2SourceHandler.getChannelHandlerContext(), streamId, data,
+                                    dataFrame.isEndOfStream());
+            }
             if (dataFrame.isEndOfStream()) {
                 sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                 sourceReqCMsg.setLastHttpContentArrived();
-                http2SourceHandler.getStreamIdRequestMap().remove(streamId);
                 http2MessageStateContext.setListenerState(new EntityBodyReceived(http2MessageStateContext));
             } else {
                 sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
@@ -120,5 +129,12 @@ public class ReceivingEntityBody implements ListenerState {
                 http2OutboundRespListener.getInboundRequestMsg(),
                 http2OutboundRespListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture(),
                 http2OutboundRespListener.getOriginalStreamId());
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId, REQUEST_TIMEOUT,
+                                                  Unpooled.EMPTY_BUFFER, true, false);
     }
 }

@@ -25,6 +25,7 @@ import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
@@ -35,6 +36,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseDataFrame;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.sendRstFrame;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * State of successfully written outbound response or push response.
@@ -59,7 +61,7 @@ public class ResponseCompleted implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -96,5 +98,11 @@ public class ResponseCompleted implements ListenerState {
         LOG.warn("writeOutboundPromise is not a dependant action of this state");
         throw new Http2Exception(Http2Error.PROTOCOL_ERROR,
                 "WriteOutboundPromise is not a dependant action of ResponseCompleted state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
 }

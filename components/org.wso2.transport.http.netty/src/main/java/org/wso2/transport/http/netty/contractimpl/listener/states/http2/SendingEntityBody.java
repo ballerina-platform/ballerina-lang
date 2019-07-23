@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -37,12 +38,15 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -53,6 +57,7 @@ import java.util.Calendar;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG_FORMAT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 
@@ -96,7 +101,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -131,6 +136,18 @@ public class SendingEntityBody implements ListenerState {
                 "WriteOutboundPromise is not a dependant action of SendingEntityBody state");
     }
 
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        try {
+            serverConnectorFuture.notifyErrorListener(
+                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY));
+            LOG.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        } catch (ServerConnectorException e) {
+            LOG.error("Error while notifying error state to server-connector listener");
+        }
+    }
+
     private void writeContent(Http2OutboundRespListener http2OutboundRespListener,
                               HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
             throws Http2Exception {
@@ -159,11 +176,19 @@ public class SendingEntityBody implements ListenerState {
     private void writeData(HttpContent httpContent, int streamId, boolean endStream) throws Http2Exception {
         contentLength += httpContent.content().readableBytes();
         validatePromisedStreamState(originalStreamId, streamId, conn, inboundRequestMsg);
+        final ByteBuf content = httpContent.content();
+        for (Http2DataEventListener dataEventListener : http2OutboundRespListener.getHttp2ServerChannel()
+                .getDataEventListeners()) {
+            if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
+                break;
+            }
+        }
         ChannelFuture channelFuture = encoder.writeData(
-                ctx, streamId, httpContent.content(), 0, endStream, ctx.newPromise());
+                ctx, streamId, content, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
         if (endStream) {
+            http2OutboundRespListener.getHttp2ServerChannel().getStreamIdRequestMap().remove(streamId);
             Util.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, channelFuture);
         } else {
             Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture, http2OutboundRespListener);

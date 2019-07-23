@@ -71,6 +71,7 @@ import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -911,5 +912,13 @@ public class Util {
         if (handshakeTimeout > 0) {
             sslHandler.setHandshakeTimeout(handshakeTimeout, TimeUnit.SECONDS);
         }
+    }
+
+    public static long ticksInNanos() {
+        return System.nanoTime();
+    }
+
+    public static ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
+        return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
     }
 }

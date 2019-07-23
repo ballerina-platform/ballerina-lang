@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2Error;
 import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpServerChannelInitializer;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2ServerChannel;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.EntityBodyReceived;
 import org.wso2.transport.http.netty.contractimpl.listener.states.http2.SendingHeaders;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
@@ -72,12 +74,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     private String remoteAddress = "-";
     private ServerRemoteFlowControlListener remoteFlowControlListener;
     private ResponseWriter defaultResponseWriter;
+    private Http2ServerChannel http2ServerChannel;
 
     public Http2OutboundRespListener(HttpServerChannelInitializer serverChannelInitializer,
                                      HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                      Http2Connection conn, Http2ConnectionEncoder encoder, int streamId,
                                      String serverName, String remoteAddress,
-                                     ServerRemoteFlowControlListener remoteFlowControlListener) {
+                                     ServerRemoteFlowControlListener remoteFlowControlListener,
+                                     Http2ServerChannel http2ServerChannel) {
         this.serverChannelInitializer = serverChannelInitializer;
         this.inboundRequestMsg = inboundRequestMsg;
         this.ctx = ctx;
@@ -92,6 +96,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         inboundRequestArrivalTime = Calendar.getInstance();
         http2MessageStateContext = inboundRequestMsg.getHttp2MessageStateContext();
         this.remoteFlowControlListener = remoteFlowControlListener;
+        this.http2ServerChannel = http2ServerChannel;
     }
 
     @Override
@@ -111,7 +116,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onPushResponse(int promiseId, HttpCarbonMessage outboundResponseMsg) {
+        //TODO:Add HTTP/2 server timeout handler for the push response stream
         if (isValidStreamId(promiseId, conn)) {
+            //TODO:Call dataEventListener.onStreamInit with the promiseId
             writeMessage(outboundResponseMsg, promiseId, false);
         } else {
             inboundRequestMsg.getHttpOutboundRespStatusFuture()
@@ -229,6 +236,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         }
     }
 
+    public void resetStream(ChannelHandlerContext ctx, int streamId, Http2Error http2Error) throws Http2Exception {
+        encoder.writeRstStream(ctx, streamId, http2Error.code(), ctx.newPromise());
+        encoder.flowController().writePendingBytes();
+        http2ServerChannel.getDataEventListeners()
+                .forEach(dataEventListener -> dataEventListener.onStreamReset(streamId));
+        ctx.flush();
+    }
+
     public ChannelHandlerContext getChannelHandlerContext() {
         return ctx;
     }
@@ -271,5 +286,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     public void removeDefaultResponseWriter() {
         remoteFlowControlListener.removeResponseWriter(defaultResponseWriter);
+    }
+
+    public Http2ServerChannel getHttp2ServerChannel() {
+        return http2ServerChannel;
     }
 }

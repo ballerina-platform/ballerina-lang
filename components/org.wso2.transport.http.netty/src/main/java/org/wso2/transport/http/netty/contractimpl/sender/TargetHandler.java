@@ -34,8 +34,8 @@ import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateCont
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientTimeoutHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
-import org.wso2.transport.http.netty.contractimpl.sender.http2.TimeoutHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
@@ -169,7 +169,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                              Constants.HTTP_TRACE_LOG_HANDLER);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
-                new TimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
+                new Http2ClientTimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));
 
         http2ClientChannel.getInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID).setRequestWritten(true);
         http2ClientChannel.getDataEventListeners().
