@@ -130,22 +130,22 @@ public type LdapConnection record {|
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
-# + return - Array of groups for the user denoted by the username
-public function getGroups(LdapConnection ldapConnection, string username) returns string[] = external;
+# + return - Array of groups for the user denoted by the username or `Error` if error occurred
+public function getGroups(LdapConnection ldapConnection, string username) returns string[]|Error = external;
 
 # Authenticate with username and password.
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
 # + password - Password
-# + return - true if authentication is a success, else false
+# + return - true if authentication is a success, else false or `Error` if error occurred
 public function doAuthenticate(LdapConnection ldapConnection, string username, string password)
-                               returns boolean = external;
+                               returns boolean|Error = external;
 
 # Initailizes LDAP connection context.
 #
 # + ldapConnectionConfig - `LdapConnectionConfig` instance
 # + instanceId - Unique id generated to identify an endpoint
-# + return - `LdapConnection` instance
+# + return - `LdapConnection` instance or `Error` if error occurred
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
-                                          returns LdapConnection = external;
+                                          returns LdapConnection|Error = external;

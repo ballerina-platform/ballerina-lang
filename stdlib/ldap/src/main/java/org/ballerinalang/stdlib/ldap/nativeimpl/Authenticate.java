@@ -56,8 +56,8 @@ public class Authenticate extends BlockingNativeCallableUnit {
 
     }
 
-    public static boolean doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
-                                        String password) {
+    public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
+                                             String password) {
         byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
         DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
@@ -84,11 +84,11 @@ public class Authenticate extends BlockingNativeCallableUnit {
             }
             return false;
         } catch (NamingException e) {
-            LOG.error("Cannot bind user : " + userName, e);
-            return false;
+            LOG.error("Cannot bind user: " + userName, e);
+            return LdapUtils.createError(e.getMessage());
         } catch (UserStoreException e) {
             LOG.error(e.getMessage(), e);
-            return false;
+            return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
         }

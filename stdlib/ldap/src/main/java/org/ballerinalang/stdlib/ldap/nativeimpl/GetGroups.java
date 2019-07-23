@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -63,7 +62,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
 
     }
 
-    public static ArrayValue getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
+    public static Object getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
         try {
             LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
             DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
@@ -73,7 +72,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
         } catch (UserStoreException | NamingException e) {
-            return new ArrayValue(BTypes.typeString);
+            return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
         }

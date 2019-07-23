@@ -31,7 +31,6 @@ import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.SslContextTrustManager;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.ballerinalang.stdlib.ldap.util.SslUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,8 +61,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     }
 
-    public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
-                                                                     String instanceId) {
+    public static Object initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
+                                                   String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));
@@ -124,7 +123,7 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            return LdapUtils.createError(e.getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();

@@ -19,7 +19,10 @@ package org.ballerinalang.stdlib.ldap.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
+import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -267,5 +270,9 @@ public class LdapUtils {
 
     public static void removeServiceName() {
         socketFactoryName.remove();
+    }
+
+    public static ErrorValue createError(String errMsg) {
+        return BallerinaErrors.createError(LdapConstants.LDAP_ERROR_CODE, errMsg);
     }
 }
