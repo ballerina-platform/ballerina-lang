@@ -4530,12 +4530,6 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkMapConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
-        BType varRefType = indexAccessExpr.expr.type;
-
-        if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
-            return symTable.semanticError;
-        }
-
         BLangConstantValue value = getMapConstAccessConstantValue(indexAccessExpr);
 
         if (value == null) {
@@ -4567,6 +4561,10 @@ public class TypeChecker extends BLangNodeVisitor {
             BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.expr).symbol;
             exprConstValue = (Map<String, BLangConstantValue>) constantSymbol.value.value;
         } else {
+            return null;
+        }
+
+        if (exprConstValue == null) {
             return null;
         }
 
