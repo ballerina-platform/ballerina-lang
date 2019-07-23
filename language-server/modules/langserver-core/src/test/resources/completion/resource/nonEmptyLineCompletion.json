@@ -256,7 +256,7 @@
       }
     },
     {
-      "label": "function1()",
+      "label": "function1(int a, string b)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

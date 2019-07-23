@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.runconfig;
 
+import com.google.common.base.Strings;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -40,6 +41,7 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
+import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jdom.Element;
@@ -115,13 +117,20 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         BallerinaModuleBasedConfiguration configurationModule = getConfigurationModule();
         Module module = configurationModule.getModule();
         if (module != null) {
-            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
-                throw new RuntimeConfigurationError("Ballerina SDK is not specified for module '" +
-                        module.getName() + "'");
+            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null
+                    && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
+                if (autoDetectedPath.isEmpty()) {
+                    throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
+                            "detection is failed for module '%s'", module.getName()));
+                }
+            } else {
+                throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified for module '%s'",
+                        module.getName()));
             }
         } else {
             String moduleName = configurationModule.getModuleName();
-            if (moduleName != null) {
+            if (Strings.isNullOrEmpty(moduleName)) {
                 throw new RuntimeConfigurationError(
                         ExecutionBundle.message("module.doesn.t.exist.in.project.error.text", moduleName));
             }
@@ -133,7 +142,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     }
 
     @Override
-    public void writeExternal(Element element) throws WriteExternalException {
+    public void writeExternal(@NotNull Element element) throws WriteExternalException {
         super.writeExternal(element);
         writeModule(element);
         addNonEmptyElement(element, WORKING_DIRECTORY_NAME, myWorkingDirectory);
@@ -143,13 +152,13 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
             EnvironmentVariablesComponent.writeExternal(element, myCustomEnvironment);
         }
         if (!myPassParentEnvironment) {
-            JDOMExternalizerUtil.addElementWithValueAttribute(element, PASS_PARENT_ENV, "false");
+            JDOMExternalizerUtil.writeCustomField(element, PASS_PARENT_ENV, "false");
         }
     }
 
     protected void addNonEmptyElement(@NotNull Element element, @NotNull String attributeName, @Nullable String value) {
         if (StringUtil.isNotEmpty(value)) {
-            JDOMExternalizerUtil.addElementWithValueAttribute(element, attributeName, value);
+            JDOMExternalizerUtil.writeCustomField(element, attributeName, value);
         }
     }
 
@@ -157,18 +166,18 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
         readModule(element);
-        myBallerinaParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        myBallerinaParams = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element,
                 BALLERINA_PARAMETERS_NAME));
-        myParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element, PARAMETERS_NAME));
+        myParams = StringUtil.notNullize(JDOMExternalizerUtil.readCustomField(element, PARAMETERS_NAME));
 
-        String workingDirectoryValue = JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        String workingDirectoryValue = JDOMExternalizerUtil.readCustomField(element,
                 WORKING_DIRECTORY_NAME);
         if (workingDirectoryValue != null) {
             myWorkingDirectory = workingDirectoryValue;
         }
         EnvironmentVariablesComponent.readExternal(element, myCustomEnvironment);
 
-        String passEnvValue = JDOMExternalizerUtil.getFirstChildValueAttribute(element, PASS_PARENT_ENV);
+        String passEnvValue = JDOMExternalizerUtil.readCustomField(element, PASS_PARENT_ENV);
         myPassParentEnvironment = passEnvValue == null || Boolean.valueOf(passEnvValue);
     }
 

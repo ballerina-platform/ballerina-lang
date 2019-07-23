@@ -22,7 +22,7 @@ import io.ballerina.plugins.idea.debugger.client.DAPClient;
 import io.ballerina.plugins.idea.debugger.client.DAPRequestManager;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaSocketStreamConnectionProvider;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaStreamConnectionProvider;
-import io.ballerina.plugins.idea.preloading.OperatingSystemUtils;
+import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -200,7 +200,7 @@ public class BallerinaDAPClientConnector {
     private BallerinaStreamConnectionProvider createConnectionProvider(Project project) {
 
         String debugLauncherPath = "";
-        String os = OperatingSystemUtils.getOperatingSystem();
+        String os = OSUtils.getOperatingSystem();
         if (os != null) {
             String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
             if (balSdkPath == null) {
@@ -208,10 +208,10 @@ public class BallerinaDAPClientConnector {
                         project.getName()));
                 return null;
             }
-            if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
+            if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
                 debugLauncherPath = Paths.get(balSdkPath, BALLERINA_DEBUG_LAUNCHER_PATH,
                         BALLERINA_DEBUG_LAUNCHER_NAME + ".sh").toString();
-            } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
+            } else if (os.equals(OSUtils.WINDOWS)) {
                 debugLauncherPath = Paths.get(balSdkPath, BALLERINA_DEBUG_LAUNCHER_PATH,
                         BALLERINA_DEBUG_LAUNCHER_NAME + ".bat").toString();
             }
