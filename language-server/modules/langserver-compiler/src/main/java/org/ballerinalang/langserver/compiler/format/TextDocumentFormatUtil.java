@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -49,8 +50,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -185,6 +190,15 @@ public class TextDocumentFormatUtil {
             JsonArray endpoints = new JsonArray();
             endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
             nodeJson.add("VisibleEndpoints", endpoints);
+        }
+
+        if (node instanceof BLangSimpleVariableDef) {
+            nodeJson.addProperty("isEndpoint", isClientObject(((BLangSimpleVariableDef) node).var.symbol));
+        } else if (node instanceof BLangSimpleVariable) {
+            nodeJson.addProperty("isEndpoint", isClientObject(((BLangSimpleVariable) node).symbol));
+        } else if (node instanceof BLangSimpleVarRef) {
+            BSymbol varSymbol = ((BLangSimpleVarRef) node).symbol;
+            nodeJson.addProperty("isEndpoint", varSymbol != null && isClientObject(varSymbol));
         }
 
         JsonArray type = getType(node);
@@ -393,5 +407,17 @@ public class TextDocumentFormatUtil {
             return jsonElements;
         }
         return null;
+    }
+
+    /**
+     * Check whether a given symbol is client object or not.
+     *
+     * @param bSymbol BSymbol to evaluate
+     * @return {@link Boolean}  Symbol evaluation status
+     */
+    public static boolean isClientObject(BSymbol bSymbol) {
+        return bSymbol.type != null && bSymbol.type.tsymbol != null
+                && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
+                && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }
