@@ -43,7 +43,6 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.table.BCursorTable;
 import org.ballerinax.jdbc.table.SQLDataIterator;
 import org.ballerinax.jdbc.transaction.SQLTransactionContext;
@@ -328,7 +327,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
 */
 
    void createProcessedStatement(Connection conn, PreparedStatement stmt, ArrayValue params, String databaseProductName)
-           throws ApplicationException, DatabaseException {
+           throws ApplicationException, SQLException {
         if (params == null) {
             return;
         }
@@ -456,7 +455,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     Connection getDatabaseConnection(Strand strand, ObjectValue client, SQLDatasource datasource,
-                                     boolean isSelectQuery) throws DatabaseException {
+                                     boolean isSelectQuery) throws SQLException {
         Connection conn;
         try {
             boolean isInTransaction = strand.isInTransaction();
@@ -510,7 +509,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn = ((SQLTransactionContext) txContext).getConnection();
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while getting the connection for " + Constants.CONNECTOR_NAME + ". ", e);
+            throw new SQLException("Error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
+                    + e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
         return conn;
     }
@@ -528,12 +528,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index) throws DatabaseException, ApplicationException {
+            int index) throws SQLException, ApplicationException {
         setParameter(conn, stmt, sqlType, value, direction, index, null);
     }
 
     private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, Object value, int direction,
-            int index, String databaseProductName) throws ApplicationException, DatabaseException {
+            int index, String databaseProductName) throws ApplicationException, SQLException {
         if (sqlType == null || sqlType.isEmpty()) {
             setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -634,7 +634,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -656,12 +656,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting integer value to statement. ", e);
+            throw new SQLException("Error while setting integer value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setSmallIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -683,12 +684,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting integer value to statement. ", e);
+            throw new SQLException("Error while setting integer value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -709,12 +711,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting string value to statement. ", e);
+            throw new SQLException("Error while setting string value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNStringValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -735,12 +738,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting string value to statement. ", e);
+            throw new SQLException("Error while setting string value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setDoubleValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Double val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -783,12 +787,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting double value to statement. ", e);
+            throw new SQLException("Error while setting double value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNumericValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BigDecimal val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -830,12 +835,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting numeric value to statement. ", e);
+            throw new SQLException("Error while setting numeric value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBooleanValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Boolean val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -871,12 +877,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting boolean value to statement. ", e);
+            throw new SQLException("Error while setting boolean value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Byte val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -914,12 +921,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting tinyint value to statement. ", e);
+            throw new SQLException("Error while setting tinyint value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBigIntValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Long val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -955,12 +963,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting bigint value to statement. ", e);
+            throw new SQLException("Error while setting bigint value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setRealValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Float val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1000,12 +1009,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting float value to statement. ", e);
+            throw new SQLException("Error while setting float value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setDateValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         Date val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1041,7 +1051,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting date value to statement. ", e);
+            throw new SQLException("Error while setting date value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1082,7 +1093,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setTimeStampValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType,
-            Calendar utcCalendar) throws ApplicationException, DatabaseException {
+            Calendar utcCalendar) throws ApplicationException, SQLException {
         Timestamp val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1120,7 +1131,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting timestamp value to statement. ", e);
+            throw new SQLException("Error while setting timestamp value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -1250,7 +1262,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setTimeValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType,
-            Calendar utcCalendar) throws ApplicationException, DatabaseException {
+            Calendar utcCalendar) throws ApplicationException, SQLException {
         Time val = null;
         if (value != null) {
             BType type = TypeChecker.getType(value);
@@ -1285,7 +1297,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting timestamp value to statement. ", e);
+            throw new SQLException("Error while setting timestamp value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -1326,7 +1339,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setBinaryValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -1348,12 +1361,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting binary value to statement. ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setBlobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -1375,7 +1389,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting binary value to statement. ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1415,7 +1430,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1440,12 +1455,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting binary value to statement. ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setNClobValue(PreparedStatement stmt, Object value, int index, int direction, int sqlType)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         BufferedReader val = null;
         if (value != null) {
             val = new BufferedReader(new StringReader((String) value));
@@ -1470,12 +1486,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting binary value to statement. ", e);
+            throw new SQLException("Error while setting binary value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
     private void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName)
-            throws ApplicationException, DatabaseException {
+            throws ApplicationException, SQLException {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (Constants.DatabaseNames.ORACLE.equals(databaseProductName)) {
@@ -1491,12 +1508,13 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting ref cursor value to statement. ", e);
+            throw new SQLException("Error while setting ref cursor value to statement. " + e.getMessage(),
+                    e.getSQLState(), e.getErrorCode());
         }
     }
 
     private void setArrayValue(Connection conn, PreparedStatement stmt, Object value, int index, int direction,
-            int sqlType, String databaseProductName) throws ApplicationException, DatabaseException {
+            int sqlType, String databaseProductName) throws ApplicationException, SQLException {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
         String structuredSQLType = (String) arrayData[1];
@@ -1512,7 +1530,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting array value to statement. ", e);
+            throw new SQLException("Error while setting array value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 
@@ -1540,11 +1559,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         }
     }
 
-    private void setNullObject(PreparedStatement stmt, int index) throws DatabaseException {
+    private void setNullObject(PreparedStatement stmt, int index) throws SQLException {
         try {
             stmt.setObject(index + 1, null);
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting null value to the parameter at index " + index + ". ", e);
+            throw new SQLException("Error while setting null value to the parameter at index " + index + ". " +
+                    e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
     }
 
@@ -1612,7 +1632,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     private void setUserDefinedValue(Connection conn, PreparedStatement stmt, Object value, int index,
-            int direction, int sqlType) throws ApplicationException, DatabaseException {
+            int direction, int sqlType) throws ApplicationException, SQLException {
         try {
             Object[] structData = getStructData(value, conn);
             Object[] dataArray = (Object[]) structData[0];
@@ -1638,7 +1658,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while setting struct value to statement. ", e);
+            throw new SQLException("Error while setting struct value to statement. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         }
     }
 

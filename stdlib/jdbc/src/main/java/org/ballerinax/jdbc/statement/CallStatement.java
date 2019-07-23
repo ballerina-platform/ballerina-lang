@@ -33,7 +33,6 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -199,7 +198,7 @@ public class CallStatement extends AbstractSQLStatement {
     }
 
     private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         if (params == null) {
             return;
         }
@@ -225,7 +224,7 @@ public class CallStatement extends AbstractSQLStatement {
 
     private void setOutParameterValue(CallableStatement stmt, String sqlType, int index,
             MapValue<String, Object> paramValue, TableResourceManager resourceManager)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
@@ -351,7 +350,8 @@ public class CallStatement extends AbstractSQLStatement {
                             "parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Error while getting OUT parameter value. ", e);
+            throw new SQLException("Error while getting OUT parameter value. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         } catch (IOException e) {
             throw new ApplicationException("Error while getting OUT parameter value", e.getMessage());
         }

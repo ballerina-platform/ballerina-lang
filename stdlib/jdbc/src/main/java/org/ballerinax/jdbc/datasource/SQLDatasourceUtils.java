@@ -27,7 +27,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -216,10 +215,6 @@ public class SQLDatasourceUtils {
     }
 
     public static ErrorValue getSQLDatabaseError(SQLException exception) {
-        return getSQLDatabaseError(exception, "");
-    }
-
-    static ErrorValue getSQLDatabaseError(DatabaseException exception) {
         return getSQLDatabaseError(exception, "");
     }
 
