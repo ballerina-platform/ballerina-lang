@@ -42,6 +42,7 @@ public class LSDocument {
     private List<String> projectModules = new ArrayList<>();
     private boolean withinProject = false;
     private String ownerModule = "";
+    private Path ownerModulePath = null;
 
     public LSDocument(String uri) {
         try {
@@ -58,8 +59,9 @@ public class LSDocument {
             }
             if (withinProject) {
                 // TODO: Fix project module retrieve logic
-                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot).getParent());
+                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
                 this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
+                this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
             }
         } catch (URISyntaxException | MalformedURLException e) {
             // Ignore
@@ -153,6 +155,10 @@ public class LSDocument {
 
     public String getOwnerModule() {
         return ownerModule;
+    }
+
+    public Path getOwnerModulePath() {
+        return ownerModulePath;
     }
 
     @Override

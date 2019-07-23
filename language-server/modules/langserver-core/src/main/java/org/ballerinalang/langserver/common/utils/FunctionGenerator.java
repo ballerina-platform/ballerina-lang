@@ -311,7 +311,8 @@ public class FunctionGenerator {
 
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
-        if (tSymbol != null) {
+        if (tSymbol != null &&
+                !(tSymbol.pkgID.orgName.value.equals("ballerina") && tSymbol.pkgID.name.value.startsWith("lang"))) {
             String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
             return pkgPrefix + tSymbol.name.getValue();
         }
