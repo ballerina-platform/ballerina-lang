@@ -38,7 +38,12 @@ public type InboundLdapAuthProvider object {
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
-        self.ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
+        var ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
+        if (ldapConnection is Error) {
+            panic ldapConnection;
+        } else {
+            self.ldapConnection = ldapConnection;
+        }
     }
 
     # Authenticate with username and password.
@@ -52,17 +57,28 @@ public type InboundLdapAuthProvider object {
         string username;
         string password;
         [username, password] = check auth:extractUsernameAndPassword(credential);
-        boolean authenticated = doAuthenticate(self.ldapConnection, username, password);
-        if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-                // By default set userId as username.
-                principal.username = username;
-                principal.scopes = getGroups(self.ldapConnection, username);
+        var authenticated = doAuthenticate(self.ldapConnection, username, password);
+        if (authenticated is boolean) {
+            if (authenticated) {
+                runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+                if (principal is runtime:Principal) {
+                    principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
+                    // By default set userId as username.
+                    principal.username = username;
+                    var groups = getGroups(self.ldapConnection, username);
+                    if (groups is string[]) {
+                        principal.scopes = groups;
+                    } else {
+                        return auth:prepareError("Failed to get groups from LDAP with the username: " + username,
+                                                 groups);
+                    }
+                }
             }
+            return authenticated;
+        } else {
+            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: "
+                                     + password, authenticated);
         }
-        return authenticated;
     }
 };
 
