@@ -1,0 +1,134 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
+
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringArrayValue;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
+
+/**
+ * Native function subscribes to given topic array
+ * with given function pointers to on revoked / on assigned events.
+ */
+@BallerinaFunction(
+        orgName = ORG_NAME,
+        packageName = KAFKA_PACKAGE_NAME,
+        functionName = "subscribeToPattern",
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = CONSUMER_STRUCT_NAME,
+                structPackage = KAFKA_PROTOCOL_PACKAGE
+        ),
+        isPublic = true
+)
+public class SubscribeWithPartitionRebalance {
+
+    public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
+                                                         FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
+
+        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
+        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, onPartitionsRevoked,
+                onPartitionsAssigned, consumerObject);
+
+        try {
+            kafkaConsumer.subscribe(topicsList, consumer);
+        } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            return createError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    /**
+     * Implementation for {@link ConsumerRebalanceListener} interface from connector side.
+     * We register this listener at subscription.
+     * <p>
+     * {@inheritDoc}
+     */
+    static class KafkaRebalanceListener implements ConsumerRebalanceListener {
+
+        private Strand strand;
+        private FPValue onPartitionsRevoked;
+        private FPValue onPartitionsAssigned;
+        private ObjectValue consumer;
+
+        KafkaRebalanceListener(Strand strand,
+                               FPValue onPartitionsRevoked,
+                               FPValue onPartitionsAssigned,
+                               ObjectValue consumer) {
+            this.strand = strand;
+            this.onPartitionsRevoked = onPartitionsRevoked;
+            this.onPartitionsAssigned = onPartitionsAssigned;
+            this.consumer = consumer;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+            Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
+            strand.scheduler.scheduleFunction(inputArgs, onPartitionsRevoked, strand);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+            Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
+            strand.scheduler.scheduleFunction(inputArgs, onPartitionsAssigned, strand);
+        }
+
+        private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
+            ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
+            partitions.forEach(partition -> {
+                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
+                        partition.partition());
+                topicPartitionArray.append(topicPartition);
+            });
+            return topicPartitionArray;
+        }
+    }
+}
+
