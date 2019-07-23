@@ -36,7 +36,6 @@ service websubSubscriber on websubEP {
 
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
-    subscribeOnStartUp:true,
     target: [config:getAsString("test.hub.url"), "http://one.websub.topic.com"],
     leaseSeconds: 3650,
     secret: "Kslk30SNF2AChs2"

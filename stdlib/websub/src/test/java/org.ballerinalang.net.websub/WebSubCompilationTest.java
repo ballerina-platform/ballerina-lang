@@ -77,14 +77,14 @@ public class WebSubCompilationTest {
     public void testOnNotificationUnspecified() {
         String errorMessage = "required resource 'onNotification' not specified with ballerina/websub:Service";
         BAssertUtil.validateError(negativeCompilationResult, 3, errorMessage, 51, 1);
-        BAssertUtil.validateError(negativeCompilationResult, 5, errorMessage, 61, 1);
+        BAssertUtil.validateError(negativeCompilationResult, 5, errorMessage, 62, 1);
     }
 
     @Test(description = "Test onIntentVerification missing param")
     public void testOnIntentVerificationMissingParam() {
         String errorMessage = "invalid param count for WebSub Resource 'onIntentVerification', expected: 2 found: 1";
         BAssertUtil.validateError(negativeCompilationResult, 6, errorMessage, 79, 5);
-        BAssertUtil.validateError(negativeCompilationResult, 8, errorMessage, 99, 5);
+        BAssertUtil.validateError(negativeCompilationResult, 8, errorMessage, 93, 5);
     }
 
     @Test(description = "Test onNotification missing param")

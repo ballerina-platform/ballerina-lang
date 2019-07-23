@@ -49,7 +49,6 @@ service websubSubscriber on websubEP {
 
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
-    subscribeOnStartUp:true,
     target: "http://localhost:23081/original/two",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA",

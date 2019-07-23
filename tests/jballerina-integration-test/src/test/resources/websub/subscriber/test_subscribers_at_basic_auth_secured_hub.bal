@@ -100,7 +100,6 @@ http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
 
 @websub:SubscriberServiceConfig {
     path: "/websubFour",
-    subscribeOnStartUp: true,
     target: "http://localhost:23080/publisherThree/discover",
     leaseSeconds: 1200,
     hubClientConfig: {

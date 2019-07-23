@@ -31,7 +31,6 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
-    subscribeOnStartUp: true,
     target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",

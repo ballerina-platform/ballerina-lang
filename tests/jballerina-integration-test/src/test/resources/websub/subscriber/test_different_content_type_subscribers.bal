@@ -23,7 +23,6 @@ listener websub:Listener websubEP = new websub:Listener(23282);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
-    subscribeOnStartUp:true,
     target: ["http://localhost:23191/websub/hub", "http://one.websub.topic.com"],
     leaseSeconds: 3000,
     secret: "Kslk30SNF2AChs2"
