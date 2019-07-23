@@ -29,23 +29,21 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() returns error? {
-     string charEncoding = "UTF-8";
-
      // The string content to be hashed.
      string text = "Hello Ballerina";
-     byte[] inputByteArr = input.toByteArray(charEncoding);
+     byte[] inputByteArr = input.toBytes();
 
-     string output = encoding:encodeHex(inputByteArr)
+     string output = encoding:encodeHex(inputByteArr);
      io:println("Hex encoded string : " + output);
 
      // Hex encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeHex(output)
+     inputByteArr = check encoding:decodeHex(output);
 
-     output = encoding:encodeBase64(inputByteArr)
+     output = encoding:encodeBase64(inputByteArr);
      io:println("Base64 encoded string : " + output);
 
      // Base64 encoded string, decoded back into a byte array.
-     inputByteArr = check encoding:decodeBase64(output)
+     inputByteArr = check encoding:decodeBase64(output);
 
      // Convert byte array into a string.
      string finalString = encoding:byteArrayToString(inputByteArr);

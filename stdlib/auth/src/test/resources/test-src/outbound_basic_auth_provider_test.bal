@@ -21,22 +21,22 @@ function testCreateOutboundBasicAuthProvider() returns auth:OutboundBasicAuthPro
     return basicAuthProvider;
 }
 
-function testTokenGeneration() returns string|error {
+function testTokenGeneration() returns string|auth:Error {
     auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "tom", password: "123"});
     return basicAuthProvider.generateToken();
 }
 
-function testTokenGenerationWithEmptyUsername() returns string|error {
+function testTokenGenerationWithEmptyUsername() returns string|auth:Error {
     auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "", password: "123"});
     return basicAuthProvider.generateToken();
 }
 
-function testTokenGenerationWithEmptyPassword() returns string|error {
+function testTokenGenerationWithEmptyPassword() returns string|auth:Error {
     auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "tom", password: ""});
     return basicAuthProvider.generateToken();
 }
 
-function testTokenGenerationWithEmptyUsernameAndEmptyPassword() returns string|error {
+function testTokenGenerationWithEmptyUsernameAndEmptyPassword() returns string|auth:Error {
     auth:OutboundBasicAuthProvider basicAuthProvider = new({ username: "", password: ""});
     return basicAuthProvider.generateToken();
 }

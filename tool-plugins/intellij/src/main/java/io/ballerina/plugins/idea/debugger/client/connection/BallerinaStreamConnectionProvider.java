@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.ballerina.plugins.idea.debugger.client.connection;
 
-package io.ballerina.plugins.idea.debugger.protocol;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
- * Supported debug commands.
+ * Declaration of stream connection provider functionality.
  */
-public enum Command {
+public interface BallerinaStreamConnectionProvider {
 
-    START("START"), STOP("STOP"), SET_POINTS("SET_POINTS"), STEP_OVER("STEP_OVER"), RESUME("RESUME"),
-    STEP_IN("STEP_IN"), STEP_OUT("STEP_OUT");
+    void start() throws IOException;
 
-    private String myCommand;
+    InputStream getInputStream();
 
-    Command(String command) {
-        myCommand = command;
-    }
+    OutputStream getOutputStream();
 
-    @Override
-    public String toString() {
-        return myCommand;
-    }
+    void stop();
+
 }
