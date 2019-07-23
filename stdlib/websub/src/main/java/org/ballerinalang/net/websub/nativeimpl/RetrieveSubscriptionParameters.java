@@ -96,13 +96,18 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
             subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP, Boolean.toString(
                     annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP)));
 
-            if (annotation.keySet().contains(ANN_WEBSUB_ATTR_TARGET)) {
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_TARGET)) {
                 subscriptionDetails.put(ANN_WEBSUB_ATTR_TARGET, annotation.get(ANN_WEBSUB_ATTR_TARGET));
             }
 
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS, Long.toString(annotation.getIntValue(
-                    ANN_WEBSUB_ATTR_LEASE_SECONDS)));
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_LEASE_SECONDS)) {
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS,
+                                        annotation.getIntValue(ANN_WEBSUB_ATTR_LEASE_SECONDS));
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SECRET)) {
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));
+            }
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG)) {
                 MapValue<String, Object> publisherClientConfig =
@@ -116,9 +121,11 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                 subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG, hubClientConfig);
             }
 
-            String callback = annotation.getStringValue(ANN_WEBSUB_ATTR_CALLBACK);
+            String callback;
 
-            if (callback.isEmpty()) {
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_CALLBACK)) {
+                callback = annotation.getStringValue(ANN_WEBSUB_ATTR_CALLBACK);
+            } else {
                 //TODO: intro methods to return host+port and change instead of using connector ID
                 callback = webSubHttpService.getBasePath();
                 MapValue<String, Object> serviceEndpointConfig = (MapValue<String, Object>) serviceEndpoint.get(

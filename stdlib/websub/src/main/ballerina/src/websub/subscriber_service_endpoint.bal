@@ -257,29 +257,16 @@ function invokeClientConnectorForSubscription(string hub, http:ClientEndpointCon
                                               map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
-    string callback = <string>subscriptionDetails["callback"];
+    string callback = <string> subscriptionDetails["callback"];
 
-    int leaseSeconds = 0;
+    SubscriptionChangeRequest subscriptionChangeRequest = { topic: topic, callback: callback };
 
-    string strLeaseSeconds = <string>subscriptionDetails["leaseSeconds"];
-    var convIntLeaseSeconds = langint:fromString(strLeaseSeconds);
-    if (convIntLeaseSeconds is int) {
-        leaseSeconds = convIntLeaseSeconds;
-    } else {
-        string errCause = <string> convIntLeaseSeconds.detail()?.message;
-        log:printError("Error retreiving specified lease seconds value: " + errCause);
-        return;
+    if (subscriptionDetails.hasKey("leaseSeconds")) {
+        subscriptionChangeRequest.leaseSeconds = <int> subscriptionDetails["leaseSeconds"];
     }
 
-    string secret = <string>subscriptionDetails["secret"];
-
-    SubscriptionChangeRequest subscriptionChangeRequest = { topic:topic, callback:callback };
-
-    if (leaseSeconds != 0) {
-        subscriptionChangeRequest.leaseSeconds = leaseSeconds;
-    }
-    if (secret.trim() != "") {
-        subscriptionChangeRequest.secret = secret;
+    if (subscriptionDetails.hasKey("secret")) {
+         subscriptionChangeRequest.secret =  <string> subscriptionDetails["secret"];
     }
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);

@@ -21,9 +21,8 @@ import ballerina/http;
 ///////////////////////////
 # Configuration for a WebSubSubscriber service.
 #
-# + endpoints - Array of endpoints the service would be attached to
 # + path - Path of the WebSubSubscriber service
-# + subscribeOnStartUp - Boolean indicating whether a subscription request is expected to be sent on start up
+# + subscribeOnStartUp - A `boolean` indicating whether a subscription request is expected to be sent on start up
 # + target - The `string` resource URL for which discovery will be initiated to identify the hub and topic,
 #               or a tuple `[hub, topic]` representing a discovered hub and a topic
 # + leaseSeconds - The period for which the subscription is expected to be active
@@ -32,13 +31,12 @@ import ballerina/http;
 # + publisherClientConfig - The configuration for the discovery client, to use if a resource URL is specified
 # + hubClientConfig - The configuration for the hub client used to interact with the discovered/specified hub
 public type SubscriberServiceConfiguration record {|
-    Listener?[] endpoints = [];
-    string path = "";
-    boolean subscribeOnStartUp = false;
+    string path;
+    boolean subscribeOnStartUp = true;
     string|[string, string] target?;
-    int leaseSeconds = 0;
-    string secret = "";
-    string callback = "";
+    int leaseSeconds?;
+    string secret?;
+    string callback?;
     http:ClientEndpointConfig publisherClientConfig?;
     http:ClientEndpointConfig hubClientConfig?;
 |};
