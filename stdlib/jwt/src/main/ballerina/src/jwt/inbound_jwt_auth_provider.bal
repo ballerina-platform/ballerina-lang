@@ -16,10 +16,10 @@
 
 import ballerina/auth;
 import ballerina/cache;
+import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
-import ballerina/internal;
 
 const string SCOPES = "scope";
 const string GROUPS = "groups";
@@ -68,9 +68,7 @@ public type InboundJwtAuthProvider object {
             addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
             return true;
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = validationResult;
-            return auth:prepareError("JWT validation failed.", e);
+            return auth:prepareError("JWT validation failed.", validationResult);
         }
     }
 };
@@ -100,8 +98,8 @@ function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string 
     jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
     string? sub = payload?.sub;
     if (sub is string) {
-    string printMsg = sub;
-     log:printDebug(function() returns string {
+        string printMsg = sub;
+        log:printDebug(function() returns string {
             return "Add authenticated user :" + printMsg + " to the cache";
         });
     }

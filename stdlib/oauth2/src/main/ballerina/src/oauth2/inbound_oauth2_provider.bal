@@ -16,9 +16,9 @@
 
 import ballerina/auth;
 import ballerina/http;
+import ballerina/internal;
 import ballerina/mime;
 import ballerina/runtime;
-import ballerina/internal;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -32,7 +32,7 @@ public type InboundOAuth2Provider object {
     public string? tokenTypeHint;
 
     public function __init(IntrospectionServerConfig config) {
-        self.tokenTypeHint = config["tokenTypeHint"];
+        self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
     }
 
