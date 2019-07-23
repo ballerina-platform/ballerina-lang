@@ -61,15 +61,13 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -79,6 +77,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -234,21 +234,18 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        importPkgNode.symbol = null;
-        importPkgNode.type = null;
+        importPkgNode.reset();
     }
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        xmlnsNode.symbol = null;
-        xmlnsNode.type = null;
+        xmlnsNode.reset();
         xmlnsNode.namespaceURI.accept(this);
     }
 
     @Override
     public void visit(BLangFunction funcNode) {
-        funcNode.symbol = null;
-        funcNode.type = null;
+        funcNode.reset();
         if (funcNode.receiver != null) {
             visit(funcNode.receiver);
         }
@@ -262,7 +259,6 @@ public class SymbolResetter extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(annotation -> annotation.accept(this));
         funcNode.endpoints.forEach(endpoint -> endpoint.accept(this));
         funcNode.workers.forEach(worker -> worker.accept(this));
-        funcNode.defaultableParams.forEach(parameter -> parameter.accept(this));
         if (funcNode.restParam != null) {
             funcNode.restParam.accept(this);
         }
@@ -270,8 +266,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
-        serviceNode.symbol = null;
-        serviceNode.type = null;
+        serviceNode.reset();
         serviceNode.annAttachments.forEach(annotation -> annotation.accept(this));
 
         serviceNode.serviceTypeDefinition.accept(this);
@@ -280,7 +275,6 @@ public class SymbolResetter extends BLangNodeVisitor {
             // Todo - Enabling this will result in a stack overflow in artemis-anycast-session-consumer example.
             // serviceNode.variableNode.accept(this);
         }
-        serviceNode.listenerType = null;
         serviceNode.resourceFunctions.forEach(function -> function.accept(this));
     }
 
@@ -291,16 +285,14 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        typeDefinition.symbol = null;
-        typeDefinition.type = null;
+        typeDefinition.reset();
         typeDefinition.typeNode.accept(this);
         typeDefinition.annAttachments.forEach(annotation -> annotation.accept(this));
     }
 
     @Override
     public void visit(BLangConstant constant) {
-        constant.symbol = null;
-        constant.type = null;
+        constant.reset();
         if (constant.typeNode != null) {
             constant.typeNode.accept(this);
         }
@@ -309,8 +301,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        varNode.symbol = null;
-        varNode.type = null;
+        varNode.reset();
         if (varNode.typeNode != null) {
             varNode.typeNode.accept(this);
         }
@@ -322,6 +313,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorker workerNode) {
+        workerNode.reset();
         workerNode.requiredParams.forEach(param -> param.accept(this));
         workerNode.returnTypeNode.accept(this);
         workerNode.returnTypeAnnAttachments.forEach(annotations -> annotations.accept(this));
@@ -329,7 +321,6 @@ public class SymbolResetter extends BLangNodeVisitor {
         workerNode.annAttachments.forEach(annotation -> annotation.accept(this));
         workerNode.endpoints.forEach(endpoint -> endpoint.accept(this));
         workerNode.workers.forEach(worker -> worker.accept(this));
-        workerNode.defaultableParams.forEach(parameter -> parameter.accept(this));
         workerNode.restParam.accept(this);
     }
 
@@ -345,44 +336,43 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotation annotationNode) {
-        annotationNode.symbol = null;
-        annotationNode.type = null;
+        annotationNode.reset();
         annotationNode.annAttachments.forEach(attachment -> attachment.accept(this));
         annotationNode.typeNode.accept(this);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        annAttachmentNode.type = null;
+        annAttachmentNode.reset();
         if (annAttachmentNode.expr != null) {
             annAttachmentNode.expr.accept(this);
         }
-        annAttachmentNode.annotationSymbol = null;
     }
 
     // Statements.
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
+        blockNode.reset();
         blockNode.stmts.forEach(statement -> statement.accept(this));
-        if (blockNode.scope != null) {
-            blockNode.scope.entries.clear();
-        }
     }
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
+        varDefNode.reset();
         varDefNode.var.accept(this);
     }
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        assignNode.reset();
         assignNode.varRef.accept(this);
         assignNode.expr.accept(this);
     }
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
+        compoundAssignNode.reset();
         compoundAssignNode.varRef.accept(this);
         compoundAssignNode.expr.accept(this);
         compoundAssignNode.modifiedExpr = null;
@@ -410,6 +400,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReturn returnNode) {
+        returnNode.reset();
         returnNode.expr.accept(this);
     }
 
@@ -420,22 +411,25 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPanic panicNode) {
+        panicNode.reset();
         panicNode.expr.accept(this);
     }
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
-        xmlnsStmtNode.type = null;
+        xmlnsStmtNode.reset();
         xmlnsStmtNode.xmlnsDecl.accept(this);
     }
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        exprStmtNode.reset();
         exprStmtNode.expr.accept(this);
     }
 
     @Override
     public void visit(BLangIf ifNode) {
+        ifNode.reset();
         ifNode.expr.accept(this);
         ifNode.body.accept(this);
         if (ifNode.elseStmt != null) {
@@ -445,39 +439,38 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-        // Do nothing.
+        matchNode.reset();
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangMatch.BLangMatchTypedBindingPatternClause.class);
     }
 
     @Override
     public void visit(BLangForeach foreach) {
+        foreach.reset();
         foreach.collection.accept(this);
         foreach.body.accept(this);
         ((BLangNode) foreach.variableDefinitionNode).accept(this);
-        foreach.varType = null;
-        foreach.resultType = null;
-        foreach.nillableResultType = null;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
+        whileNode.reset();
         whileNode.expr.accept(this);
         whileNode.body.accept(this);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
+        lockNode.reset();
         lockNode.body.accept(this);
-        lockNode.lockVariables.clear();
-        lockNode.fieldVariables.clear();
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
+        transactionNode.reset();
         transactionNode.transactionBody.accept(this);
         if (transactionNode.onRetryBody != null) {
             transactionNode.onRetryBody.accept(this);
@@ -500,20 +493,21 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        stmt.type = null;
+        stmt.reset();
         stmt.varRef.accept(this);
         stmt.expr.accept(this);
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
+        stmt.reset();
         stmt.varRef.accept(this);
         stmt.expr.accept(this);
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        stmt.type = null;
+        stmt.reset();
         stmt.varRef.accept(this);
         stmt.expr.accept(this);
     }
@@ -525,42 +519,49 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        forkJoin.reset();
         forkJoin.workers.forEach(variableDef -> variableDef.accept(this));
     }
 
     @Override
     public void visit(BLangOrderBy orderBy) {
+        orderBy.reset();
         orderBy.getVariables().forEach(orderByVariableNode ->
                 ((BLangOrderByVariable) orderByVariableNode).accept(this));
     }
 
     @Override
     public void visit(BLangOrderByVariable orderByVariable) {
+        orderByVariable.reset();
         ((BLangExpression) orderByVariable.getVariableReference()).accept(this);
     }
 
     @Override
     public void visit(BLangLimit limit) {
-        // Do nothing.
+        limit.reset();
     }
 
     @Override
     public void visit(BLangGroupBy groupBy) {
+        groupBy.reset();
         groupBy.getVariables().forEach(expressionNode -> ((BLangExpression) expressionNode).accept(this));
     }
 
     @Override
     public void visit(BLangHaving having) {
+        having.reset();
         ((BLangExpression) having.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangSelectExpression selectExpression) {
+        selectExpression.reset();
         ((BLangExpression) selectExpression.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
+        selectClause.reset();
         if (selectClause.getSelectExpressions() != null) {
             selectClause.getSelectExpressions().forEach(selectExpressionNode ->
                     ((BLangSelectExpression) selectExpressionNode).accept(this));
@@ -575,12 +576,13 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhere whereClause) {
-        whereClause.type = null;
+        whereClause.reset();
         ((BLangExpression) whereClause.getExpression()).accept(this);
     }
 
     @Override
     public void visit(BLangStreamingInput streamingInput) {
+        streamingInput.reset();
         if (streamingInput.getBeforeStreamingCondition() != null) {
             ((BLangWhere) streamingInput.getBeforeStreamingCondition()).accept(this);
         }
@@ -603,6 +605,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinStreamingInput joinStreamingInput) {
+        joinStreamingInput.reset();
         if (joinStreamingInput.getStreamingInput() != null) {
             ((BLangStreamingInput) joinStreamingInput.getStreamingInput()).accept(this);
         }
@@ -613,6 +616,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableQuery tableQuery) {
+        tableQuery.reset();
         if (tableQuery.getStreamingInput() != null) {
             ((BLangStreamingInput) tableQuery.getStreamingInput()).accept(this);
         }
@@ -632,6 +636,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamAction streamAction) {
+        streamAction.reset();
         if (streamAction.getInvokableBody() != null) {
             ((BLangLambdaFunction) streamAction.getInvokableBody()).accept(this);
         }
@@ -649,11 +654,12 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        throw new AssertionError();
+        patternStreamingEdgeInput.reset();
     }
 
     @Override
     public void visit(BLangWindow windowClause) {
+        windowClause.reset();
         if (windowClause.getFunctionInvocation() != null) {
             ((BLangExpression) windowClause.getFunctionInvocation()).accept(this);
         }
@@ -661,12 +667,12 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPatternStreamingInput patternStreamingInput) {
-        throw new AssertionError();
+        patternStreamingInput.reset();
     }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        workerSendNode.type = null;
+        workerSendNode.reset();
 
         workerSendNode.expr.accept(this);
         if (workerSendNode.keyExpr != null) {
@@ -676,14 +682,10 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        workerReceiveNode.typeChecked = false;
-        workerReceiveNode.type = null;
+        workerReceiveNode.reset();
         if (workerReceiveNode.keyExpr != null) {
             workerReceiveNode.keyExpr.accept(this);
         }
-        workerReceiveNode.env = null;
-        workerReceiveNode.workerType = null;
-        workerReceiveNode.matchingSendsError = null;
         if (workerReceiveNode.sendExpression != null) {
             workerReceiveNode.sendExpression.accept(this);
         }
@@ -691,7 +693,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForever foreverStatement) {
-        foreverStatement.type = null;
+        foreverStatement.reset();
 
         foreverStatement.getStreamingQueryStatements().forEach(streamingQueryStatementNode ->
                 ((BLangStreamingQueryStatement) streamingQueryStatementNode).accept(this));
@@ -704,41 +706,30 @@ public class SymbolResetter extends BLangNodeVisitor {
     // Expressions
     @Override
     public void visit(BLangLiteral literalExpr) {
-        //        literalExpr.type = null;
-        //        literalExpr.typeChecked = false;
+        literalExpr.reset();
     }
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
-        literalExpr.typeChecked = false;
-        throw new AssertionError();
+        literalExpr.reset();
     }
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.typeChecked = false;
-
-        tableLiteral.type = null;
+        tableLiteral.reset();
         tableLiteral.columns.forEach(bLangTableColumn -> bLangTableColumn.accept(this));
         tableLiteral.tableDataRows.forEach(bLangExpression -> bLangExpression.accept(this));
-        if (tableLiteral.indexColumnsArrayLiteral != null) {
-            tableLiteral.indexColumnsArrayLiteral.accept(this);
-        }
-        if (tableLiteral.keyColumnsArrayLiteral != null) {
-            tableLiteral.keyColumnsArrayLiteral.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        arrayLiteral.typeChecked = false;
+        arrayLiteral.reset();
         arrayLiteral.exprs.forEach(expression -> expression.accept(this));
     }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.typeChecked = false;
-        recordLiteral.type = null;
+        recordLiteral.reset();
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             keyValue.key.accept(this);
             keyValue.valueExpr.accept(this);
@@ -747,125 +738,86 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        varRefExpr.typeChecked = false;
-
-        varRefExpr.symbol = null;
-        varRefExpr.type = null;
-
-        varRefExpr.varSymbol = null;
+        varRefExpr.reset();
         varRefExpr.expressions.forEach(bLangExpression -> bLangExpression.accept(this));
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        varRefExpr.typeChecked = false;
+        varRefExpr.reset();
 
-        varRefExpr.symbol = null;
-        varRefExpr.type = null;
-
-        varRefExpr.varSymbol = null;
         varRefExpr.recordRefFields.forEach(bLangRecordVarRefKeyValue -> {
             bLangRecordVarRefKeyValue.variableReference.accept(this);
             bLangRecordVarRefKeyValue.variableName.accept(this);
         });
 
-        // Todo - varRefExpr.restParam.
+        if (varRefExpr.restParam != null) {
+            varRefExpr.restParam.accept(this);
+        }
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        varRefExpr.typeChecked = false;
-
-        varRefExpr.symbol = null;
-        varRefExpr.type = null;
-
-        varRefExpr.varSymbol = null;
-
-        varRefExpr.detail.accept(this);
+        varRefExpr.reset();
+        varRefExpr.detail.forEach(detailKeyVal -> detailKeyVal.accept(this));
         varRefExpr.reason.accept(this);
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        varRefExpr.symbol = null;
-        varRefExpr.type = null;
-
-        varRefExpr.typeChecked = false;
-
-        varRefExpr.varSymbol = null;
-        varRefExpr.pkgSymbol = null;
+        varRefExpr.reset();
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        fieldAccessExpr.symbol = null;
-        fieldAccessExpr.type = null;
-
-        fieldAccessExpr.typeChecked = false;
-
-        fieldAccessExpr.varSymbol = null;
+        fieldAccessExpr.reset();
         fieldAccessExpr.expr.accept(this);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        indexAccessExpr.symbol = null;
-        indexAccessExpr.type = null;
-
-        indexAccessExpr.typeChecked = false;
-
+        indexAccessExpr.reset();
         indexAccessExpr.expr.accept(this);
         indexAccessExpr.indexExpr.accept(this);
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        invocationExpr.symbol = null;
-        invocationExpr.type = null;
-
-        invocationExpr.typeChecked = false;
+        invocationExpr.reset();
 
         if (invocationExpr.expr != null) {
             invocationExpr.expr.accept(this);
         }
-        invocationExpr.originalType = null;
 
         invocationExpr.argExprs.forEach(arg -> arg.accept(this));
-        invocationExpr.exprSymbol = null;
         invocationExpr.requiredArgs.forEach(arg -> arg.accept(this));
-        invocationExpr.namedArgs.forEach(arg -> arg.accept(this));
         invocationExpr.restArgs.forEach(arg -> arg.accept(this));
     }
 
     @Override
-    public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.type = null;
+    public void visit(BLangTypeInit typeInitExpr) {
+        typeInitExpr.reset();
 
-        connectorInitExpr.typeChecked = false;
-
-        if (connectorInitExpr.userDefinedType != null) {
-            connectorInitExpr.userDefinedType.accept(this);
+        if (typeInitExpr.userDefinedType != null) {
+            typeInitExpr.userDefinedType.accept(this);
         }
-        connectorInitExpr.argsExpr.forEach(arg -> arg.accept(this));
-        connectorInitExpr.initInvocation.accept(this);
+        typeInitExpr.argsExpr.forEach(arg -> arg.accept(this));
+        typeInitExpr.initInvocation.accept(this);
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        actionInvocationExpr.typeChecked = false;
-        throw new AssertionError();
+        actionInvocationExpr.reset();
     }
 
     @Override
     public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        builtInMethodInvocation.typeChecked = false;
-        throw new AssertionError();
+        builtInMethodInvocation.reset();
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        ternaryExpr.typeChecked = false;
-
+        ternaryExpr.reset();
         ternaryExpr.expr.accept(this);
         ternaryExpr.thenExpr.accept(this);
         ternaryExpr.elseExpr.accept(this);
@@ -873,172 +825,119 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        awaitExpr.typeChecked = false;
+        awaitExpr.reset();
         awaitExpr.exprList.forEach(bLangExpression -> bLangExpression.accept(this));
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        trapExpr.typeChecked = false;
+        trapExpr.reset();
         trapExpr.expr.accept(this);
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        binaryExpr.typeChecked = false;
-        binaryExpr.type = null;
-        binaryExpr.opSymbol = null;
+        binaryExpr.reset();
         binaryExpr.rhsExpr.accept(this);
         binaryExpr.rhsExpr.accept(this);
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        elvisExpr.typeChecked = false;
-        elvisExpr.type = null;
+        elvisExpr.reset();
         elvisExpr.lhsExpr.accept(this);
         elvisExpr.rhsExpr.accept(this);
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.type = null;
-        bracedOrTupleExpr.typeChecked = false;
-        bracedOrTupleExpr.expressions.forEach(expression -> expression.accept(this));
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.reset();
+        listConstructorExpr.exprs.forEach(expression -> expression.accept(this));
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        unaryExpr.typeChecked = false;
+        unaryExpr.reset();
         unaryExpr.expr.accept(this);
     }
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
-        accessExpr.typeChecked = false;
-        accessExpr.type = null;
-        accessExpr.resolvedType = null;
+        accessExpr.reset();
         accessExpr.typeNode.accept(this);
     }
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        conversionExpr.type = null;
-
-        conversionExpr.typeChecked = false;
-
+        conversionExpr.reset();
         conversionExpr.expr.accept(this);
         conversionExpr.typeNode.accept(this);
-        conversionExpr.targetType = null;
-        conversionExpr.conversionSymbol = null;
     }
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
-        xmlQName.typeChecked = false;
-        xmlQName.type = null;
-        xmlQName.nsSymbol = null;
+        xmlQName.reset();
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        xmlAttribute.typeChecked = false;
-
-        xmlAttribute.symbol = null;
-        xmlAttribute.type = null;
-
+        xmlAttribute.reset();
         xmlAttribute.name.accept(this);
         xmlAttribute.value.accept(this);
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.typeChecked = false;
-
-        xmlElementLiteral.type = null;
-
+        xmlElementLiteral.reset();
         xmlElementLiteral.startTagName.accept(this);
         if (xmlElementLiteral.endTagName != null) {
             xmlElementLiteral.endTagName.accept(this);
         }
         xmlElementLiteral.attributes.forEach(bLangXMLAttribute -> bLangXMLAttribute.accept(this));
-        xmlElementLiteral.namespacesInScope.clear();
-        xmlElementLiteral.inlineNamespaces.forEach(bLangXMLNS -> bLangXMLNS.accept(this));
-        xmlElementLiteral.defaultNsSymbol = null;
-        if (xmlElementLiteral.modifiedChildren != null) {
-            xmlElementLiteral.modifiedChildren.forEach(bLangExpression -> bLangExpression.accept(this));
-        }
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.typeChecked = false;
-        xmlTextLiteral.type = null;
-
+        xmlTextLiteral.reset();
         xmlTextLiteral.textFragments.forEach(bLangExpression -> bLangExpression.accept(this));
-        if (xmlTextLiteral.concatExpr != null) {
-            xmlTextLiteral.concatExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.typeChecked = false;
-
-        xmlCommentLiteral.type = null;
+        xmlCommentLiteral.reset();
         xmlCommentLiteral.textFragments.forEach(bLangExpression -> bLangExpression.accept(this));
-        if (xmlCommentLiteral.concatExpr != null) {
-            xmlCommentLiteral.concatExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.typeChecked = false;
-
-        xmlProcInsLiteral.type = null;
+        xmlProcInsLiteral.reset();
         xmlProcInsLiteral.dataFragments.forEach(bLangExpression -> bLangExpression.accept(this));
-        if (xmlProcInsLiteral.dataConcatExpr != null) {
-            xmlProcInsLiteral.dataConcatExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.typeChecked = false;
-
-        xmlQuotedString.type = null;
+        xmlQuotedString.reset();
         xmlQuotedString.textFragments.forEach(bLangExpression -> bLangExpression.accept(this));
-        if (xmlQuotedString.concatExpr != null) {
-            xmlQuotedString.concatExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.type = null;
-        stringTemplateLiteral.typeChecked = false;
+        stringTemplateLiteral.reset();
         stringTemplateLiteral.exprs.forEach(expression -> expression.accept(this));
-        if (stringTemplateLiteral.concatExpr != null) {
-            stringTemplateLiteral.concatExpr.accept(this);
-        }
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.type = null;
-        bLangLambdaFunction.typeChecked = false;
+        bLangLambdaFunction.reset();
         bLangLambdaFunction.function.accept(this);
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        bLangArrowFunction.typeChecked = false;
-        bLangArrowFunction.type = null;
+        bLangArrowFunction.reset();
         bLangArrowFunction.params.forEach(variable -> variable.accept(this));
 
         bLangArrowFunction.expression.accept(this);
-        bLangArrowFunction.funcType = null;
         if (bLangArrowFunction.function != null) {
             bLangArrowFunction.function.accept(this);
         }
@@ -1046,43 +945,35 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-        xmlAttributeAccessExpr.typeChecked = false;
-
-        xmlAttributeAccessExpr.symbol = null;
-        xmlAttributeAccessExpr.type = null;
-        xmlAttributeAccessExpr.namespaces.clear();
+        xmlAttributeAccessExpr.reset();
     }
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
-        intRangeExpression.typeChecked = false;
-        throw new AssertionError();
+        intRangeExpression.reset();
     }
 
     @Override
     public void visit(BLangTableQueryExpression tableQueryExpression) {
-        tableQueryExpression.typeChecked = false;
-
-        tableQueryExpression.type = null;
+        tableQueryExpression.reset();
         ((BLangTableQuery) tableQueryExpression.getTableQuery()).accept(this);
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        bLangVarArgsExpression.typeChecked = false;
-
-        bLangVarArgsExpression.type = null;
+        bLangVarArgsExpression.reset();
         bLangVarArgsExpression.expr.accept(this);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        bLangNamedArgsExpression.typeChecked = false;
+        bLangNamedArgsExpression.reset();
         bLangNamedArgsExpression.expr.accept(this);
     }
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        streamingQueryStatement.reset();
         if (streamingQueryStatement.getStreamingInput() != null) {
             ((BLangStreamingInput) streamingQueryStatement.getStreamingInput()).accept(this);
         }
@@ -1108,85 +999,78 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWithinClause withinClause) {
-        throw new AssertionError();
+        withinClause.reset();
     }
 
     @Override
     public void visit(BLangOutputRateLimit outputRateLimit) {
-        throw new AssertionError();
+        outputRateLimit.reset();
     }
 
     @Override
     public void visit(BLangPatternClause patternClause) {
-        throw new AssertionError();
+        patternClause.reset();
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        assignableExpr.typeChecked = false;
-        throw new AssertionError();
+        assignableExpr.reset();
     }
 
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
-        bLangMatchExpression.typeChecked = false;
-        throw new AssertionError();
+        throw new AssertionError(bLangMatchExpression.toString());
     }
 
     @Override
     public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        throw new AssertionError();
+        throw new AssertionError(bLangMatchExprPatternClause.toString());
     }
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        checkedExpr.typeChecked = false;
+        checkedExpr.reset();
         checkedExpr.expr.accept(this);
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        checkPanickedExpr.typeChecked = false;
+        checkPanickedExpr.reset();
         checkPanickedExpr.expr.accept(this);
     }
 
     @Override
-    public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        errorConstructorExpr.typeChecked = false;
-        errorConstructorExpr.type = null;
-        errorConstructorExpr.reasonExpr.accept(this);
-        if (errorConstructorExpr.detailsExpr != null) {
-            errorConstructorExpr.detailsExpr.accept(this);
-        }
-    }
-
-    @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
-        serviceConstructorExpr.typeChecked = false;
+        serviceConstructorExpr.reset();
         serviceConstructorExpr.serviceNode.accept(this);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        typeTestExpr.typeChecked = false;
+        typeTestExpr.reset();
         typeTestExpr.expr.accept(this);
         typeTestExpr.typeNode.accept(this);
     }
 
     @Override
     public void visit(BLangIsLikeExpr typeTestExpr) {
-        typeTestExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIsLikeExpr.class);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        annotAccessExpr.reset();
     }
 
     // Type nodes
     @Override
     public void visit(BLangValueType valueType) {
-        valueType.type = null;
+        valueType.reset();
     }
 
     @Override
     public void visit(BLangArrayType arrayType) {
+        arrayType.reset();
         arrayType.elemtype.accept(this);
     }
 
@@ -1197,31 +1081,32 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
+        constrainedType.reset();
         constrainedType.type.accept(this);
         constrainedType.constraint.accept(this);
     }
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        userDefinedType.type = null;
+        userDefinedType.reset();
     }
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        functionTypeNode.type = null;
+        functionTypeNode.reset();
         functionTypeNode.params.forEach(variable -> variable.accept(this));
         functionTypeNode.returnTypeNode.accept(this);
     }
 
     @Override
     public void visit(BLangUnionTypeNode unionTypeNode) {
+        unionTypeNode.reset();
         unionTypeNode.memberTypeNodes.forEach(bLangType -> bLangType.accept(this));
     }
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        objectTypeNode.symbol = null;
-        objectTypeNode.type = null;
+        objectTypeNode.reset();
 
         objectTypeNode.fields.forEach(variable -> variable.accept(this));
         objectTypeNode.typeRefs.forEach(bLangType -> bLangType.accept(this));
@@ -1236,8 +1121,7 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        recordTypeNode.symbol = null;
-        recordTypeNode.type = null;
+        recordTypeNode.reset();
 
         recordTypeNode.fields.forEach(variable -> variable.accept(this));
         if (recordTypeNode.initFunction != null) {
@@ -1251,143 +1135,138 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        finiteTypeNode.reset();
         finiteTypeNode.valueSpace.forEach(bLangExpression -> bLangExpression.accept(this));
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        tupleTypeNode.reset();
         tupleTypeNode.memberTypeNodes.forEach(bLangType -> bLangType.accept(this));
     }
 
     @Override
     public void visit(BLangErrorType errorType) {
-        // Do nothing
+        errorType.reset();
+        errorType.reasonType.accept(this);
+        errorType.detailType.accept(this);
     }
 
 
     // expressions that will used only from the Desugar phase
 
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangLocalVarRef.class);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangFieldVarRef.class);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangPackageVarRef.class);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangConstRef.class);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangFunctionVarRef.class);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangSimpleVarRef.BLangTypeLoad.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-        fieldAccessExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangStructFieldAccessExpr.class);
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        functionVarRef.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangFieldBasedAccess.BLangStructFunctionVarRef.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-        mapKeyAccessExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangMapAccessExpr.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-        arrayIndexAccessExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangArrayAccessExpr.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
-        arrayIndexAccessExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangTupleAccessExpr.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
-        xmlIndexAccessExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangXMLAccessExpr.class);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangRecordLiteral.BLangJSONLiteral.class);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangRecordLiteral.BLangMapLiteral.class);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangRecordLiteral.BLangStructLiteral.class);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangRecordLiteral.BLangStreamLiteral.class);
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangRecordLiteral.BLangChannelLiteral.class);
     }
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-        bFunctionPointerInvocation.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangInvocation.BFunctionPointerInvocation.class);
     }
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        iExpr.typeChecked = false;
-        throw new AssertionError();
+        throwInvalidStateException(BLangInvocation.BLangAttachedFunctionInvocation.class);
     }
 
     @Override
     public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangListConstructorExpr.BLangJSONArrayLiteral.class);
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangIndexBasedAccess.BLangJSONAccessExpr.class);
     }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-        xmlnsNode.symbol = null;
+        throwInvalidStateException(BLangXMLNS.BLangLocalXMLNS.class);
     }
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-        xmlnsNode.symbol = null;
+        throwInvalidStateException(BLangXMLNS.BLangPackageXMLNS.class);
     }
 
     @Override
@@ -1397,43 +1276,49 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        throw new AssertionError();
+        throwInvalidStateException(BLangStatementExpression.class);
     }
 
     @Override
     public void visit(BLangMarkdownDocumentationLine bLangMarkdownDocumentationLine) {
-        throw new AssertionError();
+        bLangMarkdownDocumentationLine.reset();
     }
 
     @Override
     public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
-        throw new AssertionError();
+        bLangDocumentationParameter.reset();
     }
 
     @Override
     public void visit(BLangMarkdownReturnParameterDocumentation bLangMarkdownReturnParameterDocumentation) {
-        throw new AssertionError();
+        bLangMarkdownReturnParameterDocumentation.reset();
     }
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        throw new AssertionError();
+        bLangMarkdownDocumentation.reset();
+        bLangMarkdownDocumentation.documentationLines.forEach(line -> line.accept(this));
+        bLangMarkdownDocumentation.parameters.forEach(param -> param.accept(this));
+        if (bLangMarkdownDocumentation.returnParameter != null) {
+            bLangMarkdownDocumentation.returnParameter.accept(this);
+        }
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
-        bLangTupleVariable.symbol = null;
+        bLangTupleVariable.reset();
+        bLangTupleVariable.memberVariables.forEach(var -> var.accept(this));
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+        bLangTupleVariableDef.reset();
         bLangTupleVariableDef.var.accept(this);
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        bLangRecordVariable.symbol = null;
-        bLangRecordVariable.type = null;
+        bLangRecordVariable.reset();
 
         bLangRecordVariable.variableList.forEach(variable -> variable.valueBindingPattern.accept(this));
         if (bLangRecordVariable.restParam != null) {
@@ -1450,16 +1335,20 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        bLangRecordVariableDef.reset();
         bLangRecordVariableDef.var.accept(this);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        bLangErrorVariable.symbol = null;
-        bLangErrorVariable.type = null;
+        bLangErrorVariable.reset();
 
         bLangErrorVariable.reason.accept(this);
-        bLangErrorVariable.detail.accept(this);
+        bLangErrorVariable.detail.forEach(detailEntry -> detailEntry.valueBindingPattern.accept(this));
+
+        if (bLangErrorVariable.restDetail != null) {
+            bLangErrorVariable.restDetail.accept(this);
+        }
 
         if (bLangErrorVariable.typeNode != null) {
             bLangErrorVariable.typeNode.accept(this);
@@ -1470,35 +1359,40 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        bLangErrorVariableDef.reset();
         bLangErrorVariableDef.errorVariable.accept(this);
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        throw new AssertionError();
+        bLangMatchStmtStaticBindingPatternClause.reset();
+        bLangMatchStmtStaticBindingPatternClause.body.accept(this);
+        bLangMatchStmtStaticBindingPatternClause.literal.accept(this);
     }
 
     @Override
     public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStmtStructuredBindingPatternClause) {
-        throw new AssertionError();
+        matchStmtStructuredBindingPatternClause.reset();
+        matchStmtStructuredBindingPatternClause.bindingPatternVariable.accept(this);
+        if (matchStmtStructuredBindingPatternClause.typeGuardExpr != null) {
+            matchStmtStructuredBindingPatternClause.accept(this);
+        }
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        workerFlushExpr.typeChecked = false;
-        workerFlushExpr.type = null;
+        workerFlushExpr.reset();
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        syncSendExpr.typeChecked = false;
-        syncSendExpr.type = null;
-
+        syncSendExpr.reset();
         syncSendExpr.expr.accept(this);
     }
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        waitForAllExpr.reset();
         waitForAllExpr.keyValuePairs.forEach(bLangWaitKeyValue -> {
             if (bLangWaitKeyValue.keyExpr != null) {
                 bLangWaitKeyValue.keyExpr.accept(this);
@@ -1511,6 +1405,11 @@ public class SymbolResetter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        throw new AssertionError();
+        waitLiteral.reset();
+        waitLiteral.accept(this);
+    }
+
+    private void throwInvalidStateException(Class clazz) {
+        throw new IllegalStateException(clazz.toString() + " is only used from Desugar onwards.");
     }
 }

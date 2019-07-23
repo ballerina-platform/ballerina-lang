@@ -513,6 +513,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        // TODO: 7/22/19 Remove the two calls below. The two exprs analyzed here are set in desugar
         analyzeNode(tableLiteral.indexColumnsArrayLiteral, env);
         analyzeNode(tableLiteral.keyColumnsArrayLiteral, env);
         tableLiteral.columns.forEach(column -> analyzeNode(column, env));
@@ -671,6 +672,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         xmlElementLiteral.children.forEach(expr -> analyzeNode(expr, env));
         xmlElementLiteral.attributes.forEach(expr -> analyzeNode(expr, env));
+        // TODO: 7/22/19 Check if below check can be removed
         xmlElementLiteral.inlineNamespaces.forEach(expr -> analyzeNode(expr, env));
     }
 

@@ -896,7 +896,7 @@ public class BLangPackageBuilder {
         recordVarRef.addWS(ws);
         switch (restBindingPattern) {
             case OPEN_REST_BINDING_PATTERN:
-                recordVarRef.restParam = this.exprNodeStack.pop();
+                recordVarRef.restParam = (BLangExpression) this.exprNodeStack.pop();
                 break;
             case CLOSED_REST_BINDING_PATTERN:
                 recordVarRef.isClosed = true;
