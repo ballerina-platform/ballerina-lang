@@ -35,7 +35,7 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
     target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler }
     }
 }
@@ -51,7 +51,7 @@ service websubSubscriber on websubEP {
     subscribeOnStartUp: true,
     target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler }
     }
 }

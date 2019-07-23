@@ -34,7 +34,7 @@ http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
     target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler1 }
     }
 }
@@ -57,7 +57,7 @@ http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
     subscribeOnStartUp: true,
     target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler2 }
     }
 }
@@ -80,7 +80,7 @@ http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
     subscribeOnStartUp: true,
     target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler3 }
     }
 }
@@ -103,7 +103,7 @@ http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
     subscribeOnStartUp: true,
     target: "http://localhost:23080/publisherThree/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler4 }
     }
 }

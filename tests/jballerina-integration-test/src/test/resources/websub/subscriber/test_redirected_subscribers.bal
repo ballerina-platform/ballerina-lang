@@ -27,7 +27,11 @@ listener websub:Listener websubEP = new websub:Listener(23484);
     target: "http://localhost:23081/original/one",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: { followRedirects: {
+    publisherClientConfig: { followRedirects: {
+            enabled: true
+        }
+    },
+    hubClientConfig: { followRedirects: {
             enabled: true
         }
     }
@@ -49,7 +53,11 @@ service websubSubscriber on websubEP {
     target: "http://localhost:23081/original/two",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA",
-    subscriptionClientConfig: { followRedirects: {
+    publisherClientConfig: { followRedirects: {
+            enabled: true
+        }
+    },
+    hubClientConfig: { followRedirects: {
             enabled: true
         }
     }

@@ -111,12 +111,13 @@ public type Listener object {
                     [hub, topic] = <[string, string]> target;
                 }
 
-                var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails["subscriptionClientConfig"];
-                http:ClientEndpointConfig? subscriptionClientConfig =
-                                                    clientConfig is http:ClientEndpointConfig ? clientConfig : ();
+                http:ClientEndpointConfig? hubClientConfig =
+                                                <http:ClientEndpointConfig?> subscriptionDetails["hubClientConfig"];
 
                 if (resourceUrl is string) {
-                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl);
+                    http:ClientEndpointConfig? publisherClientConfig =
+                                            <http:ClientEndpointConfig?> subscriptionDetails["publisherClientConfig"];
+                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, publisherClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
                         var hubDecodeResponse = http:decode(retHub, "UTF-8");
@@ -142,8 +143,7 @@ public type Listener object {
                         continue;
                     }
                 }
-                invokeClientConnectorForSubscription(<string> hub, subscriptionClientConfig,
-                                                     <@untainted> subscriptionDetails);
+                invokeClientConnectorForSubscription(<string> hub, hubClientConfig, <@untainted> subscriptionDetails);
             }
         }
     }
@@ -221,9 +221,11 @@ public type ExtensionConfig record {|
 # The function called to discover hub and topic URLs defined by a resource URL.
 #
 # + resourceUrl - The resource URL advertising hub and topic URLs
+# + publisherClientConfig - The configuration for the publisher client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
-function retrieveHubAndTopicUrl(string resourceUrl) returns @tainted [string, string]|error {
-    http:Client resourceEP = new http:Client(resourceUrl);
+function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? publisherClientConfig)
+        returns @tainted [string, string]|error {
+    http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request);
     error websubError = error("Dummy");
@@ -249,11 +251,11 @@ function retrieveHubAndTopicUrl(string resourceUrl) returns @tainted [string, st
 # Function to invoke the WebSubSubscriberConnector's remote functions for subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
-# + subscriptionClientConfig - The configuration for subscription client
+# + hubClientConfig - The configuration for the hub client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig,
+function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? hubClientConfig,
                                               map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
+    Client websubHubClientEP = new Client(hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
     string callback = <string>subscriptionDetails["callback"];
 

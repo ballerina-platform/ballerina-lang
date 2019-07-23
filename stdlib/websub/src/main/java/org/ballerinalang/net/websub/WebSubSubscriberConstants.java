@@ -47,7 +47,8 @@ public class WebSubSubscriberConstants {
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
     public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
-    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG = "subscriptionClientConfig";
+    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
+    public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG = "hubClientConfig";
 
     public static final String TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
     public static final String TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";

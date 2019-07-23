@@ -29,7 +29,8 @@ import ballerina/http;
 # + leaseSeconds - The period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution
 # + callback - The callback to use when registering, if unspecified host:port/path will be used
-# + subscriptionClientConfig - The configuration for subscription client
+# + publisherClientConfig - The configuration for the discovery client, to use if a resource URL is specified
+# + hubClientConfig - The configuration for the hub client used to interact with the discovered/specified hub
 public type SubscriberServiceConfiguration record {|
     Listener?[] endpoints = [];
     string path = "";
@@ -38,7 +39,8 @@ public type SubscriberServiceConfiguration record {|
     int leaseSeconds = 0;
     string secret = "";
     string callback = "";
-    http:ClientEndpointConfig subscriptionClientConfig?;
+    http:ClientEndpointConfig publisherClientConfig?;
+    http:ClientEndpointConfig hubClientConfig?;
 |};
 
 # WebSub Subscriber Configuration for the service, indicating subscription related parameters.

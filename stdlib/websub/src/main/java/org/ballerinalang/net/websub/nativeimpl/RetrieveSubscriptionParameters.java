@@ -44,7 +44,9 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.
+        ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TARGET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_PORT;
@@ -102,12 +104,16 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     ANN_WEBSUB_ATTR_LEASE_SECONDS)));
             subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));
 
-            if (annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG) != null) {
-                MapValue<String, Object> subscriptionClientConfig =
-                        (MapValue<String, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG);
-                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, subscriptionClientConfig);
-            } else {
-                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, null);
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG)) {
+                MapValue<String, Object> publisherClientConfig =
+                        (MapValue<String, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG, publisherClientConfig);
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG)) {
+                MapValue<String, Object> hubClientConfig =
+                        (MapValue<String, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG, hubClientConfig);
             }
 
             String callback = annotation.getStringValue(ANN_WEBSUB_ATTR_CALLBACK);
