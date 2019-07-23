@@ -171,16 +171,13 @@
                              provider="io.ballerina.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="io.ballerina.plugins.idea.project.BallerinaProjectExtension"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
         <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-
+                serviceImplementation="io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>

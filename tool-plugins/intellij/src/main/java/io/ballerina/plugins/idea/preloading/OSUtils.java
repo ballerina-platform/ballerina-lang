@@ -21,7 +21,7 @@ import java.util.Locale;
 /**
  * Utility functions used by launcher.
  */
-public class OperatingSystemUtils {
+public class OSUtils {
 
     public static final String WINDOWS = "windows";
     public static final String UNIX = "unix";
@@ -33,12 +33,12 @@ public class OperatingSystemUtils {
      * Returns name of the operating system running. null if not a unsupported operating system.
      * @return operating system
      */
-    static String getOperatingSystem() {
-        if (OperatingSystemUtils.isWindows()) {
+    public static String getOperatingSystem() {
+        if (OSUtils.isWindows()) {
             return WINDOWS;
-        } else if (OperatingSystemUtils.isUnix() || OperatingSystemUtils.isSolaris()) {
+        } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
             return UNIX;
-        } else if (OperatingSystemUtils.isMac()) {
+        } else if (OSUtils.isMac()) {
             return MAC;
         }
         return null;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.codeinsight.semanticanalyzer;
+package io.ballerina.plugins.idea.codeinsight.autodetect;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -25,35 +25,35 @@ import com.intellij.util.xmlb.annotations.Attribute;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Semantic analyzer settings provider.
+ * Language server auto detection settings provider.
  */
-@State(name = "BallerinaSemanticAnalyzer",
-       storages = @Storage(value = "editor.semantic.analyzer.xml"))
-public class BallerinaSemanticAnalyzerSettings implements PersistentStateComponent<BallerinaSemanticAnalyzerSettings> {
+@State(name = "BallerinaLangServerAutoDetection",
+       storages = @Storage(value = "editor.detect.langserver.xml"))
+public class BallerinaAutoDetectionSettings implements PersistentStateComponent<BallerinaAutoDetectionSettings> {
 
     @Attribute
-    private boolean myUseSemanticAnalyzer = false;
+    private boolean autoDetectBalHome = true;
 
-    public static BallerinaSemanticAnalyzerSettings getInstance() {
-        return ServiceManager.getService(BallerinaSemanticAnalyzerSettings.class);
+    public static BallerinaAutoDetectionSettings getInstance() {
+        return ServiceManager.getService(BallerinaAutoDetectionSettings.class);
     }
 
     @Nullable
     @Override
-    public BallerinaSemanticAnalyzerSettings getState() {
+    public BallerinaAutoDetectionSettings getState() {
         return this;
     }
 
     @Override
-    public void loadState(BallerinaSemanticAnalyzerSettings state) {
+    public void loadState(BallerinaAutoDetectionSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean useSemanticAnalyzer() {
-        return myUseSemanticAnalyzer;
+    public boolean autoDetectBalHome() {
+        return autoDetectBalHome;
     }
 
-    public void setUseSemanticAnalyzer(boolean useSemanticAnalyzer) {
-        myUseSemanticAnalyzer = useSemanticAnalyzer;
+    public void setAutoDetectBalHome(boolean autoDetectBalHome) {
+        this.autoDetectBalHome = autoDetectBalHome;
     }
 }

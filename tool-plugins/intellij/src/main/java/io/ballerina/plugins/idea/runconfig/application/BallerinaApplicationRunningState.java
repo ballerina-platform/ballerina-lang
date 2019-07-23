@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.runconfig.application;
 
+import com.google.common.base.Strings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.process.ProcessAdapter;
@@ -27,6 +28,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
@@ -61,7 +63,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         ProcessHandler processHandler = super.startProcess();
         processHandler.addProcessListener(new ProcessAdapter() {
             @Override
-            public void startNotified(ProcessEvent event) {
+            public void startNotified(@NotNull ProcessEvent event) {
                 if (myHistoryProcessHandler != null) {
                     myHistoryProcessHandler.apply(processHandler);
                 }
@@ -74,7 +76,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
 
         Project project = myConfiguration.getProject();
-        VirtualFile baseDir = project.getBaseDir();
+        String projectPath = project.getBasePath();
+        if (projectPath == null) {
+            return super.patchExecutor(executor);
+        }
+
         String filePath;
 
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
@@ -89,8 +95,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         String projectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(fileDir.getPath(),
                 project.getBasePath());
         // if no ballerina project is found.
-        if (projectRoot.equals("")) {
-            projectRoot = baseDir.getPath();
+        if (projectRoot.isEmpty()) {
+            projectRoot = projectPath;
             filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
         } else {
             String relativeFilePath =
@@ -115,23 +121,28 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         }
         if (filePath.isEmpty()) {
             filePath = myConfiguration.getFilePath();
-            if (baseDir != null) {
-                // Note File.separator will not work here since filepath contains "/" regardless of the OS.
-                filePath = filePath.replace(baseDir.getPath() + "/", "");
-            }
+            // Note File.separator will not work here since filepath contains "/" regardless of the OS.
+            filePath = filePath.replace(projectPath + "/", "");
         }
 
         BallerinaExecutor ballerinaExecutor;
-        if (baseDir != null) {
+        if (!projectRoot.isEmpty()) {
             ballerinaExecutor = executor.withParameters("run");
 
             // If debugging mode is running, we need to add the debugging flag.
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot).withBallerinaPath(
-                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
+            ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot)
                     .withParameterString(myConfiguration.getBallerinaToolParams());
+
+            // Tries to get the ballerina executable path using the SDK.
+            String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
+            // If any sdk is not found and user has chosen to auto detect ballerina home.
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            }
+            ballerinaExecutor.withBallerinaPath(balSdkPath);
         } else {
             ballerinaExecutor = executor.withParameters("run");
 
@@ -139,9 +150,15 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor.withBallerinaPath(
-                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
-                    .withParameterString(myConfiguration.getBallerinaToolParams());
+            ballerinaExecutor.withParameterString(myConfiguration.getBallerinaToolParams());
+
+            // Tries to get the ballerina executable path using the SDK.
+            String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
+            // If any sdk is not found and user has chosen to auto detect ballerina home.
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            }
+            ballerinaExecutor.withBallerinaPath(balSdkPath);
         }
 
         // Adds ballerina file/package name after flags.

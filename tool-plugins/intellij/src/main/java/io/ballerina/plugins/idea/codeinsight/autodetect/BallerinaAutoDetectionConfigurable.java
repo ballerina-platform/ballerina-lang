@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.codeinsight.semanticanalyzer;
+package io.ballerina.plugins.idea.codeinsight.autodetect;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
@@ -30,20 +30,19 @@ import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
 /**
- * Adds enabling/disabling Ballerina semantic analyzing in settings.
+ * Adds enabling/disabling Ballerina language server auto detection in settings.
  */
-public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigurable {
+public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
 
-    private JCheckBox myCbUseSemanticAnalyzingSupport;
+    private JCheckBox myCbUseAutoDetectedBallerinaHome;
 
     @NotNull
-    private final BallerinaSemanticAnalyzerSettings mySemanticAnalyzerSettings;
+    private final BallerinaAutoDetectionSettings myLangServerAutoDetectionSettings;
     private final boolean myIsDialog;
 
-    public BallerinaSemanticAnalyzerConfigurable(@NotNull Project project, boolean dialogMode) {
-        mySemanticAnalyzerSettings = BallerinaSemanticAnalyzerSettings.getInstance();
+    public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
+        myLangServerAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance();
         myIsDialog = dialogMode;
     }
 
@@ -51,9 +50,8 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
     @Override
     public JComponent createComponent() {
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myCbUseSemanticAnalyzingSupport = new JCheckBox("Use language server semantic analyzing");
-        builder.addComponent(myCbUseSemanticAnalyzingSupport);
-
+        myCbUseAutoDetectedBallerinaHome = new JCheckBox("Enable language server auto detection");
+        builder.addComponent(myCbUseAutoDetectedBallerinaHome);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -64,23 +62,23 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
 
     @Override
     public boolean isModified() {
-        return mySemanticAnalyzerSettings.useSemanticAnalyzer() != myCbUseSemanticAnalyzingSupport.isSelected();
+        return myLangServerAutoDetectionSettings.autoDetectBalHome() != myCbUseAutoDetectedBallerinaHome.isSelected();
     }
 
     @Override
     public void apply() {
-        mySemanticAnalyzerSettings.setUseSemanticAnalyzer(myCbUseSemanticAnalyzingSupport.isSelected());
+        myLangServerAutoDetectionSettings.setAutoDetectBalHome(myCbUseAutoDetectedBallerinaHome.isSelected());
     }
 
     @Override
     public void reset() {
-        myCbUseSemanticAnalyzingSupport.setSelected(mySemanticAnalyzerSettings.useSemanticAnalyzer());
+        myCbUseAutoDetectedBallerinaHome.setSelected(myLangServerAutoDetectionSettings.autoDetectBalHome());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.semantic.analyzer";
+        return "ballerina.langserver.autodetect";
     }
 
     @Nullable
@@ -92,7 +90,7 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
     @Nls
     @Override
     public String getDisplayName() {
-        return "Semantic Analyzer";
+        return "Language Server Auto Detection";
     }
 
     @Nullable
@@ -103,7 +101,7 @@ public class BallerinaSemanticAnalyzerConfigurable implements SearchableConfigur
 
     @Override
     public void disposeUIResources() {
-        UIUtil.dispose(myCbUseSemanticAnalyzingSupport);
-        myCbUseSemanticAnalyzingSupport = null;
+        UIUtil.dispose(myCbUseAutoDetectedBallerinaHome);
+        myCbUseAutoDetectedBallerinaHome = null;
     }
 }
