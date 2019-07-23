@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/internal;
 import ballerina/log;
 
 # Represents the outbound Basic Auth authenticator.
