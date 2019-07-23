@@ -372,16 +372,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 int line = params.getRange().getStart().getLine();
+                int col = params.getRange().getStart().getCharacter();
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
 
                 String topLevelNodeType = CommonUtil.topLevelNodeInLine(identifier, line, documentManager);
 
                 // Add create test commands
-                Path modulePath = document.getOwnerModule().isEmpty() ? document.getProjectRootPath()
-                        : Paths.get(document.getOwnerModule());
+                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
+                        : document.getOwnerModulePath();
                 String innerDirName = modulePath.relativize(document.getPath()).toString()
                         .split(Pattern.quote(File.separator))[0];
-                String moduleName = document.getProjectRootPath().relativize(modulePath).toString();
+                String moduleName = document.getOwnerModule();
                 if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
                         !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
                         !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
@@ -399,7 +400,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     context.put(ExecuteCommandKeys.LS_COMPILER_KEY, lsCompiler);
                     context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
                     diagnostics.forEach(diagnostic -> {
-                        if (line == diagnostic.getRange().getStart().getLine()) {
+                        int sLine = diagnostic.getRange().getStart().getLine();
+                        int sCol = diagnostic.getRange().getStart().getCharacter();
+                        int eLine = diagnostic.getRange().getEnd().getLine();
+                        int eCol = diagnostic.getRange().getEnd().getCharacter();
+                        if ((line == sLine && col >= sCol) || (line == eLine && col <= eCol) ||
+                                (line > sLine && eLine < line)) {
                             actions.addAll(CommandUtil.getCommandsByDiagnostic(document, diagnostic, params, context));
                         }
                     });

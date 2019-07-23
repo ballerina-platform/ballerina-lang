@@ -20,7 +20,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8181, { host: "0.0.0.0" });
+listener websub:Listener websubEP = new websub:Listener(23181, { host: "0.0.0.0" });
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
@@ -71,7 +71,7 @@ string subscriberThreeTopic = "http://one.websub.topic.com";
     topic: subscriberThreeTopic,
     hub: config:getAsString("test.hub.url"),
     leaseSeconds: 300,
-    callback: "http://localhost:8181/websubThree?topic=" + subscriberThreeTopic + "&fooVal=barVal",
+    callback: "http://localhost:23181/websubThree?topic=" + subscriberThreeTopic + "&fooVal=barVal",
     secret: "Xaskdnfe234"
 }
 service websubSubscriberWithQueryParams on websubEP {

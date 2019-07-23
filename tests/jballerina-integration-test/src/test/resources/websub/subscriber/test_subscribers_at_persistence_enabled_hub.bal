@@ -20,7 +20,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8383);
+listener websub:Listener websubEP = new websub:Listener(23383);
 
 auth:OutboundBasicAuthProvider basicAuthProvider = new({
     username: "tom",
@@ -32,7 +32,7 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:8080/publisher/discover",
+    resourceUrl: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
     subscriptionClientConfig: {
@@ -49,7 +49,7 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:8080/publisherTwo/discover",
+    resourceUrl: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
     subscriptionClientConfig: {
         auth: { authHandler: basicAuthHandler }

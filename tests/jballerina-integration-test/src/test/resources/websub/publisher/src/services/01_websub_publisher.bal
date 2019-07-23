@@ -33,7 +33,7 @@ websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
 websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl);
 
-listener http:Listener publisherServiceEP = new http:Listener(8080);
+listener http:Listener publisherServiceEP = new http:Listener(23080);
 
 service publisher on publisherServiceEP {
     @http:ResourceConfig {
@@ -98,7 +98,7 @@ service publisher on publisherServiceEP {
             int index=1;
             string [] availableTopics = webSubHub.getAvailableTopics();
             foreach var topic in availableTopics {
-                allTopics["Topic_" + index] = topic;
+                allTopics["Topic_" + index.toString()] = topic;
                 index += 1;
             }
             json j = <json> typedesc<json>.constructFrom(allTopics);
@@ -128,9 +128,9 @@ service publisherTwo on publisherServiceEP {
         methods: ["POST"]
     }
     resource function notify(http:Caller caller, http:Request req) {
-        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_THREE, "http://localhost:8383/websub",
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_THREE, "http://localhost:23383/websub",
                                                      {"action":"publish","mode":"internal-hub"});
-        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_FOUR, "http://localhost:8383/websubTwo",
+        checkSubscrberAvailabilityAndPublishDirectly(WEBSUB_TOPIC_FOUR, "http://localhost:23383/websubTwo",
                                                      {"action":"publish","mode":"internal-hub-two"});
 
         var err = caller->accepted();
@@ -208,7 +208,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 }
 
 function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(new http:Listener(9191), { remotePublish : { enabled : true }});
+    var result = websub:startHub(new http:Listener(23191), { remotePublish : { enabled : true }});
     if (result is websub:WebSubHub) {
         return result;
     } else {

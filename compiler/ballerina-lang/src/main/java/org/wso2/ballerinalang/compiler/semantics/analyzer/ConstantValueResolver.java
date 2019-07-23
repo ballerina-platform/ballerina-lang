@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRef) {
-        if ((varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+        if (varRef.symbol == null || (varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
             this.result = null;
             return;
         }
@@ -131,20 +132,37 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccess) {
-        BLangConstantValue key = visitExpr(indexAccess.indexExpr);
+        BLangConstantValue index = visitExpr(indexAccess.indexExpr);
         BLangConstantValue constVal = visitExpr(indexAccess.expr);
 
         // constVal can be null in error scenarios
-        if (constVal == null) {
+        if (constVal == null || index == null) {
             this.result = null;
             return;
         }
 
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
-        if (!value.containsKey(key.value)) {
-            dlog.error(indexAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccess.expr);
+        if (constVal.type.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
         }
-        this.result = value.get(key.value);
+
+        if (constVal.type.tag == TypeTags.STRING) {
+            String value = ((String) constVal.value);
+            Long intIndex = (Long) index.value;
+
+            if (intIndex < 0 || intIndex >= value.length()) {
+                dlog.error(indexAccess.indexExpr.pos, DiagnosticCode.INDEX_OUT_OF_RANGE, intIndex);
+                this.result = null;
+                return;
+            }
+            this.result = new BLangConstantValue(String.valueOf(value.charAt(intIndex.intValue())), constVal.type);
+            return;
+        }
+
+        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
+        if (!value.containsKey(index.value)) {
+            dlog.error(indexAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, index, indexAccess.expr);
+        }
+        this.result = value.get(index.value);
     }
 
     @Override
