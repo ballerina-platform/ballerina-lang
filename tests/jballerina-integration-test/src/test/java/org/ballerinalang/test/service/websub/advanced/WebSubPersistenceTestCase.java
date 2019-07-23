@@ -44,7 +44,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
-    private static final int WEBSUB_PORT = 8383;
+    private static final int WEBSUB_PORT = 23383;
     private BServerInstance webSubSubscriber;
 
     private static final String PUBLISHER_ONE_BEFORE_CONTENT =

@@ -46,18 +46,18 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
-    private static final int WEBSUB_PORT = 8484;
+    private static final int WEBSUB_PORT = 23484;
     private BServerInstance webSubSubscriber;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [subscribe], Topic [http://one.persistence.topic.com], Lease Seconds [3600]";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG =
-            "Subscription Request failed at Hub[https://localhost:9191/websub/hub], for Topic[http://two.persistence" +
-                    ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:9191/websub/hub] - " +
+            "Subscription Request failed at Hub[https://localhost:23191/websub/hub], for Topic[http://two.persistence" +
+                    ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:23191/websub/hub] - " +
                     "Authentication failure";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_THREE_LOG =
-            "Subscription Request failed at Hub[https://localhost:9191/websub/hub], for Topic[http://one.persistence" +
-                    ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:9191/websub/hub] - " +
+            "Subscription Request failed at Hub[https://localhost:23191/websub/hub], for Topic[http://one.persistence" +
+                    ".topic.com]: Error in request: Mode[subscribe] at Hub[https://localhost:23191/websub/hub] - " +
                     "Authorization failure ";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_FOUR_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1200]";
