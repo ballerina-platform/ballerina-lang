@@ -79,8 +79,9 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                File.separator + "websub" + File.separator +
-                                                "test_subscribers_at_basic_auth_secured_hub.bal").getAbsolutePath();
+                                                File.separator + "websub" + File.separator + "subscriber" +
+                                                File.separator + "test_subscribers_at_basic_auth_secured_hub.bal")
+                .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherThree);
