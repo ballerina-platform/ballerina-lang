@@ -19,24 +19,22 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8484);
+listener websub:Listener websubEP = new websub:Listener(23383);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    resourceUrl: "http://localhost:8081/original/one",
+    topic: "http://three.websub.topic.com",
+    hub: "http://localhost:23191/websub/hub",
+    resourceUrl: "https://localhost:8080/publish", //invalid resource URL to test hub/topic prioritization
     leaseSeconds: 3600,
-    secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: { followRedirects: {
-            enabled: true
-        }
-    }
+    secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received: " + payload.toString());
+            io:println("WebSub Notification Received by One: " + payload.toString());
         } else {
             panic payload;
         }
@@ -46,19 +44,15 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
     subscribeOnStartUp:true,
-    resourceUrl: "http://localhost:8081/original/two",
+    resourceUrl: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
-    secret: "SwklSSf42DLA",
-    subscriptionClientConfig: { followRedirects: {
-            enabled: true
-        }
-    }
+    secret: "SwklSSf42DLA"
 }
 service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received: " + payload.toString());
+            io:println("WebSub Notification Received by Two: " + payload.toString());
         } else {
             panic payload;
         }

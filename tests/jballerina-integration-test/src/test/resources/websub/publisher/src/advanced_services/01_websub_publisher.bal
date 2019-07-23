@@ -30,7 +30,7 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 
-listener http:Listener publisherServiceEP = new http:Listener(8080);
+listener http:Listener publisherServiceEP = new http:Listener(23080);
 
 auth:OutboundBasicAuthProvider OutBoundbasicAuthProvider = new({
     username: "peter",
@@ -104,7 +104,7 @@ service publisherTwo on publisherServiceEP {
             panic <error> payload;
         }
 
-        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:8383/websubTwo");
+        checkSubscriberAvailability(WEBSUB_PERSISTENCE_TOPIC_TWO, "http://localhost:23383/websubTwo");
         var err = webSubHub.publishUpdate(WEBSUB_PERSISTENCE_TOPIC_TWO, <@untainted> <json> payload);
         if (err is error) {
             log:printError("Error publishing update directly", err);
@@ -140,7 +140,7 @@ service publisherThree on publisherServiceEP {
         if (payload is error) {
             panic <error> payload;
         }
-        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:8484/websubFour");
+        checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:23484/websubFour");
         var err = websubHubClientEP->publishUpdate(WEBSUB_TOPIC_ONE, <@untainted> <json> payload);
         if (err is error) {
             log:printError("Error publishing update remotely", err);
@@ -185,7 +185,7 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
 }
 
 function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(new http:Listener(9191, config =  {
+    var result = websub:startHub(new http:Listener(23191, config =  {
         auth: {
             authHandlers: [basicAuthHandler]
         },
