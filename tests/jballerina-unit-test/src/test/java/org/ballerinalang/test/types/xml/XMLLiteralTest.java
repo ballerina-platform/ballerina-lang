@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BString;
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -425,5 +427,17 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
         Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
         Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
+    }
+
+    @Test
+    public void testXMLSerialize() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        XMLItem xmlItem = new XMLItem(returns[0].stringValue());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xmlItem.serialize(baos);
+        Assert.assertEquals(new String(baos.toByteArray()),
+                "<foo xmlns=\"http://wso2.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 }

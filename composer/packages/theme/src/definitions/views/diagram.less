@@ -27,6 +27,31 @@
     display: inline-block;
     min-width: 100%;
     
+    .status-wrapper {
+        width: auto;
+        right: 70px;
+        top: 30px;
+        position: fixed;
+        justify-content: right;
+        z-index: 0;
+        font-size: 14px;
+        font-weight: 300;
+        padding: 0 10px;
+        z-index: 0;
+        border-width: 1px 0 1px 1px;
+        border-style: solid;
+        border-color: #e9e9e9; 
+
+        .label {
+            background: #fbfbfb;
+            padding: 10px 5px 10px 0;
+            font-size: 14px;
+            font-weight: 300;
+        }
+        &:hover {
+            cursor: pointer;
+        }
+    }
     .menu-icon {
         font-size: 20px;
         color: #f1f1f1;
@@ -40,6 +65,7 @@
         border-radius: 54%;
         background: #333;
         margin-right: 0;
+        z-index: 1000;
 
         .icon {
             margin: 3.5px;

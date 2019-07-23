@@ -78,7 +78,7 @@ public class Timer extends AbstractTask {
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
-            throw new SchedulingException("Failed to schedule Task.", e);
+            throw new SchedulingException("Failed to schedule task.", e);
         }
     }
 

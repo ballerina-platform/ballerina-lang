@@ -78,7 +78,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     }
 
     @Override
-    public void writeExternal(Element element) throws WriteExternalException {
+    public void writeExternal(@NotNull Element element) throws WriteExternalException {
         super.writeExternal(element);
         addNonEmptyElement(element, FILE_PATH_ATTRIBUTE_NAME, myFilePath);
         addNonEmptyElement(element, KIND_ATTRIBUTE_NAME, myRunKind.toString());

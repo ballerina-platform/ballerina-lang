@@ -148,3 +148,45 @@ function testMemberAccessOnMappingUnionInvalidType() {
     map<float>? y = bq["y"];
     anydata z = bq["z"][index];
 }
+
+function testInvalidStringMemberAccess() {
+    string s1 = "string value";
+    string s2 = "x";
+    int iv = 1;
+    int sv1 = s1[0];
+    float sv2 = s1[iv];
+    string sv3 = s1["s"];
+    string sv4 = s1[s2];
+}
+
+type StrOrInt "foo"|1;
+
+function testInvalidFiniteTypeStringMemberAccess() {
+    StrOrInt s1 = "foo";
+    StrOrInt s2 = 1;
+    string s3 = "foo";
+
+    string s4 = s1[0];
+    string s5 = s3[s2];
+}
+
+function testStringMemberAccessForAssignment() {
+    string animal = "animal";
+    animal[0] = "b";
+}
+
+const STC = "qwerty";
+const SIC2 = "l";
+
+const map<string> CM1 = {
+    l: STC[0],
+    m: STC
+};
+
+const map<string> CM2 = {
+    v: CM1[SIC2][1],
+    w: CM1["m"][STC.length()],
+    x: STC[0][-1],
+    y: CM1["m"][6],
+    z: CM1["l"][1]
+};

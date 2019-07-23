@@ -16,9 +16,4 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <Match>
-        <Class name="org.ballerinalang.stdlib.task.utils.Utils" />
-        <Method name="getCronExpressionFromAppointmentRecord" />
-        <Bug pattern="BC_UNCONFIRMED_CAST" />
-    </Match>
 </FindBugsFilter>

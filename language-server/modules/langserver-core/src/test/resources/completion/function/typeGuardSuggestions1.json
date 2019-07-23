@@ -6,7 +6,7 @@
   "source": "function/source/typeGuardSuggestions1.bal",
   "items": [
     {
-      "label": "min()(int)",
+      "label": "min(...int)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "max()(int)",
+      "label": "max(...int)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "sum()(int)",
+      "label": "sum(...int)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

@@ -6,7 +6,7 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "add()((()|error))",
+      "label": "add(any data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -67,7 +67,7 @@
       }
     },
     {
-      "label": "remove()((int|error))",
+      "label": "remove(function (any) returns (boolean) func)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

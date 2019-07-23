@@ -45,4 +45,8 @@ public class InitGlobalPoolContainer {
                                                MapValue<String, Object> poolConfig) {
         SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }
+
+    private InitGlobalPoolContainer() {
+
+    }
 }

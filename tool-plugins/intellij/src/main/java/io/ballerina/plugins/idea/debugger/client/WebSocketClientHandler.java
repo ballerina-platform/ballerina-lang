@@ -35,7 +35,7 @@ import io.netty.util.CharsetUtil;
  */
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static final Logger LOGGER = Logger.getInstance(WebSocketClient.class);
+    private static final Logger LOGGER = Logger.getInstance(WebSocketClientHandler.class);
 
     private final WebSocketClientHandshaker handshaker;
     private final Callback callback;
