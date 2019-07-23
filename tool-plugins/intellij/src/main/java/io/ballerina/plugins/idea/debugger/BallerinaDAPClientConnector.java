@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,7 @@ public class BallerinaDAPClientConnector {
 
             if (inputStream == null || outputStream == null) {
                 LOG.warn("Unable to establish connection with the debug server.");
+                return;
             }
 
             debugClient = new DAPClient();
@@ -128,7 +129,7 @@ public class BallerinaDAPClientConnector {
 
             initializeFuture = debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
-                LOG.info("Debug server initialize result received.");
+                LOG.info("initialize response received from the debug server.");
                 debugClient.initialized();
                 requestManager = new DAPRequestManager(this, debugClient, debugServer, initializeResult);
                 debugClient.connect(requestManager);
@@ -138,7 +139,7 @@ public class BallerinaDAPClientConnector {
 
         } catch (IOException e) {
             myConnectionState = ConnectionState.NOT_CONNECTED;
-            LOG.warn("Connecting to the DAP server failed.", e);
+            LOG.warn("Error occurred when trying to initialize connection with the debug server.", e);
         }
     }
 
