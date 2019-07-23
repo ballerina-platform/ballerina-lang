@@ -1,3 +1,6 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run functional_iteration.bal
 Number of elements in 'words': 5
 a=ANT b=BEAR c=CAT d=DEAR e=ELEPHANT
 -5
@@ -15,3 +18,4 @@ Execution Order:-
 -- foreach operation's value: apple
 -- foreach operation's value: ["red", "green"]
 -- foreach operation's value: 5
+

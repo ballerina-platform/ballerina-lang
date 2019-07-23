@@ -13,7 +13,7 @@ type Person object {
         self.lastName = lastName;
     }
 
-    // An object method
+    // A method defined within the object.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }

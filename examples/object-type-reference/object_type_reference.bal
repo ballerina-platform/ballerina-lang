@@ -48,7 +48,7 @@ type Manager object {
         self.dpt = "HR";
     }
 
-    // The member methods coming from the referenced type is defined within the object.
+    // The member methods coming from the referenced type should be defined within the object.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }

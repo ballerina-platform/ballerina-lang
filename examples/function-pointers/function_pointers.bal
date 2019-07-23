@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/'lang\.int as ints;
+import ballerina/lang.'int as ints;
 
 // The `test` function acts as a variable function pointer in the `main` function.
 function test(int x, string s) returns float {
@@ -29,9 +29,9 @@ function getFunctionPointer() returns (function (int, string) returns float) {
 
 public function main() {
     // Value `test` will serve as a function pointer for the `foo` function.
-    io:println("Answer: " + foo(10, test).toString());
-    io:println("Answer: " + foo(10, getFunctionPointer()).toString());
+    io:println("Answer: ", foo(10, test));
+    io:println("Answer: ", foo(10, getFunctionPointer()));
     // A function pointer as a variable.
     function (int, string) returns float f = getFunctionPointer();
-    io:println("Answer: " + foo(10, f).toString());
+    io:println("Answer: ", foo(10, f));
 }

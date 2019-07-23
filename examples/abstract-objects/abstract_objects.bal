@@ -30,12 +30,11 @@ type Employee object {
         self.lastName = lastName;
     }
 
-    // Methods should have a body either within the object
+    // Methods should have a body.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
 
-    // Implementation of the abstract method
     function checkAndModifyAge(int condition, int a) {
         if (self.age < condition) {
             self.age = a;

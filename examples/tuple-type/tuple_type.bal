@@ -20,17 +20,17 @@ public function main() {
 
     // Invokes a function that returns a tuple.
     var [q, r] = divideBy10(6);
-    io:println("06/10: " + "quotient=" + q.toString() + " " + "remainder=" + r.toString());
+    io:println("06/10: ", "quotient=", q, " remainder=", r);
 
     // To ignore a value in a tuple, use `_`.
     // This ignores the second return value.
     var [q1, _] = divideBy10(57);
-    io:println("57/10: " + "quotient=" + q1.toString());
+    io:println("57/10: ", "quotient=",  q1);
 
     [int, int] returnValue = divideBy10(9);
     // This ignores the first value of a tuple.
     var [_, r1] = returnValue;
-    io:println("09/10: " + "remainder=" + r1.toString());
+    io:println("09/10: ", "remainder=", r1);
 }
 
 // This function returns a tuple of two integers.

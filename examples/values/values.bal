@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/lang.'int as ints;
 import ballerina/lang.'float as floats;
+import ballerina/lang.'int as ints;
 
 // The types `int`, `float`, `decimal`, `string`, `boolean`, `byte`, and `nil` are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable.
@@ -9,8 +9,8 @@ public function main() {
     int i = 10;
     io:println(i);
 
-    // ballerina/lang.int package contains common functions that can be used
-    // with int values
+    // The `ballerina/lang.int` module contains common functions that can be used
+    // with `int` values.
     int|error i2 = ints:fromString("100");
     if (i2 is int) {
         io:println(i2);
@@ -20,22 +20,22 @@ public function main() {
     float f = 20.0;
     io:println(f);
 
-    // ballerina/lang.float package contains common functions that can be used with float values.
+    // The `ballerina/lang.float` module contains common functions that can be used with `float` values.
     float f1 = floats:fromBitsInt(i);
     float f2 = 22.0;
     float max = floats:max(f1, f2);
-    io:println("Max float: " + max.toString());
+    io:println("Max float: ", max);
 
-    // The `isNaN()`, `isInfinite()`, and `isFinite()` langlib functions are supported by the `float` type.
-    // The `isNaN()` function will return true if the `float` value is neither finite nor infinite.
+    // The `.isNaN()`, `.isInfinite()`, and `.isFinite()` langlib functions are supported by the `float` type.
+    // The `.isNaN()` function will return true if the `float` value is neither finite nor infinite.
     float nanVal = 0.0/0.0;
     io:println(nanVal.isNaN());
 
-    // The `isInfinite()` function will return true if the `float` value is neither NaN nor finite.
+    // The `.isInfinite()` function will return true if the `float` value is neither NaN nor finite.
     float infiniteVal = 12.0/0.0;
     io:println(infiniteVal.isInfinite());
 
-    // The `isFinite()` function will return true if the `float` value is neither NaN nor infinite.
+    // The `.isFinite()` function will return true if the `float` value is neither NaN nor infinite.
     float finiteVal = 6.0/3.0;
     io:println(finiteVal.isFinite());
 

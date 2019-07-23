@@ -10,8 +10,8 @@ type Foo record {|
 public function main() {
     [string, string] v1 = ["Sample String", "Sample String 2"];
     Foo v2 = { message: "A", fatal: false };
-    error e1 = error("Generic Error", message = "Failed" );
-    SampleError e2 = error("Sample Error",  message= "Fatal", fatal= true );
+    error e1 = error("Generic Error", message = "Failed");
+    SampleError e2 = error("Sample Error",  message =  "Fatal", fatal = true);
 
     basicMatch(v1);
     basicMatch(v2);
@@ -25,13 +25,13 @@ function basicMatch(any|error v) {
         var { message, fatal } =>
                             io:println("Matched a value with a record shape");
         // If the variable `v` contains an `error` value, it will be matched
-        // to this pattern and the reason string and detail record will be
+        // to this pattern and the reason string and the detail record will be
         // destructed within the pattern block.
-        var error(reason, message=message) => io:println("Matched an error value : "
-                + io:sprintf("reason: %s, message: %s", reason, message));
+        var error(reason, message = message) => io:println("Matched an error value : ",
+                  io:sprintf("reason: %s, message: %s", reason, message));
 
-        // If a rest pattern is used the error details will be recorded in a map
-        var error(reason, ...rest) => io:println("Matched an error value : "
-                + io:sprintf("reason: %s, detail: %s", reason, rest));
+        // If a rest binding pattern is used, the error details will be recorded in a map.
+        var error(reason, ...rest) => io:println("Matched an error value : ",
+                  io:sprintf("reason: %s, detail: %s", reason, rest));
     }
 }

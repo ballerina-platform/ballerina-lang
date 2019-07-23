@@ -56,18 +56,18 @@ public function main() {
     // Invokes the function that shows basic closure support.
     var foo = basicClosure();
     int result1 = foo(3);
-    io:println("Answer: " + result1.toString());
+    io:println("Answer: ", result1);
 
     // The function invocation that represents multiple levels of anonymous functions
     // with closure support.
     var bar = multilevelClosure();
     int result2 = bar(5);
-    io:println("Answer: " + result2.toString());
+    io:println("Answer: ", result2);
 
     // This function invocation shows how function pointers with closures
     // are passed around.
     var baz1 = functionPointers(7);
     var baz2 = baz1(5);
     int result3 = baz2(3);
-    io:println("Answer: " + result3.toString());
+    io:println("Answer: ", result3);
 }

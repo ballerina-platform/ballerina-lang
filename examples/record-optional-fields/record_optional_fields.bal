@@ -25,7 +25,8 @@ public function main() {
 
     // Before accessing/using an optional field, it must be added to the record.
     john.age = 25;
-    // Optional fields are accessed using `?.` notation on the record
+    // Optional fields of the record are accessed using the `?.` operator.
+    // This returns the value if the field is present in the record. Returns `()` if not.
     io:println("Age: ", john?.age);
     io:println("Updated person with the optional field set: ", john);
 

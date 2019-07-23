@@ -37,10 +37,9 @@ public function main() {
     io:println(complexData);
 
     // Values of a constant map can be accessed and used as usual.
-    var data = complexData["data"];
-    io:println(data["user"]);
+    io:println(complexData["data"]["user"]);
 
-    // However, updating a constant map will produce a compile time error. E.g., -
+    // However, updating a constant map will produce a compile-time error. E.g., -
     // data.ID = "4321";
     // data.newField = 10;
 }
