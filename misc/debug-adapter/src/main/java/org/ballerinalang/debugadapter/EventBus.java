@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package events;
+package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -24,7 +24,6 @@ import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.Value;
-import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
 import com.sun.jdi.event.Event;
@@ -34,15 +33,18 @@ import com.sun.jdi.event.StepEvent;
 import com.sun.jdi.event.VMDeathEvent;
 import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
+import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.eclipse.lsp4j.debug.Variable;
-import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +57,7 @@ import java.util.stream.Collectors;
  * Listens and publishes events from JVM.
  */
 public class EventBus {
-    private final IDebugProtocolClient client;
+    private final Context context;
     private Breakpoint[] breakpointsList = new Breakpoint[0];
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
 
@@ -63,28 +65,25 @@ public class EventBus {
     AtomicInteger nextStackFrameId = new AtomicInteger();
 
     private Map<Long, Variable[]> variablesMap = new HashMap<>();
-    private String sourceRoot;
-    private VirtualMachine debuggee;
-    private String packageName;
+    private Path projectRoot;
+    private String orgName = "";
 
-    public EventBus(IDebugProtocolClient client) {
-        this.client = client;
-    }
-
-    public void setDebuggee(VirtualMachine debuggee) {
-        this.debuggee = debuggee;
-    }
-
-    public VirtualMachine getDebuggee() {
-        return debuggee;
+    public EventBus(Context context) {
+        this.context = context;
     }
 
     public void setBreakpointsList(Breakpoint[] breakpointsList) {
         this.breakpointsList = breakpointsList.clone();
+        if (this.breakpointsList.length > 0) {
+            Breakpoint breakpoint = this.breakpointsList[0];
+            projectRoot = PackageUtils.findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
+        }
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
-        List<ThreadReference> threadReferences = getDebuggee().allThreads();
+        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
         });
@@ -104,8 +103,7 @@ public class EventBus {
         threadsMap = new HashMap<>();
         stackframesMap = new HashMap<>();
         variablesMap = new HashMap<>();
-        String packageSourcePath = sourceRoot + packageName + File.separator;
-        List<ThreadReference> threadReferences = getDebuggee().allThreads();
+        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
             try {
@@ -117,7 +115,11 @@ public class EventBus {
                     int frameId = nextStackFrameId.getAndIncrement();
                     Source source = new Source();
                     try {
-                        source.setPath(packageSourcePath + stackFrame.location().sourcePath());
+                        String sourcePath = stackFrame.location().sourcePath();
+                        if (sourcePath.startsWith(orgName)) {
+                            sourcePath = sourcePath.replaceFirst(orgName, "src");
+                        }
+                        source.setPath(projectRoot + File.separator + sourcePath);
                         source.setName(stackFrame.location().sourceName());
                     } catch (AbsentInformationException e) {
                     }
@@ -208,75 +210,73 @@ public class EventBus {
         return dapVariable;
     }
 
-    public void startListening(String sourceRoot, String packageName) {
-        this.sourceRoot = sourceRoot;
-        this.packageName = packageName;
-
+    public void startListening() {
         CompletableFuture.runAsync(() -> {
-                    while (true) {
-                        try {
-                            EventSet eventSet = getDebuggee().eventQueue().remove();
-                            EventIterator eventIterator = eventSet.eventIterator();
+            while (true) {
+                try {
+                    EventSet eventSet = context.getDebuggee().eventQueue().remove();
+                    EventIterator eventIterator = eventSet.eventIterator();
 
-                            while (eventIterator.hasNext()) {
-                                Event event = eventIterator.next();
-                                /*
-                                 * If this is ClassPrepareEvent, then set breakpoint
-                                 */
-                                if (event instanceof ClassPrepareEvent) {
-                                    ClassPrepareEvent evt = (ClassPrepareEvent) event;
+                    while (eventIterator.hasNext()) {
+                        Event event = eventIterator.next();
+                        /*
+                         * If this is ClassPrepareEvent, then set breakpoint
+                         */
+                        if (event instanceof ClassPrepareEvent) {
+                            ClassPrepareEvent evt = (ClassPrepareEvent) event;
 
-                                    Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
-                                        String balName = evt.referenceType().name() + ".bal";
-                                        if (balName.contains(breakpoint.getSource().getName())) {
-                                            Location location = null;
-                                            try {
-                                                location = evt.referenceType().locationsOfLine(breakpoint.getLine()
-                                                        .intValue()).get(0);
-                                            } catch (AbsentInformationException e) {
-                                                // ignore absent information
-                                            }
-                                            BreakpointRequest bpReq = getDebuggee().eventRequestManager()
-                                                    .createBreakpointRequest(location);
-                                            bpReq.enable();
-                                        }
-                                    });
+                            Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
+                                String balName = evt.referenceType().name() + ".bal";
+                                String moduleName = PackageUtils.getRelativeFilePath(breakpoint.getSource().getPath());
+                                if (moduleName.equals(balName)) {
+                                    Location location = null;
+                                    try {
+                                        location = evt.referenceType().locationsOfLine(breakpoint.getLine()
+                                                .intValue()).get(0);
+                                        BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
+                                                .createBreakpointRequest(location);
+                                        bpReq.enable();
+                                    } catch (AbsentInformationException e) {
+                                        // ignore absent information
+                                    }
                                 }
+                            });
+                        }
 
-                                /*
-                                 * If this is BreakpointEvent, then read & print variables.
-                                 */
-                                if (event instanceof BreakpointEvent) {
-                                    // disable the breakpoint event
-                                    event.request().disable();
-                                    StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                                    populateMaps();
-                                    stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-                                    stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
-                                    stoppedEventArguments.setAllThreadsStopped(true);
-                                    client.stopped(stoppedEventArguments);
-                                } else if (event instanceof StepEvent) {
-                                    event.request().disable();
-                                    populateMaps();
-                                    StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                                    stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                                    stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
-                                    stoppedEventArguments.setAllThreadsStopped(true);
-                                    client.stopped(stoppedEventArguments);
-                                } else if (event instanceof VMDisconnectEvent
-                                        || event instanceof VMDeathEvent
-                                        || event instanceof VMDisconnectedException) {
-                                    ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
-                                    exitedEventArguments.setExitCode((long) 0);
-                                    client.exited(exitedEventArguments);
-                                } else {
-                                    eventSet.resume();
-                                }
-                            }
-                        } catch (InterruptedException e) {
+                        /*
+                         * If this is BreakpointEvent, then read & print variables.
+                         */
+                        if (event instanceof BreakpointEvent) {
+                            // disable the breakpoint event
+                            event.request().disable();
+                            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                            populateMaps();
+                            stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
+                            stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+                            stoppedEventArguments.setAllThreadsStopped(true);
+                            context.getClient().stopped(stoppedEventArguments);
+                        } else if (event instanceof StepEvent) {
+                            event.request().disable();
+                            populateMaps();
+                            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                            stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
+                            stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                            stoppedEventArguments.setAllThreadsStopped(true);
+                            context.getClient().stopped(stoppedEventArguments);
+                        } else if (event instanceof VMDisconnectEvent
+                                || event instanceof VMDeathEvent
+                                || event instanceof VMDisconnectedException) {
+                            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
+                            exitedEventArguments.setExitCode((long) 0);
+                            context.getClient().exited(exitedEventArguments);
+                        } else {
+                            eventSet.resume();
                         }
                     }
+                } catch (InterruptedException e) {
                 }
+            }
+        }
         );
     }
 }
