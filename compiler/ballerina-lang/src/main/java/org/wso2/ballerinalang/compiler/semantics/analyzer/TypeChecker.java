@@ -2733,8 +2733,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BErrorType lhsErrorType = (BErrorType) expType;
-        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
+        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expType, iExpr.symbol);
+        if (expectedError == null) {
+            return;
+        }
+        BErrorType ctorType = (BErrorType) expectedError.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
             return;
@@ -2774,8 +2777,32 @@ public class TypeChecker extends BLangNodeVisitor {
         setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
-        resultType = expType;
-        iExpr.symbol = lhsErrorType.ctorSymbol;
+        resultType = expectedError;
+        iExpr.symbol = expectedError.ctorSymbol;
+    }
+
+    private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {
+        // Direct error ctor invocation.
+        if (iExprSymbol == symTable.errorType.tsymbol) {
+            if (expType.tag == TypeTags.UNION) {
+                List<BType> matchedErrors = ((BUnionType) expType).getMemberTypes().stream()
+                        .filter(m -> types.isAssignable(m, iExprSymbol.type))
+                        .collect(Collectors.toList());
+                if (matchedErrors.size() == 1) {
+                    return (BErrorType) matchedErrors.get(0);
+                } else {
+                    // More than one matched, Cannot infer error type from error constructor.
+                    // 'Error0|Error1|T3 e = error(...);
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
+                    resultType = symTable.semanticError;
+                    return null;
+                }
+            }
+            return (BErrorType) expType;
+        } else {
+            // Indirect error constructor.
+            return (BErrorType) iExprSymbol.type;
+        }
     }
 
     private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
