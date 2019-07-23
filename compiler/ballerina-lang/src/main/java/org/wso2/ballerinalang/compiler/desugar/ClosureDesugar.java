@@ -1102,6 +1102,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        stringAccessExpr.indexExpr = rewriteExpr(stringAccessExpr.indexExpr);
+        stringAccessExpr.expr = rewriteExpr(stringAccessExpr.expr);
+        result = stringAccessExpr;
+    }
+
+    @Override
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
         jsonLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);

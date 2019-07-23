@@ -6,102 +6,2878 @@
   "source": "function/source/matchStatementSuggestions4.bal",
   "items": [
     {
-      "label": "extractAuthorizationHeaderValue(req)",
+      "label": "AUTH_HEADER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AUTH_HEADER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AUTH_HEADER_BEARER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AUTH_HEADER_BEARER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "POST_BODY_BEARER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "POST_BODY_BEARER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NO_BEARER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NO_BEARER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "STATUS_CODE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "STATUS_CODE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NO_CACHE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NO_CACHE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NO_STORE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NO_STORE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NO_TRANSFORM",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NO_TRANSFORM",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MAX_AGE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MAX_AGE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MAX_STALE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MAX_STALE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MIN_FRESH",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MIN_FRESH",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ONLY_IF_CACHED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ONLY_IF_CACHED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MUST_REVALIDATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MUST_REVALIDATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PUBLIC",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PUBLIC",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PRIVATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PRIVATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PROXY_REVALIDATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PROXY_REVALIDATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "S_MAX_AGE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "S_MAX_AGE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MAX_STALE_ANY_AGE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MAX_STALE_ANY_AGE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CACHE_CONTROL_AND_VALIDATORS",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CACHE_CONTROL_AND_VALIDATORS",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RFC_7234",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "RFC_7234",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_ERROR_CODE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_ERROR_CODE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MULTIPART_AS_PRIMARY_TYPE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MULTIPART_AS_PRIMARY_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_FORWARD",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_FORWARD",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_GET",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_GET",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_POST",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_POST",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_DELETE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_DELETE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_OPTIONS",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_OPTIONS",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_PUT",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_PUT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_PATCH",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_PATCH",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_HEAD",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_HEAD",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_SUBMIT",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_SUBMIT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_NONE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_NONE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CHUNKING_AUTO",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CHUNKING_AUTO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CHUNKING_ALWAYS",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CHUNKING_ALWAYS",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CHUNKING_NEVER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CHUNKING_NEVER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "COMPRESSION_AUTO",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "COMPRESSION_AUTO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "COMPRESSION_ALWAYS",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "COMPRESSION_ALWAYS",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "COMPRESSION_NEVER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "COMPRESSION_NEVER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_MULTIPLE_CHOICES_300",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_MULTIPLE_CHOICES_300",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_MOVED_PERMANENTLY_301",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_MOVED_PERMANENTLY_301",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_FOUND_302",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_FOUND_302",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_SEE_OTHER_303",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_SEE_OTHER_303",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_NOT_MODIFIED_304",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_NOT_MODIFIED_304",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_USE_PROXY_305",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_USE_PROXY_305",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_TEMPORARY_REDIRECT_307",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_TEMPORARY_REDIRECT_307",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REDIRECT_PERMANENT_REDIRECT_308",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REDIRECT_PERMANENT_REDIRECT_308",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FAILOVER_ALL_ENDPOINTS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "FAILOVER_ALL_ENDPOINTS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FAILOVER_ENDPOINT_ACTION_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "FAILOVER_ENDPOINT_ACTION_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UPSTREAM_SERVICE_UNAVAILABLE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UPSTREAM_SERVICE_UNAVAILABLE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ALL_RETRY_ATTEMPTS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ALL_RETRY_ATTEMPTS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IDLE_TIMEOUT_TRIGGERED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IDLE_TIMEOUT_TRIGGERED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AUTHN_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AUTHN_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AUTHZ_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AUTHZ_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INIT_OUTBOUND_REQUEST_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INIT_OUTBOUND_REQUEST_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INIT_INBOUND_RESPONSE_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INIT_INBOUND_RESPONSE_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "READING_INBOUND_RESPONSE_BODY_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "READING_INBOUND_RESPONSE_BODY_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INIT_INBOUND_REQUEST_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INIT_INBOUND_REQUEST_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "READING_INBOUND_REQUEST_HEADERS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "READING_INBOUND_REQUEST_HEADERS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "READING_INBOUND_REQUEST_BODY_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "READING_INBOUND_REQUEST_BODY_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INIT_OUTBOUND_RESPONSE_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INIT_OUTBOUND_RESPONSE_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WRITING_100_CONTINUE_RESPONSE_FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WRITING_100_CONTINUE_RESPONSE_FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GENERIC_CLIENT_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "GENERIC_CLIENT_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GENERIC_LISTENER_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "GENERIC_LISTENER_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSUPPORTED_ACTION",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UNSUPPORTED_ACTION",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP2_CLIENT_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP2_CLIENT_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MAXIMUM_WAIT_TIME_EXCEEDED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MAXIMUM_WAIT_TIME_EXCEEDED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SSL_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "SSL_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AGE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AGE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AUTHORIZATION",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "AUTHORIZATION",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CACHE_CONTROL",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CACHE_CONTROL",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONTENT_LENGTH",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONTENT_LENGTH",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONTENT_TYPE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONTENT_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "DATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "DATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ETAG",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ETAG",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "EXPECT",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "EXPECT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "EXPIRES",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "EXPIRES",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IF_MATCH",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IF_MATCH",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IF_MODIFIED_SINCE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IF_MODIFIED_SINCE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IF_NONE_MATCH",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IF_NONE_MATCH",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IF_RANGE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IF_RANGE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IF_UNMODIFIED_SINCE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "IF_UNMODIFIED_SINCE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LAST_MODIFIED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "LAST_MODIFIED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LOCATION",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "LOCATION",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PRAGMA",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PRAGMA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SERVER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "SERVER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WARNING",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "WARNING",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TRANSFER_ENCODING",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "TRANSFER_ENCODING",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONNECTION",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONNECTION",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UPGRADE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UPGRADE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PASSED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PASSED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FAILED",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "FAILED",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NONE",
+      "kind": "Variable",
+      "detail": "()",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NONE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CB_OPEN_STATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CB_OPEN_STATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CB_HALF_OPEN_STATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CB_HALF_OPEN_STATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CB_CLOSED_STATE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CB_CLOSED_STATE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONTINUE_100",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONTINUE_100",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SWITCHING_PROTOCOLS_101",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "SWITCHING_PROTOCOLS_101",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OK_200",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "OK_200",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CREATED_201",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CREATED_201",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ACCEPTED_202",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ACCEPTED_202",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NON_AUTHORITATIVE_INFORMATION_203",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NON_AUTHORITATIVE_INFORMATION_203",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NO_CONTENT_204",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NO_CONTENT_204",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RESET_CONTENT_205",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "RESET_CONTENT_205",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PARTIAL_CONTENT_206",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PARTIAL_CONTENT_206",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MULTIPLE_CHOICES_300",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MULTIPLE_CHOICES_300",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MOVED_PERMANENTLY_301",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "MOVED_PERMANENTLY_301",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FOUND_302",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "FOUND_302",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SEE_OTHER_303",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "SEE_OTHER_303",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NOT_MODIFIED_304",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NOT_MODIFIED_304",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "USE_PROXY_305",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "USE_PROXY_305",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TEMPORARY_REDIRECT_307",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "TEMPORARY_REDIRECT_307",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PERMANENT_REDIRECT_308",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PERMANENT_REDIRECT_308",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BAD_REQUEST_400",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "BAD_REQUEST_400",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNAUTHORIZED_401",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UNAUTHORIZED_401",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PAYMENT_REQUIRED_402",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PAYMENT_REQUIRED_402",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FORBIDDEN_403",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "FORBIDDEN_403",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NOT_FOUND_404",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NOT_FOUND_404",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "METHOD_NOT_ALLOWED_405",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "METHOD_NOT_ALLOWED_405",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NOT_ACCEPTABLE_406",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NOT_ACCEPTABLE_406",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "REQUEST_TIMEOUT_408",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "REQUEST_TIMEOUT_408",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONFLICT_409",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONFLICT_409",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GONE_410",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "GONE_410",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LENGTH_REQUIRED_411",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "LENGTH_REQUIRED_411",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PRECONDITION_FAILED_412",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PRECONDITION_FAILED_412",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PAYLOAD_TOO_LARGE_413",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PAYLOAD_TOO_LARGE_413",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "URI_TOO_LONG_414",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "URI_TOO_LONG_414",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UNSUPPORTED_MEDIA_TYPE",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UNSUPPORTED_MEDIA_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RANGE_NOT_SATISFIABLE_416",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "RANGE_NOT_SATISFIABLE_416",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "EXPECTATION_FAILED_417",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "EXPECTATION_FAILED_417",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UPGRADE_REQUIRED_426",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "UPGRADE_REQUIRED_426",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INTERNAL_SERVER_ERROR_500",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INTERNAL_SERVER_ERROR_500",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "NOT_IMPLEMENTED_501",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "NOT_IMPLEMENTED_501",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BAD_GATEWAY_502",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "BAD_GATEWAY_502",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SERVICE_UNAVAILABLE_503",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "SERVICE_UNAVAILABLE_503",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GATEWAY_TIMEOUT_504",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "GATEWAY_TIMEOUT_504",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "KEEPALIVE_AUTO",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "KEEPALIVE_AUTO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "KEEPALIVE_ALWAYS",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "KEEPALIVE_ALWAYS",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "KEEPALIVE_NEVER",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "KEEPALIVE_NEVER",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONNECTION_CLOSURE_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONNECTION_CLOSURE_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INVALID_HANDSHAKE_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INVALID_HANDSHAKE_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PAYLOAD_TOO_BIG_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PAYLOAD_TOO_BIG_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PROTOCOL_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "PROTOCOL_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONNECTION_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "CONNECTION_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "INVALID_CONTINUATION_FRAME_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "INVALID_CONTINUATION_FRAME_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GENERIC_ERROR",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "GENERIC_ERROR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpServiceConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Contains the configurations for an HTTP service.\n"
+      },
+      "insertText": "HttpServiceConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CorsConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for CORS support.\n"
+      },
+      "insertText": "CorsConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Versioning",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for service versioning.\n"
+      },
+      "insertText": "Versioning",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WSServiceConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for a WebSocket service.\n"
+      },
+      "insertText": "WSServiceConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpResourceConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configuration for an HTTP resource.\n"
+      },
+      "insertText": "HttpResourceConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketUpgradeConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Resource configuration to upgrade from HTTP to WebSocket.\n"
+      },
+      "insertText": "WebSocketUpgradeConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ServiceResourceAuth",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the authentication scheme for a service or a resource.\n"
+      },
+      "insertText": "ServiceResourceAuth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthnFilter",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authentication filter.\n"
+      },
+      "insertText": "AuthnFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthzFilter",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authorization filter\n"
+      },
+      "insertText": "AuthzFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthzHandler",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of Authorization Handler for HTTP\n"
+      },
+      "insertText": "AuthzHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InboundAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The representation of an inbound authentication handler for HTTP traffic."
+      },
+      "insertText": "InboundAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The representation of an outbound authentication handler for HTTP traffic."
+      },
+      "insertText": "OutboundAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CredentialBearer",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Specifies how to send the authentication credentials when exchanging tokens."
+      },
+      "insertText": "CredentialBearer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestCacheControl",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Configures cache control directives for a `Request`.\n"
+      },
+      "insertText": "RequestCacheControl",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseCacheControl",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Configures cache control directives for a `Response`.\n"
+      },
+      "insertText": "ResponseCacheControl",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpCache",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+      },
+      "insertText": "HttpCache",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CachingPolicy",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
+      },
+      "insertText": "CachingPolicy",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CacheConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
+      },
+      "insertText": "CacheConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpCachingClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n"
+      },
+      "insertText": "HttpCachingClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetService",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents a single service and its related configurations.\n"
+      },
+      "insertText": "TargetService",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientEndpointConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
+      },
+      "insertText": "ClientEndpointConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Http1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "insertText": "Http1Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Http2Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/2 protocol.\n"
+      },
+      "insertText": "Http2Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RetryConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides configurations for controlling the retrying behavior in failure scenarios.\n"
+      },
+      "insertText": "RetryConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SecureSocket",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
+      },
+      "insertText": "SecureSocket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FollowRedirects",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+      },
+      "insertText": "FollowRedirects",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ProxyConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Proxy server configurations to be used with the HTTP client endpoint.\n"
+      },
+      "insertText": "ProxyConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundAuthConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
+      },
+      "insertText": "OutboundAuthConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpFuture",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+      },
+      "insertText": "HttpFuture",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PushPromise",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
+      },
+      "insertText": "PushPromise",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+      },
+      "insertText": "HttpClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpTimeoutError",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defines a timeout error occurred during service invocation.\n"
+      },
+      "insertText": "HttpTimeoutError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "PoolConfiguration",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for managing HTTP client connection pool.\n"
+      },
+      "insertText": "PoolConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpVersion",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the supported HTTP protocols.\n\n`HTTP_1_0`: HTTP/1.0 protocol\n`HTTP_1_1`: HTTP/1.1 protocol\n`HTTP_2_0`: HTTP/2.0 protocol"
+      },
+      "insertText": "HttpVersion",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Chunking",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
+      },
+      "insertText": "Chunking",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Compression",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
+      },
+      "insertText": "Compression",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpOperation",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`SUBMIT`: Submits a http request and returns an HttpFuture object\n`NONE`: No operation should be performed"
+      },
+      "insertText": "HttpOperation",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Protocols",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "A record for configuring SSL/TLS protocol and version to be used.\n"
+      },
+      "insertText": "Protocols",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ValidateCert",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "A record for providing configurations for certificate revocation status checks.\n"
+      },
+      "insertText": "ValidateCert",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ServiceOcspStapling",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "A record for providing configurations for certificate revocation status checks.\n"
+      },
+      "insertText": "ServiceOcspStapling",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CompressionConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "A record for providing configurations for content compression.\n"
+      },
+      "insertText": "CompressionConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Caller",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The caller actions for responding to client requests.\n"
+      },
+      "insertText": "Caller",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RedirectCode",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the HTTP redirect codes as a type."
+      },
+      "insertText": "RedirectCode",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Detail",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Holds the details of an HTTP error\n"
+      },
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverAllEndpointsFailedError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "FailoverAllEndpointsFailedError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverActionFailedError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "FailoverActionFailedError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UpstreamServiceUnavailableError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "UpstreamServiceUnavailableError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AllLoadBalanceEndpointsFailedError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "AllLoadBalanceEndpointsFailedError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AllRetryAttemptsFailed",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "AllRetryAttemptsFailed",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IdleTimeoutError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "IdleTimeoutError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthenticationError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "AuthenticationError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthorizationError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "AuthorizationError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InitializingOutboundRequestError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "InitializingOutboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritingOutboundRequestHeadersError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WritingOutboundRequestHeadersError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritingOutboundRequestBodyError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WritingOutboundRequestBodyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InitializingInboundResponseError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "InitializingInboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadingInboundResponseHeadersError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "ReadingInboundResponseHeadersError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadingInboundResponseBodyError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "ReadingInboundResponseBodyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InitializingInboundRequestError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "InitializingInboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadingInboundRequestHeadersError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "ReadingInboundRequestHeadersError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadingInboundRequestBodyError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "ReadingInboundRequestBodyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InitializingOutboundResponseError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "InitializingOutboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritingOutboundResponseHeadersError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WritingOutboundResponseHeadersError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritingOutboundResponseBodyError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WritingOutboundResponseBodyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Initiating100ContinueResponseError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "Initiating100ContinueResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Writing100ContinueResponseError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "Writing100ContinueResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GenericClientError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "GenericClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GenericListenerError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "GenericListenerError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "UnsupportedActionError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "UnsupportedActionError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Http2ClientError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "Http2ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MaximumWaitTimeExceededError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "MaximumWaitTimeExceededError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "SslError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "SslError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResiliencyError",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Ballerina Http Union Errors"
+      },
+      "insertText": "ResiliencyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientAuthError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientAuthError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ListenerError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ListenerError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Filter",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
+      },
+      "insertText": "Filter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FilterContext",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of request filter Context.\n"
+      },
+      "insertText": "FilterContext",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Request",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents an HTTP request.\n"
+      },
+      "insertText": "Request",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MutualSslHandshake",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "A record for providing mutual ssl handshake results.\n"
+      },
+      "insertText": "MutualSslHandshake",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MutualSslStatus",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is successful.\n`failed`: Mutual SSL handshake has failed."
+      },
+      "insertText": "MutualSslStatus",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents an HTTP response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpSecureClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
+      },
+      "insertText": "HttpSecureClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MockListener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Mock server endpoint which does not open a listening port."
+      },
+      "insertText": "MockListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RedirectClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides redirect functionality for HTTP client remote functions.\n"
+      },
+      "insertText": "RedirectClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
+      },
+      "insertText": "FailoverConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverInferredConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Inferred failover configurations passed into the failover client.\n"
+      },
+      "insertText": "FailoverInferredConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "An HTTP client endpoint which provides failover support over multiple HTTP clients.\n"
+      },
+      "insertText": "FailoverClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "FailoverClientEndpointConfiguration",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+      },
+      "insertText": "FailoverClientEndpointConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitState",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
+      },
+      "insertText": "CircuitState",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitHealth",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Maintains the health of the Circuit Breaker.\n"
+      },
+      "insertText": "CircuitHealth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitBreakerConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
+      },
+      "insertText": "CircuitBreakerConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RollingWindow",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents a rolling window in the Circuit Breaker.\n"
+      },
+      "insertText": "RollingWindow",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Bucket",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents a discrete sub-part of the time window (Bucket).\n"
+      },
+      "insertText": "Bucket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitBreakerInferredConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
+      },
+      "insertText": "CircuitBreakerInferredConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitBreakerClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
+      },
+      "insertText": "CircuitBreakerClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalancerRule",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
+      },
+      "insertText": "LoadBalancerRule",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RetryInferredConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Derived set of configurations from the `RetryConfig`.\n"
+      },
+      "insertText": "RetryInferredConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RetryClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
+      },
+      "insertText": "RetryClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalancerRounRobinRule",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Implementation of round robin load balancing strategy.\n"
+      },
+      "insertText": "LoadBalancerRounRobinRule",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalanceClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n"
+      },
+      "insertText": "LoadBalanceClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalanceActionErrorData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
+      },
+      "insertText": "LoadBalanceActionErrorData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalanceActionError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "LoadBalanceActionError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalanceClientEndpointConfiguration",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "The configurations related to the load balance client endpoint.\n"
+      },
+      "insertText": "LoadBalanceClientEndpointConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
+      },
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Remote",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Presents a read-only view of the remote address.\n"
+      },
+      "insertText": "Remote",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Local",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Presents a read-only view of the local address.\n"
+      },
+      "insertText": "Local",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestLimits",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
+      },
+      "insertText": "RequestLimits",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ServiceEndpointConfiguration",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for HTTP service endpoints.\n"
+      },
+      "insertText": "ServiceEndpointConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ListenerAuth",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Authentication configurations for the listener.\n"
+      },
+      "insertText": "ListenerAuth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ServiceSecureSocket",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
+      },
+      "insertText": "ServiceSecureSocket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthCacheConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
+      },
+      "insertText": "AuthCacheConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "KeepAlive",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible values for the keep-alive configuration in service and client endpoints."
+      },
+      "insertText": "KeepAlive",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketListener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket service endpoint."
+      },
+      "insertText": "WebSocketListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsConnectionClosureError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsConnectionClosureError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsInvalidHandshakeError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsInvalidHandshakeError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsPayloadTooBigError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsPayloadTooBigError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsProtocolError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsProtocolError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsConnectionError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsConnectionError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsInvalidContinuationFrameError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsInvalidContinuationFrameError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WsGenericError",
+      "kind": "Keyword",
+      "detail": "Error",
+      "insertText": "WsGenericError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "WebSocketError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketCaller",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket caller.\n"
+      },
+      "insertText": "WebSocketCaller",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket client endpoint.\n"
+      },
+      "insertText": "WebSocketClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketClientEndpointConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configuration for the WebSocket client endpoint.\n"
+      },
+      "insertText": "WebSocketClientEndpointConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BasicAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
+      },
+      "insertText": "BasicAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BearerAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.\n"
+      },
+      "insertText": "BearerAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "HttpResponse",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "HttpResponse",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
           "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "120",
-      "insertText": "extractAuthorizationHeaderValue(req) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "extractAuthorizationHeaderValue(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "createHttpCachingClient(url,config,cacheConfig)",
+      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)((http:HttpClient|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:Client|error"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "createHttpCachingClient(url,config,cacheConfig) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "createHttpCachingClient(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "parseHeader(headerValue)",
+      "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n[string,map]|error"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n([string,map]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "parseHeader(headerValue) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "parseHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "invokeEndpoint(path,outRequest,requestAction,httpClient,verb)",
+      "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient, string verb)((http:Response|http:HttpFuture|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relevant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:HttpFuture|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "invokeEndpoint(path,outRequest,requestAction,httpClient,verb) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "invokeEndpoint(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "createHttpSecureClient(url,config)",
+      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)((http:HttpClient|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:Client|error"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "createHttpSecureClient(url,config) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "createHttpSecureClient(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "encode(url,charset)",
+      "label": "encode(string url, string charset)((string|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "encode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "encode(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "decode(url,charset)",
+      "label": "decode(string url, string charset)((string|error))",
       "kind": "Function",
-      "detail": "Snippet",
+      "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nstring|error"
+          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Character set from which the URL is decoded  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "120",
-      "insertText": "decode(url,charset) {\n${1:value} \u003d\u003e {${2}}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "decode(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

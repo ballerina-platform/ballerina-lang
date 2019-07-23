@@ -79,7 +79,7 @@ dependencies {
     implementation project(':ballerina-utils')
 //    implementation project(':ballerina-websub')
     implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'

@@ -419,7 +419,7 @@ type InstructionGenerator object {
         bir:BType bType = binaryIns.lhsOp.typeValue;
         self.generateBinaryRhsAndLhsLoad(binaryIns);
         if (bType is bir:BTypeInt) {
-            self.mv.visitInsn(LDIV);
+            self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitInsn(DDIV);
         } else if (bType is bir:BTypeDecimal) {
@@ -455,7 +455,7 @@ type InstructionGenerator object {
             bir:BType bType = binaryIns.lhsOp.typeValue;
             self.generateBinaryRhsAndLhsLoad(binaryIns);
             if (bType is bir:BTypeInt) {
-                self.mv.visitInsn(LREM);
+                self.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
             } else if (bType is bir:BTypeFloat) {
                 self.mv.visitInsn(DREM);
             } else if (bType is bir:BTypeDecimal) {
@@ -522,6 +522,7 @@ type InstructionGenerator object {
             self.mv.visitInsn(LSHL);
         } else {
             self.mv.visitInsn(ISHL);
+            self.mv.visitInsn(I2L);
         }
 
         self.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -713,6 +714,21 @@ type InstructionGenerator object {
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), true);
     }
 
+    function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
+        // visit the string
+        self.loadVar(stringLoadIns.rhsOp.variableDcl);
+
+        // visit the key expr
+        self.loadVar(stringLoadIns.keyOp.variableDcl);
+
+        // invoke the `getStringAt()` method
+        self.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
+                                io:sprintf("(L%s;J)L%s;", STRING_VALUE, STRING_VALUE), false);
+
+        // store in the target reg
+        self.storeToVar(stringLoadIns.lhsOp.variableDcl);
+    }
+
     # Generate a new instance of an array value
     # 
     # + inst - the new array instruction
@@ -813,6 +829,18 @@ type InstructionGenerator object {
         self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
                 io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
         self.storeToVar(typeTestIns.lhsOp.variableDcl);
+    }
+
+    function generateIsLikeIns(bir:IsLike isLike) {
+        // load source value
+        self.loadVar(isLike.rhsOp.variableDcl);
+
+        // load targetType
+        loadType(self.mv, isLike.typeVal);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsLikeType",
+            io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
+        self.storeToVar(isLike.lhsOp.variableDcl);
     }
 
     function generateObjectNewIns(bir:NewInstance objectNewIns, int strandIndex) {

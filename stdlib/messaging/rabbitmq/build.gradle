@@ -27,7 +27,7 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')

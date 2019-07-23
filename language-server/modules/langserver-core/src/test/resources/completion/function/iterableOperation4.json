@@ -6,109 +6,236 @@
   "source": "function/source/iterableOperation4.bal",
   "items": [
     {
-      "label": "foreach(\u003c@lambda:function\u003e)",
+      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "foreach(function((string, string) entry) {\n\t${1}\n});",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+        }
+      },
+      "insertText": "reduce(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "map(\u003c@lambda:function\u003e)",
+      "label": "hasKey(string k)(boolean)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "map(function ((string, string) entry) returns any {\n\t${1}\n})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "filter(\u003c@lambda:function\u003e)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "filter(function((string, string) entry) returns (boolean) {\n\t${1}\n})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "count()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "count()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "length()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "freeze()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "freeze()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isFrozen()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stamp(anydata a)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "clone()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "convert(anydata a)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "convert(${1})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "hasKey(string s)",
-      "kind": "Function",
-      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nTells whether m has a member with key `k`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+        }
+      },
       "insertText": "hasKey(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "PureType",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "PureType",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remove(string s)",
+      "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies `func` to each member of `m`.  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "forEach(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "keys()(string[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns a list of all the keys of map `m`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
+        }
+      },
+      "insertText": "keys(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "length()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns number of members in `m`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "MapIterator",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "MapIterator",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remove(string k)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves the member of `m` with key `k` and returns it.\nPanics if there is no such member  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+        }
+      },
       "insertText": "remove(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Type1",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "Type1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "clear()",
+      "label": "filter(function ((any|error)) returns (boolean) func)(map\u003c(any|error)\u003e)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "clear()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nmap\u003c(any|error)\u003e"
+        }
+      },
+      "insertText": "filter(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Type",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "Type",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "keys()",
+      "label": "iterator()()",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "keys()",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns an iterator over the members of `m`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $|0 value; |}?); }"
+        }
+      },
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "values()",
+      "label": "entries()(map\u003c[string,(any|error)]\u003e)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "values()",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nmap\u003c[string,(any|error)]\u003e"
+        }
+      },
+      "insertText": "entries(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "removeAll()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nRemoves all members of `m`.\nPanics if any member cannot be removed.  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "removeAll(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "get(string k)((any|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \nReturns the member of map m with key k.\nPanics if m does not have a member with key k.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+        }
+      },
+      "insertText": "get(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "map(function ((any|error)) returns ((any|error)) func)(map\u003c(any|error)\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nmap\u003c(any|error)\u003e"
+        }
+      },
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

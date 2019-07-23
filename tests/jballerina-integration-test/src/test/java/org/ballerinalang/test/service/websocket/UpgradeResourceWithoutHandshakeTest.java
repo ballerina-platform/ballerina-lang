@@ -36,7 +36,7 @@ public class UpgradeResourceWithoutHandshakeTest extends WebSocketTestCommons {
 
     @Test
     public void testUpgradeResourceWithoutHandshake() throws URISyntaxException, InterruptedException {
-        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:9079/UpgradeWithoutHandshake");
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21002/UpgradeWithoutHandshake");
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.handshake();

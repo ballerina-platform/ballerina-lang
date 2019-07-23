@@ -6,16 +6,15 @@
   "source": "function/source/chainCompletion3.bal",
   "items": [
     {
-      "label": "setContentType(string mediaType)((mime:InvalidContentTypeError|()))",
+      "label": "setContentType(string mediaType)((()|mime:InvalidContentTypeError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the content-type to entity.\n  \n  \n---    \n**Parameters**  \n- _mediaType_  \n    Content type that needs to be set to the entity  \n  \n  \n**Return**  \nerror?"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the content-type to entity.\n  \n  \n---    \n**Parameters**  \n- _mediaType_  \n    Content type that needs to be set to the entity  \n  \n  \n**Return**  \nballerina/mime:InvalidContentTypeError?"
         }
       },
-      "sortText": "131",
       "insertText": "setContentType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -33,7 +32,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets the content type of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "131",
       "insertText": "getContentType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -51,7 +49,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nSets the content ID of the entity.\n  \n  \n---    \n**Parameters**  \n- _contentId_  \n    Content ID that needs to be set to entity  \n"
         }
       },
-      "sortText": "131",
       "insertText": "setContentId(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -69,7 +66,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets the content ID of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "131",
       "insertText": "getContentId(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -87,7 +83,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nSets the content length of the entity.\n  \n  \n---    \n**Parameters**  \n- _contentLength_  \n    Content length that needs to be set to entity  \n"
         }
       },
-      "sortText": "131",
       "insertText": "setContentLength(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -105,7 +100,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets the content length of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(int|error)"
         }
       },
-      "sortText": "131",
       "insertText": "getContentLength(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -123,7 +117,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nSets the content disposition of the entity.\n  \n  \n---    \n**Parameters**  \n- _contentDisposition_  \n    Content disposition that needs to be set to entity  \n"
         }
       },
-      "sortText": "131",
       "insertText": "setContentDisposition(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -141,7 +134,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets the content disposition of entity.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:ContentDisposition"
         }
       },
-      "sortText": "131",
       "insertText": "getContentDisposition(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -159,7 +151,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given content.\n  \n  \n---    \n**Parameters**  \n- _entityBody_  \n    Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`  \n"
         }
       },
-      "sortText": "131",
       "insertText": "setBody(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -168,16 +159,15 @@
       }
     },
     {
-      "label": "setFileAsEntityBody(string filePath)",
+      "label": "setFileAsEntityBody(string filePath, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with a given file. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Represents the path to the file  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with a given file. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Represents the path to the file  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setFileAsEntityBody(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -186,16 +176,15 @@
       }
     },
     {
-      "label": "setJson(json jsonContent)",
+      "label": "setJson(json jsonContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given `json` content. This method overrides any existing `content-type` headers\nwith the default content type `application/json`. The default value `application/json` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _jsonContent_  \n    JSON content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value.  \nDefault Value: application/json"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given `json` content. This method overrides any existing `content-type` headers\nwith the default content type `application/json`. The default value `application/json` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _jsonContent_  \n    JSON content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `application/json`\n                is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setJson(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -210,10 +199,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts JSON body from the entity. If the entity body is not a JSON, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getJson(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -222,16 +210,15 @@
       }
     },
     {
-      "label": "setXml(xml xmlContent)",
+      "label": "setXml(xml xmlContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given XML content. This method overrides any existing content-type headers\nwith the default content-type `application/xml`. The default value `application/xml` can be overridden\nby passing the content-type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _xmlContent_  \n    XML content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value.  \nDefault Value: application/xml"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given XML content. This method overrides any existing content-type headers\nwith the default content-type `application/xml`. The default value `application/xml` can be overridden\nby passing the content-type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _xmlContent_  \n    XML content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `application/xml`\n                is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setXml(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -246,10 +233,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts `xml` body from the entity. If the entity body is not an XML, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getXml(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -258,16 +244,15 @@
       }
     },
     {
-      "label": "setText(string textContent)",
+      "label": "setText(string textContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given text content. This method overrides any existing content-type headers\nwith the default content-type `text/plain`. The default value `text/plain` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _textContent_  \n    Text content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value.  \nDefault Value: text/plain"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given text content. This method overrides any existing content-type headers\nwith the default content-type `text/plain`. The default value `text/plain` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _textContent_  \n    Text content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter. `text/plain`\n                is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setText(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -282,10 +267,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nExtracts text body from the entity. If the entity body is not text compatible an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getText(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -294,16 +278,15 @@
       }
     },
     {
-      "label": "setByteArray(byte[] blobContent)",
+      "label": "setByteArray(byte[] blobContent, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte[] content. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _blobContent_  \n    byte[] content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte[] content. This method overrides any existing `content-type` headers\nwith the default content type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _blobContent_  \n    byte[] content that needs to be set to entity  \n  \n- _contentType_  \n    Content type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setByteArray(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -318,10 +301,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider\nusing getByteChannel() method instead.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getByteArray(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -330,16 +312,15 @@
       }
     },
     {
-      "label": "setByteChannel(io:ReadableByteChannel byteChannel)",
+      "label": "setByteChannel(io:ReadableByteChannel byteChannel, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte channel content. This method overrides any existing content-type headers\nwith the default content-type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content-type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _byteChannel_  \n    Byte channel that needs to be set to entity  \n  \n- _contentType_  \n    Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets the entity body with the given byte channel content. This method overrides any existing content-type headers\nwith the default content-type `application/octet-stream`. The default value `application/octet-stream`\ncan be overridden by passing the content-type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _byteChannel_  \n    Byte channel that needs to be set to entity  \n  \n- _contentType_  \n    Content-type to be used with the payload. This is an optional parameter.\n                `application/octet-stream` is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setByteChannel(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -354,10 +335,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the entity body as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getByteChannel(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -372,10 +352,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getBodyParts(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -390,10 +369,9 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
+          "value": "**Package:** _ballerina/mime_  \n  \nGiven an entity, gets the body parts as a byte channel.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/mime:ParserError)"
         }
       },
-      "sortText": "131",
       "insertText": "getBodyPartsAsChannel(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -402,16 +380,15 @@
       }
     },
     {
-      "label": "setBodyParts(mime:Entity[] bodyParts)",
+      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/mime_  \n  \nSets body parts to entity. This method overrides any existing `content-type` headers\nwith the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    Represents the body parts that needs to be set to the entity  \n  \n- _contentType_  \n    Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value.  \nDefault Value: multipart/form-data"
+          "value": "**Package:** _ballerina/mime_  \n  \nSets body parts to entity. This method overrides any existing `content-type` headers\nwith the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden\nby passing the content type as an optional parameter.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    Represents the body parts that needs to be set to the entity  \n  \n- _contentType_  \n    Content-type to be used with the payload. This is an optional parameter.\n                `multipart/form-data` is used as the default value.  \n(Default Parameter)"
         }
       },
-      "sortText": "131",
       "insertText": "setBodyParts(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -429,7 +406,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets the header value associated with the given header name.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    Represents header name  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "131",
       "insertText": "getHeader(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -447,7 +423,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets all the header values associated with the given header name.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "sortText": "131",
       "insertText": "getHeaders(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -465,7 +440,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nGets all header names.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "sortText": "131",
       "insertText": "getHeaderNames(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -483,7 +457,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nAdds the given header value against the given header.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    Represents the header value to be added  \n"
         }
       },
-      "sortText": "131",
       "insertText": "addHeader(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -501,7 +474,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nSets the given header value against the existing header. If a header already exists, its value is replaced\nwith the given header value.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    Represents the header value  \n"
         }
       },
-      "sortText": "131",
       "insertText": "setHeader(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -519,7 +491,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nRemoves the given header from the entity.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    Represents the header name  \n"
         }
       },
-      "sortText": "131",
       "insertText": "removeHeader(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -537,7 +508,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nRemoves all headers associated with the entity.  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "sortText": "131",
       "insertText": "removeAllHeaders(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -555,7 +525,6 @@
           "value": "**Package:** _ballerina/mime_  \n  \nChecks whether the requested header key exists in the header map.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "sortText": "131",
       "insertText": "hasHeader(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -567,7 +536,6 @@
       "label": "__init()",
       "kind": "Function",
       "detail": "Function",
-      "sortText": "131",
       "insertText": "__init(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -579,7 +547,6 @@
       "label": "cType",
       "kind": "Variable",
       "detail": "mime:MediaType",
-      "sortText": "221",
       "insertText": "cType",
       "insertTextFormat": "Snippet"
     },
@@ -587,7 +554,6 @@
       "label": "cId",
       "kind": "Variable",
       "detail": "string",
-      "sortText": "221",
       "insertText": "cId",
       "insertTextFormat": "Snippet"
     },
@@ -595,7 +561,6 @@
       "label": "cLength",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "221",
       "insertText": "cLength",
       "insertTextFormat": "Snippet"
     },
@@ -603,7 +568,6 @@
       "label": "cDisposition",
       "kind": "Variable",
       "detail": "mime:ContentDisposition",
-      "sortText": "221",
       "insertText": "cDisposition",
       "insertTextFormat": "Snippet"
     }

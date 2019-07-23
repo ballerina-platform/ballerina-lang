@@ -42,4 +42,8 @@ public class Update {
         SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters, strand);
         return updateStatement.execute();
     }
+
+    private Update() {
+
+    }
 }

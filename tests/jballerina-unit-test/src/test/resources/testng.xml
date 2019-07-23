@@ -32,7 +32,6 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
                 <exclude name="brokenOnLangLibChange"/>
             </run>
         </groups>
@@ -48,7 +47,7 @@
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
-            <!--<package name="org.ballerinalang.test.structs.*"/>-->
+            <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -98,7 +97,7 @@
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.stamp.*"/>-->
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.object.*" />
@@ -108,7 +107,7 @@
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
-            <!--<package name="org.ballerinalang.test.record.*"/>-->
+            <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <!--<package name="org.ballerinalang.test.types.handle.*"/>-->

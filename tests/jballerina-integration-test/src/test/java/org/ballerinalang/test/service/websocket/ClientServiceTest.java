@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientServiceTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9200/client/service";
+    private static final String URL = "ws://localhost:21020/client/service";
     private WebSocketRemoteServer remoteServer;
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_service.bal file")

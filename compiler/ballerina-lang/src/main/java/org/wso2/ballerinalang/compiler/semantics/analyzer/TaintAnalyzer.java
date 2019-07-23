@@ -1620,6 +1620,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        /* ignore */
+    }
+
+
+    @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
         /* ignore */
     }

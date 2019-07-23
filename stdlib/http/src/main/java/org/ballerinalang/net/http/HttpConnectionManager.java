@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http;
 
-//import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;

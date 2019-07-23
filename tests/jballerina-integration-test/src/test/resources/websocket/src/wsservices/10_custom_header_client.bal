@@ -23,7 +23,7 @@ final byte[] APPLICATION_DATA = strData1.toBytes();
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service PingPongTestService1 on new http:WebSocketListener(9092) {
+service PingPongTestService1 on new http:WebSocketListener(21011) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15100/websocket", { callbackService:

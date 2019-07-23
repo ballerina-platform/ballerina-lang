@@ -100,6 +100,5 @@ function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns
          // TODO: cache the token per-user per-client and reuse it
         return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
     }
-    //TODO: Define a proper error
-    return prepareError("Principal is not found");
+    return prepareError("Principal is not defined at invocation context.");
 }

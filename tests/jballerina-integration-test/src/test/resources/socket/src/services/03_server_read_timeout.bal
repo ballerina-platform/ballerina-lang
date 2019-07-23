@@ -21,7 +21,7 @@ import ballerina/socket;
 service timeoutServer on new socket:Listener(61599, {readTimeoutInMilliseconds: 20000}) {
 
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort);
+        log:printInfo("Join: " + caller.remotePort.toString());
     }
 
     resource function onReadReady(socket:Caller caller) {
@@ -32,7 +32,7 @@ service timeoutServer on new socket:Listener(61599, {readTimeoutInMilliseconds: 
                 _ = checkpanic caller->write(content);
                 log:printInfo("Server write");
             } else {
-                log:printInfo("Client close: " + caller.remotePort);
+                log:printInfo("Client close: " + caller.remotePort.toString());
             }
         } else {
             error resultError = result;
