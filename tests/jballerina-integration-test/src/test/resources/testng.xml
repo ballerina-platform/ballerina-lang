@@ -89,6 +89,7 @@
             <class name="org.ballerinalang.test.service.http2.Http2ToHttp1FallbackTestCase"/>
             <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2GenericScenarioTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.MultipartTestCase"/>
         </classes>
     </test>
 
