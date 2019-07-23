@@ -163,10 +163,8 @@ public class TableProvider {
                 case TypeTags.BOOLEAN_TAG:
                 case TypeTags.JSON_TAG:
                 case TypeTags.XML_TAG:
-                    generateCreateTableStatement(type, null, sb);
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    generateCreateTableStatement(type, (BArrayType) sf.getFieldType(), sb);
+                    generateCreateTableStatement(type, sf, sb);
                     break;
                 case TypeTags.UNION_TAG:
                     List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
@@ -174,9 +172,9 @@ public class TableProvider {
                         throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     if (members.get(0).getTag() == TypeTags.NULL_TAG) {
-                        generateCreateTableStatement(members.get(1).getTag(), null, sb);
+                        generateCreateTableStatement(members.get(1).getTag(), sf, sb);
                     } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
-                        generateCreateTableStatement(members.get(0).getTag(), null, sb);
+                        generateCreateTableStatement(members.get(0).getTag(), sf, sb);
                     } else {
                         throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
@@ -203,7 +201,7 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private void generateCreateTableStatement(int type, BArrayType sf, StringBuilder sb) {
+    private void generateCreateTableStatement(int type, BField sf, StringBuilder sb) {
         switch (type) {
             case TypeTags.INT_TAG:
                 sb.append(TableConstants.SQL_TYPE_BIGINT);
@@ -223,13 +221,15 @@ public class TableProvider {
                 sb.append(TableConstants.SQL_TYPE_CLOB);
                 break;
             case TypeTags.ARRAY_TAG:
-                BType elementType = sf.getElementType();
+                BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
                 if (elementType.getTag() == TypeTags.BYTE_TAG) {
                     sb.append(TableConstants.SQL_TYPE_BLOB);
                 } else {
                     sb.append(TableConstants.SQL_TYPE_ARRAY);
                 }
                 break;
+            default:
+                throw new BallerinaException("Unsupported nillable field for table : " + sf.getFieldType());
         }
     }
 

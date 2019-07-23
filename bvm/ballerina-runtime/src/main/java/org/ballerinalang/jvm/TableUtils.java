@@ -63,19 +63,6 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static String generateDeleteDataStatement(String tableName, MapValueImpl<?, ?> constrainedType) {
-        StringBuilder sbSql = new StringBuilder();
-        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
-        String sep = "";
-        for (BField sf : structFields) {
-            String name = sf.getFieldName();
-            sbSql.append(sep).append(name).append(" = ? ");
-            sep = TableConstants.SQL_AND;
-        }
-        return sbSql.toString();
-    }
-
     public static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data) {
         try {
             Collection<BField> structFields = ((BStructureType) data.getType()).getFields().values();
