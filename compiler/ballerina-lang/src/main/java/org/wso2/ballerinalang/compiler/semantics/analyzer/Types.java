@@ -988,6 +988,9 @@ public class Types {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                if (tupleType.restType != null) {
+                    tupleTypes.add(tupleType.restType);
+                }
                 varType = tupleTypes.size() == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;

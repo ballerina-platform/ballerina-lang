@@ -590,11 +590,21 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() != TypeTags.ARRAY_TAG) {
+        if (sourceType.getTag() != TypeTags.ARRAY_TAG && sourceType.getTag() != TypeTags.TUPLE_TAG) {
             return false;
         }
 
-        BArrayType sourceArrayType = (BArrayType) sourceType;
+        BArrayType sourceArrayType;
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            sourceArrayType = (BArrayType) sourceType;
+        } else {
+            BTupleType sourceTupleType = (BTupleType) sourceType;
+            Set<BType> tupleTypes = new HashSet<>(sourceTupleType.getTupleTypes());
+            if (sourceTupleType.getRestType() != null) {
+                tupleTypes.add(sourceTupleType.getRestType());
+            }
+            sourceArrayType = new BArrayType(new BUnionType(new ArrayList<>(tupleTypes)));
+        }
 
         switch (sourceArrayType.getState()) {
             case UNSEALED:

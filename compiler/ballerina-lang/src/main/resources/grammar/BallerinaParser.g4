@@ -198,7 +198,7 @@ inclusiveRecordTypeDescriptor
     ;
 
 tupleTypeDescriptor
-    : LEFT_BRACKET typeName (COMMA typeName)* (COMMA tupleRestDescriptor)? RIGHT_BRACKET
+    : LEFT_BRACKET ((typeName (COMMA typeName)* (COMMA tupleRestDescriptor)?) | tupleRestDescriptor) RIGHT_BRACKET
     ;
 
 tupleRestDescriptor

@@ -1043,6 +1043,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
+        if (tupleTypeNode.restParamType !=  null) {
+            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+        }
 
         resultType = tupleType;
     }

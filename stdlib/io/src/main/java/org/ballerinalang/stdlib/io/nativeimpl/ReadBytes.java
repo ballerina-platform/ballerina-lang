@@ -60,7 +60,7 @@ import java.util.Arrays;
 public class ReadBytes {
 
     private static final BTupleType readTupleType = new BTupleType(
-            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt), null);
 
     public static Object read(Strand strand, ObjectValue channel, long nBytes) {
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;

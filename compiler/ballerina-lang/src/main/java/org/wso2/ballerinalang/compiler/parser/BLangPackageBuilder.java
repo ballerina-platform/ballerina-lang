@@ -419,8 +419,11 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(unionTypeNode);
     }
 
-    void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        if (hasRestParam) {
+            tupleTypeNode.restParamType = (BLangType) this.typeNodeStack.pop();
+        }
         for (int i = 0; i < members; i++) {
             final BLangType member = (BLangType) this.typeNodeStack.pop();
             tupleTypeNode.memberTypeNodes.add(0, member);

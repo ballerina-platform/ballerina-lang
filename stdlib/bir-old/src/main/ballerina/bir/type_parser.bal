@@ -207,8 +207,12 @@ public type TypeParser object {
     }
 
     function parseTupleType() returns BTupleType {
-        BTupleType obj = { tupleTypes:[] }; 
+        BTupleType obj = { tupleTypes:[], restType:() };
         obj.tupleTypes = self.parseTypes();
+        boolean restPresent = self.readBoolean();
+        if (restPresent) {
+            obj.restType = self.parseTypeCpRef();
+        }
         return obj;
     }
 
