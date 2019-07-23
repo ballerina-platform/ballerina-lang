@@ -139,15 +139,6 @@ public class LSDocument {
     }
 
     /**
-     * Returns True when this source file has a ballerina project repository folder.
-     *
-     * @return True if this file has project repo, False otherwise
-     */
-//    public boolean hasProjectRepo() {
-//        return RepoUtils.isBallerinaProject(Paths.get(projectRoot));
-//    }
-
-    /**
      * Get the project modules list.
      * 
      * @return {@link List} list of project modules

@@ -1,1 +1,0 @@
-Ballerina Runtime version: ${project.version}

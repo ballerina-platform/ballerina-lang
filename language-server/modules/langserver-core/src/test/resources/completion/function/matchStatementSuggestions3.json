@@ -30,7 +30,7 @@
       }
     },
     {
-      "label": "getCodePoint()(int)",
+      "label": "getCodePoint(int i)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -81,7 +81,7 @@
       }
     },
     {
-      "label": "concat()(string)",
+      "label": "concat(...string)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -115,7 +115,7 @@
       }
     },
     {
-      "label": "substring()(string)",
+      "label": "substring(int startIndex, int endIndex)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -166,7 +166,7 @@
       }
     },
     {
-      "label": "endsWith()(boolean)",
+      "label": "endsWith(string substr)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -183,7 +183,7 @@
       }
     },
     {
-      "label": "join()(string)",
+      "label": "join(...string)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -200,7 +200,7 @@
       }
     },
     {
-      "label": "indexOf()((int|()))",
+      "label": "indexOf(string substr, int startIndx)((int|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -217,7 +217,7 @@
       }
     },
     {
-      "label": "codePointCompare()(int)",
+      "label": "codePointCompare(string str2)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -251,7 +251,7 @@
       }
     },
     {
-      "label": "startsWith()(boolean)",
+      "label": "startsWith(string substr)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
