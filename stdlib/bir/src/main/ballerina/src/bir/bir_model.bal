@@ -58,7 +58,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
-    BType? receiverType;
+    VariableDcl? receiver;
     boolean restParamExist;
     AnnotationAttachment?[] annotAttachments = [];
 |};

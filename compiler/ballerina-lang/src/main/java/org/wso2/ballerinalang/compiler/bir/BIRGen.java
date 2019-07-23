@@ -292,7 +292,12 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    funcSymbol.receiverSymbol.type, names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+
+            if (funcSymbol.receiverSymbol != null) {
+                birFunc.receiver = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name, VarScope.FUNCTION, VarKind.SELF, null);
+            }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
 
@@ -363,13 +368,17 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, astFunc.receiver.type,
-                                      workerName, astFunc.sendsToThis.size(), taintTable);
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
+                    astFunc.sendsToThis.size(), taintTable);
         } else {
             Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type,
-                    astFunc.receiver != null ? astFunc.receiver.type : null, workerName,
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
                     astFunc.sendsToThis.size(), taintTable);
+        }
+
+        if (astFunc.receiver != null) {
+            birFunc.receiver = new BIRVariableDcl(astFunc.pos, astFunc.receiver.type, astFunc.receiver.symbol.name,
+                    VarScope.FUNCTION, VarKind.SELF, null);
         }
 
         birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);

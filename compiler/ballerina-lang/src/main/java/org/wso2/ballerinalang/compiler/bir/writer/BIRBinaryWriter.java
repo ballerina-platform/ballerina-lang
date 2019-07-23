@@ -208,10 +208,12 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
         }
 
-        boolean hasReceiverType = birFunction.receiverType != null;
+        boolean hasReceiverType = birFunction.receiver != null;
         buf.writeBoolean(hasReceiverType);
         if (hasReceiverType) {
-            writeType(buf, birFunction.receiverType);
+            buf.writeByte(birFunction.receiver.kind.getValue());
+            writeType(buf, birFunction.receiver.type);
+            buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
 
         writeTaintTable(buf, birFunction.taintTable);

@@ -146,10 +146,10 @@ public type PackageParser object {
             _ = self.reader.readInt32();
         }
 
-        BType? receiverType = ();
-        boolean hasReceiverType = self.reader.readBoolean();
-        if (hasReceiverType) {
-            receiverType = self.reader.readTypeCpRef();
+        VariableDcl? receiver = ();
+        boolean hasReceiver = self.reader.readBoolean();
+        if (hasReceiver) {
+            receiver = self.parseVariableDcl();
         }
 
         int taintLength = self.reader.readInt64();
@@ -172,7 +172,7 @@ public type PackageParser object {
                 argsCount: 0,
                 typeValue: sig,
                 workerChannels: [],
-                receiverType : receiverType,
+                receiver : receiver,
                 restParamExist : restParamExist,
                 annotAttachments: annotAttachments
             };
@@ -244,7 +244,7 @@ public type PackageParser object {
             argsCount: argsCount,
             typeValue: sig,
             workerChannels:workerChannels,
-            receiverType : receiverType,
+            receiver : receiver,
             restParamExist : restParamExist,
             annotAttachments: annotAttachments
         };
