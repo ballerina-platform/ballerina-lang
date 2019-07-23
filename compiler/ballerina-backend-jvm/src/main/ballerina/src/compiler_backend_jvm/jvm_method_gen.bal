@@ -633,6 +633,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
                  instGen.generateTypeTestIns(inst);
+            } else if (inst is bir:IsLike) {
+                 instGen.generateIsLikeIns(inst);
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {
