@@ -22,12 +22,12 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
+import org.ballerinalang.messaging.artemis.externimpl.message.GetPayload;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,10 +56,9 @@ public class Receive {
         boolean autoAck = (boolean) consumerObj.getNativeData(ArtemisConstants.ARTEMIS_AUTO_ACK);
         try {
             ClientMessage clientMessage = consumer.receive(timeoutInMilliSeconds);
-            ObjectValue messageObj = BallerinaValues.createObjectValue(ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS,
-                    ArtemisConstants.MESSAGE_OBJ);
             ObjectValue sessionObj = (ObjectValue) consumerObj.get(ArtemisConstants.SESSION);
-            ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj, messageObj);
+            ObjectValue messageObj = ArtemisUtils.createAndGetMessageObj(clientMessage, sessionObj,
+                    GetPayload.getPayload(clientMessage));
             ArtemisTransactionContext transactionContext =
                     (ArtemisTransactionContext) sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
             if (autoAck) {
