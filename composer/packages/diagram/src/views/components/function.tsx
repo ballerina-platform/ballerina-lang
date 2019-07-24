@@ -62,9 +62,9 @@ export const Function = (props: { model: FunctionNode }) => {
                             const defaultable = param.initialExpression !== undefined;
                             const name: Identifier = param.name;
                             const value: any = defaultable
-                                ? (param.initialExpression as Literal).value
+                                ? (param.initialExpression as Literal).value // TODO: handle other expressions
                                 : undefined;
-                            return defaultable
+                            return defaultable && value
                                     ? " " + name.value + " = " + value
                                     : " " + name.value;
                         }).toString()
