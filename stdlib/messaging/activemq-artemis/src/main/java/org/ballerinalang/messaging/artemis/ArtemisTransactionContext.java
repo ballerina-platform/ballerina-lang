@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Objects;
@@ -52,7 +51,7 @@ public class ArtemisTransactionContext implements BallerinaTransactionContext {
         try {
             session.commit();
         } catch (ActiveMQException e) {
-            throw new BallerinaException("Transaction commit failed: " + e.getMessage(), e);
+            throw ArtemisUtils.getError("Transaction commit failed: " + e.getMessage());
         }
     }
 
@@ -61,7 +60,7 @@ public class ArtemisTransactionContext implements BallerinaTransactionContext {
         try {
             session.rollback();
         } catch (ActiveMQException e) {
-            throw new BallerinaException("Transaction rollback failed: " + e.getMessage(), e);
+            throw ArtemisUtils.getError("Transaction rollback failed: " + e.getMessage());
         }
     }
 
@@ -83,10 +82,10 @@ public class ArtemisTransactionContext implements BallerinaTransactionContext {
                     session.commit();
                     return;
                 } catch (ActiveMQException e) {
-                    throw new ArtemisConnectorException("Session commit failed: " + e.getMessage(), e);
+                    throw ArtemisUtils.getError("Session commit failed: " + e.getMessage());
                 }
             } else {
-                throw new ArtemisConnectorException("The Session used by the Artemis " + objectType +
+                throw ArtemisUtils.getError("The Session used by the Artemis " + objectType +
                         " object is transacted. Hence " + objectType +
                         " transacted actions cannot be used outside a transaction block");
             }
