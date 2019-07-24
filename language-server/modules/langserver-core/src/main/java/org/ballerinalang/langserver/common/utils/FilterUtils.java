@@ -310,8 +310,8 @@ public class FilterUtils {
         if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
             Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
                     .filter(entry -> { 
-                        if (symbolType.tag == TypeTags.RECORD 
-                                && (invocationToken == BallerinaParser.DOT || invocationToken == BallerinaParser.NOT)) { 
+                        if (symbolType.tag == TypeTags.RECORD && (invocationToken == BallerinaParser.DOT
+                                || invocationToken == BallerinaParser.NOT)) { 
                             return !org.ballerinalang.model.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                                     Flags.OPTIONAL); 
                         }
