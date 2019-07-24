@@ -332,13 +332,6 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'float'");
     }
 
-    @Test (groups = "brokenOnLangLibChange")
-    public void testIncompatibleJsonToBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "testIncompatibleJsonToBoolean");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(!((BBoolean) returns[0]).booleanValue());
-    }
-
     public void testBooleanInJsonToInt() {
         BValue[] returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
         Assert.assertTrue(returns[0] instanceof BError);
