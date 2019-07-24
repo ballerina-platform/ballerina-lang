@@ -14,8 +14,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.scheduling;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.ballerinalang.jvm.SchedulerItem.POISON_PILL;
+import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
 
 /**
  * Strand scheduler for JBallerina.
@@ -113,6 +114,7 @@ public class Scheduler {
         FutureValue future = createFuture(parent, callback, properties);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
+        future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         if (DEBUG) {
             debugLog(item + " scheduled");
@@ -133,6 +135,7 @@ public class Scheduler {
         FutureValue future = createFuture(parent, null, null);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
+        future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
         if (DEBUG) {
             debugLog(item + " scheduled");
@@ -213,11 +216,11 @@ public class Scheduler {
 
             switch (item.getState()) {
                 case BLOCK_AND_YIELD:
-                    if (item.blockedOn().isEmpty()) {
-                        item.future.strand.lock();
+                    if (item.future.strand.waitContext == null || !item.future.strand.waitContext.intermediate) {
                         if (DEBUG) {
                             debugLog(item + " blocked");
                         }
+                        item.future.strand.lock();
                         if (unblockedList.remove(item.future.strand)) {
                             if (DEBUG) {
                                 debugLog(item + " releasing from unblockedList");
@@ -230,24 +233,18 @@ public class Scheduler {
                         }
                         item.future.strand.unlock();
                     } else {
-                        for (int i = 0; i < item.blockedOn().size(); i++) {
-                            Strand blockedOn = item.blockedOn().get(i);
-                            blockedOn.lock();
-                            if (blockedOn.getState().equals(State.DONE)) {
-                                if (DEBUG) {
-                                    debugLog(item + " blocked and freed on " + blockedOn.hashCode());
-                                }
-                                reschedule(item);
-                                blockedOn.unlock();
-                                break;
-                            } else {
-                                if (DEBUG) {
-                                    debugLog(item + " blocked on wait for " + blockedOn.hashCode());
-                                }
-                                blockedOn.dependants.add(item);
-                                blockedOn.unlock();
+                        WaitContext ctx = item.future.strand.waitContext;
+                        ctx.lock();
+                        ctx.intermediate = false;
+                        if (ctx.runnable) {
+                            ctx.completed = true;
+                            reschedule(item);
+                        } else {
+                            if (DEBUG) {
+                                debugLog(item + " waiting");
                             }
                         }
+                        ctx.unLock();
                     }
                     break;
                 case YIELD:
@@ -257,7 +254,6 @@ public class Scheduler {
                     }
                     break;
                 case RUNNABLE:
-                    item.future.strand.lock();
                     item.future.result = result;
                     item.future.isDone = true;
                     item.future.panic = panic;
@@ -269,38 +265,29 @@ public class Scheduler {
                             item.future.callback.notifySuccess();
                         }
                     }
-                    item.future.strand.unlock();
 
                     Strand justCompleted = item.future.strand;
                     assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
 
-                    if (DEBUG) {
-                        debugLog(item + " completed");
-                    }
-                    justCompleted.lock();
-                    cleanUp(justCompleted);
                     justCompleted.setState(State.DONE);
 
-                    for (SchedulerItem blockedItem : justCompleted.dependants) {
-                        if (blockedItem.getState().equals(State.DONE)) {
-                            continue;
-                        }
-                    blockedItem.future.strand.lock();
-                        // need to check this again due to concurrency.
-                        if (blockedItem.getState().equals(State.DONE)) {
-                            blockedItem.future.strand.unlock();
-                            continue;
-                        }
-                        if (blockedItem.blockedOn().contains(justCompleted)) {
-                            if (DEBUG) {
-                                debugLog(blockedItem + " freed by completion of " + item);
+
+                    for (WaitContext ctx : justCompleted.waitingContexts) {
+                        ctx.lock();
+                        if (!ctx.completed) {
+                            if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
+                                if (ctx.intermediate) {
+                                    ctx.runnable = true;
+                                } else {
+                                    ctx.completed = true;
+                                    reschedule(ctx.schedulerItem);
+                                }
                             }
-                            blockedItem.blockedOn().clear();
-                            reschedule(blockedItem);
                         }
-                        blockedItem.future.strand.unlock();
+                        ctx.unLock();
                     }
-                    justCompleted.unlock();
+
+                    cleanUp(justCompleted);
 
                     int strandsLeft = totalStrands.decrementAndGet();
                     if (strandsLeft == 0) {
@@ -308,7 +295,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 300.
+                        // It depends on this line number 296.
                         // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");
@@ -336,11 +323,11 @@ public class Scheduler {
     }
 
     private synchronized void debugLog(String msg) {
-        try {
-            Thread.sleep(100);
+//        try {
+//            Thread.sleep(1);
             DEBUG_LOG.add(msg);
-            Thread.sleep(100);
-        } catch (InterruptedException ignored) { }
+//            Thread.sleep(1);
+//        } catch (InterruptedException ignored) { }
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
@@ -367,14 +354,16 @@ public class Scheduler {
     }
 
     private void reschedule(SchedulerItem item) {
-        item.future.strand.lock();
-        if (!item.getState().equals(State.RUNNABLE)) {
-            // release if the same strand is waiting for others (wait multiple)
-            item.future.strand.blockedOn.clear();
-            item.setState(State.RUNNABLE);
-            runnableList.add(item);
-        }
-        item.future.strand.unlock();
+            if (!item.getState().equals(State.RUNNABLE)) {
+                // release if the same strand is waiting for others as well (wait multiple)
+                item.setState(State.RUNNABLE);
+                runnableList.add(item);
+                if (DEBUG) {
+                    debugLog(item + " rescheduled");
+                }
+            } else {
+               debugLog(item + " " + item.getState().toString() + " not rescheduled");
+            }
     }
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {

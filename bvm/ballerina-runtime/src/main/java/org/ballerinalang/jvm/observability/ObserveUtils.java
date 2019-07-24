@@ -19,7 +19,7 @@
 package org.ballerinalang.jvm.observability;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 
 import java.util.Collections;

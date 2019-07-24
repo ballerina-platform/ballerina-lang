@@ -15,8 +15,10 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
- package org.ballerinalang.jvm;
+ package org.ballerinalang.jvm.scheduling;
 
+ import org.ballerinalang.jvm.TypeChecker;
+ import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BTypes;
  import org.ballerinalang.jvm.values.ChannelDetails;
  import org.ballerinalang.jvm.values.ErrorValue;

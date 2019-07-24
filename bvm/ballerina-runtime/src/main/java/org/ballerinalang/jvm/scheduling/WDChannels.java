@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.scheduling;
 
 import java.util.HashMap;
 import java.util.Map;

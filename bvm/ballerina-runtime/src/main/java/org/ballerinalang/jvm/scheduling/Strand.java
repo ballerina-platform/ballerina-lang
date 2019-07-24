@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.scheduling;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BTypes;
@@ -26,6 +27,7 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.State;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +49,7 @@ import static org.ballerinalang.jvm.values.State.YIELD;
  */
 
 public class Strand {
+
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
@@ -58,13 +61,18 @@ public class Strand {
     public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
     public Set<SchedulerItem> dependants;
-    private Lock strandLock;
+    public ObserverContext observerContext;
+    public boolean cancel;
+
+    SchedulerItem schedulerItem;
+    List<WaitContext> waitingContexts;
+    WaitContext waitContext;
 
     private Map<String, Object> globalProps;
-    public boolean cancel;
     private TransactionLocalContext transactionStrandContext;
-    public ObserverContext observerContext;
     private State state;
+    private final ReentrantLock strandLock;
+
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -75,6 +83,7 @@ public class Strand {
         this.state = RUNNABLE;
         this.dependants = new HashSet<>();
         this.strandLock = new ReentrantLock();
+        this.waitingContexts = new ArrayList<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
@@ -168,42 +177,65 @@ public class Strand {
         this.flushDetail.inProgress = false;
         this.flushDetail.flushedCount = 0;
         this.flushDetail.result = null;
-        for (int i = 0; i < channels.length; i++) {
-            getWorkerDataChannel(channels[i]).removeFlushWait();
+        for (ChannelDetails channel : channels) {
+            getWorkerDataChannel(channel).removeFlushWait();
         }
     }
 
     public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) throws Throwable {
-        this.blockedOn.clear();
+        WaitContext ctx = new WaitMultipleContext(this.schedulerItem);
+        ctx.waitCount.set(keyValues.size());
+        ctx.lock();
         for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
-            synchronized (entry.getValue()) {
-                if (entry.getValue().isDone) {
-                    if (entry.getValue().panic != null) {
-                        this.blockedOn.clear();
-                        throw entry.getValue().panic;
-                    }
-                    target.put(entry.getKey(), entry.getValue().result);
-                } else {
-                    this.setState(BLOCK_AND_YIELD);
-                    this.blockedOn.add(entry.getValue().strand);
+            FutureValue future = entry.getValue();
+            // need to lock the future's strand since we cannot have a parallel state change
+            future.strand.lock();
+            if (future.isDone) {
+                if (future.panic != null) {
+                    ctx.completed = true;
+                    ctx.waitCount.set(0);
+                    this.setState(RUNNABLE);
+                    future.strand.unlock();
+                    ctx.unLock();
+                    throw future.panic;
                 }
+                ctx.waitCount.decrementAndGet();
+                target.put(entry.getKey(), future.result);
+            } else {
+                this.setState(BLOCK_AND_YIELD);
+                entry.getValue().strand.waitingContexts.add(ctx);
             }
+            future.strand.unlock();
         }
+        if (!this.isBlocked()) {
+            ctx.waitCount.set(0);
+            ctx.completed = true;
+        } else {
+            this.waitContext = ctx;
+            ctx.intermediate = true;
+        }
+        ctx.unLock();
     }
 
     public WaitResult handleWaitAny(List<FutureValue> futures) throws Throwable {
         WaitResult waitResult = new WaitResult(false, null);
-        int completed = 0;
+        WaitContext ctx = new WaitAnyContext(this.schedulerItem);
+        ctx.lock();
+        ctx.waitCount.set(futures.size());
         Object error = null;
         for (FutureValue future : futures) {
-            synchronized (future) {
+            // need to lock the future's strand since we cannot have a parallel state change
+            try {
+                future.strand.lock();
                 if (future.isDone) {
-                    completed++;
                     if (future.panic != null) {
+                        ctx.completed = true;
+                        ctx.unLock();
                         throw future.panic;
                     }
 
                     if (TypeChecker.checkIsType(future.result, BTypes.typeError)) {
+                        ctx.waitCount.decrementAndGet();
                         // if error, should wait for other futures as well
                         error = future.result;
                         continue;
@@ -211,20 +243,24 @@ public class Strand {
                     waitResult = new WaitResult(true, future.result);
                     break;
                 } else {
-                    this.blockedOn.add(future.strand);
+                    future.strand.waitingContexts.add(ctx);
                 }
+            } finally {
+                future.strand.unlock();
             }
         }
 
         if (waitResult.done) {
-            this.blockedOn.clear();
-        } else if (completed == futures.size()) {
+            ctx.completed = true;
+        } else if (ctx.waitCount.get() == 0) {
+            ctx.completed = true;
             // all futures have error result
-            this.blockedOn.clear();
             waitResult = new WaitResult(true, error);
         } else {
+            this.waitContext = ctx;
             this.setState(BLOCK_AND_YIELD);
         }
+        ctx.unLock();
 
         return waitResult;
     }

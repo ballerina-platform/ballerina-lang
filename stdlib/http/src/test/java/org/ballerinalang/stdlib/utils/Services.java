@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.utils;
 
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
