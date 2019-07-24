@@ -80,6 +80,9 @@ function genJMethodForBFunc(bir:Function func,
                            io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
     }
 
+    jvm:Label methodStartLabel = new;
+    mv.visitLabel(methodStartLabel);
+
     // generate method body
     int k = 1;
 
@@ -248,6 +251,28 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
+
+    jvm:Label methodEndLabel = new;
+    mv.visitLabel(methodEndLabel);
+
+    // Create Local Variable Table
+    k = localVarOffset;
+    while (k < localVars.length()) {
+        bir:VariableDcl localVar = getVariableDcl(localVars[k]);
+        jvm:Label startLabel = methodStartLabel;
+        jvm:Label endLabel = methodEndLabel;
+        if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam)
+            && !(localVar.meta["name"] is () || localVar.meta.name == "")) {
+            if (localVar.kind is bir:LocalVarKind) {
+                startLabel = labelGen.getLabel(funcName + localVar.meta.startBBID + "ins" + localVar.meta.insOffset);
+                endLabel = labelGen.getLabel(funcName + localVar.meta.endBBID + "beforeTerm");
+            }
+            mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue),
+                                            startLabel, endLabel, indexMap.getIndex(localVar));
+        }
+        k = k + 1;
+    }
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -440,6 +465,52 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
     }
 }
 
+function getJVMTypeSign(bir:BType bType) returns string {
+    string jvmType = "";
+    if (bType is bir:BTypeInt) {
+        jvmType = "J";
+    } else if (bType is bir:BTypeByte) {
+        jvmType = "I";
+    } else if (bType is bir:BTypeFloat) {
+        jvmType = "D";
+    } else if (bType is bir:BTypeBoolean) {
+        jvmType = "Z";
+    } else if (bType is bir:BTypeString) {
+        jvmType = io:sprintf("L%s;", STRING_VALUE);
+    } else if (bType is bir:BTypeDecimal) {
+        jvmType = io:sprintf("L%s;", DECIMAL_VALUE);
+    } else if (bType is bir:BMapType || bType is bir:BRecordType) {
+        jvmType = io:sprintf("L%s;", MAP_VALUE);
+    } else if (bType is bir:BTableType) {
+        jvmType = io:sprintf("L%s;", TABLE_VALUE);
+    } else if (bType is bir:BStreamType) {
+        jvmType = io:sprintf("L%s;", STREAM_VALUE);
+    } else if (bType is bir:BArrayType ||
+                bType is bir:BTupleType) {
+        jvmType = io:sprintf("L%s;", ARRAY_VALUE);
+    } else if (bType is bir:BObjectType || bType is bir:BServiceType) {
+        jvmType = io:sprintf("L%s;", OBJECT_VALUE);
+    } else if (bType is bir:BErrorType) {
+        jvmType = io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        jvmType = io:sprintf("L%s;", FUTURE_VALUE);
+    } else if (bType is bir:BInvokableType) {
+        jvmType = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeDesc) {
+        jvmType = io:sprintf("L%s;", TYPEDESC_VALUE);
+    }   else if (bType is bir:BTypeNil
+            || bType is bir:BTypeAny
+            || bType is bir:BTypeAnyData
+            || bType is bir:BUnionType
+            || bType is bir:BJSONType
+            || bType is bir:BFiniteType) {
+        jvmType = io:sprintf("L%s;", OBJECT);
+    } else if (bType is bir:BXMLType) {
+        jvmType = io:sprintf("L%s;", XML_VALUE);
+    }
+    return jvmType;
+}
+
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
@@ -482,6 +553,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                                                 handlerLabel, jumpLabel);
         }
         while (m < insCount) {
+            jvm:Label insLabel = labelGen.getLabel(funcName + bb.id.value + "ins" + m);
+            mv.visitLabel(insLabel);
             bir:Instruction? inst = bb.instructions[m];
             var pos = inst.pos;
             if (pos is bir:DiagnosticPos) {
@@ -551,6 +624,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 instGen.generateFPLoadIns(inst);
             } else if (inst is bir:TypeTest) {
                  instGen.generateTypeTestIns(inst);
+            } else if (inst is bir:IsLike) {
+                 instGen.generateIsLikeIns(inst);     
             } else if (inst is bir:NewXMLQName) {
                 instGen.generateNewXMLQNameIns(inst);
             } else if (inst is bir:NewStringXMLQName) {

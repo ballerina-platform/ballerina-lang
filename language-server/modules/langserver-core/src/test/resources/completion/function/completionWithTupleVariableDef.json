@@ -13,7 +13,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClosureWithTupleTypes()(function (string,[string,float,string]) returns (string))",
+      "label": "testClosureWithTupleTypes([string,float,string] g)(function (string,[string,float,string]) returns (string))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

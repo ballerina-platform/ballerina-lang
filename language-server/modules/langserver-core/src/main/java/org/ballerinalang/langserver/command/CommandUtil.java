@@ -698,7 +698,10 @@ public class CommandUtil {
                 };
         while (next != null) {
             if (isWithinPosition.apply(next.getPosition())) {
-                if (next instanceof BLangTypeDefinition) {
+                if (next instanceof BLangFunction) {
+                    result = (BLangFunction) next;
+                    break;
+                } else if (next instanceof BLangTypeDefinition) {
                     BLangTypeDefinition typeDefinition = (BLangTypeDefinition) next;
                     if (typeDefinition.typeNode instanceof BLangObjectTypeNode) {
                         BLangObjectTypeNode typeNode = (BLangObjectTypeNode) typeDefinition.typeNode;

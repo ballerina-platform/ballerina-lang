@@ -114,9 +114,7 @@ function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authentica
             return false;
         }
     } else {
-        // TODO: Remove the below casting when new lang syntax are merged.
-        error e = authenticated;
-        response.setTextPayload("Authentication failure. " + e.reason());
+        response.setTextPayload("Authentication failure. " + <string>authenticated.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic <error> err;

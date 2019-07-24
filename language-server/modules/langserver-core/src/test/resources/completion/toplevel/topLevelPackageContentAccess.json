@@ -6,7 +6,7 @@
   "source": "toplevel/source/topLevelPackageContentAccess.bal",
   "items": [
     {
-      "label": "extractAuthorizationHeaderValue()(string)",
+      "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -38,7 +38,7 @@
       }
     },
     {
-      "label": "createHttpCachingClient()((http:HttpClient|error))",
+      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)((http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -70,7 +70,7 @@
       }
     },
     {
-      "label": "parseHeader()(([string,map\u003cany\u003e]|error))",
+      "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -102,7 +102,7 @@
       }
     },
     {
-      "label": "invokeEndpoint()((http:Response|http:HttpFuture|error))",
+      "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient, string verb)((http:Response|http:HttpFuture|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -134,7 +134,7 @@
       }
     },
     {
-      "label": "createHttpSecureClient()((http:HttpClient|error))",
+      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)((http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -166,7 +166,7 @@
       }
     },
     {
-      "label": "encode()((string|error))",
+      "label": "encode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -198,7 +198,7 @@
       }
     },
     {
-      "label": "decode()((string|error))",
+      "label": "decode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

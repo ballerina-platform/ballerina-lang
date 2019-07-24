@@ -2,7 +2,7 @@
   "result": {
     "contents": {
       "kind": "markdown",
-      "value": "**Description**\r\n\r\nReturns a Boolean value indicating whether a string contains the specified substring.\r\n\r\n**Param**\r\n- substring:The substring to be compared\r\n\r\n**Return**\r\n- True if the string contains the substring; false otherwise\r\n\r\n"
+      "value": "**Description**\r\n\r\nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur\r\n\r\n"
     }
   },
   "id": {

@@ -250,3 +250,10 @@ function testConstInAnnotations() returns TestConfig? {
     typedesc<any> t = typeof r1;
     return t.@testAnnotation;
 }
+
+const map<string> data = { "user": "Ballerina", "ID": "1234" };
+const map<map<string>> complexData = { "data": data, "moreData": { "user": "WSO2" } };
+
+function testNestedConstMapAccess() returns boolean {
+    return complexData["data"]["user"] == "Ballerina" && complexData["data"]["ID"] == "1234";
+}

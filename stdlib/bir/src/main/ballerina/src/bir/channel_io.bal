@@ -78,8 +78,8 @@ public type ChannelReader object {
     }
 
     public function readByte() returns byte {
-        var [bytes, _mustBe4] = check self.byteChannel.read(4);
-        return <@untainted> bytesToByte(bytes);
+        int value = self.readInt32();
+        return <byte> value;
     }
 };
 
@@ -93,12 +93,4 @@ function bytesToInt(byte[] b) returns int {
     int b2 = <int> b[2];
     int b3 = <int> b[3];
     return b0 <<octave3|(b1 & ff) <<octave2|(b2 & ff) <<octave1|(b3 & ff);
-}
-
-function bytesToByte(byte[] b) returns byte {
-    byte ff = 255;
-    byte octave1 = 8;
-    byte octave2 = 16;
-    byte octave3 = 24;
-    return (b[0] << octave3) | ((b[1] & ff) << octave2) | ((b[2] & ff) << octave1) | (b[3] & ff);
 }
