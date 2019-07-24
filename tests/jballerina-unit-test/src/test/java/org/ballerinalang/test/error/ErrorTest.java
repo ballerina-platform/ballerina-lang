@@ -197,6 +197,13 @@ public class ErrorTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test
+    public void testTrapSuccessScenario() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
     @Test(dataProvider = "userDefTypeAsReasonTests")
     public void testErrorWithUserDefinedReasonType(String testFunction) {
         BValue[] returns = BRunUtil.invoke(errorTestResult, testFunction);

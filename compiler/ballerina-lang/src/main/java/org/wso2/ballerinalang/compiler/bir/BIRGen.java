@@ -1530,10 +1530,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         trapExpr.expr.accept(this);
 
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(trapExpr.type, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-
         List<BIRBasicBlock> trappedBlocks = this.env.trapBlocks.pop();
         // Create new block for instructions after trap.
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
@@ -1541,7 +1537,12 @@ public class BIRGen extends BLangNodeVisitor {
         env.enclBasicBlocks.add(nextBB);
         this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
 
-        this.env.targetOperand = new BIROperand(tempVarDcl);
+        if (trapExpr.expr.type.tag == TypeTags.NIL) {
+            BIRVariableDcl tempVarDcl = new BIRVariableDcl(trapExpr.type, this.env.nextLocalVarId(names),
+                                                           VarScope.FUNCTION, VarKind.TEMP);
+            this.env.enclFunc.localVars.add(tempVarDcl);
+            this.env.targetOperand = new BIROperand(tempVarDcl);
+        }
 
         for (BIRBasicBlock bb : trappedBlocks) {
             env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(bb, env.targetOperand, nextBB));
