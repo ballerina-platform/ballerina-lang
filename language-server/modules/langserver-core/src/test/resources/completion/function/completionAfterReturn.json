@@ -13,7 +13,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testReturnFunction()(int)",
+      "label": "testReturnFunction(string param1)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

@@ -120,7 +120,7 @@ public type FuncBodyParser object {
             var bType = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            IsLike isLike = {pos:pos, kind:kind, typeVal:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;

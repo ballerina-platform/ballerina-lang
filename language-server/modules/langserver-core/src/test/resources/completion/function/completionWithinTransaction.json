@@ -118,7 +118,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "initiateNestedTransactionInRemote()(string)",
+      "label": "initiateNestedTransactionInRemote(string nestingMethod)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -187,7 +187,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "divideNumbers()((int|error))",
+      "label": "divideNumbers(int a, int b)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

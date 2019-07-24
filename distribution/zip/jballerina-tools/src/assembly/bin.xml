@@ -137,7 +137,7 @@
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:openapi-to-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-client-generator:jar</include>
-<!--                <include>org.ballerinalang:openapi-validator:jar</include>-->
+                <include>org.ballerinalang:openapi-validator:jar</include>
                 <!--
                     Keeping lang-server compiler under bre as this is being used
                     in ballerina OpenAPI CLI tools
