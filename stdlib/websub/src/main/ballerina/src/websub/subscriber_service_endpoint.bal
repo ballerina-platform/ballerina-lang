@@ -15,10 +15,10 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
-import ballerina/'lang\.object as lang;
 import ballerina/internal;
 import ballerina/'lang\.int as langint;
+import ballerina/'lang\.object as lang;
+import ballerina/log;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -89,21 +89,19 @@ public type Listener object {
                 continue;
             }
 
-            // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
-            string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
-            boolean subscribeOnStartUp = internal:toBoolean(strSubscribeOnStartUp);
+            boolean subscribeOnStartUp = <boolean> subscriptionDetails[ANNOT_FIELD_SUBSCRIBE_ON_STARTUP];
 
             if (subscribeOnStartUp) {
                 string? resourceUrl = ();
                 string? hub = ();
                 string topic;
 
-                if (!subscriptionDetails.hasKey("target")) {
-                    log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
+                if (!subscriptionDetails.hasKey(ANNOT_FIELD_TARGET)) {
+                    log:printError(
+                        "Subscription request not sent since hub and topic or resource URL are not specified");
                     return;
                 }
-
-                any target = subscriptionDetails.get("target");
+                any target = subscriptionDetails.get(ANNOT_FIELD_TARGET);
 
                 if (target is string) {
                     resourceUrl = target;
@@ -112,11 +110,11 @@ public type Listener object {
                 }
 
                 http:ClientEndpointConfig? hubClientConfig =
-                                                <http:ClientEndpointConfig?> subscriptionDetails["hubClientConfig"];
+                                        <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_HUB_CLIENT_CONFIG];
 
                 if (resourceUrl is string) {
                     http:ClientEndpointConfig? publisherClientConfig =
-                                            <http:ClientEndpointConfig?> subscriptionDetails["publisherClientConfig"];
+                                <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG];
                     var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, publisherClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
@@ -134,7 +132,7 @@ public type Listener object {
                         }
                         hub = retHub;
                         [string, string] hubAndTopic = [retHub, retTopic];
-                        subscriptionDetails["target"] = hubAndTopic;
+                        subscriptionDetails[ANNOT_FIELD_TARGET] = hubAndTopic;
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
@@ -256,17 +254,17 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? p
 function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? hubClientConfig,
                                               map<any> subscriptionDetails) {
     Client websubHubClientEP = new Client(hub, hubClientConfig);
-    [string, string][_, topic] = <[string, string]> subscriptionDetails["target"];
-    string callback = <string> subscriptionDetails["callback"];
+    [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];
+    string callback = <string> subscriptionDetails[ANNOT_FIELD_CALLBACK];
 
     SubscriptionChangeRequest subscriptionChangeRequest = { topic: topic, callback: callback };
 
-    if (subscriptionDetails.hasKey("leaseSeconds")) {
-        subscriptionChangeRequest.leaseSeconds = <int> subscriptionDetails["leaseSeconds"];
+    if (subscriptionDetails.hasKey(ANNOT_FIELD_LEASE_SECONDS)) {
+        subscriptionChangeRequest.leaseSeconds = <int> subscriptionDetails[ANNOT_FIELD_LEASE_SECONDS];
     }
 
-    if (subscriptionDetails.hasKey("secret")) {
-         subscriptionChangeRequest.secret =  <string> subscriptionDetails["secret"];
+    if (subscriptionDetails.hasKey(ANNOT_FIELD_SECRET)) {
+         subscriptionChangeRequest.secret =  <string> subscriptionDetails[ANNOT_FIELD_SECRET];
     }
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);

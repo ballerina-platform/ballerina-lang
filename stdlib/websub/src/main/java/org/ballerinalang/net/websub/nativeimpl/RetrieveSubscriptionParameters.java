@@ -93,8 +93,8 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
 
             subscriptionDetails.put(WEBSUB_SERVICE_NAME, webSubHttpService.getBalService().getType().getName());
-            subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP, Boolean.toString(
-                    annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP)));
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
+                                    annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP));
 
             if (annotation.containsKey(ANN_WEBSUB_ATTR_TARGET)) {
                 subscriptionDetails.put(ANN_WEBSUB_ATTR_TARGET, annotation.get(ANN_WEBSUB_ATTR_TARGET));

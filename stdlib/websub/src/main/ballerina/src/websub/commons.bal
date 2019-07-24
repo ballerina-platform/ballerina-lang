@@ -71,6 +71,14 @@ const string X_HUB_TOPIC = "X-Hub-Topic";
 const string CONTENT_TYPE = "Content-Type";
 
 const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+const ANNOT_FIELD_TARGET = "target";
+const ANNOT_FIELD_CALLBACK = "callback";
+const ANNOT_FIELD_LEASE_SECONDS = "leaseSeconds";
+const ANNOT_FIELD_SECRET = "secret";
+const ANNOT_FIELD_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
+const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
+
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 # The constant used to represent error code of WebSub module.
