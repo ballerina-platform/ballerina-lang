@@ -83,7 +83,7 @@ public class ErrorServiceTestCase extends BaseTest {
         }
     }
 
-    @Test(description = "Test case for running unary service with same port")
+    @Test(description = "Test case for running unary service with same port", enabled = false)
     public void testServiceWithSamePort() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices",
                 "service_with_sameport.bal");

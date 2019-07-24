@@ -28,7 +28,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
             return [value, resHeaders];
         } else {
             return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
-        }{{/not_equal}}{{#equals outputType "string"}}return (result.toString(), resHeaders);{{/equals}}{{else}}(_, resHeaders) = payload;
+        }{{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}

@@ -1031,4 +1031,15 @@ public class Message {
         }
         return (int) value;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder payload = new StringBuilder("Message : ");
+        if (bMessage != null) {
+            payload.append("{ ").append(bMessage.toString()).append(" }");
+        } else {
+            payload.append("null");
+        }
+        return payload.toString();
+    }
 }

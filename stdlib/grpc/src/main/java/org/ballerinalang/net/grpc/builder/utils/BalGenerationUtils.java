@@ -51,26 +51,26 @@ public class BalGenerationUtils {
      */
     public static String getMappingBalType(String protoType) {
         switch (protoType) {
-            case "google.protobuf.DoubleValue":
-            case "google.protobuf.FloatValue": {
+            case ".google.protobuf.DoubleValue":
+            case ".google.protobuf.FloatValue": {
                 return "float";
             }
-            case "google.protobuf.Int32Value":
-            case "google.protobuf.Int64Value":
-            case "google.protobuf.UInt64Value":
-            case "google.protobuf.UInt32Value": {
+            case ".google.protobuf.Int32Value":
+            case ".google.protobuf.Int64Value":
+            case ".google.protobuf.UInt64Value":
+            case ".google.protobuf.UInt32Value": {
                 return "int";
             }
-            case "google.protobuf.BoolValue": {
+            case ".google.protobuf.BoolValue": {
                 return "boolean";
             }
-            case "google.protobuf.StringValue": {
+            case ".google.protobuf.StringValue": {
                 return "string";
             }
-            case "google.protobuf.BytesValue": {
+            case ".google.protobuf.BytesValue": {
                 return "byte[]";
             }
-            case "google.protobuf.Empty": {
+            case ".google.protobuf.Empty": {
                 return null;
             }
             default: { // to handle structs
