@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.completion.inserthandlers;
+package io.ballerina.plugins.idea.editor.inserthandlers;
 
 import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.codeInsight.completion.InsertHandler;
@@ -28,22 +28,22 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
 /**
- * Provides braces completion support.
+ * Provides semicolon completion support.
  */
-public class BracesInsertHandler implements InsertHandler<LookupElement> {
+public class SemiolonInsertHandler implements InsertHandler<LookupElement> {
 
-    public static final InsertHandler<LookupElement> INSTANCE = new BracesInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE = new SemiolonInsertHandler(false);
     public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
-            new BracesInsertHandler(true);
+            new SemiolonInsertHandler(true);
 
     private final String myIgnoreOnChars;
     private final boolean myTriggerAutoPopup;
 
-    public BracesInsertHandler(boolean triggerAutoPopup) {
+    public SemiolonInsertHandler(boolean triggerAutoPopup) {
         this("", triggerAutoPopup);
     }
 
-    public BracesInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
+    public SemiolonInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
         myIgnoreOnChars = ignoreOnChars;
         myTriggerAutoPopup = triggerAutoPopup;
     }
@@ -58,7 +58,7 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
-                EditorModificationUtil.insertStringAtCaret(editor, " {}", false, 2);
+                EditorModificationUtil.insertStringAtCaret(editor, ";", false, 1);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);
@@ -78,7 +78,7 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
         char c;
         for (int i = startOffset; i < textLength; i++) {
             c = charsSequence.charAt(i);
-            if (c == '(') {
+            if (c == ':') {
                 return i - startOffset;
             } else if (!Character.isSpaceChar(c)) {
                 break;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.codeinsight.highlighting;
+package io.ballerina.plugins.idea.editor;
 
 import com.intellij.codeInsight.hint.DeclarationRangeUtil;
 import com.intellij.lang.BracePair;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.completion.inserthandlers;
+package io.ballerina.plugins.idea.editor.inserthandlers;
 
 import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.codeInsight.completion.InsertHandler;
@@ -28,23 +28,30 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 
 /**
- * Provides semicolon completion support.
+ * Provides colon completion support.
  */
-public class SemiolonInsertHandler implements InsertHandler<LookupElement> {
+public class ColonInsertHandler implements InsertHandler<LookupElement> {
 
-    public static final InsertHandler<LookupElement> INSTANCE = new SemiolonInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE = new ColonInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_SPACE = new ColonInsertHandler(true, false);
     public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
-            new SemiolonInsertHandler(true);
+            new ColonInsertHandler(true);
 
     private final String myIgnoreOnChars;
+    private final boolean myWithSpace;
     private final boolean myTriggerAutoPopup;
 
-    public SemiolonInsertHandler(boolean triggerAutoPopup) {
-        this("", triggerAutoPopup);
+    public ColonInsertHandler(boolean triggerAutoPopup) {
+        this("", false, triggerAutoPopup);
     }
 
-    public SemiolonInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
+    public ColonInsertHandler(boolean withSpace, boolean triggerAutoPopup) {
+        this("", withSpace, triggerAutoPopup);
+    }
+
+    public ColonInsertHandler(String ignoreOnChars, boolean withSpace, boolean triggerAutoPopup) {
         myIgnoreOnChars = ignoreOnChars;
+        myWithSpace = withSpace;
         myTriggerAutoPopup = triggerAutoPopup;
     }
 
@@ -58,7 +65,10 @@ public class SemiolonInsertHandler implements InsertHandler<LookupElement> {
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
-                EditorModificationUtil.insertStringAtCaret(editor, ";", false, 1);
+                EditorModificationUtil.insertStringAtCaret(editor, ":", false, 1);
+                if (myWithSpace) {
+                    EditorModificationUtil.insertStringAtCaret(editor, " ", false, 1);
+                }
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);
