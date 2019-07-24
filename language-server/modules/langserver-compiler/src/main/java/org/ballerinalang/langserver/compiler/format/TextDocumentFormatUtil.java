@@ -416,7 +416,7 @@ public class TextDocumentFormatUtil {
      * @return {@link Boolean}  Symbol evaluation status
      */
     public static boolean isClientObject(BSymbol bSymbol) {
-        return bSymbol.type != null && bSymbol.type.tsymbol != null
+        return bSymbol != null && bSymbol.type != null && bSymbol.type.tsymbol != null
                 && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
                 && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
