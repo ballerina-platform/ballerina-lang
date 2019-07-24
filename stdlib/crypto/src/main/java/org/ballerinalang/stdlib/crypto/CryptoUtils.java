@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.crypto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 
@@ -208,7 +207,7 @@ public class CryptoUtils {
             return CryptoUtils.createCryptoError("Unsupported padding scheme defined in the algorithm: AES "
                     + algorithmMode + " " + algorithmPadding);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
-                IllegalBlockSizeException | BallerinaException e) {
+                IllegalBlockSizeException | ErrorValue e) {
             LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError(e.getMessage());
         }
@@ -253,7 +252,7 @@ public class CryptoUtils {
             return CryptoUtils.createCryptoError("Unsupported padding scheme defined in  the algorithm: AES " +
                     algorithmMode + " " + algorithmPadding);
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
-                InvalidKeyException | BallerinaException e) {
+                InvalidKeyException | ErrorValue e) {
             LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError(e.getMessage());
         }
@@ -296,24 +295,25 @@ public class CryptoUtils {
      * @param iv            initialization vector for CBC and GCM mode
      * @param tagSize       tag size for GCM mode
      * @return algorithm parameter specification
+     * @throws ErrorValue if initialization vector is not specified
      */
     private static AlgorithmParameterSpec buildParameterSpec(String algorithmMode, byte[] iv, int tagSize) {
         switch (algorithmMode) {
             case Constants.GCM:
                 if (iv == null) {
-                    throw new BallerinaException("GCM mode requires 16 byte IV");
+                    throw BallerinaErrors.createError("GCM mode requires 16 byte IV");
                 } else {
                     return new GCMParameterSpec(tagSize, iv);
                 }
             case Constants.CBC:
                 if (iv == null) {
-                    throw new BallerinaException("CBC mode requires 16 byte IV");
+                    throw BallerinaErrors.createError("CBC mode requires 16 byte IV");
                 } else {
                     return new IvParameterSpec(iv);
                 }
             case Constants.ECB:
                 if (iv != null) {
-                    throw new BallerinaException("ECB mode cannot use IV");
+                    throw BallerinaErrors.createError("ECB mode cannot use IV");
                 }
         }
         return null;
@@ -324,12 +324,12 @@ public class CryptoUtils {
      *
      * @param algorithmMode algorithm mode
      * @return transformed algorithm mode
-     * @throws BallerinaException if algorithm mode is not supported
+     * @throws ErrorValue if algorithm mode is not supported
      */
-    private static String transformAlgorithmMode(String algorithmMode) throws BallerinaException {
+    private static String transformAlgorithmMode(String algorithmMode) throws ErrorValue {
         if (!algorithmMode.equals(Constants.CBC) && !algorithmMode.equals(Constants.ECB)
                 && !algorithmMode.equals(Constants.GCM)) {
-            throw new BallerinaException("Unsupported mode: " + algorithmMode);
+            throw BallerinaErrors.createError("Unsupported mode: " + algorithmMode);
         }
         return algorithmMode;
     }
@@ -339,9 +339,9 @@ public class CryptoUtils {
      *
      * @param algorithmPadding padding algorithm name
      * @return transformed  padding algorithm name
-     * @throws BallerinaException if padding algorithm is not supported
+     * @throws ErrorValue if padding algorithm is not supported
      */
-    private static String transformAlgorithmPadding(String algorithmPadding) throws BallerinaException {
+    private static String transformAlgorithmPadding(String algorithmPadding) throws ErrorValue {
         switch (algorithmPadding) {
             case "PKCS1":
                 algorithmPadding = "PKCS1Padding";
@@ -368,7 +368,7 @@ public class CryptoUtils {
                 algorithmPadding = "NoPadding";
                 break;
             default:
-                throw new BallerinaException("Unsupported padding: " + algorithmPadding);
+                throw BallerinaErrors.createError("Unsupported padding: " + algorithmPadding);
         }
         return algorithmPadding;
     }

@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
@@ -56,7 +55,7 @@ public class DecodePrivateKey {
         PrivateKey privateKey;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore == null) {
-            throw new BallerinaException("Key store information is required");
+            return CryptoUtils.createCryptoError("Key store information is required");
         }
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
