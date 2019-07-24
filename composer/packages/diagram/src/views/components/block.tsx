@@ -76,7 +76,7 @@ export class Block extends React.Component<BlockNodeProps, { isHovered: boolean 
                             icon="endpoint"
                             model={element.viewState.bBox}
                             astModel={element}
-                            activeRange={[y, y + height]}
+                            activeRange={!element.caller ? [y, y + height] : undefined}
                         />;
                     })
                 }

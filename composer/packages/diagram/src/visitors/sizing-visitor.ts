@@ -46,17 +46,6 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    // public beginVisitVariableDef(node: VariableDef) {
-    //     if (ASTUtil.isWorker(node)) {
-    //         const variable = node.variable;
-    //         const lambda: Lambda = variable.initialExpression as Lambda;
-    //         const functionNode = lambda.functionNode;
-    //         if (functionNode.VisibleEndpoints) {
-    //             this.endpointHolder = [...functionNode.VisibleEndpoints, ...this.endpointHolder];
-    //         }
-    //     }
-    // }
-
     public beginVisitIf(node: If) {
         if (!node.viewState.hidden) {
             node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;

@@ -228,29 +228,15 @@ class PositioningVisitor implements Visitor {
 
         if (node.VisibleEndpoints) {
             // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
+            node.VisibleEndpoints
+                .filter((ep) => !ep.caller)
+                .forEach((endpoint: VisibleEndpoint) => {
+                    endpoint.viewState.bBox.x = this.epX;
+                    endpoint.viewState.bBox.y = this.epY;
+                    this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
+                });
         }
     }
-
-    // public beginVisitVariableDef(node: VariableDef) {
-    //     if (ASTUtil.isWorker(node)) {
-    //         const variable = node.variable;
-    //         const lambda: Lambda = variable.initialExpression as Lambda;
-    //         const functionNode = lambda.functionNode;
-    //         if (functionNode.VisibleEndpoints) {
-    //             // Position endpoints
-    //             functionNode.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-    //                 endpoint.viewState.bBox.x = this.epX;
-    //                 endpoint.viewState.bBox.y = this.epY;
-    //                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-    //             });
-    //         }
-    //     }
-    // }
 
     public beginVisitWhile(node: While) {
         const viewState: ViewState = node.viewState;
