@@ -167,7 +167,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:80}");
+                + " fileName:\"error_test.bal\", lineNumber:93}");
     }
 
     @Test
