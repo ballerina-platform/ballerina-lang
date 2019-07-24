@@ -29,8 +29,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sql.XADataSource;
 
@@ -47,7 +48,7 @@ public class SQLDatasource {
     private boolean xaConn;
     private boolean globalDatasource;
     private AtomicInteger clientCounter = new AtomicInteger(0);
-    private Semaphore mutex = new Semaphore(1);
+    private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
@@ -122,7 +123,7 @@ public class SQLDatasource {
         clientCounter.incrementAndGet();
     }
 
-    public void decrementClientCounterAndAttemptPoolShutdown() throws InterruptedException {
+    public void decrementClientCounterAndAttemptPoolShutdown() {
         acquireMutex();
         if (!poolShutdown) {
             if (clientCounter.decrementAndGet() == 0) {
@@ -132,12 +133,12 @@ public class SQLDatasource {
         releaseMutex();
     }
 
-    public void acquireMutex() throws InterruptedException {
-        mutex.acquire();
+    public void releaseMutex() {
+        mutex.unlock();
     }
 
-    public void releaseMutex() {
-        mutex.release();
+    public void acquireMutex() {
+        mutex.lock();
     }
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
