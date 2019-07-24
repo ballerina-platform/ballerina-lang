@@ -20,8 +20,10 @@ package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
@@ -30,6 +32,7 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 
 /**
@@ -84,5 +87,15 @@ public class RequestCompleted implements SenderState {
     public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                                    OutboundMsgHolder outboundMsgHolder) {
         onPushPromiseRead(ctx, http2PushPromise, http2ClientChannel, outboundMsgHolder);
+    }
+
+    @Override
+    public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
+                                    boolean serverPush) {
+        if (!serverPush) {
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        }
     }
 }

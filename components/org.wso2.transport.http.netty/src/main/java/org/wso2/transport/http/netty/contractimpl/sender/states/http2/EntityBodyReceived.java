@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
  * State of successfully read response.
@@ -103,5 +104,11 @@ public class EntityBodyReceived implements SenderState {
     public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                                    OutboundMsgHolder outboundMsgHolder) {
         LOG.warn("readInboundPromise is not a dependant action of this state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
+                                    boolean serverPush) {
+        LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
 }

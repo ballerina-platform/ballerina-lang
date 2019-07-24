@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
@@ -30,6 +31,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
@@ -44,6 +46,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.io.IOException;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initiateStream;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
@@ -112,6 +115,16 @@ public class SendingHeaders implements SenderState {
     public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                                    OutboundMsgHolder outboundMsgHolder) {
         LOG.warn("readInboundPromise is not a dependant action of this state");
+    }
+
+    @Override
+    public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
+                                    boolean serverPush) {
+        if (!serverPush) {
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        }
     }
 
     private void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {

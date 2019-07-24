@@ -31,17 +31,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE;
-import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
@@ -230,9 +229,12 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
 
         private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
             if (primary) {
-                msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+//                msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+//                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+//                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
+                        .handleStreamTimeout(ctx, msgHolder, false);
+
             } else {
                 msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
                         IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE,

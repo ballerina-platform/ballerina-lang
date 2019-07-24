@@ -58,7 +58,6 @@ public class TimeoutAfterRequestWrite {
 
     private HttpClientConnector httpClientConnector;
     private ServerConnector serverConnector;
-    private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -78,10 +77,11 @@ public class TimeoutAfterRequestWrite {
         future.sync();
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+        SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                           Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
         senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-
+//        senderConfiguration.setForceHttp2(true);
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
@@ -98,10 +98,10 @@ public class TimeoutAfterRequestWrite {
             Throwable error = listener.getHttpErrorMessage();
             AssertJUnit.assertNotNull(error);
             assertTrue(error instanceof EndpointTimeOutException,
-                    "Exception is not an instance of EndpointTimeOutException");
+                       "Exception is not an instance of EndpointTimeOutException");
             String result = error.getMessage();
             assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                    "Expected error message not received");
+                         "Expected error message not received");
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
         }
@@ -109,7 +109,6 @@ public class TimeoutAfterRequestWrite {
 
     @AfterClass
     public void cleanUp() {
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
         httpClientConnector.close();
         serverConnector.stop();
         try {
