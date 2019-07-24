@@ -218,7 +218,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -258,7 +258,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testIterableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
@@ -272,7 +272,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testIterableWitinIterableNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
