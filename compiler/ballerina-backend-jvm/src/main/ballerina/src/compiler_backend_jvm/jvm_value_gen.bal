@@ -49,8 +49,16 @@ public type ObjectGenerator object {
 
     // Private methods
 
-    private function getTypeValueClassName(string typeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
+    private function getTypeValueClassName(string typeName, bir:ModuleID? moduleId = ()) returns string {
+        if (moduleId is ()) {
+            return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
+        } else {
+            return getPackageName(moduleId.org, moduleId.name) + cleanupTypeName(typeName);
+        }
+    }
+
+    private function getClassName(string orgName, string moduleName, string typeName) returns string {
+        return getPackageName(orgName, moduleName) + cleanupTypeName(typeName);
     }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className,
@@ -379,7 +387,7 @@ public type ObjectGenerator object {
         // defualt values of the fields coming from the referenced types.
         foreach (bir:BType? typeRef in typeRefs) {
             if (typeRef is bir:BRecordType) {
-                string refTypeClassName = self.getTypeValueClassName(typeRef.name.value);
+                string refTypeClassName = self.getTypeValueClassName(typeRef.name.value, moduleId = typeRef.moduleId);
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }

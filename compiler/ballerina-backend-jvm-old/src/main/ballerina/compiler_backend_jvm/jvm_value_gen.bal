@@ -49,8 +49,12 @@ public type ObjectGenerator object {
 
     // Private methods
 
-    private function getTypeValueClassName(string typeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
+    private function getTypeValueClassName(string typeName, bir:ModuleID? moduleId = ()) returns string {
+        if (moduleId is ()) {
+            return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
+        } else {
+            return getPackageName(moduleId.org, moduleId.name) + cleanupTypeName(typeName);
+        }
     }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className,
@@ -319,6 +323,7 @@ public type ObjectGenerator object {
         }
 
         self.createRecordConstructor(cw, className);
+        self.createRecordInitWrapper(cw, className, typeDef.typeRefs);
         self.createLambdas(cw);
         cw.visitEnd();
         return cw.toByteArray();
@@ -327,6 +332,7 @@ public type ObjectGenerator object {
     private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
+                rewriteRecordInit(func);
                 generateMethod(func, cw, self.module, attachedType = self.currentRecordType);
             }
         }
@@ -340,26 +346,53 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         // load type
         mv.visitVarInsn(ALOAD, 1);
-
-        // invoke super(type);
+        // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        mv.visitVarInsn(ALOAD, 0);
 
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitTypeInsn(NEW, STRAND);
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
+        mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_4);
         //TODO remove this and load the strand from ALOAD
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
 
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
-                            "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // defualt values of the fields coming from the referenced types.
 
+        // Invoke the init-function of this type.
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 5);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:BType?[] typeRefs) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+                                              io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
+        mv.visitCode();
+        // load strand
+        mv.visitVarInsn(ALOAD, 0);
+        // load value
+        mv.visitVarInsn(ALOAD, 1);
+
+        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // defualt values of the fields coming from the referenced types.
+        foreach (bir:BType? typeRef in typeRefs) {
+            if (typeRef is bir:BRecordType) {
+                string refTypeClassName = self.getTypeValueClassName(typeRef.name.value, moduleId = typeRef.moduleId);
+                mv.visitInsn(DUP2);
+                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+            }
+        }
+
+        // Invoke the init-function of this type.
+        mv.visitMethodInsn(INVOKESTATIC, className, "__init_", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 };
