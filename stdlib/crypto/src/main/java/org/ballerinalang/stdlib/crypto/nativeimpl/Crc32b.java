@@ -24,9 +24,9 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
@@ -42,7 +42,7 @@ import java.util.zip.Checksum;
         functionName = "crc32b", isPublic = true)
 public class Crc32b {
 
-    public static String crc32b(Strand strand, Object entityBody) {
+    public static Object crc32b(Strand strand, Object entityBody) {
         Checksum checksum = new CRC32();
         byte[] bytes;
         long checksumVal;
@@ -55,7 +55,7 @@ public class Crc32b {
                 ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
             bytes = ((ArrayValue) entityBody).getBytes();
         } else {
-            throw new BallerinaException("Failed to generate hash: unsupported data type: " +
+            return CryptoUtils.createCryptoError("Failed to generate hash: unsupported data type: " +
                     TypeChecker.getType(entityBody).getName());
         }
 

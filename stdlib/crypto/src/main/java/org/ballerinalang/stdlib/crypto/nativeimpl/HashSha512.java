@@ -33,8 +33,8 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
         functionName = "hashSha512", isPublic = true)
 public class HashSha512 {
 
-    public static ArrayValue hashSha512(Strand strand, ArrayValue inputValue) {
-        return new ArrayValue(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
+    public static Object hashSha512(Strand strand, ArrayValue inputValue) {
+        return CryptoUtils.hash("SHA-512", inputValue.getBytes());
 
     }
 }

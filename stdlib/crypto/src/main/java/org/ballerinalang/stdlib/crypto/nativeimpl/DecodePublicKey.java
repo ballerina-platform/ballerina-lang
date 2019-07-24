@@ -109,13 +109,12 @@ public class DecodePublicKey {
                 }
                 return publicKeyMap;
             } else {
-                return CryptoUtils.createCryptoError("not a valid RSA key");
+                return CryptoUtils.createCryptoError("Not a valid RSA key");
             }
         } catch (FileNotFoundException e) {
-            throw new BallerinaException(
-                    "PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
+            return CryptoUtils.createCryptoError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
-            throw new BallerinaException("Unable to open keystore: " + e.getMessage());
+            return CryptoUtils.createCryptoError("Unable to open keystore: " + e.getMessage());
         }
     }
 }

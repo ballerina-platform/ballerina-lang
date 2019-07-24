@@ -34,8 +34,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 )
 public class HmacSha384 {
 
-    public static ArrayValue hmacSha384(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
-        byte[] output = CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes());
-        return new ArrayValue(output);
+    public static Object hmacSha384(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
+        return CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes());
     }
 }

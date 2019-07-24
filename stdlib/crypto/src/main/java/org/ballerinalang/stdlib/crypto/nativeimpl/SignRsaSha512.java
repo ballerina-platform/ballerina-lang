@@ -25,7 +25,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 
 /**
@@ -40,11 +39,7 @@ public class SignRsaSha512 {
 
     public static Object signRsaSha512(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {
         byte[] input = inputValue.getBytes();
-        try {
-            PrivateKey key = (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
-            return new ArrayValue(CryptoUtils.sign("SHA512withRSA", key, input));
-        } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("Uninitialized private key");
-        }
+        PrivateKey key = (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+        return CryptoUtils.sign("SHA512withRSA", key, input);
     }
 }
