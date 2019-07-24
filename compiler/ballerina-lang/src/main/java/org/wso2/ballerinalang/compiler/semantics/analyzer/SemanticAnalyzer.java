@@ -2297,6 +2297,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case INDEX_BASED_ACCESS_EXPR:
                 checkConstantExpression(((BLangIndexBasedAccess) expression).expr);
+                checkConstantExpression(((BLangIndexBasedAccess) expression).indexExpr);
                 break;
             default:
                 dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);

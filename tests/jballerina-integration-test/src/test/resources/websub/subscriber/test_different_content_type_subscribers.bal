@@ -19,12 +19,12 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/websub;
 
-listener websub:Listener websubEP = new websub:Listener(8282);
+listener websub:Listener websubEP = new websub:Listener(23282);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    hub: "http://localhost:9191/websub/hub",
+    hub: "http://localhost:23191/websub/hub",
     topic: "http://one.websub.topic.com",
     leaseSeconds: 3000,
     secret: "Kslk30SNF2AChs2"
@@ -59,7 +59,7 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
     subscribeOnStartUp:true,
-    hub: "http://localhost:9191/websub/hub",
+    hub: "http://localhost:23191/websub/hub",
     topic: "http://one.websub.topic.com",
     leaseSeconds: 1000
 }

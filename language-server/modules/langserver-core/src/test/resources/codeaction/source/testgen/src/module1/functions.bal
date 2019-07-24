@@ -43,7 +43,7 @@ public function returnJson(int n1, int n2, int n3) returns json {
 }
 
 function functionPointerAsParam(int a, function (int x, int y) returns (int) func) returns (int) {
-    int x = a + func.call(6, 70);
+    int x = a + func(6, 70);
     return x;
 }
 

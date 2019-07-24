@@ -40,13 +40,6 @@
       }
     },
     {
-      "label": "Type1",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "Type1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "pop()((any|error))",
       "kind": "Function",
       "detail": "Function",
@@ -217,13 +210,6 @@
       }
     },
     {
-      "label": "PureType",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "PureType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
@@ -341,13 +327,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "Type",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "Type",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "unshift(...(any|error))",
