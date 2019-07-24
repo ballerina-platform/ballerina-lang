@@ -36,7 +36,7 @@ public type MockDomainEvent record {
 @websub:SubscriberServiceConfig {
     path:"/key"
 }
-service keyWebhook on new WebhookServerForPayload(8585) {
+service keyWebhook on new WebhookServerForPayload(23585) {
     resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }
@@ -53,7 +53,7 @@ service keyWebhook on new WebhookServerForPayload(8585) {
 @websub:SubscriberServiceConfig {
     path:"/header"
 }
-service headerWebhook on new WebhookServerForHeader(8686) {
+service headerWebhook on new WebhookServerForHeader(23686) {
     resource function onIssue(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
@@ -72,7 +72,7 @@ service headerWebhook on new WebhookServerForHeader(8686) {
 @websub:SubscriberServiceConfig {
     path:"/headerAndPayload"
 }
-service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(8787) {
+service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(23787) {
     resource function onIssueCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Issue Created Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
             " action: ", event.action);
