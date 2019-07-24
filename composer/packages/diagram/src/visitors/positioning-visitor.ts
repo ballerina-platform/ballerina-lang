@@ -90,8 +90,6 @@ class PositioningVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
@@ -278,9 +276,9 @@ class PositioningVisitor implements Visitor {
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        if ((node as any).VisibleEndpoints) { // FIXME remove cast to any on While node to get VisibleEndpoints
+        // Position endpoints // FIXME remove cast to any on While node to get VisibleEndpoints
+            (node as any).VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
