@@ -24,8 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
+import java.nio.file.Paths;
 
 /**
  * An in-memory jar class loader.
@@ -36,32 +35,26 @@ import java.util.Collections;
 public class JBallerinaInMemoryClassLoader {
 
     private URLClassLoader cl;
-    
+
     public JBallerinaInMemoryClassLoader(Path testJarPath, File importsCache) {
         try {
-            URLClassLoader importCl = null;
+            int index = 0;
+            URL[] jars;
             if (importsCache.isDirectory()) {
                 String[] jarFIles = importsCache.list();
-                // TODO: fix the class loader ordering. reverseOrder work for now. but may break if 'b' depends on 'a'
-                Arrays.sort(jarFIles, Collections.reverseOrder());
+                jars = new URL[jarFIles.length + 1];
                 for (String file : jarFIles) {
-                    importCl = createClassLoader(new File(importsCache, file), importCl);
+                    jars[index++] = Paths.get(importsCache.getPath(), file).toUri().toURL();
                 }
+            } else {
+                jars = new URL[1];
             }
-            importCl = createClassLoader(testJarPath.toFile(), importCl);
-            cl = importCl;
+
+            jars[index] = testJarPath.toFile().toURI().toURL();
+            cl = new URLClassLoader(jars);
         } catch (MalformedURLException e) {
             throw new BLangCompilerException("error loading jar " + testJarPath, e);
         }
-    }
-
-    private URLClassLoader createClassLoader(File jarFile, URLClassLoader optParent) throws MalformedURLException {
-        if (optParent == null) {
-            optParent = new URLClassLoader(new URL[]{jarFile.toURI().toURL()});
-        } else {
-            optParent = new URLClassLoader(new URL[]{jarFile.toURI().toURL()}, optParent);
-        }
-        return optParent;
     }
 
     public Class<?> loadClass(String className) {

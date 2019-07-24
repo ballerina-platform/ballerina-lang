@@ -129,7 +129,7 @@ public class H2ClientActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:"
+                  ".*Error in sql connector configuration: "
                           + "Property INVALID_PARAM does not exist on target class org.h2.jdbcx.JdbcDataSource.*",
           groups = { H2_TEST_GROUP })
     public void testInitWithInvalidDbOptions() {

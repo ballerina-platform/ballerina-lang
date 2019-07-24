@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.sql.BatchUpdateException;
@@ -82,7 +81,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         }
 
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "execute batch update failed";
+        String errorMessagePrefix = "Failed to execute batch update";
         try {
             conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -120,7 +119,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    errorMessagePrefix += ", failed to rollback any changes happened in-between";
+                    errorMessagePrefix += " and failed to rollback the intermediate changes";
                 }
             }
             handleErrorOnTransaction(this.strand);
@@ -129,11 +128,6 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         } catch (SQLException e) {
              handleErrorOnTransaction(this.strand);
              //checkAndObserveSQLError(context, e.getMessage());
-            return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
-                    generatedKeys, ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix + ": "));
-        } catch (DatabaseException e) {
-            handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     generatedKeys, ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (ApplicationException e) {

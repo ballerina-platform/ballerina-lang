@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "setEntity()",
+      "label": "setEntity(mime:Entity e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "getQueryParamValue()((string|()))",
+      "label": "getQueryParamValue(string key)((string|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "getQueryParamValues()((string[]|()))",
+      "label": "getQueryParamValues(string key)((string[]|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "label": "getMatrixParams()(map\u003cany\u003e)",
+      "label": "getMatrixParams(string path)(map\u003cany\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "hasHeader()(boolean)",
+      "label": "hasHeader(string headerName)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "getHeader()(string)",
+      "label": "getHeader(string headerName)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -176,7 +176,7 @@
       }
     },
     {
-      "label": "getHeaders()(string[])",
+      "label": "getHeaders(string headerName)(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -193,7 +193,7 @@
       }
     },
     {
-      "label": "setHeader()",
+      "label": "setHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -210,7 +210,7 @@
       }
     },
     {
-      "label": "addHeader()",
+      "label": "addHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -227,7 +227,7 @@
       }
     },
     {
-      "label": "removeHeader()",
+      "label": "removeHeader(string key)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -295,7 +295,7 @@
       }
     },
     {
-      "label": "setContentType()((()|error))",
+      "label": "setContentType(string contentType)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -448,7 +448,7 @@
       }
     },
     {
-      "label": "setJsonPayload()",
+      "label": "setJsonPayload(json payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -465,7 +465,7 @@
       }
     },
     {
-      "label": "setXmlPayload()",
+      "label": "setXmlPayload(xml payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -482,7 +482,7 @@
       }
     },
     {
-      "label": "setTextPayload()",
+      "label": "setTextPayload(string payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -499,7 +499,7 @@
       }
     },
     {
-      "label": "setBinaryPayload()",
+      "label": "setBinaryPayload(byte[] payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -516,7 +516,7 @@
       }
     },
     {
-      "label": "setBodyParts()",
+      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -533,7 +533,7 @@
       }
     },
     {
-      "label": "setFileAsPayload()",
+      "label": "setFileAsPayload(string filePath, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -550,7 +550,7 @@
       }
     },
     {
-      "label": "setByteChannel()",
+      "label": "setByteChannel(io:ReadableByteChannel payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -567,7 +567,7 @@
       }
     },
     {
-      "label": "setPayload()",
+      "label": "setPayload((string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) payload)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

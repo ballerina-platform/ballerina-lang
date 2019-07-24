@@ -23,7 +23,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.remoteServer.util.CloudNotifier;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
@@ -38,14 +41,15 @@ import java.nio.file.Paths;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
-import static io.ballerina.plugins.idea.preloading.OperatingSystemUtils.getOperatingSystem;
+import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 
 /**
  * Preloading Activity of ballerina plugin.
  */
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
-    private static final Logger LOGGER = Logger.getInstance(BallerinaPreloadingActivity.class);
+    private static final Logger LOG = Logger.getInstance(BallerinaPreloadingActivity.class);
+    private static CloudNotifier notifier = new CloudNotifier("Ballerina Home Auto Detection");
 
     /**
      * Preloading of the ballerina plugin.
@@ -90,47 +94,63 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static boolean registerServerDefinition(Project project) {
 
+        boolean autoDetected = false;
+
+        //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
-        if (balSdk.hasLangServerSupport()) {
-            return doRegister(balSdk.getSdkPath());
+        String balSdkPath = balSdk.getSdkPath();
+
+        // Checks for the user-configured auto detection settings.
+        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+
+            //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
+            ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
+                    "No ballerina SDK is found for project: %s\n Trying to Auto detect Ballerina Home...",
+                    project.getBasePath()), MessageType.INFO));
+
+            balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            autoDetected = true;
+        }
+
+        if (!Strings.isNullOrEmpty(balSdkPath)) {
+            boolean success = doRegister(project, balSdkPath);
+            if (success && autoDetected) {
+                LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
+                        balSdkPath, project.getBasePath()));
+                String finalBalSdkPath = balSdkPath;
+                ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
+                        "Auto-Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
+            }
+            return success;
+        } else {
+            if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                ApplicationManager.getApplication().invokeLater(() ->
+                        notifier.showMessage("Auto-Detection Failed", MessageType.WARNING));
+            }
         }
         return false;
     }
 
-    private static boolean doRegister(@NotNull String sdkPath) {
-        String os = OperatingSystemUtils.getOperatingSystem();
+    private static boolean doRegister(@NotNull Project project, @NotNull String sdkPath) {
+        String os = OSUtils.getOperatingSystem();
         if (os != null) {
             String args = null;
-            if (os.equals(OperatingSystemUtils.UNIX) || os.equals(OperatingSystemUtils.MAC)) {
+            if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
                 args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString();
-            } else if (os.equals(OperatingSystemUtils.WINDOWS)) {
+            } else if (os.equals(OSUtils.WINDOWS)) {
                 args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString();
             }
 
             if (!Strings.isNullOrEmpty(args)) {
-                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal", new String[]{args}));
+                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
+                        new String[]{args}), project);
                 IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
-                LOGGER.info("registered language server definition using Sdk path: " + sdkPath);
+                LOG.info("Registered language server definition using Sdk path: " + sdkPath);
                 return true;
             }
             return false;
         }
         return false;
-    }
-
-    private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
-        BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
-        if (balSdk.getSdkPath() == null) {
-            return;
-        }
-        Path balxPath = Paths.get(balSdk.getSdkPath(), BALLERINAX_SOURCE_PATH);
-        if (balxPath.toFile().isDirectory()) {
-            if (status == ProjectStatus.OPENED) {
-                BallerinaPathModificationTracker.addPath(balxPath.toString());
-            } else if (status == ProjectStatus.CLOSED) {
-                BallerinaPathModificationTracker.removePath(balxPath.toString());
-            }
-        }
     }
 
     /**
@@ -140,18 +160,31 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         try {
             String os = getOperatingSystem();
             if (os == null) {
-                LOGGER.error("unsupported operating system");
+                LOG.error("unsupported operating system");
                 return;
             }
             Terminator terminator = new TerminatorFactory().getTerminator(os);
             if (terminator == null) {
-                LOGGER.error("unsupported operating system");
+                LOG.error("unsupported operating system");
                 return;
             }
             terminator.terminate();
-
         } catch (Exception e) {
-            LOGGER.error("Error occurred", e);
+            LOG.error("Error occurred", e);
+        }
+    }
+
+    private static void updateBallerinaPathModificationTracker(Project project, ProjectStatus status) {
+        String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
+        if (balSdkPath != null) {
+            Path balxPath = Paths.get(balSdkPath, BALLERINAX_SOURCE_PATH);
+            if (balxPath.toFile().isDirectory()) {
+                if (status == ProjectStatus.OPENED) {
+                    BallerinaPathModificationTracker.addPath(balxPath.toString());
+                } else if (status == ProjectStatus.CLOSED) {
+                    BallerinaPathModificationTracker.removePath(balxPath.toString());
+                }
+            }
         }
     }
 

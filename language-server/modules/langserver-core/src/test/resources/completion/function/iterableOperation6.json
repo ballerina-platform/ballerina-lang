@@ -6,7 +6,7 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "add()((()|error))",
+      "label": "add(any data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -21,16 +21,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "RowType",
-      "kind": "Keyword",
-      "detail": "Map",
-      "documentation": {
-        "left": "The type bound for a table row."
-      },
-      "insertText": "RowType",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "hasNext()(boolean)",
@@ -67,7 +57,7 @@
       }
     },
     {
-      "label": "remove()((int|error))",
+      "label": "remove(function (any) returns (boolean) func)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

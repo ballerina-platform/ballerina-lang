@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/log;
 import ballerina/internal;
+import ballerina/log;
 
 # Constant for empty string.
 const string EMPTY_STRING = "";

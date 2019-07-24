@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -324,7 +325,8 @@ public class FilterUtils {
     private static Map<Name, Scope.ScopeEntry> getScopeEntriesForSymbol(BType symbolType, LSContext context) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        
+        Types types = Types.getInstance(compilerContext);
+
         /*
         LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
         from the object symbol itself
@@ -335,8 +337,8 @@ public class FilterUtils {
             entries.putAll(objectTypeSymbol.scope.entries);
             return entries;
         }
-        
-        Map<Name, Scope.ScopeEntry> entries = lookupInLangModules(symbolType.tag, symbolTable);
+
+        Map<Name, Scope.ScopeEntry> entries = getLangLibScopeEntries(symbolType, symbolTable, types);
         if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
             entries.putAll(symbolType.tsymbol.scope.entries);
         }
@@ -357,10 +359,18 @@ public class FilterUtils {
 
         }).findAny();
     }
-    
-    private static Map<Name, Scope.ScopeEntry> lookupInLangModules(int typeTag, SymbolTable symTable) {
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-        switch (typeTag) {
+
+    /**
+     * Retrieve lang-lib scope entries for this typeTag.
+     *
+     * @param bType   {@link BType}
+     * @param symTable  {@link SymbolTable}
+     * @param types {@link Types} analyzer
+     * @return  map of scope entries
+     */
+    public static Map<Name, Scope.ScopeEntry> getLangLibScopeEntries(BType bType, SymbolTable symTable, Types types) {
+        Map<Name, Scope.ScopeEntry> entries = new HashMap<>(symTable.langValueModuleSymbol.scope.entries);
+        switch (bType.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 entries.putAll(symTable.langArrayModuleSymbol.scope.entries);
@@ -410,9 +420,10 @@ public class FilterUtils {
             BSymbol symbol = entry.getValue().symbol;
             if (symbol instanceof BInvokableSymbol) {
                 List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
-                return params.isEmpty() || params.get(0).type.tag == typeTag;
+                return params.isEmpty() || params.get(0).type.tag == bType.tag ||
+                        (types.isAssignable(params.get(0).type, bType));
             }
-            return true;
+            return symbol.kind != null;
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
