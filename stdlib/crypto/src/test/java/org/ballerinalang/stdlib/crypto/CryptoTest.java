@@ -102,7 +102,7 @@ public class CryptoTest {
     public void testHmacNegativeInvalidKey() {
         BValue[] args = {new BValueArray("Ballerina HMAC test".getBytes(StandardCharsets.UTF_8)),
                 new BValueArray("".getBytes(StandardCharsets.UTF_8))};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
+        BRunUtil.invoke(compileResult, "testHmacWithSHA1", args);
     }
 
     @Test(description = "Test hashing functions")

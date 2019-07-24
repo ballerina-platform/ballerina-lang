@@ -16,27 +16,27 @@
 
 import ballerina/crypto;
 
-function testHashWithCRC32b(byte[] input) returns string {
+function testHashWithCRC32b(byte[] input) returns string|crypto:Error {
     return crypto:crc32b(input);
 }
 
-function testHashWithMD5(byte[] input) returns byte[] {
+function testHashWithMD5(byte[] input) returns byte[]|crypto:Error {
     return crypto:hashMd5(input);
 }
 
-function testHashWithSHA1(byte[] input) returns byte[] {
+function testHashWithSHA1(byte[] input) returns byte[]|crypto:Error {
     return crypto:hashSha1(input);
 }
 
-function testHashWithSHA256(byte[] input) returns byte[] {
+function testHashWithSHA256(byte[] input) returns byte[]|crypto:Error {
     return crypto:hashSha256(input);
 }
 
-function testHashWithSHA384(byte[] input) returns byte[] {
+function testHashWithSHA384(byte[] input) returns byte[]|crypto:Error {
     return crypto:hashSha384(input);
 }
 
-function testHashWithSHA512(byte[] input) returns byte[] {
+function testHashWithSHA512(byte[] input) returns byte[]|crypto:Error {
     return crypto:hashSha512(input);
 }
 
