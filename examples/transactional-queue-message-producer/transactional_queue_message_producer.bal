@@ -27,12 +27,12 @@ public function main() {
         if (msg is jms:Message) {
             var err = msg.setPayload("Hello from Ballerina");
             if (err is error) {
-                log:printError("Unable to set payload" , err = err);
+                log:printError("Unable to set payload" , err);
             }
             // Send the message to the JMS provider.
             var result = queueSender->send(msg);
             if (result is error) {
-                log:printError("Error occurred while sending message", err = result);
+                log:printError("Error occurred while sending message", result);
             }
         } else {
             log:printError("Error occurred while creating message",
