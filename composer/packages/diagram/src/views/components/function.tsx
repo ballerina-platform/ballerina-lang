@@ -1,6 +1,6 @@
 import {
     ASTUtil, Function as FunctionNode, Identifier,
-    Literal, Variable, VariableDef, VisibleEndpoint
+    Literal, Variable, VariableDef
 } from "@ballerina/ast-model";
 import { BallerinaEndpoint } from "@ballerina/lang-service";
 import * as React from "react";
@@ -72,13 +72,6 @@ export const Function = (props: { model: FunctionNode }) => {
                 />
             }
             {model.body && <Block model={model.body} />}
-            {model.VisibleEndpoints && model.VisibleEndpoints
-                .filter((element) => element.viewState.visible)
-                .map((element: VisibleEndpoint) => {
-                    return <LifeLine title={element.name} icon="endpoint"
-                        model={element.viewState.bBox} astModel={element.caller ? model.parameters[0] : element } />;
-                })
-            }
             <DiagramContext.Consumer>
                 {({ ast }) => (
                     <AddWorkerOrEndpointMenu

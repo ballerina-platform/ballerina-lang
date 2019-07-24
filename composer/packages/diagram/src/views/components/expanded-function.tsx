@@ -101,7 +101,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                     client={client} />;
                             })}
                             <Block model={model.body} />
-                            {model.VisibleEndpoints && model.VisibleEndpoints
+                            {model.body.VisibleEndpoints && model.body.VisibleEndpoints
                                 .filter((element) => element.viewState.visible)
                                 .map((element: VisibleEndpoint) => {
                                     return <LifeLine title={element.name} icon="endpoint"

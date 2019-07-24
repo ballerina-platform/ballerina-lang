@@ -13,7 +13,7 @@ import { Return } from "./return";
 
 export interface BlockNodeProps {
     model: BlockNode;
-    visibleEndpoints?: VisibleEndpoint[];
+    visibleEPFilter?: (ep: VisibleEndpoint) => boolean;
 }
 
 export class Block extends React.Component<BlockNodeProps, { isHovered: boolean }> {
@@ -23,7 +23,7 @@ export class Block extends React.Component<BlockNodeProps, { isHovered: boolean 
     };
 
     public render() {
-        const { model, visibleEndpoints }  = this.props;
+        const { model, visibleEPFilter = () => true }  = this.props;
         const { isHovered } = this.state;
         const statements: React.ReactNode[] = [];
         const viewState: BlockViewState = model.viewState;
@@ -67,8 +67,9 @@ export class Block extends React.Component<BlockNodeProps, { isHovered: boolean 
                 />
                 {statements}
                 {...additionalComponents}
-                {visibleEndpoints && visibleEndpoints
+                {model.VisibleEndpoints && model.VisibleEndpoints
                     .filter((element) => element.viewState.visible)
+                    .filter(visibleEPFilter)
                     .map((element: VisibleEndpoint) => {
                         return <LifeLine
                             title={element.name}
