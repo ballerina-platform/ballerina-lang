@@ -995,8 +995,12 @@ public class FormattingNodeTree {
                 JsonObject wsItem = item.getAsJsonObject();
                 if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)) {
+                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
+                            || text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.OBJECT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.TYPEDESC)) {
+                        wsItem.addProperty(FormattingConstants.WS,
+                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
                     }
                 }
             }
@@ -3567,7 +3571,7 @@ public class FormattingNodeTree {
                                         this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
                                                 .getAsInt()));
                             } else {
-                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             }
                         } else if (text.equals(Tokens.OPENING_BRACE) || text.equals(Tokens.SEAL_OPENING)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
