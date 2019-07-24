@@ -15,36 +15,7 @@
 // under the License.
 
 import ballerina/artemis;
-
-public function createSimpleConsumer() returns artemis:Consumer|error {
-    artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
-    return lis.createAndGetConsumer({queueName: "example"});
-}
-
-public function transactionSimpleConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
-    string msgTxt = "";
-    msgTxt += receiveAndGetText(consumer);
-    transaction {
-       msgTxt += receiveAndGetText(consumer);
-    }
-    return msgTxt;
-}
-
-public function createConsumer() returns artemis:Consumer|error {
-    artemis:Connection connection = new("tcp://localhost:61616");
-    artemis:Session sess = new(connection, {autoCommitAcks: false});
-    artemis:Listener lis = new artemis:Listener(sess);
-    return lis.createAndGetConsumer({queueName: "example2"});
-}
-
-public function transactionConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
-    string msgTxt = "";
-    transaction {
-       msgTxt += receiveAndGetText(consumer);
-       msgTxt += receiveAndGetText(consumer);
-    }
-    return msgTxt;
-}
+import ballerina/io;
 
 public function createErringConsumer() returns artemis:Consumer|error {
     artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
@@ -61,4 +32,29 @@ public function receiveAndGetText(artemis:Consumer consumer) returns @tainted st
         }
     }
     return msgTxt;
+}
+
+public function erringSend() {
+    artemis:Producer prod = new({host: "localhost", port: 61616}, "example3");
+    send(prod);
+    transaction {
+        send(prod);
+    }
+}
+
+function send(artemis:Producer prod) {
+    var err = prod->send("Example ");
+    if (err is error) {
+        io:println("Error occurred while sending the message");
+    }
+}
+
+function testErringSend() returns @tainted string {
+    string txt = "";
+    var consumer = createErringConsumer();
+    erringSend();
+    if (consumer is artemis:Consumer) {
+        txt = receiveAndGetText(consumer);
+    }
+    return txt;
 }

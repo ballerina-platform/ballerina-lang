@@ -273,7 +273,7 @@
             <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
             <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
-<!--        <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
+            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
         </classes>
     </test>
