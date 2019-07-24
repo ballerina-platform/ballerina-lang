@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.State;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,9 +37,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD;
-import static org.ballerinalang.jvm.values.State.RUNNABLE;
-import static org.ballerinalang.jvm.values.State.YIELD;
+import static org.ballerinalang.jvm.scheduling.State.BLOCK_AND_YIELD;
+import static org.ballerinalang.jvm.scheduling.State.BLOCK_ON_AND_YIELD;
+import static org.ballerinalang.jvm.scheduling.State.RUNNABLE;
+import static org.ballerinalang.jvm.scheduling.State.YIELD;
 
 /**
  * Strand base class used with jvm code generation for functions.
@@ -53,7 +53,6 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
-    public CopyOnWriteArrayList<Strand> blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
@@ -77,7 +76,6 @@ public class Strand {
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
-        this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new HashSet<>();
         this.globalProps = new HashMap<>();
         this.state = RUNNABLE;
@@ -202,7 +200,7 @@ public class Strand {
                 ctx.waitCount.decrementAndGet();
                 target.put(entry.getKey(), future.result);
             } else {
-                this.setState(BLOCK_AND_YIELD);
+                this.setState(BLOCK_ON_AND_YIELD);
                 entry.getValue().strand.waitingContexts.add(ctx);
             }
             future.strand.unlock();
@@ -258,7 +256,7 @@ public class Strand {
             waitResult = new WaitResult(true, error);
         } else {
             this.waitContext = ctx;
-            this.setState(BLOCK_AND_YIELD);
+            this.setState(BLOCK_ON_AND_YIELD);
         }
         ctx.unLock();
 
@@ -291,6 +289,10 @@ public class Strand {
 
     public boolean isBlocked() {
         return (this.state.getStatus() & BLOCK_AND_YIELD.getStatus()) == BLOCK_AND_YIELD.getStatus();
+    }
+
+    public boolean isBlockedOn() {
+        return (this.state.getStatus() & BLOCK_ON_AND_YIELD.getStatus()) == BLOCK_ON_AND_YIELD.getStatus();
     }
 
     public boolean isYielded() {

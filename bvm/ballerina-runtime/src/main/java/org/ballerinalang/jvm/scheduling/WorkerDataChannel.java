@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.jvm.scheduling;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.LinkedList;
@@ -25,7 +24,7 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.ballerinalang.jvm.values.State.BLOCK_AND_YIELD;
+import static org.ballerinalang.jvm.scheduling.State.BLOCK_AND_YIELD;
 
 /**
  * This represents a worker data channel that is created for each worker to

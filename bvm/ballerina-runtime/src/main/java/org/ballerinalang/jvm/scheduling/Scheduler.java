@@ -20,7 +20,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.State;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,36 +215,35 @@ public class Scheduler {
 
             switch (item.getState()) {
                 case BLOCK_AND_YIELD:
-                    if (item.future.strand.waitContext == null || !item.future.strand.waitContext.intermediate) {
-                        if (DEBUG) {
-                            debugLog(item + " blocked");
-                        }
-                        item.future.strand.lock();
-                        if (unblockedList.remove(item.future.strand)) {
-                            if (DEBUG) {
-                                debugLog(item + " releasing from unblockedList");
-                            }
-                            reschedule(item);
-                            item.future.strand.unlock();
-                            break;
-                        } else {
-                            blockedOnUnknownList.put(item.future.strand, item);
-                        }
-                        item.future.strand.unlock();
-                    } else {
-                        WaitContext ctx = item.future.strand.waitContext;
-                        ctx.lock();
-                        ctx.intermediate = false;
-                        if (ctx.runnable) {
-                            ctx.completed = true;
-                            reschedule(item);
-                        } else {
-                            if (DEBUG) {
-                                debugLog(item + " waiting");
-                            }
-                        }
-                        ctx.unLock();
+                    if (DEBUG) {
+                        debugLog(item + " blocked");
                     }
+                    item.future.strand.lock();
+                    if (unblockedList.remove(item.future.strand)) {
+                        if (DEBUG) {
+                            debugLog(item + " releasing from unblockedList");
+                        }
+                        reschedule(item);
+                        item.future.strand.unlock();
+                        break;
+                    } else {
+                        blockedOnUnknownList.put(item.future.strand, item);
+                    }
+                    item.future.strand.unlock();
+                    break;
+                case BLOCK_ON_AND_YIELD:
+                    WaitContext waitContext = item.future.strand.waitContext;
+                    waitContext.lock();
+                    waitContext.intermediate = false;
+                    if (waitContext.runnable) {
+                        waitContext.completed = true;
+                        reschedule(item);
+                    } else {
+                        if (DEBUG) {
+                            debugLog(item + " waiting");
+                        }
+                    }
+                    waitContext.unLock();
                     break;
                 case YIELD:
                     reschedule(item);
@@ -317,17 +315,16 @@ public class Scheduler {
     private void cleanUp(Strand justCompleted) {
         justCompleted.scheduler = null;
         justCompleted.frames = null;
-        assert justCompleted.blockedOn.size() == 0;
-        justCompleted.blockedOn = null;
+        justCompleted.waitingContexts = null;
         //TODO: more cleanup , eg channels
     }
 
     private synchronized void debugLog(String msg) {
-//        try {
-//            Thread.sleep(1);
+        try {
+            Thread.sleep(100);
             DEBUG_LOG.add(msg);
-//            Thread.sleep(1);
-//        } catch (InterruptedException ignored) { }
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) { }
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
@@ -441,15 +438,8 @@ class SchedulerItem {
         return this.future.strand.getState();
     }
 
-    public List<Strand> blockedOn() {
-        return this.future.strand.blockedOn;
-    }
-
     public void setState(State state) {
         this.future.strand.setState(state);
-        if (state.equals(State.RUNNABLE)) {
-            this.future.strand.blockedOn.clear();
-        }
     }
 
     @Override

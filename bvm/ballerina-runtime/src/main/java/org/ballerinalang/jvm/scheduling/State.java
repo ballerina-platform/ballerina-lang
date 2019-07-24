@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.jvm.values;
+package org.ballerinalang.jvm.scheduling;
 
  public enum State {
      RUNNABLE(1),
      YIELD(1 << 1),
      BLOCK_AND_YIELD(YIELD.status | (1 << 2)),
-     BLOCK_AND_YIELD_ON_EXTERN(BLOCK_AND_YIELD.status | (1 << 3)),
+     BLOCK_ON_AND_YIELD(BLOCK_AND_YIELD.status | (1 << 3)),
      DONE(1 << 4);
 
      private int status;

@@ -34,6 +34,7 @@ import java.io.PrintStream;
  *
  * @since 0.990.4
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class ArgumentParserPositiveTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
