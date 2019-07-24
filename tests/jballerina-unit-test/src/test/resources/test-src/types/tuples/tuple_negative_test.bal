@@ -92,3 +92,10 @@ function testInvalidInsertionToTupleUsingFiniteType() {
     var d = tuple[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S2'
     var e = tuple[f5]; // invalid tuple index expression: value space '3|4|5|6' out of range
 }
+
+const INDEX_NEG_ONE = -1;
+
+function testInvalidConstIndex() {
+    [string, int] tuple = ["str", 2];
+    var v = tuple[INDEX_NEG_ONE];
+}
