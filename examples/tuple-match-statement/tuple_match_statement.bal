@@ -1,8 +1,8 @@
 import ballerina/io;
 
 public function main() {
-    // In this example, there are four different variables are created and they will be used with
-    // the `basicMatch()` function, which does the match.
+    // In this example, four variables are created and they will be matched against
+    // the patterns given in the `match` statement of the `basicMatch()` function.
     (string, int)|(float, string, boolean)|float a1 = 66.6;
     (string, int)|(float, string, boolean)|float a2 = ("Hello", 12);
     (float, boolean)|(float, string, boolean)|float a3 = (4.5, true);
@@ -13,8 +13,9 @@ public function main() {
     basicMatch(a3);
     basicMatch(a4);
 
-    // In this example, there are five different variables created and they will be used
-    // with the 'matchWithTypeGuard()' function, which does the match along with type guard conditions.
+    // In this example, five variables are created and they will be matched
+    // against the match-guarded patterns given in the `match` statement of the 'matchWithTypeGuard()' function.
+   
     (string, int)|(boolean, int)|(int, boolean)|int|float b1 = ("Hello", 45);
     (string, int)|(float, boolean)|(int, boolean)|int|float b2 = (4.5, true);
     (float, boolean)|(boolean, int)|(int, boolean)|int|float b3 = (false, 4);
@@ -28,28 +29,33 @@ public function main() {
     matchWithTypeGuard(b5);
 }
 
-// This method uses structured tuple match patterns with different sizes. The given `match` expression
-// will be checked for "isLike" relationship and will be matched at runtime.
+// This method uses tuple match patterns of different sizes. The `match` expression `a`
+// will be matched against the given pattern list at run time based on the 
+// "is-like" relationship between the expression and a pattern. 
+
+
 function basicMatch(any a) {
     match a {
-        // This pattern check is for a tuple type of three variables and types can be of any.
+        // This pattern check is for a tuple type of three variables of type 'any'.
         var (s, i, b) => io:println("Matched with three vars : "
                                     + io:sprintf("%s", a));
-        // This pattern check is for a tuple type of two variables and types can be of any.
+        // This pattern check is for a tuple type of two variables of type 'any'.
         var (s, i) => io:println("Matched with two vars : "
                                     + io:sprintf("%s", a));
-        // This pattern check is for a single variable which can be of type `any`. This has to be the last pattern.
+        // This pattern check is for a single variable of type 'any`. This has to be the last pattern.
         var s => io:println("Matched with single var : "
                                     + io:sprintf("%s", a));
     }
 }
 
-// This method uses structured tuple match patterns with different sizes along with type guards. The given
-// `match` expression will be checked for "isLike" relationship and also it will check the type guard for the pattern
-// to match at runtime.
+// This method uses match-guarded tuple match patterns of different sizes. 
+// The `match` expression `b` will be matched against the given pattern list at run time
+// based on the "is-like" relationship between the expression and a pattern,
+// considering the constraints specified by the match guards as well.
+
 function matchWithTypeGuard(any b) {
     match b {
-        // This pattern check is for a tuple type of two variables and types has to be `string` and `int`.
+        // This pattern check is for a tuple type of two variables of the types `string` and `int` respectively.
         var (s, i) if (s is string && i is int) =>
            io:println("'s' is string and 'i' is int : " + io:sprintf("%s", b));
         // This pattern check is for a tuple type of two variables and the first variable should be of the type `float`.
