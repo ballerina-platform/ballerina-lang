@@ -88,7 +88,7 @@ public class GetPositionOffset {
                 position = kafkaConsumer.position(tp);
             }
             return position;
-        } catch (IllegalStateException|KafkaException e) {
+        } catch (IllegalStateException | KafkaException e) {
             return createError("Failed to retrieve position offset: " + e.getMessage(), CONSUMER_ERROR);
         }
     }

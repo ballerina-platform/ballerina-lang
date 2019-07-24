@@ -44,16 +44,105 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.jvm.BallerinaValues.createRecord;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_CONCURRENT_CONSUMERS;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DECOUPLE_PROCESSING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_POLLING_INTERVAL;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_POLLING_TIMEOUT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPICS;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_AUTO_OFFSET_RESET_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CHECK_CRCS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CLIENT_ID_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_DEFAULT_API_TIMEOUT_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ENABLE_AUTO_COMMIT_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_FETCH_MAX_BYTES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_FETCH_MAX_WAIT_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_FETCH_MIN_BYTES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_GROUP_ID_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_INTERCEPTOR_CLASSES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ISOLATION_LEVEL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_MAX_POLL_RECORDS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_METADATA_MAX_AGE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_METRICS_NUM_SAMPLES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_METRICS_RECORDING_LEVEL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_METRIC_REPORTER_CLASSES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_PARTITION_ASSIGNMENT_STRATEGY_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECEIVE_BUFFER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECONNECT_BACKOFF_MS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECORD_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_REQUEST_TIMEOUT_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RETRY_BACKOFF_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SEND_BUFFER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SESSION_TIMEOUT_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DEFAULT_KEY_DESERIALIZER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DEFAULT_KEY_SERIALIZER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DEFAULT_VALUE_DESERIALIZER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DEFAULT_VALUE_SERIALIZER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DETAIL_RECORD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ENABLED_PROTOCOLS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYMANAGER_ALGORITHM_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_TYPE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.LOCATION_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.OFFSET_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PASSWORD_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ACKS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_BATCH_SIZE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_BOOTSTRAP_SERVERS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_BUFFER_MEMORY_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_CLIENT_ID_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_COMPRESSION_TYPE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ENABLE_IDEMPOTENCE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_INTERCEPTOR_CLASSES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_LINGER_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_MAX_BLOCK_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_MAX_REQUEST_SIZE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_METADATA_MAX_AGE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_METRICS_NUM_SAMPLES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_METRICS_RECORDING_LEVEL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_METRIC_REPORTER_CLASSES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_PARTITIONER_CLASS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_RECEIVE_BUFFER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_RECONNECT_BACKOFF_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_RETRIES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_RETRY_BACKOFF_MS_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_SEND_BUFFER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_TRANSACTION_TIMEOUT_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURITY_PROTOCOL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_CIPHER_SUITES_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_KEY_PASSWORD_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_PROTOCOL_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_PROVIDER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TOPIC_PARTITION_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTMANAGER_ALGORITHM_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_TYPE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 
 /**
  * Utility class for Kafka Connector Implementation.
@@ -78,8 +167,10 @@ public class KafkaUtils {
             ArrayValue partitionOffsetsArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
             records.forEach(record -> {
                 MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(), record.partition());
-                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition, record.offset());
+                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
+                        record.partition());
+                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
+                        record.offset());
 
                 consumerRecordsArray.append(consumerRecord);
                 partitionOffsetsArray.append(partitionOffset);
@@ -92,135 +183,136 @@ public class KafkaUtils {
         Properties properties = new Properties();
 
         addStringParamIfPresent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ConsumerConfig.GROUP_ID_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_GROUP_ID_CONFIG);
+                CONSUMER_GROUP_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_AUTO_OFFSET_RESET_CONFIG);
+                CONSUMER_AUTO_OFFSET_RESET_CONFIG);
         addStringParamIfPresent(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_PARTITION_ASSIGNMENT_STRATEGY_CONFIG);
+                CONSUMER_PARTITION_ASSIGNMENT_STRATEGY_CONFIG);
         addStringParamIfPresent(ConsumerConfig.METRICS_RECORDING_LEVEL_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_METRICS_RECORDING_LEVEL_CONFIG);
+                CONSUMER_METRICS_RECORDING_LEVEL_CONFIG);
         addStringParamIfPresent(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_METRIC_REPORTER_CLASSES_CONFIG);
+                CONSUMER_METRIC_REPORTER_CLASSES_CONFIG);
         addStringParamIfPresent(ConsumerConfig.CLIENT_ID_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_CLIENT_ID_CONFIG);
+                CONSUMER_CLIENT_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_INTERCEPTOR_CLASSES_CONFIG);
+                CONSUMER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ConsumerConfig.ISOLATION_LEVEL_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_ISOLATION_LEVEL_CONFIG);
+                CONSUMER_ISOLATION_LEVEL_CONFIG);
 
-        addStringArrayParamIfPresent(KafkaConstants.ALIAS_TOPICS, configurations, properties, KafkaConstants.ALIAS_TOPICS);
-        addStringArrayParamIfPresent(KafkaConstants.PROPERTIES_ARRAY, configurations, properties, KafkaConstants.PROPERTIES_ARRAY);
+        addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
+                ALIAS_TOPICS);
+        addStringArrayParamIfPresent(PROPERTIES_ARRAY, configurations, properties, PROPERTIES_ARRAY);
 
         addIntParamIfPresent(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_SESSION_TIMEOUT_MS_CONFIG);
+                CONSUMER_SESSION_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG);
+                CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.METADATA_MAX_AGE_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_METADATA_MAX_AGE_CONFIG);
+                CONSUMER_METADATA_MAX_AGE_CONFIG);
         addIntParamIfPresent(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG);
+                CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG);
+                CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.SEND_BUFFER_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_SEND_BUFFER_CONFIG);
+                CONSUMER_SEND_BUFFER_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECEIVE_BUFFER_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_RECEIVE_BUFFER_CONFIG);
+                CONSUMER_RECEIVE_BUFFER_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_FETCH_MIN_BYTES_CONFIG);
+                CONSUMER_FETCH_MIN_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_FETCH_MAX_BYTES_CONFIG);
+                CONSUMER_FETCH_MAX_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_FETCH_MAX_WAIT_MS_CONFIG);
+                CONSUMER_FETCH_MAX_WAIT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_RECONNECT_BACKOFF_MS_CONFIG);
+                CONSUMER_RECONNECT_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_RETRY_BACKOFF_MS_CONFIG);
+                CONSUMER_RETRY_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
+                CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
 
         addIntParamIfPresent(ConsumerConfig.METRICS_NUM_SAMPLES_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_METRICS_NUM_SAMPLES_CONFIG);
+                CONSUMER_METRICS_NUM_SAMPLES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
+                CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
+                CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_MAX_POLL_RECORDS_CONFIG);
+                CONSUMER_MAX_POLL_RECORDS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG);
+                CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
+                CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_DEFAULT_API_TIMEOUT_CONFIG);
+                CONSUMER_DEFAULT_API_TIMEOUT_CONFIG);
 
-        addIntParamIfPresent(KafkaConstants.ALIAS_POLLING_TIMEOUT, configurations, properties, KafkaConstants.ALIAS_POLLING_TIMEOUT);
-        addIntParamIfPresent(KafkaConstants.ALIAS_POLLING_INTERVAL, configurations, properties, KafkaConstants.ALIAS_POLLING_INTERVAL);
-        addIntParamIfPresent(KafkaConstants.ALIAS_CONCURRENT_CONSUMERS, configurations, properties, KafkaConstants.ALIAS_CONCURRENT_CONSUMERS);
+        addIntParamIfPresent(ALIAS_POLLING_TIMEOUT, configurations, properties, ALIAS_POLLING_TIMEOUT);
+        addIntParamIfPresent(ALIAS_POLLING_INTERVAL, configurations, properties, ALIAS_POLLING_INTERVAL);
+        addIntParamIfPresent(ALIAS_CONCURRENT_CONSUMERS, configurations, properties, ALIAS_CONCURRENT_CONSUMERS);
 
         addBooleanParamIfPresent(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_ENABLE_AUTO_COMMIT_CONFIG, true);
+                CONSUMER_ENABLE_AUTO_COMMIT_CONFIG, true);
         addBooleanParamIfPresent(ConsumerConfig.CHECK_CRCS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_CHECK_CRCS_CONFIG, true);
+                CONSUMER_CHECK_CRCS_CONFIG, true);
         addBooleanParamIfPresent(ConsumerConfig.EXCLUDE_INTERNAL_TOPICS_CONFIG, configurations, properties,
-                KafkaConstants.CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG, true);
+                CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG, true);
 
-        addBooleanParamIfPresent(KafkaConstants.ALIAS_DECOUPLE_PROCESSING, configurations, properties,
-                KafkaConstants.ALIAS_DECOUPLE_PROCESSING, false);
-        if (Objects.nonNull(configurations.get(KafkaConstants.SECURE_SOCKET))) {
+        addBooleanParamIfPresent(ALIAS_DECOUPLE_PROCESSING, configurations, properties,
+                ALIAS_DECOUPLE_PROCESSING, false);
+        if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
         processDefaultConsumerProperties(properties);
         return properties;
     }
 
-    @SuppressWarnings(KafkaConstants.UNCHECKED)
+    @SuppressWarnings(UNCHECKED)
     private static void processSSLProperties(MapValue<String, Object> configurations, Properties configParams) {
-        MapValue<String, Object> secureSocket = (MapValue<String, Object>) configurations.get(KafkaConstants.SECURE_SOCKET);
+        MapValue<String, Object> secureSocket = (MapValue<String, Object>) configurations.get(SECURE_SOCKET);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.KEYSTORE_CONFIG), configParams,
-                KafkaConstants.KEYSTORE_TYPE_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                KEYSTORE_TYPE_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.KEYSTORE_CONFIG), configParams,
-                KafkaConstants.LOCATION_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                LOCATION_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.KEYSTORE_CONFIG), configParams,
-                KafkaConstants.PASSWORD_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.KEYSTORE_CONFIG), configParams,
-                KafkaConstants.KEYMANAGER_ALGORITHM_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                KEYMANAGER_ALGORITHM_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.TRUSTSTORE_CONFIG), configParams,
-                KafkaConstants.TRUSTSTORE_TYPE_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                TRUSTSTORE_TYPE_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.TRUSTSTORE_CONFIG), configParams,
-                KafkaConstants.LOCATION_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                LOCATION_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.TRUSTSTORE_CONFIG), configParams,
-                KafkaConstants.PASSWORD_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.TRUSTSTORE_CONFIG), configParams,
-                KafkaConstants.TRUSTMANAGER_ALGORITHM_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                TRUSTMANAGER_ALGORITHM_CONFIG);
         addStringParamIfPresent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.PROTOCOL_CONFIG), configParams,
-                KafkaConstants.SECURITY_PROTOCOL_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                SECURITY_PROTOCOL_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_PROTOCOL_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.PROTOCOL_CONFIG), configParams,
-                KafkaConstants.SSL_PROTOCOL_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                SSL_PROTOCOL_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KafkaConstants.PROTOCOL_CONFIG), configParams,
-                KafkaConstants.ENABLED_PROTOCOLS_CONFIG);
+                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                ENABLED_PROTOCOLS_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_PROVIDER_CONFIG, configurations, configParams,
-                KafkaConstants.SSL_PROVIDER_CONFIG);
+                SSL_PROVIDER_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEY_PASSWORD_CONFIG, configurations, configParams,
-                KafkaConstants.SSL_KEY_PASSWORD_CONFIG);
+                SSL_KEY_PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_CIPHER_SUITES_CONFIG, configurations, configParams,
-                KafkaConstants.SSL_CIPHER_SUITES_CONFIG);
+                SSL_CIPHER_SUITES_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, configurations, configParams,
-                KafkaConstants.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG);
+                SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG, configurations, configParams,
-                KafkaConstants.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
+                SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
     }
 
     public static Properties processKafkaProducerConfig(MapValue<String, Object> configurations) {
@@ -230,64 +322,64 @@ public class KafkaUtils {
             return properties;
         }
         addStringParamIfPresent(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_BOOTSTRAP_SERVERS_CONFIG);
+                properties, PRODUCER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ProducerConfig.ACKS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_ACKS_CONFIG);
+                properties, PRODUCER_ACKS_CONFIG);
         addStringParamIfPresent(ProducerConfig.COMPRESSION_TYPE_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_COMPRESSION_TYPE_CONFIG);
+                properties, PRODUCER_COMPRESSION_TYPE_CONFIG);
         addStringParamIfPresent(ProducerConfig.CLIENT_ID_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_CLIENT_ID_CONFIG);
+                properties, PRODUCER_CLIENT_ID_CONFIG);
         addStringParamIfPresent(ProducerConfig.METRICS_RECORDING_LEVEL_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_METRICS_RECORDING_LEVEL_CONFIG);
+                properties, PRODUCER_METRICS_RECORDING_LEVEL_CONFIG);
         addStringParamIfPresent(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_METRIC_REPORTER_CLASSES_CONFIG);
+                properties, PRODUCER_METRIC_REPORTER_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.PARTITIONER_CLASS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_PARTITIONER_CLASS_CONFIG);
+                properties, PRODUCER_PARTITIONER_CLASS_CONFIG);
         addStringParamIfPresent(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
+                properties, PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.TRANSACTIONAL_ID_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG);
+                properties, PRODUCER_TRANSACTIONAL_ID_CONFIG);
 
         addIntParamIfPresent(ProducerConfig.BUFFER_MEMORY_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_BUFFER_MEMORY_CONFIG);
+                properties, PRODUCER_BUFFER_MEMORY_CONFIG);
         addIntParamIfPresent(ProducerConfig.RETRIES_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_RETRIES_CONFIG);
+                properties, PRODUCER_RETRIES_CONFIG);
         addIntParamIfPresent(ProducerConfig.BATCH_SIZE_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_BATCH_SIZE_CONFIG);
+                properties, PRODUCER_BATCH_SIZE_CONFIG);
         addIntParamIfPresent(ProducerConfig.LINGER_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_LINGER_MS_CONFIG);
+                properties, PRODUCER_LINGER_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.SEND_BUFFER_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_SEND_BUFFER_CONFIG);
+                properties, PRODUCER_SEND_BUFFER_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECEIVE_BUFFER_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_RECEIVE_BUFFER_CONFIG);
+                properties, PRODUCER_RECEIVE_BUFFER_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_MAX_REQUEST_SIZE_CONFIG);
+                properties, PRODUCER_MAX_REQUEST_SIZE_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_RECONNECT_BACKOFF_MS_CONFIG);
+                properties, PRODUCER_RECONNECT_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
+                properties, PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_RETRY_BACKOFF_MS_CONFIG);
+                properties, PRODUCER_RETRY_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_BLOCK_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_MAX_BLOCK_MS_CONFIG);
+                properties, PRODUCER_MAX_BLOCK_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
+                properties, PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.METADATA_MAX_AGE_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_METADATA_MAX_AGE_CONFIG);
+                properties, PRODUCER_METADATA_MAX_AGE_CONFIG);
         addIntParamIfPresent(ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
+                properties, PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.METRICS_NUM_SAMPLES_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_METRICS_NUM_SAMPLES_CONFIG);
+                properties, PRODUCER_METRICS_NUM_SAMPLES_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, configurations,
-                properties, KafkaConstants.PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION);
+                properties, PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION);
         addIntParamIfPresent(ProducerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
+                properties, PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_TRANSACTION_TIMEOUT_CONFIG);
+                properties, PRODUCER_TRANSACTION_TIMEOUT_CONFIG);
 
         addBooleanParamIfPresent(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, configurations,
-                properties, KafkaConstants.PRODUCER_ENABLE_IDEMPOTENCE_CONFIG, false);
-        if (Objects.nonNull(configurations.get(KafkaConstants.SECURE_SOCKET))) {
+                properties, PRODUCER_ENABLE_IDEMPOTENCE_CONFIG, false);
+        if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
         processDefaultProducerProperties(properties);
@@ -337,13 +429,13 @@ public class KafkaUtils {
     }
 
     public static void processDefaultConsumerProperties(Properties configParams) {
-        configParams.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KafkaConstants.DEFAULT_KEY_DESERIALIZER);
-        configParams.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaConstants.DEFAULT_VALUE_DESERIALIZER);
+        configParams.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, DEFAULT_KEY_DESERIALIZER);
+        configParams.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_DESERIALIZER);
     }
 
     public static void processDefaultProducerProperties(Properties configParams) {
-        configParams.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaConstants.DEFAULT_KEY_SERIALIZER);
-        configParams.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaConstants.DEFAULT_VALUE_SERIALIZER);
+        configParams.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, DEFAULT_KEY_SERIALIZER);
+        configParams.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
     }
 
     public static ArrayList<TopicPartition> getTopicPartitionList(ArrayValue partitions) {

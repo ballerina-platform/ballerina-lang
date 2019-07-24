@@ -60,7 +60,7 @@ public class Assign {
         ArrayList<TopicPartition> partitions = getTopicPartitionList(topicPartitions);
         try {
             kafkaConsumer.assign(partitions);
-        } catch (IllegalArgumentException|IllegalStateException|KafkaException e) {
+        } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
             return createError("Failed to assign topics for the consumer: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
