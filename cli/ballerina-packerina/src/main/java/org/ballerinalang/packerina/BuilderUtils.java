@@ -138,7 +138,7 @@ public class BuilderUtils {
             String targetDir = Files.isDirectory(Paths.get(targetPath)) ? targetPath : ".";
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.of(Paths.get(targetDir)), false);
+                    targetDirectory, Optional.of(Paths.get(targetDir)), dumpBIR);
 
             // If package is a ballerina file do not write executables.
             // Create executable jar files.
@@ -207,7 +207,7 @@ public class BuilderUtils {
             generateModuleArtafacts(packages, context);
 
             try {
-                generateJars(packages, sourceRootPath);
+                generateJars(packages, sourceRootPath, dumpBir);
             } catch (IOException e) {
                 throw new BLangCompilerException("error invoking jballerina backend", e);
             }
@@ -275,7 +275,7 @@ public class BuilderUtils {
      * @param sourceRoot source root
      * @throws IOException for IO errors
      */
-    public static void generateJars(List<BLangPackage> packages, Path sourceRoot) throws IOException {
+    public static void generateJars(List<BLangPackage> packages, Path sourceRoot, boolean dumpBir) throws IOException {
         // Path target = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         // construct BIR cache directories
         // - Project BIR cache
@@ -302,7 +302,7 @@ public class BuilderUtils {
             // Iterate the imports and decide where to save.
             // - If it is a current project we save to Project
             // - If is is an import we save to Home
-            writeImportJar(bpackage.symbol.imports, sourceRoot,
+            writeImportJar(bpackage.symbol.imports, sourceRoot, dumpBir,
                     projectBIRcache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
             // Generate the jar of the package.
             Files.createDirectories(projectJARcache.resolve(moduleFragment));
@@ -310,12 +310,12 @@ public class BuilderUtils {
                     .resolve(bpackage.packageID.name.value + ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT);
             Path jarOutput = projectJARcache.resolve(moduleFragment)
                     .resolve(bpackage.packageID.name.value + ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
-            BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
+            BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), dumpBir,
                     projectBIRcache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
 
-    private static void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, String... reps) {
+    private static void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, boolean dumpBir, String... reps) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             Path projectJarCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
@@ -350,7 +350,7 @@ public class BuilderUtils {
                     BootstrapRunner.generateJarBinary(birFile.toString(), jarFile.toString(), false,
                             reps);
                 }
-                writeImportJar(bimport.imports, sourceRoot);
+                writeImportJar(bimport.imports, sourceRoot, dumpBir);
             } catch (IOException e) {
                 String msg = "error writing the compiled module(jar) of '" +
                         id.name.value + "' to '" + homeJarCache + "': " + e.getMessage();

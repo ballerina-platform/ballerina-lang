@@ -52,3 +52,25 @@ function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) retu
     }
     return paramTypes;
 }
+
+function rewriteRecordInit(bir:Function func) {
+    bir:VariableDcl receiver = <bir:VariableDcl> func.receiver;
+
+    // change the kind of receiver to 'ARG'
+    receiver.kind = bir:VAR_KIND_ARG;
+
+    // inject an additional parameter to accept the self-record value into the init function
+    bir:FunctionParam selfParam = { kind: bir:VAR_KIND_ARG,
+                                    name: receiver.name, 
+                                    typeValue: receiver.typeValue,
+                                    hasDefaultExpr: false,
+                                    meta : { name : receiver.name.value }
+                                  };
+
+    func.typeValue = func.typeValue.clone();
+    func.typeValue.paramTypes = [receiver.typeValue];
+
+    bir:VariableDcl?[] localVars = func.localVars;
+    bir:VariableDcl?[] updatedLocalVars = [localVars[0], selfParam];
+    func.localVars = updatedLocalVars;
+}

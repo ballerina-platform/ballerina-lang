@@ -327,7 +327,8 @@ public type ObjectGenerator object {
     private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
-                generateMethod(func, cw, self.module, attachedType = self.currentRecordType);
+                rewriteRecordInit(func);
+                generateMethod(func, cw, self.module);
             }
         }
     }
@@ -343,7 +344,6 @@ public type ObjectGenerator object {
 
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        mv.visitVarInsn(ALOAD, 0);
 
         mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
         mv.visitInsn(DUP);
@@ -356,10 +356,12 @@ public type ObjectGenerator object {
 
         mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
                             "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, className, "__init_", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 5);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 };

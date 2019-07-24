@@ -110,6 +110,7 @@ function genJMethodForBFunc(bir:Function func,
         }
         k += 1;
     }
+
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
                                  kind: "TEMP" };
