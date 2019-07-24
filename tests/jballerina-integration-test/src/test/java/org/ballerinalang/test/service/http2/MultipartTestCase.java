@@ -39,8 +39,6 @@ public class MultipartTestCase extends Http2BaseTest {
     public void testMultipart() throws IOException {
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put("priorKnowledge", "false");
-        HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "multiparts/initial"), headersMap);
         assertResponse(headersMap);
     }
 
