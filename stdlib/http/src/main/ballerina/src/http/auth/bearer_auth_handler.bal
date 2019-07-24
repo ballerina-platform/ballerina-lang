@@ -51,8 +51,7 @@ public type BearerAuthHandler object {
     # or the `AuthenticationError` in case of an error.
     public function process(Request req) returns boolean|AuthenticationError {
         string headerValue = extractAuthorizationHeaderValue(req);
-        string credential = headerValue.substring(6, headerValue.length());
-        credential = credential.trim();
+        string credential = headerValue.substring(6, headerValue.length()).trim();
         var authProvider = self.authProvider;
         if (authProvider is auth:InboundAuthProvider) {
             var authenticationResult = authProvider.authenticate(credential);

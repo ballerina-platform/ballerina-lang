@@ -22,7 +22,7 @@ export class DiagramConfig {
             header: 40,
             labelGutter: 2,
             margin: 20,
-            offset: 45,
+            offset: 60,
             rightMargin: 30,
             topMargin: 10,
         },

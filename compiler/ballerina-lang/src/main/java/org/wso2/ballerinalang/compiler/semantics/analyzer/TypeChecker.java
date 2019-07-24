@@ -2733,8 +2733,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BErrorType lhsErrorType = (BErrorType) expType;
-        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
+        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expType, iExpr.symbol);
+        if (expectedError == null) {
+            return;
+        }
+        BErrorType ctorType = (BErrorType) expectedError.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
             return;
@@ -2774,8 +2777,32 @@ public class TypeChecker extends BLangNodeVisitor {
         setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
-        resultType = expType;
-        iExpr.symbol = lhsErrorType.ctorSymbol;
+        resultType = expectedError;
+        iExpr.symbol = expectedError.ctorSymbol;
+    }
+
+    private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {
+        // Direct error ctor invocation.
+        if (iExprSymbol == symTable.errorType.tsymbol) {
+            if (expType.tag == TypeTags.UNION) {
+                List<BType> matchedErrors = ((BUnionType) expType).getMemberTypes().stream()
+                        .filter(m -> types.isAssignable(m, iExprSymbol.type))
+                        .collect(Collectors.toList());
+                if (matchedErrors.size() == 1) {
+                    return (BErrorType) matchedErrors.get(0);
+                } else {
+                    // More than one matched, Cannot infer error type from error constructor.
+                    // 'Error0|Error1|T3 e = error(...);
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
+                    resultType = symTable.semanticError;
+                    return null;
+                }
+            }
+            return (BErrorType) expType;
+        } else {
+            // Indirect error constructor.
+            return (BErrorType) iExprSymbol.type;
+        }
     }
 
     private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
@@ -3900,7 +3927,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.STRING && indexExpr.getKind() == NodeKind.LITERAL) {
-                    if (!isMapConstIndexAccess(indexBasedAccessExpr)) {
+                    if (!isConstIndexAccess(indexBasedAccessExpr)) {
                         dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
                                    ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
                     }
@@ -3932,6 +3959,35 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
                 return actualType;
             }
+        } else if (types.isAssignable(varRefType, symTable.stringType)) {
+            if (indexBasedAccessExpr.lhsVar) {
+                dlog.error(indexBasedAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                           indexBasedAccessExpr.expr.type);
+                return symTable.semanticError;
+            }
+
+            checkExpr(indexExpr, this.env, symTable.intType);
+
+            if (indexExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            if (isConstIndexAccess(indexBasedAccessExpr)) {
+                if (!isResolvedConst(indexBasedAccessExpr) && isConst(indexExpr)) {
+                    // Error will be logged later on for invalid indices
+                    return symTable.stringType;
+                }
+
+                BType constAccessType = checkStringConstantAccess(indexBasedAccessExpr);
+
+                if (constAccessType != symTable.semanticError || indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    return constAccessType;
+                }
+            }
+
+            indexBasedAccessExpr.originalType = symTable.stringType;
+            actualType = symTable.stringType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
@@ -4132,15 +4188,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            if (isMapConstIndexAccess(accessExpr)) {
-                if (!isResolvedConst(accessExpr) && accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+            if (isConstIndexAccess(accessExpr)) {
+                if (!isResolvedConst(accessExpr) && isConst(accessExpr.indexExpr)) {
                     // Error will be logged later on for invalid keys
                     return ((BMapType) type).constraint;
                 }
 
                 BType actualType = checkMapConstantAccess(accessExpr);
 
-                if (actualType != symTable.semanticError || accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+                if (actualType != symTable.semanticError || isConst(accessExpr.indexExpr)) {
                     return actualType;
                 }
             }
@@ -4501,35 +4557,123 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkMapConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
+        BLangConstantValue value = getMapConstAccessConstantValue(indexAccessExpr);
+
+        if (value == null) {
+            return symTable.semanticError;
+        }
+
+        return value.type;
+    }
+
+    private BLangConstantValue getMapConstAccessConstantValue(BLangIndexBasedAccess indexBasedAccess) {
+        if (indexBasedAccess.expr.type.tag == TypeTags.SEMANTIC_ERROR) {
+            return null;
+        }
+
+        String key;
+        if (indexBasedAccess.indexExpr.getKind() == NodeKind.LITERAL) {
+            key = (String) ((BLangLiteral) indexBasedAccess.indexExpr).value;
+        } else if (isConst(indexBasedAccess.indexExpr)) {
+            key = (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.indexExpr).symbol).value.value;
+        } else {
+            return null;
+        }
+
+        Map<String, BLangConstantValue> exprConstValue;
+        if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            exprConstValue = (Map<String, BLangConstantValue>)
+                    getMapConstAccessConstantValue((BLangIndexBasedAccess) indexBasedAccess.expr).value;
+        } else if (indexBasedAccess.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.expr).symbol;
+            exprConstValue = (Map<String, BLangConstantValue>) constantSymbol.value.value;
+        } else {
+            return null;
+        }
+
+        if (exprConstValue == null) {
+            return null;
+        }
+
+        if (!exprConstValue.containsKey(key)) {
+            dlog.error(indexBasedAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexBasedAccess.expr);
+            return null;
+        }
+        return exprConstValue.get(key);
+    }
+
+    private BType checkStringConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
         BType varRefType = indexAccessExpr.expr.type;
 
         if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
             return symTable.semanticError;
         }
 
-        if (indexAccessExpr.indexExpr.getKind() != NodeKind.LITERAL) {
-            return symTable.semanticError;
-        }
-
-        BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
-        String key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
-
-        if (!value.containsKey(key)) {
-            dlog.error(indexAccessExpr.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccessExpr.expr);
-            return symTable.semanticError;
-        }
-        return value.get(key).type;
+        return checkStringAccessValidity(indexAccessExpr) ? symTable.stringType : symTable.semanticError;
     }
 
-    private boolean isMapConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
+    private boolean checkStringAccessValidity(BLangIndexBasedAccess indexBasedAccess) {
+        Long index;
+        if (indexBasedAccess.indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+            index = (Long) ((BLangLiteral) indexBasedAccess.indexExpr).value;
+        } else if (isConst(indexBasedAccess.indexExpr)) {
+            index = (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.indexExpr).symbol).value.value;
+        } else {
+            return false;
+        }
+
+        if (index == null) {
+            return false;
+        }
+        int intIndex = index.intValue();
+
+        int maxLength;
+        if (indexBasedAccess.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            BLangIndexBasedAccess nestedIndexAccess = (BLangIndexBasedAccess) indexBasedAccess.expr;
+            if (nestedIndexAccess.expr.type.tag == TypeTags.MAP) {
+                BLangConstantValue constantValue = getMapConstAccessConstantValue(nestedIndexAccess);
+                if (constantValue == null) {
+                    return false;
+                }
+                maxLength = ((String) constantValue.value).length();
+            } else {
+                // Member access for a string always returns a string of length 1.
+                maxLength = 1;
+            }
+        } else if (indexBasedAccess.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexBasedAccess.expr).symbol;
+            maxLength = ((String) constantSymbol.value.value).length();
+        } else {
+            return false;
+        }
+
+        if (intIndex < 0 || intIndex >= maxLength) {
+            dlog.error(indexBasedAccess.indexExpr.pos, DiagnosticCode.INDEX_OUT_OF_RANGE, intIndex);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isConst(BLangExpression expression) {
+        if (symbolEnter.isValidConstantExpression(expression)) {
+            return true;
+        }
+
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+    }
+
+    private boolean isConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
         BLangExpression expression = indexAccessExpr.expr;
         if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
+            return isConst(expression);
         }
 
         if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return isMapConstIndexAccess((BLangIndexBasedAccess) expression);
+            return isConstIndexAccess((BLangIndexBasedAccess) expression);
         }
 
         return false;

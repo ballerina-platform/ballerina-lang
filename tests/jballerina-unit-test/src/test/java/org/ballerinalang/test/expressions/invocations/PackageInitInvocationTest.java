@@ -31,14 +31,13 @@ import org.testng.annotations.Test;
  *
  * @since 0.8.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class PackageInitInvocationTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(this, "test-src", "expressions.invocations.pkg.c");
+        result = BCompileUtil.compile("test-src/packageinit", "expressions.invocations.pkg.c");
     }
 
     @Test
