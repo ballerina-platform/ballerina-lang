@@ -22,7 +22,6 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.grpc.Message;
@@ -78,7 +77,7 @@ public class ProtoMessageTestCase {
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
         Message message1 = ProtoUtils.marshaller(new MessageParser("Test1", new BRecordType("Test1",
-                new BPackage(null, null,null), 0, false))).parse(messageStream);
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
     }
@@ -102,7 +101,7 @@ public class ProtoMessageTestCase {
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
         Message message1 = ProtoUtils.marshaller(new MessageParser("Test2", new BRecordType("Test2",
-                new BPackage(null, null,null), 0, false))).parse(messageStream);
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(message1.toString(), message.toString());
         Assert.assertFalse(message1.isError());
     }
@@ -125,7 +124,7 @@ public class ProtoMessageTestCase {
         //convert byte array back to message object.
         InputStream messageStream = new ByteArrayInputStream(msgArray);
         Message message1 = ProtoUtils.marshaller(new MessageParser("Test3", new BRecordType("Test3",
-                new BPackage(null, null,null), 0, false))).parse(messageStream);
+                new BPackage(null, null, null), 0, false))).parse(messageStream);
         Assert.assertEquals(((MapValue<String, Object>) message1.getbMessage()).size(), bMapValue.size());
         Assert.assertFalse(message1.isError());
     }

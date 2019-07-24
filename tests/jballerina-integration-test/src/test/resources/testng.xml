@@ -169,6 +169,7 @@
     </test>
 
     <test name="ballerina-grpc-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
                 <exclude name="broken"/>
