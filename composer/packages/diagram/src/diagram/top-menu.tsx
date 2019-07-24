@@ -13,7 +13,6 @@ export interface TopMenuProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
     selectedModeText: string;
-    fitActive: boolean;
     openedState: boolean;
     handleOpened: () => void;
     handleClosed: () => void;
@@ -36,7 +35,6 @@ export const TopMenu = (props: TopMenuProps) => {
         handleReset,
         handleDepthSelect,
         openedState,
-        fitActive,
         zoomFactor = 1,
         maxInvocationDepth,
     } = props;
@@ -48,6 +46,11 @@ export const TopMenu = (props: TopMenuProps) => {
                 <div onClick={handleOpened} className="menu-icon">
                     <Icon className="fw fw-search" />
                 </div>
+                <div onClick={handleOpened} className="status-wrapper">
+                    Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Design : <Label>{selectedModeText}</Label>
+                </div>
             </div> :
             <Grid className="menu-container">
                 <Grid.Row className="menu-row" columns={3}>
@@ -58,7 +61,7 @@ export const TopMenu = (props: TopMenuProps) => {
                         <Icon onClick={handleZoomOut} className="fw fw-minus" />
                         <Label className="menu-dropdown-small"> {`${Math.floor(zoomFactor * 100)}%`} </Label>
                         <Icon onClick={handleZoomIn} className="fw fw-add" />
-                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen" />
+                        <Icon onClick={handleFitClick} className="fw fw-fit-to-screen" />
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
                         <Icon onClick={handleReset} className="fw fw-refresh" />

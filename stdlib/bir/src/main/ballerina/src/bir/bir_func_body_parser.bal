@@ -120,7 +120,7 @@ public type FuncBodyParser object {
             var bType = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            IsLike isLike = {pos:pos, kind:kind, typeVal:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;
@@ -313,6 +313,13 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             FieldAccess xmlAttrLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrLoad;
+        } else if (kindTag == INS_STRING_LOAD) {
+            kind = INS_KIND_STRING_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess stringLoad = { pos: pos, kind: kind, lhsOp: lhsOp, keyOp: keyOp, rhsOp: rhsOp };
+            return stringLoad;
         }
         return ();
     }

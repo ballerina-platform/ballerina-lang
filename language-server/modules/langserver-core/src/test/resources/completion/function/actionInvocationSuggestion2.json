@@ -6,7 +6,7 @@
   "source": "function/source/actionInvocationSuggestion2.bal",
   "items": [
     {
-      "label": "post()((http:Response|error))",
+      "label": "post(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "head()((http:Response|error))",
+      "label": "head(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "put()((http:Response|error))",
+      "label": "put(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "execute()((http:Response|error))",
+      "label": "execute(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "patch()((http:Response|error))",
+      "label": "patch(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -91,7 +91,7 @@
       }
     },
     {
-      "label": "delete()((http:Response|error))",
+      "label": "delete(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -108,7 +108,7 @@
       }
     },
     {
-      "label": "get()((http:Response|error))",
+      "label": "get(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -125,7 +125,7 @@
       }
     },
     {
-      "label": "options()((http:Response|error))",
+      "label": "options(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "forward()((http:Response|error))",
+      "label": "forward(string path, http:Request request)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "submit()((http:HttpFuture|error))",
+      "label": "submit(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:HttpFuture|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -176,7 +176,7 @@
       }
     },
     {
-      "label": "getResponse()((http:Response|error))",
+      "label": "getResponse(http:HttpFuture httpFuture)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -193,7 +193,7 @@
       }
     },
     {
-      "label": "hasPromise()(boolean)",
+      "label": "hasPromise(http:HttpFuture httpFuture)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -210,7 +210,7 @@
       }
     },
     {
-      "label": "getNextPromise()((http:PushPromise|error))",
+      "label": "getNextPromise(http:HttpFuture httpFuture)((http:PushPromise|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -227,7 +227,7 @@
       }
     },
     {
-      "label": "getPromisedResponse()((http:Response|error))",
+      "label": "getPromisedResponse(http:PushPromise promise)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -244,7 +244,7 @@
       }
     },
     {
-      "label": "rejectPromise()",
+      "label": "rejectPromise(http:PushPromise promise)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

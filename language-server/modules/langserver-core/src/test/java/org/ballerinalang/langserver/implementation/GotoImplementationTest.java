@@ -76,10 +76,11 @@ public class GotoImplementationTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/implementation");
         String sourcePath1 = "implementation" + CommonUtil.FILE_SEPARATOR + "source" + CommonUtil.FILE_SEPARATOR
-                + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "pkg1" + CommonUtil.FILE_SEPARATOR + "main.bal";
+                + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "src" + CommonUtil.FILE_SEPARATOR  + "pkg1"
+                + CommonUtil.FILE_SEPARATOR + "main.bal";
         String sourcePath2 = "implementation" + CommonUtil.FILE_SEPARATOR + "source" + CommonUtil.FILE_SEPARATOR
-                + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "pkg1" + CommonUtil.FILE_SEPARATOR + "tests"
-                + CommonUtil.FILE_SEPARATOR + "main_test.bal";
+                + "gotoImplProject" + CommonUtil.FILE_SEPARATOR + "src" + CommonUtil.FILE_SEPARATOR  + "pkg1"
+                + CommonUtil.FILE_SEPARATOR + "tests" + CommonUtil.FILE_SEPARATOR + "main_test.bal";
         return new Object[][]{
                 {"gotoImplTest1.json", sourcePath1},
                 {"gotoImplTest2.json", sourcePath1},

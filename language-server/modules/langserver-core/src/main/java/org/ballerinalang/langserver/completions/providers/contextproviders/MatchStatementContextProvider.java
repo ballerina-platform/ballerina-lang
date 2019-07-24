@@ -75,7 +75,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         if (delimiter > -1) {
             String varName = defaultTokens.get(defaultTokenTypes.indexOf(delimiter) - 1).getText();
             List<SymbolInfo> filteredList = FilterUtils.filterVariableEntriesOnDelimiter(ctx, varName, delimiter
-                    , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter), false);
+                    , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
             filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
             filteredList.forEach(symbolInfo -> {
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {

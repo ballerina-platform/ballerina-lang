@@ -1268,7 +1268,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new()",
+      "label": "new(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

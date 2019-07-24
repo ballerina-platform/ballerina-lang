@@ -214,7 +214,7 @@
       }
     },
     {
-      "label": "function3()",
+      "label": "function3(int a, string b)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -258,7 +258,7 @@
       }
     },
     {
-      "label": "function1()",
+      "label": "function1(int param1, int param2)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

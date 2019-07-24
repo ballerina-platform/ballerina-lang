@@ -779,6 +779,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangLocalXMLNS xmlnsNode) {
         throw new AssertionError();
     }

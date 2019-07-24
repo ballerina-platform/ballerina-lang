@@ -3,6 +3,6 @@ function testSignatureHelp () {
     string testString = "Hello World!!";
 
     if (condition == 1) {
-        testString.contains()
+        testString.concat("")
     }
 }
