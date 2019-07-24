@@ -1,7 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function as BalFunction, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause, ObjectType,
+    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -226,10 +226,22 @@ class PositioningVisitor implements Visitor {
         viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
         viewState.hoverRect.y = viewState.bBox.y;
 
+        const paramEndpointFilter = (ep: VisibleEndpoint) => {
+            if (node.parent && ASTKindChecker.isFunction(node.parent)) {
+                const functionNode = (node.parent as FunctionNode);
+                const matchingParam = functionNode.parameters.find(
+                   (param) => ASTKindChecker.isVariable(param) && param.name.value === ep.name
+                );
+                return !functionNode.resource && matchingParam !== undefined;
+            }
+            return false;
+        };
+
         if (node.VisibleEndpoints) {
+            const visibleEps = [...node.VisibleEndpoints.filter(paramEndpointFilter),
+                ...node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible)];
             // Position endpoints
-            node.VisibleEndpoints
-                .filter((ep) => !ep.caller)
+            visibleEps
                 .forEach((endpoint: VisibleEndpoint) => {
                     endpoint.viewState.bBox.x = this.epX;
                     endpoint.viewState.bBox.y = this.epY;
