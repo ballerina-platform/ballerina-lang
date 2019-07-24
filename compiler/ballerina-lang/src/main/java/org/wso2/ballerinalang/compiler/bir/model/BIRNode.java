@@ -390,6 +390,8 @@ public abstract class BIRNode {
 
         public boolean isLabel;
 
+        public List<BType> referencedTypes;
+
         /**
          * this is not serialized. it's used to keep the index of the def in the list.
          * otherwise the writer has to *find* it in the list.
@@ -404,6 +406,7 @@ public abstract class BIRNode {
             this.isLabel = isLabel;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
+            this.referencedTypes = new ArrayList<>();
         }
 
         @Override

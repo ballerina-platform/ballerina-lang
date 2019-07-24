@@ -39,6 +39,7 @@ public type TypeDef record {
     int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
+    BType?[] typeRefs;
 };
 
 public type TypeRef record {|

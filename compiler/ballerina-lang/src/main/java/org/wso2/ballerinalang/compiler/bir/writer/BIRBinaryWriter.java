@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationLiteralValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationRecordValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -141,7 +142,15 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
-        filtered.forEach(typeDef -> writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs));
+        filtered.forEach(typeDef -> {
+            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
+            writeReferencedTypes(buf, typeDef.referencedTypes);
+        });
+    }
+
+    private void writeReferencedTypes(ByteBuf buf, List<BType> referencedTypes) {
+        buf.writeInt(referencedTypes.size());
+        referencedTypes.forEach(type -> writeType(buf, type));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {

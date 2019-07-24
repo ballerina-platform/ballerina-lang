@@ -119,6 +119,7 @@ public type PackageParser object {
         // TODO: dhananjaya please remove
         return <@untainted> funcs;
     }
+
     private function parseInvokableType() returns BInvokableType {
         var functionType = self.reader.readTypeCpRef();
         if (functionType is BInvokableType) {
@@ -363,8 +364,21 @@ public type PackageParser object {
             BType typeValue = tDef.typeValue;
             if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
+                tDef.typeRefs = self.parseReferencedTypes();
             }
         }
+    }
+
+    function parseReferencedTypes() returns BType?[] {
+        var numTypes = self.reader.readInt32();
+        BType?[] typeRefs = [];
+        int i = 0;
+        while (i < numTypes) {
+            typeRefs[i] = self.reader.readTypeCpRef();
+            i += 1;
+        }
+
+        return <@untainted> typeRefs;
     }
 
     function parseTypeDef() returns TypeDef {
@@ -372,11 +386,11 @@ public type PackageParser object {
         string name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
-        
+
         skipMarkDownDocAttachement(self.reader); 
-        
+
         var bType = self.reader.readTypeCpRef();
-        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
+        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: (), typeRefs : [] };
     }
 
     function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
