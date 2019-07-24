@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.stdlib.crypto;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -52,6 +54,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 0.95.1
  */
 public class CryptoUtils {
+
+    private static final Log LOG = LogFactory.getLog(CryptoUtils.class);
 
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
@@ -89,6 +93,7 @@ public class CryptoUtils {
             mac.init(secretKey);
             return new ArrayValue(mac.doFinal(input));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Error occurred while calculating HMAC: " + e.getMessage());
         }
     }
@@ -107,6 +112,7 @@ public class CryptoUtils {
             messageDigest.update(input);
             return new ArrayValue(messageDigest.digest());
         } catch (NoSuchAlgorithmException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Error occurred while calculating hash: " + e.getMessage());
         }
     }
@@ -126,8 +132,10 @@ public class CryptoUtils {
             sig.update(input);
             return new ArrayValue(sig.sign());
         } catch (NoSuchAlgorithmException | SignatureException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Error occurred while calculating signature: " + e.getMessage());
         } catch (InvalidKeyException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Uninitialized private key");
         }
     }
@@ -148,8 +156,10 @@ public class CryptoUtils {
             sig.update(data);
             return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Error occurred while calculating signature: " + e.getMessage());
         } catch (InvalidKeyException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Uninitialized public key");
         }
     }
@@ -190,13 +200,16 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, key, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Unsupported algorithm: AES " + algorithmMode + " "
                     + algorithmPadding);
         } catch (NoSuchPaddingException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Unsupported padding scheme defined in the algorithm: AES "
                     + algorithmMode + " " + algorithmPadding);
         } catch (InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException |
                 IllegalBlockSizeException | BallerinaException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError(e.getMessage());
         }
     }
@@ -232,13 +245,16 @@ public class CryptoUtils {
             initCipher(cipher, cipherMode, keySpec, paramSpec);
             return new ArrayValue(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Unsupported algorithm: AES " +
                     algorithmMode + " " + algorithmPadding);
         } catch (NoSuchPaddingException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError("Unsupported padding scheme defined in  the algorithm: AES " +
                     algorithmMode + " " + algorithmPadding);
         } catch (BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException |
                 InvalidKeyException | BallerinaException e) {
+            LOG.error(e.getMessage(), e);
             return CryptoUtils.createCryptoError(e.getMessage());
         }
     }
