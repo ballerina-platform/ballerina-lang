@@ -14,11 +14,11 @@ function add(int a, int b) returns int {
 // A public function named `main` is considered a default entry point of a
 // Ballerina program.
 public function main() {
-    // Calls a function that prints the value provided via the console.
+    // Call the `printValue()` function that prints the value provided.
     printValue("This is a sample text");
 
-    // Directly, prints the value that was returned from the function in the
-    // console.
+    // Call the `add()` function to retrieve the result of adding of two values.
     int result = add(5, 6);
+    // Print the result.
     io:println(result);
 }
