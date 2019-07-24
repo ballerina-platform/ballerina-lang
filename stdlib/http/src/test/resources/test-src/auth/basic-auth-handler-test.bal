@@ -35,7 +35,7 @@ function testCanProcessHttpBasicAuth() returns boolean {
     return <@untainted> handler.canProcess(inRequest);
 }
 
-function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
+function testHandleHttpBasicAuthFailure() returns @tainted boolean|http:AuthenticationError {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
@@ -44,7 +44,7 @@ function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
     return handler.process(inRequest);
 }
 
-function testHandleHttpBasicAuth() returns boolean|error {
+function testHandleHttpBasicAuth() returns boolean|http:AuthenticationError {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();

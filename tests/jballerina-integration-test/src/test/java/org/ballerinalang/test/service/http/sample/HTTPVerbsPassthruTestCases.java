@@ -126,7 +126,6 @@ public class HTTPVerbsPassthruTestCases extends HttpBaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
         Assert.assertTrue(response.getData()
-                .contains("data binding failed: Error in reading payload : unrecognized " +
-                        "token 'name:WSO2,team:ballerina'"));
+                .contains("data binding failed: unrecognized token 'name:WSO2,team:ballerina'"));
     }
 }

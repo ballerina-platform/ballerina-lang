@@ -107,19 +107,19 @@ class PositioningVisitor implements Visitor {
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
         if (viewState.isExpandedFunction) {
-            bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
-            bodyViewState.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+            defaultWorker.lifeline.bBox.x = viewState.bBox.x + config.statement.expanded.margin
+                + (bodyViewState.bBox.leftMargin - (defaultWorker.lifeline.bBox.w / 2));
+            defaultWorker.lifeline.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+
+            bodyViewState.bBox.x = viewState.bBox.x + config.statement.expanded.margin + bodyViewState.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.lifeline.bBox.y + config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.;
 
             viewState.client.bBox.x = viewState.bBox.x;
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
             workerY = bodyViewState.bBox.y;
-
-            if (viewState.containsOtherLifelines) {
-                bodyViewState.bBox.y += config.lifeLine.header.height +
-                + config.statement.height; // leave room for start line.
-            }
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;

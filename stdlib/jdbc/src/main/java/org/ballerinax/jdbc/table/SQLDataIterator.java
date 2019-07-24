@@ -108,7 +108,7 @@ public class SQLDataIterator extends TableIterator {
     public MapValue<String, Object> generateNext() {
         if (this.type == null) {
             throw ErrorGenerator
-                    .getSQLApplicationError("the expected record type is not specified in the remote function");
+                    .getSQLApplicationError("The expected record type is not specified in the remote function");
         }
         MapValue<String, Object> bStruct = new MapValueImpl<>(this.type);
         int index = 0;
@@ -226,16 +226,14 @@ public class SQLDataIterator extends TableIterator {
                             handleStructValue(bStruct, fieldName, structData, fieldType);
                             break;
                         default:
-                            throw ErrorGenerator.getSQLApplicationError(
-                                    "unsupported sql type " + sqlType + " found for the column " + columnName
-                                            + " index:" + index);
+                            throw ErrorGenerator.getSQLApplicationError("Unsupported sql type " + sqlType
+                                    + " found for the column " + columnName + " at index " + index);
                     }
                 }
             }
         } catch (IOException | SQLException e) {
-            throw ErrorGenerator.getSQLApplicationError(
-                    "error in retrieving next value for column: " + columnName + ": of SQL Type: " + sqlType + ": "
-                            + "at " + "index:" + index + ":" + e.getMessage());
+            throw ErrorGenerator.getSQLApplicationError("Error while retrieving next value for column "
+                    + columnName + " of SQL Type " + sqlType + " at index " + index + ", " + e.getMessage());
         } catch (PanickingApplicationException e) {
             throw ErrorGenerator.getSQLApplicationError(e);
         }
@@ -296,7 +294,8 @@ public class SQLDataIterator extends TableIterator {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
                 if (dataArray.length != internalStructFields.length) {
-                    throw new PanickingApplicationException("specified struct and returned struct are not compatible");
+                    throw new PanickingApplicationException("Specified record and the returned record types are " +
+                            "not compatible");
                 }
                 int index = 0;
                 for (BField internalField : internalStructFields) {
@@ -338,13 +337,13 @@ public class SQLDataIterator extends TableIterator {
                         break;
                     default:
                         throw new PanickingApplicationException(
-                                "error in retrieving UDT data for unsupported type:" + type);
+                                "Error while retrieving UDT data for unsupported type " + type);
                     }
                     ++index;
                 }
             }
         } catch (SQLException e) {
-            throw new PanickingApplicationException("error in retrieving UDT data:" + e.getMessage());
+            throw new PanickingApplicationException("Error while retrieving UDT data: " + e.getMessage());
         }
         return struct;
     }

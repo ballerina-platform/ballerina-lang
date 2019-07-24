@@ -110,7 +110,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar()((string|int|boolean))",
+      "label": "bar((string|int|boolean) i)((string|int|boolean))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

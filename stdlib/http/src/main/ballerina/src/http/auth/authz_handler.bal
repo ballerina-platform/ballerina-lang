@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/runtime;
 
-# Representation of Authorization Handler for HTTP
+# Representation of Authorization Handler for HTTP.
 #
 # + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
 # + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
@@ -33,7 +33,7 @@ public type AuthzHandler object {
         self.negativeAuthzCache = negativeAuthzCache;
     }
 
-    # Checks if the request can be authorized
+    # Checks if the request can be authorized.
     #
     # + req - `Request` instance
     # + return - `true` if can be authorized, else `false`, or `AuthorizationError` if error occurred
@@ -48,7 +48,7 @@ public type AuthzHandler object {
         return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
     }
 
-    # Tries to authorize the request
+    # Tries to authorize the request.
     #
     # + username - User name
     # + serviceName - `Service` name
@@ -57,14 +57,12 @@ public type AuthzHandler object {
     # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
     function process(string username, string serviceName, string resourceName, string method,
-        string[]|string[][] scopes) returns boolean {
+                     string[]|string[][] scopes) returns boolean {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
             // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
             // since different resources can have different scopes
-            string authzCacheKey = principal.userId + "-" + serviceName + "-" +
-                resourceName + "-" + method;
-
+            string authzCacheKey = principal.userId + "-" + serviceName + "-" + resourceName + "-" + method;
             string[] authCtxtScopes = principal.scopes;
             //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
             if (authCtxtScopes.length() > 0) {
@@ -78,8 +76,8 @@ public type AuthzHandler object {
             if (authorizedFromCache is boolean) {
                 return authorizedFromCache;
             } else {
-                // if there are scopes set in the AuthenticationContext already from a previous authentication phase, try to
-                // match against those.
+                // if there are scopes set in the AuthenticationContext already from a previous authentication phase,
+                // try to match against those.
                 if (authCtxtScopes.length() > 0) {
                     boolean authorized = checkForScopeMatch(scopes, authCtxtScopes, resourceName, method);
                     // cache authz result
@@ -91,7 +89,7 @@ public type AuthzHandler object {
         return false;
     }
 
-    # Tries to retrieve authorization decision from the cached information, if any
+    # Tries to retrieve authorization decision from the cached information, if any.
     #
     # + authzCacheKey - Cache key
     # + return - true or false in case of a cache hit, nil in case of a cache miss
@@ -116,7 +114,7 @@ public type AuthzHandler object {
         return ();
     }
 
-    # Cached the authorization result
+    # Cached the authorization result.
     #
     # + authzCacheKey - Cache key
     # + authorized - boolean flag to indicate the authorization decision
@@ -143,7 +141,7 @@ public type AuthzHandler object {
 # + method - HTTP method name
 # + return - true if there is a match between resource and user scopes, else false
 function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string resourceName,
-        string method) returns boolean {
+                            string method) returns boolean {
     boolean authorized = true;
     if (resourceScopes is string[]) {
         authorized = matchScopes(resourceScopes, userScopes);
@@ -164,7 +162,7 @@ function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userSco
     return authorized;
 }
 
-# Tries to find a match between the two scope arrays
+# Tries to find a match between the two scope arrays.
 #
 # + resourceScopes - Scopes of resource
 # + userScopes - Scopes of the user

@@ -325,3 +325,111 @@ function testMemberAccessOnMappingUnion() returns boolean {
 
     return x == "hello" && x2 == "hello" && y == 11 && z is ();
 }
+
+function testVariableStringMemberAccess() returns boolean {
+    string s = "hello world";
+    string[] sa = [];
+
+    foreach int i in 0 ..< s.length() {
+        sa[i] = s[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == s;
+}
+
+const CONST_STRING_1 = "string value";
+
+function testConstStringMemberAccess1() returns boolean {
+    string[] sa = [];
+
+    foreach int i in 0 ..< CONST_STRING_1.length() {
+        sa[i] = CONST_STRING_1[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == CONST_STRING_1;
+}
+
+const CONST_STRING_2 = "abcdef value";
+
+const map<string> m1 = {
+    one: CONST_STRING_2
+};
+
+const IIC0 = 0;
+const IIC1 = 1;
+const IIC3 = 3;
+const IIC5 = 5;
+const SIC = "one";
+
+const map<string> m2 = {
+    a: CONST_STRING_2[0],
+    b: CONST_STRING_2[IIC1],
+    c: m1["one"][2],
+    d: m1[SIC][IIC3]
+};
+
+function testConstStringMemberAccess2() returns boolean {
+    return m2["a"] == "a" && m2["b"] == "b" && m2["c"] == "c" && m2["d"] == "d";
+}
+
+const STC = "qwerty";
+const SIC2 = "l";
+
+const map<string> CM1 = {
+    l: STC[0],
+    m: STC
+};
+
+const map<string> CM2 = {
+    v: CM1[SIC2][0],
+    w: CM1["m"][IIC5],
+    x: STC[0][IIC0],
+    y: STC[IIC1][IIC0],
+    z: STC[2][0][0]
+};
+
+function testNestedConstStringMemberAccess() returns boolean {
+    return CM2["v"] == "q" && CM2["w"] == "y" && CM2["x"] == "q" && CM2["y"] == "w" && CM2["z"] == "e";
+}
+
+function testOutOfRangeStringMemberAccess1() {
+    string s = "hello";
+    string s2 = s[-1];
+}
+
+function testOutOfRangeStringMemberAccess2() {
+    string s = "hello world";
+    string s2 = s[s.length()];
+}
+
+function testOutOfRangeStringMemberAccess3() {
+    int i = 25;
+    string s2 = CONST_STRING_2[i];
+}
+
+type StFooBar "foo"|"bar";
+type IntValues -1|0|4;
+
+function testFiniteTypeStringMemberAccess() returns boolean {
+    StFooBar s1 = "bar";
+    string s2 = "bar";
+    IntValues i1 = 0;
+    int i2 = 1;
+    return s1[i1] == "b" && s1[i2] == "a" && s2[i1] == "b" && s2[i2] == "a";
+}
+
+function testOutOfRangeFiniteTypeStringMemberAccess() {
+    StFooBar s = "foo";
+    IntValues i = 4;
+    _ = s[i];
+}
