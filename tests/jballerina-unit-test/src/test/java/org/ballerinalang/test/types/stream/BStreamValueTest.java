@@ -73,22 +73,6 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectRecordParameter");
     }
 
-    @Test(description = "Test publishing objects of invalid type to a stream",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: value of type:Coach cannot be added to "
-                    + "a stream of type:Captain.*")
-    public void testInvalidObjectPublishingToStream() {
-        BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
-    }
-
-    @Test(description = "Test subscribing with a function accepting a different kind of object",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
-                    + "function accepting:Captain.*")
-    public void testSubscriptionFunctionWithIncorrectObjectParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
-    }
-
     @Test(description = "Test subscribing to a union type constrained stream with a function of whose parameter union"
             + " type does not contain all possible types or assignable types",
             expectedExceptions = { BLangRuntimeException.class },
@@ -237,20 +221,14 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
-    public void testStreamPublishingAndSubscriptionForAnyTypeStream() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnyTypeStream");
+    public void testStreamPublishingAndSubscriptionForAnydataTypeStream() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnydataTypeStream");
         assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test stream publish with structurally equivalent records")
     public void testStreamsPublishingForStructurallyEquivalentRecords() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
-    }
-
-    @Test(description = "Test stream publish with structurally equivalent objects")
-    public void testStreamsPublishingForStructurallyEquivalentObjects() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentObjects");
         assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
