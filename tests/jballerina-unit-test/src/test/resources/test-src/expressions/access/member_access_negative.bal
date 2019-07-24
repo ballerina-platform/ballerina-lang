@@ -175,18 +175,23 @@ function testStringMemberAccessForAssignment() {
     animal[0] = "b";
 }
 
-const STC = "qwerty";
-const SIC2 = "l";
+const I5 = 5;
 
-const map<string> CM1 = {
-    l: STC[0],
-    m: STC
-};
+function testInvalidOutOfRangeClosedArrayMemberAccessByConstant() {
+    Employee[2] ia = [{ name: "abc" }, { name: "def" }];
+    _ = ia[I5];
+}
 
-const map<string> CM2 = {
-    v: CM1[SIC2][1],
-    w: CM1["m"][STC.length()],
-    x: STC[0][-1],
-    y: CM1["m"][6],
-    z: CM1["l"][1]
-};
+function testInvalidOutOfRangeTupleMemberAccessByConstant() {
+    [int, Employee] ia = [1, { name: "def" }];
+    _ = ia[I5];
+}
+
+const NAMEC = "name";
+const AGEC = "age";
+
+function testInvalidRecordMemberAccessByConst() {
+    Employee e = { name: "abc" };
+    int i1 = e[NAMEC];
+    int i2 = e[AGEC];
+}

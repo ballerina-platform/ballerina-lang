@@ -251,7 +251,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
                 Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
                 funcPath.ifPresent(pathStr -> {
-                    Optional<SymbolInfo> searchSymbol = SignatureHelpUtil.getFuncSymbolInfo(pathStr, visibleSymbols);
+                    Optional<SymbolInfo> searchSymbol = SignatureHelpUtil.getFuncSymbolInfo(context, pathStr,
+                                                                                            visibleSymbols);
                     searchSymbol.ifPresent(s -> {
                         if (s.getScopeEntry().symbol instanceof BInvokableSymbol) {
                             BInvokableSymbol symbol = (BInvokableSymbol) s.getScopeEntry().symbol;
