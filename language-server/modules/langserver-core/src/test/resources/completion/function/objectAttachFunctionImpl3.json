@@ -6,7 +6,7 @@
   "source": "function/source/objectAttachFunctionImpl3.bal",
   "items": [
     {
-      "label": "getFullName() returns lang.annotations:string",
+      "label": "getFullName() returns string",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "getFullName() returns lang.annotations:string {\n\t${1}\n}",
+      "insertText": "getFullName() returns string {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "checkAndModifyAge(lang.annotations:int condition, lang.annotations:int a)",
+      "label": "checkAndModifyAge(int condition, int a)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -32,7 +32,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "insertText": "checkAndModifyAge(lang.annotations:int condition, lang.annotations:int a) {\n\t${1}\n}",
+      "insertText": "checkAndModifyAge(int condition, int a) {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

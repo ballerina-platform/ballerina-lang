@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,9 +98,6 @@ public class SourceDirectoryManager {
 
         //Check for source files
         if (sourceFileNames.contains(sourcePackage)) {
-            if (manifest.getProject().getOrgName() != null && !manifest.getProject().getOrgName().isEmpty()) {
-                return new PackageID(orgName, sourcePackage, version);
-            }
             return new PackageID(sourcePackage);
         }
 
@@ -129,9 +127,10 @@ public class SourceDirectoryManager {
         // TODO Validate projectDirPath, exists, get Absolute path etc. no simlinks
         // TODO Validate the project directory
         // TODO Check whether it is a directory and it exists.
-        // TODO to real path.. isReadable isWritable etc..
+        // TODO to real path.. isReadable isWritable etc.
+        String standaloneFile = options.get(CompilerOptionName.STANDALONE_FILE);
         srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-        if (!srcDirectory.canHandle(projectDirPath)) {
+        if (!srcDirectory.canHandle(projectDirPath) || standaloneFile != null) {
             srcDirectory = new FileSystemProgramDirectory(projectDirPath);
         }
 
@@ -152,7 +151,8 @@ public class SourceDirectoryManager {
      */
     boolean checkIfSourcesExists(String pkg) {
         // Check if it is a valid ballerina project.
-        if (ProjectDirs.isProject(this.sourceDirectory.getPath())) {
+        if (ProjectDirs.isProject(this.sourceDirectory.getPath()) &&
+                !RepoUtils.isBallerinaStandaloneFile(this.sourceDirectory.getPath().resolve(pkg))) {
             return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath()
                     .resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(pkg));
         } else {

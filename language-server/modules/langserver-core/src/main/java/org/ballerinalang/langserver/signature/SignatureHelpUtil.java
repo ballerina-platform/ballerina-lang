@@ -45,6 +45,8 @@ import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -61,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -79,6 +82,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
+import static org.ballerinalang.langserver.common.utils.FilterUtils.getLangLibScopeEntries;
 
 /**
  * Utility functions for the signature help.
@@ -321,41 +327,48 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<SymbolInfo> getFuncSymbolInfo(String funcName, List<SymbolInfo> visibleSymbols) {
-        String[] funcNameComps = funcName.split("\\.");
+    public static Optional<SymbolInfo> getFuncSymbolInfo(LSServiceOperationContext context, String funcName,
+                                                         List<SymbolInfo> visibleSymbols) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
+        Types types = Types.getInstance(compilerContext);
+
+        String[] nameComps = funcName.split("\\.");
         int index = 0;
         Optional<SymbolInfo> searchSymbol = Optional.empty();
-        while (index < funcNameComps.length) {
-            String name = funcNameComps[index];
-            int packagePrefix = name.indexOf(":");
-            if (packagePrefix > -1) {
-                String[] moduleComps = name.substring(0, packagePrefix).split("/");
+        while (index < nameComps.length) {
+            String name = nameComps[index];
+            int pkgPrefix = name.indexOf(":");
+            boolean hasPkgPrefix = pkgPrefix > -1;
+            if (!hasPkgPrefix) {
+                searchSymbol = visibleSymbols.stream()
+                        .filter(s -> name.equals(getLastItem(s.getSymbolName().split("\\."))))
+                        .findFirst();
+            } else {
+                String[] moduleComps = name.substring(0, pkgPrefix).split("/");
                 String alias = moduleComps[1].split(" ")[0];
 
-                Optional<SymbolInfo> first = visibleSymbols.stream()
+                Optional<SymbolInfo> moduleSymbol = visibleSymbols.stream()
                         .filter(s -> s.getSymbolName().equals(alias))
                         .findFirst();
 
-                visibleSymbols = first.get().getScopeEntry().symbol.scope.entries.entrySet().stream()
+                visibleSymbols = moduleSymbol.get().getScopeEntry().symbol.scope.entries.entrySet().stream()
                         .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
                         .collect(Collectors.toList());
 
                 searchSymbol = visibleSymbols.stream()
-                        .filter(s -> name.substring(packagePrefix + 1)
-                                .equals(CommonUtil.getLastItem(s.getSymbolName().split("\\."))))
-                        .findFirst();
-            } else {
-                searchSymbol = visibleSymbols.stream()
-                        .filter(s -> name.equals(CommonUtil.getLastItem(s.getSymbolName().split("\\."))))
+                        .filter(s -> name.substring(pkgPrefix + 1).equals(getLastItem(s.getSymbolName().split("\\."))))
                         .findFirst();
             }
+            // If search symbol not found, return
             if (!searchSymbol.isPresent()) {
                 break;
             }
+            // The `searchSymbol` found, resolve further
             boolean isInvocation = searchSymbol.get().getScopeEntry().symbol instanceof BInvokableSymbol;
             boolean isObject = searchSymbol.get().getScopeEntry().symbol instanceof BObjectTypeSymbol;
             boolean isVariable = searchSymbol.get().getScopeEntry().symbol instanceof BVarSymbol;
-            boolean hasNextNameComp = index + 1 < funcNameComps.length;
+            boolean hasNextNameComp = index + 1 < nameComps.length;
             if (isInvocation && hasNextNameComp) {
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().getScopeEntry().symbol;
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
@@ -380,6 +393,10 @@ public class SignatureHelpUtil {
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                     visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
+                } else {
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types).entrySet().stream()
                             .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
                             .collect(Collectors.toList());
                 }

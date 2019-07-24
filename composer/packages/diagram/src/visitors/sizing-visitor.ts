@@ -72,8 +72,9 @@ class SizingVisitor implements Visitor {
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        // FIXME remove cast to any on While node to get VisibleEndpoints
+        if ((node as any).VisibleEndpoints) {
+            this.endpointHolder = [...(node as any).VisibleEndpoints, ...this.endpointHolder];
         }
     }
 
@@ -151,8 +152,6 @@ class SizingVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
@@ -516,6 +515,7 @@ class SizingVisitor implements Visitor {
         } else {
             viewState.bBox.w = 60;
             viewState.bBox.h = config.statement.height;
+            viewState.bBox.leftMargin = 0;
         }
     }
 
@@ -530,8 +530,8 @@ class SizingVisitor implements Visitor {
         ASTUtil.traversNode(expandedFn, new SizingVisitor());
         const sizes = config.statement.expanded;
 
-        if (sizes.offset > expandedBody.leftMargin) {
-            expandedBody.leftMargin = sizes.offset;
+        if ((config.lifeLine.width / 2) > expandedBody.leftMargin) {
+            expandedBody.leftMargin = config.lifeLine.width / 2;
         }
 
         let expandedFnWidth = expandedBody.w + expandedBody.leftMargin;
@@ -541,10 +541,7 @@ class SizingVisitor implements Visitor {
         expandedFnWidth += expandedFnViewState.endpointsWidth;
         expandedFnWidth += sizes.rightMargin + sizes.margin;
 
-        const expandedFnHeight = expandedFnViewState.containsOtherLifelines ?
-            expandedDefaultWorker.h : expandedBody.h;
-
-        viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
+        viewState.bBox.h = expandedDefaultWorker.h + sizes.header + sizes.footer + sizes.bottomMargin;
         const fullLabelWidth = config.statement.padding.left + viewState.expandContext!.labelWidth
             + sizes.rightMargin + (2 * sizes.labelGutter);
 

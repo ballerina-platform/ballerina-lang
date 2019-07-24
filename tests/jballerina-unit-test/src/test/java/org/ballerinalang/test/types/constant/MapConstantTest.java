@@ -160,109 +160,113 @@ public class MapConstantTest {
     }
 
     @Test
-    public void testBooleanConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReference");
+    public void testBooleanMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"bm5kn\":true}");
     }
 
     @Test
-    public void testIntConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReference");
+    public void testIntMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"im5kn\":123}");
     }
 
     @Test
-    public void testByteConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReference");
+    public void testByteMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"bytem5kn\":64}");
     }
 
     @Test
-    public void testFloatConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReference");
+    public void testFloatMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"fm5kn\":12.5}");
     }
 
     @Test
-    public void testDecimalConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReference");
+    public void testDecimalMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"dm5kn\":5.56}");
     }
 
     @Test
-    public void testStringConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReference");
+    public void testStringMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"sm5kn\":\"sm4v\"}");
     }
 
     @Test
-    public void testNullConstKeyReference() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReference");
+    public void testNilMapConstMemberAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNilMapConstMemberAccess");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{\"nm5kn\":()}");
     }
 
     @Test
-    public void testBooleanConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstKeyReferenceInLocalVar");
+    public void testBooleanConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
-    public void testIntConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstKeyReferenceInLocalVar");
+    public void testIntConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIntConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 123);
     }
 
     @Test
-    public void testByteConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstKeyReferenceInLocalVar");
+    public void testByteConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BByte) returns[0]).intValue(), 64);
     }
 
     @Test
-    public void testFloatConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstKeyReferenceInLocalVar");
+    public void testFloatConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFloatConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 12.5);
     }
 
     @Test
-    public void testDecimalConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstKeyReferenceInLocalVar");
+    public void testDecimalConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDecimalConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         BigDecimal expected = new BigDecimal("5.56", MathContext.DECIMAL128);
         Assert.assertEquals(((BDecimal) returns[0]).decimalValue().compareTo(expected), 0);
     }
 
     @Test
-    public void testStringConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstKeyReferenceInLocalVar");
+    public void testStringConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStringConstMemberAccessInLocalVar");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "sm4v");
     }
 
     @Test
-    public void testNullConstKeyReferenceInLocalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstKeyReferenceInLocalVar");
+    public void testNullConstMemberAccessInLocalVar() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNullConstMemberAccessInLocalVar");
         Assert.assertNull(returns[0]);
     }
-
-    // Annotation tests.
 
     @Test
     public void testConstInAnnotations() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstInAnnotations");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "{s:\"Ballerina\", i:100, m:{\"mKey\":\"mValue\"}}");
+    }
+
+    @Test
+    public void testNestedConstMapAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNestedConstMapAccess");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

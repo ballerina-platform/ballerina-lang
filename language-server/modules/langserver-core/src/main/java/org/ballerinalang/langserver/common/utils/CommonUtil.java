@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -863,6 +864,9 @@ public class CommonUtil {
         if (bType instanceof BStreamType) {
             return ((BStreamType) bType).constraint;
         }
+        if (bType instanceof BTypedescType) {
+            return ((BTypedescType) bType).constraint;
+        }
         return ((BTableType) bType).constraint;
 
     }
@@ -1038,12 +1042,12 @@ public class CommonUtil {
         List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
         String symbolName = CommonUtil.getLastItem(symbolNameComponents);
 
-        return symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
+        return symbolName != null && (symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
                 || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
                 || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
                 || symbolName.equals("main")
                 || symbolName.endsWith(".new")
-                || symbolName.startsWith("0");
+                || symbolName.startsWith("0"));
     }
 
     /**
@@ -1095,35 +1099,31 @@ public class CommonUtil {
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<BVarSymbol> parameterDefs = new ArrayList<>(symbol.getParameters());
+        BVarSymbol restParam = symbol.restParam;
         int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
                 : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        boolean allowFirstParam = allowFirstParam(symbol, invocationType);
+        boolean skipFirstParam = skipFirstParam(symbol, invocationType);
 
         if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
-            List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol);
+            // Get only the argument types combined
+            List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
             if (!funcArguments.isEmpty()) {
-                int funcArgumentsCount = funcArguments.size();
-                for (int itr = 0; itr < funcArgumentsCount; itr++) {
-                    String argument = funcArguments.get(itr);
-                    signature.append(argument);
-
-                    if (!(itr == funcArgumentsCount - 1)) {
-                        signature.append(", ");
-                    }
-                }
+                signature.append(String.join(", ", funcArguments));
                 insertText.append("${1}");
             }
         } else {
+            List<String> paramsList = new ArrayList<>();
             for (int itr = 0; itr < parameterDefs.size(); itr++) {
-                if (!allowFirstParam) {
+                if (itr == 0 && skipFirstParam) {
                     continue;
                 }
                 BVarSymbol param = parameterDefs.get(itr);
-                signature.append(getFunctionInvocationParameterSignature(param, false, ctx));
-                if (itr != parameterDefs.size() - 1) {
-                    signature.append(", ");
-                }
+                paramsList.add(getFunctionInvocationParameterSignature(param, false, ctx));
             }
+            if (restParam != null && (restParam.type instanceof BArrayType)) {
+                paramsList.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
+            }
+            signature.append(String.join(", ", paramsList));
             insertText.append("${1}");
         }
         signature.append(")");
@@ -1344,7 +1344,7 @@ public class CommonUtil {
                                           PackageID typePkgId) {
         String pkgPrefix = "";
         if (!typePkgId.equals(currentPkgId) &&
-                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.equals("builtin"))) {
+                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.startsWith("lang."))) {
             pkgPrefix = typePkgId.name.value + ":";
             if (importsAcceptor != null) {
                 importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
@@ -1383,7 +1383,7 @@ public class CommonUtil {
     }
 
     /**
-     * Whether we allow the first parameter to be included as a label in the signature.
+     * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
      * showing the invocation over package of the langlib with the COLON we show the first param
      *
@@ -1391,8 +1391,8 @@ public class CommonUtil {
      * @param invocationType  delimiter
      * @return {@link Boolean} whether we show the first param or not
      */
-    public static boolean allowFirstParam(BInvokableSymbol invokableSymbol, int invocationType) {
-        return isLangLibSymbol(invokableSymbol) && invocationType != BallerinaParser.DOT;
+    public static boolean skipFirstParam(BInvokableSymbol invokableSymbol, int invocationType) {
+        return isLangLibSymbol(invokableSymbol) && invocationType == BallerinaParser.DOT;
     }
 
     /**

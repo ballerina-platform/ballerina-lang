@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -1327,6 +1328,24 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         generateMappingAccess(astJSONFieldAccessExpr, astJSONFieldAccessExpr.optionalFieldAccess);
+    }
+
+    @Override
+    public void visit(BLangStringAccessExpr stringAccessExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(stringAccessExpr.type, this.env.nextLocalVarId(names),
+                                                       VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        stringAccessExpr.expr.accept(this);
+        BIROperand varRefRegIndex = this.env.targetOperand;
+
+        stringAccessExpr.indexExpr.accept(this);
+        BIROperand keyRegIndex = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.FieldAccess(stringAccessExpr.pos, InstructionKind.STRING_LOAD, tempVarRef,
+                                              keyRegIndex, varRefRegIndex));
+        this.env.targetOperand = tempVarRef;
     }
 
     @Override

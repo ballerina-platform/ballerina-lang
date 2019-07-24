@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "remove()((any|error))",
+      "label": "remove(int i)((any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -38,13 +38,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "Type1",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "Type1",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "pop()((any|error))",
@@ -98,7 +91,7 @@
       }
     },
     {
-      "label": "slice()((any|error)[])",
+      "label": "slice(int startIndex, int endIndex)((any|error)[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -149,7 +142,7 @@
       }
     },
     {
-      "label": "indexOf()((int|()))",
+      "label": "indexOf((anydata|error) val, int startIndex)((int|()))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -166,7 +159,7 @@
       }
     },
     {
-      "label": "map()((any|error)[])",
+      "label": "map(function ((any|error)) returns ((any|error)) func)((any|error)[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -183,7 +176,7 @@
       }
     },
     {
-      "label": "reduce()((any|error))",
+      "label": "reduce(function ((any|error),(any|error)) returns ((any|error)) func, (any|error) initial)((any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -217,14 +210,7 @@
       }
     },
     {
-      "label": "PureType",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "PureType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "forEach()",
+      "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -258,7 +244,7 @@
       }
     },
     {
-      "label": "sort()((any|error)[])",
+      "label": "sort(function ((any|error),(any|error)) returns (int) func)((any|error)[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -292,7 +278,7 @@
       }
     },
     {
-      "label": "push()",
+      "label": "push(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -309,7 +295,7 @@
       }
     },
     {
-      "label": "filter()((any|error)[])",
+      "label": "filter(function ((any|error)) returns (boolean) func)((any|error)[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -326,7 +312,7 @@
       }
     },
     {
-      "label": "setLength()",
+      "label": "setLength(int i)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -343,14 +329,7 @@
       }
     },
     {
-      "label": "Type",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "Type",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "unshift()",
+      "label": "unshift(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
