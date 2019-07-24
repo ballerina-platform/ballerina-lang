@@ -32,14 +32,12 @@ import org.ballerinax.jdbc.exceptions.ApplicationException;
 import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 
 /**
  * Represents an Update SQL statement.
@@ -111,41 +109,11 @@ public class UpdateStatement extends AbstractSQLStatement {
         MapValue<String, Object> generatedKeys = new MapValueImpl<>(BTypes.typeAnydata);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
-        int columnType;
         Object value;
         String columnName;
-        BigDecimal bigDecimal;
         for (int i = 1; i <= columnCount; i++) {
-            columnType = metaData.getColumnType(i);
             columnName = metaData.getColumnLabel(i);
-            switch (columnType) {
-                case Types.INTEGER:
-                case Types.TINYINT:
-                case Types.SMALLINT:
-                    value = rs.getInt(i);
-                    break;
-                case Types.DOUBLE:
-                    value = rs.getDouble(i);
-                    break;
-                case Types.FLOAT:
-                    value = rs.getFloat(i);
-                    break;
-                case Types.BOOLEAN:
-                case Types.BIT:
-                    value = rs.getBoolean(i);
-                    break;
-                case Types.DECIMAL:
-                case Types.NUMERIC:
-                    bigDecimal = rs.getBigDecimal(i);
-                    value = bigDecimal;
-                    break;
-                case Types.BIGINT:
-                    value = rs.getLong(i);
-                    break;
-                default:
-                    value = rs.getString(i);
-                    break;
-            }
+            value = extractValueFromResultSet(metaData, rs, i);
             generatedKeys.put(columnName, value);
         }
         return generatedKeys;

@@ -175,6 +175,40 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         return columnDefs;
     }
 
+    Object extractValueFromResultSet(ResultSetMetaData rsMeta, ResultSet rs, int index) throws SQLException {
+        Object value;
+        int columnType;
+        columnType = rsMeta.getColumnType(index);
+        switch (columnType) {
+        case Types.INTEGER:
+        case Types.TINYINT:
+        case Types.SMALLINT:
+            value = rs.getInt(index);
+            break;
+        case Types.DOUBLE:
+            value = rs.getDouble(index);
+            break;
+        case Types.FLOAT:
+            value = rs.getFloat(index);
+            break;
+        case Types.BOOLEAN:
+        case Types.BIT:
+            value = rs.getBoolean(index);
+            break;
+        case Types.DECIMAL:
+        case Types.NUMERIC:
+            value = rs.getBigDecimal(index);
+            break;
+        case Types.BIGINT:
+            value = rs.getLong(index);
+            break;
+        default:
+            value = rs.getString(index);
+            break;
+        }
+        return value;
+    }
+
     /**
      * This method will return equal ballerina data type for SQL type.
      *

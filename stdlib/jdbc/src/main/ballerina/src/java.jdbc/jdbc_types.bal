@@ -227,9 +227,11 @@ public type UpdateResult record {|
 #                            affected is unknown
 #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
 #                            continues to process commands after a command fails
+# + generatedKeys - A map of auto generated key values during the batch update execution
 # + returnedError - The `Error` returned from the remote function in case of a failure
 public type BatchUpdateResult record {|
     int[] updatedRowCount;
+    map<anydata[]> generatedKeys;
     Error? returnedError;
 |};
 
