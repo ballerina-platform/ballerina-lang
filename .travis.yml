@@ -56,3 +56,4 @@ cache:
 branches:
   only:
     - master
+    - packerina-dev
