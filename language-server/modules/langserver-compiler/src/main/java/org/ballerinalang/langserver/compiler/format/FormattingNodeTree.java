@@ -2269,21 +2269,61 @@ public class FormattingNodeTree {
             JsonArray ws = node.get(FormattingConstants.WS).getAsJsonArray();
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
+            String orgName = "";
+            String packageVersion = "";
+            List<String> packageNames = new ArrayList<>();
+
+            if (node.has("orgName")) {
+                orgName = node.getAsJsonObject("orgName").get(FormattingConstants.VALUE).getAsString();
+            }
+
+            if (node.has("packageVersion")) {
+                packageVersion = node.getAsJsonObject("packageVersion").get(FormattingConstants.VALUE).getAsString();
+            }
+
+            if (node.has("packageName")) {
+                for (JsonElement packageNameItem : node.getAsJsonArray("packageName")) {
+                    JsonObject packageName = packageNameItem.getAsJsonObject();
+                    packageNames.add(packageName.get(FormattingConstants.VALUE).getAsString());
+                }
+            }
 
             this.preserveHeight(ws, indentation);
 
-            // Update whitespaces for import keyword
-            if (this.noHeightAvailable(ws.get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()) +
-                                indentation);
-            }
-
-            // Update whitespace for semicolon
-            JsonObject semicolonWhitespace = ws.get(ws.size() - 1).getAsJsonObject();
-            if (this.noHeightAvailable(semicolonWhitespace.get(FormattingConstants.WS).getAsString())) {
-                semicolonWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+            boolean forwardSlashAvailable = false;
+            boolean dotAvailable = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals(Tokens.IMPORT)) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                        this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
+                                                .getAsInt()) + indentation);
+                    } else if (text.equals(Tokens.DIV)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        forwardSlashAvailable = true;
+                    } else if (packageNames.contains(text)) {
+                        if (forwardSlashAvailable || dotAvailable) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            forwardSlashAvailable = false;
+                            dotAvailable = false;
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
+                    } else if (text.equals(orgName)
+                            || text.equals(Tokens.AS)
+                            || text.equals(Tokens.VERSION)
+                            || text.equals(packageVersion)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(Tokens.SEMICOLON) || text.equals(Tokens.DOT)) {
+                        dotAvailable = true;
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    }
+                }
             }
         }
     }
