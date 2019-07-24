@@ -179,12 +179,12 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(OutboundMsgHolder msgHolder, boolean primary) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
-                closeStream(streamId, ctx);
                 if (primary) {
                     handlePrimaryResponseTimeout(msgHolder);
                 } else {
                     handlePushResponseTimeout(msgHolder);
                 }
+                closeStream(streamId, ctx);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));

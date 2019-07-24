@@ -50,7 +50,7 @@ import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONS
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
@@ -122,7 +122,7 @@ public class ReceivingHeaders implements SenderState {
                                     boolean serverPush) {
         if (!serverPush) {
             outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                    IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
     }

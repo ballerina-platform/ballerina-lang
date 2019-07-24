@@ -108,4 +108,18 @@ public class Http2Util {
         assertEquals(response1, response3, "Client uses the same pool, hence response 1 and 3 should be equal");
         assertEquals(response2, response4, "Client uses the same pool, hence response 2 and 4 should be equal");
     }
+
+    public static HttpClientConnector getHttp2Client(HttpWsConnectorFactory connectorFactory, boolean priorOn,
+                                               int socketIdleTimeout) {
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                           Constants.HTTP_SCHEME);
+        senderConfiguration.setSocketIdleTimeout(socketIdleTimeout);
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
+        if (priorOn) {
+            senderConfiguration.setForceHttp2(true);
+        }
+        return connectorFactory.createHttpClientConnector(
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+    }
 }

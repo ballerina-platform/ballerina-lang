@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
 
 /**
@@ -108,11 +108,7 @@ public class ReceivingEntityBody implements SenderState {
     @Override
     public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
                                     boolean serverPush) {
-        if (!serverPush) {
-            outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        }
+        //This is handled by handleIncompleteResponse() method in Http2ClientTimeoutHandler class
     }
 
     private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean serverPush,

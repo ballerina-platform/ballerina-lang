@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -119,7 +119,7 @@ public class SendingEntityBody implements SenderState {
                                     boolean serverPush) {
         if (!serverPush) {
             outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                    IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
     }
