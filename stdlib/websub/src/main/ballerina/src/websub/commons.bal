@@ -222,11 +222,19 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     string generatedSignature = "";
 
     if (internal:equalsIgnoreCase(method, SHA1)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
-            secret.toBytes()));
+        var hash = crypto:hmacSha1(stringPayload.toBytes(), secret.toBytes());
+        if (hash is byte[]) {
+            generatedSignature = encoding:encodeHex(hash);
+        } else {
+            return hash;
+        }
     } else if (internal:equalsIgnoreCase(method, SHA256)) {
-        generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
-            secret.toBytes()));
+        var hash = crypto:hmacSha256(stringPayload.toBytes(), secret.toBytes());
+        if (hash is byte[]) {
+            generatedSignature = encoding:encodeHex(hash);
+        } else {
+            return hash;
+        }
     } else {
         error webSubError = error(WEBSUB_ERROR_CODE, message = "Unsupported signature method: " + method);
         return webSubError;
