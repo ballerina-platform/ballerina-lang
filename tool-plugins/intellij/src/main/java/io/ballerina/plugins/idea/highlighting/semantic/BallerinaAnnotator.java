@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.codeinsight.daemon.impl;
+package io.ballerina.plugins.idea.highlighting.semantic;
 
 import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
@@ -27,7 +27,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
+import io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlightingColors;
 import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
