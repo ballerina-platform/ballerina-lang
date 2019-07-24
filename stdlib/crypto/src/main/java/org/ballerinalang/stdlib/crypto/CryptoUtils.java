@@ -80,16 +80,16 @@ public class CryptoUtils {
      * @param algorithm algorithm used during HMAC generation
      * @param key       key used during HMAC generation
      * @param input     input byte array for HMAC generation
-     * @return calculated HMAC value
+     * @return calculated HMAC value or error if inputs are invalid
      */
-    public static byte[] hmac(String algorithm, byte[] key, byte[] input) {
+    public static Object hmac(String algorithm, byte[] key, byte[] input) {
         try {
             SecretKey secretKey = new SecretKeySpec(key, algorithm);
             Mac mac = Mac.getInstance(algorithm);
             mac.init(secretKey);
-            return mac.doFinal(input);
+            return new ArrayValue(mac.doFinal(input));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new BallerinaException("Error occurred while calculating HMAC: " + e.getMessage());
+            return CryptoUtils.createCryptoError("Error occurred while calculating HMAC: " + e.getMessage());
         }
     }
 
@@ -98,16 +98,16 @@ public class CryptoUtils {
      *
      * @param algorithm algorithm used during hashing
      * @param input     input byte array for hashing
-     * @return calculated hash value
+     * @return calculated hash value or error if inputs are invalid
      */
-    public static byte[] hash(String algorithm, byte[] input) {
+    public static Object hash(String algorithm, byte[] input) {
         try {
             MessageDigest messageDigest;
             messageDigest = MessageDigest.getInstance(algorithm);
             messageDigest.update(input);
-            return messageDigest.digest();
+            return new ArrayValue(messageDigest.digest());
         } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaException("Error occurred while calculating hash: " + e.getMessage());
+            return CryptoUtils.createCryptoError("Error occurred while calculating hash: " + e.getMessage());
         }
     }
 
@@ -117,17 +117,18 @@ public class CryptoUtils {
      * @param algorithm  algorithm used during signing
      * @param privateKey private key to be used during signing
      * @param input      input byte array for signing
-     * @return calculated signature
-     * @throws InvalidKeyException if the privateKey is invalid
+     * @return calculated signature or error if key is invalid
      */
-    public static byte[] sign(String algorithm, PrivateKey privateKey, byte[] input) throws InvalidKeyException {
+    public static Object sign(String algorithm, PrivateKey privateKey, byte[] input) {
         try {
             Signature sig = Signature.getInstance(algorithm);
             sig.initSign(privateKey);
             sig.update(input);
-            return sig.sign();
+            return new ArrayValue(sig.sign());
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage());
+            return CryptoUtils.createCryptoError("Error occurred while calculating signature: " + e.getMessage());
+        } catch (InvalidKeyException e) {
+            return CryptoUtils.createCryptoError("Uninitialized private key");
         }
     }
 
@@ -138,18 +139,18 @@ public class CryptoUtils {
      * @param publicKey public key to be used during verification
      * @param data      input byte array for verification
      * @param signature signature byte array for verification
-     * @return validity of the signature
-     * @throws InvalidKeyException if the publicKey is invalid
+     * @return validity of the signature or error if key is invalid
      */
-    public static boolean verify(String algorithm, PublicKey publicKey, byte[] data, byte[] signature)
-            throws InvalidKeyException {
+    public static Object verify(String algorithm, PublicKey publicKey, byte[] data, byte[] signature) {
         try {
             Signature sig = Signature.getInstance(algorithm);
             sig.initVerify(publicKey);
             sig.update(data);
             return sig.verify(signature);
         } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new BallerinaException("Error occurred while calculating signature: " + e.getMessage());
+            return CryptoUtils.createCryptoError("Error occurred while calculating signature: " + e.getMessage());
+        } catch (InvalidKeyException e) {
+            return CryptoUtils.createCryptoError("Uninitialized public key");
         }
     }
 
