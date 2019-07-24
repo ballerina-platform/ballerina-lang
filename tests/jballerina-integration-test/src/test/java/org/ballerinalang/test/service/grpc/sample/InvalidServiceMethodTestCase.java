@@ -44,7 +44,8 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "05_invalid_resource_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "05_invalid_resource_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -52,8 +53,8 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "with missing method descriptor.")
     public void testInvalidRemoteMethod() {
         BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - No registered method descriptor " +
-                "for 'grpcservices.HelloWorld98/hello1'";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - No registered method " +
+                "descriptor for 'grpcservices.HelloWorld98/hello1'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -77,7 +78,8 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
         BFloat request = new BFloat(1000.5);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - {ballerina}NumberConversionError";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - Error while constructing " +
+                "the message";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -88,8 +90,8 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
             " message")
     public void testNonExistenceRemoteMethod() {
         BBoolean request = new BBoolean(false);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}INTERNAL - No registered method descriptor " +
-                "for 'grpcservices.HelloWorld98/testBoolean'";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - No registered method " +
+                "descriptor for 'grpcservices.HelloWorld98/testBoolean'";
 
         BValue[] responses = BRunUtil.invoke(result, "testNonExistenceRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

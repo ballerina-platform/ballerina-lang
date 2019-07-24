@@ -48,7 +48,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "07_unary_blocking_client" +
+                ".bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -64,7 +65,7 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testBlockingErrorResponse() {
-        final String serverMsg = "Error from Connector: {ballerina/grpc}ABORTED - Operation aborted";
+        final String serverMsg = "Error from Connector: {ballerina/grpc}AbortedError - Operation aborted";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"invalid"});
         Assert.assertEquals(responses.length, 1);
@@ -101,7 +102,7 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
         Assert.assertEquals(Boolean.parseBoolean(responses[0].stringValue()), response);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testStructBlockingBallerinaClient() {
         MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
         request.put("name", "Sam");
@@ -128,7 +129,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_nonblocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "07_unary_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new Object[]{});

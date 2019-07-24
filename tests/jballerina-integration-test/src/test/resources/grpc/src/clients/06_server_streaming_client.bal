@@ -25,6 +25,7 @@ import ballerina/runtime;
 //}
 
 int total = 0;
+boolean eof = false;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
     HelloWorldClient helloWorldEp = new("http://localhost:9096");
@@ -39,7 +40,7 @@ function testServerStreaming(string name) returns int {
     }
 
     int waitCount = 0;
-    while(total < 4) {
+    while(total < 3 || !eof) {
         runtime:sleep(1000);
         io:println("msg count: " + total.toString());
         if (waitCount > 10) {
@@ -57,8 +58,10 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
     resource function onMessage(string message) {
-        io:println("Response received from server: " + message);
-        total = total + 1;
+        lock {
+            io:println("Response received from server: " + message);
+            total = total + 1;
+        }
     }
 
     // Resource registered to receive server error messages
@@ -69,7 +72,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server completed message.
     resource function onComplete() {
         io:println("Server Complete Sending Response.");
-        total = total + 1;
+        eof = true;
     }
 };
 
