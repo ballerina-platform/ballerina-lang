@@ -24,19 +24,36 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * A test case for http2 redirect.
+ * A test case for http2 with multiparts (with and without prior knowledge).
  */
 @Test(groups = "http2-test")
 public class MultipartTestCase extends Http2BaseTest {
 
     private final int servicePort = 9100;
 
-    @Test(description = "Test http2 with multiparts.")
+    @Test(description = "Test http2 with multiparts without prior knowledge")
     public void testMultipart() throws IOException {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("priorKnowledge", "false");
         HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "multiparts/initial"));
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "multiparts/initial"), headersMap);
+        assertResponse(headersMap);
+    }
+
+    @Test(description = "Test http2 with multiparts with prior knowledge.")
+    public void testMultipartsWithPriorKnowledge() throws IOException {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("priorKnowledge", "true");
+        assertResponse(headersMap);
+    }
+
+    private void assertResponse(Map<String, String> headersMap) throws IOException {
+        HttpResponse response = HttpClientRequest
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "multiparts/initial"), headersMap);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"name\":\"wso2\"}<message>Hello world</message>text content",

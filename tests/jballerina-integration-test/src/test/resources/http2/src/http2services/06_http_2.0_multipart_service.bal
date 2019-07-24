@@ -20,6 +20,8 @@ import ballerina/mime;
 
 http:Client clientEP = new("http://localhost:9100", { httpVersion: "2.0" });
 http:Client clientEP2 = new("http://localhost:9100", { httpVersion: "2.0" });
+http:Client priorKnowclientEP = new("http://localhost:9100", { httpVersion: "2.0", http2Settings: { http2PriorKnowledge: true } });
+http:Client priorKnowclientEP2 = new("http://localhost:9100", { httpVersion: "2.0", http2Settings: { http2PriorKnowledge: true } });
 
 @http:ServiceConfig {
     basePath: "/multiparts"
@@ -57,7 +59,17 @@ service multipartDemoService on new http:Listener(9100, { httpVersion: "2.0" }) 
         path: "/initial"
     }
     resource function requestInitializer(http:Caller caller, http:Request request) {
-        var finalResponse = clientEP2->get("/multiparts/encode");
+        http:Response|error finalResponse;
+        http:Request req = new;
+        if (request.getHeader("priorKnowledge") == "true") {
+            log:printInfo("----------------prior knowledge true");
+            req.setHeader("priorKnowledge", "true");
+            finalResponse = priorKnowclientEP2->get("/multiparts/encode", req);
+        } else {
+            log:printInfo("--------------prior knowledge false");
+            req.setHeader("priorKnowledge", "false");
+            finalResponse = clientEP2->get("/multiparts/encode", req);
+        }
         if (finalResponse is error) {
             log:printError("Error sending response", finalResponse);
         } else {
@@ -89,7 +101,14 @@ service multipartDemoService on new http:Listener(9100, { httpVersion: "2.0" }) 
         mime:Entity[] bodyParts = [jsonBodyPart, xmlFilePart, textPart];
         http:Request request = new;
         request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
-        var returnResponse = clientEP->post("/multiparts/decode", request);
+        http:Response|error returnResponse;
+        if (req.getHeader("priorKnowledge") == "true") {
+            log:printInfo("-------2222---------prior knowledge true");
+            returnResponse = priorKnowclientEP->post("/multiparts/decode", request);
+        } else {
+            log:printInfo("-------2222---------prior knowledge false");
+            returnResponse = clientEP->post("/multiparts/decode", request);
+        }
         if (returnResponse is http:Response) {
             var result = caller->respond(returnResponse);
             if (result is error) {
