@@ -43,7 +43,7 @@ public class FromCodePointInts {
         int codePoint = 0;
         try {
             StringBuilder builder = new StringBuilder();
-            for(int i = 0; i < codePoints.size(); i++) {
+            for (int i = 0; i < codePoints.size(); i++) {
                 codePoint = (int) codePoints.getInt(i);
                 builder.appendCodePoint(codePoint);
             }

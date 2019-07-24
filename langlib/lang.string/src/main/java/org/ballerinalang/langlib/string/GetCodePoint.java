@@ -41,7 +41,7 @@ public class GetCodePoint {
 
     public static long getCodePoint(Strand strand, String str, long i) {
         try {
-            return str.codePointAt((int)i);
+            return str.codePointAt((int) i);
         } catch (IndexOutOfBoundsException e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     "String codepoint index out of range: " + i);
