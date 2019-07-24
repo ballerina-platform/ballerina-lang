@@ -73,7 +73,7 @@ public class PackageUtils {
         Path relativePath = projectRoot.relativize(path);
 
         String packagePath = relativePath.toString();
-        String fileSeparatorChar = File.separatorChar=='\\' ? "\\\\" : File.separator;
+        String fileSeparatorChar = File.separatorChar == '\\' ? "\\\\" : File.separator;
         if (packagePath.startsWith("src")) {
             packagePath = packagePath.replaceFirst("src" + fileSeparatorChar, "");
         }

@@ -53,6 +53,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
+
 /**
  * Listens and publishes events from JVM.
  */
@@ -76,9 +78,16 @@ public class EventBus {
         this.breakpointsList = breakpointsList.clone();
         if (this.breakpointsList.length > 0) {
             Breakpoint breakpoint = this.breakpointsList[0];
-            projectRoot = PackageUtils.findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            orgName = manifest.getProject().getOrgName();
+            projectRoot = findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
+            if (projectRoot == null) {
+                // calculate projectRoot for single file
+                File file = new File(breakpoint.getSource().getPath());
+                File parentDir = file.getParentFile();
+                projectRoot = parentDir.toPath();
+            } else {
+                Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+                orgName = manifest.getProject().getOrgName();
+            }
         }
     }
 
@@ -116,9 +125,10 @@ public class EventBus {
                     Source source = new Source();
                     try {
                         String sourcePath = stackFrame.location().sourcePath();
-                        if (sourcePath.startsWith(orgName)) {
+                        if (orgName.length() > 0 && sourcePath.startsWith(orgName)) {
                             sourcePath = sourcePath.replaceFirst(orgName, "src");
                         }
+
                         source.setPath(projectRoot + File.separator + sourcePath);
                         source.setName(stackFrame.location().sourceName());
                     } catch (AbsentInformationException e) {
@@ -227,7 +237,15 @@ public class EventBus {
 
                             Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
                                 String balName = evt.referenceType().name() + ".bal";
-                                String moduleName = PackageUtils.getRelativeFilePath(breakpoint.getSource().getPath());
+                                Path path = Paths.get(breakpoint.getSource().getPath());
+                                Path projectRoot = findProjectRoot(path);
+                                String moduleName;
+                                if (projectRoot == null) {
+                                    moduleName = breakpoint.getSource().getName();
+                                } else {
+                                    moduleName = PackageUtils.getRelativeFilePath(path.toString());
+                                }
+
                                 if (moduleName.equals(balName)) {
                                     Location location = null;
                                     try {
