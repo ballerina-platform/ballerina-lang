@@ -27,10 +27,8 @@ import java.util.List;
  * Tasks executor class.
  */
 public class TaskExecutor {
-    private List<Task> tasks;
-    public TaskExecutor(List<Task> tasks) {
-        this.tasks = tasks;
-    }
+    private final List<Task> tasks = new LinkedList<>();
+    private TaskExecutor() {}
     
     public void executeTasks(BuildContext buildContext) {
         for (Task task : tasks) {
@@ -38,16 +36,19 @@ public class TaskExecutor {
         }
     }
     
+    /**
+     * Task executor builder class.
+     */
     public static class TaskBuilder {
-        private List<Task> tasks = new LinkedList<>();
+        private TaskExecutor taskExecutor = new TaskExecutor();
         
         public TaskBuilder addTask(Task task) {
-            this.tasks.add(task);
+            this.taskExecutor.tasks.add(task);
             return this;
         }
         
         public TaskExecutor build() {
-            return new TaskExecutor(this.tasks);
+            return this.taskExecutor;
         }
     }
 }
