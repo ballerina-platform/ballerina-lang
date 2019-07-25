@@ -1,5 +1,6 @@
 package org.wso2.transport.http.netty.http2.clienttimeout;
 
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +11,13 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.OperationStatus;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2ServerWaitDuringDataWrite;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
@@ -24,8 +25,6 @@ import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 import static org.wso2.transport.http.netty.util.Http2Util.getHttp2Client;
 
 public class TimeoutDuringResponseReceive {
@@ -56,8 +55,9 @@ public class TimeoutDuringResponseReceive {
         h2PriorOffClient = getHttp2Client(connectorFactory, false, 1000);
     }
 
-    @Test(enabled = false)
-    public void testHttp2ClientTimeoutWithPriorOff() {
+    @Test(expectedExceptions = DecoderException.class,
+          expectedExceptionsMessageRegExp = "Idle timeout triggered while reading inbound response entity body*")
+    public void testHttp2ClientTimeoutWithPriorOff() throws DecoderException {
         HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
@@ -65,29 +65,17 @@ public class TimeoutDuringResponseReceive {
             HttpResponseFuture responseFuture = h2PriorOffClient.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-//            Throwable error = listener.getHttpErrorMessage();
-//            AssertJUnit.assertNotNull(error);
-//            assertTrue(error instanceof EndpointTimeOutException,
-//                       "Exception is not an instance of EndpointTimeOutException");
-//            String result = error.getMessage();
-//            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-//                         "Expected error message not received");
-            Thread.sleep(10000); //Wait for the stream reset error.
-            OperationStatus status = responseFuture.getStatus();
-            if (status.getCause() != null) {
-                String errorMsg = status.getCause().getMessage();
-                assertEquals(errorMsg, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
-            } else {
-                fail("TimeoutDuringResponseDataWrite is heavily dependent on timing of events and needs an alternate " +
-                             "solution");
-            }
-        } catch (Exception e) {
+            Thread.sleep(10000); //Wait for the idle timeout.
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
+            TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        } catch (InterruptedException e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
         }
     }
 
-    @Test
-    public void testHttp2ClientTimeoutWithPriorOn() {
+    @Test(expectedExceptions = DecoderException.class,
+          expectedExceptionsMessageRegExp = "Idle timeout triggered while reading inbound response entity body*")
+    public void testHttp2ClientTimeoutWithPriorOn() throws DecoderException {
         HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
@@ -95,23 +83,10 @@ public class TimeoutDuringResponseReceive {
             HttpResponseFuture responseFuture = h2PriorOnClient.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-//            Throwable error = listener.getHttpErrorMessage();
-//            AssertJUnit.assertNotNull(error);
-//            assertTrue(error instanceof EndpointTimeOutException,
-//                       "Exception is not an instance of EndpointTimeOutException");
-//            String result = error.getMessage();
-//            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-//                         "Expected error message not received");
-            Thread.sleep(10000); //Wait for the stream reset error.
-            OperationStatus status = responseFuture.getStatus();
-            if (status.getCause() != null) {
-                String errorMsg = status.getCause().getMessage();
-                assertEquals(errorMsg, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
-            } else {
-                fail("TimeoutDuringResponseDataWrite is heavily dependent on timing of events and needs an alternate " +
-                             "solution");
-            }
-        } catch (Exception e) {
+            Thread.sleep(10000); //Wait for the idle timeout.
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
+            TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        } catch (InterruptedException e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
         }
     }
