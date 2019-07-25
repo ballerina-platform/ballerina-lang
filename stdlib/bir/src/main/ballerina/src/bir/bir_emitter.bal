@@ -356,7 +356,7 @@ type InstructionEmitter object {
             print(" = ");
             self.opEmitter.emitOp(ins.rhsOp);
             print(" ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.typeVal);
             println(";");
         } else if (ins is FPLoad) {
             print(tabs);

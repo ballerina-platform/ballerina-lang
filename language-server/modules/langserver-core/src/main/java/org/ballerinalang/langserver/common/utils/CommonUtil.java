@@ -1344,7 +1344,7 @@ public class CommonUtil {
                                           PackageID typePkgId) {
         String pkgPrefix = "";
         if (!typePkgId.equals(currentPkgId) &&
-                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.equals("builtin"))) {
+                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.startsWith("lang."))) {
             pkgPrefix = typePkgId.name.value + ":";
             if (importsAcceptor != null) {
                 importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);

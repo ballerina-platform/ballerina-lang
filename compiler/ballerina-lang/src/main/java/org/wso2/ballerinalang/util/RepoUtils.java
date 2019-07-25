@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -87,6 +88,40 @@ public class RepoUtils {
         Path manifest = path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         return Files.isDirectory(path) && Files.exists(manifest) && Files.isRegularFile(manifest);
     }
+
+    /**
+     * Checks if the path is a standalone file.
+     *
+     * @param file path to bal file
+     * @return true if the file is a standalone bal file
+     */
+    public static boolean isBallerinaStandaloneFile(Path file) {
+        // Check if the file is a regular file
+        if (!Files.isRegularFile(file)) {
+            return false;
+        }
+        // Check if it is a file with bal extention.
+        if (!file.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+            return false;
+        }
+        // Check if it is inside a project
+        Path projectRoot = ProjectDirs.findProjectRoot(file.getParent());
+        if (null != projectRoot) {
+            // Check if it is inside a module
+            Path src = projectRoot.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+            Path parent = file.getParent();
+            while (parent != null) {
+                if (src.equals(parent)) {
+                    return false;
+                }
+                parent = parent.getParent();
+            }
+            return true;
+        } else {
+            return true;
+        }
+    }
+
 
     /**
      * Get the remote repo URL.

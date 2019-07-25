@@ -13,6 +13,23 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fromJsonString()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nParse a string in JSON format and return the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
+        }
+      },
+      "insertText": "fromJsonString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "toBytes()(byte[])",
       "kind": "Function",
       "detail": "Function",

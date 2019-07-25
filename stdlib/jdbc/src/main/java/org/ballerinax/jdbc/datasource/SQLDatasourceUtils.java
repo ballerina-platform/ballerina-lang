@@ -172,13 +172,13 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+    static ConcurrentHashMap<PoolKey, SQLDatasource> retrieveDatasourceContainer(
             MapValue<String, Object> poolOptions) {
-        return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+        return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
     public static void addDatasourceContainer(MapValue<String, Object> poolOptions,
-            ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
+            ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
     }
 
@@ -215,7 +215,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new AssertionError("invalid type for datetime data: " + type);
+            throw new AssertionError("Invalid type " + type + " specified for datetime data");
         }
         return datetimeString.toString();
     }

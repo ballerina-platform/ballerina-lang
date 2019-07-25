@@ -143,3 +143,13 @@ function testArraysOfCyclicDependentTypes4() returns Q1[] {
     arr[3] = new;
     return arr;
 }
+
+function testGetFromFrozenArray() returns int {
+    anydata[] array = [1, 4, 7];
+    anydata[] newArray = array.cloneReadOnly();
+    if (newArray is int[]) {
+        return newArray[1];
+    }
+
+    return -1;
+}

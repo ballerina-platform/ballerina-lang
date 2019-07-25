@@ -90,8 +90,6 @@ class PositioningVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
@@ -107,19 +105,19 @@ class PositioningVisitor implements Visitor {
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
         if (viewState.isExpandedFunction) {
-            bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
-            bodyViewState.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+            defaultWorker.lifeline.bBox.x = viewState.bBox.x + config.statement.expanded.margin
+                + (bodyViewState.bBox.leftMargin - (defaultWorker.lifeline.bBox.w / 2));
+            defaultWorker.lifeline.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+
+            bodyViewState.bBox.x = viewState.bBox.x + config.statement.expanded.margin + bodyViewState.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.lifeline.bBox.y + config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.;
 
             viewState.client.bBox.x = viewState.bBox.x;
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
             workerY = bodyViewState.bBox.y;
-
-            if (viewState.containsOtherLifelines) {
-                bodyViewState.bBox.y += config.lifeLine.header.height +
-                + config.statement.height; // leave room for start line.
-            }
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;
@@ -278,9 +276,9 @@ class PositioningVisitor implements Visitor {
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        if ((node as any).VisibleEndpoints) { // FIXME remove cast to any on While node to get VisibleEndpoints
+        // Position endpoints // FIXME remove cast to any on While node to get VisibleEndpoints
+            (node as any).VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;

@@ -23,16 +23,6 @@
       }
     },
     {
-      "label": "RowType",
-      "kind": "Keyword",
-      "detail": "Map",
-      "documentation": {
-        "left": "The type bound for a table row."
-      },
-      "insertText": "RowType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "hasNext()(boolean)",
       "kind": "Function",
       "detail": "Function",
