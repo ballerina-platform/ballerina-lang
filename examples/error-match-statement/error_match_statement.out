@@ -3,5 +3,6 @@
 $ ballerina run error_match_statement.bal
 Matched a value with a tuple shape
 Matched a value with a record shape
-Matched an error value : reason: Sample Error, detail: {message:"Fatal", fatal:true}
-Matched an error value : reason: Generic Error, detail: {"message":"Failed"}
+Matched an error value : reason: Sample Error, detail: message=Fatal fatal=true
+Matched an error value : reason: Generic Error, message: Failed
+

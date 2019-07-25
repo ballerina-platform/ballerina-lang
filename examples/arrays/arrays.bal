@@ -10,6 +10,22 @@ public function main() {
     io:println(b[0]);
     io:println(b.length());
 
+    // Arrays support several inbuilt functions such as `.reverse()`, `.pop()`, `.push()`, and `.removeAll()`.
+    int[] bReveresed = b.reverse();
+    io:println("Reversed: ", bReveresed);
+
+    io:println("Before pop: ", b);
+    int poppedValue = b.pop();
+    io:println("Popped value: ", poppedValue);
+    io:println("After pop: ", b);
+
+    // Arrays are an iterable type and arrays support functional iteration operations such as `.map()`, `.filter()`, and
+    // `.reduce()`.
+    int[] doubled = b.map(function (int value) returns int {
+            return value * 2;
+        });
+    io:println("Doubled: ", doubled);
+
     // Unless the length is explicitly specified or is expected to be inferred, arrays are unbounded in length.
     // They can grow up to any length based on the given index.
     // In this example, the length of the array is 1000.

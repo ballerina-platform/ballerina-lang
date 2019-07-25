@@ -22,12 +22,12 @@ public function main() {
     boolean isNotEqual = i1 != i3;
     io:println(i1, " != ", i3, " is ", isNotEqual);
 
-    (string|int, float, boolean) t1 = (1, 1.0, false);
-    (int, float|string, boolean) t2 = (1, 1.0, false);
+    [string|int, float, boolean] t1 = [1, 1.0, false];
+    [int, float|string, boolean] t2 = [1, 1.0, false];
     isEqual = t1 == t2;
     io:println(t1, " == ", t2, " is ", isEqual);
 
-    (int, float|string, boolean) t3 = (11, 1.0, true);
+    [int, float|string, boolean] t3 = [11, 1.0, true];
     isNotEqual = t1 != t3;
     io:println(t1, " != ", t3, " is ", isNotEqual);
 

@@ -6,3 +6,5 @@ Is 'a' a string? true
 Alex is a student
 Alex is a person
 Alex is not a vehicle
+Does foo return a student? true
+Does foo return a student? false
