@@ -1,28 +1,31 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package org.wso2.ballerinalang.compiler;
+package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Balo;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -33,6 +36,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -54,23 +58,23 @@ import java.util.stream.Collectors;
  *
  * @since 1.0
  */
-public class ModuleFileWriter {
-    private static final CompilerContext.Key<ModuleFileWriter> MODULE_FILE_WRITER_KEY =
+public class BaloFileWriter {
+    private static final CompilerContext.Key<BaloFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
     private PrintStream outStream = System.out;
 
     private final SourceDirectory sourceDirectory;
     private final Manifest manifest;
 
-    public static ModuleFileWriter getInstance(CompilerContext context) {
-        ModuleFileWriter moduleFileWriter = context.get(MODULE_FILE_WRITER_KEY);
-        if (moduleFileWriter == null) {
-            moduleFileWriter = new ModuleFileWriter(context);
+    public static BaloFileWriter getInstance(CompilerContext context) {
+        BaloFileWriter baloFileWriter = context.get(MODULE_FILE_WRITER_KEY);
+        if (baloFileWriter == null) {
+            baloFileWriter = new BaloFileWriter(context);
         }
-        return moduleFileWriter;
+        return baloFileWriter;
     }
 
-    private ModuleFileWriter(CompilerContext context) {
+    private BaloFileWriter(CompilerContext context) {
         context.put(MODULE_FILE_WRITER_KEY, this);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
@@ -83,16 +87,11 @@ public class ModuleFileWriter {
      * Generate balo file for the given module.
      *
      * @param module ballerina module
+     * @param buildContext build context
      */
-    public void write(BLangPackage module) {
+    public void write(BLangPackage module, BuildContext buildContext) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
-        // Check if it is a valid project
-        if (!ProjectDirs.isProject(projectDirectory)) {
-            // Usually this scenario should be avoided from higher level
-            // if this happens we ignore
-            return;
-        }
 
         // Ignore unnamed packages
         if (module.packageID.isUnnamed) {
@@ -109,20 +108,7 @@ public class ModuleFileWriter {
         String baloName = getFileName(moduleName);
 
         // Get the path to create balo.
-        Path baloDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
-        // Crate balo directory if it is not there
-        if (Files.exists(baloDir)) {
-            if (!Files.isDirectory(baloDir)) {
-                throw new BLangCompilerException("Found `balo` file instead of a `balo` directory inside target");
-            }
-        } else {
-            try {
-                Files.createDirectories(baloDir);
-            } catch (IOException e) {
-                throw new BLangCompilerException("Unable to create balo directory inside target", e);
-            }
-        }
+        Path baloDir = buildContext.get(BuildContextField.BALO_CACHE_DIR);
 
         // Create the archive over write if exists
         Path baloFile = baloDir.resolve(baloName);
@@ -223,11 +209,14 @@ public class ModuleFileWriter {
 
             for (Path lib : libs) {
                 Path nativeFile = projectDirectory.resolve(lib);
-                Path targetPath = platformLibsDir.resolve(lib.getFileName().toString());
-                try {
-                    Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                Path libFileName = lib.getFileName();
+                if (null != libFileName) {
+                    Path targetPath = platformLibsDir.resolve(libFileName.toString());
+                    try {
+                        Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
+                    }
                 }
             }
         }
@@ -248,7 +237,6 @@ public class ModuleFileWriter {
 
     private void addModuleSource(Path root, Path moduleSourceDir, String moduleName) throws IOException {
         // create the module directory in zip
-        Path projectDirectory = this.sourceDirectory.getPath();
         Path srcInBalo = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
         Files.createDirectory(srcInBalo);
         Path moduleDirInBalo = srcInBalo.resolve(moduleName);
@@ -258,27 +246,23 @@ public class ModuleFileWriter {
         PathMatcher fileFilter = FileSystems.getDefault()
                 .getPathMatcher("glob:**/*" + ProjectDirConstants.BLANG_SOURCE_EXT);
         // exclude resources and tests directories
-        PathMatcher dirFilter = new PathMatcher() {
+        PathMatcher dirFilter = path -> {
+            FileSystem fd = FileSystems.getDefault();
+            String prefix = moduleDirInBalo
+                    .resolve(ProjectDirConstants.RESOURCE_DIR_NAME).toString();
 
-            @Override
-            public boolean matches(Path path) {
-                FileSystem fd = FileSystems.getDefault();
-                String prefix = moduleDirInBalo
-                        .resolve(ProjectDirConstants.RESOURCE_DIR_NAME).toString();
-
-                // Skip resources directory
-                if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
-                    return false;
-                }
-                // Skip tests directory
-                prefix = moduleDirInBalo
-                        .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
-                // Skip resources directory
-                if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
-                    return false;
-                }
-                return true;
+            // Skip resources directory
+            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+                return false;
             }
+            // Skip tests directory
+            prefix = moduleDirInBalo
+                    .resolve(ProjectDirConstants.TEST_DIR_NAME).toString();
+            // Skip resources directory
+            if (fd.getPathMatcher("glob:" + prefix + "**").matches(path)) {
+                return false;
+            }
+            return true;
         };
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
@@ -292,8 +276,8 @@ public class ModuleFileWriter {
 
         TomlWriter writer = new TomlWriter();
         // Write to BALO.toml
-        String baloToml = writer.write(new Balo());
-        Files.write(baloMetaFile, baloToml.getBytes());
+        String baloToml = writer.write(new BaloToml());
+        Files.write(baloMetaFile, baloToml.getBytes(Charset.forName("UTF-8")));
 
         // Write to MODULE.toml
         Module moduleObj = new Module();
@@ -307,7 +291,7 @@ public class ModuleFileWriter {
         moduleObj.setPlatform(manifest.getTargetPlatform());
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         String moduleToml = writer.write(moduleObj);
-        Files.write(moduleMetaFile, moduleToml.getBytes());
+        Files.write(moduleMetaFile, moduleToml.getBytes(Charset.forName("UTF-8")));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

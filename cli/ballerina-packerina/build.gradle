@@ -33,6 +33,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
+    implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
@@ -55,6 +56,10 @@ task createBirCache {
     inputs.files configurations.bir
     outputs.dir "$buildDir/bir-cache"
     outputs.cacheIf { false }
+}
+
+checkstyleMain {
+    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
 }
 
 test {
