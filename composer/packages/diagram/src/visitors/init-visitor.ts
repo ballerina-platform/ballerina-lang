@@ -8,7 +8,7 @@ import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
 
-let visibleEndpoints: VisibleEndpoint[] = [];
+let visibleEPsInCurrentFunc: VisibleEndpoint[] = [];
 let envEndpoints: VisibleEndpoint[] = [];
 
 function initStatement(node: ASTNode) {
@@ -55,7 +55,7 @@ export const visitor: Visitor = {
 
     beginVisitFunction(node: BalFunction) {
         if (node.VisibleEndpoints) {
-            visibleEndpoints = [...node.VisibleEndpoints, ...visibleEndpoints];
+            visibleEPsInCurrentFunc = [...node.VisibleEndpoints, ...visibleEPsInCurrentFunc];
         }
         if (!node.viewState) {
             const viewState = new FunctionViewState();
@@ -87,7 +87,7 @@ export const visitor: Visitor = {
         if (viewState.isExpandedFunction) {
             const toAdd: VisibleEndpoint[] = [];
             const added: any = {};
-            visibleEndpoints.forEach((ep) => {
+            visibleEPsInCurrentFunc.forEach((ep) => {
                 if (!added[ep.name]) {
                     toAdd.push(ep);
                     added[ep.name] = true;
@@ -95,7 +95,7 @@ export const visitor: Visitor = {
             });
             viewState.containingVisibleEndpoints = toAdd;
         } else {
-            visibleEndpoints = [];
+            visibleEPsInCurrentFunc = [];
         }
     },
 

@@ -351,10 +351,9 @@ public class BallerinaExecutor {
         commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkService
                 .getBallerinaExecutablePath(myBallerinaPath))));
         commandLine.getEnvironment().putAll(myExtraEnvironment);
-        //Todo - Add BALLERINA_REPOSITORY
-        //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSITORY,
-        //                StringUtil.notNullize(myBallerinaPath));
-
+        // Todo-Add BALLERINA_REPOSITORY
+        // commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSITORY,
+        // StringUtil.notNullize(myBallerinaPath));
         Collection<String> paths = ContainerUtil.newArrayList();
         ContainerUtil.addIfNotNull(paths, StringUtil.nullize(commandLine.getEnvironment().get(
                 BallerinaConstants.PATH), true));

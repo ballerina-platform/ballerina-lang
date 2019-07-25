@@ -29,7 +29,6 @@ export interface OverviewState {
     selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
     modeText: string;
-    fitToWidthOrHeight: boolean;
     zoomFactor: number;
     openedState: boolean;
     maxInvocationDepth: number;
@@ -43,6 +42,7 @@ export interface ConstructIdentifier {
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
     private panZoomComp: PanZoom | undefined;
+    private panZoomElement: SVGGElement | undefined;
     private innitialPanZoomTransform: {
         x: number;
         y: number;
@@ -64,7 +64,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
-            fitToWidthOrHeight: true,
             maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
@@ -175,7 +174,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleZoomOut={this.handleZoomOut}
                     handleOpened={this.handleOpened}
                     handleClosed={this.handleClosed}
-                    fitActive={this.state.fitToWidthOrHeight}
                     zoomFactor={this.state.zoomFactor}
                     handleReset={this.handleReset}
                     handleDepthSelect={this.setMaxInvocationDepth}
@@ -186,7 +184,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     projectAst={modules}
                     docUri={selectedUri}
                     zoom={0} height={0} width={1000}
-                    fitToWidthOrHeight={this.state.fitToWidthOrHeight}
                     mode={this.state.mode}
                     setPanZoomComp={this.setPanZoomComp}
                     maxInvocationDepth={this.state.maxInvocationDepth}>
@@ -298,10 +295,16 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     private handleFitClick() {
-        this.setState((state) => ({
-            fitToWidthOrHeight: !state.fitToWidthOrHeight,
-            zoomFactor: 1,
-        }));
+        if (!(this.panZoomElement && this.panZoomElement.parentElement && this.panZoomComp)) {
+            return;
+        }
+
+        const diagramWidth = this.panZoomElement.getBBox().width;
+        const containerWidth = (this.panZoomElement.parentElement as unknown as SVGSVGElement).width.baseVal.value;
+        const fitToWidthZoomScale = containerWidth / diagramWidth;
+
+        this.panZoomComp.zoomAbs(0, 0, fitToWidthZoomScale);
+        this.panZoomComp.moveTo(0, 0);
     }
 
     private handleZoomIn() {
@@ -313,7 +316,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.zoomAbs(x, y, scale + 0.1);
         const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
-            fitToWidthOrHeight: false,
             zoomFactor: newScale,
         }));
     }
@@ -327,7 +329,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.zoomAbs(x, y, scale - 0.1);
         const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
-            fitToWidthOrHeight: false,
             zoomFactor: newScale,
         }));
     }
@@ -385,8 +386,9 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private setPanZoomComp(comp: PanZoom | undefined) {
+    private setPanZoomComp(comp: PanZoom | undefined, element: SVGGElement | undefined) {
         this.panZoomComp = comp;
+        this.panZoomElement = element;
         if (comp) {
             const {x, y, scale} = comp.getTransform();
             this.innitialPanZoomTransform = {x, y, scale};
