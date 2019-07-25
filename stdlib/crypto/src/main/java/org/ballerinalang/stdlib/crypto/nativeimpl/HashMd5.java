@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
         functionName = "hashMd5", isPublic = true)
 public class HashMd5 {
 
-    public static Object hashMd5(Strand strand, ArrayValue inputValue) {
-        return CryptoUtils.hash("MD5", inputValue.getBytes());
+    public static ArrayValue hashMd5(Strand strand, ArrayValue inputValue) {
+        return new ArrayValue(CryptoUtils.hash("MD5", inputValue.getBytes()));
     }
 }

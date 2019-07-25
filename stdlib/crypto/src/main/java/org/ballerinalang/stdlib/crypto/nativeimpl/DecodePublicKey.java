@@ -56,7 +56,7 @@ public class DecodePublicKey {
 
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore == null) {
-            return CryptoUtils.createCryptoError("Key store information is required");
+            return CryptoUtils.createError("Key store information is required");
         }
 
         File keyStoreFile = new File(
@@ -67,8 +67,7 @@ public class DecodePublicKey {
                 keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
                         .toCharArray());
             } catch (NoSuchAlgorithmException e) {
-                return CryptoUtils.createCryptoError(
-                        "Keystore integrity check algorithm is not found: " + e.getMessage());
+                throw CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
@@ -108,12 +107,12 @@ public class DecodePublicKey {
                 }
                 return publicKeyMap;
             } else {
-                return CryptoUtils.createCryptoError("Not a valid RSA key");
+                return CryptoUtils.createError("Not a valid RSA key");
             }
         } catch (FileNotFoundException e) {
-            return CryptoUtils.createCryptoError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
+            throw CryptoUtils.createError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
-            return CryptoUtils.createCryptoError("Unable to open keystore: " + e.getMessage());
+            throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
         }
     }
 }

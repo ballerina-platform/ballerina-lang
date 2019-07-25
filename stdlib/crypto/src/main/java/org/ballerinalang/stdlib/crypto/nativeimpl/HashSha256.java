@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
         functionName = "hashSha256", isPublic = true)
 public class HashSha256 {
 
-    public static Object hashSha256(Strand strand, ArrayValue inputValue) {
-        return CryptoUtils.hash("SHA-256", inputValue.getBytes());
+    public static ArrayValue hashSha256(Strand strand, ArrayValue inputValue) {
+        return new ArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
     }
 }

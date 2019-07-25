@@ -34,7 +34,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 )
 public class HmacMd5 {
 
-    public static Object hmacMd5(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
-        return CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes());
+    public static ArrayValue hmacMd5(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
+        return new ArrayValue(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
     }
 }
