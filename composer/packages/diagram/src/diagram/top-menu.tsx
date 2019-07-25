@@ -60,14 +60,24 @@ export const TopMenu = (props: TopMenuProps) => {
                         Zoom
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon onClick={handleZoomOut} className="fw fw-minus" />
+                        <Icon onClick={handleZoomOut} className="fw fw-minus tooltip">
+                            <span className="tooltiptext"> Zoom out </span>
+                        </Icon>
                         <Label className="menu-dropdown-small"> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                        <Icon onClick={handleZoomIn} className="fw fw-add" />
-                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen" />
+                        <Icon onClick={handleZoomIn} className="fw fw-add tooltip">
+                            <span className="tooltiptext"> Zoom in </span>
+                        </Icon>
+                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen tooltip">
+                            <span className="tooltiptext"> Fit to screen </span>
+                        </Icon>
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
-                        <Icon onClick={handleReset} className="fw fw-refresh" />
-                        <Icon onClick={handleClosed} className="fw fw-uncheck" />
+                        <Icon onClick={handleReset} className="fw fw-refresh tooltip">
+                            <span className="tooltiptext"> Reset</span>
+                        </Icon>
+                        <Icon onClick={handleClosed} className="fw fw-uncheck tooltip">
+                            <span className="tooltiptext"> Close </span>
+                        </Icon>
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row className="menu-row" columns={3}>
@@ -75,7 +85,6 @@ export const TopMenu = (props: TopMenuProps) => {
                         Depth
                     </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon className="fw fw-minus" />
                         <Dropdown
                             text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
                             className="menu-dropdown-small"
@@ -88,9 +97,12 @@ export const TopMenu = (props: TopMenuProps) => {
                                 <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Icon className="fw fw-add" />
-                        <Icon className="fw fw-expand-all" />
-                        <Icon className="fw fw-collapse-all" />
+                        <Icon className="fw fw-expand-all tooltip">
+                            <span className="tooltiptext"> Expand all </span>
+                        </Icon>
+                        <Icon className="fw fw-collapse-all tooltip">
+                            <span className="tooltiptext"> Collapse all </span>
+                        </Icon>
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
@@ -99,7 +111,7 @@ export const TopMenu = (props: TopMenuProps) => {
                         Design
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon className="fw fw-minus" />
+                        {/* <Icon className="fw fw-minus"/> */}
                         <Dropdown className="menu-dropdown-mid " text={selectedModeText}>
                             <Dropdown.Menu>
                                 {
@@ -117,7 +129,7 @@ export const TopMenu = (props: TopMenuProps) => {
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Icon className="fw fw-add" />
+                        {/* <Icon className="fw fw-add"/> */}
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
