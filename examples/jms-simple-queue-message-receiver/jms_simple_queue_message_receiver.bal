@@ -10,7 +10,7 @@ listener jms:QueueListener consumerEndpoint = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, queueName = "MyQueue");
+    }, "MyQueue");
 
 // This binds the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
