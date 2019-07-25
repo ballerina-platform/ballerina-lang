@@ -19,6 +19,8 @@ package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
@@ -55,23 +57,23 @@ import java.util.stream.Collectors;
  *
  * @since 1.0
  */
-public class ModuleFileWriter {
-    private static final CompilerContext.Key<ModuleFileWriter> MODULE_FILE_WRITER_KEY =
+public class BaloFileWriter {
+    private static final CompilerContext.Key<BaloFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
     private PrintStream outStream = System.out;
 
     private final SourceDirectory sourceDirectory;
     private final Manifest manifest;
 
-    public static ModuleFileWriter getInstance(CompilerContext context) {
-        ModuleFileWriter moduleFileWriter = context.get(MODULE_FILE_WRITER_KEY);
-        if (moduleFileWriter == null) {
-            moduleFileWriter = new ModuleFileWriter(context);
+    public static BaloFileWriter getInstance(CompilerContext context) {
+        BaloFileWriter baloFileWriter = context.get(MODULE_FILE_WRITER_KEY);
+        if (baloFileWriter == null) {
+            baloFileWriter = new BaloFileWriter(context);
         }
-        return moduleFileWriter;
+        return baloFileWriter;
     }
 
-    private ModuleFileWriter(CompilerContext context) {
+    private BaloFileWriter(CompilerContext context) {
         context.put(MODULE_FILE_WRITER_KEY, this);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
@@ -84,8 +86,9 @@ public class ModuleFileWriter {
      * Generate balo file for the given module.
      *
      * @param module ballerina module
+     * @param buildContext build context
      */
-    public void write(BLangPackage module) {
+    public void write(BLangPackage module, BuildContext buildContext) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
         // Check if it is a valid project
@@ -110,20 +113,7 @@ public class ModuleFileWriter {
         String baloName = getFileName(moduleName);
 
         // Get the path to create balo.
-        Path baloDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
-                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
-        // Crate balo directory if it is not there
-        if (Files.exists(baloDir)) {
-            if (!Files.isDirectory(baloDir)) {
-                throw new BLangCompilerException("Found `balo` file instead of a `balo` directory inside target");
-            }
-        } else {
-            try {
-                Files.createDirectories(baloDir);
-            } catch (IOException e) {
-                throw new BLangCompilerException("Unable to create balo directory inside target", e);
-            }
-        }
+        Path baloDir = buildContext.get(BuildContextField.BALO_CACHE_DIR);
 
         // Create the archive over write if exists
         Path baloFile = baloDir.resolve(baloName);
