@@ -55,18 +55,16 @@ export const Function = (props: { model: FunctionNode }) => {
                     worker={viewState.defaultWorker.lifeline}
                     y={viewState.defaultWorker.bBox.y + config.lifeLine.header.height}
                     label={
-                        model.allParams && model.allParams.map((param: Variable | VariableDef, index) => {
+                        model.parameters && model.parameters.map((param: Variable , index) => {
                             if (model.resource && index === 0) {
                                 return;
                             }
-                            const defaultable = param.defaultable;
-                            const name: Identifier = defaultable
-                                ? ((param as VariableDef).variable as Variable).name
-                                : (param as Variable).name;
+                            const defaultable = param.initialExpression !== undefined;
+                            const name: Identifier = param.name;
                             const value: any = defaultable
-                                ? (((param as VariableDef).variable as Variable).initialExpression as Literal).value
+                                ? (param.initialExpression as Literal).value // TODO: handle other expressions
                                 : undefined;
-                            return defaultable
+                            return defaultable && value
                                     ? " " + name.value + " = " + value
                                     : " " + name.value;
                         }).toString()

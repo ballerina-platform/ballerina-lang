@@ -105,7 +105,7 @@ public class BArrayType extends BType {
 
     @Override
     public int hashCode() {
-        return super.toString().hashCode();
+        return toString().hashCode();
     }
 
     @Override

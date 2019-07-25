@@ -148,3 +148,50 @@ function testMemberAccessOnMappingUnionInvalidType() {
     map<float>? y = bq["y"];
     anydata z = bq["z"][index];
 }
+
+function testInvalidStringMemberAccess() {
+    string s1 = "string value";
+    string s2 = "x";
+    int iv = 1;
+    int sv1 = s1[0];
+    float sv2 = s1[iv];
+    string sv3 = s1["s"];
+    string sv4 = s1[s2];
+}
+
+type StrOrInt "foo"|1;
+
+function testInvalidFiniteTypeStringMemberAccess() {
+    StrOrInt s1 = "foo";
+    StrOrInt s2 = 1;
+    string s3 = "foo";
+
+    string s4 = s1[0];
+    string s5 = s3[s2];
+}
+
+function testStringMemberAccessForAssignment() {
+    string animal = "animal";
+    animal[0] = "b";
+}
+
+const I5 = 5;
+
+function testInvalidOutOfRangeClosedArrayMemberAccessByConstant() {
+    Employee[2] ia = [{ name: "abc" }, { name: "def" }];
+    _ = ia[I5];
+}
+
+function testInvalidOutOfRangeTupleMemberAccessByConstant() {
+    [int, Employee] ia = [1, { name: "def" }];
+    _ = ia[I5];
+}
+
+const NAMEC = "name";
+const AGEC = "age";
+
+function testInvalidRecordMemberAccessByConst() {
+    Employee e = { name: "abc" };
+    int i1 = e[NAMEC];
+    int i2 = e[AGEC];
+}

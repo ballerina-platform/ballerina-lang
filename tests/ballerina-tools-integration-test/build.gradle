@@ -28,11 +28,10 @@ configurations {
 }
 
 dependencies {
-    implementation project(':ballerina-integration-test-utils')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-packerina')
-    implementation project(':ballerina-launcher')   
+    implementation project(':ballerina-tool')   
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.slf4j:slf4j-jdk14'
 
@@ -50,7 +49,7 @@ test {
     maxParallelForks = 1
     forkEvery=500
     // make sure ballerina tools zip is built before test run
-    dependsOn = [":ballerina-tools:build", ":jballerina-tools:build", ":ballerina-integration-test:test", 
+    dependsOn = [":ballerina-tools:build", ":jballerina-tools:build", ":jballerina-integration-test:test", 
                  // ":examples-test:test"
                  ]
 

@@ -91,6 +91,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         addCpAndWriteString(errorEntry.trapBB.id.value);
         errorEntry.errorOp.accept(this);
+        addCpAndWriteString(errorEntry.targetBB.id.value);
     }
 
     // Terminating instructions
@@ -104,10 +105,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Lock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        buf.writeInt(lock.globalVars.size());
-        for (BIRNode.BIRGlobalVariableDcl globalVar : lock.globalVars) {
-            addCpAndWriteString(globalVar.name.value);
-        }
+        addCpAndWriteString(lock.globalVar.name.value);
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 

@@ -17,7 +17,7 @@ public function main() {
         io:println(fruit);
     }
     // Calling the `.entries()' method on a `map` and iterating it will return the key (`string`) and the value as a
-    // `tuple` variable. Tuple destructuring can be used to split the tuple variable in to two variables.
+    // `tuple` variable. Tuple destructuring can be used to split the tuple variable into two variables.
     foreach var [k, v] in words.entries() {
         io:println("letter: ", k, ", word: ", v);
     }

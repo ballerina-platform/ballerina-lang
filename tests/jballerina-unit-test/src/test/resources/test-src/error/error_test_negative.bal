@@ -67,3 +67,9 @@ type MyErrorErrorData record {|
     MyError cause?;
     map<string> data = {};
 |};
+
+type ER UserDefErrorOne|UserDefErrorTwo;
+
+function contextuallyExpTypeIsAUnion() {
+    ER e = error("OtherReason");
+}

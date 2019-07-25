@@ -19,7 +19,7 @@ public function main() {
     io:println("Popped value: ", poppedValue);
     io:println("After pop: ", b);
 
-    // Arrays are an iterable type and arrays support functional iteration operations such as `map()`, `filter()`, and
+    // Arrays are an iterable type and arrays support functional iteration operations such as `.map()`, `.filter()`, and
     // `.reduce()`.
     int[] doubled = b.map(function (int value) returns int {
             return value * 2;

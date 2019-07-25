@@ -73,7 +73,9 @@ class OpenAPIPathSummary {
     List<OpenAPIParameter> getParamNamesForOperation(String operation) {
         List<OpenAPIParameter> paramNames = new ArrayList<>();
         for (Map.Entry<String, Operation> entry : this.operations.entrySet()) {
-            if (entry.getKey().equals(operation)) {
+            if (entry.getKey().equals(operation)
+                    && entry.getValue() != null
+                    && entry.getValue().getParameters() != null) {
                 for (Parameter parameter : entry.getValue().getParameters()) {
                     if (parameter.getIn() != null && parameter.getIn().equals(Constants.PATH)) {
                         OpenAPIParameter openAPIParameter = new OpenAPIParameter();

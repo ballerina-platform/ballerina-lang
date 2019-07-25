@@ -32,7 +32,6 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
                 <exclude name="brokenOnLangLibChange"/>
             </run>
         </groups>
@@ -98,7 +97,7 @@
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.stamp.*"/>-->
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.object.*" />
@@ -119,7 +118,7 @@
             <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <package name="org.ballerinalang.test.statements.transaction.*"/> 
+            <package name="org.ballerinalang.test.statements.transaction.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
         </packages>
 
@@ -130,6 +129,7 @@
                     <!--<include name="simpleLock"/>-->
                 <!--</methods>-->
             <!--</class>-->
+            <class name="org.ballerinalang.test.lock.LocksInMainTest"/>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
             <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->

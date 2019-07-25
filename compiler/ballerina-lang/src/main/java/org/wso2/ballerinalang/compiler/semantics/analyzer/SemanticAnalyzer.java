@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -2250,6 +2249,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
+        if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.type)) {
+            dlog.error(constant.typeNode.pos, DiagnosticCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+        }
+
         BLangExpression expression = constant.expr;
         if (!symbolEnter.isValidConstantExpression(expression)) {
             dlog.error(expression.pos, DiagnosticCode.ONLY_SIMPLE_LITERALS_CAN_BE_ASSIGNED_TO_CONST);
@@ -2294,9 +2297,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     checkConstantExpression(pair.key.expr);
                     checkConstantExpression(pair.valueExpr);
                 });
-                break;
-            case INDEX_BASED_ACCESS_EXPR:
-                checkConstantExpression(((BLangIndexBasedAccess) expression).expr);
                 break;
             default:
                 dlog.error(expression.pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);

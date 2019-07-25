@@ -72,6 +72,7 @@ public type BasicBlock record {|
 public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
+    BasicBlock targetBB;
 |};
 
 public type ChannelDetail record {|
@@ -164,6 +165,7 @@ public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
 public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
 public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
 public const INS_KIND_FP_LOAD = "FP_LOAD";
+public const INS_KIND_STRING_LOAD = "STRING_LOAD";
 public const INS_KIND_NEW_TABLE = "NEW_TABLE";
 public const INS_KIND_NEW_STREAM = "NEW_STREAM";
 public const INS_KIND_TYPEOF = "TYPEOF";
@@ -179,8 +181,9 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_STRING_XML_QNAME | INS_KIND_XML_SEQ_STORE | INS_KIND_NEW_XML_TEXT |
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
-                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_NEW_TABLE | INS_KIND_TYPEOF |
-                                INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM | INS_KIND_NEGATE;
+                                INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_STRING_LOAD | INS_KIND_NEW_TABLE |
+                                INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM |
+                                INS_KIND_NEGATE;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -251,10 +254,18 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
+public type VariableDclMeta record {
+    string name = "";
+    string endBBID = "";
+    string startBBID = "";
+    int insOffset = 0;
+};
+
 public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -270,6 +281,7 @@ public type GlobalVariableDcl record {|
     VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;
@@ -543,7 +555,7 @@ public type IsLike record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
-    BType typeValue;
+    BType typeVal;
 |};
 
 public type TypeTest record {|
@@ -650,7 +662,7 @@ public type GOTO record {|
 public type Lock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string[] globleVars;
+    string globleVar;
     BasicBlock lockBB;
 |};
 

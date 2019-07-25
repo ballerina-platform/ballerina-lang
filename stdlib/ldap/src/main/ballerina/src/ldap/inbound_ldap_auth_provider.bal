@@ -139,7 +139,8 @@ public function getGroups(LdapConnection ldapConnection, string username) return
 # + username - Username
 # + password - Password
 # + return - true if authentication is a success, else false
-public function doAuthenticate(LdapConnection ldapConnection, string username, string password) returns boolean = external;
+public function doAuthenticate(LdapConnection ldapConnection, string username, string password)
+                               returns boolean = external;
 
 # Initailizes LDAP connection context.
 #

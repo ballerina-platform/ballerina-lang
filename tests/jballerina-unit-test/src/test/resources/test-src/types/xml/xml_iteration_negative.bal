@@ -13,5 +13,5 @@ function testExcessVars() {
 }
 
 function testExcessVarsIterableOp() {
-    xdata.foreach(function ([int, xml, string] entry) {});
+    xdata.forEach(function ([int, xml, string] entry) {});
 }
