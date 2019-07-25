@@ -261,3 +261,14 @@ const map<string> m3 = { "m3k": "m3v" };
 function updateConstantMapValue() {
     m3.m3k = "m3nv";
 }
+
+// -----------------------------------------------------------
+
+type Foo record {
+    string s;
+    int i;
+};
+
+const Foo f = { s: "const string", i: 1 };
+
+const json j = 1;

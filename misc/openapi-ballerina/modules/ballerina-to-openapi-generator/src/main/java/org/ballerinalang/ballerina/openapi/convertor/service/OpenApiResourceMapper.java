@@ -44,6 +44,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -314,6 +315,21 @@ public class OpenApiResourceMapper {
                 operationAdaptor.setPath("/");
             }
         }
+
+        //Add path parameters if in path
+        if (resource.requiredParams.size() > 0) {
+            List requiredParams = resource.requiredParams;
+            for (Object parameter :requiredParams) {
+                BLangSimpleVariable param = (BLangSimpleVariable) parameter;
+                if (!param.symbol.name.value.equals("caller") && !param.symbol.name.value.equals("request")) {
+                    PathParameter pathParameter = new PathParameter();
+                    pathParameter.setName(param.getName().value);
+                    pathParameter.setType(param.type.tsymbol.name.value);
+                    operationAdaptor.getOperation().addParameter(pathParameter);
+                }
+            }
+        }
+
 
         if (!"get".equalsIgnoreCase(operationAdaptor.getHttpOperation())) {
 

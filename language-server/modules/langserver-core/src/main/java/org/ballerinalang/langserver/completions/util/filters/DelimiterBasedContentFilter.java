@@ -53,6 +53,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
+    DelimiterBasedContentFilter() {
+    }
+
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
@@ -71,7 +74,8 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
         boolean isWorkerSend = !isActionInvocation && BallerinaParser.RARROW == delimiter;
 
-        if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || isActionInvocation) {
+        if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter
+                || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter || isActionInvocation) {
             returnSymbolsInfoList.addAll(FilterUtils.filterVariableEntriesOnDelimiter(ctx, symbolToken, delimiter,
                     defaultTokens, defaultTokenTypes.lastIndexOf(delimiter)));
         } else if (isWorkerSend) {

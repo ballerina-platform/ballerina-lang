@@ -187,6 +187,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
@@ -203,6 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangState
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
@@ -280,7 +282,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementLink currentLink;
     private Stack<BLangWorker> workerStack = new Stack<>();
-    public Stack<BLangLock> enclLocks = new Stack<>();
+    public Stack<BLangLockStmt> enclLocks = new Stack<>();
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2397,24 +2399,84 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
-        enclLocks.push(lockNode);
-        lockNode.body = rewrite(lockNode.body, env);
+        // Lock nodes will get desugared to below code
+        // before desugar -
+        //
+        // lock {
+        //      a = a + 7;
+        // }
+        //
+        // after desugar -
+        //
+        // lock a;
+        // var res = trap a = a + 7;
+        // unlock a;
+        // if (res is error) {
+        //      panic res;
+        // }
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
+
+        BLangLockStmt lockStmt = ASTBuilderUtil.createLockStmt(lockNode.pos);
+        blockStmt.addStatement(lockStmt);
+
+        enclLocks.push(lockStmt);
+
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
+        BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        BLangStatementExpression statementExpression = ASTBuilderUtil
+                .createStatementExpression(lockNode.body, nilLiteral);
+        statementExpression.type = symTable.nilType;
+
+        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        trapExpr.type = nillableError;
+        trapExpr.expr = statementExpression;
+        BVarSymbol nillableErrorVarSymbol = new BVarSymbol(0, names.fromString("$errorResult"),
+                this.env.scope.owner.pkgID, nillableError, this.env.scope.owner);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(lockNode.pos, "$errorResult",
+                nillableError, trapExpr, nillableErrorVarSymbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(lockNode.pos, simpleVariable);
+        blockStmt.addStatement(simpleVariableDef);
+
+        BLangUnLockStmt unLockStmt = ASTBuilderUtil.createUnLockStmt(lockNode.pos);
+        blockStmt.addStatement(unLockStmt);
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(lockNode.pos, nillableErrorVarSymbol);
+
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(lockNode.pos);
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+        panicNode.pos = lockNode.pos;
+        panicNode.expr = addConversionExprIfRequired(varRef, symTable.errorType);
+        ifBody.addStatement(panicNode);
+
+        BLangTypeTestExpr isErrorTest =
+                ASTBuilderUtil.createTypeTestExpr(lockNode.pos, varRef, getErrorTypeNode());
+        isErrorTest.type = symTable.booleanType;
+
+        BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
+        blockStmt.addStatement(ifelse);
+        result = rewrite(blockStmt, env);
         enclLocks.pop();
-        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
-            String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
-            String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
-            return o1FullName.compareTo(o2FullName);
-        }).collect(Collectors.toSet());
 
         //check both a field and parent are in locked variables
-        if (!lockNode.lockVariables.isEmpty()) {
-            lockNode.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockNode,
+        if (!lockStmt.lockVariables.isEmpty()) {
+            lockStmt.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockStmt,
                     expr)));
         }
-        result = lockNode;
+
+        unLockStmt.lockVariables = lockStmt.lockVariables;
+        unLockStmt.fieldVariables = lockStmt.fieldVariables;
     }
 
-    boolean isParentLocked(BLangLock lock, BLangVariableReference expr) {
+    @Override
+    public void visit(BLangLockStmt lockStmt) {
+        result = lockStmt;
+    }
+
+    @Override
+    public void visit(BLangUnLockStmt unLockStmt) {
+        result = unLockStmt;
+    }
+
+    boolean isParentLocked(BLangLockStmt lock, BLangVariableReference expr) {
         if (lock.lockVariables.contains(expr.symbol)) {
             return true;
         } else if (expr instanceof BLangStructFieldAccessExpr) {

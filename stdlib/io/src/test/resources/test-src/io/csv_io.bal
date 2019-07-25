@@ -22,10 +22,17 @@ type Employee record {
     float salary;
 };
 
+type PerDiem record {
+    int id;
+    string name;
+    int age;
+    int? beverageAllowance;
+    float? total;
+    string? department;
+};
+
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
-
-const string IO_ERROR_CODE = "{ballerina/io}Error";
 
 function initReadableCsvChannel(string filePath, string encoding, io:Separator fieldSeparator) returns @tainted error? {
     var byteChannel = io:openReadableFile(filePath);
@@ -63,7 +70,7 @@ function nextRecord() returns @tainted string[]|error {
             return result;
         }
     }
-    error e = error(IO_ERROR_CODE, message = "Record channel not initialized properly");
+    error e = error(io:GENERIC_ERROR, message = "Record channel not initialized properly");
     return e;
 }
 
@@ -103,6 +110,7 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
             foreach var x in tableResult {
                 total = total + x.salary;
             }
+            error? closeResult = byteChannel.close();
             return total;
         } else {
             return tableResult;
@@ -110,4 +118,24 @@ function getTable(string filePath, string encoding, io:Separator fieldSeparator)
     } else {
         return byteChannel;
     }
+}
+
+function getTableWithNill(string filePath) returns @tainted [string, string]|error {
+    string name = "";
+    string dep = "";
+    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 1);
+    if (rCsvChannel is io:ReadableCSVChannel) {
+        var tblResult = rCsvChannel.getTable(PerDiem);
+        if (tblResult is table<PerDiem>) {
+            foreach var rec in tblResult {
+                name = name + rec.name;
+                dep = dep + (rec.department ?: "-1");
+            }
+            error? closeResult = rCsvChannel.close();
+        }
+        else {
+            return tblResult;
+        }
+    }
+    return [name, dep];
 }

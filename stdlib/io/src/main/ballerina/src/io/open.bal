@@ -54,9 +54,9 @@ public function createReadableChannel(byte[] content) returns ReadableByteChanne
 # + skipHeaders - Number of headers which should be skipped
 # + return - ReadableCSVChannel which could be used to iterate through the CSV records
 public function openReadableCsvFile(@untainted string path,
-                            @untainted Separator fieldSeparator = ",",
-                            @untainted string charset = "UTF-8",
-                            @untainted int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
+                            @untainted public Separator fieldSeparator = ",",
+                            @untainted public string charset = "UTF-8",
+                            @untainted public int skipHeaders = 0) returns @tainted ReadableCSVChannel|Error {
     ReadableByteChannel byteChannel = check openReadableFile(path);
     ReadableCharacterChannel charChannel = new(byteChannel, charset);
     return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);
@@ -70,9 +70,9 @@ public function openReadableCsvFile(@untainted string path,
 # + skipHeaders - Number of headers which should be skipped
 # + return - WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred
 public function openWritableCsvFile(@untainted string path,
-                                    @untainted Separator fieldSeparator = ",",
-                                    @untainted string charset = "UTF-8",
-                                    @untainted int skipHeaders = 0) returns @tainted WritableCSVChannel|Error {
+                                    @untainted public Separator fieldSeparator = ",",
+                                    @untainted public string charset = "UTF-8",
+                                    @untainted public int skipHeaders = 0) returns @tainted WritableCSVChannel|Error {
     WritableByteChannel byteChannel = check openWritableFile(path);
     WritableCharacterChannel charChannel = new(byteChannel, charset);
     return new WritableCSVChannel(charChannel, fieldSeparator);
