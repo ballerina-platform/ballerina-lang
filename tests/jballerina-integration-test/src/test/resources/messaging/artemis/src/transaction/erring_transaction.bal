@@ -15,7 +15,16 @@
 // under the License.
 
 import ballerina/artemis;
-import ballerina/io;
+
+function testErringSend() returns @tainted string {
+    string txt = "";
+    var consumer = createErringConsumer();
+    erringSend();
+    if (consumer is artemis:Consumer) {
+        txt = receiveAndGetText(consumer);
+    }
+    return txt;
+}
 
 public function createErringConsumer() returns artemis:Consumer|error {
     artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
@@ -45,16 +54,6 @@ public function erringSend() {
 function send(artemis:Producer prod) {
     var err = prod->send("Example ");
     if (err is error) {
-        io:println("Error occurred while sending the message");
+        panic err;
     }
-}
-
-function testErringSend() returns @tainted string {
-    string txt = "";
-    var consumer = createErringConsumer();
-    erringSend();
-    if (consumer is artemis:Consumer) {
-        txt = receiveAndGetText(consumer);
-    }
-    return txt;
 }

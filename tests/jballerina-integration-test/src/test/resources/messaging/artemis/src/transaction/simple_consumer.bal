@@ -15,7 +15,16 @@
 // under the License.
 
 import ballerina/artemis;
-import ballerina/io;
+
+function testSimpleTransaction() returns @tainted string|error {
+    string txt = "";
+    var consumer = createSimpleConsumer();
+    testSimpleTransactionSend();
+    if (consumer is artemis:Consumer) {
+        txt = transactionConsumerReceive(consumer);
+    }
+    return txt;
+}
 
 public function createSimpleConsumer() returns artemis:Consumer|error {
     artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
@@ -24,9 +33,9 @@ public function createSimpleConsumer() returns artemis:Consumer|error {
 
 public function testSimpleTransactionSend() {
     artemis:Producer prod = new({host: "localhost", port: 61616}, "example");
-    send2(prod);
+    send(prod);
     transaction {
-        send2(prod);
+        send(prod);
     }
 }
 
@@ -39,10 +48,10 @@ public function transactionConsumerReceive(artemis:Consumer consumer) returns @t
     return msgTxt;
 }
 
-function send2(artemis:Producer prod) {
+function send(artemis:Producer prod) {
     var err = prod->send("Example ");
     if (err is error) {
-        io:println("Error occurred sending message");
+        panic err;
     }
 }
 
@@ -56,14 +65,4 @@ public function receiveAndGetText(artemis:Consumer consumer) returns @tainted st
         }
     }
     return msgTxt;
-}
-
-function testSimpleTransaction() returns @tainted string|error {
-    string txt = "";
-    var consumer = createSimpleConsumer();
-    testSimpleTransactionSend();
-    if (consumer is artemis:Consumer) {
-        txt = transactionConsumerReceive(consumer);
-    }
-    return txt;
 }

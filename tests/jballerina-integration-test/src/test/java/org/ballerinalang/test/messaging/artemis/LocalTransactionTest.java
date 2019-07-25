@@ -38,7 +38,6 @@ public class LocalTransactionTest {
     private CompileResult erringTransactResult;
     private CompileResult transactConsumerResult;
     private CompileResult transactSimpleConsumerResult;
-    private static final String INVALID_MESSAGE = "Invalid message received";
 
     @BeforeClass
     public void setup() throws URISyntaxException {
@@ -54,20 +53,23 @@ public class LocalTransactionTest {
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSimpleSend() {
-        String returnVal = BRunUtil.invoke(transactSimpleConsumerResult, "testSimpleTransaction")[0]
-                .stringValue();
-        Assert.assertEquals(returnVal, "Example Example ", INVALID_MESSAGE);
+        validateTestReturnValue(transactSimpleConsumerResult, "testSimpleTransaction",
+                "Example Example ");
     }
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSend() {
-        String returnVal = BRunUtil.invoke(transactConsumerResult, "testTransaction")[0].stringValue();
-        Assert.assertEquals(returnVal, "Example Example ", INVALID_MESSAGE);
+        validateTestReturnValue(transactConsumerResult, "testTransaction", "Example Example ");
     }
 
     @Test(description = "Tests transaction erring")
     public void testErringSend() {
-        String returnVal = BRunUtil.invoke(erringTransactResult, "testErringSend")[0].stringValue();
-        Assert.assertEquals(returnVal, "Example ", INVALID_MESSAGE);
+        validateTestReturnValue(erringTransactResult, "testErringSend", "Example ");
+    }
+
+    private void validateTestReturnValue(CompileResult compileResult, String functionName, String expected) {
+        String returnVal = BRunUtil.invoke(compileResult, functionName)[0]
+                .stringValue();
+        Assert.assertEquals(returnVal, expected, "Invalid message received");
     }
 }
