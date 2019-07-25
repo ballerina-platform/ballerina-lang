@@ -48,16 +48,15 @@ type Manager object {
         self.dpt = "HR";
     }
 
-    // The member methods coming from the referenced type can be defined within the object.
+    // The member methods coming from the referenced type should be defined within the object.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
-};
 
-// The member methods coming from the referenced type can also be defined outside the object.
-function Manager.getSalary() returns float {
+    function getSalary() returns float{
         return self.salary;
-}
+    }
+};
 
 public function main() {
     Manager p = new Manager(5, "John", "Doe", "Senior");

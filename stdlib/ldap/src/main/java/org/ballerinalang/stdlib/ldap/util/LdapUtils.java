@@ -19,9 +19,11 @@ package org.ballerinalang.stdlib.ldap.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
+import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.UserStoreException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -256,7 +258,7 @@ public class LdapUtils {
     public static String getInstanceIdFromThreadLocal() {
         String result = socketFactoryName.get();
         if (result == null) {
-            throw new BallerinaException("Cannot infer the ssl context related to the service");
+            throw BallerinaErrors.createError("Cannot infer the ssl context related to the service");
         }
         return result;
     }
@@ -267,5 +269,9 @@ public class LdapUtils {
 
     public static void removeServiceName() {
         socketFactoryName.remove();
+    }
+
+    public static ErrorValue createError(String errMsg) {
+        return BallerinaErrors.createError(LdapConstants.LDAP_ERROR_CODE, errMsg);
     }
 }
