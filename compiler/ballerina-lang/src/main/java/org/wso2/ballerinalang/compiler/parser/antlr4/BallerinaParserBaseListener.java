@@ -1348,6 +1348,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}

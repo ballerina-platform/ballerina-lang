@@ -1260,7 +1260,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
                 return;
             case TUPLE_VARIABLE_REF:
-                ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRef;
+                tupleVarRef.expressions.forEach(this::checkAssignment);
+                if (tupleVarRef.restParam != null) {
+                    checkAssignment((BLangExpression) tupleVarRef.restParam);
+                }
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;

@@ -848,16 +848,18 @@ public class BLangPackageBuilder {
         this.varStack.push(tupleVariable);
     }
 
-    void addTupleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restPatternAvailable) {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         tupleVarRef.pos = pos;
         tupleVarRef.addWS(ws);
+        if (restPatternAvailable) {
+            tupleVarRef.restParam = this.exprNodeStack.pop();
+        }
         for (int i = 0; i < members; i++) {
             final BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
             tupleVarRef.expressions.add(0, expr);
         }
         this.exprNodeStack.push(tupleVarRef);
-
     }
 
     void startRecordVariableList() {

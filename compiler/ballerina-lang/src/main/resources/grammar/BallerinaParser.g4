@@ -507,9 +507,12 @@ structuredRefBindingPattern
     |   recordRefBindingPattern
     ;
 
-// TODO : Add rest binding pattern to comply with 2019r1 spec.
 listRefBindingPattern
-    :   LEFT_BRACKET bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingRefPattern (COMMA bindingRefPattern)* (COMMA listRefRestPattern)?) | listRefRestPattern) RIGHT_BRACKET
+    ;
+
+listRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 recordRefBindingPattern

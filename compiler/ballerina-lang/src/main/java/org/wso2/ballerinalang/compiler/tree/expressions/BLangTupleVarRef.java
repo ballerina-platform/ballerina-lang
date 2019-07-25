@@ -59,7 +59,7 @@ public class BLangTupleVarRef extends BLangVariableReference implements TupleVar
     @Override
     public String toString() {
         return "[" + expressions.stream().map(ExpressionNode::toString).collect(Collectors.joining(","))
-                + ((restParam != null) ? "," + restParam.toString() + "...]" : "]");
+                + ((restParam != null) ? ", ..." + restParam.toString() + "]" : "]");
     }
 
     @Override

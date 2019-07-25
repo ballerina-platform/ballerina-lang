@@ -1355,7 +1355,17 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BLangVariableReference) varRefExpr.expressions.get(i)).lhsVar = true;
             results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
         }
-        BType actualType = new BTupleType(results);
+        BTupleType actualType = new BTupleType(results);
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            ((BLangVariableReference) restExpr).lhsVar = true;
+            BType checkedType = checkExpr(restExpr, env, symTable.noType);
+            if (checkedType.tag == TypeTags.ARRAY) {
+                actualType.restType = ((BArrayType) checkedType).eType;
+            } else {
+                actualType.restType = checkedType;
+            }
+        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
