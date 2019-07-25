@@ -18,11 +18,11 @@
 
 package org.ballerinalang.test.types.anydata;
 
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
-import static org.ballerinalang.test.util.BCompileUtil.compile;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -34,7 +34,7 @@ public class AnydataNegativeTest {
 
     @Test(description = "General negative test cases for anydata")
     public void testNegativeCases() {
-        CompileResult result = compile("test-src/types/anydata/anydata_negative_test.bal");
+        CompileResult result = BCompileUtil.compile("test-src/types/anydata/anydata_negative_test.bal");
         int index = 0;
 
         assertEquals(result.getErrorCount(), 33);
@@ -114,7 +114,8 @@ public class AnydataNegativeTest {
 
     @Test(description = "Negative test cases for non-anydata closed record assignment")
     public void testInvalidClosedRecordAssignments() {
-        CompileResult result = compile("test-src/types/anydata/anydata_invalid_closed_record_assignment.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/types/anydata/anydata_invalid_closed_record_assignment.bal");
         int index = 0;
 
         assertEquals(result.getErrorCount(), 9);
@@ -131,7 +132,8 @@ public class AnydataNegativeTest {
 
     @Test(description = "Negative test cases for non-anydata open record assignment")
     public void testInvalidOpenRecordAssignments() {
-        CompileResult result = compile("test-src/types/anydata/anydata_invalid_open_record_assignment.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/types/anydata/anydata_invalid_open_record_assignment.bal");
         int index = 0;
 
         assertEquals(result.getErrorCount(), 9);
