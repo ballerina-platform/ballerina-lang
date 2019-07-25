@@ -31,11 +31,10 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 @websub:SubscriberServiceConfig {
     path: "/websub",
-    subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisher/discover",
+    target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler }
     }
 }
@@ -49,9 +48,9 @@ service websubSubscriber on websubEP {
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisherTwo/discover",
+    target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler }
     }
 }

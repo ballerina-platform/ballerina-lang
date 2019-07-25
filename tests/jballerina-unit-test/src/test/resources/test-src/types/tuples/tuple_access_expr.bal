@@ -162,12 +162,9 @@ type Foo record {|
 function testConstTupleIndex(int index) returns anydata {
     [Foo, boolean] tuple = [{ x: "s", y: 12 }, true];
     match index {
-        -1 => return tuple[INDEX_NEG_ONE];
         0 => {
-            var x = tuple[INDEX_ZERO];
-            if x is Foo {
-                return x.y;
-            }
+            Foo x = tuple[INDEX_ZERO];
+            return x.y;
         }
         1 => return tuple[INDEX_ONE];
         _ => return false;

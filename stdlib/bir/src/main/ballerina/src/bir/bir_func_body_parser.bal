@@ -61,7 +61,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef() };
+        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
     }
 
     public function parseInstruction() returns Instruction {
@@ -559,28 +559,50 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_LOCK) {
             TerminatorKind kind = TERMINATOR_LOCK;
 
-            var globleVarCount = self.reader.readInt32();
-            string[] globleVarName = [];
-            int i = 0;
-            while (i < globleVarCount) {
-                globleVarName[i] = self.reader.readStringCpRef();
-                i += 1;
-            }
+            string globleVarName = self.reader.readStringCpRef();
+            VariableDcl varDecl = self.getDecl(VAR_SCOPE_GLOBAL, globleVarName, VAR_KIND_GLOBAL);
+            Lock lockIns = {pos:pos, kind:kind, globleVar:varDecl, lockBB:self.parseBBRef()};
+            return lockIns;
+        } else if (kindTag == INS_FIELD_LOCK) {
+            TerminatorKind kind = TERMINATOR_FIELD_LOCK;
 
-            Lock lockIns = {pos:pos, kind:kind, globleVars:globleVarName, lockBB:self.parseBBRef()};
+            string localVarName = self.reader.readStringCpRef();
+            VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
+            string fieldName = self.reader.readStringCpRef();
+            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, field:fieldName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;
 
             var globleVarCount = self.reader.readInt32();
-            string[] globleVarName = [];
+            VariableDcl?[] globleVars = [];
             int i = 0;
             while (i < globleVarCount) {
-                globleVarName[i] = self.reader.readStringCpRef();
+                string varName = self.reader.readStringCpRef();
+                globleVars[i] = self.getDecl(VAR_SCOPE_GLOBAL, varName, VAR_KIND_GLOBAL);
                 i += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVarName, unlockBB:self.parseBBRef()};
+            var localLockCount = self.reader.readInt32();
+            LocalLocks?[] localLocks = [];
+            int j = 0;
+            while (j < localLockCount) {
+                string localVarName = self.reader.readStringCpRef();
+                VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
+                var fieldCount = self.reader.readInt32();
+                LocalLocks localLock = {localVar:varDecl, fields:[]};
+                int k = 0;
+                while (k < fieldCount) {
+                    string fieldName = self.reader.readStringCpRef();
+                    localLock.fields[k] = fieldName;
+                    k += 1;
+                }
+                localLocks[j] = localLock;
+                j += 1;
+            }
+
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
+                localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
         error err = error("term instruction kind " + kindTag.toString() + " not impl.");

@@ -67,7 +67,7 @@ public class Send {
             // https://issues.apache.org/jira/browse/ARTEMIS-2325
             producer.send(message);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(ArtemisConstants.PRODUCER_OBJ);
+                transactionContext.handleTransactionBlock(ArtemisConstants.PRODUCER_OBJ, strand);
             }
         } catch (ActiveMQException e) {
             return ArtemisUtils.getError(e);

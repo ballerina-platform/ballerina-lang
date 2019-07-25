@@ -36,6 +36,7 @@
         <classes>
             <class name="org.ballerinalang.test.service.http.HttpBaseTest"/>
             <class name="org.ballerinalang.test.service.http.configuration.AcceptEncodingHeaderTestCase"/>
+            <class name="org.ballerinalang.test.service.http.configuration.RequestLimitsConfigurationTest"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
@@ -273,7 +274,7 @@
             <class name="org.ballerinalang.test.messaging.artemis.ArtemisTestCommons"/>
             <class name="org.ballerinalang.test.messaging.artemis.MessagePayloadTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
-<!--        <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>-->
+            <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
         </classes>
     </test>

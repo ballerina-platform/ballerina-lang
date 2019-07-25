@@ -86,6 +86,9 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            this.elementType = ((BArrayType) type).getElementType();
+        }
     }
 
     public ArrayValue(long[] values) {
@@ -234,27 +237,47 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public long getInt(long index) {
         rangeCheckForGet(index, size);
-        return intValues[(int) index];
+        if (elementType.getTag() == TypeTags.INT_TAG) {
+            return intValues[(int) index];
+        } else {
+            return (Long) refValues[(int) index];
+        }
     }
 
     public boolean getBoolean(long index) {
         rangeCheckForGet(index, size);
-        return booleanValues[(int) index];
+        if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+            return booleanValues[(int) index];
+        } else {
+            return (Boolean) refValues[(int) index];
+        }
     }
 
     public byte getByte(long index) {
         rangeCheckForGet(index, size);
-        return byteValues[(int) index];
+        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+            return byteValues[(int) index];
+        } else {
+            return (Byte) refValues[(int) index];
+        }
     }
 
     public double getFloat(long index) {
         rangeCheckForGet(index, size);
-        return floatValues[(int) index];
+        if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+            return floatValues[(int) index];
+        } else {
+            return (Double) refValues[(int) index];
+        }
     }
 
     public String getString(long index) {
         rangeCheckForGet(index, size);
-        return stringValues[(int) index];
+        if (elementType.getTag() == TypeTags.STRING_TAG) {
+            return stringValues[(int) index];
+        } else {
+            return (String) refValues[(int) index];
+        }
     }
 
     public Object get(long index) {
@@ -585,7 +608,8 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return;
             }
 
-            if (isBasicType(arrayElementType) && !isBasicType(elementType)) {
+            if (isBasicType(arrayElementType) &&
+                    (arrayType.getTag() == TypeTags.TUPLE_TAG || !isBasicType(elementType))) {
                 moveRefValueArrayToBasicTypeArray(type, arrayElementType);
                 return;
             }
@@ -903,10 +927,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     public synchronized boolean isFrozen() {
         return this.freezeStatus.isFrozen();
     }
-    
+
     private boolean isBasicType(BType type) {
-        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
-                type == BTypes.typeBoolean || type == BTypes.typeByte;
+        return type.getTag() <= TypeTags.BOOLEAN_TAG && type.getTag() != TypeTags.DECIMAL_TAG;
     }
 
     private void moveBasicTypeArrayToRefValueArray() {
