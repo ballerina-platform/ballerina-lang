@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.utils;
 
 /**
- * Constants to be used by CLI commands
+ * Constants to be used by CLI commands.
  */
 public class CLIConstants {
     public static final String OFFLINE_BUILD = "OFFLINE_BUILD";
