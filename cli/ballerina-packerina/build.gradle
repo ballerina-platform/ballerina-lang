@@ -58,6 +58,10 @@ task createBirCache {
     outputs.cacheIf { false }
 }
 
+checkstyleMain {
+    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
+}
+
 test {
     dependsOn createBirCache
     dependsOn configurations.birJar

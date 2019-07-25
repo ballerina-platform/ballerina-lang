@@ -22,10 +22,10 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.BaloFileWriter;
+import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
-import org.wso2.ballerinalang.compiler.BIRFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.LockFileWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -81,7 +81,7 @@ public class BuilderUtils {
     private static PrintStream outStream = System.out;
 
     private static BaloFileWriter baloFileWriter;
-    private static BIRFileWriter birFileWriter;
+    private static BirFileWriter birFileWriter;
     private static LockFileWriter lockFileWriter;
 
 
@@ -258,10 +258,11 @@ public class BuilderUtils {
         // to separate them from the compiler write. I am unable to refactor the compiler write ATM
         // since the build rely on output of that. We need to fix the build and refactor this code.
         baloFileWriter = BaloFileWriter.getInstance(context);
-        birFileWriter = BIRFileWriter.getInstance(context);
+        birFileWriter = BirFileWriter.getInstance(context);
         // todo put the lock file writer in a seperate package.
         lockFileWriter = LockFileWriter.getInstance(context);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
+        // TODO: This will throw an error
         packages.forEach(module -> baloFileWriter.write(module, null));
         packages.forEach(birFileWriter::write);
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));

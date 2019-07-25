@@ -1,34 +1,32 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
-package org.wso2.ballerinalang.compiler;
+package org.ballerinalang.packerina.writer;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
@@ -49,31 +47,27 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DI
  *
  * @since 0.965.0
  */
-public class BIRFileWriter {
-    private static final CompilerContext.Key<BIRFileWriter> BIR_FILE_WRITER_KEY =
+public class BirFileWriter {
+    private static final CompilerContext.Key<BirFileWriter> BIR_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
 
-    private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
     private final Manifest manifest;
-    private final CompilerPhase compilerPhase;
 
-    public static BIRFileWriter getInstance(CompilerContext context) {
-        BIRFileWriter binaryFileWriter = context.get(BIR_FILE_WRITER_KEY);
+    public static BirFileWriter getInstance(CompilerContext context) {
+        BirFileWriter binaryFileWriter = context.get(BIR_FILE_WRITER_KEY);
         if (binaryFileWriter == null) {
-            binaryFileWriter = new BIRFileWriter(context);
+            binaryFileWriter = new BirFileWriter(context);
         }
         return binaryFileWriter;
     }
 
-    private BIRFileWriter(CompilerContext context) {
+    private BirFileWriter(CompilerContext context) {
         context.put(BIR_FILE_WRITER_KEY, this);
-        this.codeGenerator = CodeGenerator.getInstance(context);
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
-        this.compilerPhase = CompilerOptions.getInstance(context).getCompilerPhase();
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 

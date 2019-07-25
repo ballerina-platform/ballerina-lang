@@ -24,6 +24,7 @@ import java.util.HashMap;
  * Context to be passed to tasks when they get executed.
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
+    private static final long serialVersionUID = 6363519534259706585L;
     
     public <T> T get(BuildContextField key) {
         return (T) super.get(key);
