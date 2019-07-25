@@ -74,29 +74,23 @@ public class Http2ServerConnectorBasicTestCase {
 
     @Test
     public void testHttp2ServerWithH2PriorOffClient() {
-        String testValue = "Test Http2 Message";
-        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        HttpCarbonMessage response = new MessageSender(h2PriorOffClient).sendMessage(httpCarbonMessage);
-        assertNotNull(response, "Expected response not received");
-        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, testValue, "Expected response not received");
+        testH2Server(h2PriorOffClient);
     }
 
     @Test
     public void testHttp2ServerWithH2PriorOnClient() {
-        String testValue = "Test Http2 Message";
-        HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        HttpCarbonMessage response = new MessageSender(h2priorOnClient).sendMessage(httpCarbonMessage);
-        assertNotNull(response, "Expected response not received");
-        String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        assertEquals(result, testValue, "Expected response not received");
+        testH2Server(h2priorOnClient);
     }
 
     @Test
     public void testHttp2ServerWithHttp1Client() {
+        testH2Server(h1Client);
+    }
+
+    private void testH2Server(HttpClientConnector h2Client) {
         String testValue = "Test Http2 Message";
         HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        HttpCarbonMessage response = new MessageSender(h1Client).sendMessage(httpCarbonMessage);
+        HttpCarbonMessage response = new MessageSender(h2Client).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(result, testValue, "Expected response not received");

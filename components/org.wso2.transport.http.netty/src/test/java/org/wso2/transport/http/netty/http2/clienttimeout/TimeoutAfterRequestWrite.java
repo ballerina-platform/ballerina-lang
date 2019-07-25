@@ -32,13 +32,10 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
@@ -51,7 +48,7 @@ import static org.testng.Assert.assertTrue;
 import static org.wso2.transport.http.netty.util.Http2Util.getHttp2Client;
 
 /**
- * {@code TimeoutAfterRequestWrite} contains test cases for HTTP/2 Client request timeout.
+ * {@code TimeoutAfterRequestWrite} contains test cases for HTTP/2 client timeout after request write state.
  */
 public class TimeoutAfterRequestWrite {
 
@@ -84,32 +81,20 @@ public class TimeoutAfterRequestWrite {
 
     @Test
     public void testHttp2ClientTimeoutWithPriorOff() {
-        HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
-        try {
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOffClient.send(request);
-            responseFuture.setHttpConnectorListener(listener);
-            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-            Throwable error = listener.getHttpErrorMessage();
-            AssertJUnit.assertNotNull(error);
-            assertTrue(error instanceof EndpointTimeOutException,
-                       "Exception is not an instance of EndpointTimeOutException");
-            String result = error.getMessage();
-            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                         "Expected error message not received");
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
-        }
+        testH2ClientTimeout(h2PriorOffClient);
     }
 
     @Test
     public void testHttp2ClientTimeoutWithPriorOn() {
+        testH2ClientTimeout(h2PriorOnClient);
+    }
+
+    private void testH2ClientTimeout(HttpClientConnector h2Client) {
         HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOnClient.send(request);
+            HttpResponseFuture responseFuture = h2Client.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
             Throwable error = listener.getHttpErrorMessage();

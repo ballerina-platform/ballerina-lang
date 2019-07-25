@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.transport.http.netty.http2.clienttimeout;
 
 import io.netty.buffer.Unpooled;
@@ -33,6 +51,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.wso2.transport.http.netty.util.Http2Util.getHttp2Client;
 
+/**
+ * {@code TimeoutDuringRequestWrite} contains test cases for HTTP/2 client timeout during request write state.
+ */
 public class TimeoutDuringRequestWrite {
     private static final Logger LOG = LoggerFactory.getLogger(TimeoutDuringRequestWrite.class);
 
@@ -63,32 +84,17 @@ public class TimeoutDuringRequestWrite {
 
     @Test
     public void testHttp2ClientTimeoutWithPriorOn() {
-        HttpCarbonMessage request = MessageGenerator.generateDelayedRequest(HttpMethod.POST);
-        byte[] data1 = "Content data part1".getBytes(StandardCharsets.UTF_8);
-        ByteBuffer byteBuff1 = ByteBuffer.wrap(data1);
-        request.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(byteBuff1)));
-
-        try {
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOnClient.send(request);
-            responseFuture.setHttpConnectorListener(listener);
-            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-            Throwable error = listener.getHttpErrorMessage();
-            AssertJUnit.assertNotNull(error);
-            assertTrue(error instanceof EndpointTimeOutException,
-                       "Exception is not an instance of EndpointTimeOutException");
-            String result = error.getMessage();
-            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
-                         "Expected error message not received");
-        } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
-        }
+        testH2ClientTimeout(h2PriorOnClient);
     }
 
-    //Since the timeout occurs during request write state, with upgrade, this request is still HTTP/1.1.
+    //TODO:Since the timeout occurs during request write state, with upgrade, this request is still HTTP/1.1. Should be
+    // fixed in HTTP/1.1.
     @Test(enabled = false)
     public void testHttp2ClientTimeoutWithPriorOff() {
+        testH2ClientTimeout(h2PriorOffClient);
+    }
+
+    private void testH2ClientTimeout(HttpClientConnector h2Client) {
         HttpCarbonMessage request = MessageGenerator.generateDelayedRequest(HttpMethod.POST);
         byte[] data1 = "Content data part1".getBytes(StandardCharsets.UTF_8);
         ByteBuffer byteBuff1 = ByteBuffer.wrap(data1);
@@ -97,7 +103,7 @@ public class TimeoutDuringRequestWrite {
         try {
             CountDownLatch latch = new CountDownLatch(1);
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOffClient.send(request);
+            HttpResponseFuture responseFuture = h2Client.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
             Throwable error = listener.getHttpErrorMessage();

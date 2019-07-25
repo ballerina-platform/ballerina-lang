@@ -443,8 +443,7 @@ public class Http2StateUtil {
 
     public static void initHttp2MessageContext(HttpCarbonMessage outboundRequest,
                                                Http2TargetHandler http2TargetHandler) {
-        Http2MessageStateContext http2MessageStateContext =
-                outboundRequest.getHttp2MessageStateContext();
+        Http2MessageStateContext http2MessageStateContext = outboundRequest.getHttp2MessageStateContext();
         if (http2MessageStateContext == null) {
             http2MessageStateContext = new Http2MessageStateContext();
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));

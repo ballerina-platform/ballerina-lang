@@ -31,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
-import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -179,12 +177,12 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(OutboundMsgHolder msgHolder, boolean primary) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
+                closeStream(streamId, ctx);
                 if (primary) {
                     handlePrimaryResponseTimeout(msgHolder);
                 } else {
                     handlePushResponseTimeout(msgHolder);
                 }
-                closeStream(streamId, ctx);
             } else {
                 // Write occurred before the timeout - set a new timeout with shorter delay.
                 timerTasks.put(streamId, schedule(ctx, this, nextDelay));
@@ -229,9 +227,6 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
 
         private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
             if (primary) {
-//                msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-//                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-//                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
                         .handleStreamTimeout(ctx, msgHolder, false);
 

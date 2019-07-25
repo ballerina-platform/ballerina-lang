@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.transport.http.netty.http2.clienttimeout;
 
 import io.netty.handler.codec.DecoderException;
@@ -27,6 +45,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.wso2.transport.http.netty.util.Http2Util.getHttp2Client;
 
+/**
+ * {@code TimeoutDuringResponseReceive} contains test cases for HTTP/2 client timeout during response receive state.
+ */
 public class TimeoutDuringResponseReceive {
     private static final Logger LOG = LoggerFactory.getLogger(TimeoutDuringResponseReceive.class);
 
@@ -58,32 +79,24 @@ public class TimeoutDuringResponseReceive {
     @Test(expectedExceptions = DecoderException.class,
           expectedExceptionsMessageRegExp = "Idle timeout triggered while reading inbound response entity body*")
     public void testHttp2ClientTimeoutWithPriorOff() throws DecoderException {
-        HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
-        try {
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOffClient.send(request);
-            responseFuture.setHttpConnectorListener(listener);
-            latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-            Thread.sleep(10000); //Wait for the idle timeout.
-            HttpCarbonMessage response = listener.getHttpResponseMessage();
-            TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
-        } catch (InterruptedException e) {
-            TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);
-        }
+        testH2ClientTimeout(h2PriorOffClient);
     }
 
     @Test(expectedExceptions = DecoderException.class,
           expectedExceptionsMessageRegExp = "Idle timeout triggered while reading inbound response entity body*")
     public void testHttp2ClientTimeoutWithPriorOn() throws DecoderException {
+        testH2ClientTimeout(h2PriorOnClient);
+    }
+
+    private void testH2ClientTimeout(HttpClientConnector h2Client) {
         HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = h2PriorOnClient.send(request);
+            HttpResponseFuture responseFuture = h2Client.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
-            Thread.sleep(10000); //Wait for the idle timeout.
+            Thread.sleep(10000); //Wait for the idle timeout
             HttpCarbonMessage response = listener.getHttpResponseMessage();
             TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         } catch (InterruptedException e) {
