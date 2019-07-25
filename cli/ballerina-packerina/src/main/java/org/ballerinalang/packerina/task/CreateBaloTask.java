@@ -20,14 +20,14 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.writer.ModuleFileWriter;
+import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 
 /**
- * Task for creating balo, bir and jar file.
+ * Task for creating balo, bir and jar file. Balo file writer is meant for modules only and not for single files.
  */
 public class CreateBaloTask implements Task {
     @Override
@@ -35,7 +35,7 @@ public class CreateBaloTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         List<BLangPackage> modules = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         
-        ModuleFileWriter moduleFileWriter = ModuleFileWriter.getInstance(context);
-        modules.forEach(moduleFileWriter::write);
+        BaloFileWriter baloWriter = BaloFileWriter.getInstance(context);
+        modules.forEach(module -> baloWriter.write(module, buildContext));
     }
 }
