@@ -81,12 +81,12 @@ public class RepoUtils {
     /**
      * Checks if the path is a project.
      *
-     * @param path dir path
+     * @param sourceRoot source root of the project.
      * @return true if the directory is a project repo, false if its the home repo
      */
-    public static boolean isBallerinaProject(Path path) {
-        Path manifest = path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
-        return Files.isDirectory(path) && Files.exists(manifest) && Files.isRegularFile(manifest);
+    public static boolean isBallerinaProject(Path sourceRoot) {
+        Path manifest = sourceRoot.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+        return Files.isDirectory(sourceRoot) && Files.exists(manifest) && Files.isRegularFile(manifest);
     }
 
     /**
