@@ -143,7 +143,7 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(results.getString(++i), "reason = Error Three, message = msgTwo, fatal = false");
     }
 
-    @Test(description = "TestMatchingErrorRestParameter", groups = "brokenOnLangLibChange")
+    @Test(description = "TestMatchingErrorRestParameter")
     public void testErrorRestParameterMatch() {
         BInteger[] args0 = { new BInteger(0) };
         BValue[] returns0 = BRunUtil.invoke(result, "testErrorRestParamMatch", args0);
