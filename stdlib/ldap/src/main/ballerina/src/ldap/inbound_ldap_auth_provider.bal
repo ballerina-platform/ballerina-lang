@@ -38,12 +38,7 @@ public type InboundLdapAuthProvider object {
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
-        var ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
-        if (ldapConnection is Error) {
-            panic ldapConnection;
-        } else {
-            self.ldapConnection = ldapConnection;
-        }
+        self.ldapConnection = initLdapConnectionContext(self.ldapConnectionConfig, instanceId);
     }
 
     # Authenticate with username and password.
@@ -162,6 +157,6 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 #
 # + ldapConnectionConfig - `LdapConnectionConfig` instance
 # + instanceId - Unique id generated to identify an endpoint
-# + return - `LdapConnection` instance or `Error` if error occurred
+# + return - `LdapConnection` instance
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
-                                          returns LdapConnection|Error = external;
+                                          returns LdapConnection = external;

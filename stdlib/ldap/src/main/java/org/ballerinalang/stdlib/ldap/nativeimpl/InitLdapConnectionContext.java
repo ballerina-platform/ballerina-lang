@@ -61,8 +61,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     }
 
-    public static Object initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
-                                                   String instanceId) {
+    public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
+                                                                     String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));
@@ -123,7 +123,7 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException e) {
-            return LdapUtils.createError(e.getMessage());
+            throw LdapUtils.createError(e.getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();
