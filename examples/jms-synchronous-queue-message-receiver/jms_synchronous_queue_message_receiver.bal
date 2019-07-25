@@ -17,13 +17,13 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // Initializes a queue receiver on top of the created sessions.
-listener jms:QueueListener queueReceiver = new(jmsSession, queueName = "MyQueue");
+listener jms:QueueListener queueReceiver = new(jmsSession, "MyQueue");
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
     // Keeps the JMS session alive until the message is received by the JMS provider.
     // If the message is not received within five seconds, the session times out.
-    var result = caller->receive(timeoutInMilliSeconds = 30000);
+    var result = caller->receive(30000);
 
     if (result is jms:Message) {
         // This is executed if the message is received.
@@ -41,6 +41,6 @@ public function main() {
     } else {
         // This is executed if an error occurs.
         io:println("Error receiving message : " +
-                <string>result.detail().message);
+                <string>result.detail()["message"]);
     }
 }

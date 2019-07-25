@@ -706,7 +706,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
 function genYieldCheck(jvm:MethodVisitor mv, LabelGenerator labelGen, bir:BasicBlock thenBB, string funcName,
                         int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
-    // mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "yield", "Z");
     mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
     jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
     mv.visitJumpInsn(IFNE, yieldLabel);

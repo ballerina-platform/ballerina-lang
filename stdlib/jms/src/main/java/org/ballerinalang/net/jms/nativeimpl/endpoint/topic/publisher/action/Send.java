@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 public class Send {
 
     public static Object send(Strand strand, ObjectValue publisherObj, ObjectValue msgObj) {
-        return SendActionHandler.handle(publisherObj, msgObj);
+        return SendActionHandler.handle(strand, publisherObj, msgObj);
     }
 
 }

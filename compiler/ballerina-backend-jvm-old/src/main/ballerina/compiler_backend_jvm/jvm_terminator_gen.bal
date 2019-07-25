@@ -36,7 +36,7 @@ type TerminatorGenerator object {
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
                            int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
         if (terminator is bir:Lock) {
-            self.genLockTerm(terminator, funcName);
+            self.genLockTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:Unlock) {
             self.genUnlockTerm(terminator, funcName);
         } else if (terminator is bir:GOTO) {
@@ -75,14 +75,17 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genLockTerm(bir:Lock lockIns, string funcName) {
+    function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        foreach var globleVar in lockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
-            var lockName = computeLockNameFromString(globleVar);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
-            self.mv.visitInsn(MONITORENTER);
-        }
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+        string lockClass = "L" + LOCK_VALUE + ";";
+        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar);
+        var lockName = computeLockNameFromString(lockIns.globleVar);
+        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+        self.mv.visitInsn(POP);
+        genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
@@ -90,12 +93,15 @@ type TerminatorGenerator object {
     function genUnlockTerm(bir:Unlock unlockIns, string funcName) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+
+        string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         foreach var globleVar in unlockIns.globleVars {
             var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
             var lockName = computeLockNameFromString(globleVar);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
-            self.mv.visitInsn(MONITOREXIT);
+            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
         }
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
@@ -674,6 +680,14 @@ type TerminatorGenerator object {
         generateVarStore(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
 };
+
+function genYieldCheckForLock(jvm:MethodVisitor mv, LabelGenerator labelGen, string funcName,
+                        int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
+    jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
+    mv.visitJumpInsn(IFNE, yieldLabel);
+}
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
     mv.visitIntInsn(BIPUSH, channels.length());

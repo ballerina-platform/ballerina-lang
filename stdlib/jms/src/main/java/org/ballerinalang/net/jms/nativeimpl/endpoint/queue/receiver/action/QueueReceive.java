@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
 public class QueueReceive {
 
     public static Object receive(Strand strand, ObjectValue queueReceiverCaller, long timeoutInMilliSeconds) {
-        return ReceiveActionHandler.handle(queueReceiverCaller, timeoutInMilliSeconds);
+        return ReceiveActionHandler.handle(strand, queueReceiverCaller, timeoutInMilliSeconds);
     }
 
     private QueueReceive() {

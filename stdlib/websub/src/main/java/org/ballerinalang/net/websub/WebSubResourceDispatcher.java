@@ -31,7 +31,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_GET;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_POST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TARGET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.DEFERRED_FOR_PAYLOAD_BASED_DISPATCHING;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
@@ -88,9 +88,16 @@ class WebSubResourceDispatcher {
             if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
                 //if the request is a GET request indicating an intent verification request, and the user has not
                 //specified an onIntentVerification resource, assume auto intent verification
-                String annotatedTopic = ((MapValue) service.getBalService().getType()
+                Object target = ((MapValue) service.getBalService().getType()
                         .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG))
-                        .getStringValue(ANN_WEBSUB_ATTR_TOPIC);
+                        .get(ANN_WEBSUB_ATTR_TARGET);
+
+                String annotatedTopic = "";
+
+                if (target instanceof ArrayValue) {
+                    annotatedTopic = (String) ((ArrayValue) target).getValue(1);
+                }
+
                 if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {
                     annotatedTopic = ((WebSubHttpService) service).getTopic();
                 }

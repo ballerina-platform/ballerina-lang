@@ -195,7 +195,7 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
 }
 
 function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
-    string lockClass = "Ljava/lang/Object;";
+    string lockClass = "L" + LOCK_VALUE + ";";
     jvm:FieldVisitor fv;
     fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass);
     fv.visitEnd();
@@ -205,12 +205,13 @@ function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:Clas
                                     boolean serviceEPAvailable) {
     jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
 
+    string lockClass = "L" + LOCK_VALUE + ";";
     foreach var globalVar in globalVars {
         if (globalVar is bir:GlobalVariableDcl) {
-            mv.visitTypeInsn(NEW, "java/lang/Object");
+            mv.visitTypeInsn(NEW, LOCK_VALUE);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), "Ljava/lang/Object;");
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), lockClass);
         }
     }
 
