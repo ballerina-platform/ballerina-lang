@@ -881,7 +881,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return namespaces;
     }
 
-    public void reloadErrorType() {
+    public void reloadErrorAndDependentTypes() {
 
         ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
         while (entry != NOT_FOUND_ENTRY) {
@@ -894,6 +894,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorConstructor = symTable.errorType.ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             return;

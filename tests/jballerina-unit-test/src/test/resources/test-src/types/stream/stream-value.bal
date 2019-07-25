@@ -48,27 +48,6 @@ type Coach object {
     }
 };
 
-function testInvalidRecordPublishingToStream() {
-    stream<Employee> s1 = new;
-    Job j1 = { description:"Dummy Description 1" };
-    s1.publish(j1);
-}
-
-function testSubscriptionFunctionWithIncorrectRecordParameter() {
-    stream<Employee> s1 = new;
-    s1.subscribe(printJobDescription);
-}
-
-function testSubscriptionFunctionWithUnassignableUnionParameter() {
-    stream<int[]|string|boolean|float> unionStream = new;
-    unionStream.subscribe(addToGlobalAnydataArrayForUnionType);
-}
-
-function testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
-    stream<[int, float]> tupleStream = new;
-    tupleStream.subscribe(addToGlobalAnydataArrayForTupleType);
-}
-
 int arrayIndex = 0;
 Employee globalEmployee = {};
 
@@ -170,7 +149,7 @@ function testStreamPublishingAndSubscriptionForUnionTypeStream() returns [any[],
     stream<int[]|string|boolean> unionStream = new;
     unionStream.subscribe(addToGlobalAnydataArrayForUnionType);
     int[] intarray = [1, 2, 3];
-    anydata[] publishedEvents = [intarray, "Maryam", false];
+    (int[]|string|boolean)[] publishedEvents = [intarray, "Maryam", false];
     foreach var event in publishedEvents {
         unionStream.publish(event);
     }
@@ -189,7 +168,7 @@ function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int int
     stream<string|boolean|int|int[]> unionStream = new;
     unionStream.subscribe(addToGlobalAnydataArrayForAssignableUnionType);
     int[] intarray = [1, 2, 3];
-    anydata[] publishedEvents = [intarray, "Maryam", false, intVal];
+    (string|boolean|int|int[])[] publishedEvents = [intarray, "Maryam", false, intVal];
     foreach var event in publishedEvents {
         unionStream.publish(event);
     }
@@ -209,7 +188,7 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns [any[],
     tupleStream.subscribe(addToGlobalAnydataArrayForTupleType);
     [string, int] tuple = ["tuple1", 1234];
     [string, int] tuple2 = ["tuple2", 9876];
-    anydata[] publishedEvents = [tuple, tuple2];
+    [string, int][] publishedEvents = [tuple, tuple2];
     foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
