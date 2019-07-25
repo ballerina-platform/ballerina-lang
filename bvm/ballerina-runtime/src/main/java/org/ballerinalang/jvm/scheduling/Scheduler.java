@@ -278,7 +278,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 294.
+                        // It depends on this line number 279.
                         // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");
