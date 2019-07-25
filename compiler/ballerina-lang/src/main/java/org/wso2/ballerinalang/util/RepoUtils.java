@@ -46,12 +46,13 @@ public class RepoUtils {
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io";
-    private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
-            System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
 
+    public static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
+            System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+    
     /**
      * Create and get the home repository path.
      *
