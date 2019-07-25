@@ -699,8 +699,8 @@ function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                                     creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     anydata[]? generatedKeys = ret.generatedKeys["CUSTOMERID"];
     int key1 = -1;
     int key2 = -1;
