@@ -33,16 +33,17 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,6 +126,9 @@ public class BallerinaSdkUtils {
     @Nullable
     public static String retrieveBallerinaVersion(@NotNull String sdkPath) {
         try {
+            // need this hack to avoid an IDEA bug caused by "AssertionError: File accessed outside allowed roots"
+            VfsRootAccess.allowRootAccess(sdkPath);
+
             VirtualFile sdkRoot = VirtualFileManager.getInstance().findFileByUrl(VfsUtilCore.pathToUrl(sdkPath));
             if (sdkRoot != null) {
                 String cachedVersion = sdkRoot.getUserData(VERSION_DATA_KEY);
@@ -135,6 +139,7 @@ public class BallerinaSdkUtils {
                 VirtualFile versionFile = sdkRoot.findFileByRelativePath(
                         BallerinaConstants.BALLERINA_VERSION_FILE_PATH);
                 if (versionFile == null) {
+                    VfsRootAccess.allowRootAccess();
                     versionFile = sdkRoot.findFileByRelativePath(
                             BallerinaConstants.BALLERINA_NEW_VERSION_FILE_PATH);
                 }
@@ -151,7 +156,7 @@ public class BallerinaSdkUtils {
                     BallerinaSdkService.LOG.debug("Cannot find Ballerina version file in sdk path: " + sdkPath);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             BallerinaSdkService.LOG.debug("Cannot retrieve Ballerina version from sdk path: " + sdkPath, e);
         }
         return null;
