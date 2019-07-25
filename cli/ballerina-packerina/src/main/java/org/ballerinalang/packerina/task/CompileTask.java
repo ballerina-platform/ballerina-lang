@@ -19,8 +19,8 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.packerina.BuildContext;
-import org.ballerinalang.packerina.utils.CLIConstants;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -36,35 +36,31 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.packerina.utils.CLIConstants.ENABLE_EXPERIMENTAL_FEATURES;
-import static org.ballerinalang.packerina.utils.CLIConstants.ENABLE_SIDDHI_RUNTIME;
-import static org.ballerinalang.packerina.utils.CLIConstants.LOCK_ENEABLED;
-import static org.ballerinalang.packerina.utils.CLIConstants.OFFLINE_BUILD;
 
 /**
  * Task for compiling a package.
  */
 public class CompileTask implements Task {
-    public static final String COMPILED_PACKAGES = "COMPILED PACKAGES";
-    public static final String COMPILER_CONTEXT = "COMPILED COMPILER_CONTEXT";
+
     @Override
     public void execute(BuildContext buildContext) {
         CompilerPhase compilerPhase = CompilerPhase.BIR_GEN;
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, buildContext.getSourceRoot().toString());
-        options.put(OFFLINE, buildContext.getBuildData().get(OFFLINE_BUILD).toString());
+        options.put(PROJECT_DIR, buildContext.get(BuildContextField.SOURCE_ROOT));
+        options.put(OFFLINE, buildContext.get(BuildContextField.OFFLINE_BUILD));
         options.put(COMPILER_PHASE, compilerPhase.toString());
-        options.put(LOCK_ENABLED, buildContext.getBuildData().get(LOCK_ENEABLED).toString());
-        options.put(SKIP_TESTS, buildContext.getBuildData().get(CLIConstants.SKIP_TESTS).toString());
+        options.put(LOCK_ENABLED, buildContext.get(BuildContextField.LOCK_ENABLED));
+        options.put(SKIP_TESTS, buildContext.get(BuildContextField.SKIP_TESTS));
         options.put(TEST_ENABLED, "true");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED,
-                buildContext.getBuildData().get(ENABLE_EXPERIMENTAL_FEATURES).toString());
-        options.put(SIDDHI_RUNTIME_ENABLED, buildContext.getBuildData().get(ENABLE_SIDDHI_RUNTIME).toString());
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, buildContext.get(BuildContextField.ENABLE_EXPERIMENTAL_FEATURES));
+        options.put(SIDDHI_RUNTIME_ENABLED, buildContext.get(BuildContextField.ENABLE_SIDDHI_RUNTIME));
     
         Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> packages = compiler.build();
-        buildContext.getBuildData().put(COMPILED_PACKAGES, packages);
-        buildContext.getBuildData().put(COMPILER_CONTEXT, context);
+        List<BLangPackage> modules = compiler.build();
+        
+        // update build context.
+        buildContext.put(BuildContextField.COMPILED_MODULES, modules);
+        buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     }
 }

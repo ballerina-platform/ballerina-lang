@@ -19,7 +19,8 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -30,13 +31,10 @@ import java.nio.file.Path;
  * Create the target directory.
  */
 public class CreateTargetDirTask implements Task {
-    public static final String BALO_CACHE_DIR = "BALO_CACHE_DIR";
-    public static final String BIR_CACHE_DIR = "BIR_CACHE_DIR";
-    public static final String JAR_CACHE_DIR = "BIR_CACHE_DIR";
     
     @Override
     public void execute(BuildContext buildContext) {
-        Path targetDir = buildContext.getTargetDir();
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
             // create '<target>/cache/balo_cache' dir
             Path baloCacheDir = targetDir
@@ -63,9 +61,9 @@ public class CreateTargetDirTask implements Task {
                 Files.createDirectories(jarCache);
             }
             
-            buildContext.addBuildData(BALO_CACHE_DIR, baloCacheDir);
-            buildContext.addBuildData(BIR_CACHE_DIR, birCacheDir);
-            buildContext.addBuildData(JAR_CACHE_DIR, jarCache);
+            buildContext.put(BuildContextField.BALO_CACHE_DIR, baloCacheDir);
+            buildContext.put(BuildContextField.BIR_CACHE_DIR, birCacheDir);
+            buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred in creating artifacts output target path: " + targetDir);
         }
