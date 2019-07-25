@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import com.intellij.util.containers.ContainerUtil;
+import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
@@ -64,15 +65,16 @@ public class WrongModuleTypeNotificationProvider extends EditorNotifications.Pro
         Module module = ModuleUtilCore.findModuleForFile(file, myProject);
         return (module == null || BallerinaSdkService.getInstance(myProject).isBallerinaModule(module)
                 || getIgnoredModules(myProject).contains(module.getName())
-                || BallerinaSdkUtils.autoDetectSdk().isEmpty()) ? null : createPanel(myProject, module);
+                || !BallerinaSdkUtils.autoDetectSdk().isEmpty()) ? null : createPanel(myProject, module);
     }
 
     @NotNull
     private static EditorNotificationPanel createPanel(@NotNull Project project, @NotNull Module module) {
         EditorNotificationPanel panel = new EditorNotificationPanel();
-        panel.setText("'" + module.getName() + "' is not a Ballerina Module. Some features will not work.");
+        panel.setText(String.format("'%s' is not a Ballerina Module. Some features will not work.", module.getName()));
         panel.setToolTipText("You can fix this by navigating to File -> Project Structure -> Modules and adding '"
                 + module.getName() + "' as a Ballerina module.");
+        panel.icon(BallerinaIcons.ICON);
         return panel;
     }
 

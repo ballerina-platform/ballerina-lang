@@ -24,10 +24,14 @@ listener websub:Listener websubEP = new websub:Listener(23484);
 @websub:SubscriberServiceConfig {
     path:"/websub",
     subscribeOnStartUp:true,
-    resourceUrl: "http://localhost:23081/original/one",
+    target: "http://localhost:23081/original/one",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: { followRedirects: {
+    publisherClientConfig: { followRedirects: {
+            enabled: true
+        }
+    },
+    hubClientConfig: { followRedirects: {
             enabled: true
         }
     }
@@ -45,11 +49,14 @@ service websubSubscriber on websubEP {
 
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
-    subscribeOnStartUp:true,
-    resourceUrl: "http://localhost:23081/original/two",
+    target: "http://localhost:23081/original/two",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA",
-    subscriptionClientConfig: { followRedirects: {
+    publisherClientConfig: { followRedirects: {
+            enabled: true
+        }
+    },
+    hubClientConfig: { followRedirects: {
             enabled: true
         }
     }

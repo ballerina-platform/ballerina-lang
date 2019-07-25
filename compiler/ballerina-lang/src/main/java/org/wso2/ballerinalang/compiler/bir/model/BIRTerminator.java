@@ -226,12 +226,12 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRGlobalVariableDcl globalVar;
         public final BIRBasicBlock lockedBB;
 
-        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+        public Lock(DiagnosticPos pos, BIRGlobalVariableDcl globalVar, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
-            this.globalVars = globalVars;
+            this.globalVar = globalVar;
             this.lockedBB = lockedBB;
         }
 

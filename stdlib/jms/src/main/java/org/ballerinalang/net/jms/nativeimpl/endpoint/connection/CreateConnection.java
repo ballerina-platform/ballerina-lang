@@ -52,7 +52,6 @@ public class CreateConnection {
         MapValue connectionConfig = connectionObject.getMapValue(JmsConstants.CONNECTION_CONFIG);
 
         Connection connection = JmsUtils.createConnection(connectionConfig);
-        setIfNonDaemonThreadRunningAtAllTimes(connectionObject, connectionConfig);
         try {
             if (connection.getClientID() == null) {
                 connection.setClientID(UUID.randomUUID().toString());
@@ -63,21 +62,6 @@ public class CreateConnection {
             BallerinaAdapter.throwBallerinaException("Error occurred while starting connection.", e);
         }
         connectionObject.addNativeData(JmsConstants.JMS_CONNECTION, connection);
-    }
-
-    /**
-     * Most of the brokers keep a single non-daemon thread running at all times in order to prevent the program from
-     * exiting during the JMS asynchronous scenario. This is not always the case for all brokers as it is not in the JMS
-     * spec. One broker (among the brokers tested so far) that deviates is the ActiveMQ Artemis broker. This method is
-     * to see if a non-daemon thread is always running based on broker kind. We check only for Artemis here because it
-     * is the only deviation identified so far.
-     *
-     * @param connectionObject The Ballerina connection object to set the native data on
-     * @param connectionConfig The connection configuration to get the initial context factory
-     */
-    private static void setIfNonDaemonThreadRunningAtAllTimes(ObjectValue connectionObject, MapValue connectionConfig) {
-        connectionObject.addNativeData(JmsConstants.NON_DAEMON_THREAD_RUNNING, !connectionConfig.getStringValue(
-                JmsConstants.ALIAS_INITIAL_CONTEXT_FACTORY).contains(JmsConstants.ARTEMIS_ICF));
     }
 
     private CreateConnection() {

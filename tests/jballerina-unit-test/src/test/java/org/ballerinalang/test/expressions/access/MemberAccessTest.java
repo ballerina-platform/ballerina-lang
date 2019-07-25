@@ -48,7 +48,7 @@ public class MemberAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 53);
+        Assert.assertEquals(negativeResult.getErrorCount(), 52);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
@@ -113,11 +113,10 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
-        validateError(negativeResult, i++, "index out of range: index: '1'", 187, 18);
-        validateError(negativeResult, i++, "expression is not a constant expression", 188, 17);
-        validateError(negativeResult, i++, "index out of range: index: '-1'", 189, 15);
-        validateError(negativeResult, i++, "index out of range: index: '6'", 190, 17);
-        validateError(negativeResult, i, "index out of range: index: '1'", 191, 17);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 9);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 9);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
+        validateError(negativeResult, i, "undefined field 'age' in 'Employee'", 196, 14);
     }
 
     @Test(dataProvider = "listMemberAccessFunctions")
@@ -130,12 +129,15 @@ public class MemberAccessTest {
     public Object[][] listMemberAccessFunctions() {
         return new Object[][] {
             { "testOpenArrayMemberAccessByLiteralPositive" },
+            { "testOpenArrayMemberAccessByConstPositive" },
             { "testOpenArrayMemberAccessByVariablePositive" },
             { "testOpenArrayMemberAccessByFiniteTypeVariablePositive" },
             { "testClosedArrayMemberAccessByLiteralPositive" },
+            { "testClosedArrayMemberAccessByConstPositive" },
             { "testClosedArrayMemberAccessByVariablePositive" },
             { "testClosedArrayMemberAccessByFiniteTypeVariablePositive" },
             { "testTupleMemberAccessByLiteralPositive" },
+            { "testTupleMemberAccessByConstPositive" },
             { "testTupleMemberAccessByVariablePositive" },
             { "testTupleMemberAccessByFiniteTypeVariablePositive" },
         };
@@ -145,56 +147,56 @@ public class MemberAccessTest {
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
                     "index: 4, size: 3.*")
     public void testOpenArrayMemberAccessByLiteralIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testOpenArrayMemberAccessByLiteralIndexOutOfRange");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
+                    "index: 6, size: 2.*")
+    public void testOpenArrayMemberAccessByConstIndexOutOfRange() {
+        BRunUtil.invoke(result, "testOpenArrayMemberAccessByConstIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
                     "index: 5, size: 2.*")
     public void testOpenArrayMemberAccessByVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testOpenArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
                     "index: 9, size: 2.*")
     public void testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
                     "index: 5, size: 2.*")
     public void testClosedArrayMemberAccessByVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testClosedArrayMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=array index out of range: " +
                     "index: 9, size: 4.*")
     public void testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=tuple index out of range: " +
                     "index: 3, size: 2.*")
     public void testTupleMemberAccessByVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testTupleMemberAccessByVariableIndexOutOfRange");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IndexOutOfRange message=tuple index out of range: " +
                     "index: 9, size: 3.*")
     public void testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testTupleMemberAccessByFiniteTypeVariableIndexOutOfRange");
     }
 
     @Test(dataProvider = "recordMemberAccessFunctions")
@@ -207,6 +209,7 @@ public class MemberAccessTest {
     public Object[][] recordMemberAccessFunctions() {
         return new Object[][] {
             { "testRecordMemberAccessByLiteral" },
+            { "testRecordMemberAccessByConstant" },
             { "testRecordMemberAccessByVariable" },
             { "testRecordMemberAccessForNonExistingKey" }
         };
@@ -222,6 +225,7 @@ public class MemberAccessTest {
     public Object[][] mapMemberAccessFunctions() {
         return new Object[][] {
             { "testMapMemberAccessByLiteral" },
+            { "testMapMemberAccessByConstant" },
             { "testMapMemberAccessByVariable" },
             { "testMapAccessForNonExistingKey" }
         };
@@ -273,7 +277,6 @@ public class MemberAccessTest {
                 { "testVariableStringMemberAccess" },
                 { "testConstStringMemberAccess1" },
                 { "testConstStringMemberAccess2" },
-                { "testNestedConstStringMemberAccess" },
                 { "testFiniteTypeStringMemberAccess" }
         };
     }

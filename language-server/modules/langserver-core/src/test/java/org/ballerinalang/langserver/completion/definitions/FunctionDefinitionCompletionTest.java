@@ -69,7 +69,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"errorLiftingSuggestions2.json", "function"},
                 {"iterableOperation1.json", "function"},
                 {"iterableOperation2.json", "function"},
-                {"iterableOperation3.json", "function"},
+//                {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
 //                {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
