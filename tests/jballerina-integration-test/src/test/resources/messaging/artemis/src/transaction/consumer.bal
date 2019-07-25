@@ -16,18 +16,14 @@
 
 import ballerina/artemis;
 
-public function createSimpleConsumer() returns artemis:Consumer|error {
-    artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
-    return lis.createAndGetConsumer({queueName: "example"});
-}
-
-public function transactionSimpleConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
-    string msgTxt = "";
-    msgTxt += receiveAndGetText(consumer);
-    transaction {
-       msgTxt += receiveAndGetText(consumer);
+function testTransaction() returns @tainted string|error {
+    string txt = "";
+    var consumer = createConsumer();
+    testTransactionSend();
+    if (consumer is artemis:Consumer) {
+        txt = transactionConsumerReceive(consumer);
     }
-    return msgTxt;
+    return txt;
 }
 
 public function createConsumer() returns artemis:Consumer|error {
@@ -37,18 +33,30 @@ public function createConsumer() returns artemis:Consumer|error {
     return lis.createAndGetConsumer({queueName: "example2"});
 }
 
-public function transactionConsumerReceive(artemis:Consumer consumer) returns @tainted string|error {
+public function testTransactionSend() {
+    artemis:Connection con = new("tcp://localhost:61616");
+    artemis:Session session = new(con);
+    artemis:Producer prod = new(session, "example2");
+    transaction {
+        transactionSend(prod);
+        transactionSend(prod);
+    }
+}
+
+function transactionSend(artemis:Producer prod) {
+    var err = prod->send("Example ");
+    if (err is error) {
+        panic err;
+    }
+}
+
+public function transactionConsumerReceive(artemis:Consumer consumer) returns @tainted string {
     string msgTxt = "";
     transaction {
        msgTxt += receiveAndGetText(consumer);
        msgTxt += receiveAndGetText(consumer);
     }
     return msgTxt;
-}
-
-public function createErringConsumer() returns artemis:Consumer|error {
-    artemis:Listener lis = new artemis:Listener({host: "localhost", port: 61616});
-    return lis.createAndGetConsumer({queueName: "example3"});
 }
 
 public function receiveAndGetText(artemis:Consumer consumer) returns @tainted string {

@@ -174,9 +174,6 @@ public class JmsConstants {
     public static final String MB_ICF_NAME = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
     public static final String MB_CF_NAME_PREFIX = "connectionfactory.";
 
-    public static final String NON_DAEMON_THREAD_RUNNING = "non-daemon-thread-running.";
-    public static final String ARTEMIS_ICF = "artemis";
-
     private static Map<String, String> mappingParameters;
 
     public static final String PARAM_CONNECTION_FACTORY_JNDI_NAME = "transport.jms.ConnectionFactoryJNDIName";
