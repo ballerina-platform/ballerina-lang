@@ -91,7 +91,6 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
 }
 
 function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: string} | undefined {
-
     const definition = (invocation as any).definition;
     if (!definition) {
         return;
@@ -103,7 +102,8 @@ function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: st
         return;
     }
 
-    const module = projectAST[defLink[1][0]];
+    const isSingleBalFile = (defLink[1][0] === ".");
+    const module = isSingleBalFile ? projectAST[Object.keys(projectAST)[0]] : projectAST[defLink[1][0]];
 
     if (!module) {
         return;

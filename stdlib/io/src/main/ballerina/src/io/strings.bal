@@ -22,7 +22,7 @@ public type StringReader object {
     #
     # + content - content which should be written
     # + encoding - encoding of the characters of the content
-    public function __init(string content, string encoding = "UTF-8") {
+    public function __init(string content, public string encoding = "UTF-8") {
         // TODO : Fix me.
         // byte[] contentBytes = content.toByteArray(encoding);
         byte[] contentBytes = content.toBytes();
