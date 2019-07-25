@@ -1098,6 +1098,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
         } else if (type.tag == TypeTags.STREAM) {
+            if (!types.isPureType(constraintType)) {
+                dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
+                           constraintType);
+                resultType = symTable.semanticError;
+                return;
+            }
             constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
