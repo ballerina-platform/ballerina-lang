@@ -16,7 +16,6 @@
 
 package org.ballerinalang.stdlib.crypto;
 
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -24,6 +23,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -83,23 +83,19 @@ public class KeyParsingTest {
                 "SHA256withRSA");
     }
 
-    @Test(description = "Check attempting to read a private key from a non-existing p12 file.")
+    @Test(description = "Check attempting to read a private key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingEncryptedPrivateKeyFromInvalidLocation() {
         BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()), new BString("ballerina"),
                 new BString("ballerina"), new BString("ballerina")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
-        Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                .contains("PKCS12 key store not found"));
+        BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
     }
 
-    @Test(description = "Check attempting to read a public key from a non-existing p12 file.")
+    @Test(description = "Check attempting to read a public key from a non-existing p12 file.",
+            expectedExceptions = BLangRuntimeException.class)
     public void testParsingPublicKeyFromInvalidLocation() {
         BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()),
                 new BString("ballerina"), new BString("ballerina")};
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
-        Assert.assertTrue(returnValues[0] instanceof BError);
-        Assert.assertTrue(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue()
-                .contains("PKCS12 key store not found"));
+        BRunUtil.invoke(compileResult, "testParsingPublicKeyFromP12", args);
     }
 }

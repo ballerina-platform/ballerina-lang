@@ -16,47 +16,47 @@
 
 import ballerina/crypto;
 
-function testHashWithCRC32b(byte[] input) returns string|crypto:Error {
+function testHashWithCRC32b(byte[] input) returns string {
     return crypto:crc32b(input);
 }
 
-function testHashWithMD5(byte[] input) returns byte[]|crypto:Error {
+function testHashWithMD5(byte[] input) returns byte[] {
     return crypto:hashMd5(input);
 }
 
-function testHashWithSHA1(byte[] input) returns byte[]|crypto:Error {
+function testHashWithSHA1(byte[] input) returns byte[] {
     return crypto:hashSha1(input);
 }
 
-function testHashWithSHA256(byte[] input) returns byte[]|crypto:Error {
+function testHashWithSHA256(byte[] input) returns byte[] {
     return crypto:hashSha256(input);
 }
 
-function testHashWithSHA384(byte[] input) returns byte[]|crypto:Error {
+function testHashWithSHA384(byte[] input) returns byte[] {
     return crypto:hashSha384(input);
 }
 
-function testHashWithSHA512(byte[] input) returns byte[]|crypto:Error {
+function testHashWithSHA512(byte[] input) returns byte[] {
     return crypto:hashSha512(input);
 }
 
-function testHmacWithMD5(byte[] input, byte[] key) returns byte[]|crypto:Error {
+function testHmacWithMD5(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacMd5(input, key);
 }
 
-function testHmacWithSHA1(byte[] input, byte[] key) returns byte[]|crypto:Error {
+function testHmacWithSHA1(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacSha1(input, key);
 }
 
-function testHmacWithSHA256(byte[] input, byte[] key) returns byte[]|crypto:Error {
+function testHmacWithSHA256(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacSha256(input, key);
 }
 
-function testHmacWithSHA384(byte[] input, byte[] key) returns byte[]|crypto:Error {
+function testHmacWithSHA384(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacSha384(input, key);
 }
 
-function testHmacWithSHA512(byte[] input, byte[] key) returns byte[]|crypto:Error {
+function testHmacWithSHA512(byte[] input, byte[] key) returns byte[] {
     return crypto:hmacSha512(input, key);
 }
 
