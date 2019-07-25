@@ -435,4 +435,10 @@ public class OpenRecordTest {
         Assert.assertEquals(manager.get("company").stringValue(), "WSO2");
         Assert.assertEquals(manager.get("dept").stringValue(), "");
     }
+
+    @Test
+    public void testRecordInitWithFuncCalls() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordInitWithFuncCalls");
+        Assert.assertEquals(returns[0].stringValue(), "{a:777, b:56}");
+    }
 }

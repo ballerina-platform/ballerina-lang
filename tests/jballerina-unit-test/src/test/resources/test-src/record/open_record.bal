@@ -410,3 +410,21 @@ function testDefaultValueInit() returns ManagerRec {
     ManagerRec mgr = {};
     return mgr;
 }
+
+public type Foo record {
+    int a = getAsInt("777");
+};
+
+function getAsInt(string s) returns int {
+    return 777;
+}
+
+public type Bar record {
+    *Foo;
+    int b = 56;
+};
+
+public function testRecordInitWithFuncCalls() returns Bar {
+    Bar b = {};
+    return b;
+}

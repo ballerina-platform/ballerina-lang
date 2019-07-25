@@ -53,18 +53,39 @@ function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) retu
     return paramTypes;
 }
 
-function rewriteRecordInit(bir:Function func) {
+public function rewriteRecordInits(bir:TypeDef?[] typeDefs) {
+    foreach (bir:TypeDef? typeDef in typeDefs) {
+        bir:BType? recordType = typeDef.typeValue;
+        if (recordType is bir:BRecordType) {
+            bir:Function?[] attachFuncs = <bir:Function?[]> typeDef.attachedFuncs;
+            foreach var func in attachFuncs {
+                rewriteRecordInitFunction(<bir:Function>func, recordType);
+            }
+        }
+    }
+}
+
+function rewriteRecordInitFunction(bir:Function func, bir:BRecordType recordType) {
     bir:VariableDcl receiver = <bir:VariableDcl> func.receiver;
+
+    // Rename the function name by appending the record name to it.
+    // This done to avoid frame class name overlappings.
+    func.name.value = cleanupFunctionName(recordType.name.value + func.name.value);
 
     // change the kind of receiver to 'ARG'
     receiver.kind = bir:VAR_KIND_ARG;
 
-    // inject an additional parameter to accept the self-record value into the init function
+    // Update the name of the reciever. Then any instruction that was refering to the receiver will
+    // now refer to the injected parameter. 
+    string paramName = "$_" + receiver.name.value;
+    receiver.name.value = paramName;
+
+    // Inject an additional parameter to accept the self-record value into the init function
     bir:FunctionParam selfParam = { kind: bir:VAR_KIND_ARG,
                                     name: receiver.name, 
                                     typeValue: receiver.typeValue,
                                     hasDefaultExpr: false,
-                                    meta : { name : receiver.name.value }
+                                    meta : { name : paramName }
                                   };
 
     func.typeValue = func.typeValue.clone();
@@ -72,5 +93,10 @@ function rewriteRecordInit(bir:Function func) {
 
     bir:VariableDcl?[] localVars = func.localVars;
     bir:VariableDcl?[] updatedLocalVars = [localVars[0], selfParam];
+    int index = 1;
+    while (index < localVars.length()) {
+        updatedLocalVars[index + 1] = localVars[index];
+        index += 1;
+    }
     func.localVars = updatedLocalVars;
 }

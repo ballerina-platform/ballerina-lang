@@ -327,7 +327,7 @@ public type ObjectGenerator object {
         }
 
         self.createRecordConstructor(cw, className);
-        self.createRecordInitWrapper(cw, className, typeDef.typeRefs);
+        self.createRecordInitWrapper(cw, className, typeDef);
         self.createLambdas(cw);
         cw.visitEnd();
         return cw.toByteArray();
@@ -336,7 +336,6 @@ public type ObjectGenerator object {
     private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
-                rewriteRecordInit(func);
                 generateMethod(func, cw, self.module);
             }
         }
@@ -374,7 +373,7 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:BType?[] typeRefs) {
+    private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
                                               io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
         mv.visitCode();
@@ -385,7 +384,7 @@ public type ObjectGenerator object {
 
         // Invoke the init-functions of referenced types. This is done to initialize the 
         // defualt values of the fields coming from the referenced types.
-        foreach (bir:BType? typeRef in typeRefs) {
+        foreach (bir:BType? typeRef in typeDef.typeRefs) {
             if (typeRef is bir:BRecordType) {
                 string refTypeClassName = self.getTypeValueClassName(typeRef.name.value, moduleId = typeRef.moduleId);
                 mv.visitInsn(DUP2);
@@ -394,7 +393,9 @@ public type ObjectGenerator object {
         }
 
         // Invoke the init-function of this type.
-        mv.visitMethodInsn(INVOKESTATIC, className, "__init_", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+        bir:Function?[] attachedFuncs = <bir:Function?[]>typeDef.attachedFuncs;
+        string initFuncName = <string> attachedFuncs[0]?.name?.value;
+        mv.visitMethodInsn(INVOKESTATIC, className, initFuncName, io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

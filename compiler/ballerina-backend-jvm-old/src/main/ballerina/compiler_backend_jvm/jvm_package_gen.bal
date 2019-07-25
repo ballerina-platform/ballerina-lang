@@ -130,6 +130,9 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
+    // Desugar the record init function
+    rewriteRecordInits(module.typeDefs);
+
     // generate object value classes
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
