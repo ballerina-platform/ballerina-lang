@@ -21,7 +21,6 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,36 +35,23 @@ public class CreateTargetDirTask implements Task {
     public void execute(BuildContext buildContext) {
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
-            // create '<target>/cache/balo_cache' dir
-            Path baloCacheDir = targetDir
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
-            if (Files.notExists(baloCacheDir)) {
-                Files.createDirectories(baloCacheDir);
+            if (Files.notExists(targetDir)) {
+                Files.createDirectories(targetDir);
             }
             
-            // create '<target>/cache/bir_cache' dir
-            Path birCacheDir = targetDir
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
-            if (!Files.exists(birCacheDir)) {
-                Files.createDirectories(birCacheDir);
-            }
             
-            // create '<target>/cache/jar_cache' dir
-            Path jarCache = targetDir
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-            
-            if (!Files.exists(jarCache)) {
-                Files.createDirectories(jarCache);
-            }
-            
-            buildContext.put(BuildContextField.BALO_CACHE_DIR, baloCacheDir);
-            buildContext.put(BuildContextField.BIR_CACHE_DIR, birCacheDir);
-            buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
+//            // create '<target>/cache/jar_cache' dir
+//            Path jarCache = targetDir
+//                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+//                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+//
+//            if (!Files.exists(jarCache)) {
+//                Files.createDirectories(jarCache);
+//            }
+//
+//            buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred in creating artifacts output target path: " + targetDir);
+            throw new BLangCompilerException("error occurred in creating target directory: " + targetDir);
         }
     }
 }
