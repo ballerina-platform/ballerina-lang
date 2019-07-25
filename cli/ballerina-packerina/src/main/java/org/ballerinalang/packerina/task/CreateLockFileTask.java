@@ -16,15 +16,14 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.utils;
+package org.ballerinalang.packerina.task;
+
+import org.ballerinalang.packerina.buildcontext.BuildContext;
 
 /**
- * Constants to be used by CLI commands.
+ * Task for creating a lock file.
  */
-public class CLIConstants {
-    public static final String OFFLINE_BUILD = "OFFLINE_BUILD";
-    public static final String LOCK_ENEABLED = "LOCK_ENEABLED";
-    public static final String SKIP_TESTS = "SKIP_TESTS";
-    public static final String ENABLE_EXPERIMENTAL_FEATURES = "ENABLE_EXPERIMENTAL_FEATURES";
-    public static final String ENABLE_SIDDHI_RUNTIME = "ENABLE_SIDDHI_RUNTIME";
+public class CreateLockFileTask implements Task {
+    @Override
+    public void execute(BuildContext buildContext) {}
 }

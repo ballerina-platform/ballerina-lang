@@ -18,8 +18,9 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import org.ballerinalang.packerina.BuildContext;
 import org.ballerinalang.packerina.TaskExecutor;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -60,7 +61,7 @@ public class CleanCommand implements BLauncherCmd {
                     .build();
     
             BuildContext buildContext = new BuildContext();
-            buildContext.setTargetDir(sourceRoot.resolve(TARGET_DIR_NAME));
+            buildContext.put(BuildContextField.TARGET_DIR, sourceRoot.resolve(TARGET_DIR_NAME));
             
             taskExecutor.executeTasks(buildContext);
             

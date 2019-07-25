@@ -19,7 +19,8 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +32,7 @@ import java.nio.file.Path;
 public class CleanTargetDirTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
-        Path targetDir = buildContext.getTargetDir();
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
             Files.deleteIfExists(targetDir);
         } catch (IOException e) {
