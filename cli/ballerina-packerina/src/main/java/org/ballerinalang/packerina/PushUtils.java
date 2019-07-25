@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_DEV_STAGE_CENTRAL;
 
 /**
  * This class provides util methods when pushing Ballerina modules to central and home repository.
@@ -54,7 +55,9 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class PushUtils {
 
-    private static final String BALLERINA_CENTRAL_CLI_TOKEN = RepoUtils.getRemoteRepoURL() + "/cli-token";
+    private static final String BALLERINA_CENTRAL_CLI_TOKEN = BALLERINA_DEV_STAGE_CENTRAL ?
+                                                              "https://staging-central.ballerina.io/cli-token" :
+                                                              "https://central.ballerina.io/cli-token";
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
