@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -36,9 +37,13 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -57,7 +62,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -83,7 +91,7 @@ public class BuilderUtils {
     private static BaloFileWriter baloFileWriter;
     private static BirFileWriter birFileWriter;
     private static LockFileWriter lockFileWriter;
-
+    private static Manifest manifest;
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packagePath,
@@ -192,7 +200,6 @@ public class BuilderUtils {
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
-
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
@@ -266,6 +273,7 @@ public class BuilderUtils {
         packages.forEach(module -> baloFileWriter.write(module, null));
         packages.forEach(birFileWriter::write);
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+        manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
     /**
@@ -509,12 +517,91 @@ public class BuilderUtils {
                         copyFromJarToJar(importJar, uberJar);
                     }
                 }
+
+                // Iterate through .balo and copy the platform libs
+                String baloName = getFileName(bLangPackage.packageID.name.value);
+                Path fullPathToBalo = project.resolve(ProjectDirConstants.TARGET_DIR_NAME).
+                        resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY).resolve(baloName);
+
+                String destination = extractJar(fullPathToBalo.toString());
+
+                if (Files.exists(Paths.get(destination).resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+                    try (Stream<Path> walk = Files.walk(Paths.get(destination)
+                            .resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+
+                        List<String> result = walk.filter(Files::isRegularFile)
+                                .map(x -> x.toString()).collect(Collectors.toList());
+
+                        result.forEach(lib -> {
+                            try {
+                                copyFromJarToJar(Paths.get(lib), uberJar);
+                            } catch (Exception e) {
+                                throw new BLangCompilerException("Unable to create the executable :" +
+                                        e.getMessage());
+                            }
+                        });
+                    } catch (IOException e) {
+                        throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+                    }
+                }
+
             }
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
             outStream.println(project.relativize(uberJar).toString());
             // If no entry point is found we do nothing.
+        } catch (IOException e) {
+            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+        }
+    }
+    // Duplicate from ModuleFileWriter
+    private static String getFileName(String moduleName) {
+        // Get the version of the project.
+        String versionNo = manifest.getProject().getVersion();
+        // Identify the platform version
+        String platform = manifest.getTargetPlatform();
+        // {module}-{lang spec version}-{platform}-{version}.balo
+        //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
+        return moduleName + "-"
+                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + platform + "-"
+                + versionNo
+                + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+    }
+
+    private static String extractJar(String jarFileName) {
+        JarFile jar = null;
+        try {
+            jar = new JarFile(jarFileName);
+            java.util.Enumeration enumEntries = jar.entries();
+            File destFile = File.createTempFile("temp-" + jarFileName, Long.toString(System.nanoTime()));
+            if (!(destFile.delete())) {
+                throw new BLangCompilerException("Could not delete temp file: " + destFile.getAbsolutePath());
+            }
+            if (!(destFile.mkdir())) {
+                throw new BLangCompilerException("Could not create temp directory: "
+                    + destFile.getAbsolutePath());
+            }
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
+                    File f = new File(destFile.getPath() + File.separator + file.getName());
+                    if (file.isDirectory()) { // if its a directory, create it
+                        f.mkdir();
+                        continue;
+                    }
+                    InputStream is = jar.getInputStream(file); // get the input stream
+                    FileOutputStream fos = new java.io.FileOutputStream(f);
+                    while (is.available() > 0) {  // write contents of 'is' to 'fos'
+                        fos.write(is.read());
+                    }
+                    fos.close();
+                    is.close();
+                }
+            }
+            jar.close();
+            return destFile.getPath();
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
         }
