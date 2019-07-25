@@ -30,7 +30,6 @@ import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
 
@@ -56,7 +55,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
 
     }
 
-    public static boolean doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
+    public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
                                         String password) {
         byte[] credential = password.getBytes(Charset.forName(LdapConstants.UTF_8_CHARSET));
         connectionSource = (LdapConnectionContext) ldapConnection.getNativeData(LdapConstants.LDAP_CONNECTION_SOURCE);
@@ -67,7 +66,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
         LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
 
         if (LdapUtils.isNullOrEmptyAfterTrim(userName)) {
-            throw new BallerinaException("Username or credential value is empty or null.");
+            return LdapUtils.createError("Username or credential value is empty or null.");
         }
 
         try {
@@ -75,7 +74,7 @@ public class Authenticate extends BlockingNativeCallableUnit {
                 LOG.debug("Authenticating user " + userName);
             }
             String name = LdapUtils.getNameInSpaceForUsernameFromLDAP(userName.trim(), ldapConfiguration,
-                                                                      ldapConnectionContext);
+                    ldapConnectionContext);
             if (name != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Authenticating with " + name);
@@ -84,11 +83,11 @@ public class Authenticate extends BlockingNativeCallableUnit {
             }
             return false;
         } catch (NamingException e) {
-            LOG.error("Cannot bind user : " + userName, e);
-            return false;
+            LOG.error("Cannot bind user: " + userName, e);
+            return LdapUtils.createError(e.getMessage());
         } catch (UserStoreException e) {
             LOG.error(e.getMessage(), e);
-            return false;
+            return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
         }

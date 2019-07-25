@@ -22,16 +22,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -54,7 +54,8 @@ import javax.naming.ldap.Rdn;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "getGroups", isPublic = true)
-public class GetGroups extends BlockingNativeCallableUnit {
+public class
+GetGroups extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(GetGroups.class);
 
@@ -63,7 +64,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
 
     }
 
-    public static ArrayValue getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
+    public static Object getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
         try {
             LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
             DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(
@@ -72,8 +73,8 @@ public class GetGroups extends BlockingNativeCallableUnit {
                     LdapConstants.LDAP_CONFIGURATION);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
-        } catch (UserStoreException | NamingException e) {
-            return new ArrayValue(BTypes.typeString);
+        } catch (UserStoreException | NamingException | ErrorValue e) {
+            return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
         }
@@ -81,7 +82,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
 
     private static String[] doGetGroupsListOfUser(String userName, CommonLdapConfiguration ldapAuthConfig,
                                                   DirContext ldapConnectionContext)
-            throws UserStoreException, NamingException {
+                                           throws UserStoreException, NamingException {
         // Get the effective search base
         List<String> searchBase = ldapAuthConfig.getGroupSearchBase();
         return getLDAPGroupsListOfUser(userName, searchBase, ldapAuthConfig, ldapConnectionContext);
@@ -92,7 +93,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
                                                     DirContext ldapConnectionContext)
                                              throws UserStoreException, NamingException {
         if (userName == null) {
-            throw new BallerinaException("UserName value is null.");
+            throw BallerinaErrors.createError("UserName value is null.");
         }
 
         SearchControls searchCtls = new SearchControls();
@@ -104,7 +105,7 @@ public class GetGroups extends BlockingNativeCallableUnit {
         String nameInSpace = getNameInSpaceForUserName(userName, ldapAuthConfig, ldapConnectionContext);
 
         if (membershipProperty == null || membershipProperty.length() < 1) {
-            throw new BallerinaException("MembershipAttribute not set in configuration");
+            throw BallerinaErrors.createError("MembershipAttribute not set in configuration.");
         }
 
         String membershipValue;
