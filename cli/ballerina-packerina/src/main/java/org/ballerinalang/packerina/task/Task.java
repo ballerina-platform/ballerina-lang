@@ -18,7 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.packerina.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
 
 /**
  * Task interface for executing a task in packaging.

@@ -16,14 +16,30 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.task;
-
-import org.ballerinalang.packerina.buildcontext.BuildContext;
+package org.ballerinalang.packerina.model;
 
 /**
- * Task for creating balo, bir and jar file.
+ * Model for Balo TOML file.
+ *
+ * @since 1.0
  */
-public class CreateJarTask implements Task {
-    @Override
-    public void execute(BuildContext buildContext) { }
+public class BaloToml {
+    public String balo_version = "1.0.0";
+    public String built_by = "WSO2";
+
+    public String getBalo_version() {
+        return balo_version;
+    }
+
+    public void setBalo_version(String balo_version) {
+        this.balo_version = balo_version;
+    }
+
+    public String getBuilt_by() {
+        return built_by;
+    }
+
+    public void setBuilt_by(String built_by) {
+        this.built_by = built_by;
+    }
 }
