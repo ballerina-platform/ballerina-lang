@@ -6,13 +6,13 @@
   "source": "function/source/functionCompletionWithMissingImport.bal",
   "items": [
     {
-      "label": "openReadableFile(string path)((io:ReadableByteChannel|error))",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
       "insertText": "openReadableFile(${1})",
@@ -38,13 +38,13 @@
       }
     },
     {
-      "label": "openWritableFile(string path)(io:WritableByteChannel)",
+      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \nDefault Value: false  \n  \n**Return**  \nballerina/io:WritableByteChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
       "insertText": "openWritableFile(${1})",
@@ -70,13 +70,13 @@
       }
     },
     {
-      "label": "createReadableChannel(byte[] content)(io:ReadableByteChannel)",
+      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
       "insertText": "createReadableChannel(${1})",
@@ -102,13 +102,13 @@
       }
     },
     {
-      "label": "openReadableCsvFile(string path)((io:ReadableCSVChannel|error))",
+      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \n(ballerina/io:ReadableCSVChannel|error)"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:ReadableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
       "insertText": "openReadableCsvFile(${1})",
@@ -134,13 +134,13 @@
       }
     },
     {
-      "label": "openWritableCsvFile(string path)(io:WritableCSVChannel)",
+      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:WritableCSVChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
       "insertText": "openWritableCsvFile(${1})",
@@ -166,7 +166,7 @@
       }
     },
     {
-      "label": "print()",
+      "label": "print(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -198,7 +198,7 @@
       }
     },
     {
-      "label": "println()",
+      "label": "println(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -230,7 +230,7 @@
       }
     },
     {
-      "label": "sprintf(string format)(string)",
+      "label": "sprintf(string format, ...(any|error))(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -292,28 +292,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "IOError",
-      "kind": "Class",
-      "detail": "Record",
-      "insertText": "IOError",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/io;\n"
-        }
-      ]
     },
     {
       "label": "ReadableByteChannel",
@@ -623,6 +601,28 @@
         "left": "Field separators which are supported by DelimitedTextRecordChannel."
       },
       "insertText": "Separator",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ]
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "Error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

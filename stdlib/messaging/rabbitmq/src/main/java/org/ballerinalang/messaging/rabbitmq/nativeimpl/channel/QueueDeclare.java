@@ -49,7 +49,7 @@ import java.io.IOException;
 public class QueueDeclare {
 
     public static Object queueDeclare(Strand strand, ObjectValue channelObjectValue, Object queueConfig) {
-
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
@@ -65,8 +65,8 @@ public class QueueDeclare {
                 boolean autoDelete = config.getBooleanValue(RabbitMQConstants.ALIAS_QUEUE_AUTODELETE);
                 channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
             }
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (IOException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

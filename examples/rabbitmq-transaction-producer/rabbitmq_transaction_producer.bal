@@ -7,7 +7,7 @@ public function main() {
 
     transaction {
         // Declares the queue.
-        var queueResult = newChannel->queueDeclare(queueConfig = { queueName: "MyQueue" });
+        var queueResult = newChannel->queueDeclare({ queueName: "MyQueue" });
         if (queueResult is error) {
             io:println("An error occurred while creating the queue");
         } else {

@@ -41,13 +41,13 @@ public class StructAccessWithIndexTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/structs/struct-access-with-index.bal");
+        compileResult = BCompileUtil.compile("test-src/structs/proj/src/default/struct-access-with-index.bal");
         negativeResult = BCompileUtil.compile("test-src/structs/struct-access-with-index-negative.bal");
     }
 
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateStruct");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateStructSt");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
@@ -130,7 +130,7 @@ public class StructAccessWithIndexTest {
 
     @Test(description = "Test accessing an undeclared field of a struct")
     public void testUndeclaredFieldAccess() {
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in record 'Department'", 9, 5);
+        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in 'Department'", 9, 5);
     }
 
     @Test(description = "Test accesing a struct with a dynamic index")

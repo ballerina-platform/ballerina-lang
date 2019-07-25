@@ -81,11 +81,11 @@ public function main() {
     if (retWithKey is jdbc:UpdateResult) {
         int count = retWithKey.updatedRowCount;
         int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
-        io:println("Inserted row count: " + count);
-        io:println("Generated key: " + generatedKey);
+        io:println("Inserted row count: ", count);
+        io:println("Generated key: ", generatedKey);
     } else {
         error err = retWithKey;
-        io:println("Insert failed: " + <string> err.detail()["message"]);
+        io:println("Insert failed: ", <string> err.detail()["message"]);
     }
 
     // Select data using the `select` remote function. The `select` remote
@@ -109,8 +109,8 @@ public function main() {
         }
     } else {
         error err = selectRet;
-        io:println("Select data from student table failed: "
-                + <string> err.detail()["message"]);
+        io:println("Select data from student table failed: ",
+                <string> err.detail()["message"]);
     }
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the student table");
@@ -121,9 +121,9 @@ public function main() {
 // Function to handle the return value of the `update` remote function.
 function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
-        io:println(message + " status: " + returned.updatedRowCount);
+        io:println(message, " status: ", returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string> err.detail()["message"]);
+        io:println(message, " failed: ", <string> err.detail()["message"]);
     }
 }

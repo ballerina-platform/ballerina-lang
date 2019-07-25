@@ -106,8 +106,9 @@ public class BootstrapRunner {
             Method backendMainMethod = backendMain.getMethod("main", String[].class);
             Object[] params = new Object[]{commands.toArray(new String[0])};
             backendMainMethod.invoke(null, params);
-        } catch (ClassNotFoundException | NoSuchMethodException |
-                IllegalAccessException | InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
+            throw new BLangCompilerException(((InvocationTargetException) e).getTargetException().getMessage());
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
             throw new BLangCompilerException("could not invoke compiler backend", e);
         }
     }

@@ -65,15 +65,15 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                File.separator + "websub" + File.separator +
-                                                "test_multiple_subscribers.bal").getAbsolutePath();
+                                                File.separator + "websub" + File.separator + "subscriber" +
+                                                File.separator + "test_multiple_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        String[] subscriberArgs = {"-e", "test.hub.url=" + "https://localhost:9191/websub/hub"};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{8383});
+        String[] subscriberArgs = {"-e", "test.hub.url=" + "https://localhost:23191/websub/hub"};
+        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{23383});
     }
 
     @Test

@@ -195,4 +195,11 @@ public class ArrayTest {
     public void testArraysOfCyclicDependentTypes4() {
         BRunUtil.invokeFunction(compileResult, "testArraysOfCyclicDependentTypes4");
     }
+
+    @Test
+    public void testGetFromFrozenArray() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testGetFromFrozenArray");
+        BInteger value = (BInteger) retVals[0];
+        Assert.assertEquals(value.intValue(), 4);
+    }
 }

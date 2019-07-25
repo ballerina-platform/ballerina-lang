@@ -51,7 +51,6 @@ public class CancelWebSocketUpgrade {
 
     public static Object cancelWebSocketUpgrade(Strand strand, ObjectValue connectionObj, long statusCode,
                                                 String reason) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);

@@ -115,8 +115,8 @@ public class ModOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(groups = "brokenOnJBallerina", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / by zero\"\\}.*")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero message= / by zero.*")
     public void testIntModZero() {
         BRunUtil.invoke(result, "intMod", new BValue[]{new BInteger(2000), new BInteger(0)});
     }

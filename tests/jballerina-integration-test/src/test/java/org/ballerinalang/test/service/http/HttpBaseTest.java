@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -38,7 +38,8 @@ public class HttpBaseTest extends BaseTest {
     public void start() throws BallerinaTestException {
         int[] requiredPorts = new int[]{9090, 9224, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9101,
                 9102, 9103, 9104, 9105, 9106, 9107, 9108, 9109, 9110, 9111, 9112, 9113, 9114, 9115, 9116, 9117, 9118,
-                9119, 9217, 9218, 9219, 9220, 9221, 9222, 9223, 9225, 9226, 9227, 9228, 9229, 9230, 9231, 9232, 9233};
+                9119, 9217, 9218, 9219, 9220, 9221, 9222, 9223, 9225, 9226, 9227, 9228, 9229, 9230, 9231, 9232, 9233,
+                9234, 9235, 9236, 9237};
         String balFile = Paths.get("src", "test", "resources", "http").toAbsolutePath().toString();
         String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                                                                    "private.key").toAbsolutePath().toString());

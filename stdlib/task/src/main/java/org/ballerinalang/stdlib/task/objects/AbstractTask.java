@@ -24,20 +24,10 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_INSTANCE_ID;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_INSTANCE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_JOB_STORE_CLASS;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_JOB_STORE_CLASS_VALUE;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT_VALUE;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_POOL_CLASS;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_POOL_CLASS_VALUE;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
 
 /**
@@ -59,13 +49,7 @@ public abstract class AbstractTask implements Task {
     AbstractTask() throws SchedulingException {
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
-        try {
-            StdSchedulerFactory schedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
-            this.scheduler = schedulerFactory.getScheduler();
-            this.scheduler.start();
-        } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
-        }
+        this.scheduler = TaskManager.getInstance().getScheduler();
     }
 
     /**
@@ -77,20 +61,14 @@ public abstract class AbstractTask implements Task {
         validateMaxRuns(maxRuns);
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
-        try {
-            StdSchedulerFactory schedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
-            this.scheduler = schedulerFactory.getScheduler();
-            this.scheduler.start();
-        } catch (SchedulerException e) {
-            throw new SchedulingException("Cannot initialize the Task Listener/Scheduler.", e);
-        }
+        this.scheduler = TaskManager.getInstance().getScheduler();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addService(ServiceInformation service) { 
+    public void addService(ServiceInformation service) {
         this.serviceMap.put(service.getService().getType().getName(), service);
     }
 
@@ -145,9 +123,11 @@ public abstract class AbstractTask implements Task {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stop() throws SchedulingException {
         try {
-            this.scheduler.shutdown();
+            JobKey jobKey = quartzJobs.get(this.getId());
+            this.scheduler.deleteJob(jobKey);
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to stop the task.", e);
         }
@@ -173,15 +153,5 @@ public abstract class AbstractTask implements Task {
         } catch (SchedulerException e) {
             throw new SchedulingException("Cannot resume the task.", e);
         }
-    }
-
-    private Properties createSchedulerProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(QUARTZ_INSTANCE_NAME, this.id);
-        properties.setProperty(QUARTZ_INSTANCE_ID, this.id);
-        properties.setProperty(QUARTZ_THREAD_COUNT, QUARTZ_THREAD_COUNT_VALUE);
-        properties.setProperty(QUARTZ_THREAD_POOL_CLASS, QUARTZ_THREAD_POOL_CLASS_VALUE);
-        properties.setProperty(QUARTZ_JOB_STORE_CLASS, QUARTZ_JOB_STORE_CLASS_VALUE);
-        return properties;
     }
 }

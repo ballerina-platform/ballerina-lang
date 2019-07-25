@@ -256,10 +256,12 @@ const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
 const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
 const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
+const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

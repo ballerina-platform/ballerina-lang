@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import testorg/subtyping version v1;
+import testorg/subtyping version v1;
 
 type Person1 object {
     public string name = "sample name";
@@ -92,10 +92,10 @@ function testSubtypingAPublicAbstractObject() returns string {
     return ap.toString();
 }
 
-//function testSubtypingAPublicAbsObjectInAnotherModule() returns string {
-//    AbstractPerson ap = new subtyping:Student("Jane Doe", "BA", 22);
-//    return ap.toString();
-//}
+function testSubtypingAPublicAbsObjectInAnotherModule() returns string {
+    AbstractPerson ap = new subtyping:Student("Jane Doe", "BA", 22);
+    return ap.toString();
+}
 
 public type UniStudent1 object {
     public string name = "";
@@ -119,10 +119,10 @@ public type UniStudent1 object {
     }
 };
 
-//function testSubtypingAPublicObjectInAnotherModule() returns string {
-//    subtyping:Student s = new UniStudent1("Jane Doe", "BA", 22, "CS");
-//    return s.toString();
-//}
+function testSubtypingAPublicObjectInAnotherModule() returns string {
+    subtyping:Student s = new UniStudent1("Jane Doe", "BA", 22, "CS");
+    return s.toString();
+}
 
 type AbstractAnimal abstract object {
     float weight;

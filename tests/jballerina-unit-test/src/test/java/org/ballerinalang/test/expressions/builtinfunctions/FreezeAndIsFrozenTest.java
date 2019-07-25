@@ -74,7 +74,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected booleans to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected booleans to be readonly");
     }
 
     @Test(dataProvider = "intValues")
@@ -84,7 +84,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected ints to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected ints to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected ints to be readonly");
     }
 
     @Test(dataProvider = "byteValues")
@@ -94,7 +94,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected bytes to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected bytes to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected bytes to be readonly");
     }
 
     @Test(dataProvider = "floatValues")
@@ -104,7 +104,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected floats to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected floats to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected floats to be readonly");
     }
 
     @Test(dataProvider = "decimalValues")
@@ -114,7 +114,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected decimals to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected decimals to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected decimals to be readonly");
     }
 
     @Test(dataProvider = "stringValues")
@@ -124,7 +124,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected strings to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected strings to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected strings to be readonly");
     }
 
     @Test
@@ -134,7 +134,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be readonly");
     }
 
     @Test
@@ -144,7 +144,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be the same");
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be frozen");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected values to be readonly");
     }
 
     @Test
@@ -167,7 +167,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=modification not " +
-                    "allowed on frozen value.*",
+                    "allowed on readonly value.*",
             dataProvider = "frozenBasicTypeArrayModificationFunctions")
     public void testFrozenBasicTypeArrayModification(String frozenBasicTypeArrayModificationFunction) {
         BRunUtil.invoke(result, frozenBasicTypeArrayModificationFunction, new BValue[0]);
@@ -175,189 +175,189 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=modification not " +
-                    "allowed on frozen value.*")
+                    "allowed on readonly value.*")
     public void testFrozenDecimalArrayModification() {
         BRunUtil.invoke(result, "testFrozenDecimalArrayModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=failed to set element to " 
-                    + "json: message=modification not allowed on frozen value.*")
+                    + "json: message=modification not allowed on readonly value.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map insertion: " 
-                    + "modification not allowed on frozen value.*")
+                    + "modification not allowed on readonly value.*")
     public void testFrozenJsonModification() {
         BRunUtil.invoke(result, "testFrozenJsonModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map insertion: " 
-                    + "modification not allowed on frozen value.*")
+                    + "modification not allowed on readonly value.*")
     public void testAdditionToFrozenJson() {
         BRunUtil.invoke(result, "testAdditionToFrozenJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate " 
-                    + "message=Failed to remove element from map: modification not allowed on frozen value.*")
+                    + "message=Failed to remove element from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map insertion: " 
-                    + "modification not allowed on frozen value.*")
+                    + "modification not allowed on readonly value.*")
     public void testFrozenInnerJsonModification() {
         BRunUtil.invoke(result, "testFrozenInnerJsonModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map insertion: " 
-                    + "modification not allowed on frozen value.*")
+                    + "modification not allowed on readonly value.*")
     public void testAdditionToFrozenInnerJson() {
         BRunUtil.invoke(result, "testAdditionToFrozenInnerJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to remove element " 
-                    + "from map: modification not allowed on frozen value.*")
+                    + "from map: modification not allowed on readonly value.*")
     public void testRemovalFromFrozenInnerJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to add" +
-                    " children to xml element: modification not allowed on frozen value.*")
+                    " children to xml element: modification not allowed on readonly value.*")
     public void testFrozenXmlAppendChildren() {
         BRunUtil.invoke(result, "testFrozenXmlAppendChildren", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to " +
-                    "remove children from xml element: modification not allowed on frozen value.*")
+                    "remove children from xml element: modification not allowed on readonly value.*")
     public void testFrozenXmlRemoveChildren() {
         BRunUtil.invoke(result, "testFrozenXmlRemoveChildren", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to " +
-                    "remove attribute: modification not allowed on frozen value.*")
+                    "remove attribute: modification not allowed on readonly value.*")
     public void testFrozenXmlRemoveAttribute() {
         BRunUtil.invoke(result, "testFrozenXmlRemoveAttribute", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to set" +
-                    " attributes: modification not allowed on frozen value.*")
+                    " attributes: modification not allowed on readonly value.*")
     public void testFrozenXmlSetAttributes() {
         BRunUtil.invoke(result, "testFrozenXmlSetAttributes", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}XMLOperationError message=Failed to set" +
-                    " children to xml element: modification not allowed on frozen value.*")
+                    " children to xml element: modification not allowed on readonly value.*")
     public void testFrozenXmlSetChildren() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildren", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map " +
-                    "insertion: modification not allowed on frozen value.*")
+                    "insertion: modification not allowed on readonly value.*")
     public void testFrozenMapUpdate() {
         BRunUtil.invoke(result, "testFrozenMapUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to remove " +
-                    "element from map: modification not allowed on frozen value.*")
+                    "element from map: modification not allowed on readonly value.*")
     public void testFrozenMapRemoval() {
         BRunUtil.invoke(result, "testFrozenMapRemoval", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to clear " +
-                    "map: modification not allowed on frozen value.*")
+                    "map: modification not allowed on readonly value.*")
     public void testFrozenMapClear() {
         BRunUtil.invoke(result, "testFrozenMapClear", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid map " +
-                    "insertion: modification not allowed on frozen value.*")
+                    "insertion: modification not allowed on readonly value.*")
     public void testFrozenInnerMapUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerMapUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to remove " +
-                    "element from map: modification not allowed on frozen value.*")
+                    "element from map: modification not allowed on readonly value.*")
     public void testFrozenInnerMapRemoval() {
         BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to clear " +
-                    "map: modification not allowed on frozen value.*")
+                    "map: modification not allowed on readonly value.*")
     public void testFrozenInnerMapClear() {
         BRunUtil.invoke(result, "testFrozenInnerMapClear", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=modification not " +
-                    "allowed on frozen value.*")
+                    "allowed on readonly value.*")
     public void testFrozenAnyArrayAddition() {
         BRunUtil.invoke(result, "testFrozenAnyArrayAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=modification not " +
-                    "allowed on frozen value.*")
+                    "allowed on readonly value.*")
     public void testFrozenAnyArrayUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid update of" +
-                    " record field: modification not allowed on frozen value.*")
+                    " record field: modification not allowed on readonly value.*")
     public void testFrozenAnyArrayElementUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=modification not " +
-                    "allowed on frozen value.*")
+                    "allowed on readonly value.*")
     public void testFrozenTupleUpdate() {
         BRunUtil.invoke(result, "testFrozenTupleUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid update of" +
-                    " record field: modification not allowed on frozen value.*")
+                    " record field: modification not allowed on readonly value.*")
     public void testFrozenRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Invalid update of" +
-                    " record field: modification not allowed on frozen value.*")
+                    " record field: modification not allowed on readonly value.*")
     public void testFrozenInnerRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to add " +
-                    "data to the table: modification not allowed on frozen value.*")
+                    "data to the table: modification not allowed on readonly value.*")
     public void testFrozenTableAddition() {
         BRunUtil.invoke(result, "testFrozenTableAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InvalidUpdate message=Failed to remove " +
-                    "data from the table: modification not allowed on frozen value.*")
+                    "data from the table: modification not allowed on readonly value.*")
     public void testFrozenTableRemoval() {
         BRunUtil.invoke(result, "testFrozenTableRemoval", new BValue[0]);
     }
@@ -378,7 +378,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -389,7 +389,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -400,7 +400,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -411,7 +411,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -422,7 +422,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -433,7 +433,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), FREEZE_SUCCESSFUL);
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be frozen since no error " +
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
     }
 
@@ -451,7 +451,7 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "failed to set element to json: message=modification not allowed on frozen value");
+                            "failed to set element to json: message=modification not allowed on readonly value");
     }
 
     @Test

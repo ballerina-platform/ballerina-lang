@@ -41,7 +41,7 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-internal')
     implementation 'org.apache.activemq:artemis-core-client'

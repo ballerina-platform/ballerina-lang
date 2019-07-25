@@ -12,7 +12,6 @@ bbeASTsArray.forEach((bbeASTPath) => {
     const bbeAST = require(`../resources/bbe-asts/${bbeASTPath}`);
     editableDiagramStories.add(bbeAST.title, () => (
         <EditableDiagram
-          fitToWidthOrHeight
           docUri={bbeAST.bbe}
           langClient={new MockLangClient(bbeAST.ast)}
           {...commonProps}
@@ -27,7 +26,6 @@ bbeASTsArray.forEach((bbeASTPath) => {
   staticDiagramStories.add(bbeAST.title, () => (
       <Diagram
         docUri=""
-        fitToWidthOrHeight
         langClient={new MockLangClient(bbeAST.ast)}
         ast={bbeAST.ast}
         {...commonProps}

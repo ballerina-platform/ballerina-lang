@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
@@ -25,6 +24,7 @@ import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.nio.file.Path;
@@ -52,11 +52,21 @@ public class LSPathConverter extends PathConverter {
         }
         // Returns an In-memory source entry with backing-off capability to read from the FileSystem
         Path moduleRoot;
-        if (LSCompilerUtil.isBallerinaProject(this.start().toString())) {
+        if (isBallerinaProject(this.start().toString())) {
             moduleRoot = this.start().resolve("src");
         } else {
             moduleRoot = this.start();
         }
         return Stream.of(new LSInMemorySourceEntry(path, moduleRoot, id, documentManager));
+    }
+    
+    /**
+     * Check whether given directory is a project dir.
+     *
+     * @param projectRoot root path
+     * @return {@link Boolean} true if project dir, else false
+     */
+    private boolean isBallerinaProject(String projectRoot) {
+        return ProjectDirs.findProjectRoot(Paths.get(projectRoot)) != null;
     }
 }

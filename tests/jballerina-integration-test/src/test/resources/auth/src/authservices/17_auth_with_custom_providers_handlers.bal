@@ -24,13 +24,13 @@ import ballerina/runtime;
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);
 
-http:Client client17 = new("https://localhost:9114", {
+http:Client client17 = new("https://localhost:20024", {
     auth: {
         authHandler: outboundCustomAuthHandler
     }
 });
 
-listener http:Listener listener17_1 = new(9113, {
+listener http:Listener listener17_1 = new(20023, {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -52,10 +52,8 @@ service passthrough on listener17_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + <string>e.detail()?.message };
+            json errMsg = { "error": "error occurred while invoking the service: " + <string>response.detail()?.message };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -66,7 +64,7 @@ service passthrough on listener17_1 {
 InboundCustomAuthProvider inboundCustomAuthProvider = new;
 InboundCustomAuthHandler inboundCustomAuthHandler = new(inboundCustomAuthProvider);
 
-listener http:Listener listener17_2 = new(9114, {
+listener http:Listener listener17_2 = new(20024, {
     auth: {
         authHandlers: [inboundCustomAuthHandler]
     },

@@ -38,11 +38,12 @@ import java.util.Scanner;
 )
 public class ReadlnAny {
 
+    private static Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
+
     public static String readln(Strand strand, Object result) {
         if (result != null) {
             System.out.print(result.toString());
         }
-        Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
         return sc.nextLine();
     }
 }

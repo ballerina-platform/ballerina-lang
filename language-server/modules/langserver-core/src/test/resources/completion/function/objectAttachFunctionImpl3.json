@@ -16,7 +16,11 @@
         }
       },
       "insertText": "getFullName() returns string {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "checkAndModifyAge(int condition, int a)",
@@ -29,7 +33,11 @@
         }
       },
       "insertText": "checkAndModifyAge(int condition, int a) {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

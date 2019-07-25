@@ -49,9 +49,6 @@ public class AcceptWebSocketUpgrade {
 
     public static ObjectValue acceptWebSocketUpgrade(Strand strand, ObjectValue connectionObj,
                                                      MapValue<String, String> headers) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
@@ -73,7 +70,8 @@ public class AcceptWebSocketUpgrade {
             httpHeaders.add(key.toString(), headers.get(key.toString()));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker, callback);
+        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
+                                      new NonBlockingCallback(strand));
         return null;
     }
 

@@ -17,8 +17,8 @@
 import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/runtime;
 import ballerina/internal;
+import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -117,7 +117,7 @@ function extractHash(string configValue) returns string {
 # + return - Password hash read from userstore, or nil if not found
 function readPassword(string username) returns string {
     // first read the user id from user->id mapping
-    // read the hashed password from the userstore file, using the user id
+    // read the hashed password from the user-store file, using the user id
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
