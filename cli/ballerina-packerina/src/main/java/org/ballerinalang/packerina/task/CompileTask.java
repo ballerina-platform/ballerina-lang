@@ -21,6 +21,10 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -57,10 +61,22 @@ public class CompileTask implements Task {
         options.put(SIDDHI_RUNTIME_ENABLED, buildContext.get(BuildContextField.ENABLE_SIDDHI_RUNTIME));
     
         Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> modules = compiler.build();
+        
+        if (buildContext.getSourceType() == SourceType.BAL_FILE) {
+            SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            BLangPackage compiledModule = compiler.build(singleFileContext.getBalFileName().toString());
+            singleFileContext.setBLangModule(compiledModule);
+        } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
+            SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
+            moduleContext.setBLangModule(compiledModule);
+        } else {
+            MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            List<BLangPackage> compiledModules = compiler.build();
+            multiModuleContext.setModules(compiledModules);
+        }
         
         // update build context.
-        buildContext.put(BuildContextField.COMPILED_MODULES, modules);
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     }
 }
