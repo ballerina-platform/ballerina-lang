@@ -16,41 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina;
+package org.ballerinalang.packerina.buildcontext;
 
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Context to be passed to tasks when they get executed.
  */
-public class BuildContext {
-    private Path sourceRoot;
-    private Path targetDir;
-    private Map<String, Object> buildData = new HashMap();
+public class BuildContext extends HashMap<BuildContextField, Object> {
     
-    public Path getSourceRoot() {
-        return this.sourceRoot;
-    }
-    
-    public void setSourceRoot(Path sourceRoot) {
-        this.sourceRoot = sourceRoot;
-    }
-    
-    public Path getTargetDir() {
-        return this.targetDir;
-    }
-    
-    public void setTargetDir(Path targetDir) {
-        this.targetDir = targetDir;
-    }
-    
-    public Map<String, Object> getBuildData() {
-        return this.buildData;
-    }
-    
-    public void addBuildData(String field, Object value) {
-        this.buildData.put(field, value);
+    public <T> T get(BuildContextField key) {
+        return (T) super.get(key);
     }
 }

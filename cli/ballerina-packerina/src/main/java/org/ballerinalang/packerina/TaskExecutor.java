@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina;
 
+import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.task.Task;
 
 import java.util.LinkedList;

@@ -19,7 +19,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import com.moandjiezana.toml.Toml;
-import org.ballerinalang.toml.model.Balo;
+import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Module;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -155,10 +155,10 @@ public class BuildCommandTest extends CommandTest {
                         String baloTomlContent = new String(Files.readAllBytes(baloToml));
 
                         Module module = new Toml().read(moduleTomlContent).to(Module.class);
-                        Balo balo = new Toml().read(baloTomlContent).to(Balo.class);
-
-                        Assert.assertTrue(module.module_version.equals("0.1.0"));
-                        Assert.assertTrue(balo.balo_version == 1.0);
+                        BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
+    
+                        Assert.assertEquals(module.module_version, "0.1.0");
+                        Assert.assertEquals(balo.balo_version, "1.0.0");
 
                         Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                         Assert.assertTrue(Files.exists(srcDir));
