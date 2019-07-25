@@ -20,9 +20,9 @@
 package org.ballerinalang.net.jms.nativeimpl.message;
 
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;

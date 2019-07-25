@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm.scheduling;
 
+ /**
+  * Maintains the Strand state.
+  */
  public enum State {
      RUNNABLE(1),
      YIELD(1 << 1),

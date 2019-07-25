@@ -18,9 +18,9 @@
 package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.scheduling.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

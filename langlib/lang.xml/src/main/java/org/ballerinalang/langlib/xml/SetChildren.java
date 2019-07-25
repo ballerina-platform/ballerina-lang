@@ -40,10 +40,15 @@ import java.util.Arrays;
 /**
  * Set the children of an XML if its a singleton. Error otherwise.
  * Any existing children will be removed.
- *
+ * 
  * @since 0.88
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "lang.xml", functionName = "setChildren", args = {@Argument(name = "children", type = TypeKind.UNION)}, isPublic = true)
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "lang.xml",
+        functionName = "setChildren",
+        args = {@Argument(name = "children", type = TypeKind.UNION)},
+        isPublic = true
+)
 public class SetChildren extends BlockingNativeCallableUnit {
 
     private static final String OPERATION = "set children to xml element";
@@ -72,7 +77,9 @@ public class SetChildren extends BlockingNativeCallableUnit {
             XMLValue<?> xmlText = XMLFactory.createXMLText((String) children);
             children = xmlText;
         } else if (childrenType.getTag() != TypeTags.XML_TAG) {
-            BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString)), childrenType);
+            BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                    new BUnionType(Arrays.asList(BTypes.typeXML, BTypes.typeString)),
+                    childrenType);
         }
 
         try {
