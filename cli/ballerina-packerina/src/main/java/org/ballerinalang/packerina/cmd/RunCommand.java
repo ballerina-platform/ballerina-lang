@@ -23,7 +23,6 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 @CommandLine.Command(name = "run", description = "compile and run Ballerina programs")
 public class RunCommand implements BLauncherCmd {
 
-    private Path userDir;
     private PrintStream errStream;
 
     @CommandLine.Parameters(description = "arguments")
@@ -61,12 +60,10 @@ public class RunCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public RunCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
     }
 
-    public RunCommand(Path userDir, PrintStream errStream) {
-        this.userDir = userDir;
+    public RunCommand(PrintStream errStream) {
         this.errStream = errStream;
     }
 
