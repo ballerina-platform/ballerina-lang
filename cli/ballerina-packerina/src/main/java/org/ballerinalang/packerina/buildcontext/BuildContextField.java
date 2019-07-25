@@ -22,6 +22,10 @@ package org.ballerinalang.packerina.buildcontext;
  * Key names for build context.
  */
 public enum BuildContextField {
+    SOURCE_CONTEXT("sourceContext"),
+    
+    HOME_REPO("homeRepo"),
+    
     SOURCE_ROOT("sourceRoot"),
     
     TARGET_DIR("targetDir"),
@@ -35,8 +39,6 @@ public enum BuildContextField {
     ENABLE_EXPERIMENTAL_FEATURES("enableExperimentalFeatures"),
     
     ENABLE_SIDDHI_RUNTIME("enableSiddhiRuntime"),
-    
-    COMPILED_MODULES("compiledModules"),
     
     COMPILER_CONTEXT("compilerContext"),
     

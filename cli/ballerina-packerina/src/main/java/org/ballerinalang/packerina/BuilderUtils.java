@@ -246,7 +246,7 @@ public class BuilderUtils {
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
         // TODO: This will throw an error
         packages.forEach(module -> baloFileWriter.write(module, null));
-        packages.forEach(birFileWriter::write);
+        packages.forEach(module -> birFileWriter.write(module, Paths.get("")));
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         manifest = ManifestProcessor.getInstance(context).getManifest();
     }
