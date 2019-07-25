@@ -111,73 +111,73 @@ public type Certificate record {|
 # Returns the MD5 hash of the given data.
 #
 # + input - Value to be hashed
-# + return - Hashed output or `Error` if input is invalid
-public function hashMd5(byte[] input) returns byte[]|Error = external;
+# + return - Hashed output
+public function hashMd5(byte[] input) returns byte[] = external;
 
 # Returns the SHA-1 hash of the given data.
 #
 # + input - Value to be hashed
-# + return - Hashed output or `Error` if input is invalid
-public function hashSha1(byte[] input) returns byte[]|Error = external;
+# + return - Hashed output
+public function hashSha1(byte[] input) returns byte[] = external;
 
 # Returns the SHA-256 hash of the given data.
 #
 # + input - Value to be hashed
 # + return - Hashed output
-public function hashSha256(byte[] input) returns byte[]|Error = external;
+public function hashSha256(byte[] input) returns byte[] = external;
 
 # Returns the SHA-384 hash of the given data.
 #
 # + input - Value to be hashed
-# + return - Hashed output or `Error` if input is invalid
-public function hashSha384(byte[] input) returns byte[]|Error = external;
+# + return - Hashed output
+public function hashSha384(byte[] input) returns byte[] = external;
 
 # Returns the SHA-512 hash of the given data.
 #
 # + input - Value to be hashed
-# + return - Hashed output or `Error` if input is invalid
-public function hashSha512(byte[] input) returns byte[]|Error = external;
+# + return - Hashed output
+public function hashSha512(byte[] input) returns byte[] = external;
 
 # Returns the HMAC using MD-5 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
-# + return - HMAC output or `Error` if inputs are invalid
-public function hmacMd5(byte[] input, byte[] key) returns byte[]|Error = external;
+# + return - HMAC output
+public function hmacMd5(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-1 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
-# + return - HMAC output or `Error` if inputs are invalid
-public function hmacSha1(byte[] input, byte[] key) returns byte[]|Error = external;
+# + return - HMAC output
+public function hmacSha1(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-256 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
-# + return - HMAC output or `Error` if inputs are invalid
-public function hmacSha256(byte[] input, byte[] key) returns byte[]|Error = external;
+# + return - HMAC output
+public function hmacSha256(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-384 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
-# + return - HMAC output or `Error` if inputs are invalid
-public function hmacSha384(byte[] input, byte[] key) returns byte[]|Error = external;
+# + return - HMAC output
+public function hmacSha384(byte[] input, byte[] key) returns byte[] = external;
 
 # Returns the HMAC using SHA-512 hash function of the given data.
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
-# + return - HMAC output or `Error` if inputs are invalid
-public function hmacSha512(byte[] input, byte[] key) returns byte[]|Error = external;
+# + return - HMAC output
+public function hmacSha512(byte[] input, byte[] key) returns byte[] = external;
 
-# Returns Hex encoded CRC32B value for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
+# Returns Hex encoded CRC32B value for the provided element.
 #
 # + input - Value for checksum generation
-# + return - The generated checksum or `Error` if input is invalid
-public function crc32b(any input) returns string|Error = external;
+# + return - The generated checksum
+public function crc32b(byte[] input) returns string = external;
 
 # Returns RSA-MD5 based signature value for the given data.
 #
