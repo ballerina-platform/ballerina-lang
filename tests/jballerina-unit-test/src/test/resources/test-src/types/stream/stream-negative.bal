@@ -10,7 +10,7 @@ type Employee record {
 };
 
 function testInvalidStreamAssignment() returns stream<int> {
-    stream<any> testStream = new;
+    stream<anydata> testStream = new;
     return testStream;
 }
 
@@ -25,8 +25,8 @@ function testStreamAsInvalidArgument() returns stream<Person> {
     return m;
 }
 
-function testAnyStreamAsInvalidArgument() returns stream<Person> {
-    stream<any> testStream = new;
+function testAnydataStreamAsInvalidArgument() returns stream<Person> {
+    stream<anydata> testStream = new;
     stream<Person> m = returnStream(testStream);
     return m;
 }
@@ -34,3 +34,13 @@ function testAnyStreamAsInvalidArgument() returns stream<Person> {
 function returnStream(stream<Person> m) returns stream<Person> {
     return m;
 }
+
+type Captain object {
+    public string name;
+
+    function __init(string name) {
+        self.name = name;
+    }
+};
+
+stream<Captain> s1 = new;

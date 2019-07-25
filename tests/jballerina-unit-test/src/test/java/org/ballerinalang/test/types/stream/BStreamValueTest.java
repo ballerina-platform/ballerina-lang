@@ -46,15 +46,17 @@ public class BStreamValueTest {
 
     @Test(description = "Test streams for invalid scenarios")
     public void testConstrainedStreamNegative() {
-        Assert.assertEquals(failureResult.getErrorCount(), 4);
+        Assert.assertEquals(failureResult.getErrorCount(), 5);
         BAssertUtil.validateError(failureResult, 0, "incompatible types: expected 'stream<int>',"
-                                  + " found 'stream'", 14, 12);
+                                  + " found 'stream<anydata>'", 14, 12);
         BAssertUtil.validateError(failureResult, 1, "incompatible types: expected 'stream<int>',"
                                   + " found 'stream<string>'", 19, 12);
         BAssertUtil.validateError(failureResult, 2, "incompatible types: expected"
                                   + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
         BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
-                                  + " 'stream<Person>', found 'stream'", 30, 37);
+                                  + " 'stream<Person>', found 'stream<anydata>'", 30, 37);
+        BAssertUtil.validateError(failureResult, 4, "invalid constraint type 'Captain', expected a subtype of " +
+                "'anydata|error'", 46, 8);
     }
 
     @Test(description = "Test publishing records of invalid type to a stream",

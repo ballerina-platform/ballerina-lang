@@ -52,7 +52,7 @@ public class AnydataNegativeTest {
                 "incompatible types: expected 'anydata', found 'map<function (string) returns (boolean)>'", 63,
                 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<typedesc>'", 66, 10);
-        validateError(result, index++, "incompatible types: expected 'anydata', found 'map<stream>'", 69, 10);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'map<stream<anydata>>'", 69, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<any[]>'", 72, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<map<map>>'", 75, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<Foo>'", 78, 10);
@@ -75,7 +75,7 @@ public class AnydataNegativeTest {
                 "incompatible types: expected 'anydata', found 'function (string) returns (boolean)?[]'", 97, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'any[]'", 100, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'typedesc[]'", 103, 10);
-        validateError(result, index++, "incompatible types: expected 'anydata', found 'stream?[]'", 106, 10);
+        validateError(result, index++, "incompatible types: expected 'anydata', found 'stream<anydata>?[]'", 106, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'any[][]'", 109, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map[]'", 112, 10);
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map<Bar>[]'", 115, 10);
