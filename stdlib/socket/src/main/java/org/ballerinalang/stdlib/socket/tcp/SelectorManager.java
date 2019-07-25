@@ -77,9 +77,9 @@ public class SelectorManager {
     private final Object startStopLock = new Object();
     private static final BTupleType receiveFromResultTuple = new BTupleType(
             Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt,
-                    BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address").getType()), null);
+                    BallerinaValues.createRecordValue(SOCKET_PACKAGE, "Address").getType()));
     private static final BTupleType tcpReadResultTuple = new BTupleType(
-            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt), null);
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     private SelectorManager() throws IOException {
         selector = Selector.open();

@@ -57,12 +57,12 @@ public class Enumerate {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.elementType), null);
+                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.elementType));
                 getFn = ArrayValue::get;
                 break;
             case TypeTags.TUPLE_TAG:
                 BUnionType tupElemType = new BUnionType(((BTupleType) arrType).getTupleTypes());
-                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, tupElemType), null);
+                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, tupElemType));
                 getFn = ArrayValue::getRefValue;
                 break;
             default:

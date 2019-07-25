@@ -36,6 +36,17 @@ public class BTupleType extends BType {
      * Create a {@code BTupleType} which represents the tuple type.
      *
      * @param typeList of the tuple type
+     */
+    public BTupleType(List<BType> typeList) {
+        super(null, null, Object.class);
+        this.tupleTypes = typeList;
+        this.restType = null;
+    }
+
+    /**
+     * Create a {@code BTupleType} which represents the tuple type.
+     *
+     * @param typeList of the tuple type
      * @param restType of the tuple type
      */
     public BTupleType(List<BType> typeList, BType restType) {

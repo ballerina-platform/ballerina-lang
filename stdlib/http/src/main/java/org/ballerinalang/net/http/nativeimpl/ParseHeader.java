@@ -54,8 +54,7 @@ public class ParseHeader {
 
     private static final org.ballerinalang.jvm.types.BTupleType parseHeaderTupleType = new org.ballerinalang.jvm
             .types.BTupleType(
-            Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap),
-            null);
+            Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap));
 
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;

@@ -53,7 +53,7 @@ public class Entries {
 
     public static MapValue<?, ?> entries(Strand strand, MapValue<?, ?> m) {
         BType newFieldType = getFieldType(m.getType(), "entries()");
-        BTupleType entryType = new BTupleType(Lists.of(BTypes.typeString, newFieldType), null);
+        BTupleType entryType = new BTupleType(Lists.of(BTypes.typeString, newFieldType));
         BMapType entryMapConstraint = new BMapType(entryType);
         MapValue<Object, ArrayValue> entries = new MapValueImpl<>(entryMapConstraint);
 

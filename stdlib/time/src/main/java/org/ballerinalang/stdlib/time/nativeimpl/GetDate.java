@@ -39,7 +39,7 @@ import java.util.Arrays;
 public class GetDate extends AbstractTimeFunction {
 
     private static final BTupleType getDateTupleType = new BTupleType(
-            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt), null);
+            Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
 
     @Override
     public void execute(Context context) {
