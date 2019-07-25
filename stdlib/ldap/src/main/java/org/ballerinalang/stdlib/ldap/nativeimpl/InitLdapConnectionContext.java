@@ -133,8 +133,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     private static void setSslConfig(MapValue sslConfig, CommonLdapConfiguration commonLdapConfiguration,
                                      String instanceId)
-            throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
-                   CertificateException {
+                              throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
+                                     CertificateException {
         MapValue<?, ?> trustStore = sslConfig.getMapValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_STORE);
         String trustCerts = sslConfig.getStringValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES);
 
