@@ -333,21 +333,21 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit() {
-//        if (launchedErrorStream != null) {
-//            try {
-//                launchedErrorStream.close();
-//            } catch (IOException e) {
-//            }
-//        }
-//        if (launchedStdoutStream != null) {
-//            try {
-//                launchedStdoutStream.close();
-//            } catch (IOException e) {
-//            }
-//        }
-//        if (launchedProcess != null) {
-//            launchedProcess.destroy();
-//        }
+        if (launchedErrorStream != null) {
+            try {
+                launchedErrorStream.close();
+            } catch (IOException e) {
+            }
+        }
+        if (launchedStdoutStream != null) {
+            try {
+                launchedStdoutStream.close();
+            } catch (IOException e) {
+            }
+        }
+        if (launchedProcess != null) {
+            launchedProcess.destroy();
+        }
 
         systemExit = 0;
         new java.lang.Thread(() -> {
