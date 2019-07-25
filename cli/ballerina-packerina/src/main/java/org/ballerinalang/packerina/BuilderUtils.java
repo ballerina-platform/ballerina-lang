@@ -94,31 +94,6 @@ public class BuilderUtils {
     private static Manifest manifest;
 
     public static void compileWithTestsAndWrite(Path sourceRootPath,
-                                                String packagePath,
-                                                String targetPath,
-                                                boolean buildCompiledPkg,
-                                                boolean offline,
-                                                boolean lockEnabled,
-                                                boolean skipTests,
-                                                boolean enableExperimentalFeatures,
-                                                boolean siddhiRuntimeEnabled,
-                                                boolean jvmTarget) {
-        CompilerContext context = getCompilerContext(sourceRootPath, jvmTarget, buildCompiledPkg, offline,
-                lockEnabled, skipTests, enableExperimentalFeatures, siddhiRuntimeEnabled);
-
-        Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.build(packagePath);
-
-        if (skipTests) {
-            outStream.println();
-            compiler.write(bLangPackage, targetPath);
-        } else {
-            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
-            compiler.write(bLangPackage, targetPath);
-        }
-    }
-
-    public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packageName,
                                                 String targetPath,
                                                 boolean buildCompiledPkg,
