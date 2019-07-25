@@ -397,6 +397,7 @@ public class XMLLiteralTest {
     }
 
     @Test(groups = "brokenOnJBallerina")
+    // todo: enable this once we fix the method too large issue on jBallerina
     public void testLargeXMLLiteral() {
         BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
