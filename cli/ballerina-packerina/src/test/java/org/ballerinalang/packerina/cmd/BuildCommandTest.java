@@ -28,6 +28,9 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,6 +44,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Build command tests.
@@ -71,9 +76,10 @@ public class BuildCommandTest extends CommandTest {
         // Create jar files for the test since we cannot commit jar files to git.
         Path libs = projectDirectory.resolve("libs");
         Files.createDirectory(libs);
-        Files.createFile(libs.resolve("toml4j.jar"));
-        Files.createFile(libs.resolve("swagger.jar"));
-        Files.createFile(libs.resolve("json.jar"));
+
+        zipFile(libs.resolve("toml4j.jar").toFile(), "toml.class");
+        zipFile(libs.resolve("swagger.jar").toFile(), "swagger.class");
+        zipFile(libs.resolve("json.jar").toFile(), "json.class");
 
         // Build the project
         String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
@@ -111,6 +117,24 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(lockFile), "Check if lock file is created");
 
         readOutput(true);
+    }
+
+    private static void zipFile(File file, String contentFile) {
+        try {
+            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file));
+            ZipEntry e = new ZipEntry(contentFile);
+            out.putNextEntry(e);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Test String");
+            byte[] data = sb.toString().getBytes();
+            out.write(data, 0, data.length);
+            out.closeEntry();
+            out.close();
+        } catch (FileNotFoundException ex) {
+            System.err.format("The file %s does not exist", file.getName());
+        } catch (IOException ex) {
+            System.err.format("I/O error: " + ex);
+        }
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
