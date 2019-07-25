@@ -109,7 +109,6 @@ export const TopMenu = (props: TopMenuProps) => {
                         Design
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        {/* <Icon className="fw fw-minus"/> */}
                         <Dropdown className="menu-dropdown-mid " text={selectedModeText}>
                             <Dropdown.Menu>
                                 {
@@ -127,7 +126,6 @@ export const TopMenu = (props: TopMenuProps) => {
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        {/* <Icon className="fw fw-add"/> */}
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
