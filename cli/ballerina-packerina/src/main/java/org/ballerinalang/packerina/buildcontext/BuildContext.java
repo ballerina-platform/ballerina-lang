@@ -18,15 +18,74 @@
 
 package org.ballerinalang.packerina.buildcontext;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+
 
 /**
  * Context to be passed to tasks when they get executed.
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
+    private SourceType srcType;
+    
+    public BuildContext(Path sourceRootPath, String source) {
+        if (Files.exists(sourceRootPath)) {
+    
+            // set source root
+            this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
+    
+            // set home repo to build context
+            this.put(BuildContextField.HOME_REPO, RepoUtils.createAndGetHomeReposPath());
+    
+            // set source context
+            this.setSource(source);
+        } else {
+            throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
+        }
+    }
     
     public <T> T get(BuildContextField key) {
         return (T) super.get(key);
+    }
+    
+    /**
+     * Sets the type of the source and it's context.
+     *
+     * @param source The path of the source. If null it is considered as a project where all modules are built.
+     */
+    public void setSource(String source) {
+        if (source == null) {
+            this.put(BuildContextField.SOURCE_CONTEXT, new MultiModuleContext());
+            this.srcType = SourceType.ALL_MODULES;
+            return;
+        }
+    
+        Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
+        Path absoluteSourcePath = sourceRootPath.toAbsolutePath().resolve(source);
+        if (Files.isRegularFile(absoluteSourcePath) &&
+            source.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+            !RepoUtils.isBallerinaProject(absoluteSourcePath)) {
+        
+            this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(Paths.get(source)));
+            this.srcType = SourceType.BAL_FILE;
+        }
+        
+        this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(source));
+        this.srcType = SourceType.BAL_FILE;
+    }
+    
+    public SourceType getSourceType() {
+        return this.srcType;
     }
 }

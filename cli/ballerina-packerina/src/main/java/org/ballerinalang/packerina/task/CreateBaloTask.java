@@ -21,6 +21,9 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -29,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,8 +41,18 @@ import java.util.List;
 public class CreateBaloTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
+        List<BLangPackage> modules = new LinkedList<>();
+        if (buildContext.getSourceType() == SourceType.BAL_FILE) {
+            return;
+        } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
+            SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            modules.add(moduleContext.getBLangModule());
+        } else {
+            MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+            modules = multiModuleContext.getModules();
+        }
+        
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        List<BLangPackage> modules = buildContext.get(BuildContextField.COMPILED_MODULES);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
             // create '<target>/cache/balo_cache' dir
