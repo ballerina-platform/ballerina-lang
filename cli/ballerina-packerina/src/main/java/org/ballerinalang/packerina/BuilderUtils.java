@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.writer.ModuleFileWriter;
+import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
@@ -80,7 +80,7 @@ public class BuilderUtils {
     private static final String BALLERINA_HOME = "BALLERINA_HOME";
     private static PrintStream outStream = System.out;
 
-    private static ModuleFileWriter moduleFileWriter;
+    private static BaloFileWriter baloFileWriter;
     private static BIRFileWriter birFileWriter;
     private static LockFileWriter lockFileWriter;
 
@@ -257,12 +257,12 @@ public class BuilderUtils {
         // TODO: need to place the follow in a better place. I took these out from the compiler -
         // to separate them from the compiler write. I am unable to refactor the compiler write ATM
         // since the build rely on output of that. We need to fix the build and refactor this code.
-        moduleFileWriter = ModuleFileWriter.getInstance(context);
+        baloFileWriter = BaloFileWriter.getInstance(context);
         birFileWriter = BIRFileWriter.getInstance(context);
         // todo put the lock file writer in a seperate package.
         lockFileWriter = LockFileWriter.getInstance(context);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
-        packages.forEach(moduleFileWriter::write);
+        packages.forEach(module -> baloFileWriter.write(module, null));
         packages.forEach(birFileWriter::write);
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
     }
