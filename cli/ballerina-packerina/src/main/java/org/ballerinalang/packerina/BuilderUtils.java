@@ -545,10 +545,10 @@ public class BuilderUtils {
                 + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
-    private static String extractJar(String jarFileName) {
-        JarFile jar = null;
+    private static String extractJar(String jarFileName) throws IOException, NullPointerException {
+        JarFile jar = new JarFile(jarFileName);
         try {
-            jar = new JarFile(jarFileName);
+
             java.util.Enumeration enumEntries = jar.entries();
             File destFile = File.createTempFile("temp-" + jarFileName, Long.toString(System.nanoTime()));
             if (!(destFile.delete())) {
@@ -563,22 +563,27 @@ public class BuilderUtils {
                 if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
                     File f = new File(destFile.getPath() + File.separator + file.getName());
                     if (file.isDirectory()) { // if its a directory, create it
-                        f.mkdir();
-                        continue;
+                        if (f.mkdir()) {
+                            continue;
+                        }
                     }
                     InputStream is = jar.getInputStream(file); // get the input stream
-                    FileOutputStream fos = new java.io.FileOutputStream(f);
-                    while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                        fos.write(is.read());
+                    FileOutputStream fos = new FileOutputStream(f);
+                    try {
+                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
+                            fos.write(is.read());
+                        }
+                    } finally {
+                        fos.close();
+                        is.close();
                     }
-                    fos.close();
-                    is.close();
                 }
             }
-            jar.close();
             return destFile.getPath();
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+        } finally {
+            jar.close();
         }
     }
 
