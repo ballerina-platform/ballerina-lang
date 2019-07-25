@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ER
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionList;
 
 /**
@@ -61,7 +61,8 @@ public class Pause {
         try {
             kafkaConsumer.pause(partitionList);
         } catch (IllegalStateException | KafkaException e) {
-            return createError("Failed to pause topic partitions for the consumer: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to pause topic partitions for the consumer: " + e.getMessage(),
+                    CONSUMER_ERROR);
         }
         return null;
     }

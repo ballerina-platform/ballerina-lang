@@ -69,7 +69,7 @@ public class Register {
             KafkaServerConnector serverConnector = new KafkaServerConnectorImpl(serviceId, configs, kafkaListener);
             listener.addNativeData(CONSUMER_SERVER_CONNECTOR_NAME, serverConnector);
         } catch (KafkaConnectorException e) {
-            return KafkaUtils.createError(e.getMessage(), CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

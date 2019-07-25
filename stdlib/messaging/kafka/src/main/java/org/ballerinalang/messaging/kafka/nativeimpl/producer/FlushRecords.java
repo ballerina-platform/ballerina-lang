@@ -32,7 +32,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PROD
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 
 /**
  * Native action producer records from record accumulator.
@@ -55,7 +55,7 @@ public class FlushRecords {
         try {
             kafkaProducer.flush();
         } catch (KafkaException e) {
-            return createError("Failed to flush Kafka records: " + e.getMessage(), PRODUCER_ERROR);
+            return createKafkaError("Failed to flush Kafka records: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;
     }

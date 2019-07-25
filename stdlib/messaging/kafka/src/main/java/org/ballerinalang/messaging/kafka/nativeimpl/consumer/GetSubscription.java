@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ER
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 
 /**
  * Native function returns topic array which consumer is subscribed to.
@@ -66,7 +66,7 @@ public class GetSubscription {
             }
             return arrayValue;
         } catch (KafkaException e) {
-            return createError("Failed to retrieve subscribed topics: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to retrieve subscribed topics: " + e.getMessage(), CONSUMER_ERROR);
         }
     }
 }

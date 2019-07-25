@@ -38,7 +38,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKA
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
@@ -69,7 +69,8 @@ public class GetAssignment {
             });
             return topicPartitionArray;
         } catch (KafkaException e) {
-            return createError("Failed to retrieve assignment for the consumer: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to retrieve assignment for the consumer: " + e.getMessage(),
+                    CONSUMER_ERROR);
         }
     }
 }

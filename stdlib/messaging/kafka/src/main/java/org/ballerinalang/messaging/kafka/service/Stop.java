@@ -57,10 +57,10 @@ public class Stop {
         try {
             isStopped = serverConnector.stop();
         } catch (KafkaConnectorException e) {
-            return KafkaUtils.createError(e.getMessage(), CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }
         if (!isStopped) {
-            return KafkaUtils.createError("Failed to stop the kafka service.", CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError("Failed to stop the kafka service.", CONSUMER_ERROR);
         }
         return null;
     }

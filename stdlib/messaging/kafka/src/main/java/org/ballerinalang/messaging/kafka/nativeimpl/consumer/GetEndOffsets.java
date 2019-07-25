@@ -19,6 +19,7 @@
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -36,11 +37,13 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionOffsetArrayFromOffsetMap;
@@ -74,12 +77,17 @@ public class GetEndOffsets {
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions);
         Map<TopicPartition, Long> offsetMap;
 
-        if (apiTimeout > DURATION_UNDEFINED_VALUE) {
-            offsetMap = getEndOffsetsWithDuration(kafkaConsumer, partitionList, apiTimeout);
-        } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
-            offsetMap = getEndOffsetsWithDuration(kafkaConsumer, partitionList, defaultApiTimeout);
-        } else {
-            offsetMap = kafkaConsumer.endOffsets(partitionList);
+        try {
+            if (apiTimeout > DURATION_UNDEFINED_VALUE) {
+                offsetMap = getEndOffsetsWithDuration(kafkaConsumer, partitionList, apiTimeout);
+            } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
+                offsetMap = getEndOffsetsWithDuration(kafkaConsumer, partitionList, defaultApiTimeout);
+            } else {
+                offsetMap = kafkaConsumer.endOffsets(partitionList);
+            }
+        } catch (KafkaException e) {
+            return createKafkaError("Failed to retrieve end offsets for the consumer: " + e.getMessage(),
+                    CONSUMER_ERROR);
         }
 
         return getPartitionOffsetArrayFromOffsetMap(offsetMap);

@@ -40,7 +40,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PROD
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaProducerConfig;
 
@@ -72,7 +72,7 @@ public class Init {
             producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
             producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
         } catch (IllegalStateException | KafkaException e) {
-            ErrorValue error = createError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);
+            ErrorValue error = createKafkaError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);
             callback.notifyFailure(error);
         }
         callback.notifySuccess();

@@ -34,10 +34,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
@@ -47,10 +48,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 @BallerinaFunction(
         orgName = KafkaConstants.ORG_NAME,
         packageName = KAFKA_PACKAGE_NAME,
-        functionName = "getAssignment",
+        functionName = "getPausedPartitions",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
+                structType = CONSUMER_STRUCT_NAME,
                 structPackage = KAFKA_PROTOCOL_PACKAGE
         ),
         isPublic = true
@@ -68,7 +69,7 @@ public class GetPausedPartitions {
             });
             return topicPartitionArray;
         } catch (KafkaException e) {
-            return createError("Failed to retrieve paused partitions: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to retrieve paused partitions: " + e.getMessage(), CONSUMER_ERROR);
         }
     }
 }

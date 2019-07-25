@@ -31,7 +31,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ER
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 
 /**
  * Native function commits a given consumer offsets to offset topic.
@@ -42,7 +42,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
         functionName = "commit",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = KafkaConstants.PRODUCER_STRUCT_NAME,
+                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
                 structPackage = KAFKA_PROTOCOL_PACKAGE
         ),
         isPublic = true
@@ -54,7 +54,7 @@ public class Commit {
         try {
             kafkaConsumer.commitSync();
         } catch (KafkaException e) {
-            return createError("Failed to commit offsets: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to commit offsets: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

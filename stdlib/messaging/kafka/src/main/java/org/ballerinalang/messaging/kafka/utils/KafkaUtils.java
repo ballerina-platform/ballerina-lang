@@ -413,7 +413,7 @@ public class KafkaUtils {
                                              String key) {
         long value = (long) configs.get(key);
         if (value != -1) {
-            configParams.put(paramName, new Long(value).intValue());
+            configParams.put(paramName, Long.valueOf(value).intValue());
         }
     }
 
@@ -456,7 +456,7 @@ public class KafkaUtils {
             return null;
         }
         ArrayList<String> values = new ArrayList<>();
-        if (stringArray != null && stringArray.size() != 0) {
+        if (stringArray.size() != 0) {
             for (int i = 0; i < stringArray.size(); i++) {
                 values.add(stringArray.getString(i));
             }
@@ -506,11 +506,11 @@ public class KafkaUtils {
         return createKafkaRecord(TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static ErrorValue createError(String message) {
-        return createError(message, CONSUMER_ERROR);
+    public static ErrorValue createKafkaError(String message) {
+        return createKafkaError(message, CONSUMER_ERROR);
     }
 
-    public static ErrorValue createError(String message, String reason) {
+    public static ErrorValue createKafkaError(String message, String reason) {
         MapValue<String, Object> detail = createKafkaDetailRecord(message);
         return BallerinaErrors.createError(reason, detail);
     }
@@ -595,7 +595,8 @@ public class KafkaUtils {
      * @param longValue {@code long} value, which we want to convert
      * @param logger    {@code Logger} instance, to log the error if there's an error
      * @param name      parameter name, which will be converted. This is required for logging purposes
-     * @return {@code int} value of the {@code long} value, if possible, {@code Integer.MAX_VALUE} is the number is too large
+     * @return {@code int} value of the {@code long} value, if possible, {@code Integer.MAX_VALUE} is the number is too
+     * large
      */
     public static int getIntFromLong(long longValue, Logger logger, String name) {
         try {

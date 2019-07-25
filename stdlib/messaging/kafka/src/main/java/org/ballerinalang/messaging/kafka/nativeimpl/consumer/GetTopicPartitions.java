@@ -94,13 +94,13 @@ public class GetTopicPartitions {
             }
             return topicPartitionArray;
         } catch (KafkaException e) {
-            return KafkaUtils.createError("Failed to retrieve topic partitions for the consumer: " + e.getMessage(),
-                    CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError("Failed to retrieve topic partitions for the consumer: "
+                    + e.getMessage(), CONSUMER_ERROR);
         }
     }
 
     private static List<PartitionInfo> getPartitionInfoList(KafkaConsumer<byte[], byte[]> kafkaConsumer, String topic,
-                                                     long timeout) {
+                                                            long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         return kafkaConsumer.partitionsFor(topic, duration);
     }

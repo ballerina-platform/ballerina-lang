@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.object as lang;
+
 # Configuration related to consumer endpoint.
 #
 # + bootstrapServers - List of remote server endpoints of kafka brokers.
@@ -122,7 +124,7 @@ public type ConsumerRecord record {|
 #
 # + consumerConfig - Used to store configurations related to a Kafka connection.
 public type Consumer client object {
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public ConsumerConfig? consumerConfig = ();
 

@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToMetadataMap;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.commitKafkaConsumer;
 
@@ -61,7 +61,7 @@ public class CommitConsumerOffsets {
         try {
             commitKafkaConsumer(strand, producerObject, partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
-            return createError("Failed to commit consumer offsets: " + e.getMessage(), PRODUCER_ERROR);
+            return createKafkaError("Failed to commit consumer offsets: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;
     }

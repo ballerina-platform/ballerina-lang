@@ -28,14 +28,15 @@ public interface KafkaServerConnector {
     /**
      * Start the server connector which actually starts consuming for Kafka records from a remote broker.
      *
-     * @throws KafkaConnectorException if error occurred while starting the Kafka server connector.
+     * @throws KafkaConnectorException if error occurred while starting the Kafka server connector
      */
     void start() throws KafkaConnectorException;
 
     /**
      * Stop the server connector which actually closes consumer connection with remote broker.
      *
-     * @throws KafkaConnectorException if error occurred while stopping the Kafka server connector.
+     * @return true if stopped successfully, false otherwise
+     * @throws KafkaConnectorException if error occurred while stopping the Kafka server connector
      */
     boolean stop() throws KafkaConnectorException;
 

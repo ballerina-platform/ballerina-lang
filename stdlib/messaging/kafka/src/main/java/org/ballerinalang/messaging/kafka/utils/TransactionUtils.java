@@ -35,6 +35,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONNECTOR_I
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 
+/**
+ * Utility functions for ballerina kafka transactions.
+ */
 public class TransactionUtils {
 
     private TransactionUtils() {

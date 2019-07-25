@@ -44,7 +44,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
 
@@ -89,7 +89,7 @@ public class GetPositionOffset {
             }
             return position;
         } catch (IllegalStateException | KafkaException e) {
-            return createError("Failed to retrieve position offset: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to retrieve position offset: " + e.getMessage(), CONSUMER_ERROR);
         }
     }
 

@@ -40,7 +40,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
 
@@ -53,7 +53,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
         functionName = "close",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = KafkaConstants.PRODUCER_STRUCT_NAME,
+                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
                 structPackage = KAFKA_PROTOCOL_PACKAGE
         ),
         isPublic = true
@@ -76,7 +76,8 @@ public class Close {
                 kafkaConsumer.close();
             }
         } catch (KafkaException e) {
-            return createError("Failed to close the connection from Kafka server: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to close the connection from Kafka server: " + e.getMessage(),
+                    CONSUMER_ERROR);
         }
         return null;
     }

@@ -31,14 +31,14 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONNECTOR_ID;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.isTransactionInitiated;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.isTransactional;
 
@@ -51,7 +51,7 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.isTransac
         functionName = "abortTransaction",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = CONSUMER_STRUCT_NAME,
+                structType = PRODUCER_STRUCT_NAME,
                 structPackage = KAFKA_PROTOCOL_PACKAGE
         ),
         isPublic = true
@@ -72,7 +72,7 @@ public class AbortTransaction {
             }
             return null;
         } catch (KafkaException e) {
-            return createError("Failed to abort the transaction: " + e.getMessage(), PRODUCER_ERROR);
+            return createKafkaError("Failed to abort the transaction: " + e.getMessage(), PRODUCER_ERROR);
         }
     }
 }

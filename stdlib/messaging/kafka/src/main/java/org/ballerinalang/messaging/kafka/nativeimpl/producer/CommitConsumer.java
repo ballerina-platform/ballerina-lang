@@ -20,7 +20,6 @@ package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.Strand;
@@ -39,11 +38,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_GR
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.commitKafkaConsumer;
 
 /**
@@ -63,7 +61,6 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.commitKaf
 public class CommitConsumer {
 
     public static Object commitConsumer(Strand strand, ObjectValue producerObject, ObjectValue consumer) {
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
@@ -78,7 +75,7 @@ public class CommitConsumer {
         try {
             commitKafkaConsumer(strand, producerObject, partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
-            return createError("Failed to commit consumer: " + e.getMessage(), PRODUCER_ERROR);
+            return createKafkaError("Failed to commit consumer: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;
     }

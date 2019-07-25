@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,7 +46,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PROD
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
 import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.initiateTransaction;
@@ -87,14 +88,14 @@ public class Send {
             }
             producer.send(kafkaRecord, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
-                    ErrorValue error = createError("Failed to send data to Kafka server: " + e.getMessage(),
+                    ErrorValue error = createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
                             CONSUMER_ERROR);
                     callback.setReturnValues(error);
                 }
                 callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
-            return createError("Failed to send data to Kafka server: " + e.getMessage());
+            return KafkaUtils.createKafkaError("Failed to send data to Kafka server: " + e.getMessage());
         }
         return null;
     }

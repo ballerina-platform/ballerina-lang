@@ -38,7 +38,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaConsumerConfig;
 
 /**
@@ -61,7 +61,7 @@ public class Connect {
         // Check whether already native consumer is attached to the struct.
         // This can be happen either from Kafka service or via programmatically.
         if (Objects.nonNull(consumerObject.getNativeData(NATIVE_CONSUMER))) {
-            return createError("Kafka consumer is already connected to external broker. " +
+            return createKafkaError("Kafka consumer is already connected to external broker. " +
                     "Please close it before re-connecting the external broker again.", CONSUMER_ERROR);
         }
         MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_STRUCT_NAME);
@@ -71,7 +71,7 @@ public class Connect {
             consumerObject.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
             consumerObject.addNativeData(NATIVE_CONSUMER_CONFIG, consumerProperties);
         } catch (KafkaException e) {
-            return createError("Cannot connect to the kafka server: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Cannot connect to the kafka server: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

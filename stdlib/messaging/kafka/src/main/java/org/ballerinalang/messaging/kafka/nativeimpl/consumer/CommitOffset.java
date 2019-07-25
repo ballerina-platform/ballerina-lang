@@ -20,6 +20,7 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -35,13 +36,15 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToMetadataMap;
@@ -55,7 +58,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToM
         functionName = "commitOffset",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = PRODUCER_STRUCT_NAME,
+                structType = CONSUMER_STRUCT_NAME,
                 structPackage = KAFKA_PROTOCOL_PACKAGE
         ),
         isPublic = true
@@ -71,12 +74,16 @@ public class CommitOffset {
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = getPartitionToMetadataMap(offsets);
-        if (apiTimeout > DURATION_UNDEFINED_VALUE) { // API timeout should given the priority over the default value
-            consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, apiTimeout);
-        } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
-            consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, defaultApiTimeout);
-        } else {
-            kafkaConsumer.commitSync(partitionToMetadataMap);
+        try {
+            if (apiTimeout > DURATION_UNDEFINED_VALUE) { // API timeout should given the priority over the default value
+                consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, apiTimeout);
+            } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
+                consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, defaultApiTimeout);
+            } else {
+                kafkaConsumer.commitSync(partitionToMetadataMap);
+            }
+        } catch (KafkaException e) {
+            return createKafkaError("Failed to commit the offset: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

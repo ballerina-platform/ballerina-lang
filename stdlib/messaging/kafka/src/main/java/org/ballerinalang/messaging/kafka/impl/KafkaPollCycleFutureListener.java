@@ -42,6 +42,9 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
     /**
      * Future will get notified from the Ballerina engine when the Resource invocation
      * is over or when an error occurred.
+     *
+     * @param sem semaphore to handle futures
+     * @param serviceId Service ID of the service handling the resource
      */
     public KafkaPollCycleFutureListener(Semaphore sem, String serviceId) {
         this.sem = sem;

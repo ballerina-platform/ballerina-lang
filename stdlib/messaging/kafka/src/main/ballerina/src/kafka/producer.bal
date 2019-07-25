@@ -84,7 +84,6 @@ public type ProducerConfig record {|
 
 # Represent a Kafka producer endpoint.
 #
-# + producerHolder - List of producers available.
 # + connectorId - Unique ID for a particular connector.
 # + producerConfig - Used to store configurations related to a Kafka connection.
 public type Producer client object {
@@ -96,10 +95,9 @@ public type Producer client object {
         self.init(config);
     }
 
-    # Initialize the producer endpoint.
+    # Initialize the producer endpoint. Panics if the initialization fails.
     #
     # + config - Configurations related to the endpoint.
-    # + return - Error if initialization failed, none otherwise.
     function init(ProducerConfig config) = external;
 
     public string connectorId = system:uuid();

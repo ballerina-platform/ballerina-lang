@@ -57,7 +57,7 @@ public class Start {
         try {
             serverConnector.start();
         } catch (KafkaConnectorException e) {
-            return KafkaUtils.createError(e.getMessage(), CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

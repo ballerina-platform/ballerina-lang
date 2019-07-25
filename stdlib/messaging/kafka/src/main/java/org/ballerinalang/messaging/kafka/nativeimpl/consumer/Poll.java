@@ -71,7 +71,8 @@ public class Poll {
             }
             return consumerRecordsArray;
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
-            return KafkaUtils.createError("Failed to poll from the Kafka server: " + e.getMessage(), CONSUMER_ERROR);
+            return KafkaUtils.createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
+                    CONSUMER_ERROR);
         }
     }
 }

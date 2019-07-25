@@ -37,7 +37,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKA
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionList;
 
 /**
@@ -62,7 +62,7 @@ public class SeekToEnd {
         try {
             kafkaConsumer.seekToEnd(partitionList);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
-            return createError("Failed to seek the consumer to the end: " + e.getMessage(), CONSUMER_ERROR);
+            return createKafkaError("Failed to seek the consumer to the end: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }
