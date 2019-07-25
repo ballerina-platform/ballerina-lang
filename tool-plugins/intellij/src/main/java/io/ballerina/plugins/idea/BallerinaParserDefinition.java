@@ -59,7 +59,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAYS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DESCENDING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
@@ -183,7 +182,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     // excluding keywords "foreach" and "map", which are also used as Iterable operations.
     public static final TokenSet KEYWORDS = TokenSet
             .create(ABORT, ABORTED, ABSTRACT, ALL, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BYTE, CATCH, CHANNEL,
-                    CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DEPRECATED, DECIMAL, ELSE, ERROR, EXTERNAL,
+                    CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DECIMAL, ELSE, ERROR, EXTERNAL,
                     FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN, INT, IS, JOIN,
                     JSON, LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC,
                     RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING,
