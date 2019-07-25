@@ -23,6 +23,8 @@
  /**
   * This context is shared among the strands to notify that a
   * certain strand is waiting on another strand.
+  *
+  * @since 1.0.0
   */
  public abstract class WaitContext {
 

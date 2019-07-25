@@ -19,6 +19,8 @@
 
  /**
   * WaitContext for Wait for all action.
+  *
+  * @since 1.0.0
   */
  public class WaitMultipleContext extends WaitContext {
 

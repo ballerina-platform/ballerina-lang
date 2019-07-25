@@ -22,6 +22,8 @@
 
  /**
   * WaitContext for Wait for any action.
+  *
+  * @since 1.0.0
   */
  public class WaitAnyContext extends WaitContext {
 
