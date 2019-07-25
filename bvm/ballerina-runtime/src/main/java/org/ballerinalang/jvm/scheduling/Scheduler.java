@@ -58,17 +58,6 @@ public class Scheduler {
      */
     private BlockingQueue<SchedulerItem> runnableList = new LinkedBlockingDeque<>();
 
-    /**
-     * Scheduler items that are blocked but the blocker is not known.
-     * List key is the own strand.
-     */
-    private Map<Strand, SchedulerItem> blockedOnUnknownList = new ConcurrentHashMap<>();
-
-    /**
-     * Items that are due for unblock, but not yet actually in blocked list.
-     */
-    private List<Strand> unblockedList = Collections.synchronizedList(new ArrayList<>());
-
     private static final boolean DEBUG = false;
 
     private static final BlockingQueue<String> DEBUG_LOG;
@@ -219,16 +208,16 @@ public class Scheduler {
                         debugLog(item + " blocked");
                     }
                     item.future.strand.lock();
-                    if (unblockedList.remove(item.future.strand)) {
-                        if (DEBUG) {
-                            debugLog(item + " releasing from unblockedList");
-                        }
+                    // need to recheck due to concurrency, unblockStrand() may have changed state
+                    if (item.getState().getStatus() == State.YIELD.getStatus()) {
                         reschedule(item);
                         item.future.strand.unlock();
                         break;
-                    } else {
-                        blockedOnUnknownList.put(item.future.strand, item);
                     }
+                    if (DEBUG) {
+                        debugLog(item + " parked");
+                    }
+                    item.parked = true;
                     item.future.strand.unlock();
                     break;
                 case BLOCK_ON_AND_YIELD:
@@ -293,7 +282,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 296.
+                        // It depends on this line number 294.
                         // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");
@@ -310,6 +299,19 @@ public class Scheduler {
                     assert false : "illegal strand state during execute " + item.getState();
             }
         }
+    }
+
+    public void unblockStrand(Strand strand) {
+        strand.lock();
+        if (strand.schedulerItem.parked) {
+            strand.schedulerItem.parked = false;
+            reschedule(strand.schedulerItem);
+        } else {
+            // item not returned to scheduler, yet.
+            // scheduler will simply reschedule since this is already unlocked.
+            strand.setState(State.YIELD);
+        }
+        strand.unlock();
     }
 
     private void cleanUp(Strand justCompleted) {
@@ -369,24 +371,6 @@ public class Scheduler {
         future.strand.frames = new Object[100];
         return future;
     }
-
-    public void unblockStrand(Strand strand) {
-        SchedulerItem item;
-        strand.lock();
-        if ((item = blockedOnUnknownList.remove(strand)) == null) {
-            unblockedList.add(strand);
-            if (DEBUG) {
-                debugLog(strand.hashCode() + " not exists in blocked list");
-            }
-            strand.unlock();
-            return;
-        }
-        if (DEBUG) {
-            debugLog(item + " got unblocked due to send");
-        }
-        reschedule(item);
-        strand.unlock();
-    }
 }
 
 /**
@@ -400,6 +384,7 @@ class SchedulerItem {
     private boolean isVoid;
     private Object[] params;
     final FutureValue future;
+    boolean parked;
 
     public static final SchedulerItem POISON_PILL = new SchedulerItem();
 

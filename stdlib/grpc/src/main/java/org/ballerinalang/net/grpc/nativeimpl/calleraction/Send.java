@@ -17,8 +17,8 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,27 +44,17 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
+@BallerinaFunction(orgName = ORG_NAME, packageName = PROTOCOL_PACKAGE_GRPC, functionName = "send", receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER, structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC), isPublic = true)
 public class Send {
+
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
-    public static Object send(Strand strand, ObjectValue endpointClient, Object responseValue,
-                              Object headerValues) {
+    public static Object send(Strand strand, ObjectValue endpointClient, Object responseValue, Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
-                .RESPONSE_MESSAGE_DEFINITION);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION);
 
         if (responseObserver == null) {
-            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
-                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. Response sender does not exist")));
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status.fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " + "connector. Response sender does not exist")));
         } else {
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
@@ -73,8 +63,7 @@ public class Send {
                     Message responseMessage = new Message(outputType.getName(), responseValue);
                     // Update response headers when request headers exists in the context.
                     HttpHeaders headers = null;
-                    if (headerValues != null &&
-                            (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                    if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
                         headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
                     }
                     if (headers != null) {
