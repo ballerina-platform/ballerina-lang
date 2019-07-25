@@ -61,7 +61,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef() };
+        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
     }
 
     public function parseInstruction() returns Instruction {
@@ -120,7 +120,7 @@ public type FuncBodyParser object {
             var bType = self.reader.readTypeCpRef();
             var lhsOp = self.parseVarRef();
             var rhsOp = self.parseVarRef();
-            IsLike isLike = {pos:pos, kind:kind, typeValue:bType, lhsOp:lhsOp, rhsOp:rhsOp};
+            IsLike isLike = {pos:pos, kind:kind, typeVal:bType, lhsOp:lhsOp, rhsOp:rhsOp};
             return isLike;
         } else if (kindTag == INS_TYPE_TEST) {
             kind = INS_KIND_TYPE_TEST;
@@ -552,15 +552,8 @@ public type FuncBodyParser object {
         } else if (kindTag == INS_LOCK) {
             TerminatorKind kind = TERMINATOR_LOCK;
 
-            var globleVarCount = self.reader.readInt32();
-            string[] globleVarName = [];
-            int i = 0;
-            while (i < globleVarCount) {
-                globleVarName[i] = self.reader.readStringCpRef();
-                i += 1;
-            }
-
-            Lock lockIns = {pos:pos, kind:kind, globleVars:globleVarName, lockBB:self.parseBBRef()};
+            string globleVarName = self.reader.readStringCpRef();
+            Lock lockIns = {pos:pos, kind:kind, globleVar:globleVarName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;

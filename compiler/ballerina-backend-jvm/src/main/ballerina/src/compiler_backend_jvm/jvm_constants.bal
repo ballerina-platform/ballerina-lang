@@ -225,6 +225,7 @@ const string XML_QNAME = "org/ballerinalang/jvm/values/XMLQName";
 const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
+const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 
 const string OBJECT = "java/lang/Object";
 const string MATH = "java/lang/Math";
@@ -255,6 +256,7 @@ const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
 const string WORKER_UTILS = "org/ballerinalang/jvm/WorkerUtils";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
 const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
 const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";

@@ -149,6 +149,6 @@ public class ArrayAccessExprTest {
     @Test(description = "Test access a primitive as an arrays")
     public void testAccessPrimitiveAsArray() {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/access-primitive-as-array.bal");
-        BAssertUtil.validateError(compileResult, 0, "invalid operation: type 'string' does not support indexing", 3, 5);
+        BAssertUtil.validateError(compileResult, 0, "invalid operation: type 'int' does not support indexing", 3, 5);
     }
 }

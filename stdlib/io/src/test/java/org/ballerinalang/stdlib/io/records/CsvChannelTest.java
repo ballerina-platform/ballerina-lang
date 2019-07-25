@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -34,8 +35,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-
-import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Tests the CSV channel with the specified values.
@@ -220,7 +222,7 @@ public class CsvChannelTest {
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        Assert.assertEquals(records.stringValue(), "[\"User1,12\", \" WSO2\", \" 07xxxxxx\"]");
+        Assert.assertEquals(records.stringValue(), "[\"\"User1,12\"\", \" WSO2\", \" 07xxxxxx\"]");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -329,6 +331,38 @@ public class CsvChannelTest {
         BRunUtil.invoke(csvInputOutputProgramFile, "writeRecord", args);
 
         BRunUtil.invoke(csvInputOutputProgramFile, "close");
+    }
+
+    @Test(description = "Test successful data load")
+    public void loadRecordFromFile() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sample5.csv";
+        BValue[] args = {
+                new BString(getAbsoluteFilePath(resourceToRead)), new BString("UTF-8"), new BString(",")
+        };
+        final BValue[] result = BRunUtil.invoke(csvInputOutputProgramFile, "getTable", args);
+        final BFloat totalSalary = (BFloat) result[0];
+        Assert.assertEquals(totalSalary.floatValue(), 60001.00d);
+    }
+
+    @Test(description = "Test successful data load will nill values")
+    public void getTableWithNull() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sample6.csv";
+        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)) };
+        final BValue[] result = BRunUtil.invoke(csvInputOutputProgramFile, "getTableWithNill", args);
+        BString names = (BString) result[0];
+        BString departments = (BString) result[1];
+        Assert.assertEquals(names.toString(), "Person1Person2Person3");
+        Assert.assertEquals(departments.toString(), "EngMrk-1");
+    }
+
+    private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
+        URL fileResource = BCompileUtil.class.getClassLoader().getResource(relativePath);
+        String pathValue = "";
+        if (null != fileResource) {
+            Path path = Paths.get(fileResource.toURI());
+            pathValue = path.toAbsolutePath().toString();
+        }
+        return pathValue;
     }
 
 }

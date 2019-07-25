@@ -26,8 +26,8 @@ public type ReadableTextRecordChannel object {
     # + charChannel - CharacterChannel which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
     # + rs - Record separator (this could be a regex)
-    public function __init(ReadableCharacterChannel charChannel, string fs = "", string rs = "",
-                           string fmt = "default") {
+    public function __init(ReadableCharacterChannel charChannel, public string fs = "", public string rs = "",
+                           public string fmt = "default") {
         self.init(charChannel, fs, rs, fmt);
     }
 
@@ -37,8 +37,8 @@ public type ReadableTextRecordChannel object {
     # + fieldSeparator - Field separator which will separate between fields
     # + recordSeparator - Record separator which will separate between records
     # + fmt - Format which will be used to represent the type of record i.e csv
-    function init(ReadableCharacterChannel characterChannel,
-                  string fieldSeparator, string recordSeparator, string fmt) = external;
+    function init(ReadableCharacterChannel characterChannel, public string fieldSeparator,
+                public string recordSeparator, public string fmt) = external;
 
     # Checks whether there's a record left to be read.
     #

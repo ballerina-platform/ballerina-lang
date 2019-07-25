@@ -13,7 +13,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getAsString()(string)",
+      "label": "getAsString(string key, string defaultValue)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -30,7 +30,7 @@
       }
     },
     {
-      "label": "getAsInt()(int)",
+      "label": "getAsInt(string key, int defaultValue)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -47,7 +47,7 @@
       }
     },
     {
-      "label": "getAsFloat()(float)",
+      "label": "getAsFloat(string key, float defaultVal)(float)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -64,7 +64,7 @@
       }
     },
     {
-      "label": "getAsBoolean()(boolean)",
+      "label": "getAsBoolean(string key, boolean defaultValue)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -81,7 +81,7 @@
       }
     },
     {
-      "label": "getAsMap()(map\u003cany\u003e)",
+      "label": "getAsMap(string key)(map\u003cany\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -98,7 +98,7 @@
       }
     },
     {
-      "label": "contains()(boolean)",
+      "label": "contains(string key)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -115,7 +115,7 @@
       }
     },
     {
-      "label": "setConfig()",
+      "label": "setConfig(string key, (string|int|float|boolean) value)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

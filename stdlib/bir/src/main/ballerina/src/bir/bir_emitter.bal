@@ -185,7 +185,7 @@ public type BirEmitter object {
             }
         }
         if (bFunction.errorEntries.length() > 0 ) {
-            println("\t\tError Table \n\t\t\tBB\t|\terrorOp");
+            println("\t\t\tError Table \n\t\t\tBB\t\t|  errorOp\t| targetBB");
         }
         foreach var e in bFunction.errorEntries {
             if (e is ErrorEntry) {
@@ -224,8 +224,10 @@ public type BirEmitter object {
     function emitErrorEntry(ErrorEntry errorEntry) {
         print("\t\t\t");
         print(errorEntry.trapBB.id.value);
-        print("\t|\t");
+        print("\t\t| ");
         self.opEmitter.emitOp(errorEntry.errorOp);
+        print("\t\t| ");
+        print(errorEntry.targetBB.id.value);
     }
 };
 
@@ -356,7 +358,7 @@ type InstructionEmitter object {
             print(" = ");
             self.opEmitter.emitOp(ins.rhsOp);
             print(" ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.typeVal);
             println(";");
         } else if (ins is FPLoad) {
             print(tabs);
@@ -538,6 +540,10 @@ type TerminalEmitter object {
                 }
             }
             println(") -> ", term.thenBB.id.value, ";");
+        } else if(term is Lock) {
+            println(tabs, "lock -> ", term.lockBB.id.value, ";");
+        } else if(term is Unlock) {
+            println(tabs, "unLock -> ", term.unlockBB.id.value, ";");
         } else { //if (term is Return) {
             println(tabs, "return;");
         }
@@ -581,9 +587,9 @@ type TypeEmitter object {
         } else if (typeVal is BFutureType) {
             self.emitFutureType(typeVal, tabs);
         } else if (typeVal is BTypeNil) {
-            print("()");
+            print(tabs + "()");
         } else if (typeVal is BFiniteType) {
-            print(typeVal.name.value);
+            print(tabs + typeVal.name.value);
         } else if (typeVal is BErrorType) {
             //self.emitErrorType(typeVal, tabs);
         }

@@ -44,7 +44,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
-    private static final int WEBSUB_PORT = 8383;
+    private static final int WEBSUB_PORT = 23383;
     private BServerInstance webSubSubscriber;
 
     private static final String PUBLISHER_ONE_BEFORE_CONTENT =
@@ -79,8 +79,9 @@ public class WebSubPersistenceTestCase extends WebSubAdvancedBaseTest {
     public void setup() throws BallerinaTestException {
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                File.separator + "websub" + File.separator +
-                                                "test_subscribers_at_persistence_enabled_hub.bal").getAbsolutePath();
+                                                File.separator + "websub" + File.separator + "subscriber" +
+                                                File.separator + "test_subscribers_at_persistence_enabled_hub.bal")
+                .getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(notificationBeforeLogLeecherOne);

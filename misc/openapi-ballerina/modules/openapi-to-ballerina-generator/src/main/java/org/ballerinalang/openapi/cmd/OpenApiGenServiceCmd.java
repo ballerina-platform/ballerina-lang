@@ -79,7 +79,8 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             // TODO: Better throw a meaningful exception
             return;
         }
-        final Path moduleDirectory = projectRoot.resolve(moduleArgs.get(0));
+        final Path sourceDirectory = projectRoot.resolve("src");
+        final Path moduleDirectory = sourceDirectory.resolve(moduleArgs.get(0));
         final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
@@ -91,6 +92,14 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             if (Files.notExists(Paths.get(openApiFilePath))) {
                 throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
                         " contract in " + openApiFilePath);
+            }
+
+            if (Files.notExists(sourceDirectory)) {
+                try {
+                    Files.createDirectory(sourceDirectory);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                }
             }
 
             if (Files.notExists(moduleDirectory)) {

@@ -13,7 +13,6 @@ export interface TopMenuProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
     selectedModeText: string;
-    fitActive: boolean;
     openedState: boolean;
     handleOpened: () => void;
     handleClosed: () => void;
@@ -36,7 +35,6 @@ export const TopMenu = (props: TopMenuProps) => {
         handleReset,
         handleDepthSelect,
         openedState,
-        fitActive,
         zoomFactor = 1,
         maxInvocationDepth,
     } = props;
@@ -67,8 +65,8 @@ export const TopMenu = (props: TopMenuProps) => {
                         <Icon onClick={handleZoomIn} className="fw fw-add tooltip">
                             <span className="tooltiptext"> Zoom in </span>
                         </Icon>
-                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen tooltip">
-                            <span className="tooltiptext"> Fit to screen </span>
+                        <Icon onClick={handleFitClick} className="fw fw-fit-to-screen tooltip">
+                            <span className="tooltiptext"> Fit to Screen</span>
                         </Icon>
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
