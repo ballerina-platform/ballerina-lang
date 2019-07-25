@@ -692,7 +692,8 @@ public abstract class BIRNode {
         public Set<BIRGlobalVariableDcl> globalLocks;
         public Map<BIRVariableDcl, Set<String>> fieldLocks;
 
-        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks, Map<BIRVariableDcl, Set<String>> fieldLocks) {
+        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
+                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
             this.globalLocks = globalLocks;
             this.fieldLocks = fieldLocks;
         }
