@@ -76,14 +76,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -337,18 +335,6 @@ public class ASTBuilderUtil {
         final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         blockNode.pos = pos;
         return blockNode;
-    }
-
-    static BLangLockStmt createLockStmt(DiagnosticPos pos) {
-        final BLangLockStmt dLockNode = (BLangLockStmt) TreeBuilder.createDLockNode();
-        dLockNode.pos = pos;
-        return dLockNode;
-    }
-
-    static BLangUnLockStmt createUnLockStmt(DiagnosticPos pos) {
-        final BLangUnLockStmt dUnLockNode = (BLangUnLockStmt) TreeBuilder.createDUnLockNode();
-        dUnLockNode.pos = pos;
-        return dUnLockNode;
     }
 
     static BLangBlockStmt createBlockStmt(DiagnosticPos pos, List<BLangStatement> stmts) {
