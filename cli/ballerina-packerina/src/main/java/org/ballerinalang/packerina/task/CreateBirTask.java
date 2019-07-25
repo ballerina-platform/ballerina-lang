@@ -18,12 +18,47 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.writer.BirFileWriter;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
- * Task for creating balo, bir and jar file.
+ * Task for creating bir.
  */
 public class CreateBirTask implements Task {
     @Override
-    public void execute(BuildContext buildContext) { }
+    public void execute(BuildContext buildContext) {
+        CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
+        List<BLangPackage> modules = buildContext.get(BuildContextField.COMPILED_MODULES);
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+        
+        try {
+            // create '<target>/cache/bir_cache' dir
+            Path birCacheDir = targetDir
+                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+            
+            if (!Files.exists(birCacheDir)) {
+                Files.createDirectories(birCacheDir);
+            }
+            
+            // add bir_cache directory to build context
+            buildContext.put(BuildContextField.BIR_CACHE_DIR, birCacheDir);
+            
+            // generate bir for modules
+            BirFileWriter birFileWriter = BirFileWriter.getInstance(context);
+            modules.forEach(birFileWriter::write);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error occurred creating bir_cache: " + targetDir);
+        }
+    }
 }

@@ -21,7 +21,7 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 
 /**
- * Task for creating balo, bir and jar file.
+ * Task for creating jar file.
  */
 public class CreateJarTask implements Task {
     @Override
