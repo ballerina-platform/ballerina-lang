@@ -396,6 +396,16 @@ public class XMLLiteralTest {
                 "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
 
+    @Test(groups = "brokenOnJBallerina")
+    public void testLargeXMLLiteral() {
+        BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
+        HttpCarbonMessage response = Services.invoke(9091, cMsg);
+        Assert.assertNotNull(response);
+        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
+    }
+
     @Test
     public void testObjectLevelXML() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
