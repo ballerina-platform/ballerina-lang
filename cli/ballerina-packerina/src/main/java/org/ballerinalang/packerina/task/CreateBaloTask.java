@@ -23,7 +23,7 @@ import org.ballerinalang.packerina.BuildContext;
 /**
  * Task for creating balo, bir and jar file.
  */
-public class CreateArtifactsTask implements Task {
+public class CreateBaloTask implements Task {
     @Override
     public void execute(BuildContext buildContext) { }
 }
