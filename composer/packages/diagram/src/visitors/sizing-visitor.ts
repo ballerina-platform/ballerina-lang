@@ -72,8 +72,9 @@ class SizingVisitor implements Visitor {
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        // FIXME remove cast to any on While node to get VisibleEndpoints
+        if ((node as any).VisibleEndpoints) {
+            this.endpointHolder = [...(node as any).VisibleEndpoints, ...this.endpointHolder];
         }
     }
 
@@ -151,8 +152,6 @@ class SizingVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
