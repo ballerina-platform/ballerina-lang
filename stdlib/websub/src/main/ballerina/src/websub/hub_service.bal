@@ -465,19 +465,11 @@ returns error? {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
             if (internal:equalsIgnoreCase(SHA1, hubSignatureMethod)) { //not recommended
-                var hash = crypto:hmacSha1(stringPayload.toBytes(), subscriptionDetails.secret.toBytes());
-                if (hash is byte[]) {
-                    generatedSignature = encoding:encodeHex(hash);
-                } else {
-                    return hash;
-                }
+                generatedSignature = encoding:encodeHex(crypto:hmacSha1(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
             } else if (internal:equalsIgnoreCase(SHA256, hubSignatureMethod)) {
-                var hash = crypto:hmacSha256(stringPayload.toBytes(), subscriptionDetails.secret.toBytes());
-                if (hash is byte[]) {
-                    generatedSignature = encoding:encodeHex(hash);
-                } else {
-                    return hash;
-                }
+                generatedSignature = encoding:encodeHex(crypto:hmacSha256(stringPayload.toBytes(),
+                    subscriptionDetails.secret.toBytes()));
             }
             xHubSignature = xHubSignature + generatedSignature;
             request.setHeader(X_HUB_SIGNATURE, xHubSignature);

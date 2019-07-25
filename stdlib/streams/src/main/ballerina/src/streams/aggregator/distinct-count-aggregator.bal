@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerina/log;
 
 # Aggregator to get the distinct counts of values in streams.
 #
@@ -38,25 +37,21 @@ public type DistinctCount object {
     #
     # + return - Updated distinct count.
     public function process(anydata value, EventType eventType) returns anydata {
-        var key = crypto:crc32b(value);
-        if (key is string) {
-            if (eventType == "CURRENT") {
-                int preVal = self.distinctValues[key] ?: 0;
-                preVal += 1;
+        string key = crypto:crc32b(value.toString().toBytes());
+        if (eventType == "CURRENT") {
+            int preVal = self.distinctValues[key] ?: 0;
+            preVal += 1;
+            self.distinctValues[key] = preVal;
+        } else if (eventType == "EXPIRED"){
+            int preVal = self.distinctValues[key] ?: 1;
+            preVal -= 1;
+            if (preVal <= 0) {
+                var tempVar = self.distinctValues.remove(key);
+            } else {
                 self.distinctValues[key] = preVal;
-            } else if (eventType == "EXPIRED"){
-                int preVal = self.distinctValues[key] ?: 1;
-                preVal -= 1;
-                if (preVal <= 0) {
-                    var tempVar = self.distinctValues.remove(key);
-                } else {
-                    self.distinctValues[key] = preVal;
-                }
-            } else if (eventType == "RESET"){
-                self.distinctValues.removeAll();
             }
-        } else {
-            log:printError("Failed to create crc32b hash.", key);
+        } else if (eventType == "RESET"){
+            self.distinctValues.removeAll();
         }
         return self.distinctValues.length();
     }

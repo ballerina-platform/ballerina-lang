@@ -56,29 +56,17 @@ public type InboundBasicAuthProvider object {
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
         if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX)) {
             if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA256)) {
-                var hashValue = crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET));
-                if (hashValue is byte[]) {
-                    authenticated = internal:equalsIgnoreCase(encoding:encodeHex(hashValue),
-                                                              extractHash(passwordFromConfig));
-                } else {
-                    return prepareError("Failed to create hashSha256 value.", hashValue);
-                }
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha256(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
             } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA384)) {
-                var hashValue = crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET));
-                if (hashValue is byte[]) {
-                    authenticated = internal:equalsIgnoreCase(encoding:encodeHex(hashValue),
-                                                              extractHash(passwordFromConfig));
-                } else {
-                    return prepareError("Failed to create hashSha384 value.", hashValue);
-                }
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha384(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
             } else if (internal:hasPrefix(passwordFromConfig, CONFIG_PREFIX_SHA512)) {
-                var hashValue = crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET));
-                if (hashValue is byte[]) {
-                    authenticated = internal:equalsIgnoreCase(encoding:encodeHex(hashValue),
-                                                              extractHash(passwordFromConfig));
-                } else {
-                    return prepareError("Failed to create hashSha512 value.", hashValue);
-                }
+                authenticated = internal:equalsIgnoreCase(
+                                encoding:encodeHex(crypto:hashSha512(internal:toByteArray(password, DEFAULT_CHARSET))),
+                                extractHash(passwordFromConfig));
             } else {
                 authenticated = password == passwordFromConfig;
             }

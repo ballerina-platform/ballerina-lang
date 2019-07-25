@@ -270,10 +270,8 @@ public type Response object {
     #
     # + payload - The payload for which the ETag should be set
     public function setETag(json|xml|string|byte[] payload) {
-        var etag = crypto:crc32b(payload);
-        if (etag is string) {
-            self.setHeader(ETAG, etag);
-        }
+        string etag = crypto:crc32b(payload.toString().toBytes());
+        self.setHeader(ETAG, etag);
     }
 
     # Sets the current time as the `last-modified` header.
