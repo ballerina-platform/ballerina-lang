@@ -682,4 +682,20 @@ public abstract class BIRNode {
             this.markdownDocAttachment = markdownDocAttachment;
         }
     }
+
+    /**
+     * Stores the details of each level of locks.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRLockDetailsHolder {
+        public Set<BIRGlobalVariableDcl> globalLocks;
+        public Map<BIRVariableDcl, Set<String>> fieldLocks;
+
+        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
+                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
+            this.globalLocks = globalLocks;
+            this.fieldLocks = fieldLocks;
+        }
+    }
 }

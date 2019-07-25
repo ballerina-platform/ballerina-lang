@@ -130,6 +130,12 @@
                 <!--</methods>-->
             <!--</class>-->
             <class name="org.ballerinalang.test.lock.LocksInMainTest"/>
+            <class name="org.ballerinalang.test.lock.FieldLockTest">
+                <methods>
+                    <exclude name="testObjectLock"></exclude>
+                    <exclude name="testLockInRecords"></exclude>
+                </methods>
+            </class>
             <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
             <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->

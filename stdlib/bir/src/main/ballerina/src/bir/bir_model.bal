@@ -198,12 +198,13 @@ public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
 public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_FIELD_LOCK = "FIELD_LOCK";
 public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK
-                                |TERMINATOR_WAIT_ALL;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_FIELD_LOCK
+                                |TERMINATOR_UNLOCK|TERMINATOR_WAIT_ALL;
                                 
                                 
 // Flags
@@ -662,15 +663,29 @@ public type GOTO record {|
 public type Lock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string globleVar;
+    VariableDcl globleVar;
+    BasicBlock lockBB;
+|};
+
+public type FieldLock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VariableDcl localVar;
+    string field;
     BasicBlock lockBB;
 |};
 
 public type Unlock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string[] globleVars;
+    VariableDcl?[] globleVars;
+    LocalLocks?[] localLocks;
     BasicBlock unlockBB;
+|};
+
+public type LocalLocks record {|
+    VariableDcl localVar;
+    string[] fields;
 |};
 
 public type Return record {|
