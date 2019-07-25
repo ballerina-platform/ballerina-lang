@@ -146,15 +146,6 @@ public class TupleAccessExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(enabled = false, description = "Test index out of range with const as the index expression",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: -1, size: 2.*")
-    public void testConstTupleIndexNegative() {
-        BValue[] args = {new BInteger(-1)};
-        BRunUtil.invoke(compileResult, "testConstTupleIndex", args);
-    }
-
     @Test(description = "Test tuple access with a field based access expression as the index expression")
     public void tupleIndexAccessOfSameTypeWithIndexFromMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "tupleIndexAccessOfSameTypeWithIndexFromMap");

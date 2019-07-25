@@ -41,9 +41,10 @@
         border-width: 1px 0 1px 1px;
         border-style: solid;
         border-color: #e9e9e9; 
+        background: ~"@{@{color}-diagram-background-color}";
 
         .label {
-            background: #fbfbfb;
+            background: ~"@{@{color}-diagram-background-color}";
             padding: 10px 5px 10px 0;
             font-size: 14px;
             font-weight: 300;
@@ -178,7 +179,7 @@
     
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
-        height: 100%;
+        height: 110vh;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -198,7 +199,7 @@
             font-family: @diagram-font;
             font-size: @diagram-font-size;
             width: 100%;
-            height: 100%;
+            height: 110vh;
             outline: none;
 
             .panel-group-header {
