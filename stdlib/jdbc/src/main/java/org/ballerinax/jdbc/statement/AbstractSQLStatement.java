@@ -182,7 +182,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         case Types.INTEGER:
         case Types.TINYINT:
         case Types.SMALLINT:
-            value = rs.getInt(index);
+        case Types.BIGINT:
+            value = rs.getLong(index);
             break;
         case Types.DOUBLE:
             value = rs.getDouble(index);
@@ -197,9 +198,6 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         case Types.DECIMAL:
         case Types.NUMERIC:
             value = rs.getBigDecimal(index);
-            break;
-        case Types.BIGINT:
-            value = rs.getLong(index);
             break;
         default:
             value = rs.getString(index);
