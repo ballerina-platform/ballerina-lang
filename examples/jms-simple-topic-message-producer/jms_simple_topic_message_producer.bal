@@ -10,7 +10,7 @@ jms:TopicPublisher topicPublisher = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "MyTopic");
+    }, "MyTopic");
 
 public function main() {
     // Create a Text message.
