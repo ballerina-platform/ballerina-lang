@@ -46,6 +46,7 @@ import static org.ballerinalang.packerina.utils.CLIConstants.OFFLINE_BUILD;
  */
 public class CompileTask implements Task {
     public static final String COMPILED_PACKAGES = "COMPILED PACKAGES";
+    public static final String COMPILER_CONTEXT = "COMPILED COMPILER_CONTEXT";
     @Override
     public void execute(BuildContext buildContext) {
         CompilerPhase compilerPhase = CompilerPhase.BIR_GEN;
@@ -64,5 +65,6 @@ public class CompileTask implements Task {
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
         buildContext.getBuildData().put(COMPILED_PACKAGES, packages);
+        buildContext.getBuildData().put(COMPILER_CONTEXT, context);
     }
 }
