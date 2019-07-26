@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+ * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,9 +20,9 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -62,7 +62,7 @@ public class SetChildren extends BlockingNativeCallableUnit {
         } catch (Throwable e) {
             ErrorHandler.handleXMLException(OPERATION, e);
         }
-        
+
         // Setting output value.
         ctx.setReturnValues();
     }

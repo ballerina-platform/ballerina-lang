@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.model.types.TypeKind;

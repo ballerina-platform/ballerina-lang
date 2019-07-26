@@ -20,7 +20,7 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;

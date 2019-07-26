@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;

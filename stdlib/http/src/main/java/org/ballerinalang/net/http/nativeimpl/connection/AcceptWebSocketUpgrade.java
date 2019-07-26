@@ -17,7 +17,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;

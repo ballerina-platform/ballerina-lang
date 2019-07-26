@@ -18,8 +18,8 @@
 package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
