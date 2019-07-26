@@ -23,14 +23,14 @@ public function main() {
     // Call the `printValue()` function that prints the value provided.
     printValue("This is a sample text");
 
-    // Call the `add()` function to retrieve the result of adding of two values.
+    // Call the `add()` function to retrieve the result of adding two given values.
     int result = add(5, 6);
     // Print the result.
     io:println(result);
 
-    // Ballerina does not allow implicitly ignoring the return value of a function
-    // invocation, unless the return type is `()`. A return value can be ignored
-    // using `_` if the value may never be an `error` (i.e., return type of the
+    // Ballerina does not allow ignoring the return value of a function
+    // invocation implicitly, unless the return type is `()`. A return value can be ignored
+    // using `_` if the value may never be an `error` (i.e., the return type of the
     // function does not contain `error`).
     _ = printAndReturnValue("World");
 }

@@ -44,7 +44,7 @@ public function main() {
     // for the rest parameter.
     printDetails("Corey", 19, "Math");
 
-    // Call the function by passing the required parameter, defaultable parameter
+    // Call the function by passing the required parameter, defaultable parameter,
     // and multiple values for the rest parameter.
     printDetails("Diana", 20, "Math", "Physics");
 

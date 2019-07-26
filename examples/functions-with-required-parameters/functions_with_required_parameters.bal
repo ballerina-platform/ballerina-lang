@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// This function accepts three `int` values, performs a calculation
+// This function accepts three `int` values, performs a calculation,
 // and returns the result as an integer.
 // All three parameters are required parameters.
 function calculate(int a, int b, int c) returns int {

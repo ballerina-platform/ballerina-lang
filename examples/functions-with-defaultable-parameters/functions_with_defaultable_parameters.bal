@@ -46,6 +46,6 @@ public function main() {
 
     // Call the function by passing all three arguments as named arguments.
     // Any and all arguments after the first named argument need to be specified
-    // as named arguments, but could be specified in any order.
+    // as named arguments but could be specified in any order.
     printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);
 }
