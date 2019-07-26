@@ -73,7 +73,7 @@ public class SslDisabledClientTest {
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setDisableSsl();
+        senderConfiguration.disableSsl();
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }

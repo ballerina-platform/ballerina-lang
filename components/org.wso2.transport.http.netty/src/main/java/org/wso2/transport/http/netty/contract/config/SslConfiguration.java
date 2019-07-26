@@ -169,8 +169,8 @@ public class SslConfiguration {
         sslConfig.setHandshakeTimeOut(handshakeTimeOut);
     }
 
-    public void setDisableSsl() {
-        sslConfig.setDisableSsl();
+    public void disableSsl() {
+        sslConfig.disableSsl();
     }
 
     public SSLConfig getClientSSLConfig() {
