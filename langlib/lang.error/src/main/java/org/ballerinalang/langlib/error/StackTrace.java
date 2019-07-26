@@ -87,6 +87,9 @@ public class StackTrace {
                 BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG, CALL_STACK_ELEMENT), values);
     }
 
+    /**
+     * Represent Ballerina call stack when the error is constructed.
+     */
     public static class CallStack extends AbstractObjectValue {
         ArrayValue callStack;
 
