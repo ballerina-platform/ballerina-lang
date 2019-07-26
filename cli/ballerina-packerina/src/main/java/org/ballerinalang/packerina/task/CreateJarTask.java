@@ -41,25 +41,25 @@ public class CreateJarTask implements Task {
         Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
         Path homeBIRCache = buildContext.getBirCacheFromHome();
         Path systemBIRCache = buildContext.getSystemRepoBirCache();
-
+        
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
             writeImportJar(module.symbol.imports, sourceRoot, buildContext,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-    
+            
             // get the bir path of the module
             Path entryBir = buildContext.getBirPathFromTargetCache(module.packageID);
-    
+            
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-    
+            
             BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
     
     private void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
-                                       String... reps) {
+                                String... reps) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
             if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {

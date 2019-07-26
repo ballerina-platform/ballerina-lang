@@ -25,6 +25,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -36,32 +37,44 @@ import java.util.List;
  * Task for compiling a package.
  */
 public class CompileTask implements Task {
-
+    
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-    
-        Compiler compiler = Compiler.getInstance(context);
         
+        Compiler compiler = Compiler.getInstance(context);
+        boolean isBuild = !(buildContext.out() instanceof EmptyPrintStream);
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
             if (null != balFile) {
-                BLangPackage compiledModule = compiler.build(balFile.toString());
+                BLangPackage compiledModule;
+                // TODO: pull out the logs printed in the compiler out of it. compiler does'nt need to print.
+                if (isBuild) {
+                    compiledModule = compiler.build(balFile.toString());
+                } else {
+                    compiledModule = compiler.compile(balFile.toString());
+                }
                 singleFileContext.setModule(compiledModule);
             } else {
                 throw new BLangCompilerException("unable to find ballerina source");
             }
         } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
+            // TODO: pull out the logs printed in the compiler out of it. compiler does'nt need to print.
+            BLangPackage compiledModule;
+            if (isBuild) {
+                compiledModule = compiler.build(moduleContext.getModuleName());
+            } else {
+                compiledModule = compiler.compile(moduleContext.getModuleName());
+            }
             moduleContext.setModule(compiledModule);
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            List<BLangPackage> compiledModules = compiler.build();
+            List<BLangPackage> compiledModules = compiler.compilePackages(isBuild);
             multiModuleContext.setModules(compiledModules);
         }
-    
+        
         // check if there are any build errors
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
@@ -69,7 +82,7 @@ public class CompileTask implements Task {
                 throw new BLangCompilerException("compilation contains errors");
             }
         }
-    
+        
         // update build context.
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     }
