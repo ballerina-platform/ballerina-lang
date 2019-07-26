@@ -29,11 +29,12 @@ type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionW
 function genJMethodForBExternalFunc(bir:Function birFunc,
                                       jvm:ClassWriter cw,
                                       bir:Package birModule,
-                                      bir:BType? attachedType = ()) {
+                                      bir:BType? attachedType = (),
+                                      boolean isRemote = false) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
     if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
+        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType, isRemote = isRemote);
     } else {
         genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
     }
@@ -42,7 +43,8 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
 function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
                                             jvm:ClassWriter cw,
                                             bir:Package birModule,
-                                            bir:BType? attachedType = ()) {
+                                            bir:BType? attachedType = (),
+                                            boolean isRemote = false) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -70,6 +72,21 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
     mv.visitCode();
+
+    jvm:Label? tryStart = ();
+    jvm:Label? tryEnd = ();
+    jvm:Label? tryHandler = ();
+    boolean isObserved = false;
+    if (isRemote) {
+        isObserved = true;
+        tryStart = labelGen.getLabel("try-start");
+        tryEnd = labelGen.getLabel("try-end");
+        tryHandler = labelGen.getLabel("try-handler");
+        if (tryStart is jvm:Label && tryEnd is jvm:Label && tryHandler is jvm:Label) {
+            mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
+            mv.visitLabel(tryStart);
+        }
+    }
 
     jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
     mv.visitLabel(paramLoadLabel);
@@ -111,7 +128,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
 
         bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType);
+                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType, false);
         mv.visitLabel(paramNextLabel);
 
         birFuncParamIndex += 1;
@@ -135,6 +152,13 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
         birFuncParamIndex += 2;
     }
 
+    // if attached type, strand index is given by selfParamIndex
+    int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
+    if (isRemote) {
+        emitStartObservationInvocation(mv, strandIndex,
+                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+    }
+
     string jMethodName = birFunc.name.value;
     mv.visitMethodInsn(INVOKESTATIC, extFuncWrapper.jClassName, jMethodName, extFuncWrapper.jMethodVMSig, false);
 
@@ -152,6 +176,26 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+
+    if (isRemote && tryEnd is jvm:Label && tryHandler is jvm:Label) {
+        mv.visitLabel(tryEnd);
+        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+        emitStopObservationInvocation(mv, strandIndex);
+
+        jvm:Label l3 = new();
+        mv.visitLabel(l3);
+        mv.visitLabel(tryHandler);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        mv.visitVarInsn(ALOAD, strandIndex);
+        emitStopObservationInvocation(mv, strandIndex);
+
+        jvm:Label l5 = new();
+        mv.visitLabel(l5);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }

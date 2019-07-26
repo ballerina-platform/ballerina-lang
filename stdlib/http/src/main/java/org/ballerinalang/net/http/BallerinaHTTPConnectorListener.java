@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -103,12 +104,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         if (ObserveUtils.isObservabilityEnabled()) {
             observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
-            //TODO migrate along with observability migration
-//            observerContext.setServiceName(ObserveUtils.getFullServiceName(httpResource.getParentService()
-//                                                                                       .getBalService()
-//                                                                                       .getServiceInfo()));
-//            observerContext.setResourceName(balResource.getName());
-
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
@@ -116,7 +111,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
             observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
         }
-
+        properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         ObjectValue service = httpResource.getParentService().getBalService();
         Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), callback, properties,

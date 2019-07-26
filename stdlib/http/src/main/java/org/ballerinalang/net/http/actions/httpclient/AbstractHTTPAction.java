@@ -26,7 +26,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -392,9 +391,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         HttpUtil.checkAndObserveHttpRequest(dataContext.getStrand(), outboundRequestMsg);
 
-        final HTTPClientConnectorListener httpClientConnectorLister = ObserveUtils.isObservabilityEnabled() ?
-                new ObservableHttpClientConnectorListener(dataContext) :
-                new HTTPClientConnectorListener(dataContext);
+        final HTTPClientConnectorListener httpClientConnectorLister = new HTTPClientConnectorListener(dataContext);
+
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         ObjectValue requestObj = dataContext.getRequestObj();

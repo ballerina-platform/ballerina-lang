@@ -19,17 +19,26 @@ string[] generatedInitFuncs = [];
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,
                             bir:Package birModule,
-                            bir:BType? attachedType = ()) {
+                            bir:BType? attachedType = (),
+                            boolean isService = false,
+                            string className = "") {
+    boolean isRemote = false;
+    if ((birFunc.flags & bir:REMOTE) == bir:REMOTE) {
+        isRemote = true;
+    }
     if (isExternFunc(birFunc)) {
-        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType, isRemote = isRemote);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, isRemote, className, attachedType = attachedType);
     }
 }
 
 function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
+                           boolean isService,
+                           boolean isRemote,
+                           string className,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
@@ -62,8 +71,26 @@ function genJMethodForBFunc(bir:Function func,
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
     InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
+    LabelGenerator labelGen = new();
 
     mv.visitCode();
+
+    jvm:Label? tryStart = ();
+    jvm:Label? tryEnd = ();
+    jvm:Label? tryHandler = ();
+
+    boolean isObserved = false;
+    if ((isService || isRemote) && funcName != "__init") {
+        // create try catch block to start and stop observability.
+        isObserved = true;
+        tryStart = labelGen.getLabel("try-start");
+        tryEnd = labelGen.getLabel("try-end");
+        tryHandler = labelGen.getLabel("try-handler");
+        if (tryStart is jvm:Label && tryEnd is jvm:Label && tryHandler is jvm:Label) {
+            mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
+            mv.visitLabel(tryStart);
+        }
+    }
 
     if (isModuleInitFunction(module, func)) {
         // invoke all init functions
@@ -113,8 +140,6 @@ function genJMethodForBFunc(bir:Function func,
     var stateVarIndex = indexMap.getIndex(stateVar);
     mv.visitInsn(ICONST_0);
     mv.visitVarInsn(ISTORE, stateVarIndex);
-
-    LabelGenerator labelGen = new();
 
     mv.visitVarInsn(ALOAD, localVarOffset);
     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "resumeIndex", "I");
@@ -194,7 +219,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName, attachedType);
+                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, className);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -248,6 +273,27 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AASTORE);
 
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
+
+    // generate the try finally to stop observing if an error occurs.
+    if (isObserved && tryEnd is jvm:Label && tryHandler is jvm:Label) {
+        mv.visitLabel(tryEnd);
+        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+        emitStopObservationInvocation(mv, localVarOffset);
+
+        jvm:Label l3 = new();
+        mv.visitLabel(l3);
+        mv.visitLabel(tryHandler);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        emitStopObservationInvocation(mv, localVarOffset);
+
+        jvm:Label l5 = new();
+        mv.visitLabel(l5);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -443,7 +489,8 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
 function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks, LabelGenerator labelGen,
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
-            bir:Package module, string currentPackageName, bir:BType? attachedType) {
+            bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
+            boolean isService = false, string className = "") {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
@@ -466,6 +513,11 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // create jvm label
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
+
+        if (isObserved && j == 0) {
+            string observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
+            emitStartObservationInvocation(mv, localVarOffset, className, funcName, observationStartMethod);
+        }
 
         // generate instructions
         int m = 0;
@@ -605,7 +657,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
                 generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
-            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType);
+            termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
                 errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, handlerLabel, jumpLabel);

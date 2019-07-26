@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -121,7 +120,6 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties) {
         FutureValue future = createFuture(parent, callback, properties);
-        ObserveUtils.startCallableObservation(future.strand);
         return schedule(params, function, parent, future);
     }
 
@@ -137,10 +135,7 @@ public class Scheduler {
      */
     public FutureValue scheduleResource(Object[] params, Function function, Strand parent,
                                           CallableUnitCallback callback, Map<String, Object> properties) {
-        // start observation
         FutureValue future = createFuture(parent, callback, properties);
-        ObserveUtils.startResourceObservation(future.strand);
-
         return schedule(params, function, parent, future);
     }
 

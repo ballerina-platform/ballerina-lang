@@ -192,10 +192,10 @@ public class OpenTracerBallerinaWrapper {
         }
 
         // TODO fix - rajith
-        String serviceName = ObserveUtils.getFullServiceName(strand);
-        if (serviceName == null) {
-            serviceName = UNKNOWN_SERVICE;
-        }
+        String serviceName = UNKNOWN_SERVICE;
+//        if (serviceName == null) {
+//            serviceName = UNKNOWN_SERVICE;
+//        }
 
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer == null) {

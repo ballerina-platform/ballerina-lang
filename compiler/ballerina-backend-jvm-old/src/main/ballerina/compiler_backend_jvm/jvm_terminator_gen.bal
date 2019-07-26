@@ -34,7 +34,7 @@ type TerminatorGenerator object {
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
-                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
+                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName);
         } else if (terminator is bir:Unlock) {
@@ -48,7 +48,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
-            self.genReturnTerm(terminator, returnVarRefIndex, func);
+            self.genReturnTerm(terminator, returnVarRefIndex, func, isObserved = isObserved, localVarOffset = localVarOffset);
         } else if (terminator is bir:Panic) {
             self.errorGen.genPanic(terminator);
         } else if (terminator is bir:Wait) {
@@ -101,7 +101,11 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func) {
+    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func,
+                           boolean isObserved = false, int localVarOffset = -1) {
+        if (isObserved) {
+            emitStopObservationInvocation(self.mv, localVarOffset);
+        }
         bir:BType bType = func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);

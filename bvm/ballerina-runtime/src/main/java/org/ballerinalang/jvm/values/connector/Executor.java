@@ -19,7 +19,9 @@ package org.ballerinalang.jvm.values.connector;
 
 import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -79,7 +81,14 @@ public class Executor {
             scheduler.start();
         }
 
-        Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
+        Function<Object[], Object> func = objects -> {
+            Strand strand = (Strand) objects[0];
+            if (ObserveUtils.isObservabilityEnabled() &&
+                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
+                strand.observerContext = (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+            }
+            return service.call(strand, resourceName, args);
+        };
         scheduler.schedule(new Object[1], func, null, callback, properties);
     }
 
@@ -103,7 +112,7 @@ public class Executor {
 
         // start observation
         Strand newStrand = new Strand(strand.scheduler);
-        ObserveUtils.startCallableObservation(newStrand);
+//        ObserveUtils.startCallableObservation(newStrand);
 
         return service.call(newStrand, resource.getName(), args);
     }
