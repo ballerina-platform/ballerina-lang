@@ -6,7 +6,9 @@ boolean waiting = true;
 public function testWaitForAllWorkers() {
     test();
     io:println("Finishing Default Worker");
-    while(waiting) {}
+    while(waiting) {
+       runtime:sleep(200);
+    }
 }
 
 function test() {

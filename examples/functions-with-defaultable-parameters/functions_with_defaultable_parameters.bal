@@ -36,8 +36,4 @@ public function main() {
     // The placement of the defaultable arguments can be mixed when invoking the
     // function.
     printSalaryDetails(2500, bonusRate = 0.1, annualIncrement = 100);
-
-    // The placement of the defaultable arguments can also be mixed with the 
-    // required arguments when invoking the function.
-    printSalaryDetails(bonusRate = 0.1, annualIncrement = 100, 2500);
 }

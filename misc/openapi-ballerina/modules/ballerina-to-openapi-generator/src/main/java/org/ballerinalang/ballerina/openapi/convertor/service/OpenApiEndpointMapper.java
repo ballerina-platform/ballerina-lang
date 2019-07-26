@@ -36,22 +36,61 @@ public class OpenApiEndpointMapper {
     public Swagger convertBoundEndpointsToOpenApi(List<BLangSimpleVariable> endpoints, ServiceNode service,
                                                   Swagger openapi) {
         if (endpoints == null || service == null || service.getAttachedExprs().isEmpty()
-                || service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                || (service.getAttachedExprs().get(0).getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                && service.getAttachedExprs().get(0).getKind() != NodeKind.TYPE_INIT_EXPR)) {
             return openapi;
         }
         if (openapi == null) {
             return new Swagger();
         }
 
-        SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
-        for (BLangSimpleVariable ep : endpoints) {
-            // At the moment only the last bound endpoint will be populated in openapi
-            // we need to move to OAS3 models to support multiple server support
-            if (node.getVariableName().equals(ep.getName())) {
-                extractServer(ep, openapi);
-                break;
+        if (service.getAttachedExprs().get(0).getKind() == NodeKind.TYPE_INIT_EXPR) {
+            BLangTypeInit type = (BLangTypeInit) service.getAttachedExprs().get(0);
+            List<BLangExpression> list = type.argsExpr;
+            List<Scheme> schemes = new ArrayList<>();
+            String port = null;
+            String host = null;
+
+            if (list.size() == 1) {
+                port = ConverterUtils.getStringLiteralValue(list.get(0));
+            }
+
+            if (list.size() > 1
+                    && list.get(1) instanceof BLangNamedArgsExpression
+                    && ((BLangNamedArgsExpression) list.get(1)).getExpression() instanceof BLangRecordLiteral) {
+                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) ((BLangNamedArgsExpression) list.get(1))
+                        .getExpression();
+                Map<String, BLangExpression> configs = ConverterUtils.listToMap(bLangRecordLiteral.keyValuePairs);
+
+                host = configs.get(Constants.ATTR_HOST) != null ?
+                        ConverterUtils.getStringLiteralValue(configs.get(Constants.ATTR_HOST)) :
+                        null;
+                Scheme scheme = configs.get(Constants.SECURE_SOCKETS) == null ? Scheme.HTTP : Scheme.HTTPS;
+                schemes.add(scheme);
+            }
+
+            // Set default values to host and port if values are not defined
+            if (host == null) {
+                host = Constants.ATTR_DEF_HOST;
+            }
+            if (port != null) {
+                host += ':' + port;
+            }
+
+            openapi.setHost(host);
+            openapi.setSchemes(schemes);
+        } else if (service.getAttachedExprs().get(0).getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            SimpleVariableReferenceNode node = (SimpleVariableReferenceNode) service.getAttachedExprs().get(0);
+            for (BLangSimpleVariable ep : endpoints) {
+                // At the moment only the last bound endpoint will be populated in openapi
+                // we need to move to OAS3 models to support multiple server support
+                if (node.getVariableName().equals(ep.getName())) {
+                    extractServer(ep, openapi);
+                    break;
+                }
             }
         }
+
         return openapi;
     }
 

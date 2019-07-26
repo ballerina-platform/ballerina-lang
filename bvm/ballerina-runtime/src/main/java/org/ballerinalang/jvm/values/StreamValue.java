@@ -18,8 +18,8 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
