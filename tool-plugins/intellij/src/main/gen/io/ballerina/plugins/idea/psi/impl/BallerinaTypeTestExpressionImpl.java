@@ -48,9 +48,9 @@ public class BallerinaTypeTestExpressionImpl extends BallerinaExpressionImpl imp
   }
 
   @Override
-  @Nullable
+  @NotNull
   public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
+    return findNotNullChildByClass(BallerinaTypeName.class);
   }
 
   @Override

@@ -63,7 +63,7 @@ public class BootstrapRunner {
         Map<String, String> env = balProcess.environment();
         env.remove("BAL_JAVA_DEBUG");
         env.remove("JAVA_OPTS");
-        
+
         try {
             Process process = balProcess.start();
             Scanner errorScanner = new Scanner(process.getErrorStream());

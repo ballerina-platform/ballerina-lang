@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -54,7 +54,8 @@ import javax.naming.ldap.Rdn;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "getGroups", isPublic = true)
-public class GetGroups extends BlockingNativeCallableUnit {
+public class
+GetGroups extends BlockingNativeCallableUnit {
 
     private static final Log LOG = LogFactory.getLog(GetGroups.class);
 

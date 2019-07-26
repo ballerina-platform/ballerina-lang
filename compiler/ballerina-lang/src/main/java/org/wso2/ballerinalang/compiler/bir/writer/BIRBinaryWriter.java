@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationLiteralValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationRecordValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationValue;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;

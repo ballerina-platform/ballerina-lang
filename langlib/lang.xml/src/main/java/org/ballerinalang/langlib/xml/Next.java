@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BUnionType;
