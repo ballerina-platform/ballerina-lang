@@ -39,7 +39,7 @@ public class DecodeHex {
             byte[] output = EncodingUtil.decodeHex(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Hex value");
+            return EncodingUtil.createError("Input is not a valid Hex value");
         }
     }
 }
