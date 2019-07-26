@@ -21,14 +21,14 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Class to test stream type.
@@ -46,65 +46,20 @@ public class BStreamValueTest {
 
     @Test(description = "Test streams for invalid scenarios")
     public void testConstrainedStreamNegative() {
-        Assert.assertEquals(failureResult.getErrorCount(), 4);
-        BAssertUtil.validateError(failureResult, 0, "incompatible types: expected 'stream<int>',"
-                                  + " found 'stream'", 14, 12);
-        BAssertUtil.validateError(failureResult, 1, "incompatible types: expected 'stream<int>',"
-                                  + " found 'stream<string>'", 19, 12);
-        BAssertUtil.validateError(failureResult, 2, "incompatible types: expected"
-                                  + " 'stream<Person>', found 'stream<Employee>'", 24, 37);
-        BAssertUtil.validateError(failureResult, 3, "incompatible types: expected"
-                                  + " 'stream<Person>', found 'stream'", 30, 37);
-    }
-
-    @Test(description = "Test publishing records of invalid type to a stream",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: value of type:Job cannot be added to "
-                    + "a stream of type:Employee.*")
-    public void testInvalidRecordPublishingToStream() {
-        BRunUtil.invoke(result, "testInvalidRecordPublishingToStream");
-    }
-
-    @Test(description = "Test subscribing with a function accepting a different kind of record",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
-                    + "function accepting:Employee.*")
-    public void testSubscriptionFunctionWithIncorrectRecordParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectRecordParameter");
-    }
-
-    @Test(description = "Test publishing objects of invalid type to a stream",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible types: value of type:Coach cannot be added to "
-                    + "a stream of type:Captain.*")
-    public void testInvalidObjectPublishingToStream() {
-        BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
-    }
-
-    @Test(description = "Test subscribing with a function accepting a different kind of object",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
-                    + "function accepting:Captain.*")
-    public void testSubscriptionFunctionWithIncorrectObjectParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
-    }
-
-    @Test(description = "Test subscribing to a union type constrained stream with a function of whose parameter union"
-            + " type does not contain all possible types or assignable types",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
-                    + "function accepting:.*")
-    public void testSubscriptionFunctionWithUnassignableUnionParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableUnionParameter");
-    }
-
-    @Test(description = "Test subscribing to a tuple type constrained stream with a function where the elements of "
-            + "the constraint tuple type are not assignable to those of the parameter of the subscription function",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: incompatible function: subscription function needs to be a "
-                    + "function accepting:.*")
-    public void testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableTupleTypeParameter");
+        Assert.assertEquals(failureResult.getErrorCount(), 9);
+        validateError(failureResult, 0, "incompatible types: expected 'stream<int>', found 'stream<anydata>'", 14, 12);
+        validateError(failureResult, 1, "incompatible types: expected 'stream<int>', found 'stream<string>'", 19, 12);
+        validateError(failureResult, 2, "incompatible types: expected 'stream<Person>', found 'stream<Employee>'",
+                      24, 37);
+        validateError(failureResult, 3, "incompatible types: expected 'stream<Person>', found 'stream<anydata>'",
+                      30, 37);
+        validateError(failureResult, 4, "invalid constraint type 'Captain', expected a subtype of 'anydata|error'",
+                      46, 8);
+        validateError(failureResult, 5, "incompatible types: expected 'Employee', found 'Job'", 55, 5);
+        validateError(failureResult, 6  , "incompatible types: expected 'Job', found 'Employee'", 60, 5);
+        validateError(failureResult, 7, "incompatible types: expected '[string,int]', found '[int,float]'", 65, 5);
+        validateError(failureResult, 8, "incompatible types: expected '(int[]|string|boolean)', found '" +
+                "(int[]|string|boolean|float)'", 70, 5);
     }
 
     @Test(description = "Test receipt of single record event with correct subscription and publishing, for a globally"
@@ -237,20 +192,14 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
-    public void testStreamPublishingAndSubscriptionForAnyTypeStream() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnyTypeStream");
+    public void testStreamPublishingAndSubscriptionForAnydataTypeStream() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnydataTypeStream");
         assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
     @Test(description = "Test stream publish with structurally equivalent records")
     public void testStreamsPublishingForStructurallyEquivalentRecords() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
-        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
-    }
-
-    @Test(description = "Test stream publish with structurally equivalent objects")
-    public void testStreamsPublishingForStructurallyEquivalentObjects() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentObjects");
         assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 

@@ -108,7 +108,6 @@ public class SymbolTable {
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
-    public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
@@ -130,6 +129,7 @@ public class SymbolTable {
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
+    public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);;
     public BFiniteType trueType;
     public BObjectType intRangeType;
 
