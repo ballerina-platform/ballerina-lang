@@ -56,7 +56,7 @@ public class PushBinary {
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture);
+            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, connectionInfo);
         } catch (Exception e) {
             //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));

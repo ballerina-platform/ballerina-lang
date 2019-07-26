@@ -34,11 +34,13 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
     public static final String WEBSOCKET_CLIENT = "WebSocketClient";
+    public static final String FAILOVER_WEBSOCKET_CLIENT = "FailoverWebSocketClient";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
     public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
     public static final String FULL_WEBSOCKET_CALLER_NAME = BALLERINA_PACKAGE_PREFIX + WEBSOCKET_CALLER_NAME;
     public static final String WEBSOCKET_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CLIENT;
+    public static final String WEBSOCKET_FAILOVER_CLIENT_NAME = PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
     public static final String FULL_WEBSOCKET_CLIENT_NAME = BALLERINA_PACKAGE_PREFIX + WEBSOCKET_CLIENT_NAME;
 
 
@@ -78,6 +80,27 @@ public class WebSocketConstants {
     // WebSocketClient struct field names
     public static final String CLIENT_RESPONSE_FIELD = "response";
     public static final String CLIENT_CONNECTOR_FIELD = "conn";
+    public static final String TARGETS_URLS = "targetUrls";
+    public static final String RETRY_CONFIG = "retryConfig";
+    public static final String FAILOVER_CONFIG = "failoverConfig";
+    public static final String FAILOVER_CLIENTS = "failoverClientsArray";
+    public static final String RECONNECT_ATTEMPTS = "reconnectAttempts";
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String TARGET_URL_INDEX = "index";
+    public static final String MAX_RETRY_COUNT = "maxCount";
+    public static final String RECONNECT_INTERVAL = "interval";
+    public static final String RETRY_DECAY = "decay";
+    public static final String MAX_RETRY_INTERVAL = "maxInterval";
+    public static final String FAILOVER_INTEVAL = "failoverInterval";
+    public static final String IS_CONNECTION_MADE = "isConnectionMade";
+    public static final String IS_CONNECTION_LOST = "isConnectionLost";
+    public static final String SUB_TARGET_URLS = "subTargetUrls";
+    public static final String SUB_TARGET_URLS_INDEX = "subtargetUrlsIndex";
+    public static final String ONE = "1";
+    public static final String ZERO = "0";
+    public static final String RECONNECTING = "reconnecting...";
+    public static final String COUNT_DOWN_LATCH = "countDownLatch";
+    public static final String CLIENT_CONNECTOR = "clientConnector";
 
     public static final String WEBSOCKET_ERROR_CODE = "{" + FULL_PACKAGE_HTTP + "}WebSocketError";
     public static final String WEBSOCKET_ERROR_DETAILS = "Detail";

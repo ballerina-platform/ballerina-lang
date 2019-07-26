@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -27,6 +29,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.io.PrintStream;
+
+import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
+import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS;
+import static org.ballerinalang.net.http.WebSocketUtil.doFailover;
+import static org.ballerinalang.net.http.WebSocketUtil.doFailoverClientReconnect;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
+
 /**
  * Ballerina Connector listener for WebSocket.
  *
@@ -34,7 +46,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  */
 public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
     private WebSocketOpenConnectionInfo connectionInfo;
-
+    private static final PrintStream console = System.out;
 
     public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
         this.connectionInfo = connectionInfo;
@@ -74,16 +86,54 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        try {
-            WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
-        } catch (IllegalAccessException e) {
-            // Ignore as it is not possible have an Illegal access
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
+        if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) != null) {
+            if (!reconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                        webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                setError(webSocketCloseMessage);
+            }
+        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) == null) {
+            doFailover(connectionInfo);
+        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) != null) {
+            if (!doFailoverClientReconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the one of the server " +
+                        "in the targets: " + webSocketClient.getNativeData(SUB_TARGET_URLS));
+                setError(webSocketCloseMessage);
+            }
+        } else {
+            setError(webSocketCloseMessage);
         }
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
+        if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) != null) {
+            if (!reconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                        webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+            }
+        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) == null) {
+            doFailover(connectionInfo);
+        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                clientConfig.getMapValue(RETRY_CONFIG) != null) {
+            if (!doFailoverClientReconnect(connectionInfo)) {
+                console.println("Attempt maximum retry but couldn't connect to the one of the server " +
+                        "in the targets: " + webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+            }
+        } else {
+            WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+        }
     }
 
     @Override
@@ -99,6 +149,14 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     public void onClose(WebSocketConnection webSocketConnection) {
         try {
             WebSocketUtil.setListenerOpenField(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    public void setError(WebSocketCloseMessage webSocketCloseMessage) {
+        try {
+            WebSocketDispatcher.dispatchCloseMessage(connectionInfo, webSocketCloseMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }
