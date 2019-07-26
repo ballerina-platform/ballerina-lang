@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -53,7 +53,7 @@ public class Rename extends BlockingNativeCallableUnit {
         Path newFilePath = Paths.get(newPath);
 
         if (Files.notExists(oldFilePath)) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION",
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
                     "File doesn't exist in path " + oldFilePath.toAbsolutePath());
         }
 
@@ -61,12 +61,12 @@ public class Rename extends BlockingNativeCallableUnit {
             Files.move(oldFilePath.toAbsolutePath(), newFilePath.toAbsolutePath());
             return null;
         } catch (FileAlreadyExistsException e) {
-            return SystemUtils.getBallerinaError("OPERATION_FAILED", "File already exists in the new" +
-                    " path " + newFilePath);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "File already exists in the new path " + newFilePath);
         } catch (IOException e) {
-            return SystemUtils.getBallerinaError("FILE_SYSTEM_ERROR", e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
         } catch (SecurityException e) {
-            return SystemUtils.getBallerinaError("PERMISSION_ERROR", e);
+            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, e);
         }
     }
 }

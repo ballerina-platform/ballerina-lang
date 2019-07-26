@@ -126,11 +126,12 @@ public type Local record {|
 #                  `414 - URI Too Long` response.
 # + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
 #                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
+#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
 #                       `413 - Payload Too Large` response.
 public type RequestLimits record {|
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
+    int maxUriLength = 4096;
+    int maxHeaderSize = 8192;
     int maxEntityBodySize = -1;
 |};
 
@@ -157,7 +158,7 @@ public type ServiceEndpointConfiguration record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits? requestLimits = ();
+    RequestLimits requestLimits = {};
     //TODO: update as a optional field
     Filter[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
@@ -261,11 +262,11 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
 
         var scopes = auth["scopes"];
         cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeMillis,
-                                            auth.positiveAuthzCache.capacity,
-                                            auth.positiveAuthzCache.evictionFactor);
+                                             auth.positiveAuthzCache.capacity,
+                                             auth.positiveAuthzCache.evictionFactor);
         cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeMillis,
-                                            auth.negativeAuthzCache.capacity,
-                                            auth.negativeAuthzCache.evictionFactor);
+                                             auth.negativeAuthzCache.capacity,
+                                             auth.negativeAuthzCache.evictionFactor);
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
         authFilters[1] = authzFilter;

@@ -20,7 +20,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * Acknowledge one or several received messages.
@@ -51,15 +50,15 @@ public class BasicAck {
 
     public static Object basicAck(Strand strand, ObjectValue messageObjectValue, Object multiple) {
         boolean defaultMultiple = false;
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) messageObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         long deliveryTag = (long) messageObjectValue.getNativeData(RabbitMQConstants.DELIVERY_TAG);
         boolean multipleAck = ChannelUtils.validateMultipleAcknowledgements(messageObjectValue);
         boolean ackMode = ChannelUtils.validateAckMode(messageObjectValue);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+        if (isInTransaction) {
+            transactionContext.handleTransactionBlock(strand);
         }
         if (multiple != null && RabbitMQUtils.checkIfBoolean(multiple)) {
             defaultMultiple = Boolean.valueOf(multiple.toString());

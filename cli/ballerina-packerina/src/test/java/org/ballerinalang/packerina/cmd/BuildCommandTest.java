@@ -65,7 +65,7 @@ public class BuildCommandTest extends CommandTest {
         Files.walkFileTree(Paths.get(uri), new CompileCommandTest.Copy(Paths.get(uri), projectDirectory));
     }
 
-    @Test(description = "Test Build Command in a Project", enabled = false)
+    @Test(description = "Test Build Command in a Project")
     public void testBuildCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
@@ -113,15 +113,16 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testBuildCommand"})
     public void testBuildOutput() {
         Path bin = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule.jar")));
+        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + ProjectDirConstants.EXEC_SUFFIX +
+                                                   ProjectDirConstants.BLANG_COMPILED_JAR_EXT)));
     }
 
-    @Test(dependsOnMethods = {"testBuildCommand"}, enabled = false)
+    @Test(dependsOnMethods = {"testBuildCommand"})
     public void testBaloContents() throws IOException {
         URI baloZip = URI.create("jar:" + moduleBalo.toUri().toString());
         FileSystems.newFileSystem(baloZip, Collections.emptyMap())

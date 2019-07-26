@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+function testInvaidAssignmentToVariable() {
+    int i = "hello";
+}
+
 type A object {
     string x = "hello";
 };
@@ -33,4 +37,44 @@ function testInvalidOptionalFieldAccesOnLhs() {
     B m = { y: 34 };
     m?.x += "qwer";
     m?.y += 1;
+}
+
+type ObjectWithInvalidFillingReadOnUninitializedField object {
+
+    map<int[]> s;
+
+    function __init() {
+        self.s["one"][0] = 1;
+    }
+};
+
+type C record {
+    map<int>? m = ();
+};
+
+type D object {
+    C c = {};
+};
+
+function testInvalidFillingReadOnInitializedObjectField() {
+    D d = new;
+    d.c.m["one"] = 1;
+}
+
+type E record {
+    string x;
+};
+
+type F record {
+    map<int>? m = ();
+    E? e;
+};
+
+function testInvalidRecordFieldAccessLvExpr() {
+    E e = { x: "hello" };
+    e.y = 1;
+
+    F f = { m: { "one": 1 }, e: () };
+    f.m["two"] = 2;
+    f.e.x = "ddd";
 }

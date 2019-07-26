@@ -17,17 +17,10 @@
  */
 package org.ballerinax.jdbc.datasource;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinax.jdbc.Constants;
-import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,9 +37,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Base64;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -182,93 +172,13 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
-            MapValue<String, Object> globalPoolOptions) {
-        String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
-        String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PASSWORD);
-        MapValue<String, Object> dbOptions = (MapValue<String, Object>) clientEndpointConfig
-                .getMapValue(Constants.EndpointConfig.DB_OPTIONS);
-        MapValue<String, Object> poolOptions = (MapValue<String, Object>) clientEndpointConfig
-                .getMapValue(Constants.EndpointConfig.POOL_OPTIONS);
-        boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
-        if (userProvidedPoolOptionsNotPresent) {
-            poolOptions = globalPoolOptions;
-        }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
-        String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-
-        SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = builder.withPoolOptions(poolOptionsWrapper)
-                .withJdbcUrl(url).withUsername(username).withPassword(password).withDbOptionsMap(dbOptions)
-                .withIsGlobalDatasource(userProvidedPoolOptionsNotPresent).build();
-
-        return createSQLClient(sqlDatasourceParams);
-    }
-
-    public static ErrorValue getSQLDatabaseError(SQLException exception, String messagePrefix) {
-        String sqlErrorMessage =
-                exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        int vendorCode = exception.getErrorCode();
-        String sqlState = exception.getSQLState();
-        return getSQLDatabaseError(messagePrefix + sqlErrorMessage, vendorCode, sqlState);
-    }
-
-    public static ErrorValue getSQLDatabaseError(SQLException exception) {
-        return getSQLDatabaseError(exception, "");
-    }
-
-    public static ErrorValue getSQLDatabaseError(DatabaseException exception, String messagePrefix) {
-        String message = exception.getMessage() != null ? exception.getMessage() : Constants.DATABASE_ERROR_MESSAGE;
-        int vendorCode = exception.getSqlErrorCode();
-        String sqlState = exception.getSqlState();
-        String sqlErrorMessage = exception.getSqlErrorMessage();
-        return getSQLDatabaseError(messagePrefix + message + sqlErrorMessage, vendorCode, sqlState);
-    }
-
-    static ErrorValue getSQLDatabaseError(DatabaseException exception) {
-        return getSQLDatabaseError(exception, "");
-    }
-
-    private static ErrorValue getSQLDatabaseError(String message, int vendorCode, String sqlState) {
-        Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("message", message);
-        valueMap.put("sqlErrorCode", vendorCode);
-        valueMap.put("sqlState", sqlState);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.DATABASE_ERROR_DATA_RECORD_NAME, valueMap);
-        return BallerinaErrors.createError(Constants.DATABASE_ERROR_CODE, sqlClientErrorDetailRecord);
-    }
-
-    public static ErrorValue getSQLApplicationError(ApplicationException exception, String messagePrefix) {
-        String message =
-                exception.getMessage() != null ? exception.getMessage() : Constants.APPLICATION_ERROR_MESSAGE;
-        String detailedErrorMessage = messagePrefix + message;
-        if (exception.getDetailedErrorMessage() != null) {
-            detailedErrorMessage += exception.getDetailedErrorMessage();
-        }
-        return getSQLApplicationError(detailedErrorMessage);
-    }
-
-    public static ErrorValue getSQLApplicationError(ApplicationException exception) {
-        return getSQLApplicationError(exception, "");
-    }
-
-    public static ErrorValue getSQLApplicationError(String detailedErrorMessage) {
-        Map<String, Object> valueMap = new HashMap<>();
-        valueMap.put("message", detailedErrorMessage);
-        MapValue<String, Object> sqlClientErrorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.JDBC_PACKAGE_PATH, Constants.APPLICATION_ERROR_DATA_RECORD_NAME, valueMap);
-        return BallerinaErrors.createError(Constants.APPLICATION_ERROR_CODE, sqlClientErrorDetailRecord);
-    }
-
-    static ConcurrentHashMap<String, SQLDatasource> retrieveDatasourceContainer(
+    static ConcurrentHashMap<PoolKey, SQLDatasource> retrieveDatasourceContainer(
             MapValue<String, Object> poolOptions) {
-        return (ConcurrentHashMap<String, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
+        return (ConcurrentHashMap<PoolKey, SQLDatasource>) poolOptions.getNativeData(POOL_MAP_KEY);
     }
 
     public static void addDatasourceContainer(MapValue<String, Object> poolOptions,
-            ConcurrentHashMap<String, SQLDatasource> datasourceMap) {
+            ConcurrentHashMap<PoolKey, SQLDatasource> datasourceMap) {
         poolOptions.addNativeData(POOL_MAP_KEY, datasourceMap);
     }
 
@@ -282,14 +192,6 @@ public class SQLDatasourceUtils {
                     || typeTag == TypeTags.BYTE_TAG);
         }
         return supported;
-    }
-
-    private static ObjectValue createSQLClient(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
-        SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
-                .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_PATH, Constants.JDBC_CLIENT);
-        sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
-        return sqlClient;
     }
 
     private static String getString(Calendar calendar, String type) {
@@ -313,7 +215,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new AssertionError("invalid type for datetime data: " + type);
+            throw new AssertionError("Invalid type " + type + " specified for datetime data");
         }
         return datetimeString.toString();
     }

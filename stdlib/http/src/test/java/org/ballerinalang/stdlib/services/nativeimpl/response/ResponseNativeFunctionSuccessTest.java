@@ -31,7 +31,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
@@ -150,7 +149,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetContentLength() {
         ObjectValue inResponse = createResponseObject();
-        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
@@ -170,7 +169,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testGetHeader() {
         ObjectValue inResponse = createResponseObject();
-        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setHttpStatusCode(200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
@@ -201,7 +200,7 @@ public class ResponseNativeFunctionSuccessTest {
     @Test(description = "Test GetHeaders function within a function")
     public void testGetHeaders() {
         ObjectValue inResponse = createResponseObject();
-        HttpCarbonMessage inResponseMsg = BHttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpHeaders headers = inResponseMsg.getHeaders();
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);

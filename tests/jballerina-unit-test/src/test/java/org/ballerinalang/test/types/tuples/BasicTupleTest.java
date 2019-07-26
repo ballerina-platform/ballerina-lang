@@ -124,7 +124,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
+        Assert.assertEquals(resultNegative.getErrorCount(), 18);
         BAssertUtil.validateError(
                 resultNegative, 0, "tuple and expression size does not match", 18, 25);
         BAssertUtil.validateError(
@@ -158,5 +158,6 @@ public class BasicTupleTest {
                                   "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 92, 19);
         BAssertUtil.validateError(resultNegative, 16,
                                   "invalid tuple index expression: value space '3|4|5|6' out of range", 93, 19);
+        BAssertUtil.validateError(resultNegative, 17, "list index out of range: index: '-1'", 100, 13);
     }
 }

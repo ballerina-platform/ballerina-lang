@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -60,11 +60,13 @@ public class ReadDir extends BlockingNativeCallableUnit {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR, "" +
+                    "File doesn't exist in path " + path);
         }
 
         if (!inputFile.isDirectory()) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File in path " + path + " is not a directory");
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "File in path " + path + " is not a directory");
         }
         ObjectValue[] results;
         try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
@@ -79,9 +81,9 @@ public class ReadDir extends BlockingNativeCallableUnit {
             }).toArray(ObjectValue[]::new);
             return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
-            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
-            return SystemUtils.getBallerinaError("PERMISSION_ERROR", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
         }
     }
 }

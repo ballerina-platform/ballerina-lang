@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -166,7 +167,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:80}");
+                + " fileName:\"error_test.bal\", lineNumber:93}");
     }
 
     @Test
@@ -194,6 +195,13 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTrapSuccessScenario() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
@@ -228,7 +236,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 13);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -250,6 +258,8 @@ public class ErrorTest {
                 "cannot infer reason from error constructor: 'UserDefErrorOne'", 55, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
                 "cannot infer reason from error constructor: 'MyError'", 56, 19);
+        BAssertUtil.validateError(negativeCompileResult, 12,
+                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 74, 12);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
@@ -283,5 +293,19 @@ public class ErrorTest {
         Assert.assertEquals(((BError) returns[1]).getReason(), "ErrorNo-2");
         Assert.assertEquals(((BError) returns[2]).getReason(), "ErrNo-1");
         Assert.assertEquals(((BError) returns[3]).getReason(), "ErrorNo-2");
+    }
+
+    @Test()
+    public void indirectErrorCtorTest() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "foo");
+        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
+        Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
+    }
+
+    @Test()
+    public void testUnionLhsWithIndirectErrorRhs() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
     }
 }

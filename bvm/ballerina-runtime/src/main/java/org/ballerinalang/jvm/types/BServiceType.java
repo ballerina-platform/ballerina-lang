@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 
 import static org.ballerinalang.jvm.AnnotationUtils.processServiceAnnotations;

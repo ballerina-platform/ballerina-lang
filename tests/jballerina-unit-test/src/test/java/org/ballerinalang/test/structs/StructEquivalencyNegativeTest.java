@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.test.structs;
 
-import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -27,27 +30,45 @@ import org.testng.annotations.Test;
  */
 public class StructEquivalencyNegativeTest {
 
-    @Test(description = "Test equivalence of structs that are in the same package")
-    public void testEquivalenceOfStructsInSamePackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-01-negative.bal");
+    private CompileResult compileResult;
 
-        BAssertUtil.validateError(compileResult, 0,
-                                  "incompatible types: 'employee01' cannot be converted to 'person01'", 17, 18);
-        BAssertUtil.validateError(compileResult, 1,
-                                  "incompatible types: 'employee02' cannot be converted to 'person02'", 36, 18);
-        BAssertUtil.validateError(compileResult, 2,
-                                  "incompatible types: expected 'person03', found '(person03|error)'", 54, 18);
-        BAssertUtil.validateError(compileResult, 3,
-                                  "incompatible types: 'employee06' cannot be converted to 'person06'", 76, 18);
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile(this, "test-src/structs/proj/", "struct-eq-neg");
     }
 
-    @Test(description = "Test equivalence of structs that are in the same package from a third package")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*ConversionError message='struct-eq-neg:employee01' " +
+                    "value cannot be converted to 'struct-eq-neg:person01'")
+    public void testEqOfStructsInSamePackageFieldNameMismatch() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage01");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*ConversionError message='struct-eq-neg:employee02' " +
+                    "value cannot be converted to 'struct-eq-neg:person02'")
+    public void testEqOfStructsInSamePackageTypeNameMismatch() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage02");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*ConversionError message='struct-eq-neg:employee03' " +
+                    "value cannot be converted to 'struct-eq-neg:person03'")
+    public void testEqOfStructsInSamePackageFieldCountMismatch() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage03");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*ConversionError message='struct-eq-neg:employee06' " +
+                    "value cannot be converted to 'struct-eq-neg:person06'")
+    public void testEqOfStructsInSamePackageTypeMismatch() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage06");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*ConversionError message='org.foo.bar:userBar' " +
+                    "value cannot be converted to 'org.foo:userFoo'")
     public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/structs/struct-equivalency-02-negative.bal");
-
-        BAssertUtil.validateError(compileResult, 0,
-                                  "incompatible types: 'org.foo.bar:userBar' cannot be converted to 'org.foo:userFoo'", 
-                                  11, 23);
-
+        BValue[] result = BRunUtil.invoke(compileResult, "testStructEqViewFromThirdPackage");
     }
 }

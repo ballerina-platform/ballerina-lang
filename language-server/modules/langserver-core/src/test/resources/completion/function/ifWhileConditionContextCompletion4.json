@@ -470,6 +470,75 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Detail",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Holds the details of an HTTP error\n"
+      },
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResiliencyError",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Ballerina Http Union Errors"
+      },
+      "insertText": "ResiliencyError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientAuthError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientAuthError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "InboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundRequestError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundResponseError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ListenerError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ListenerError",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Filter",
       "kind": "Class",
       "detail": "Object",
@@ -514,7 +583,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is succesful.\n`failed`: Mutual SSL handshake has failed."
+        "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is successful.\n`failed`: Mutual SSL handshake has failed."
       },
       "insertText": "MutualSslStatus",
       "insertTextFormat": "Snippet"
@@ -730,13 +799,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LoadBalanceActionError",
-      "kind": "Class",
-      "detail": "Error",
-      "insertText": "LoadBalanceActionError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "LoadBalanceClientEndpointConfiguration",
       "kind": "Class",
       "detail": "Record",
@@ -844,6 +906,13 @@
         "left": "Represents a WebSocket service endpoint."
       },
       "insertText": "WebSocketListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "WebSocketError",
       "insertTextFormat": "Snippet"
     },
     {

@@ -17,12 +17,11 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
-import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 
 /**
  * {@code Close} is the Close function implementation of the JDBC client connection pool.
@@ -41,11 +40,7 @@ public class Close {
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
         // situation following null check is needed.
         if (datasource != null && !datasource.isGlobalDatasource()) {
-            try {
-                datasource.decrementClientCounterAndAttemptPoolShutdown();
-            } catch (InterruptedException e) {
-                return  SQLDatasourceUtils.getSQLApplicationError("Error while stopping the database client");
-            }
+            datasource.decrementClientCounterAndAttemptPoolShutdown();
         }
         return null;
     }

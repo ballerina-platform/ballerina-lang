@@ -16,9 +16,9 @@
 
 import ballerina/auth;
 import ballerina/encoding;
+import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/internal;
 
 # Defines the Basic Auth header handler for inbound and outbound HTTP traffic.
 #
@@ -71,7 +71,7 @@ public type BasicAuthHandler object {
     # Prepares the request with the Basic Auth header.
     #
     # + req - The`Request` instance.
-    # + return - Returns the updated `Request` instance or the`AuthenticationError` in case of an error.
+    # + return - Returns the updated `Request` instance or the `AuthenticationError` in case of an error.
     public function prepare(Request req) returns Request|AuthenticationError {
         var authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {

@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,11 +37,7 @@ import org.ballerinalang.net.http.HttpUtil;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request", structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.OBJECT)}
 )
-public class GetEntityWithoutBody extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
-
+public class GetEntityWithoutBody {
     public static ObjectValue getEntityWithoutBody(Strand strand, ObjectValue requestObj) {
         return HttpUtil.getEntity(requestObj, true, false);
     }

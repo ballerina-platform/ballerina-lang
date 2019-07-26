@@ -26,7 +26,7 @@ public type Student object {
     }
 
     public function toString() returns string {
-        return "Student{" + self.name + ", " + self.age + ", " + self.school + "}";
+        return "Student{" + self.name + ", " + self.age.toString() + ", " + self.school + "}";
     }
 
     public function getSchool() returns string {

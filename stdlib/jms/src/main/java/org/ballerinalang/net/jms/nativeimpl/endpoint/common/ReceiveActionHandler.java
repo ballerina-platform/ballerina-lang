@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
@@ -36,15 +37,15 @@ public class ReceiveActionHandler {
     private ReceiveActionHandler() {
     }
 
-    public static Object handle(ObjectValue connectorBObject, long timeInMilliSeconds) {
+    public static Object handle(Strand strand, ObjectValue connectorBObject, long timeInMilliSeconds) {
 
         MessageConsumer messageConsumer =
                 (MessageConsumer) connectorBObject.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT);
-//        SessionConnector sessionConnector =
-//                (SessionConnector) connectorBObject.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
+        SessionConnector sessionConnector =
+                (SessionConnector) connectorBObject.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
 
         try {
-//            sessionConnector.handleTransactionBlock(context);
+            sessionConnector.handleTransactionBlock(strand);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (message != null) {
                 return JmsUtils.createAndPopulateMessageObject(message, (ObjectValue) connectorBObject

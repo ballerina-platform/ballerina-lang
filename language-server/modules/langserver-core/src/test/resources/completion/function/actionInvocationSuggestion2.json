@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "post(${1})",
@@ -23,13 +23,13 @@
       }
     },
     {
-      "label": "head(string path)((http:Response|error))",
+      "label": "head(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "head(${1})",
@@ -46,7 +46,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `put()` function can be used to send HTTP PUT requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `put()` function can be used to send HTTP PUT requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "put(${1})",
@@ -63,7 +63,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nInvokes an HTTP call with the specified HTTP verb.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    HTTP verb value  \n  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nInvokes an HTTP call with the specified HTTP verb.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    HTTP verb value  \n  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "execute(${1})",
@@ -80,7 +80,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "patch(${1})",
@@ -97,7 +97,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "delete(${1})",
@@ -108,13 +108,13 @@
       }
     },
     {
-      "label": "get(string path)((http:Response|error))",
+      "label": "get(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `get()` function can be used to send HTTP GET requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `get()` function can be used to send HTTP GET requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "get(${1})",
@@ -125,13 +125,13 @@
       }
     },
     {
-      "label": "options(string path)((http:Response|error))",
+      "label": "options(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _message_  \n    An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "options(${1})",
@@ -148,7 +148,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe `forward()` function can be used to invoke an HTTP call with inbound request\u0027s HTTP verb\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _request_  \n    An HTTP inbound request message  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe `forward()` function can be used to invoke an HTTP call with inbound request\u0027s HTTP verb\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Request path  \n  \n- _request_  \n    An HTTP inbound request message  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "forward(${1})",
@@ -165,7 +165,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSubmits an HTTP request to a service with the specified HTTP verb.\nThe `submit()` function does not give out a `Response` as the result,\nrather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    The HTTP verb value  \n  \n- _path_  \n    The resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:HttpFuture|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nSubmits an HTTP request to a service with the specified HTTP verb.\nThe `submit()` function does not give out a `Response` as the result,\nrather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.\n  \n  \n---    \n**Parameters**  \n- _httpVerb_  \n    The HTTP verb value  \n  \n- _path_  \n    The resource path  \n  \n- _message_  \n    An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n  \n**Return**  \n(ballerina/http:HttpFuture|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "submit(${1})",
@@ -182,7 +182,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getResponse(${1})",
@@ -216,7 +216,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \n(ballerina/http:PushPromise|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _httpFuture_  \n    The `HttpFuture` relates to a previous asynchronous invocation  \n  \n  \n**Return**  \n(ballerina/http:PushPromise|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getNextPromise(${1})",
@@ -233,7 +233,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    The related `PushPromise`  \n  \n  \n**Return**  \n(ballerina/http:Response|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n  \n---    \n**Parameters**  \n- _promise_  \n    The related `PushPromise`  \n  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getPromisedResponse(${1})",

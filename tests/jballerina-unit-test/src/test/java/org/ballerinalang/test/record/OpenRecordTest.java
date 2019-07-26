@@ -424,4 +424,21 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
+
+    @Test(description = "Test case for default value initializing in type referenced fields")
+    public void testDefaultValueInit() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDefaultValueInit");
+        BMap manager = (BMap) returns[0];
+        Assert.assertEquals(manager.get("name").stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) manager.get("age")).intValue(), 25);
+        Assert.assertEquals(manager.get("adr").stringValue(), "{city:\"Colombo\", country:\"Sri Lanka\"}");
+        Assert.assertEquals(manager.get("company").stringValue(), "WSO2");
+        Assert.assertEquals(manager.get("dept").stringValue(), "");
+    }
+
+    @Test
+    public void testRecordInitWithFuncCalls() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRecordInitWithFuncCalls");
+        Assert.assertEquals(returns[0].stringValue(), "{a:777, b:56}");
+    }
 }

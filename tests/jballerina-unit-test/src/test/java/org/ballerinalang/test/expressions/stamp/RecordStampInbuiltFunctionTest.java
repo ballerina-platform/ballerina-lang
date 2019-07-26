@@ -555,7 +555,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'Teacher' value cannot be stamped as 'map<string>'");
+                            "'Teacher' value cannot be converted to 'map<string>'");
     }
 
     @Test
@@ -565,7 +565,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'Teacher' value cannot be stamped as 'NonAcademicStaff'");
+                            "'Teacher' value cannot be converted to 'NonAcademicStaff'");
     }
 
     @Test
@@ -575,7 +575,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
+                            "'Employee' value cannot be converted to 'Teacher'");
     }
 
     @Test
@@ -585,6 +585,6 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "incompatible stamp operation: 'Employee' value cannot be stamped as 'Teacher'");
+                            "'Employee' value cannot be converted to 'Teacher'");
     }
 }

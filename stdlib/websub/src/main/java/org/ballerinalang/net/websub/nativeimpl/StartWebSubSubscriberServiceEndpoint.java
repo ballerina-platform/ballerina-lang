@@ -18,8 +18,7 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -51,10 +50,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         isPublic = true
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void startWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint) {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);

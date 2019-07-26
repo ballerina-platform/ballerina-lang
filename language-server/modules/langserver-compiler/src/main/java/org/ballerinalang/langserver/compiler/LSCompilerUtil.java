@@ -43,15 +43,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -75,11 +69,9 @@ public class LSCompilerUtil {
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
     
-    private static final String FILE_SEPARATOR = File.separator;
-
     static {
         String experimental = System.getProperty("experimental");
-        EXPERIMENTAL_FEATURES_ENABLED = experimental != null && Boolean.parseBoolean(experimental);
+        EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
@@ -162,30 +154,30 @@ public class LSCompilerUtil {
 
     /**
      * Prepare the compiler context. Use this method if you don't have the source root but a LSDocument instance
-     * for a document in the project.
+     * for a lsDocument in the project.
      *
-     * @param packageID         Package ID
-     * @param packageRepository Package Repository
-     * @param document          LSDocument for Source Root
+     * @param pkgID         Package ID
+     * @param pkgRepo Package Repository
+     * @param lsDocument          LSDocument for Source Root
      * @param preserveWhitespace Preserve Whitespace
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param docManager {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
-    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument document, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager,
+    public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
+                                                         LSDocument lsDocument, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager docManager,
                                                          CompilerPhase compilerPhase) {
-        CompilerContext context = prepareCompilerContext(packageID, packageRepository, document.getProjectRoot(),
-                                                         preserveWhitespace, documentManager, compilerPhase);
-        Path sourceRootPath = document.getProjectRootPath();
-        if (isBallerinaProject(document.getProjectRoot())) {
+        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(),
+                                                         preserveWhitespace, docManager, compilerPhase);
+        Path sourceRootPath = lsDocument.getProjectRootPath();
+        if (lsDocument.isWithinProject()) {
             LangServerFSProjectDirectory projectDirectory =
-                    LangServerFSProjectDirectory.getInstance(sourceRootPath, documentManager);
+                    LangServerFSProjectDirectory.getInstance(sourceRootPath, docManager);
             context.put(SourceDirectory.class, projectDirectory);
         } else {
             LangServerFSProgramDirectory programDirectory =
-                    LangServerFSProgramDirectory.getInstance(sourceRootPath, documentManager);
+                    LangServerFSProgramDirectory.getInstance(sourceRootPath, docManager);
             context.put(SourceDirectory.class, programDirectory);
         }
         return context;
@@ -207,17 +199,6 @@ public class LSCompilerUtil {
                                                          WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
                 documentManager, CompilerPhase.COMPILER_PLUGIN);
-    }
-
-    /**
-     * Find project root directory.
-     *
-     * @param parentDir current parent directory
-     * @return {@link String} project root | null
-     */
-    @CheckForNull
-    public static Path findProjectRoot(String parentDir) {
-        return ProjectDirs.findProjectRoot(Paths.get(parentDir));
     }
 
     private static boolean isSameFile(Path path1, Path path2) {
@@ -280,11 +261,7 @@ public class LSCompilerUtil {
             return null;
         }
         Path parentPath = filePath.getParent();
-        if (parentPath == null) {
-            return null;
-        }
-
-        Path projectRoot = findProjectRoot(parentPath.toString());
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(parentPath.toString()));
         return projectRoot != null ? projectRoot.toString() : parentPath.toString();
     }
 
@@ -299,10 +276,7 @@ public class LSCompilerUtil {
             return null;
         }
         Path parentPath = filePath.getParent();
-        if (parentPath == null) {
-            return null;
-        }
-        Path projectRoot = findProjectRoot(parentPath.toString());
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(parentPath.toString()));
         return projectRoot == null ? null : projectRoot.toString();
     }
 
@@ -337,34 +311,6 @@ public class LSCompilerUtil {
             // do nothing
         }
         return currentModulePath;
-    }
-
-    /**
-     * Check whether given directory is a project dir.
-     *
-     * @param projectRoot root path
-     * @return {@link Boolean} true if project dir, else false
-     */
-    public static boolean isBallerinaProject(String projectRoot) {
-        return findProjectRoot(projectRoot) != null;
-    }
-
-
-    /**
-     * Get the package name for given file.
-     *
-     * @param sourceRoot source root
-     * @param filePath   full path of the file
-     * @return {@link String} package name
-     */
-    public static String getPackageNameForGivenFile(String sourceRoot, String filePath) {
-        String packageName = "";
-        String packageStructure = filePath.substring(sourceRoot.length() + 1);
-        String[] splittedPackageStructure = packageStructure.split(Pattern.quote(File.separator));
-        if (splittedPackageStructure.length > 0 && !splittedPackageStructure[0].endsWith(".bal")) {
-            packageName = packageStructure.split(Pattern.quote(File.separator))[1];
-        }
-        return packageName;
     }
 
     /**
@@ -415,30 +361,6 @@ public class LSCompilerUtil {
      */
     public static Optional<Path> getUntitledFilePath(String filePath) {
         return getUntitledFileId(filePath).map(LSCompilerUtil::createTempFile);
-    }
-
-    /**
-     * Get the list of module names in the repo.
-     *
-     * @param projectRoot project root path
-     * @return {@link List} List of module names
-     */
-    public static List<String> getCurrentProjectModules(Path projectRoot) {
-        try {
-            Stream<Path> pathStream = Files.walk(projectRoot.resolve("src"));
-            return pathStream
-                    .filter(path -> { 
-                        try { 
-                            return Files.isDirectory(path) && !Files.isHidden(path); 
-                        } catch (IOException e) { 
-                            return false; 
-                        }
-                    })
-                    .map(path -> path.getFileName().toString())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            return new ArrayList<>();
-        }
     }
 
     /**

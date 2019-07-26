@@ -22,11 +22,11 @@ package org.ballerinalang.observe.nativeimpl;
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.observability.TracingUtils;
 import org.ballerinalang.jvm.observability.tracer.TracersStore;
+import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;

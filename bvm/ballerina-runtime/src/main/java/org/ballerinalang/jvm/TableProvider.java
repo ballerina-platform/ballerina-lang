@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -36,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * {@code TableProvider} creates In Memory database for tables.
@@ -44,6 +46,8 @@ import java.util.Collection;
  */
 public class TableProvider {
 
+    private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
+            "Corresponding Union type in the record is not an assignable nillable type";
     private static TableProvider tableProvider = null;
     private int tableID;
     private int indexID;
@@ -73,15 +77,15 @@ public class TableProvider {
         return this.indexID++;
     }
 
-    public String createTable(BType constrainedType, ArrayValue primaryKeys, ArrayValue indexeColumns) {
+    public String createTable(BType constrainedType, ArrayValue primaryKeys, ArrayValue indexedColumns) {
         String tableName = TableConstants.TABLE_PREFIX + constrainedType.getName()
                 .toUpperCase() + "_" + getTableID();
-        String sqlStmt = generateCreateTableStatment(tableName, constrainedType, primaryKeys);
+        String sqlStmt = generateCreateTableStatement(tableName, constrainedType, primaryKeys);
         executeStatement(sqlStmt);
 
         //Add Index Data
-        if (indexeColumns != null) {
-            generateIndexesForTable(tableName, indexeColumns);
+        if (indexedColumns != null) {
+            generateIndexesForTable(tableName, indexedColumns);
         }
         return tableName;
     }
@@ -94,7 +98,7 @@ public class TableProvider {
         if (joinTableName != null && !joinTableName.isEmpty()) {
             sqlStmt = sqlStmt.replaceFirst(TableConstants.TABLE_NAME_REGEX, joinTableName);
         }
-        sqlStmt = generateCreateTableStatment(sqlStmt, newTableName);
+        sqlStmt = generateCreateTableStatement(sqlStmt, newTableName);
         prepareAndExecuteStatement(sqlStmt, params);
         return newTableName;
     }
@@ -105,12 +109,7 @@ public class TableProvider {
     }
 
     public void insertData(String tableName, MapValueImpl<String, Object> constrainedType) {
-        String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
-        prepareAndExecuteStatement(sqlStmt, constrainedType);
-    }
-
-    public void deleteData(String tableName, MapValueImpl<String, Object> constrainedType) {
-        String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
+        String sqlStmt = TableUtils.generateInsertDataStatement(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
 
@@ -142,12 +141,12 @@ public class TableProvider {
             conn = DriverManager
                     .getConnection(TableConstants.DB_JDBC_URL, TableConstants.DB_USER_NAME, TableConstants.DB_PASSWORD);
         } catch (SQLException e) {
-            throw new BallerinaException("error in gettign connection for table db : " + e.getMessage());
+            throw new BallerinaException("error in getting connection for table db : " + e.getMessage());
         }
         return conn;
     }
 
-    private String generateCreateTableStatment(String tableName, BType constrainedType, ArrayValue primaryKeys) {
+    private String generateCreateTableStatement(String tableName, BType constrainedType, ArrayValue primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
         Collection<BField> structFields = ((BStructureType) constrainedType).getFields().values();
@@ -158,28 +157,26 @@ public class TableProvider {
             sb.append(seperator).append(name).append(" ");
             switch (type) {
                 case TypeTags.INT_TAG:
-                    sb.append(TableConstants.SQL_TYPE_BIGINT);
-                    break;
                 case TypeTags.STRING_TAG:
-                    sb.append(TableConstants.SQL_TYPE_VARCHAR);
-                    break;
                 case TypeTags.FLOAT_TAG:
                 case TypeTags.DECIMAL_TAG:
-                    sb.append(TableConstants.SQL_TYPE_DOUBLE);
-                    break;
                 case TypeTags.BOOLEAN_TAG:
-                    sb.append(TableConstants.SQL_TYPE_BOOLEAN);
-                    break;
                 case TypeTags.JSON_TAG:
                 case TypeTags.XML_TAG:
-                    sb.append(TableConstants.SQL_TYPE_CLOB);
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
-                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                        sb.append(TableConstants.SQL_TYPE_BLOB);
+                    generateCreateTableStatement(type, sf, sb);
+                    break;
+                case TypeTags.UNION_TAG:
+                    List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
+                    if (members.size() != 2) {
+                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                    }
+                    if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+                        generateCreateTableStatement(members.get(1).getTag(), sf, sb);
+                    } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+                        generateCreateTableStatement(members.get(0).getTag(), sf, sb);
                     } else {
-                        sb.append(TableConstants.SQL_TYPE_ARRAY);
+                        throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
                     }
                     break;
                 default:
@@ -190,7 +187,7 @@ public class TableProvider {
         //Add primary key information
         if (primaryKeys != null) {
             seperator = "";
-            int primaryKeyCount = (int) primaryKeys.size();
+            int primaryKeyCount = primaryKeys.size();
             if (primaryKeyCount > 0) {
                 sb.append(TableConstants.PRIMARY_KEY);
                 for (int i = 0; i < primaryKeyCount; i++) {
@@ -204,7 +201,39 @@ public class TableProvider {
         return sb.toString();
     }
 
-    private String generateCreateTableStatment(String query, String newTableName) {
+    private void generateCreateTableStatement(int type, BField sf, StringBuilder sb) {
+        switch (type) {
+            case TypeTags.INT_TAG:
+                sb.append(TableConstants.SQL_TYPE_BIGINT);
+                break;
+            case TypeTags.STRING_TAG:
+                sb.append(TableConstants.SQL_TYPE_VARCHAR);
+                break;
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+                sb.append(TableConstants.SQL_TYPE_DOUBLE);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                sb.append(TableConstants.SQL_TYPE_BOOLEAN);
+                break;
+            case TypeTags.JSON_TAG:
+            case TypeTags.XML_TAG:
+                sb.append(TableConstants.SQL_TYPE_CLOB);
+                break;
+            case TypeTags.ARRAY_TAG:
+                BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    sb.append(TableConstants.SQL_TYPE_BLOB);
+                } else {
+                    sb.append(TableConstants.SQL_TYPE_ARRAY);
+                }
+                break;
+            default:
+                throw new BallerinaException("Unsupported nillable field for table : " + sf.getFieldType());
+        }
+    }
+
+    private String generateCreateTableStatement(String query, String newTableName) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(newTableName).append(" ").append(TableConstants.SQL_AS);
         sb.append(query);

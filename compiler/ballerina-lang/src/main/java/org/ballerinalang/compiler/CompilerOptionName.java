@@ -26,6 +26,8 @@ public enum CompilerOptionName {
 
     PROJECT_DIR("projectDirectory"),
 
+    STANDALONE_FILE("standaloneFile"),
+
     PRESERVE_WHITESPACE("preserveWhitespace"),
 
     OFFLINE("offline"),

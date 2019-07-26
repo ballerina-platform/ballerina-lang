@@ -18,9 +18,9 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.ColumnDefinition;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -33,7 +33,7 @@ import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -88,12 +88,14 @@ public class CallStatement extends AbstractSQLStatement {
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "execute stored procedure failed: ";
+        String errorMessagePrefix = "Failed to execute stored procedure: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource, false);
             stmt = getPreparedCall(conn, datasource, query, generatedParams);
-            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
+            ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
+                    datasource.getDatabaseProductName());
+            stmt = (CallableStatement) processedStatement.prepare();
             boolean refCursorOutParamsPresent = isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = false;
             TableResourceManager rm = null;
@@ -124,17 +126,12 @@ public class CallStatement extends AbstractSQLStatement {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
-        } catch (DatabaseException e) {
-            cleanupResources(resultSets, stmt, conn, !isInTransaction);
-            handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLDatabaseError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
             // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
-            return SQLDatasourceUtils.getSQLApplicationError(e, errorMessagePrefix);
+            return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
     }
@@ -148,12 +145,12 @@ public class CallStatement extends AbstractSQLStatement {
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
                 && (structTypes != null && structTypes.size() > 1)) {
             throw new ApplicationException(
-                    "Retrieving result sets from stored procedures returning more than one result set, "
-                            + "is not supported");
+                    "It is not supported to retrieve result sets from stored procedures since it is returning " +
+                            "more than one result set");
         } else if (structTypes == null || resultSets.size() != structTypes.size()) {
             throw new ApplicationException(
-                    "Mismatching record type count: " + (structTypes == null ? 0 : structTypes.size()) + " and "
-                            + "returned result set count: " + resultSets.size() + " from the stored procedure");
+                    "Mismatching record type count " + (structTypes == null ? 0 : structTypes.size()) + " and "
+                            + "returned result set count " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
             TypedescValue typedescValue = (TypedescValue) structTypes.getValue(i);
@@ -204,7 +201,7 @@ public class CallStatement extends AbstractSQLStatement {
     }
 
     private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         if (params == null) {
             return;
         }
@@ -216,21 +213,21 @@ public class CallStatement extends AbstractSQLStatement {
             }
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getValue(index);
             if (paramValue != null) {
-                String sqlType = getSQLType(paramValue);
-                int direction = getParameterDirection(paramValue);
+                String sqlType = StatementProcessUtils.getSQLType(paramValue);
+                int direction = StatementProcessUtils.getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.INOUT
                         || direction == Constants.QueryParamDirection.OUT) {
                     setOutParameterValue(stmt, sqlType, index, paramValue, rm);
                 }
             } else {
-                throw new ApplicationException("out value cannot set for null parameter with index: " + index);
+                throw new ApplicationException("OUT value cannot be set for a null parameter at index " + index);
             }
         }
     }
 
     private void setOutParameterValue(CallableStatement stmt, String sqlType, int index,
             MapValue<String, Object> paramValue, TableResourceManager resourceManager)
-            throws DatabaseException, ApplicationException {
+            throws SQLException, ApplicationException {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
@@ -347,18 +344,19 @@ public class CallStatement extends AbstractSQLStatement {
                                         datasource.getDatabaseProductName()));
                     } else {
                         throw new ApplicationException(
-                                "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
+                                "The struct type for the result set pointed by the ref cursor cannot be null");
                     }
                     break;
                 }
                 default:
-                    throw new ApplicationException(
-                            "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
+                    throw new ApplicationException("Unsupported data type " + sqlType + " specified as OUT/INOUT " +
+                            "parameter at index " + index);
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in getting out parameter value: ", e);
+            throw new SQLException("Error while getting OUT parameter value. " + e.getMessage(), e.getSQLState(),
+                    e.getErrorCode());
         } catch (IOException e) {
-            throw new ApplicationException("error in getting out parameter value: ", e.getMessage());
+            throw new ApplicationException("Error while getting OUT parameter value", e.getMessage());
         }
     }
 
@@ -396,7 +394,7 @@ public class CallStatement extends AbstractSQLStatement {
         int paramCount = params.size();
         for (int index = 0; index < paramCount; index++) {
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getRefValue(index);
-            int direction = getParameterDirection(paramValue);
+            int direction = StatementProcessUtils.getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }
@@ -410,8 +408,8 @@ public class CallStatement extends AbstractSQLStatement {
         for (int index = 0; index < paramCount; index++) {
             MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getRefValue(index);
             if (paramValue != null) {
-                String sqlType = getSQLType(paramValue);
-                int direction = getParameterDirection(paramValue);
+                String sqlType = StatementProcessUtils.getSQLType(paramValue);
+                int direction = StatementProcessUtils.getParameterDirection(paramValue);
                 if (direction == Constants.QueryParamDirection.OUT && Constants.SQLDataTypes.REFCURSOR
                         .equals(sqlType)) {
                     refCursorOutParamPresent = true;
@@ -444,7 +442,7 @@ public class CallStatement extends AbstractSQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e, "error in cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
         }
     }
 }
