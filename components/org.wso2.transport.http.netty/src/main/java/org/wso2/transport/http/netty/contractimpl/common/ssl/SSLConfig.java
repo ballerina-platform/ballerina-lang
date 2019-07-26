@@ -332,7 +332,7 @@ public class SSLConfig {
         return disableSsl;
     }
 
-    public void setDisableSsl(boolean disableSsl) {
-        this.disableSsl = disableSsl;
+    public void setDisableSsl() {
+        this.disableSsl = true;
     }
 }

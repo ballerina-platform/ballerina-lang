@@ -73,7 +73,7 @@ public class SslDisabledClientTest {
 
     private SenderConfiguration getSenderConfigs() {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setDisableSsl(true);
+        senderConfiguration.setDisableSsl();
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;
     }
@@ -82,6 +82,7 @@ public class SslDisabledClientTest {
     public void testSslDisabledClient() {
         TestUtil.testHttpsPost(httpClientConnector, TestUtil.SERVER_PORT3);
     }
+
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
