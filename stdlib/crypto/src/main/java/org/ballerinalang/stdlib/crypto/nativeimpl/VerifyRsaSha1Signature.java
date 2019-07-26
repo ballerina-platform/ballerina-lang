@@ -25,7 +25,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
 import java.security.PublicKey;
 
 /**
@@ -40,11 +39,7 @@ public class VerifyRsaSha1Signature {
                                                 MapValue<?, ?> publicKey) {
         byte[] data = dataValue.getBytes();
         byte[] signature = signatureValue.getBytes();
-        try {
-            PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
-            return CryptoUtils.verify("SHA1withRSA", key, data, signature);
-        } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("Uninitialized public key");
-        }
+        PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+        return CryptoUtils.verify("SHA1withRSA", key, data, signature);
     }
 }
