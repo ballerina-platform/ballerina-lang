@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -85,7 +85,8 @@ public class Executor {
             Strand strand = (Strand) objects[0];
             if (ObserveUtils.isObservabilityEnabled() &&
                     properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
-                strand.observerContext = (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+                strand.observerContext =
+                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
             }
             return service.call(strand, resourceName, args);
         };
@@ -110,11 +111,7 @@ public class Executor {
                                                providedArgNo + ".");
         }
 
-        // start observation
-        Strand newStrand = new Strand(strand.scheduler);
-//        ObserveUtils.startCallableObservation(newStrand);
-
-        return service.call(newStrand, resource.getName(), args);
+        return service.call(new Strand(strand.scheduler), resource.getName(), args);
     }
 
     /**

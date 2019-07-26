@@ -99,22 +99,6 @@ public class Scheduler {
         return schedule(params, function, parent, future);
     }
 
-    /**
-     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
-     *
-     * @param params   - parameters to be passed to the function
-     * @param function - function to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param properties - request properties which requires for co-relation
-     * @return - Reference to the scheduled task
-     */
-    public FutureValue scheduleResource(Object[] params, Function function, Strand parent,
-                                          CallableUnitCallback callback, Map<String, Object> properties) {
-        FutureValue future = createFuture(parent, callback, properties);
-        return schedule(params, function, parent, future);
-    }
-
     private FutureValue schedule(Object[] params, Function function, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
