@@ -19,8 +19,10 @@ package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -108,7 +110,7 @@ public class UpdateStatement extends AbstractSQLStatement {
     }
 
     private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
-        MapValue<String, Object> generatedKeys = new MapValueImpl<>(BTypes.typeAnydata);
+        MapValue<String, Object> generatedKeys = new MapValueImpl<>(new BMapType(BTypes.typeAnydata));
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
@@ -137,7 +139,7 @@ public class UpdateStatement extends AbstractSQLStatement {
                 case Types.DECIMAL:
                 case Types.NUMERIC:
                     bigDecimal = rs.getBigDecimal(i);
-                    value = bigDecimal;
+                    value = new DecimalValue(bigDecimal);
                     break;
                 case Types.BIGINT:
                     value = rs.getLong(i);

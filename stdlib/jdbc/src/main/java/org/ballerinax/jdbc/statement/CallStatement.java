@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -240,7 +241,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.INTEGER: {
                     int value = stmt.getInt(index + 1);
                     //Value is the first position of the struct
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
                 }
                 break;
                 case Constants.SQLDataTypes.VARCHAR: {
@@ -254,7 +255,7 @@ public class CallStatement extends AbstractSQLStatement {
                     if (value == null) {
                         paramValue.put(PARAMETER_VALUE_FIELD, 0);
                     } else {
-                        paramValue.put(PARAMETER_VALUE_FIELD, value);
+                        paramValue.put(PARAMETER_VALUE_FIELD, new DecimalValue(value));
                     }
                 }
                 break;
@@ -271,7 +272,7 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.SMALLINT: {
                     short value = stmt.getShort(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
                 }
                 break;
                 case Constants.SQLDataTypes.BIGINT: {
@@ -282,7 +283,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.REAL:
                 case Constants.SQLDataTypes.FLOAT: {
                     float value = stmt.getFloat(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (double) value);
                 }
                 break;
                 case Constants.SQLDataTypes.DOUBLE: {
