@@ -1690,8 +1690,16 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
     foreach var typeDef in pkg.typeDefs {
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
+            bir:BType? attachedType;
+            if (typeDef.typeValue is bir:BRecordType) {
+                // Only attach function of a record is the record init. That should be
+                // generated as a static function.
+                attachedType = ();
+            } else {
+                attachedType = typeDef.typeValue;
+            }
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=typeDef.typeValue);
+                generateFrameClassForFunction(pkgName, func, pkgEntries, attachedType=attachedType);
             }
         }
     }

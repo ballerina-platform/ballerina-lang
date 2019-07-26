@@ -39,6 +39,7 @@ public type TypeDef record {
     int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
+    BType?[] typeRefs;
 };
 
 public type TypeRef record {|
@@ -58,7 +59,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
-    BType? receiverType;
+    VariableDcl? receiver;
     boolean restParamExist;
     AnnotationAttachment?[] annotAttachments = [];
 |};
