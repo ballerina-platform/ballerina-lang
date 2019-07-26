@@ -41,7 +41,7 @@ public class DecodeBase64Url {
             byte[] output = Base64.getUrlDecoder().decode(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Base64 URL encoded value");
+            return EncodingUtil.createError("Input is not a valid Base64 URL encoded value");
         }
     }
 }
