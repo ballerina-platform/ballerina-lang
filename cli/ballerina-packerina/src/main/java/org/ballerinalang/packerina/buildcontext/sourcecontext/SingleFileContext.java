@@ -26,22 +26,56 @@ import java.nio.file.Path;
  * Dataholder for a single bal file compilation.
  */
 public class SingleFileContext {
-    private Path balFileName;
+    /**
+     * The absolute path for the bal file.
+     */
+    private Path balFile;
     private BLangPackage module;
     
-    public SingleFileContext(Path balFileName) {
-        this.balFileName = balFileName;
+    public SingleFileContext(Path balFile) {
+        this.balFile = balFile;
     }
     
-    public Path getBalFileName() {
-        return balFileName;
+    public Path getBalFile() {
+        return this.balFile;
     }
     
     public BLangPackage getModule() {
-        return module;
+        return this.module;
     }
     
     public void setModule(BLangPackage module) {
         this.module = module;
+    }
+    
+    public String getBalFileNameWithoutExtension() {
+        Path balFileName = this.balFile.getFileName();
+        if (null != balFileName) {
+            int index = indexOfExtension(balFileName.toString());
+            return index == -1 ? balFileName.toString() :
+                   balFileName.toString().substring(0, index);
+        } else {
+            return null;
+        }
+    }
+    
+    public static int indexOfExtension(String filename) {
+        if (filename == null) {
+            return -1;
+        } else {
+            int extensionPos = filename.lastIndexOf(46);
+            int lastSeparator = indexOfLastSeparator(filename);
+            return lastSeparator > extensionPos ? -1 : extensionPos;
+        }
+    }
+    
+    public static int indexOfLastSeparator(String filename) {
+        if (filename == null) {
+            return -1;
+        } else {
+            int lastUnixPos = filename.lastIndexOf(47);
+            int lastWindowsPos = filename.lastIndexOf(92);
+            return Math.max(lastUnixPos, lastWindowsPos);
+        }
     }
 }

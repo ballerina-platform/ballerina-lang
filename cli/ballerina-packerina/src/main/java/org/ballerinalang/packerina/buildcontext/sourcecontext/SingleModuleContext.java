@@ -25,21 +25,21 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
  */
 public class SingleModuleContext {
     private String moduleName;
-    private BLangPackage BLangModule;
+    private BLangPackage module;
     
     public SingleModuleContext(String moduleName) {
-        this.moduleName = this.moduleName;
+        this.moduleName = moduleName;
     }
     
     public String getModuleName() {
         return moduleName;
     }
     
-    public BLangPackage getBLangModule() {
-        return BLangModule;
+    public BLangPackage getModule() {
+        return module;
     }
     
-    public void setBLangModule(BLangPackage BLangModule) {
-        this.BLangModule = BLangModule;
+    public void setModule(BLangPackage module) {
+        this.module = module;
     }
 }

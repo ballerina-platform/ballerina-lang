@@ -683,8 +683,7 @@ public class BuilderUtils {
         switch (buildContext.getSourceType()) {
             case BAL_FILE:
                 SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                String birFileName = singleFileContext.getBalFileName().getFileName().toString() +
-                                     BLANG_COMPILED_PKG_BIR_EXT;
+                String birFileName = singleFileContext.getBalFileNameWithoutExtension() + BLANG_COMPILED_PKG_BIR_EXT;
                 return repoLocation.resolve(birFileName);
             case SINGLE_MODULE:
             case ALL_MODULES:
@@ -722,8 +721,7 @@ public class BuilderUtils {
         switch (buildContext.getSourceType()) {
             case BAL_FILE:
                 SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                String jarFileName = singleFileContext.getBalFileName().getFileName().toString() +
-                                     BLANG_COMPILED_JAR_EXT;
+                String jarFileName = singleFileContext.getBalFileNameWithoutExtension() + BLANG_COMPILED_JAR_EXT;
                 return repoLocation.resolve(jarFileName);
             case SINGLE_MODULE:
             case ALL_MODULES:
@@ -738,15 +736,40 @@ public class BuilderUtils {
     }
     
     /**
-     * Get the path to jar file of a module.
+     * Get the path to executable file of a module.
      *
      * @param buildContext The build context.
-     * @param moduleID     The ID module of the jar file.
-     * @return The path to jar file.
+     * @param moduleID     The ID module of the executable file.
+     * @return The path to executable file.
      */
     public static Path resolveJarPath(BuildContext buildContext, PackageID moduleID) {
         Path jarCacheDir = buildContext.get(BuildContextField.JAR_CACHE_DIR);
         return resolveJarPath(buildContext, jarCacheDir, moduleID);
+    }
+    
+    /**
+     * Get the path to executable file of a module.
+     *
+     * @param buildContext The build context.
+     * @param moduleID     The module of the executable file.
+     * @return The path to executable file.
+     */
+    public static Path resolveExecutablePath(BuildContext buildContext, PackageID moduleID) {
+        Path executableDir = buildContext.get(BuildContextField.EXECUTABLE_DIR);
+        switch (buildContext.getSourceType()) {
+            case BAL_FILE:
+                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                            ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+                return executableDir.resolve(executableFileName);
+            case SINGLE_MODULE:
+            case ALL_MODULES:
+                return executableDir.resolve(moduleID.name.value +
+                                             ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
+            
+            default:
+                throw new BLangCompilerException("unable to resolve executable(s) location for build source");
+        }
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

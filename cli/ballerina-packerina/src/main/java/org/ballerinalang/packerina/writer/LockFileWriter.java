@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -223,7 +224,7 @@ public class LockFileWriter {
             sb.append("\n");
         }
         try {
-            Files.write(ballerinaLockFilePath, sb.toString().getBytes());
+            Files.write(ballerinaLockFilePath, sb.toString().getBytes(Charset.defaultCharset()));
         } catch (IOException ignore) {
         }
     }

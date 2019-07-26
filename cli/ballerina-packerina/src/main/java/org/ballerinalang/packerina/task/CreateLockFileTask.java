@@ -38,11 +38,9 @@ public class CreateLockFileTask implements Task {
         LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest());
     
-        if (buildContext.getSourceType() == SourceType.BAL_FILE) {
-            return;
-        } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
+        if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            lockFileWriter.addEntryPkg(moduleContext.getBLangModule().symbol);
+            lockFileWriter.addEntryPkg(moduleContext.getModule().symbol);
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             for (BLangPackage module : multiModuleContext.getModules()) {

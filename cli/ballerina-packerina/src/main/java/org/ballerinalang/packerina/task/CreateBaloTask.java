@@ -46,7 +46,7 @@ public class CreateBaloTask implements Task {
             return;
         } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            modules.add(moduleContext.getBLangModule());
+            modules.add(moduleContext.getModule());
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             modules = multiModuleContext.getModules();
