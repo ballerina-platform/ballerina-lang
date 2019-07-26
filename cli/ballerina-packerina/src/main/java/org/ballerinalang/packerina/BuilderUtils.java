@@ -138,7 +138,7 @@ public class BuilderUtils {
             String targetDir = Files.isDirectory(Paths.get(targetPath)) ? targetPath : ".";
 
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.of(Paths.get(targetDir)), false);
+                    targetDirectory, Optional.of(Paths.get(targetDir)), dumpBIR);
 
             // If package is a ballerina file do not write executables.
             // Create executable jar files.

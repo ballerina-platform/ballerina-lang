@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.scheduling;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,6 @@ public class WDChannels {
     private Map<String, WorkerDataChannel> wDChannels;
 
     //TODO try to generalize this to a normal data channel, in that case we won't need these classes.
-    //simple desugaring would work for worker data channels as well
     public WDChannels() {
     }
 

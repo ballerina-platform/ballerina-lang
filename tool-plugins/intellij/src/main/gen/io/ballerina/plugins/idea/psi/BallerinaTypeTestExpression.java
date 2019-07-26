@@ -26,7 +26,7 @@ public interface BallerinaTypeTestExpression extends BallerinaExpression {
   @NotNull
   BallerinaExpression getExpression();
 
-  @Nullable
+  @NotNull
   BallerinaTypeName getTypeName();
 
   @NotNull
