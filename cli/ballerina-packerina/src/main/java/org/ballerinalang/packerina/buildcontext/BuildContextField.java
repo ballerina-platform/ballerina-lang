@@ -26,6 +26,12 @@ public enum BuildContextField {
     
     HOME_REPO("homeRepo"),
     
+    HOME_BIR_CACHE_REPO("homeBirCacheRepo"),
+    
+    HOME_JAR_CACHE_REPO("homeJarCacheRepo"),
+    
+    SYSTEM_BIR_CACHE("systemBirCache"),
+    
     SOURCE_ROOT("sourceRoot"),
     
     TARGET_DIR("targetDir"),

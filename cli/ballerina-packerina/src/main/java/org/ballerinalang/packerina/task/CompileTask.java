@@ -65,7 +65,7 @@ public class CompileTask implements Task {
         if (buildContext.getSourceType() == SourceType.BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             BLangPackage compiledModule = compiler.build(singleFileContext.getBalFileName().toString());
-            singleFileContext.setBLangModule(compiledModule);
+            singleFileContext.setModule(compiledModule);
         } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
