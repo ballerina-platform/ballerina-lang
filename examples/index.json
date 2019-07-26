@@ -41,6 +41,10 @@
                 "url": "functions"
             },
             {
+                "name": "Required Parameters",
+                "url": "functions-with-required-parameters"
+            },
+            {
                 "name": "Defaultable Parameters",
                 "url": "functions-with-defaultable-parameters"
             },
