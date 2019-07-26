@@ -123,6 +123,7 @@
             <class name="org.wso2.transport.http.netty.https.OptionalMutualSSLTest"/>
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsWithCertsTest"/>
             <class name="org.wso2.transport.http.netty.http2.Http2ALPNwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.disablessl.SslDisabledClientTest"/>
         </classes>
     </test>
 </suite>

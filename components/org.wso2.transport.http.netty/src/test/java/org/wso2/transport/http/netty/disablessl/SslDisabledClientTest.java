@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.transport.http.netty.ssldisable;
+package org.wso2.transport.http.netty.disablessl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

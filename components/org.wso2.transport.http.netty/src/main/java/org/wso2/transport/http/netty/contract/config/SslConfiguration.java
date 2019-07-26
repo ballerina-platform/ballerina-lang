@@ -259,10 +259,10 @@ public class SslConfiguration {
             sslConfig.setSSLProtocol(sslProtocol);
             String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : JKS;
             sslConfig.setTLSStoreType(tlsStoreType);
-        }
-        if (parameters != null) {
-            for (Parameter parameter : parameters) {
-                switch (parameter.getName()) {
+
+            if (parameters != null) {
+                for (Parameter parameter : parameters) {
+                    switch (parameter.getName()) {
                     case CLIENT_SUPPORT_CIPHERS:
                         sslConfig.setCipherSuites(parameter.getValue());
                         break;
@@ -275,6 +275,7 @@ public class SslConfiguration {
                     default:
                         //do nothing
                         break;
+                    }
                 }
             }
         }
