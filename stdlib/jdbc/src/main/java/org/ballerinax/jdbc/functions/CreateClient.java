@@ -18,11 +18,12 @@
 package org.ballerinax.jdbc.functions;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.datasource.PoolKey;
 import org.ballerinax.jdbc.datasource.PoolOptionsWrapper;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 
@@ -49,7 +50,7 @@ public class CreateClient {
         return jdbcClient;
     }
 
-    private static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
+    public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
             MapValue<String, Object> globalPoolOptions) {
         String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
         String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
@@ -62,7 +63,7 @@ public class CreateClient {
         if (userProvidedPoolOptionsNotPresent) {
             poolOptions = globalPoolOptions;
         }
-        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions);
+        PoolOptionsWrapper poolOptionsWrapper = new PoolOptionsWrapper(poolOptions, new PoolKey(url, dbOptions));
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
 
         SQLDatasource.SQLDatasourceParamsBuilder builder = new SQLDatasource.SQLDatasourceParamsBuilder(dbType);

@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
@@ -186,6 +187,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
@@ -279,7 +282,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementLink currentLink;
     private Stack<BLangWorker> workerStack = new Stack<>();
-    public Stack<BLangLock> enclLocks = new Stack<>();
+    public Stack<BLangLockStmt> enclLocks = new Stack<>();
 
     private SymbolEnv env;
     private int lambdaFunctionCount = 0;
@@ -2396,30 +2399,77 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
-        enclLocks.push(lockNode);
-        lockNode.body = rewrite(lockNode.body, env);
+        // Lock nodes will get desugared to below code
+        // before desugar -
+        //
+        // lock {
+        //      a = a + 7;
+        // }
+        //
+        // after desugar -
+        //
+        // lock a;
+        // var res = trap a = a + 7;
+        // unlock a;
+        // if (res is error) {
+        //      panic res;
+        // }
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(lockNode.pos);
+
+        BLangLockStmt lockStmt = new BLangLockStmt(lockNode.pos);
+        blockStmt.addStatement(lockStmt);
+
+        enclLocks.push(lockStmt);
+
+        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(lockNode.pos, symTable.nilType, Names.NIL_VALUE);
+        BType nillableError = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        BLangStatementExpression statementExpression = ASTBuilderUtil
+                .createStatementExpression(lockNode.body, nilLiteral);
+        statementExpression.type = symTable.nilType;
+
+        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
+        trapExpr.type = nillableError;
+        trapExpr.expr = statementExpression;
+        BVarSymbol nillableErrorVarSymbol = new BVarSymbol(0, names.fromString("$errorResult"),
+                this.env.scope.owner.pkgID, nillableError, this.env.scope.owner);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(lockNode.pos, "$errorResult",
+                nillableError, trapExpr, nillableErrorVarSymbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(lockNode.pos, simpleVariable);
+        blockStmt.addStatement(simpleVariableDef);
+
+        BLangUnLockStmt unLockStmt = new BLangUnLockStmt(lockNode.pos);
+        blockStmt.addStatement(unLockStmt);
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(lockNode.pos, nillableErrorVarSymbol);
+
+        BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(lockNode.pos);
+        BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();
+        panicNode.pos = lockNode.pos;
+        panicNode.expr = addConversionExprIfRequired(varRef, symTable.errorType);
+        ifBody.addStatement(panicNode);
+
+        BLangTypeTestExpr isErrorTest =
+                ASTBuilderUtil.createTypeTestExpr(lockNode.pos, varRef, getErrorTypeNode());
+        isErrorTest.type = symTable.booleanType;
+
+        BLangIf ifelse = ASTBuilderUtil.createIfElseStmt(lockNode.pos, isErrorTest, ifBody, null);
+        blockStmt.addStatement(ifelse);
+        result = rewrite(blockStmt, env);
         enclLocks.pop();
-        lockNode.lockVariables = lockNode.lockVariables.stream().sorted((v1, v2) -> {
-            String o1FullName = String.join(":", v1.pkgID.getName().getValue(), v1.name.getValue());
-            String o2FullName = String.join(":", v2.pkgID.getName().getValue(), v2.name.getValue());
-            return o1FullName.compareTo(o2FullName);
-        }).collect(Collectors.toSet());
 
         //check both a field and parent are in locked variables
-        if (!lockNode.lockVariables.isEmpty()) {
-            lockNode.fieldVariables.values().forEach(exprSet -> exprSet.removeIf(expr -> isParentLocked(lockNode,
-                    expr)));
+        if (!lockStmt.lockVariables.isEmpty()) {
+            lockStmt.fieldVariables.entrySet().removeIf(entry -> lockStmt.lockVariables.contains(entry.getKey()));
         }
-        result = lockNode;
     }
 
-    boolean isParentLocked(BLangLock lock, BLangVariableReference expr) {
-        if (lock.lockVariables.contains(expr.symbol)) {
-            return true;
-        } else if (expr instanceof BLangStructFieldAccessExpr) {
-            return isParentLocked(lock, (BLangVariableReference) ((BLangStructFieldAccessExpr) expr).expr);
-        }
-        return false;
+    @Override
+    public void visit(BLangLockStmt lockStmt) {
+        result = lockStmt;
+    }
+
+    @Override
+    public void visit(BLangUnLockStmt unLockStmt) {
+        result = unLockStmt;
     }
 
     @Override
@@ -2874,7 +2924,8 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false);
-                addToLocks(fieldAccessExpr, targetVarRef);
+                // Only supporting object field lock at the moment
+                addToLocks((BLangStructFieldAccessExpr) targetVarRef);
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
                 (varRefTypeTag == TypeTags.UNION &&
@@ -2885,7 +2936,6 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false);
-                addToLocks(fieldAccessExpr, targetVarRef);
             }
         } else if (types.isLax(varRefType)) {
             // Handle unions of lax types such as json|map<json>, by casting to json and creating a BLangJSONAccessExpr.
@@ -2905,18 +2955,21 @@ public class Desugar extends BLangNodeVisitor {
         result = targetVarRef;
     }
 
-    private void addToLocks(BLangExpression expr, BLangVariableReference targetVarRef) {
+    private void addToLocks(BLangStructFieldAccessExpr targetVarRef) {
         if (enclLocks.isEmpty()) {
             return;
         }
 
-        if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-            expr = ((BLangTypeConversionExpr) expr).expr;
+        if (targetVarRef.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
+                || ((BLangSimpleVarRef) targetVarRef.expr).symbol.owner.getKind() == SymbolKind.PACKAGE
+                || !Names.SELF.equals(((BLangLocalVarRef) targetVarRef.expr).symbol.name)) {
+            return;
         }
 
         // expr symbol is null when their is a array as the field
-        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangVariableReference) expr).symbol != null) {
-            enclLocks.peek().addFieldVariable((BLangStructFieldAccessExpr) targetVarRef);
+        if (targetVarRef.indexExpr.getKind() == NodeKind.LITERAL) {
+            String field = (String) ((BLangLiteral) targetVarRef.indexExpr).value;
+            enclLocks.peek().addFieldVariable((BVarSymbol) ((BLangLocalVarRef) targetVarRef.expr).varSymbol, field);
         }
     }
 
@@ -2946,6 +2999,10 @@ public class Desugar extends BLangNodeVisitor {
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
+        } else if (types.isAssignable(varRefType, symTable.stringType)) {
+            indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
+            targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                                                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
@@ -3404,21 +3461,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {
-
         if (binaryExpr.parent == null || binaryExpr.parent.type == null) {
             return;
         }
 
         int rhsExprTypeTag = binaryExpr.rhsExpr.type.tag;
         int lhsExprTypeTag = binaryExpr.lhsExpr.type.tag;
-
         if (rhsExprTypeTag != TypeTags.BYTE && lhsExprTypeTag != TypeTags.BYTE) {
             return;
         }
 
-        int parentTypeTag = binaryExpr.parent.type.tag;
-
-        if (parentTypeTag == TypeTags.INT) {
+        int resultTypeTag = binaryExpr.type.tag;
+        if (resultTypeTag == TypeTags.INT) {
             if (rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
             }
@@ -4659,7 +4713,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangLiteral createByteLiteral(DiagnosticPos pos, Byte value) {
-        BLangLiteral byteLiteral = new BLangLiteral(value, symTable.byteType);
+        BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
         byteLiteral.pos = pos;
         return byteLiteral;
     }

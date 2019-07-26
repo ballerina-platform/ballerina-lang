@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.sdk;
 
 import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -32,14 +33,17 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
+import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,12 +64,16 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
+import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
+import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
+import static io.ballerina.plugins.idea.preloading.OSUtils.WINDOWS;
 
 /**
  * Contains util classes related to Ballerina SDK.
  */
 public class BallerinaSdkUtils {
 
+    private static final Logger LOG = Logger.getInstance(BallerinaSdkUtils.class);
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
 
     private BallerinaSdkUtils() {
@@ -118,6 +126,9 @@ public class BallerinaSdkUtils {
     @Nullable
     public static String retrieveBallerinaVersion(@NotNull String sdkPath) {
         try {
+            // need this hack to avoid an IDEA bug caused by "AssertionError: File accessed outside allowed roots"
+            VfsRootAccess.allowRootAccess(sdkPath);
+
             VirtualFile sdkRoot = VirtualFileManager.getInstance().findFileByUrl(VfsUtilCore.pathToUrl(sdkPath));
             if (sdkRoot != null) {
                 String cachedVersion = sdkRoot.getUserData(VERSION_DATA_KEY);
@@ -128,6 +139,7 @@ public class BallerinaSdkUtils {
                 VirtualFile versionFile = sdkRoot.findFileByRelativePath(
                         BallerinaConstants.BALLERINA_VERSION_FILE_PATH);
                 if (versionFile == null) {
+                    VfsRootAccess.allowRootAccess();
                     versionFile = sdkRoot.findFileByRelativePath(
                             BallerinaConstants.BALLERINA_NEW_VERSION_FILE_PATH);
                 }
@@ -144,7 +156,7 @@ public class BallerinaSdkUtils {
                     BallerinaSdkService.LOG.debug("Cannot find Ballerina version file in sdk path: " + sdkPath);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             BallerinaSdkService.LOG.debug("Cannot retrieve Ballerina version from sdk path: " + sdkPath, e);
         }
         return null;
@@ -179,8 +191,24 @@ public class BallerinaSdkUtils {
     }
 
     @NotNull
+    public static BallerinaSdk getBallerinaSdkFor(Project project, Module module) {
+        String sdkPath = BallerinaSdkService.getInstance(project).getSdkHomePath(module);
+        if (sdkPath == null) {
+            return new BallerinaSdk(null, false, false);
+        }
+        if (!isValidSdk(sdkPath)) {
+            return new BallerinaSdk(null, false, false);
+        }
+        boolean langServerSupport = hasLangServerSupport(sdkPath);
+        boolean webviewSupport = hasWebviewSupport(sdkPath);
+        return new BallerinaSdk(sdkPath, langServerSupport, webviewSupport);
+    }
+
+    @NotNull
     public static BallerinaSdk getBallerinaSdkFor(Project project) {
+
         Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+
         if (projectSdk == null) {
             return new BallerinaSdk(null, false, false);
         }
@@ -192,6 +220,73 @@ public class BallerinaSdkUtils {
         boolean langServerSupport = hasLangServerSupport(sdkPath);
         boolean webviewSupport = hasWebviewSupport(sdkPath);
         return new BallerinaSdk(sdkPath, langServerSupport, webviewSupport);
+    }
+
+    /**
+     * @return an empty string if it fails to auto-detect the ballerina home automatically.
+     */
+    public static String autoDetectSdk() {
+
+        // Checks for the user-configured settings.
+        if (!BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+            return "";
+        }
+
+        String ballerinaPath = "";
+        String platform = OSUtils.getOperatingSystem();
+        switch (platform) {
+            case (WINDOWS):
+                String ballerinaHome = System.getenv("BALLERINA_HOME");
+                if (ballerinaHome != null && !ballerinaHome.isEmpty()) {
+                    return ballerinaHome;
+                }
+                ballerinaPath = getByCommand("where ballerina").trim();
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("\\bin\\ballerina.bat", "");
+                }
+                return ballerinaPath;
+            case (MAC):
+                ballerinaPath = getByCommand("which ballerina");
+                // remove ballerina bin from ballerinaPath
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
+                    // For homebrew installations ballerina executables are in libexcec
+                    File homebrewBallerinaPath = new File(ballerinaPath, "libexec");
+                    if (homebrewBallerinaPath.exists()) {
+                        ballerinaPath = homebrewBallerinaPath.getAbsolutePath();
+                    }
+                }
+                return ballerinaPath;
+            case (UNIX):
+                ballerinaPath = getByCommand("which ballerina");
+                // remove ballerina bin from path
+                if (!ballerinaPath.isEmpty()) {
+                    ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
+                }
+                return ballerinaPath;
+        }
+        // If we cannot find ballerina home return empty.
+        return ballerinaPath;
+    }
+
+    private static String getByCommand(String cmd) {
+        java.util.Scanner s;
+        try {
+            // This may returns a symlink which links to the real path.
+            s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
+            String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "") : "";
+            LOG.info("Which ballerina command returned: " + path);
+            if (path.isEmpty()) {
+                return path;
+            }
+
+            // Gets the actual file path if there are the symbolic links using "toRealPath()".
+            String realPath = new File(path).toPath().toRealPath().toString();
+            return realPath;
+        } catch (IOException e) {
+            LOG.warn("Error occurred when executing the command: " + cmd);
+            return "";
+        }
     }
 
     private static boolean isValidSdk(String sdkPath) {

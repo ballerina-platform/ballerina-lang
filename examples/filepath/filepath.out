@@ -6,7 +6,7 @@ On Unix:
 Filename of /A/B/C: C
 Parent of /A/B/C: /A/B
 Normalized path of foo/../bar: bar
-Path elements of /A/B/C: ["A", "B", "C"]
+Path elements of /A/B/C: A B C
 Built path of '/', 'foo', 'bar': /foo/bar
 Extension of path.bal: bal
 Relative path between 'a/b/c' and 'a/c/d': ../../c/d
@@ -16,7 +16,7 @@ On Windows:
 Filename of /A/B/C: C
 Parent of /A/B/C: \\A\\B
 Normalized path of foo/../bar: bar
-Path elements of /A/B/C: ["A", "B", "C"]
+Path elements of /A/B/C: A B C
 Built path of '/', 'foo', 'bar': \\foo\\bar
 Extension of path.bal: bal
 Relative path between 'a/b/c' and 'a/c/d': ..\\..\\c\\d

@@ -118,20 +118,26 @@ public abstract class BIRNode {
     public static class BIRVariableDcl extends BIRDocumentableNode {
         public BType type;
         public Name name;
+        public String metaVarName;
         public VarKind kind;
         public VarScope scope;
         public boolean ignoreVariable;
+        public BIRBasicBlock endBB;
+        public BIRBasicBlock startBB;
+        public int insOffset;
 
-        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope, VarKind kind) {
+        public BIRVariableDcl(DiagnosticPos pos, BType type, Name name, VarScope scope,
+                              VarKind kind, String metaVarName) {
             super(pos);
             this.type = type;
             this.name = name;
             this.scope = scope;
             this.kind = kind;
+            this.metaVarName = metaVarName;
         }
 
         public BIRVariableDcl(BType type, Name name, VarScope scope, VarKind kind) {
-            this(null, type, name, scope, kind);
+            this(null, type, name, scope, kind, null);
         }
 
         @Override
@@ -195,14 +201,14 @@ public abstract class BIRNode {
         public PackageID pkgId;
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type,
-                                    Name name, VarScope scope, VarKind kind) {
-            super(pos, type, name, scope, kind);
+                                    Name name, VarScope scope, VarKind kind, String metaVarNme) {
+            super(pos, type, name, scope, kind, metaVarNme);
             this.flags = flags;
         }
 
         public BIRGlobalVariableDcl(DiagnosticPos pos, int flags, BType type, PackageID pkgId, Name name,
-                                    VarScope scope, VarKind kind) {
-            super(pos, type, name, scope, kind);
+                                    VarScope scope, VarKind kind, String metaVarName) {
+            super(pos, type, name, scope, kind, metaVarName);
             this.flags = flags;
             this.pkgId = pkgId;
         }
@@ -222,8 +228,8 @@ public abstract class BIRNode {
         public final boolean hasDefaultExpr;
 
         public BIRFunctionParameter(DiagnosticPos pos, BType type, Name name,
-                                    VarScope scope, VarKind kind, boolean hasDefaultExpr) {
-            super(pos, type, name, scope, kind);
+                                    VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
+            super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
         }
 
@@ -363,6 +369,11 @@ public abstract class BIRNode {
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public String toString() {
+            return id.value;
+        }
     }
 
     /**
@@ -423,10 +434,13 @@ public abstract class BIRNode {
 
         public BIROperand errorOp;
 
-        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp) {
+        public BIRBasicBlock targetBB;
+
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(null);
             this.trapBB = trapBB;
             this.errorOp = errorOp;
+            this.targetBB = targetBB;
         }
 
         @Override
@@ -666,6 +680,22 @@ public abstract class BIRNode {
 
         public void setMarkdownDocAttachment(MarkdownDocAttachment markdownDocAttachment) {
             this.markdownDocAttachment = markdownDocAttachment;
+        }
+    }
+
+    /**
+     * Stores the details of each level of locks.
+     *
+     * @since 1.0.0
+     */
+    public static class BIRLockDetailsHolder {
+        public Set<BIRGlobalVariableDcl> globalLocks;
+        public Map<BIRVariableDcl, Set<String>> fieldLocks;
+
+        public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
+                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
+            this.globalLocks = globalLocks;
+            this.fieldLocks = fieldLocks;
         }
     }
 }

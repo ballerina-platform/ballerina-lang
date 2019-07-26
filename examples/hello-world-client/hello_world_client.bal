@@ -17,10 +17,10 @@ public function main() {
         } else {
             // If an error occurs while retrieving the text payload, prints
             // the error.
-            io:println(payload.detail().message);
+            io:println(payload.detail()?.message);
         }
     } else {
         // If an error occurs when getting the response, prints the error.
-        io:println(resp.detail().message);
+        io:println(resp.detail()?.message);
     }
 }

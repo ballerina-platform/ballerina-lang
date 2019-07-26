@@ -89,6 +89,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.STANDALONE_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -420,9 +421,9 @@ public class LauncherUtils {
 
         String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
 
-        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.isBallerinaProject(sourceRootPath)) {
+        if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
+            options.put(STANDALONE_FILE, fullPath.getFileName().toString());
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
         }
@@ -506,8 +507,7 @@ public class LauncherUtils {
 
     private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
                                                 String srcPathStr) {
-        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.isBallerinaProject(sourceRootPath)) {
+        if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             // running a bal file, no other packages
             return fullPath.getFileName().toString();
         } else if (!ProjectDirs.isProject(sourceRootPath)) {

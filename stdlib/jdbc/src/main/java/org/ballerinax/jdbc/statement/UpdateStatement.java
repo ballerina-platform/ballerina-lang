@@ -18,7 +18,7 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -29,7 +29,6 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.math.BigDecimal;
@@ -71,7 +70,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         boolean isInTransaction = strand.isInTransaction();
-        String errorMessagePrefix = "execute update failed: ";
+        String errorMessagePrefix = "Failed to execute update query: ";
         try {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource, false);
@@ -94,11 +93,7 @@ public class UpdateStatement extends AbstractSQLStatement {
             handleErrorOnTransaction(this.strand);
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
-        }  catch (DatabaseException e) {
-            handleErrorOnTransaction(this.strand);
-            return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
-            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
-        }  catch (ApplicationException e) {
+        } catch (ApplicationException e) {
             handleErrorOnTransaction(this.strand);
             return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
            // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());

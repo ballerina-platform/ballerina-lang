@@ -20,7 +20,7 @@
 package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;

@@ -6,7 +6,7 @@
   "source": "resource/source/actionInvocationSuggestion1.bal",
   "items": [
     {
-      "label": "respond()((()|error))",
+      "label": "respond((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -23,7 +23,7 @@
       }
     },
     {
-      "label": "promise()((()|error))",
+      "label": "promise(http:PushPromise promise)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -40,7 +40,7 @@
       }
     },
     {
-      "label": "pushPromisedResponse()((()|error))",
+      "label": "pushPromisedResponse(http:PushPromise promise, http:Response response)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -57,7 +57,7 @@
       }
     },
     {
-      "label": "acceptWebSocketUpgrade()(http:WebSocketCaller)",
+      "label": "acceptWebSocketUpgrade(map\u003cstring\u003e headers)(http:WebSocketCaller)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "label": "cancelWebSocketUpgrade()((()|error))",
+      "label": "cancelWebSocketUpgrade(int status, string reason)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -108,7 +108,7 @@
       }
     },
     {
-      "label": "redirect()((()|error))",
+      "label": "redirect(http:Response response, (300|301|302|303|304|305|307|308) code, string[] locations)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -125,7 +125,7 @@
       }
     },
     {
-      "label": "ok()((()|error))",
+      "label": "ok((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -142,7 +142,7 @@
       }
     },
     {
-      "label": "created()((()|error))",
+      "label": "created(string uri, (http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -159,7 +159,7 @@
       }
     },
     {
-      "label": "accepted()((()|error))",
+      "label": "accepted((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

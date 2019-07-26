@@ -20,7 +20,7 @@ package org.ballerinalang.nats.streaming.consumer;
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;

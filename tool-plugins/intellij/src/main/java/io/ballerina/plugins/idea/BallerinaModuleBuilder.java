@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea;
 
+import com.google.common.base.Strings;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleBuilderListener;
@@ -28,12 +29,15 @@ import com.intellij.openapi.projectRoots.SdkTypeId;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.containers.ContainerUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkType;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Responsible for creating a Ballerina module.
@@ -41,27 +45,60 @@ import java.util.List;
 public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourcePathsBuilder, ModuleBuilderListener {
 
     private static final Logger LOG = Logger.getInstance(BallerinaModuleBuilder.class);
+    private ModifiableRootModel rootModel;
 
     @Override
     public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
+        this.rootModel = modifiableRootModel;
         addListener(this);
         super.setupRootModel(modifiableRootModel);
     }
 
-    // Note - Removing this override will create src directory in the project root.
+    @Override
     public List<Pair<String, String>> getSourcePaths() {
-        String ballerinaCacheRoot = getContentEntryPath() + File.separator + ".ballerina";
-        new File(ballerinaCacheRoot).mkdirs();
-        String ballerinaTomlFile = getContentEntryPath() + File.separator +
-                BallerinaConstants.BALLERINA_CONFIG_FILE_NAME;
-        File file = new File(ballerinaTomlFile);
-        try {
-            file.createNewFile();
-            // Todo - Add some content to the toml file?
-        } catch (IOException e) {
-            LOG.debug(e);
+
+        String ballerinaSdkPath = BallerinaSdkService.getInstance(rootModel.getProject()).
+                getSdkHomePath(rootModel.getModule());
+
+        if (Strings.isNullOrEmpty(ballerinaSdkPath)) {
+            LOG.info("Ballerina SDK is not found. Trying to auto detect ballerina distribution to init" +
+                    " the ballerina project");
+            ballerinaSdkPath = BallerinaSdkUtils.autoDetectSdk();
+        }
+
+        if (!ballerinaSdkPath.isEmpty()) {
+            LOG.info("Initiating ballerina project using ballerina init command");
+            try {
+                String command = String.format("%s%s%s init", ballerinaSdkPath, File.separator,
+                        BallerinaConstants.BALLERINA_EXEC_PATH);
+                File dir = new File(Objects.requireNonNull(getContentEntryPath()));
+                Runtime.getRuntime().exec(command, null, dir);
+            } catch (IOException e) {
+                LOG.warn("Failed to execute ballerina init command due to:", e);
+                addBallerinaProjectArtifacts();
+            }
+        } else {
+            addBallerinaProjectArtifacts();
         }
         return ContainerUtil.emptyList();
+    }
+
+    private void addBallerinaProjectArtifacts() {
+        try {
+            LOG.info("Initiating ballerina project by adding required project artifacts manually");
+
+            // Creates "src" dir.
+            String ballerinaSrcDir = getContentEntryPath() + File.separator + "src";
+            new File(ballerinaSrcDir).mkdirs();
+
+            // Creates .toml file.
+            String ballerinaTomlFile = getContentEntryPath() + File.separator +
+                    BallerinaConstants.BALLERINA_CONFIG_FILE_NAME;
+            File file = new File(ballerinaTomlFile);
+            file.createNewFile();
+        } catch (Exception e) {
+            LOG.warn("Error occurred when initiating ballerina project due to:", e);
+        }
     }
 
     @NotNull

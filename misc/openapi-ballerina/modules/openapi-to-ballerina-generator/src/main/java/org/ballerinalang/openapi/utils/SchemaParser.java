@@ -1,7 +1,9 @@
 package org.ballerinalang.openapi.utils;
 
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.DateSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.UUIDSchema;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.openapi.typemodel.OpenApiPropertyType;
 
@@ -18,12 +20,22 @@ public class SchemaParser {
         openApiPropertyType.setPropertyType("string");
     }
 
-    public void parseBooleanSchema(Object string,  OpenApiPropertyType openApiPropertyType) {
-
+    public void parseBooleanSchema(Object bool,  OpenApiPropertyType openApiPropertyType) {
+        openApiPropertyType.setPropertyType("boolean");
     }
 
-    public void parseObjectSchema(Object string,  OpenApiPropertyType openApiPropertyType) {
+    public void parseObjectSchema(Object object,  OpenApiPropertyType openApiPropertyType) {
         //TODO Implement object scehema
+    }
+
+    public void parseUUIDSchema(Object uuid, OpenApiPropertyType openApiPropertyType) {
+        UUIDSchema uuidSchema = (UUIDSchema) uuid;
+        openApiPropertyType.setPropertyType(uuidSchema.getType());
+    }
+
+    public void parseDateSchema(Object date, OpenApiPropertyType openApiPropertyType) {
+        DateSchema dateSchema = (DateSchema) date;
+        openApiPropertyType.setPropertyType(dateSchema.getType());
     }
 
     public void parseArraySchema(Object array, OpenApiPropertyType openApiPropertyType) {
