@@ -37,11 +37,19 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-lang:internal')
     implementation 'org.apache.kafka:kafka-clients'
+    implementation 'org.apache.kafka:kafka_2.11'
 
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+
+    testCompile 'org.awaitility:awaitility'
+    testCompile 'org.testng:testng'
+    testCompile 'org.scala-lang:scala-library'
+    testCompile 'io.debezium:debezium-core'
+    testCompile group: 'io.debezium', name: 'debezium-core', classifier: 'tests'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
 configurations {
