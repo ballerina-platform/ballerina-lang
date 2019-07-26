@@ -107,7 +107,6 @@ public class ReceivingEntityBody implements SenderState {
                                     boolean serverPush) {
         //This is handled by {@link Http2ClientTimeoutHandler#handleIncompleteResponse(OutboundMsgHolder, boolean)}
         // method.
-
     }
 
     private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean serverPush,
