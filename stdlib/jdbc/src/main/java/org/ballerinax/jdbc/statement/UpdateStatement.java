@@ -18,8 +18,8 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
