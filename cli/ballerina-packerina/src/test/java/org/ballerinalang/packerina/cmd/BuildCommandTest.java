@@ -182,7 +182,7 @@ public class BuildCommandTest extends CommandTest {
                         BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
     
                         Assert.assertEquals(module.module_version, "0.1.0");
-                        Assert.assertEquals(balo.balo_version, "1.0.0"Z);
+                        Assert.assertEquals(balo.balo_version, "1.0.0");
 
                         Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                         Assert.assertTrue(Files.exists(srcDir));

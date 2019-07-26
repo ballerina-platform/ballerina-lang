@@ -63,15 +63,13 @@ public class CreateBirTask implements Task {
     
             if (buildContext.getSourceType() == SourceType.BAL_FILE) {
                 SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                Path birFilePath = BuilderUtils.resolveBirPath(buildContext,
-                        singleFileContext.getModule().packageID);
+                Path birFilePath = BuilderUtils.resolveBirPath(buildContext, singleFileContext.getModule().packageID);
                 birFileWriter.write(singleFileContext.getModule(), birFilePath);
             } else {
                 if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
                     SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                    Path birFilePath = BuilderUtils.resolveBirPath(buildContext,
-                            moduleContext.getBLangModule().packageID);
-                    birFileWriter.write(moduleContext.getBLangModule(), birFilePath);
+                    Path birFilePath = BuilderUtils.resolveBirPath(buildContext, moduleContext.getModule().packageID);
+                    birFileWriter.write(moduleContext.getModule(), birFilePath);
                 } else {
                     MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
                     List<BLangPackage> modules = multiModuleContext.getModules();
