@@ -344,7 +344,9 @@ public class Util {
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
-            if (!sslConfig.isDisableSsl()) {
+            if (sslConfig.isDisableSsl()) {
+                sslEngine = createInsecureSslEngine(socketChannel, host, port);
+            } else {
                 if (sslConfig.getTrustStore() != null) {
                     sslHandlerFactory.createSSLContextFromKeystores(false);
                     sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
@@ -352,8 +354,6 @@ public class Util {
                 } else {
                     sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
                 }
-            } else {
-                sslEngine = createInsecureSslEngine(socketChannel, host, port);
             }
             sslHandler = new SslHandler(sslEngine);
             setSslHandshakeTimeOut(sslConfig, sslHandler);
