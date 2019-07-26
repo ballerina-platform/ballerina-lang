@@ -471,21 +471,12 @@ listBindingPattern
     ;
 
 recordBindingPattern
-    :   openRecordBindingPattern
-    |   closedRecordBindingPattern
-    ;
-
-openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
-    ;
-
-closedRecordBindingPattern
-    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
     :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
-    |   restBindingPattern
+    |   restBindingPattern?
     ;
 
 fieldBindingPattern
