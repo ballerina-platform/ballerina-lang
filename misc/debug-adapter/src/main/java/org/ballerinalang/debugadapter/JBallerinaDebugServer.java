@@ -23,6 +23,8 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
+import org.ballerinalang.debugadapter.terminator.OSUtils;
+import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -333,6 +335,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit() {
+        new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         if (launchedErrorStream != null) {
             try {
                 launchedErrorStream.close();
