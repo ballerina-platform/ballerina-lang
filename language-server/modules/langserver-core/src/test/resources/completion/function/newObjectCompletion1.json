@@ -1286,7 +1286,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new()",
+      "label": "new(int arg1, string arg2, http:Response arg3)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

@@ -19,9 +19,9 @@ package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
@@ -40,7 +40,6 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 import org.ballerinax.jdbc.exceptions.ApplicationException;
-import org.ballerinax.jdbc.exceptions.DatabaseException;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.table.BCursorTable;
 import org.ballerinax.jdbc.table.SQLDataIterator;
@@ -245,12 +244,12 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             if (((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
                 return Constants.SQLDataTypes.BINARY;
             } else {
-                throw new ApplicationException("Array data type as direct value is supported only " +
-                        "with byte type elements, use jdbc:Parameter " + type.getName());
+                throw new ApplicationException("Array data type " + type.getName() + " as a direct value is " +
+                        "supported only for byte type elements, use jdbc:Parameter instead");
             }
         default:
-            throw new ApplicationException(
-                    "unsupported data type as direct value for sql operation, use jdbc:Parameter: " + type.getName());
+            throw new ApplicationException("Unsupported data type " + type.getName() + " specified as a direct value " +
+                    "for sql operations, use jdbc:Parameter instead");
         }
     }
 
@@ -276,7 +275,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "error in cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
         }
     }
 
@@ -297,7 +296,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
             cleanupResources(stmt, conn, connectionClosable);
         } catch (SQLException e) {
-            throw ErrorGenerator.getSQLDatabaseError(e, "error in cleaning sql resources: ");
+            throw ErrorGenerator.getSQLDatabaseError(e, "Error while cleaning sql resources: ");
 
         }
     }
@@ -311,7 +310,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     Connection getDatabaseConnection(Strand strand, ObjectValue client, SQLDatasource datasource,
-                                     boolean isSelectQuery) throws DatabaseException {
+                                     boolean isSelectQuery) throws SQLException {
         Connection conn;
         try {
             boolean isInTransaction = strand.isInTransaction();
@@ -365,7 +364,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
                 conn = ((SQLTransactionContext) txContext).getConnection();
             }
         } catch (SQLException e) {
-            throw new DatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
+            throw new SQLException("Error while getting the connection for " + Constants.CONNECTOR_NAME + ". "
+                    + e.getMessage(), e.getSQLState(), e.getErrorCode());
         }
         return conn;
     }

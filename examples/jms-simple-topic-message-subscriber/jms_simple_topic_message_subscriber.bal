@@ -9,7 +9,7 @@ listener jms:TopicListener subscriberEndpoint = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, topicPattern = "MyTopic");
+    }, "MyTopic");
 
 // Binds the created subscriber to the listener service.
 service jmsListener on subscriberEndpoint {

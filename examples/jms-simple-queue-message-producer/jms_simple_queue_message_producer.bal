@@ -9,7 +9,7 @@ jms:QueueSender queueSender = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, queueName = "MyQueue");
+    }, "MyQueue");
 
 public function main() {
     // Create a text message.

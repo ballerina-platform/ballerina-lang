@@ -38,6 +38,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +80,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public List<String> getSourceFileNames() {
-        return super.getSourceFileNames();
+        return new ArrayList<>(0);
     }
 
     @Override

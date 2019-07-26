@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -117,7 +118,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
-    @Test(description = "Test structured pattern runtime matching", groups = "brokenOnJBallerina")
+    @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -196,7 +197,9 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true var3=true");
     }
 
-    @Test(description = "Test structured pattern with closed record", groups = "brokenOnJBallerina")
+    // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
+    @Ignore
+    @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

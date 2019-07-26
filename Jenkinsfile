@@ -11,7 +11,7 @@ node('COMPONENT_ECS') {
                     npm run vscode:prepublish
                     cd ../..
                     #Temporary javadoc creation and spot bug check will be skipped
-                    ./gradlew build -x createJavadoc -x spotbugsMain
+                    ./gradlew build --console=plain --stacktrace -scan -x createJavadoc -x spotbugsMain -x openapi-ballerina:ballerina-to-openapi-generator:test -x test -x check
                     ./gradlew publish
                 """
             }

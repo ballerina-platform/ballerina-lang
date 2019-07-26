@@ -7,6 +7,9 @@ fruit: banana
 fruit: cherry
 
 Iterating a map :
+apple
+banana
+cherry
 letter: a, word: apple
 letter: b, word: banana
 letter: c, word: cherry
@@ -27,5 +30,5 @@ xml at 1: <author>Sir Arthur Conan Doyle</author>
 Iterating a closed integer range :
 summation from 1 to 10 is 55
 
-Iterating a half-open integer range :
+Iterating a half open integer range :
 summation from 1 to 10 excluding 10 is 45

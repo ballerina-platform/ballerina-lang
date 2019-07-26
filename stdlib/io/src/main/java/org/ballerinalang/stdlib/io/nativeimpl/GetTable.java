@@ -18,9 +18,12 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BTableType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -91,7 +94,6 @@ public class GetTable {
     }
 
     private static EventResult getResponse(EventResult<List, EventContext> result) {
-        TableValue table;
         EventContext eventContext = result.getContext();
         NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
@@ -100,7 +102,7 @@ public class GetTable {
         } else {
             try {
                 List records = result.getResponse();
-                table = getbTable(eventContext, records);
+                TableValue table = getTable(eventContext, records);
                 callback.setReturnValues(table);
             } catch (Throwable e) {
                 callback.setReturnValues(IOUtils.createError(e.getMessage()));
@@ -111,10 +113,11 @@ public class GetTable {
         return result;
     }
 
-    private static TableValue getbTable(EventContext eventContext, List records) throws BallerinaException {
+    private static TableValue getTable(EventContext eventContext, List records) throws BallerinaException {
         TypedescValue type = (TypedescValue) eventContext.getProperties().get(TYPE_DESC_VALUE);
-        TableValue table = new TableValue(new org.ballerinalang.jvm.types.BTableType(type.getType()), null, null, null);
-        BStructureType structType = (BStructureType) type.getType();
+        BType describingType = type.getDescribingType();
+        TableValue table = new TableValue(new BTableType(describingType), null, null, null);
+        BStructureType structType = (BStructureType) describingType;
         for (Object obj : records) {
             String[] fields = (String[]) obj;
             final MapValueImpl<String, Object> struct = getStruct(fields, structType);
@@ -130,37 +133,61 @@ public class GetTable {
         int fieldLength = internalStructFields.size();
         MapValueImpl<String, Object> struct = null;
         if (fields.length > 0) {
-            if (internalStructFields.size() != fields.length) {
-                String msg = "Record row fields count and the give struct's fields count are mismatch";
-                throw new BallerinaException(msg);
-            }
             Iterator<Map.Entry<String, BField>> itr = internalStructFields.entrySet().iterator();
             struct = new MapValueImpl<>(structType);
             for (int i = 0; i < fieldLength; i++) {
-                String value = fields[i];
                 final BField internalStructField = itr.next().getValue();
                 final int type = internalStructField.getFieldType().getTag();
                 String fieldName = internalStructField.getFieldName();
-                switch (type) {
-                    case TypeTags.INT_TAG:
-                        struct.put(fieldName, Long.parseLong(value));
+                if (fields.length > i) {
+                    String value = fields[i];
+                    switch (type) {
+                        case TypeTags.INT_TAG:
+                        case TypeTags.FLOAT_TAG:
+                        case TypeTags.STRING_TAG:
+                        case TypeTags.BOOLEAN_TAG:
+                            populateRecord(type, struct, fieldName, value);
                         break;
-                    case TypeTags.FLOAT_TAG:
-                        struct.put(fieldName, Double.parseDouble(value));
-                        break;
-                    case TypeTags.STRING_TAG:
-                        struct.put(fieldName, value);
-                        break;
-                    case TypeTags.BOOLEAN_TAG:
-                        struct.put(fieldName, (Boolean.parseBoolean(value)));
-                        break;
-                    default:
-                        throw new BallerinaException(
-                                "Type casting support only for int, float, boolean and string. "
-                                        + "Invalid value for the struct field: " + value);
+                        case TypeTags.UNION_TAG:
+                            List<BType> members = ((BUnionType) internalStructField.getFieldType()).getMemberTypes();
+                            if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+                                populateRecord(members.get(1).getTag(), struct, fieldName, value);
+                            } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+                                populateRecord(members.get(0).getTag(), struct, fieldName, value);
+                            } else {
+                                throw new BallerinaException("fix");
+                            }
+                            break;
+                        default:
+                            throw new BallerinaException(
+                                    "Type casting support only for int, float, boolean and string. "
+                                            + "Invalid value for the struct field: " + value);
+                    }
+                } else {
+                    struct.put(fieldName, null);
                 }
             }
         }
         return struct;
+    }
+
+    private static void populateRecord(int type, MapValueImpl<String, Object> struct, String fieldName, String value) {
+        switch (type) {
+            case TypeTags.INT_TAG:
+                struct.put(fieldName, value == null ? null : Long.parseLong(value));
+                return;
+            case TypeTags.FLOAT_TAG:
+                struct.put(fieldName, value == null ? null : Double.parseDouble(value));
+                break;
+            case TypeTags.STRING_TAG:
+                struct.put(fieldName, value);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                struct.put(fieldName, value == null ? null : (Boolean.parseBoolean(value)));
+                break;
+            default:
+                throw new BallerinaException("Type casting support only for int, float, boolean and string. "
+                        + "Invalid value for the struct field: " + value);
+        }
     }
 }

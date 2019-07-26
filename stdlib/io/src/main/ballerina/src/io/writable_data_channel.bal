@@ -26,7 +26,7 @@ public const LITTLE_ENDIAN = "LE";
 # Represents a WritableDataChannel for writing data.
 public type WritableDataChannel object {
 
-    public function __init(WritableByteChannel byteChannel, ByteOrder bOrder = "BE") {
+    public function __init(WritableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         self.init(byteChannel, bOrder);
     }
 

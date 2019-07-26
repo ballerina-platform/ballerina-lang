@@ -77,7 +77,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 </style>
             </head>
             
-            <body style="overflow: auto;" class="${bodyCss}">
+            <body style="overflow: hidden;" class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}

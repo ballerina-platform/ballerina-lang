@@ -255,6 +255,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.FieldLock lock) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRTerminator.Unlock unlock) {
         throw new AssertionError();
     }

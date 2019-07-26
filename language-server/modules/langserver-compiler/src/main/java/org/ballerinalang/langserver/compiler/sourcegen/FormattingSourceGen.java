@@ -141,12 +141,17 @@ public class FormattingSourceGen {
 
         int firstNodeIndex = firstNodeWS.get(0).get("i").getAsInt();
         int secondNodeIndex = secondNodeWS.get(0).get("i").getAsInt();
-        int firstDiff = secondNodeIndex - firstNodeIndex;
+        int diff = firstNodeIndex - secondNodeIndex;
 
-        firstNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + firstDiff));
+        firstNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() - diff));
+        String whitespace = firstNodeWS.get(0).get(FormattingConstants.WS).getAsString();
 
-        int secondDiff = firstNodeIndex - secondNodeIndex;
-        secondNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + secondDiff));
+        int lastIndexOfFirstNode = firstNodeWS.get(firstNodeWS.size() - 1).get("i").getAsInt() + 1
+                + (whitespace.length() > 0 ? 1 : 0);
+
+        int diffToAddToSecondNode = lastIndexOfFirstNode - secondNodeIndex;
+
+        secondNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + diffToAddToSecondNode));
     }
 
     /**

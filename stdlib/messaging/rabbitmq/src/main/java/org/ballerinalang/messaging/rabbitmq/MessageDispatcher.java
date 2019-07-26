@@ -24,8 +24,8 @@ import com.rabbitmq.client.Channel;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -105,7 +105,7 @@ public class MessageDispatcher {
             Thread.currentThread().interrupt();
             throw new RabbitMQConnectorException(RabbitMQConstants.THREAD_INTERRUPTED);
         } catch (AlreadyClosedException | BallerinaConnectorException exception) {
-            handleError(message, deliveryTag, RabbitMQConstants.DISPATCH_ERROR, properties);
+            handleError(message, deliveryTag, properties);
         }
     }
 
@@ -128,7 +128,7 @@ public class MessageDispatcher {
                     messageObjectValue, true, forContent, true);
             countDownLatch.await();
         } catch (BallerinaConnectorException | UnsupportedEncodingException exception) {
-            handleError(message, deliveryTag, RabbitMQConstants.DISPATCH_ERROR, properties);
+            handleError(message, deliveryTag, properties);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RabbitMQConnectorException(RabbitMQConstants.THREAD_INTERRUPTED);
@@ -197,13 +197,12 @@ public class MessageDispatcher {
     /**
      * Triggers onError resource function upon error.
      *
-     * @param message      Message content received from the RabbitMQ server.
-     * @param deliveryTag  Delivery tag of the message.
-     * @param errorMessage Error message.
-     * @param properties   Basic properties of the message.
+     * @param message     Message content received from the RabbitMQ server.
+     * @param deliveryTag Delivery tag of the message.
+     * @param properties  Basic properties of the message.
      */
-    public void handleError(byte[] message, long deliveryTag, String errorMessage, AMQP.BasicProperties properties) {
-        ErrorValue error = RabbitMQUtils.returnErrorValue(errorMessage);
+    private void handleError(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
+        ErrorValue error = RabbitMQUtils.returnErrorValue(RabbitMQConstants.DISPATCH_ERROR);
         ObjectValue messageObjectValue = getMessageObjectValue(message, deliveryTag, properties);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {

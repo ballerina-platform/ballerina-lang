@@ -143,3 +143,8 @@ function testObjectLevelXML() returns xml {
     Person p = new();
     return p.info;
 }
+
+function getXML() returns xml {
+    xml x = xml `<foo xmlns="http://wso2.com/">hello</foo>`;
+    return x;
+}

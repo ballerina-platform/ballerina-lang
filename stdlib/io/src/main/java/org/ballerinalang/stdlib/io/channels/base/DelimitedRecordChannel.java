@@ -305,7 +305,7 @@ public class DelimitedRecordChannel implements IOChannel {
             String field = splitRecords[0];
             record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
             if (field.trim().isEmpty()) {
-                continue;
+                field = null;
             }
             records.add(field);
         } while (splitRecords.length == recursiveIndex);

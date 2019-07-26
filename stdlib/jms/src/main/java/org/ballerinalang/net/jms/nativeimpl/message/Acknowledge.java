@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.message;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,11 +46,8 @@ import javax.jms.Message;
 public class Acknowledge {
 
     public static Object acknowledge(Strand strand, ObjectValue msgObj) {
-        //        SessionConnector sessionConnector = (SessionConnector) consumerConnectorObject.getNativeData(
-//                JmsConstants.SESSION_CONNECTOR_OBJECT);
         Message message = (Message) msgObj.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         try {
-//            sessionConnector.handleTransactionBlock(context);
             message.acknowledge();
         } catch (JMSException e) {
             return BallerinaAdapter.getError("Message acknowledgement failed.", e);
