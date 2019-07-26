@@ -24,12 +24,15 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 
 /**
@@ -47,6 +50,16 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
             // set home repo to build context
             this.put(BuildContextField.HOME_REPO, RepoUtils.createAndGetHomeReposPath());
+            
+            this.put(BuildContextField.HOME_BIR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
+                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
+    
+            this.put(BuildContextField.HOME_JAR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
+                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME));
+            
+            this.put(BuildContextField.SYSTEM_BIR_CACHE, Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP))
+                    .resolve("bir-cache"));
+            
     
             // set source context
             this.setSource(source);

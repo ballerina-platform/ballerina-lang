@@ -27,7 +27,7 @@ import java.nio.file.Path;
  */
 public class SingleFileContext {
     private Path balFileName;
-    private BLangPackage BLangModule;
+    private BLangPackage module;
     
     public SingleFileContext(Path balFileName) {
         this.balFileName = balFileName;
@@ -37,11 +37,11 @@ public class SingleFileContext {
         return balFileName;
     }
     
-    public BLangPackage getBLangModule() {
-        return BLangModule;
+    public BLangPackage getModule() {
+        return module;
     }
     
-    public void setBLangModule(BLangPackage BLangModule) {
-        this.BLangModule = BLangModule;
+    public void setModule(BLangPackage module) {
+        this.module = module;
     }
 }
