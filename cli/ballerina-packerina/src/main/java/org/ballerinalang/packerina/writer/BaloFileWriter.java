@@ -19,8 +19,8 @@ package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -103,15 +102,9 @@ public class BaloFileWriter {
         if (!ProjectDirs.isModuleExist(projectDirectory, moduleName)) {
             return;
         }
-
-        // get the balo file name.
-        String baloName = getFileName(moduleName);
-
-        // Get the path to create balo.
-        Path baloDir = buildContext.get(BuildContextField.BALO_CACHE_DIR);
-
+        
         // Create the archive over write if exists
-        Path baloFile = baloDir.resolve(baloName);
+        Path baloFile = BuilderUtils.resolveBaloPath(buildContext, module.packageID);
         try (FileSystem balo = createBaloArchive(baloFile)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
@@ -128,20 +121,6 @@ public class BaloFileWriter {
             }
             throw be;
         }
-    }
-
-    private String getFileName(String moduleName) {
-        // Get the version of the project.
-        String versionNo = manifest.getProject().getVersion();
-        // Identify the platform version
-        String platform = manifest.getTargetPlatform();
-        // {module}-{lang spec version}-{platform}-{version}.balo
-        //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
-        return moduleName + "-"
-                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                + platform + "-"
-                + versionNo
-                + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
     private FileSystem createBaloArchive(Path path) throws IOException {
