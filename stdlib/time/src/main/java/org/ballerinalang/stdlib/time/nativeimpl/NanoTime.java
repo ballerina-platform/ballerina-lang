@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**

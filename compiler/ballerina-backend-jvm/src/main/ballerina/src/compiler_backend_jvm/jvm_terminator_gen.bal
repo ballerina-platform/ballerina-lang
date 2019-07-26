@@ -261,16 +261,16 @@ type TerminatorGenerator object {
             jvm:Label notBlockedOnExternLabel = new;
 
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
             self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             self.mv.visitInsn(ICONST_0);
-            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
 
             if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
                 self.mv.visitVarInsn(ALOAD, localVarOffset);
-                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
                 addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
                 // store return
                 self.storeReturnFromCallIns(callIns);
@@ -740,7 +740,7 @@ type TerminatorGenerator object {
 function genYieldCheckForLock(jvm:MethodVisitor mv, LabelGenerator labelGen, string funcName,
                         int localVarOffset) {
     mv.visitVarInsn(ALOAD, localVarOffset);
-    mv.visitFieldInsn(GETFIELD, STRAND, "yield", "Z");
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
     jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
     mv.visitJumpInsn(IFNE, yieldLabel);
 }

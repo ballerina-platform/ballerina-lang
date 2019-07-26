@@ -171,17 +171,17 @@ public type ObjectGenerator object {
 
             if (isExternFunc(func)) {
                 mv.visitVarInsn(ALOAD, 1);
-                mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
                 jvm:Label blockedOnExternLabel = new;
                 mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
-                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
-
+                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+            
                 if (!(retType is () || retType is bir:BTypeNil)) {
                     mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
                     mv.visitInsn(ARETURN);
                 } else {
                     mv.visitInsn(ACONST_NULL);
@@ -357,18 +357,18 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         mv.visitVarInsn(ALOAD, 0);
 
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/scheduling/Strand");
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
+        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/scheduling/Scheduler");
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_4);
         //TODO remove this and load the strand from ALOAD
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
-                            "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/scheduling/Strand", "<init>",
+                            "(Lorg/ballerinalang/jvm/scheduling/Scheduler;)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
