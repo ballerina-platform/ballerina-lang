@@ -31,10 +31,10 @@ http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisher/discover",
+    target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2",
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler1 }
     }
 }
@@ -55,9 +55,9 @@ http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);
 @websub:SubscriberServiceConfig {
     path: "/websubTwo",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisherTwo/discover",
+    target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler2 }
     }
 }
@@ -78,9 +78,9 @@ http:BasicAuthHandler basicAuthHandler3 = new(basicAuthProvider3);
 @websub:SubscriberServiceConfig {
     path: "/websubThree",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisher/discover",
+    target: "http://localhost:23080/publisher/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler3 }
     }
 }
@@ -100,10 +100,9 @@ http:BasicAuthHandler basicAuthHandler4 = new(basicAuthProvider4);
 
 @websub:SubscriberServiceConfig {
     path: "/websubFour",
-    subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:23080/publisherThree/discover",
+    target: "http://localhost:23080/publisherThree/discover",
     leaseSeconds: 1200,
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: { authHandler: basicAuthHandler4 }
     }
 }

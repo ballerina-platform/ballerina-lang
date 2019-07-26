@@ -117,16 +117,17 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         BallerinaModuleBasedConfiguration configurationModule = getConfigurationModule();
         Module module = configurationModule.getModule();
         if (module != null) {
-            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null
-                    && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
-                String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
-                if (autoDetectedPath.isEmpty()) {
-                    throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
-                            "detection is failed for module '%s'", module.getName()));
+            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
+                if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                    String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
+                    if (autoDetectedPath.isEmpty()) {
+                        throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
+                                "detection is failed for module '%s'", module.getName()));
+                    }
+                } else {
+                    throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified for module '%s'",
+                            module.getName()));
                 }
-            } else {
-                throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified for module '%s'",
-                        module.getName()));
             }
         } else {
             String moduleName = configurationModule.getModuleName();

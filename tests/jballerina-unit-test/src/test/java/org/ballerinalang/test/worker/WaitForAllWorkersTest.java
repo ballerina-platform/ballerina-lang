@@ -34,7 +34,6 @@ import java.util.Arrays;
  *
  * @since 0.990.1
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class WaitForAllWorkersTest {
     private CompileResult result;
 

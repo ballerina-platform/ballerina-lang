@@ -19,11 +19,11 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.transactions.BallerinaTransactionContext;
-import org.ballerinalang.util.transactions.TransactionLocalContext;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -68,7 +68,7 @@ public class SessionConnector implements BallerinaTransactionContext {
                 session.commit();
             }
         } catch (JMSException e) {
-            throw new BallerinaException("transaction commit failed: " + e.getLocalizedMessage(), e);
+            BallerinaAdapter.throwBallerinaException("transaction commit failed: " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -79,7 +79,7 @@ public class SessionConnector implements BallerinaTransactionContext {
                 session.rollback();
             }
         } catch (JMSException e) {
-            throw new BallerinaException("transaction rollback failed: " + e.getLocalizedMessage(), e);
+            BallerinaAdapter.throwBallerinaException("transaction rollback failed: " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -97,15 +97,15 @@ public class SessionConnector implements BallerinaTransactionContext {
         }
     }
 
-    public void handleTransactionBlock(Context context) throws JMSException {
+    public void handleTransactionBlock(Strand strand) throws JMSException {
         if (getSession().getAcknowledgeMode() == Session.SESSION_TRANSACTED) {
             // if the action is not called inside a transaction block
-            if (!context.isInTransaction()) {
-                throw new BallerinaException(
-                        "jms transacted session objects should be used inside a transaction block ", context);
+            if (!strand.isInTransaction()) {
+                BallerinaAdapter.throwBallerinaException(
+                        "jms transacted session objects should be used inside a transaction block ");
             }
 
-            TransactionLocalContext transactionLocalContext = context.getLocalTransactionInfo();
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
             BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(
                     getConnectorId());
             if (Objects.isNull(txContext)) {

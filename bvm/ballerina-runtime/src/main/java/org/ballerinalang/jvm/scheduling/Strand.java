@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm;
+package org.ballerinalang.jvm.scheduling;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.types.BTypes;
@@ -25,14 +26,20 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.ballerinalang.jvm.scheduling.State.BLOCK_AND_YIELD;
+import static org.ballerinalang.jvm.scheduling.State.BLOCK_ON_AND_YIELD;
+import static org.ballerinalang.jvm.scheduling.State.RUNNABLE;
+import static org.ballerinalang.jvm.scheduling.State.YIELD;
 
 /**
  * Strand base class used with jvm code generation for functions.
@@ -41,41 +48,44 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class Strand {
-    public boolean yield;
+
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
-    public boolean blocked;
-    public List<Strand> blockedOn;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
     public Set<ChannelDetails> channelDetails;
-    private Map<String, Object> globalProps;
-    public boolean cancel;
-    private TransactionLocalContext transactionStrandContext;
+    public Set<SchedulerItem> dependants;
     public ObserverContext observerContext;
-    /**
-     * Used to mark the strand has completed.
-     */
-    public boolean completed;
+    public boolean cancel;
+
+    SchedulerItem schedulerItem;
+    List<WaitContext> waitingContexts;
+    WaitContext waitContext;
+
+    private Map<String, Object> globalProps;
+    private TransactionLocalContext transactionStrandContext;
+    private State state;
+    private final ReentrantLock strandLock;
+
 
     public Strand(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
-        this.blockedOn = new CopyOnWriteArrayList();
         this.channelDetails = new HashSet<>();
         this.globalProps = new HashMap<>();
+        this.state = RUNNABLE;
+        this.dependants = new HashSet<>();
+        this.strandLock = new ReentrantLock();
+        this.waitingContexts = new ArrayList<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
-        this.scheduler = scheduler;
+        this(scheduler);
         this.parent = parent;
-        this.wdChannels = new WDChannels();
-        this.blockedOn = new CopyOnWriteArrayList();
-        this.channelDetails = new HashSet<>();
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
 
@@ -153,8 +163,7 @@ public class Strand {
                 }
             }
             flushDetail.inProgress = true;
-            this.yield = true;
-            this.blocked = true;
+            this.setState(BLOCK_AND_YIELD);
             return null;
         } finally {
             this.flushDetail.flushLock.unlock();
@@ -165,43 +174,65 @@ public class Strand {
         this.flushDetail.inProgress = false;
         this.flushDetail.flushedCount = 0;
         this.flushDetail.result = null;
-        for (int i = 0; i < channels.length; i++) {
-            getWorkerDataChannel(channels[i]).removeFlushWait();
+        for (ChannelDetails channel : channels) {
+            getWorkerDataChannel(channel).removeFlushWait();
         }
     }
 
     public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue target) throws Throwable {
-        this.blockedOn.clear();
+        WaitContext ctx = new WaitMultipleContext(this.schedulerItem);
+        ctx.waitCount.set(keyValues.size());
+        ctx.lock();
         for (Map.Entry<String, FutureValue> entry : keyValues.entrySet()) {
-            synchronized (entry.getValue()) {
-                if (entry.getValue().isDone) {
-                    if (entry.getValue().panic != null) {
-                        this.blockedOn.clear();
-                        throw entry.getValue().panic;
-                    }
-                    target.put(entry.getKey(), entry.getValue().result);
-                } else {
-                    this.yield = true;
-                    this.blocked = true;
-                    this.blockedOn.add(entry.getValue().strand);
+            FutureValue future = entry.getValue();
+            // need to lock the future's strand since we cannot have a parallel state change
+            future.strand.lock();
+            if (future.isDone) {
+                if (future.panic != null) {
+                    ctx.completed = true;
+                    ctx.waitCount.set(0);
+                    this.setState(RUNNABLE);
+                    future.strand.unlock();
+                    ctx.unLock();
+                    throw future.panic;
                 }
+                ctx.waitCount.decrementAndGet();
+                target.put(entry.getKey(), future.result);
+            } else {
+                this.setState(BLOCK_ON_AND_YIELD);
+                entry.getValue().strand.waitingContexts.add(ctx);
             }
+            future.strand.unlock();
         }
+        if (!this.isBlocked()) {
+            ctx.waitCount.set(0);
+            ctx.completed = true;
+        } else {
+            this.waitContext = ctx;
+            ctx.intermediate = true;
+        }
+        ctx.unLock();
     }
 
     public WaitResult handleWaitAny(List<FutureValue> futures) throws Throwable {
         WaitResult waitResult = new WaitResult(false, null);
-        int completed = 0;
+        WaitContext ctx = new WaitAnyContext(this.schedulerItem);
+        ctx.lock();
+        ctx.waitCount.set(futures.size());
         Object error = null;
         for (FutureValue future : futures) {
-            synchronized (future) {
+            // need to lock the future's strand since we cannot have a parallel state change
+            try {
+                future.strand.lock();
                 if (future.isDone) {
-                    completed++;
                     if (future.panic != null) {
+                        ctx.completed = true;
+                        ctx.unLock();
                         throw future.panic;
                     }
 
                     if (TypeChecker.checkIsType(future.result, BTypes.typeError)) {
+                        ctx.waitCount.decrementAndGet();
                         // if error, should wait for other futures as well
                         error = future.result;
                         continue;
@@ -209,29 +240,30 @@ public class Strand {
                     waitResult = new WaitResult(true, future.result);
                     break;
                 } else {
-                    this.blockedOn.add(future.strand);
+                    future.strand.waitingContexts.add(ctx);
                 }
+            } finally {
+                future.strand.unlock();
             }
         }
 
         if (waitResult.done) {
-            this.blockedOn.clear();
-        } else if (completed == futures.size()) {
+            ctx.completed = true;
+        } else if (ctx.waitCount.get() == 0) {
+            ctx.completed = true;
             // all futures have error result
-            this.blockedOn.clear();
             waitResult = new WaitResult(true, error);
         } else {
-            this.yield = true;
-            this.blocked = true;
+            this.waitContext = ctx;
+            this.setState(BLOCK_ON_AND_YIELD);
         }
+        ctx.unLock();
 
         return waitResult;
     }
 
     public void updateChannelDetails(ChannelDetails[] channels) {
-        for (ChannelDetails details : channels) {
-            this.channelDetails.add(details);
-        }
+        this.channelDetails.addAll(Arrays.asList(channels));
     }
 
     private WorkerDataChannel getWorkerDataChannel(ChannelDetails channel) {
@@ -242,6 +274,40 @@ public class Strand {
             dataChannel = this.parent.wdChannels.getWorkerDataChannel(channel.name);
         }
         return dataChannel;
+    }
+
+    public void setState(State state) {
+        this.lock();
+        this.state = state;
+        this.unlock();
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public boolean isBlocked() {
+        return (this.state.getStatus() & BLOCK_AND_YIELD.getStatus()) == BLOCK_AND_YIELD.getStatus();
+    }
+
+    public boolean isBlockedOn() {
+        return (this.state.getStatus() & BLOCK_ON_AND_YIELD.getStatus()) == BLOCK_ON_AND_YIELD.getStatus();
+    }
+
+    public boolean isYielded() {
+        return (this.state.getStatus() & YIELD.getStatus()) == YIELD.getStatus();
+    }
+
+    public boolean isBlockedOnExtern() {
+        return blockedOnExtern;
+    }
+
+    public void lock() {
+        this.strandLock.lock();
+    }
+
+    public void unlock() {
+        this.strandLock.unlock();
     }
 
     /**
