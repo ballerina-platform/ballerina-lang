@@ -24,6 +24,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
@@ -34,6 +35,8 @@ import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +60,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient Path targetBirCacheDir;
     private transient Path baloCacheDir;
     private SourceType srcType;
+    private transient PrintStream out;
+    private transient PrintStream err;
     
     /**
      * Create a build context with context fields.
@@ -67,35 +72,41 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      * @param source         The name of the source file or the name of the module. Pass null to build all modules.
      */
     public BuildContext(Path sourceRootPath, Path targetPath, Path source) {
-        if (Files.exists(sourceRootPath)) {
-            // set source root
-            this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
-            
-            // set target dir
-            this.put(BuildContextField.TARGET_DIR, targetPath);
-            
-            // set source context
-            this.setSource(source);
-    
-            // save '<target>/balo' dir for balo files
-            this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
-            
-            // save '<target>/cache/bir_cache' dir for bir files
-            this.targetBirCacheDir = targetPath
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
-    
-            this.put(BuildContextField.BIR_CACHE_DIR, targetBirCacheDir);
-    
-            // save '<target>/cache/jar_cache' dir for jar files
-            this.targetJarCacheDir = targetPath
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-    
-            // save '<target>/bin' dir for executables
-            this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
-        } else {
-            throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
+        try {
+            out = new EmptyPrintStream();
+            err = new EmptyPrintStream();
+            if (Files.exists(sourceRootPath)) {
+                // set source root
+                this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
+                
+                // set target dir
+                this.put(BuildContextField.TARGET_DIR, targetPath);
+                
+                // set source context
+                this.setSource(source);
+                
+                // save '<target>/balo' dir for balo files
+                this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
+                
+                // save '<target>/cache/bir_cache' dir for bir files
+                this.targetBirCacheDir = targetPath
+                        .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+                
+                this.put(BuildContextField.BIR_CACHE_DIR, this.targetBirCacheDir);
+                
+                // save '<target>/cache/jar_cache' dir for jar files
+                this.targetJarCacheDir = targetPath
+                        .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                        .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+                
+                // save '<target>/bin' dir for executables
+                this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
+            } else {
+                throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
+            }
+        } catch (UnsupportedEncodingException e) {
+            // ignore this error. this error is thrown when creating an empty PrintStream. but it cannot happen.
         }
     }
     
@@ -118,6 +129,42 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      */
     public BuildContext(Path sourceRootPath, Path source) {
         this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
+    }
+    
+    /**
+     * Set output stream.
+     *
+     * @param out The output stream.
+     */
+    public void setOut(PrintStream out) {
+        this.out = out;
+    }
+    
+    /**
+     * Get the output stream.
+     *
+     * @return The output stream.
+     */
+    public PrintStream out() {
+        return this.out;
+    }
+    
+    /**
+     * Set the error stream.
+     *
+     * @param err The error stream.
+     */
+    public void setErr(PrintStream err) {
+        this.err = err;
+    }
+    
+    /**
+     * Get the error stream.
+     *
+     * @return The error stream.
+     */
+    public PrintStream err() {
+        return this.err;
     }
     
     /**
@@ -144,7 +191,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             this.srcType = SourceType.ALL_MODULES;
             return;
         }
-    
+        
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
         Path absoluteSourcePath = RepoUtils.isBallerinaProject(sourceRootPath) ?
                                   sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
@@ -153,7 +200,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         
         if (Files.isRegularFile(absoluteSourcePath) &&
             source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-        
+            
             this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
             this.srcType = SourceType.SINGLE_BAL_FILE;
         } else if (Files.isDirectory(absoluteSourcePath) &&
@@ -255,7 +302,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 case ALL_MODULES:
                     CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
                     Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
-        
+                    
                     // Get the version of the project.
                     String versionNo = manifest.getProject().getVersion();
                     // Identify the platform version
@@ -267,7 +314,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                           + platform + "-"
                                           + versionNo
                                           + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
-        
+                    
                     return baloCacheDir.resolve(baloFileName);
                 default:
                     throw new BLangCompilerException("unable to resolve balo location for build source");
@@ -338,8 +385,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 case SINGLE_MODULE:
                 case ALL_MODULES:
                     return this.executableDir.resolve(moduleID.name.value +
-                                                 ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
-    
+                                                      ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
+                
                 default:
                     throw new BLangCompilerException("unable to resolve executable(s) location for build source");
             }
