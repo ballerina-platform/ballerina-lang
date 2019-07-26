@@ -52,7 +52,9 @@ public enum BuildContextField {
     
     BIR_CACHE_DIR("birCacheDir"),
     
-    JAR_CACHE_DIR("jarCacheDir");
+    JAR_CACHE_DIR("jarCacheDir"),
+    
+    EXECUTABLE_DIR("executableDir");
     
     public final String name;
     

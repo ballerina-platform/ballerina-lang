@@ -58,6 +58,7 @@ public class CreateJarTask implements Task {
         
             // add jar_cache to build context
             buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
+            
             Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
             Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
             Path homeBIRCache = buildContext.get(BuildContextField.HOME_BIR_CACHE_REPO);
@@ -82,7 +83,7 @@ public class CreateJarTask implements Task {
                 List<BLangPackage> modules = new LinkedList<>();
                 if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
                     SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                    modules.add(moduleContext.getBLangModule());
+                    modules.add(moduleContext.getModule());
                 } else {
                     MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
                     modules = multiModuleContext.getModules();

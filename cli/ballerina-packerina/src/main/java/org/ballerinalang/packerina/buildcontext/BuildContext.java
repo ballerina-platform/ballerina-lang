@@ -42,6 +42,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
     private SourceType srcType;
     
+    public BuildContext() {}
+    
+    /**
+     * Create a build context with context fields.
+     *
+     * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
+     *                       file then is it the parent directory of the bal file.
+     * @param source         The name of the source file or the name of the module. Pass null to build all modules.
+     */
     public BuildContext(Path sourceRootPath, String source) {
         if (Files.exists(sourceRootPath)) {
     
