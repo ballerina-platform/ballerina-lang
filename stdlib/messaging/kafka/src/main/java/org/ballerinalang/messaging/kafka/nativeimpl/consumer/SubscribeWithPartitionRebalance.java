@@ -122,11 +122,18 @@ public class SubscribeWithPartitionRebalance {
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
             ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
-            partitions.forEach(partition -> {
+//            partitions.forEach(partition -> {
+//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
+//                        partition.partition());
+//                topicPartitionArray.append(topicPartition);
+//            });
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (TopicPartition partition : partitions) {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
                         partition.partition());
-                topicPartitionArray.append(topicPartition);
-            });
+                topicPartitionArray.add(i++, topicPartition);
+            }
             return topicPartitionArray;
         }
     }

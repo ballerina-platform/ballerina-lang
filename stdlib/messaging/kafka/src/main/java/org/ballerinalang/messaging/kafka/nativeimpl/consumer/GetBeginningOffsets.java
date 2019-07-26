@@ -76,7 +76,7 @@ public class GetBeginningOffsets {
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
-        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions);
+        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         Map<TopicPartition, Long> offsetMap;
         try {
             if (apiTimeout > DURATION_UNDEFINED_VALUE) {

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
@@ -63,11 +64,17 @@ public class Poll {
         ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
             ConsumerRecords<byte[], byte[]> recordsRetrieved = kafkaConsumer.poll(duration);
-            if (!recordsRetrieved.isEmpty()) {
-                recordsRetrieved.forEach(record -> {
-                    MapValue<String, Object> recordValue = populateConsumerRecord(record);
-                    consumerRecordsArray.append(recordValue);
-                });
+//            if (!recordsRetrieved.isEmpty()) {
+//                recordsRetrieved.forEach(record -> {
+//                    MapValue<String, Object> recordValue = populateConsumerRecord(record);
+//                    consumerRecordsArray.append(recordValue);
+//                });
+//            }
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (ConsumerRecord<byte[], byte[]> record : recordsRetrieved) {
+                MapValue<String, Object> partition = populateConsumerRecord(record);
+                consumerRecordsArray.add(i++, partition);
             }
             return consumerRecordsArray;
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {

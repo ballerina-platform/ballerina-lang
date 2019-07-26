@@ -63,10 +63,16 @@ public class GetAssignment {
         ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
         try {
             Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
-            topicPartitions.forEach(partition -> {
+//            topicPartitions.forEach(partition -> {
+//                MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
+//                topicPartitionArray.append(tp);
+//            });
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (TopicPartition partition : topicPartitions) {
                 MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
-                topicPartitionArray.append(tp);
-            });
+                topicPartitionArray.add(i++, tp);
+            }
             return topicPartitionArray;
         } catch (KafkaException e) {
             return createKafkaError("Failed to retrieve assignment for the consumer: " + e.getMessage(),

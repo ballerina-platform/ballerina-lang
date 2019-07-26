@@ -28,6 +28,8 @@ import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -54,9 +56,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartiti
 )
 public class Resume {
 
+    private static final Logger logger = LoggerFactory.getLogger(Resume.class);
+
     public static Object resume(Strand strand, ObjectValue consumerObject, ArrayValue topicPartitions) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions);
+        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
 
         try {
             kafkaConsumer.resume(partitionList);

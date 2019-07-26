@@ -158,23 +158,40 @@ public class KafkaUtils {
         ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
 
         if (service.getType().getAttachedFunctions()[0].paramTypes.length == 2) {
-            records.forEach(record -> {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-                consumerRecordsArray.append(consumerRecord);
-            });
+//            records.forEach(record -> {
+//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+//                consumerRecordsArray.append(consumerRecord);
+//            });
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (ConsumerRecord<byte[], byte[]> record : records) {
+                consumerRecordsArray.add(i++, record);
+            }
             return new Object[]{listener, consumerRecordsArray};
         } else {
             ArrayValue partitionOffsetsArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
-            records.forEach(record -> {
+//            records.forEach(record -> {
+//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
+//                        record.partition());
+//                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
+//                        record.offset());
+//
+//                consumerRecordsArray.append(consumerRecord);
+//                partitionOffsetsArray.append(partitionOffset);
+//            });
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (ConsumerRecord<byte[], byte[]> record : records) {
                 MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
                         record.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
                         record.offset());
-
-                consumerRecordsArray.append(consumerRecord);
-                partitionOffsetsArray.append(partitionOffset);
-            });
+                consumerRecordsArray.add(i, consumerRecord);
+                partitionOffsetsArray.add(i, partitionOffset);
+                i++;
+            }
             return new Object[]{listener, consumerRecordsArray, partitionOffsetsArray, groupId};
         }
     }
@@ -438,13 +455,13 @@ public class KafkaUtils {
         configParams.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, DEFAULT_VALUE_SERIALIZER);
     }
 
-    public static ArrayList<TopicPartition> getTopicPartitionList(ArrayValue partitions) {
+    public static ArrayList<TopicPartition> getTopicPartitionList(ArrayValue partitions, Logger logger) {
         ArrayList<TopicPartition> partitionList = new ArrayList<>();
         if (partitions != null) {
             for (int counter = 0; counter < partitions.size(); counter++) {
                 MapValue<String, Object> partition = (MapValue<String, Object>) partitions.get(counter);
                 String topic = (String) partition.get(ALIAS_TOPIC);
-                int partitionValue = ((Integer) partition.get(ALIAS_PARTITION));
+                int partitionValue = getIntFromLong((Long) partition.get(ALIAS_PARTITION), logger, ALIAS_PARTITION);
                 partitionList.add(new TopicPartition(topic, partitionValue));
             }
         }
@@ -452,10 +469,11 @@ public class KafkaUtils {
     }
 
     public static ArrayList<String> getStringListFromStringArrayValue(ArrayValue stringArray) {
-        if (stringArray.getType() != BTypes.typeString) {
-            return null;
-        }
         ArrayList<String> values = new ArrayList<>();
+        if ((Objects.isNull(stringArray)) ||
+                (!((BArrayType) stringArray.getType()).getElementType().equals(BTypes.typeString))) {
+            return values;
+        }
         if (stringArray.size() != 0) {
             for (int i = 0; i < stringArray.size(); i++) {
                 values.add(stringArray.getString(i));
@@ -531,12 +549,14 @@ public class KafkaUtils {
     public static ArrayValue getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {
         ArrayValue partitionOffsetArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
         if (!offsetMap.entrySet().isEmpty()) {
+            // TODO: remove the counter variable and use append method once #17075 fixed.
+            int i = 0;
             for (Map.Entry<TopicPartition, Long> entry : offsetMap.entrySet()) {
                 TopicPartition tp = entry.getKey();
                 Long offset = entry.getValue();
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(tp.topic(), tp.partition());
                 MapValue<String, Object> partition = populatePartitionOffsetRecord(topicPartition, offset);
-                partitionOffsetArray.append(partition);
+                partitionOffsetArray.add(i++, partition);
             }
         }
         return partitionOffsetArray;

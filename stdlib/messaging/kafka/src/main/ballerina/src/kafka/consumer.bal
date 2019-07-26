@@ -182,7 +182,7 @@ public type Consumer client object {
     #
     # + duration - Timeout duration for the close operation execution.
     # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function close(int duration = -1) returns error? = external;
+    public remote function close(public int duration = -1) returns error? = external;
 
     # Commits current consumed offsets for consumer.
     #
@@ -210,7 +210,7 @@ public type Consumer client object {
     #
     # + duration - Timeout duration for the get available topics execution.
     # + return - Array of topics currently available (authorized) for the consumer to subscribe, returns error if the operation fails..
-    public remote function getAvailableTopics(int duration = -1) returns string[]|error = external;
+    public remote function getAvailableTopics(public int duration = -1) returns string[]|error = external;
 
     # Returns start offsets for given set of partitions.
     #
@@ -225,7 +225,7 @@ public type Consumer client object {
     # + partition - Topic partition in which the committed offset is returned for consumer.
     # + duration - Timeout duration for the get committed offset operation to execute.
     # + return - Committed offset for the consumer for the given partition if executes successfully, error otherwise.
-    public remote function getCommittedOffset(TopicPartition partition, int duration = -1)
+    public remote function getCommittedOffset(TopicPartition partition, public int duration = -1)
                                returns PartitionOffset|error = external;
 
     # Returns last offsets for given set of partitions.
@@ -233,7 +233,7 @@ public type Consumer client object {
     # + partitions - Set of partitions to get the last offsets.
     # + duration - Timeout duration for the get end offsets operation to execute.
     # + return - End offsets for the given partitions if executes successfully, error otherwise.
-    public remote function getEndOffsets(TopicPartition[] partitions, int duration = -1)
+    public remote function getEndOffsets(TopicPartition[] partitions, public int duration = -1)
                                returns PartitionOffset[]|error = external;
 
     # Returns the partitions, which are currently paused.
@@ -246,7 +246,7 @@ public type Consumer client object {
     # + partition - Topic partition in which the position is required.
     # + duration - Timeout duration for the get position offset operation to execute.
     # + return - Offset which will be fetched next (if a records exists in that offset), returns error if the operation fails.
-    public remote function getPositionOffset(TopicPartition partition, int duration = -1) returns int|error = external;
+    public remote function getPositionOffset(TopicPartition partition, public int duration = -1) returns int|error = external;
 
     # Returns set of topics wich are currently subscribed by the consumer.
     #
@@ -258,7 +258,7 @@ public type Consumer client object {
     # + topic - Given topic for partition information is needed.
     # + duration - Timeout duration for the get topic partitions operation to execute.
     # + return - Array of partitions for the given topic if executes successfully, error otherwise.
-    public remote function getTopicPartitions(string topic, int duration = -1) returns TopicPartition[]|error = external;
+    public remote function getTopicPartitions(string topic, public int duration = -1) returns TopicPartition[]|error = external;
 
     # Pause consumer retrieving messages from set of partitions.
     #

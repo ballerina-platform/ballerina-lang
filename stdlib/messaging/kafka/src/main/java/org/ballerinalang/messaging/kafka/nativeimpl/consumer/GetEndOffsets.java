@@ -65,7 +65,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartiti
 )
 public class GetEndOffsets {
 
-    private static final Logger logger = LoggerFactory.getLogger(GetBeginningOffsets.class);
+    private static final Logger logger = LoggerFactory.getLogger(GetEndOffsets.class);
 
     public static Object getEndOffsets(Strand strand, ObjectValue consumerObject, ArrayValue topicPartitions,
                                        long duration) {
@@ -74,7 +74,7 @@ public class GetEndOffsets {
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
-        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions);
+        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         Map<TopicPartition, Long> offsetMap;
 
         try {

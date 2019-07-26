@@ -59,6 +59,8 @@ public class KafkaConstants {
     public static final String CONSUMER_CONFIG_STRUCT_NAME = "ConsumerConfig";
     public static final String CONSUMER_SERVER_CONNECTOR_NAME = "serverConnector";
 
+    public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
+
     public static final String PARAMETER_CONSUMER_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + CONSUMER_STRUCT_NAME;
     public static final String PARAMETER_RECORD_ARRAY_NAME =
             KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + CONSUMER_RECORD_STRUCT_NAME + ARRAY_INDICATOR;

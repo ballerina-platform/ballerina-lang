@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.Objects;
 import java.util.Properties;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
@@ -64,7 +64,7 @@ public class Connect {
             return createKafkaError("Kafka consumer is already connected to external broker. " +
                     "Please close it before re-connecting the external broker again.", CONSUMER_ERROR);
         }
-        MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_STRUCT_NAME);
+        MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
         try {
             KafkaConsumer<byte[], byte[]> kafkaConsumer = new KafkaConsumer<>(consumerProperties);
