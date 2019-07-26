@@ -2,4 +2,4 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run object_initializer.bal
 {name:"John"}
-Invalid name format {}
+error The age should be between 0-100

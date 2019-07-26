@@ -115,6 +115,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -573,6 +575,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
         lockNode.body = rewrite(lockNode.body, env);
         result = lockNode;
+    }
+
+    @Override
+    public void visit(BLangLockStmt lockNode) {
+        result = lockNode;
+    }
+
+    @Override
+    public void visit(BLangUnLockStmt unLockNode) {
+        result = unLockNode;
     }
 
     @Override

@@ -53,7 +53,7 @@ function testInvalidMapOpWithOpenRecords() {
         return ["", ""];
     });
 
-    newp = p.'map(function (string|int|Address entry) returns any {
+    newp = p.'map(function (anydata entry) returns any {
         return "";
     });
 
@@ -75,7 +75,7 @@ function testInvalidFilterOpWithOpenRecords() {
         return true;
     });
 
-    newp = p.filter(function (string|int|Address entry) returns boolean {
+    newp = p.filter(function (anydata entry) returns boolean {
         return true;
     });
 

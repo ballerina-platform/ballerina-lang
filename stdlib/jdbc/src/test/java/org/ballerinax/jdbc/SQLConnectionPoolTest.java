@@ -126,6 +126,34 @@ public class SQLConnectionPoolTest {
     }
 
     @Test(groups = POOL_TEST_GROUP)
+    public void testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions() {
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        for (int i = 0; i < 5; i++) {
+            Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
+        }
+        String error = (((BValueArray) returns[0])).getRefValue(5).stringValue();
+        Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
+    }
+
+    @Test(groups = POOL_TEST_GROUP)
+    public void testLocalSharedConnectionPoolConfigDifferentDbOptions() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigDifferentDbOptions");
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        BValueArray returnArray = (BValueArray) returns[0];
+
+        for (int i = 0; i < 3; i++) {
+            Assert.assertEquals(returnArray.getRefValue(i).stringValue(), "1");
+            Assert.assertEquals(returnArray.getRefValue(i + 4).stringValue(), "1");
+        }
+        String error1 = returnArray.getRefValue(3).stringValue();
+        Assert.assertTrue(error1.matches(connectionTimeoutError), "Actual Error: " + error1);
+        String error2 = returnArray.getRefValue(7).stringValue();
+        Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
+    }
+
+    @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolConfigMultipleDestinations() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigMultipleDestinations");
         Assert.assertTrue(returns[0] instanceof BValueArray);

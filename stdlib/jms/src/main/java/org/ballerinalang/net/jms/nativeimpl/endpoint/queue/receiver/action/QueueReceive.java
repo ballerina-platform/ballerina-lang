@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver.action;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
 public class QueueReceive {
 
     public static Object receive(Strand strand, ObjectValue queueReceiverCaller, long timeoutInMilliSeconds) {
-        return ReceiveActionHandler.handle(queueReceiverCaller, timeoutInMilliSeconds);
+        return ReceiveActionHandler.handle(strand, queueReceiverCaller, timeoutInMilliSeconds);
     }
 
     private QueueReceive() {

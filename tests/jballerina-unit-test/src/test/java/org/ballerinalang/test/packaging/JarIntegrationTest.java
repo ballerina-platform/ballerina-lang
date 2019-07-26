@@ -1,5 +1,6 @@
 package org.ballerinalang.test.packaging;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -8,6 +9,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +25,6 @@ import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 /**
  * Jar integration testcase.
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class JarIntegrationTest {
 
     private static final byte[] BAL_CONTENT = "good bal".getBytes(StandardCharsets.UTF_8);
@@ -46,13 +47,14 @@ public class JarIntegrationTest {
     }
 
     @Test
-    public void balInsideJar() throws IOException {
+    public void balInsideJar() {
         Patten balPatten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
         JarRepo repo = new JarRepo(tempJar.toUri());
         Converter<Path> subject = repo.getConverterInstance();
 
-        List<CompilerInput> sources = balPatten.convertToSources(subject, null)
-                                               .collect(Collectors.toList());
+        PackageID moduleID = new PackageID(Names.ANON_ORG, Names.DEFAULT_PACKAGE, Names.DEFAULT_VERSION);
+        List<CompilerInput> sources = balPatten.convertToSources(subject, moduleID)
+                .collect(Collectors.toList());
 
         Assert.assertEquals(sources.size(), 1);
         Assert.assertEquals(sources.get(0).getCode(), BAL_CONTENT);
