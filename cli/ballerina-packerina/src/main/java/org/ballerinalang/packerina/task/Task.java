@@ -20,9 +20,13 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 
+import java.io.PrintStream;
+
 /**
  * Task interface for executing a task in packaging.
  */
 public interface Task {
+    PrintStream OUT = System.out;
+    
     void execute(BuildContext buildContext);
 }

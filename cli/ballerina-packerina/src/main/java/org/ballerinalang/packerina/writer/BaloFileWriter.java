@@ -256,7 +256,7 @@ public class BaloFileWriter {
         TomlWriter writer = new TomlWriter();
         // Write to BALO.toml
         String baloToml = writer.write(new BaloToml());
-        Files.write(baloMetaFile, baloToml.getBytes(Charset.forName("UTF-8")));
+        Files.write(baloMetaFile, baloToml.getBytes(Charset.defaultCharset()));
 
         // Write to MODULE.toml
         Module moduleObj = new Module();
@@ -270,7 +270,7 @@ public class BaloFileWriter {
         moduleObj.setPlatform(manifest.getTargetPlatform());
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         String moduleToml = writer.write(moduleObj);
-        Files.write(moduleMetaFile, moduleToml.getBytes(Charset.forName("UTF-8")));
+        Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

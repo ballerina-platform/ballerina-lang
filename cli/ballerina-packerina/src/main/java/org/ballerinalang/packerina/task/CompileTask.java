@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -30,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -48,12 +50,11 @@ public class CompileTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
-        CompilerPhase compilerPhase = CompilerPhase.BIR_GEN;
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, buildContext.get(BuildContextField.SOURCE_ROOT));
         options.put(OFFLINE, buildContext.get(BuildContextField.OFFLINE_BUILD));
-        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(LOCK_ENABLED, buildContext.get(BuildContextField.LOCK_ENABLED));
         options.put(SKIP_TESTS, buildContext.get(BuildContextField.SKIP_TESTS));
         options.put(TEST_ENABLED, "true");
@@ -64,12 +65,17 @@ public class CompileTask implements Task {
         
         if (buildContext.getSourceType() == SourceType.BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            BLangPackage compiledModule = compiler.build(singleFileContext.getBalFileName().toString());
-            singleFileContext.setModule(compiledModule);
+            Path balFile = singleFileContext.getBalFile().getFileName();
+            if (null != balFile) {
+                BLangPackage compiledModule = compiler.build(balFile.toString());
+                singleFileContext.setModule(compiledModule);
+            } else {
+                throw new BLangCompilerException("unable to find ballerina source");
+            }
         } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
-            moduleContext.setBLangModule(compiledModule);
+            moduleContext.setModule(compiledModule);
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             List<BLangPackage> compiledModules = compiler.build();
