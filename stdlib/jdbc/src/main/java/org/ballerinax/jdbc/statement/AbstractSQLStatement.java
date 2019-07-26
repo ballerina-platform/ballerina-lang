@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -186,10 +187,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             value = rs.getLong(index);
             break;
         case Types.DOUBLE:
-            value = rs.getDouble(index);
-            break;
         case Types.FLOAT:
-            value = rs.getFloat(index);
+            value = rs.getDouble(index);
             break;
         case Types.BOOLEAN:
         case Types.BIT:
@@ -197,7 +196,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             break;
         case Types.DECIMAL:
         case Types.NUMERIC:
-            value = rs.getBigDecimal(index);
+            value = new DecimalValue(rs.getBigDecimal(index));
             break;
         default:
             value = rs.getString(index);
