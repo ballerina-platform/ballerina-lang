@@ -16,8 +16,8 @@
 
 # Aggregator to perform summation of values in a stream.
 #
-# + iSum - description
-# + fSum - description
+# + iSum - Holds the sum when the value being aggregated is of type integer.
+# + fSum - Holds the sum when the value being aggregated is of type float.
 public type Sum object {
     *Aggregator;
     *Snapshotable;

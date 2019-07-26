@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -37,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.List;
@@ -146,15 +144,8 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess expr) {
-
         result = desugar.addConversionExprIfRequired(createMapVariableIndexAccessExpr(expr), expr.type);
-
-        BType type = expr.expr.type;
-        if (type != null && type.tag == TypeTags.STREAM) {
-            dlog.error(expr.pos, DiagnosticCode.STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY, expr.field.value);
-        }
     }
-
 
     private String getEquivalentOutputMapField(String key) {
         return "OUTPUT." + key;
